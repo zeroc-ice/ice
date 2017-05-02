@@ -43,7 +43,7 @@ ICE_DEFINE_PTR(TimerTaskPtr, TimerTask);
 
 //
 // The timer class is used to schedule tasks for one-time execution or
-// repeated execution. Tasks are executed by the dedicated timer thread 
+// repeated execution. Tasks are executed by the dedicated timer thread
 // sequentially.
 //
 class ICE_API Timer : public virtual IceUtil::Shared, private IceUtil::Thread
@@ -62,7 +62,7 @@ public:
     Timer(int priority);
 
     //
-    // Destroy the timer and detach its execution thread if the calling thread 
+    // Destroy the timer and detach its execution thread if the calling thread
     // is the timer thread, join the timer execution thread otherwise.
     //
     void destroy();
@@ -104,11 +104,11 @@ protected:
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     bool _destroyed;
     std::set<Token> _tokens;
-    
+
     class TimerTaskCompare : public std::binary_function<TimerTaskPtr, TimerTaskPtr, bool>
     {
     public:
-        
+
         bool operator()(const TimerTaskPtr& lhs, const TimerTaskPtr& rhs) const
         {
             return lhs.get() < rhs.get();
@@ -119,7 +119,7 @@ protected:
 };
 typedef IceUtil::Handle<Timer> TimerPtr;
 
-inline 
+inline
 Timer::Token::Token(const IceUtil::Time& st, const IceUtil::Time& d, const TimerTaskPtr& t) :
     scheduledTime(st), delay(d), task(t)
 {
@@ -136,7 +136,7 @@ Timer::Token::operator<(const Timer::Token& r) const
     {
         return false;
     }
-    
+
     return task.get() < r.task.get();
 }
 

@@ -18,7 +18,7 @@
 //
 // COMPILERFIX: This is required to prevent annoying warnings with aCC.
 // The aCC -mt option causes the definition of the _POSIX_C_SOURCE macro
-// (with another lower value.) and this is causing a warning because of 
+// (with another lower value.) and this is causing a warning because of
 // the redefinition.
 //
 #if defined(__HP_aCC) && defined(_POSIX_C_SOURCE)

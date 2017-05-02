@@ -50,7 +50,7 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
                     {
                         return "NullLogger";
                     }
-                    
+
                     @Override public Ice.Logger cloneWithPrefix(String prefix)
                     {
                         return this;

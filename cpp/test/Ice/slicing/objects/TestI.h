@@ -90,7 +90,7 @@ public:
     virtual void throwPreservedException_async(const ::Test::AMD_TestIntf_throwPreservedExceptionPtr&,
                                                const ::Ice::Current&);
 #endif
-    
+
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);

@@ -16,7 +16,7 @@ using namespace std;
 namespace
 {
 
-class CallbackBase 
+class CallbackBase
 #ifndef ICE_CPP11_MAPPING
 : public Ice::LocalObject
 #endif

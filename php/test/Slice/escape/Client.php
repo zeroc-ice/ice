@@ -79,7 +79,7 @@ function allTests($communicator)
     echo "ok\n";
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 allTests($communicator);
 $communicator->destroy();

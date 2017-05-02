@@ -19,7 +19,7 @@ public:
     AliveTest();
 
 private:
-    
+
     virtual void run();
 };
 

@@ -18,7 +18,7 @@ using namespace IceUtil;
 class MonitorMutexTestThread : public Thread
 {
 public:
-    
+
     MonitorMutexTestThread(Monitor<Mutex>& m) :
         _monitor(m),
         _tryLock(false)
@@ -29,7 +29,7 @@ public:
     {
         Monitor<Mutex>::TryLock tlock(_monitor);
         test(!tlock.acquired());
-        
+
         {
             Mutex::Lock lock(_tryLockMutex);
             _tryLock = true;
@@ -65,7 +65,7 @@ typedef Handle<MonitorMutexTestThread> MonitorMutexTestThreadPtr;
 class MonitorMutexTestThread2 : public Thread
 {
 public:
-    
+
     MonitorMutexTestThread2(Monitor<Mutex>& monitor) :
         finished(false),
         _monitor(monitor)
@@ -107,7 +107,7 @@ MonitorMutexTest::run()
 
     {
         Monitor<Mutex>::Lock lock(monitor);
-        
+
         try
         {
             Monitor<Mutex>::TryLock tlock(monitor);
@@ -124,7 +124,7 @@ MonitorMutexTest::run()
         // TEST: Start thread, try to acquire the mutex.
         t = new MonitorMutexTestThread(monitor);
         control = t->start();
-        
+
         // TEST: Wait until the tryLock has been tested.
         t->waitTryLock();
     }
@@ -143,7 +143,7 @@ MonitorMutexTest::run()
 
     // Give the thread time to start waiting.
     ThreadControl::sleep(Time::seconds(1));
-    
+
     {
         Monitor<Mutex>::Lock lock(monitor);
         monitor.notify();

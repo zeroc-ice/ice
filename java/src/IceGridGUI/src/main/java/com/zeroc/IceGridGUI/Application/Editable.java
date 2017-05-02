@@ -37,7 +37,7 @@ class Editable implements Cloneable
         _modified = false;
         _removedElements.clear();
     }
- 
+
     void markNew()
     {
         _isNew = true;
@@ -56,7 +56,7 @@ class Editable implements Cloneable
             set.add(id);
         }
     }
-    
+
     String[] removedElements(Class forClass)
     {
         java.util.TreeSet<String> set = _removedElements.get(forClass);

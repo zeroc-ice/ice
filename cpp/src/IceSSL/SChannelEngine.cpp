@@ -437,115 +437,115 @@ algorithmId(const string& name)
     if(name == "3DES")
     {
         return CALG_3DES;
-    } 
+    }
     else if(name == "3DES_112")
     {
         return CALG_3DES_112;
-    } 
+    }
     else if(name == "AES")
     {
         return CALG_AES;
-    } 
+    }
     else if(name == "AES_128")
     {
         return CALG_AES_128;
-    } 
+    }
     else if(name == "AES_192")
     {
         return CALG_AES_192;
-    } 
+    }
     else if(name == "AES_256")
     {
         return CALG_AES_256;
-    } 
+    }
     else if(name == "AGREEDKEY_ANY")
     {
         return CALG_AGREEDKEY_ANY;
-    } 
+    }
     else if(name == "CYLINK_MEK")
     {
         return CALG_CYLINK_MEK;
-    } 
+    }
     else if(name == "DES")
     {
         return CALG_DES;
-    } 
+    }
     else if(name == "DESX")
     {
         return CALG_DESX;
-    } 
+    }
     else if(name == "DH_EPHEM")
     {
         return CALG_DH_EPHEM;
-    } 
+    }
     else if(name == "DH_SF")
     {
         return CALG_DH_SF;
-    } 
+    }
     else if(name == "DSS_SIGN")
     {
         return CALG_DSS_SIGN;
-    } 
+    }
     else if(name == "ECDH")
     {
         return CALG_ECDH;
-    } 
+    }
     else if(name == "ECDH_EPHEM")
     {
         return ICESSL_CALG_ECDH_EPHEM;
-    } 
+    }
     else if(name == "ECDSA")
     {
         return CALG_ECDSA;
-    } 
+    }
     else if(name == "HASH_REPLACE_OWF")
     {
         return CALG_HASH_REPLACE_OWF;
-    } 
+    }
     else if(name == "HUGHES_MD5")
     {
         return CALG_HUGHES_MD5;
-    } 
+    }
     else if(name == "HMAC")
     {
         return CALG_HMAC;
-    } 
+    }
     else if(name == "MAC")
     {
         return CALG_MAC;
-    } 
+    }
     else if(name == "MD2")
     {
         return CALG_MD2;
-    } 
+    }
     else if(name == "MD4")
     {
         return CALG_MD4;
-    } 
+    }
     else if(name == "MD5")
     {
         return CALG_MD5;
-    } 
+    }
     else if(name == "NO_SIGN")
     {
         return CALG_NO_SIGN;
-    } 
+    }
     else if(name == "RC2")
     {
         return CALG_RC2;
-    } 
+    }
     else if(name == "RC4")
     {
         return CALG_RC4;
-    } 
+    }
     else if(name == "RC5")
     {
         return CALG_RC5;
-    } 
+    }
     else if(name == "RSA_KEYX")
     {
         return CALG_RSA_KEYX;
-    } 
+    }
     else if(name == "RSA_SIGN")
     {
         return CALG_RSA_SIGN;
@@ -553,19 +553,19 @@ algorithmId(const string& name)
     else if(name == "SHA1")
     {
         return CALG_SHA1;
-    } 
+    }
     else if(name == "SHA_256")
     {
         return CALG_SHA_256;
-    } 
+    }
     else if(name == "SHA_384")
     {
         return CALG_SHA_384;
-    } 
+    }
     else if(name == "SHA_512")
     {
         return CALG_SHA_512;
-    } 
+    }
     return 0;
 }
 
@@ -1033,71 +1033,71 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
 {
     switch(cipher)
     {
-        case CALG_3DES: 
+        case CALG_3DES:
             return "3DES";
-        case CALG_3DES_112: 
+        case CALG_3DES_112:
             return "3DES_112";
-        case CALG_AES: 
+        case CALG_AES:
             return "AES";
-        case CALG_AES_128: 
+        case CALG_AES_128:
             return "AES_128";
-        case CALG_AES_192: 
+        case CALG_AES_192:
             return "AES_192";
-        case CALG_AES_256: 
+        case CALG_AES_256:
             return "AES_256";
-        case CALG_AGREEDKEY_ANY: 
+        case CALG_AGREEDKEY_ANY:
             return "AGREEDKEY_ANY";
-        case CALG_CYLINK_MEK: 
+        case CALG_CYLINK_MEK:
             return "CYLINK_MEK";
-        case CALG_DES: 
+        case CALG_DES:
             return "DES";
-        case CALG_DESX: 
+        case CALG_DESX:
             return "DESX";
-        case CALG_DH_EPHEM: 
+        case CALG_DH_EPHEM:
             return "DH_EPHEM";
-        case CALG_DH_SF: 
+        case CALG_DH_SF:
             return "DH_SF";
-        case CALG_DSS_SIGN: 
+        case CALG_DSS_SIGN:
             return "DSS_SIGN";
-        case CALG_ECDH: 
+        case CALG_ECDH:
             return "ECDH";
-        case ICESSL_CALG_ECDH_EPHEM: 
+        case ICESSL_CALG_ECDH_EPHEM:
             return "ECDH_EPHEM";
-        case CALG_ECDSA: 
+        case CALG_ECDSA:
             return "ECDSA";
-        case CALG_HASH_REPLACE_OWF: 
+        case CALG_HASH_REPLACE_OWF:
             return "HASH_REPLACE_OWF";
-        case CALG_HUGHES_MD5: 
+        case CALG_HUGHES_MD5:
             return "HUGHES_MD5";
-        case CALG_HMAC: 
+        case CALG_HMAC:
             return "HMAC";
-        case CALG_MAC: 
+        case CALG_MAC:
             return "MAC";
-        case CALG_MD2: 
+        case CALG_MD2:
             return "MD2";
-        case CALG_MD4: 
+        case CALG_MD4:
             return "MD4";
-        case CALG_MD5: 
+        case CALG_MD5:
             return "MD5";
-        case CALG_NO_SIGN: 
+        case CALG_NO_SIGN:
             return "NO_SIGN";
-        case CALG_RC2: 
+        case CALG_RC2:
             return "RC2";
-        case CALG_RC4: 
+        case CALG_RC4:
             return "RC4";
-        case CALG_RC5: 
+        case CALG_RC5:
             return "RC5";
-        case CALG_RSA_KEYX: 
+        case CALG_RSA_KEYX:
             return "RSA_KEYX";
-        case CALG_RSA_SIGN: 
+        case CALG_RSA_SIGN:
             return "RSA_SIGN";
-        case CALG_SHA1: 
+        case CALG_SHA1:
             return "SHA1";
-        case CALG_SHA_256: 
+        case CALG_SHA_256:
             return "SHA_256";
-        case CALG_SHA_384: 
+        case CALG_SHA_384:
             return "SHA_384";
-        case CALG_SHA_512: 
+        case CALG_SHA_512:
             return "SHA_512";
         default:
             return "Unknown";

@@ -124,7 +124,7 @@ SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 SocketOperation
 SOCKSNetworkProxy::endWrite(Buffer& buf)
 {
-    // Once the request is sent, read the response 
+    // Once the request is sent, read the response
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationRead;
 }
 
@@ -190,14 +190,14 @@ SOCKSNetworkProxy::getProtocolSupport() const
     return EnableIPv4;
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) : 
+HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) :
     _host(host), _port(port), _protocol(EnableBoth)
 {
     assert(!host.empty());
     memset(&_address, 0, sizeof(_address));
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) : 
+HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) :
     _port(0), _address(addr), _protocol(protocol)
 {
 }
@@ -219,7 +219,7 @@ HTTPNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 SocketOperation
 HTTPNetworkProxy::endWrite(Buffer& buf)
 {
-    // Once the request is sent, read the response 
+    // Once the request is sent, read the response
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationRead;
 }
 
@@ -247,7 +247,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
         // Read one more byte, we can't easily read bytes in advance
         // since the transport implenentation might be be able to read
         // the data from the memory instead of the socket. This is for
-        // instance the case with the OpenSSL transport (or we would 
+        // instance the case with the OpenSSL transport (or we would
         // have to use a buffering BIO).
         //
         buf.b.resize(buf.b.size() + 1);
@@ -325,6 +325,6 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
         return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
 #endif
     }
-    
+
     return 0;
 }

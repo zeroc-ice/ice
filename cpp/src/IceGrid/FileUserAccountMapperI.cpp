@@ -22,7 +22,7 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
     {
         throw "cannot open `" + filename + "' for reading: " + strerror(errno);
     }
-            
+
     const string delim = " \t\r\n";
     while(true)
     {
@@ -38,13 +38,13 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
         {
             line.erase(idx);
         }
-                
+
         idx = line.find_last_not_of(delim);
         if(idx != string::npos && idx + 1 < line.length())
         {
             line.erase(idx + 1);
         }
-    
+
         string::size_type beg = line.find_first_not_of(delim);
         if(beg == string::npos)
         {
@@ -55,16 +55,16 @@ FileUserAccountMapperI::FileUserAccountMapperI(const string& filename)
         if(end == string::npos || end <= beg)
         {
             continue;
-        }    
+        }
         string account = line.substr(beg, end - beg);
 
         beg = line.find_first_not_of(delim, end);
         if(beg == string::npos)
         {
             continue;
-        }    
+        }
         string user = line.substr(beg);
-        
+
         assert(!user.empty());
         assert(!account.empty());
 

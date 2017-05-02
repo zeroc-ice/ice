@@ -27,7 +27,7 @@ public class ServiceI extends _ServiceDisp
         this.service = service;
     }
 
-    public final Account 
+    public final Account
     getAccount(String id, Ice.Current current)
     {
         return service.getAccount(id);

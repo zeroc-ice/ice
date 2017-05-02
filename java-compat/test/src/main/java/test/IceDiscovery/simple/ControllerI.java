@@ -61,6 +61,6 @@ public final class ControllerI extends _ControllerDisp
         current.adapter.getCommunicator().shutdown();
     }
 
-    final private java.util.Map<String, Ice.ObjectAdapter> _adapters = 
+    final private java.util.Map<String, Ice.ObjectAdapter> _adapters =
         new java.util.HashMap<String, Ice.ObjectAdapter>();
 }

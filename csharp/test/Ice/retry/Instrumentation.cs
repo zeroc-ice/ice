@@ -16,12 +16,12 @@ public class Instrumentation
 
     class InvocationObserverI : Ice.Instrumentation.InvocationObserver
     {
-        public void 
+        public void
         attach()
         {
         }
-        
-        public void 
+
+        public void
         detach()
         {
             lock(mutex)
@@ -30,7 +30,7 @@ public class Instrumentation
             }
         }
 
-        public void 
+        public void
         failed(string msg)
         {
             lock(mutex)
@@ -39,7 +39,7 @@ public class Instrumentation
             }
         }
 
-        public void 
+        public void
         retried()
         {
             lock(mutex)
@@ -48,18 +48,18 @@ public class Instrumentation
             }
         }
 
-        public void 
+        public void
         userException()
         {
         }
-        
+
         public Ice.Instrumentation.RemoteObserver
         getRemoteObserver(Ice.ConnectionInfo ci, Ice.Endpoint ei, int i, int j)
         {
             return null;
         }
 
-        public Ice.Instrumentation.CollocatedObserver 
+        public Ice.Instrumentation.CollocatedObserver
         getCollocatedObserver(Ice.ObjectAdapter adapter, int i , int j)
         {
             return null;
@@ -70,54 +70,54 @@ public class Instrumentation
 
     class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     {
-        public Ice.Instrumentation.Observer 
+        public Ice.Instrumentation.Observer
         getConnectionEstablishmentObserver(Ice.Endpoint e, string s)
         {
             return null;
         }
 
-        public Ice.Instrumentation.Observer 
+        public Ice.Instrumentation.Observer
         getEndpointLookupObserver(Ice.Endpoint e)
         {
             return null;
         }
 
-        public Ice.Instrumentation.ConnectionObserver 
-        getConnectionObserver(Ice.ConnectionInfo ci, 
-                              Ice.Endpoint ei, 
+        public Ice.Instrumentation.ConnectionObserver
+        getConnectionObserver(Ice.ConnectionInfo ci,
+                              Ice.Endpoint ei,
                               Ice.Instrumentation.ConnectionState s,
                               Ice.Instrumentation.ConnectionObserver o)
         {
             return null;
         }
-        
-        public Ice.Instrumentation.ThreadObserver 
-        getThreadObserver(string p, 
-                          string n, 
-                          Ice.Instrumentation.ThreadState s, 
+
+        public Ice.Instrumentation.ThreadObserver
+        getThreadObserver(string p,
+                          string n,
+                          Ice.Instrumentation.ThreadState s,
                           Ice.Instrumentation.ThreadObserver o)
         {
             return null;
         }
 
-        public Ice.Instrumentation.InvocationObserver 
+        public Ice.Instrumentation.InvocationObserver
         getInvocationObserver(Ice.ObjectPrx p, string o, Dictionary<string, string> c)
         {
             return invocationObserver;
         }
-        
-        public Ice.Instrumentation.DispatchObserver 
+
+        public Ice.Instrumentation.DispatchObserver
         getDispatchObserver(Ice.Current c, int i)
         {
             return null;
         }
-        
-        public void 
+
+        public void
         setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
         {
         }
     };
-    
+
     static private Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
     static public Ice.Instrumentation.CommunicatorObserver
@@ -125,7 +125,7 @@ public class Instrumentation
     {
         return communicatorObserver;
     }
-    
+
     static private void
     testEqual(ref int value, int expected)
     {
@@ -155,7 +155,7 @@ public class Instrumentation
         }
         value = 0;
     }
-    
+
     static public void
     testRetryCount(int expected)
     {
@@ -174,7 +174,7 @@ public class Instrumentation
         testEqual(ref nInvocation, expected);
     }
 
-    static private int nRetry = 0; 
+    static private int nRetry = 0;
     static private int nFailure = 0;
     static private int nInvocation = 0;
 };

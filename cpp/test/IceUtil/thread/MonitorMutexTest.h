@@ -19,7 +19,7 @@ public:
     MonitorMutexTest();
 
 private:
-    
+
     virtual void run();
 };
 

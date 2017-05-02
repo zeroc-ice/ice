@@ -29,7 +29,7 @@ class ClientBlobject : public Glacier2::Blobject
 {
 public:
 
-    ClientBlobject(const InstancePtr&, const FilterManagerPtr&, const Ice::Context&, const RoutingTablePtr&); 
+    ClientBlobject(const InstancePtr&, const FilterManagerPtr&, const Ice::Context&, const RoutingTablePtr&);
     virtual ~ClientBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,

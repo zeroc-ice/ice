@@ -16,12 +16,12 @@ public sealed class ThrowerI : ThrowerDisp_
     public ThrowerI()
     {
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
-    
+
     public override bool supportsUndeclaredExceptions(Ice.Current current)
     {
         return true;
@@ -31,14 +31,14 @@ public sealed class ThrowerI : ThrowerDisp_
     {
         return false;
     }
-    
+
     public override void throwAasA(int a, Ice.Current current)
     {
         A ex = new A();
         ex.aMem = a;
         throw ex;
     }
-    
+
     public override void throwAorDasAorD(int a, Ice.Current current)
     {
         if(a > 0)
@@ -54,12 +54,12 @@ public sealed class ThrowerI : ThrowerDisp_
             throw ex;
         }
     }
-    
+
     public override void throwBasA(int a, int b, Ice.Current current)
     {
         throwBasB(a, b, current);
     }
-    
+
     public override void throwBasB(int a, int b, Ice.Current current)
     {
         B ex = new B();
@@ -67,17 +67,17 @@ public sealed class ThrowerI : ThrowerDisp_
         ex.bMem = b;
         throw ex;
     }
-    
+
     public override void throwCasA(int a, int b, int c, Ice.Current current)
     {
         throwCasC(a, b, c, current);
     }
-    
+
     public override void throwCasB(int a, int b, int c, Ice.Current current)
     {
         throwCasC(a, b, c, current);
     }
-    
+
     public override void throwCasC(int a, int b, int c, Ice.Current current)
     {
         C ex = new C();
@@ -86,12 +86,12 @@ public sealed class ThrowerI : ThrowerDisp_
         ex.cMem = c;
         throw ex;
     }
-    
+
     public override void throwLocalException(Ice.Current current)
     {
         throw new Ice.TimeoutException();
     }
-    
+
     public override void throwNonIceException(Ice.Current current)
     {
         throw new Exception();
@@ -106,19 +106,19 @@ public sealed class ThrowerI : ThrowerDisp_
     {
         return new byte[1024 * 20]; // 20KB is over the configured 10KB message size max.
     }
-    
+
     public override void throwLocalExceptionIdempotent(Ice.Current current)
     {
         throw new Ice.TimeoutException();
     }
-    
+
     public override void throwUndeclaredA(int a, Ice.Current current)
     {
         A ex = new A();
         ex.aMem = a;
         throw ex;
     }
-    
+
     public override void throwUndeclaredB(int a, int b, Ice.Current current)
     {
         B ex = new B();
@@ -126,7 +126,7 @@ public sealed class ThrowerI : ThrowerDisp_
         ex.bMem = b;
         throw ex;
     }
-    
+
     public override void throwUndeclaredC(int a, int b, int c, Ice.Current current)
     {
         C ex = new C();

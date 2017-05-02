@@ -10,9 +10,9 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/HashMap", 
-        "../Ice/LocatorInfo", 
-        "../Ice/LocatorTable", 
+        "../Ice/HashMap",
+        "../Ice/LocatorInfo",
+        "../Ice/LocatorTable",
         "../Ice/Locator"
     ]);
 

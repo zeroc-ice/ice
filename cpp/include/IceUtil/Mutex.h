@@ -51,7 +51,7 @@ public:
     // Note that lock/tryLock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
- 
+
     void lock() const;
 
     //
@@ -64,9 +64,9 @@ public:
     //
     // Returns true if the mutex will unlock when calling unlock()
     // (false otherwise). For non-recursive mutexes, this will always
-    // return true. 
-    // This function is used by the Monitor implementation to know whether 
-    // the Mutex has been locked for the first time, or unlocked for the 
+    // return true.
+    // This function is used by the Monitor implementation to know whether
+    // the Mutex has been locked for the first time, or unlocked for the
     // last time (that is another thread is able to acquire the mutex).
     // Pre-condition: the mutex must be locked.
     //
@@ -88,7 +88,7 @@ private:
     {
 #   ifdef ICE_HAS_WIN32_CONDVAR
         CRITICAL_SECTION* mutex;
-#   endif 
+#   endif
     };
 #else
     struct LockState
@@ -211,7 +211,7 @@ Mutex::lock(LockState&) const
 #else
 
 inline void
-Mutex::init(MutexProtocol 
+Mutex::init(MutexProtocol
 #if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT > 0
             protocol
 #endif
@@ -344,7 +344,7 @@ Mutex::lock(LockState&) const
 {
 }
 
-#endif    
+#endif
 
 inline bool
 Mutex::willUnlock() const

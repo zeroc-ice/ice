@@ -27,7 +27,7 @@ public class Client extends test.Util.Application
             throw new RuntimeException();
         }
     }
-    
+
     public class WorkQueue extends Thread
     {
         @Override

@@ -22,12 +22,12 @@ class ImplicitContextI
     {
         this._context = new Context();
     }
-    
+
     getContext()
     {
         return new Context(this._context);
     }
-    
+
     setContext(context)
     {
         if(context !== null && context.size > 0)
@@ -129,7 +129,7 @@ class ImplicitContextI
             Ice.ContextHelper.write(os, ctx);
         }
     }
-    
+
     static create(kind)
     {
         if(kind.length === 0 || kind === "None")

@@ -19,7 +19,7 @@ public:
     ThreadPriorityTest();
 
 private:
-    
+
     virtual void run();
 };
 

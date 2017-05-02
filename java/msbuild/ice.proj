@@ -29,21 +29,21 @@
   <Target Name="BuildDist" DependsOnTargets="slice2java">
     <Exec Command="$(Gradle) $(GradleOpts) dist -PcppPlatform=$(Platform) -PcppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
   </Target>
 
   <Target Name="Build" DependsOnTargets="slice2java">
     <Exec Command="$(Gradle) $(GradleOpts) build -PcppPlatform=$(Platform) -PcppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
   </Target>
 
   <Target Name="Clean">
     <Exec Command="$(Gradle) $(GradleOpts) clean"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
   </Target>
 

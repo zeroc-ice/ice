@@ -66,12 +66,12 @@ interface MyObject
     // Raise user exception
     //
     ["amd"] int amdBadAdd(int x, int y) throws InvalidInputException;
-    
+
     //
     // Raise ONE
     //
     ["amd"] int amdNotExistAdd(int x, int y);
-    
+
     //
     // Raise system exception
     //

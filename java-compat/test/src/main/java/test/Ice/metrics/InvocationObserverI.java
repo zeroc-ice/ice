@@ -12,7 +12,7 @@ package test.Ice.metrics;
 class InvocationObserverI extends ObserverI implements Ice.Instrumentation.InvocationObserver
 {
     @Override
-    public synchronized void 
+    public synchronized void
     reset()
     {
         super.reset();
@@ -29,21 +29,21 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     retried()
     {
         ++retriedCount;
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     userException()
     {
         ++userExceptionCount;
     }
 
     @Override
-    public synchronized Ice.Instrumentation.RemoteObserver 
+    public synchronized Ice.Instrumentation.RemoteObserver
     getRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
     {
         if(remoteObserver == null)
@@ -56,7 +56,7 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
 
 
     @Override
-    public synchronized Ice.Instrumentation.CollocatedObserver 
+    public synchronized Ice.Instrumentation.CollocatedObserver
     getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
     {
         if(collocatedObserver == null)

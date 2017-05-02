@@ -45,14 +45,14 @@ public:
     class Update : public virtual IceUtil::Shared
     {
     public:
-        
+
         Update(const NodeIPtr&, const NodeObserverPrx&);
         virtual ~Update();
 
         virtual bool send() = 0;
 
         void finished(bool);
-        
+
         void completed(const Ice::AsyncResultPtr&);
 
     protected:
@@ -62,35 +62,35 @@ public:
     };
     typedef IceUtil::Handle<Update> UpdatePtr;
 
-    NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&, 
+    NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&,
           const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&, const std::string&);
     virtual ~NodeI();
 
-    virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
-                                  const InternalServerDescriptorPtr&, 
+    virtual void loadServer_async(const AMD_Node_loadServerPtr&,
+                                  const InternalServerDescriptorPtr&,
                                   const std::string&,
                                   const Ice::Current&);
 
-    virtual void loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr&, 
-                                                const InternalServerDescriptorPtr&, 
+    virtual void loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr&,
+                                                const InternalServerDescriptorPtr&,
                                                 const std::string&,
                                                 const Ice::Current&);
 
-    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, 
-                                     const std::string&, 
+    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&,
                                      const std::string&,
-                                     int, 
+                                     const std::string&,
+                                     int,
                                      const std::string&,
                                      const Ice::Current&);
 
-    virtual void destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr&, 
-                                                   const std::string&, 
+    virtual void destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr&,
                                                    const std::string&,
-                                                   int, 
+                                                   const std::string&,
+                                                   int,
                                                    const std::string&,
                                                    const Ice::Current&);
-    
-    virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&, 
+
+    virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&,
                              const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
@@ -109,7 +109,7 @@ public:
     virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
     void shutdown();
-    
+
     IceUtil::TimerPtr getTimer() const;
     Ice::CommunicatorPtr getCommunicator() const;
     Ice::ObjectAdapterPtr getAdapter() const;
@@ -125,7 +125,7 @@ public:
     std::string getOutputDir() const;
     bool getRedirectErrToOut() const;
     bool allowEndpointsOverride() const;
-    
+
     NodeSessionPrx registerWithRegistry(const InternalRegistryPrx&);
     void checkConsistency(const NodeSessionPrx&);
     NodeSessionPrx getMasterNodeSession() const;
@@ -149,14 +149,14 @@ private:
 
     std::vector<ServerCommandPtr> checkConsistencyNoSync(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
-    
+
     std::set<ServerIPtr> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;
 
     void loadServer(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool,
                     const Ice::Current&);
 
-    void destroyServer(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&, int, 
+    void destroyServer(const AMD_Node_destroyServerPtr&, const std::string&, const std::string&, int,
                        const std::string&, bool, const Ice::Current&);
 
     const Ice::CommunicatorPtr _communicator;

@@ -18,11 +18,11 @@ namespace IceInternal
 class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
 {
 public:
-    
+
     virtual ~VirtualEnableSharedFromThisBase() = default;
 };
 
-template<typename T> 
+template<typename T>
 class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
 {
 public:

@@ -14,7 +14,7 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][8]; you need version 
+The build requires the [Ice Builder for Visual Studio][8]; you need version
 4.3.6 or greater to build Ice.
 
 ### Third-Party Libraries
@@ -41,7 +41,7 @@ can open one of:
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first Command Prompt produces `Win32` binaries by default, while 
+Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Promt produces `x64` binaries by default.
 
 In the Command Prompt, change to the `cpp` subdirectory:
@@ -52,7 +52,7 @@ Now you're ready to build Ice:
 
     msbuild msbuild\ice.proj
 
-This builds the Ice for C++ SDK and the Ice for C++ test suite, with 
+This builds the Ice for C++ SDK and the Ice for C++ test suite, with
 Release binaries for the default platform.
 
 Set the MSBuild `Configuration` property to `Debug` to build debug binaries
@@ -89,7 +89,7 @@ The build will automatically install ZeroC's official Ice binary NuGet packages 
 
 ## Building Ice for UWP
 
-The steps are the same as for Building Ice for C++ above, except you must also use a 
+The steps are the same as for Building Ice for C++ above, except you must also use a
 `UWP` target.
 
 To build Ice for UWP:
@@ -114,15 +114,15 @@ You can create a NuGet package with the following command:
 
     msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
-This creates zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or 
+This creates zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or
 `zeroc.ice.v141\zeroc.ice.v141.nupkg` depending on the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
 
     msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 
-This creates `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` 
-and `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015 builds or 
+This creates `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg`
+and `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015 builds or
 `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
 `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017 builds.
 

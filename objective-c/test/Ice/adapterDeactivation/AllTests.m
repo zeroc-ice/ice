@@ -27,7 +27,7 @@ adapterDeactivationAllTests(id<ICECommunicator> communicator)
 
     {
         tprintf("creating/destroying/recreating object adapter... ");
-        id<ICEObjectAdapter> adapter = 
+        id<ICEObjectAdapter> adapter =
             [communicator createObjectAdapterWithEndpoints:@"TransientTestAdapter" endpoints:@"default -p 9999"];
         @try
         {

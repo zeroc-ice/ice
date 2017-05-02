@@ -353,7 +353,7 @@ PriorityInversionTest::run()
         Monitor<Mutex> monitor;
         TaskCollectorPtr collector = new TaskCollector(cores, high, medium, low, monitor);
         vector<ThreadControl> threads;
-                
+
         SharedResourcePtr shared = new SharedResourceMutex(collector);
 
         //

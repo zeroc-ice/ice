@@ -14,7 +14,7 @@ ICE_API @protocol ICEPropertiesAdminUpdateCallback <NSObject>
 -(void) updated:(ICEMutablePropertyDict*)properties;
 @end
 
-ICE_DEPRECATED_API("Use NSObject instead") 
+ICE_DEPRECATED_API("Use NSObject instead")
 ICE_API @interface ICEPropertiesAdminUpdateCallback : NSObject
 @end
 

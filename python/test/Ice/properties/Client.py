@@ -16,7 +16,7 @@ import Ice
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
-    
+
 class Client(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()

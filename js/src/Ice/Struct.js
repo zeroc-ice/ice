@@ -166,7 +166,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
             v._read(is);
             return v;
         };
-     
+
         if(variableLength)
         {
             Ice.StreamHelpers.FSizeOptHelper.call(obj);

@@ -31,7 +31,7 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
     void operator=(const MyByteSeq&);
-    bool operator==(const MyByteSeq&) const; 
+    bool operator==(const MyByteSeq&) const;
 
 private:
 

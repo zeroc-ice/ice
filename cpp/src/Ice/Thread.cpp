@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#ifdef __sun 
+#ifdef __sun
 //
 // Solaris 10 bug: it's supposed to be defined in pthread.h
 //
@@ -85,7 +85,7 @@ IceUtil::ThreadControl::detach()
     {
         throw BadThreadControlException(__FILE__, __LINE__);
     }
-    
+
     try
     {
         _thread->detach();
@@ -177,7 +177,7 @@ WINAPI startHook(void* arg)
     }
 
     thread->_done();
-   
+
     return 0;
 }
 
@@ -218,7 +218,7 @@ IceUtil::Thread::start(size_t, int)
 
     _started = true;
     _running = true;
-    
+
     return ThreadControl(_thread);
 }
 
@@ -304,7 +304,7 @@ IceUtil::ThreadControl::join()
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
-    
+
     detach();
 }
 
@@ -315,7 +315,7 @@ IceUtil::ThreadControl::detach()
     {
         throw BadThreadControlException(__FILE__, __LINE__);
     }
-    
+
     if(CloseHandle(_handle) == 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -412,7 +412,7 @@ WINAPI startHook(void* arg)
     }
 
     thread->_done();
-   
+
     return 0;
 }
 
@@ -449,14 +449,14 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     // __decRef().
     //
     __incRef();
-    
+
     unsigned int id;
-    _handle = 
+    _handle =
         reinterpret_cast<HANDLE>(
-            _beginthreadex(0, 
-                            static_cast<unsigned int>(stackSize), 
-                            startHook, this, 
-                            CREATE_SUSPENDED, 
+            _beginthreadex(0,
+                            static_cast<unsigned int>(stackSize),
+                            startHook, this,
+                            CREATE_SUSPENDED,
                             &id));
     _id = id;
     assert(_handle != (HANDLE)-1L);
@@ -477,7 +477,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
 
     _started = true;
     _running = true;
-    
+
     return ThreadControl(_handle, _id);
 }
 
@@ -625,7 +625,7 @@ IceUtil::Thread::~Thread()
 {
 }
 
-extern "C" 
+extern "C"
 {
 static void*
 startHook(void* arg)
@@ -658,7 +658,7 @@ startHook(void* arg)
     }
 
     thread->_done();
-    
+
     return 0;
 }
 }

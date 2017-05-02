@@ -20,7 +20,7 @@ namespace IceInternal
         {
             _communicator.shutdown();
         }
-        
+
         public override void writeMessage(string message, int fd, Ice.Current current)
         {
             switch(fd)
@@ -36,8 +36,8 @@ namespace IceInternal
                     break;
                 }
             }
-        }   
-        
+        }
+
         private Ice.Communicator _communicator;
     }
 }

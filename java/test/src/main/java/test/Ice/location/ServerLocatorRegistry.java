@@ -81,7 +81,7 @@ public class ServerLocatorRegistry implements TestLocatorRegistry
         ObjectPrx obj = _objects.get(id);
         if(obj == null)
         {
-            throw new com.zeroc.Ice.ObjectNotFoundException();   
+            throw new com.zeroc.Ice.ObjectNotFoundException();
         }
         return obj;
     }

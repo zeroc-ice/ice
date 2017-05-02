@@ -21,7 +21,7 @@ Ice has dependencies on a number of third-party libraries:
  - [LMDB][5] 0.9.16 (LMDB is not required with the C++11 mapping)
  - [mcpp][6] 2.7.2 (with patches)
 
-Expat and bzip are included with your system. 
+Expat and bzip are included with your system.
 
 You can install LMDB and mcpp using [Homebrew][7]:
 

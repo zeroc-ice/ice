@@ -22,7 +22,7 @@ class Long
     //
     // If two arguments are provided we asume these are the high and low words
     // respectively.
-    // 
+    //
     constructor(high = 0, low = undefined)
     {
         if(!Number.isSafeInteger(high))
@@ -51,12 +51,12 @@ class Long
             {
                 throw new RangeError("High word must be between 0 and 0xFFFFFFFF");
             }
-            
+
             this.high = high;
             this.low = low;
         }
     }
-    
+
     hashCode()
     {
         return this.low;
@@ -105,7 +105,7 @@ class Long
 
 //
 // 2^32
-// 
+//
 Long.MAX_UINT32 = 0xFFFFFFFF;
 
 //

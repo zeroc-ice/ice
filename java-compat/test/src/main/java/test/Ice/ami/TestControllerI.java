@@ -18,14 +18,14 @@ class TestControllerI extends _TestIntfControllerDisp
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void
     resumeAdapter(Ice.Current current)
     {
         _adapter.activate();
     }
-    
+
     public
     TestControllerI(Ice.ObjectAdapter adapter)
     {

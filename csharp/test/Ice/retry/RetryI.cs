@@ -39,17 +39,17 @@ public sealed class RetryI : Test.RetryDisp_
         _counter = 0;
         return counter;
     }
-    
+
     public override void opNotIdempotent(Ice.Current current)
     {
         throw new Ice.ConnectionLostException();
     }
-    
+
     public override void opSystemException(Ice.Current c)
     {
         throw new SystemFailure();
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

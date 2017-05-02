@@ -20,7 +20,7 @@ Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
                                          const FilterManagerPtr& filters,
                                          const Ice::Context& sslContext,
                                          const RoutingTablePtr& routingTable):
-                                         
+
     Glacier2::Blobject(instance, 0, sslContext),
     _routingTable(routingTable),
     _filters(filters),
@@ -33,14 +33,14 @@ Glacier2::ClientBlobject::~ClientBlobject()
 }
 
 void
-Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, 
+Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB,
                                            const std::pair<const Byte*, const Byte*>& inParams,
                                            const Current& current)
 {
     bool matched = false;
     bool hasFilters = false;
     string rejectedFilters;
- 
+
     if(!_filters->categories()->empty())
     {
         hasFilters = true;
@@ -130,13 +130,13 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
     invoke(proxy, amdCB, inParams, current);
 }
 
-StringSetPtr 
+StringSetPtr
 ClientBlobject::categories()
 {
     return _filters->categories();
 }
 
-StringSetPtr 
+StringSetPtr
 ClientBlobject::adapterIds()
 {
     return _filters->adapterIds();

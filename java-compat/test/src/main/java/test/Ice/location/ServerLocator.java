@@ -63,7 +63,7 @@ public class ServerLocator extends _TestLocatorDisp
         }
         response.ice_response(_registry.getObject(id));
     }
-    
+
     @Override
     public Ice.LocatorRegistryPrx
     getRegistry(Ice.Current current)
@@ -77,7 +77,7 @@ public class ServerLocator extends _TestLocatorDisp
     {
         return _requestCount;
     }
-    
+
     private ServerLocatorRegistry _registry;
     private Ice.LocatorRegistryPrx _registryPrx;
     private int _requestCount;

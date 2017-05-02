@@ -51,7 +51,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // cpp:comparable required by tests bellow is only
     // supported with C++98 mapping.
     //
-    
+
     //
     // Change one primitive member at a time.
     //

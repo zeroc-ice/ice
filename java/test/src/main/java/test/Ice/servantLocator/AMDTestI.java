@@ -126,7 +126,7 @@ public final class AMDTestI implements TestIntf
         //return f;
         throw new com.zeroc.Ice.ObjectNotExistException();
     }
-    
+
     @Override
     public CompletionStage<Void> shutdownAsync(com.zeroc.Ice.Current current)
     {

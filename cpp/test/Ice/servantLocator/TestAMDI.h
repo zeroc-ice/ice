@@ -21,7 +21,7 @@ public:
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&);
-    
+
     virtual void unknownUserExceptionAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
@@ -46,7 +46,7 @@ public:
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&);
-    
+
     virtual void stdExceptionAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,

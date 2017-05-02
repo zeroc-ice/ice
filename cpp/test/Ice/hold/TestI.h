@@ -18,7 +18,7 @@ class HoldI : public Test::Hold, public IceUtil::Mutex, public IceUtil::TimerTas
 #endif
 {
 public:
-    
+
     HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
     virtual void putOnHold(Ice::Int, const Ice::Current&);
@@ -28,7 +28,7 @@ public:
     virtual void shutdown(const Ice::Current&);
 
     virtual void runTimerTask();
-    
+
 private:
 
     int _last;

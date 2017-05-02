@@ -227,7 +227,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
         }
         */
-        
+
         try
         {
             markSent();
@@ -286,7 +286,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
         }
         */
-        
+
         try
         {
             markCompleted();
@@ -312,7 +312,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             }
             */
         }
-    
+
         if(_observer != null)
         {
             _observer.detach();
@@ -369,7 +369,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     protected boolean sent(boolean done)
     {
         synchronized(this)
-        {        
+        {
             assert(_exception == null);
 
             boolean alreadySent = (_state & StateSent) != 0;
@@ -514,7 +514,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
     protected final String _operation;
 
     protected com.zeroc.Ice.Exception _exception;
-    
+
     private CancellationHandler _cancellationHandler;
     private com.zeroc.Ice.LocalException _cancellationException;
 

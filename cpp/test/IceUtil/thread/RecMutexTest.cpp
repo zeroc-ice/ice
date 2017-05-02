@@ -20,7 +20,7 @@ static const string recMutexTestName("recursive mutex");
 class RecMutexTestThread : public Thread
 {
 public:
-    
+
     RecMutexTestThread(RecMutex& m) :
         _mutex(m),
         _tryLock(false)
@@ -29,10 +29,10 @@ public:
 
     virtual void run()
     {
-        
+
         RecMutex::TryLock tlock(_mutex);
         test(!tlock.acquired());
-        
+
         {
             Mutex::Lock lock(_tryLockMutex);
             _tryLock = true;
@@ -79,21 +79,21 @@ RecMutexTest::run()
 
     {
         RecMutex::Lock lock(mutex);
-        
+
         // TEST: lock twice
         RecMutex::Lock lock2(mutex);
 
         // TEST: TryLock
         RecMutex::TryLock lock3(mutex);
         test(lock3.acquired());
-        
+
         // TEST: Start thread, try to acquire the mutex.
         t = new RecMutexTestThread(mutex);
         control = t->start();
-        
+
         // TEST: Wait until the tryLock has been tested.
         t->waitTryLock();
-        
+
     }
 
     //
@@ -102,5 +102,5 @@ RecMutexTest::run()
     //
 
     control.join();
-   
+
 }

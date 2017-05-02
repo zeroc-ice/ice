@@ -29,7 +29,7 @@ interface TestLocator extends ::Ice::Locator
     //
     ["cpp:const"] idempotent int getRequestCount();
 };
-    
+
 interface ServerManager
 {
     void startServer();

@@ -42,7 +42,7 @@ public:
 
     virtual void opWithUserException_async(const Test::AMD_Metrics_opWithUserExceptionPtr&, const Ice::Current&);
 
-    virtual void opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr&, 
+    virtual void opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr&,
                                                     const Ice::Current&);
 
     virtual void opWithLocalException_async(const Test::AMD_Metrics_opWithLocalExceptionPtr&, const Ice::Current&);
@@ -62,7 +62,7 @@ class ControllerI : public Test::Controller
 public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
-    
+
     virtual void hold(const Ice::Current&);
 
     virtual void resume(const Ice::Current&);

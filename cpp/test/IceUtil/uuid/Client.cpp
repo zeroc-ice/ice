@@ -53,9 +53,9 @@ inline void usage(const char* myName)
 template<typename T, typename GenerateFunc> class InsertThread : public Thread
 {
 public:
-    
+
     typedef set<T> ItemSet;
-    
+
     InsertThread(int threadId, ItemSet& itemSet, GenerateFunc func, long howMany, bool verbose)
         : _threadId(threadId), _itemSet(itemSet), _func(func), _howMany(howMany), _verbose(verbose)
     {
@@ -79,7 +79,7 @@ public:
 
             if(_verbose && i > 0 && (i % 100000 == 0))
             {
-                cout << "Thread " << _threadId << ": generated " << i << " UUIDs." << endl; 
+                cout << "Thread " << _threadId << ": generated " << i << " UUIDs." << endl;
             }
         }
     }
@@ -142,7 +142,7 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
         cout << "s";
     }
     cout << "... ";
-    
+
     if(verbose)
     {
         cout << endl;
@@ -153,13 +153,13 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     }
 
     set<T> itemSet;
-    
+
     vector<ThreadControl> threads;
 
     Time start = Time::now();
     for(int i = 0; i < threadCount; i++)
     {
-        ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose); 
+        ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose);
         threads.push_back(t->start());
     }
     for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
@@ -172,9 +172,9 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
 
     if(verbose)
     {
-        cout << "Each " << name << " took an average of "  
-             << (double) ((finish - start).toMicroSeconds()) / howMany 
-             << " micro seconds to generate and insert into a set." 
+        cout << "Each " << name << " took an average of "
+             << (double) ((finish - start).toMicroSeconds()) / howMany
+             << " micro seconds to generate and insert into a set."
              << endl;
     }
 }

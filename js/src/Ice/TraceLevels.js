@@ -27,7 +27,7 @@ Ice.TraceLevels = function(properties)
 
     properties.getPropertyAsInt(keyBase + "ThreadPool"); // Avoid an "unused property" warning.
 
-    return class 
+    return class
     {
         static get network()
         {
@@ -38,12 +38,12 @@ Ice.TraceLevels = function(properties)
         {
             return networkCat;
         }
-        
+
         static get protocol()
         {
             return protocol;
         }
-        
+
         static get protocolCat()
         {
             return protocolCat;
@@ -53,27 +53,27 @@ Ice.TraceLevels = function(properties)
         {
             return retry;
         }
-        
+
         static get retryCat()
         {
             return retryCat;
         }
-        
+
         static get location()
         {
             return location;
         }
-        
+
         static get locationCat()
         {
             return locationCat;
         }
-        
+
         static get slicing()
         {
             return slicing;
         }
-        
+
         static get slicingCat()
         {
             return slicingCat;

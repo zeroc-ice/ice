@@ -8,19 +8,19 @@
 // **********************************************************************
 
 public abstract class BasePluginFail : Ice.Plugin
-{   
-    public BasePluginFail(Ice.Communicator communicator) 
+{
+    public BasePluginFail(Ice.Communicator communicator)
     {
         _communicator = communicator;
         _initialized = false;
         _destroyed = false;
     }
-    
+
     public bool isInitialized()
     {
         return _initialized;
     }
-    
+
     public bool isDestroyed()
     {
         return _destroyed;
@@ -36,7 +36,7 @@ public abstract class BasePluginFail : Ice.Plugin
 
     public abstract void initialize();
     public abstract void destroy();
-    
+
     protected Ice.Communicator _communicator;
     protected bool _initialized;
     protected bool _destroyed;

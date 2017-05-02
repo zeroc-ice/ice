@@ -27,7 +27,7 @@ typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
 class ReplicaEntry : public IceUtil::Shared
 {
 public:
-    
+
     ReplicaEntry(const std::string&, const ReplicaSessionIPtr&);
     virtual ~ReplicaEntry();
 
@@ -37,9 +37,9 @@ public:
     InternalRegistryPrx getProxy() const;
 
     Ice::ObjectPrx getAdminProxy() const;
-    
+
 private:
-    
+
     const std::string _name;
     const ReplicaSessionIPtr _session;
 };
@@ -51,7 +51,7 @@ public:
 
 #ifdef __SUNPRO_CC
     using CacheByString<ReplicaEntry>::remove;
-#endif 
+#endif
 
     ReplicaCache(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
 

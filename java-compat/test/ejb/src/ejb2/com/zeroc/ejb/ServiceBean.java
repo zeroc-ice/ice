@@ -18,19 +18,19 @@ import com.zeroc.ice.Test.*;
 public class ServiceBean implements Service
 {
     @PostConstruct
-    public void 
+    public void
     create()
     {
         Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10002");
         database = DatabasePrxHelper.uncheckedCast(db);
     }
 
-    public final Account 
+    public final Account
     getAccount(String id)
     {
         final AccountHolder holder = new AccountHolder();
         database.begin_getAccount(id, new Callback_Database_getAccount() {
-                public void 
+                public void
                 response(Account a)
                 {
                     synchronized(holder)
@@ -40,14 +40,14 @@ public class ServiceBean implements Service
                     }
                 }
 
-                public void 
+                public void
                 exception(Ice.LocalException ex)
                 {
                     ex.printStackTrace();
                     assert(false);
                 }
 
-                public void 
+                public void
                 exception(Ice.UserException ex)
                 {
                     Account a = new Account(((AccountNotExistException)ex).id, "");
@@ -59,7 +59,7 @@ public class ServiceBean implements Service
                     }
                 }
             });
-        
+
         synchronized(holder)
         {
             while(holder.value == null)

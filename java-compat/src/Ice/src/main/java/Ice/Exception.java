@@ -60,7 +60,7 @@ public abstract class Exception extends RuntimeException implements Cloneable
     {
         return ice_id().substring(2);
     }
-    
+
     /**
      * Returns the type id of this exception.
      *

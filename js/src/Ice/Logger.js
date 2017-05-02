@@ -6,7 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-    
+
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 class Logger
@@ -22,7 +22,7 @@ class Logger
             this._prefix = "";
         }
 
-        this._dateformat = 
+        this._dateformat =
         {
             year: 'numeric',
             month: 'numeric',
@@ -33,7 +33,7 @@ class Logger
             hour12: false
         };
     }
-    
+
     print(message)
     {
         this.write(message, false);

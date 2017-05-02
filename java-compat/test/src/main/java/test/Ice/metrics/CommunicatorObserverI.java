@@ -21,14 +21,14 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
     @Override
-    public void 
+    public void
     setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
     {
         updater = u;
     }
- 
+
     @Override
-    synchronized public Ice.Instrumentation.Observer 
+    synchronized public Ice.Instrumentation.Observer
     getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
     {
         if(connectionEstablishmentObserver == null)
@@ -39,9 +39,9 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return connectionEstablishmentObserver;
     }
 
- 
+
     @Override
-    synchronized public Ice.Instrumentation.Observer 
+    synchronized public Ice.Instrumentation.Observer
     getEndpointLookupObserver(Ice.Endpoint e)
     {
         if(endpointLookupObserver == null)
@@ -51,12 +51,12 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         }
         return endpointLookupObserver;
     }
-    
+
     @Override
-    synchronized public Ice.Instrumentation.ConnectionObserver 
+    synchronized public Ice.Instrumentation.ConnectionObserver
     getConnectionObserver(Ice.ConnectionInfo c,
                           Ice.Endpoint e,
-                          Ice.Instrumentation.ConnectionState s, 
+                          Ice.Instrumentation.ConnectionState s,
                           Ice.Instrumentation.ConnectionObserver old)
     {
         test(old == null || old instanceof ConnectionObserverI);
@@ -69,7 +69,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     }
 
     @Override
-    synchronized public Ice.Instrumentation.ThreadObserver 
+    synchronized public Ice.Instrumentation.ThreadObserver
     getThreadObserver(String p, String id, Ice.Instrumentation.ThreadState s,
                       Ice.Instrumentation.ThreadObserver old)
     {
@@ -79,7 +79,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
             threadObserver = new ThreadObserverI();
             threadObserver.reset();
         }
-        return threadObserver; 
+        return threadObserver;
    }
 
     @Override
@@ -134,7 +134,7 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
             dispatchObserver.reset();
         }
     }
-    
+
     Ice.Instrumentation.ObserverUpdater updater;
 
     ObserverI connectionEstablishmentObserver;

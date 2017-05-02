@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/Value").Ice;
-    
+
 class SliceInfo
 {
     constructor()

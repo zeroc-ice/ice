@@ -257,7 +257,7 @@ MainHelperI::waitReady(int timeout) const
     unique_lock<mutex> lock(_mutex);
     while(!_ready && !_completed)
     {
-        
+
         if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to be ready");
@@ -323,7 +323,7 @@ ProcessControllerI::ProcessControllerI(ViewController^ controller, string hostna
 
 shared_ptr<ProcessPrx>
 ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ice::Current& c)
-{   
+{
     ostringstream os;
     os << "starting " << testSuite << " " << exe << "... ";
     _controller->println(os.str());

@@ -20,7 +20,7 @@ template<class T>
 class MutexPtrLock
 {
 public:
-    
+
     MutexPtrLock<T>(const T* mutex) :
         _mutex(mutex),
         _acquired(false)
@@ -66,9 +66,9 @@ public:
     {
         return _acquired;
     }
-   
+
 private:
-    
+
     // Not implemented; prevents accidental use.
     //
     MutexPtrLock<T>(const MutexPtrLock<T>&);

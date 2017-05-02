@@ -50,7 +50,7 @@ public final class HTTPNetworkProxy implements NetworkProxy
     @Override
     public int endWrite(Buffer buf)
     {
-        // Once the request is sent, read the response 
+        // Once the request is sent, read the response
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
     }
 
@@ -100,11 +100,11 @@ public final class HTTPNetworkProxy implements NetworkProxy
     public NetworkProxy resolveHost(int protocol)
     {
         assert(_host != null);
-        return new HTTPNetworkProxy(Network.getAddresses(_host, 
-                                                         _port, 
-                                                         protocol, 
+        return new HTTPNetworkProxy(Network.getAddresses(_host,
+                                                         _port,
+                                                         protocol,
                                                          Ice.EndpointSelectionType.Random,
-                                                         false, 
+                                                         false,
                                                          true).get(0),
                                     protocol);
     }

@@ -33,16 +33,16 @@ class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class ReapThread;
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
+typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
 class SessionServantManager;
-typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;    
+typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;
 
 class ClientSessionFactory;
-typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;    
+typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
 
 class AdminSessionFactory;
-typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;    
+typedef IceUtil::Handle<AdminSessionFactory> AdminSessionFactoryPtr;
 
 std::string getInstanceName(const Ice::CommunicatorPtr&);
 
@@ -65,13 +65,13 @@ public:
 
     virtual int getSessionTimeout(const Ice::Current&) const;
     virtual int getACMTimeout(const Ice::Current&) const;
-    
+
     std::string getName() const;
     RegistryInfo getInfo() const;
 
     void waitForShutdown();
     virtual void shutdown();
-    
+
     std::string getServerAdminCategory() const { return _instanceName + "-RegistryServerAdminRouter"; }
     std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
     std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
@@ -84,14 +84,14 @@ public:
 
 private:
 
-    void setupLocatorRegistry(); 
-    LocatorPrx setupLocator(const RegistryPrx&, const QueryPrx&); 
+    void setupLocatorRegistry();
+    LocatorPrx setupLocator(const RegistryPrx&, const QueryPrx&);
     QueryPrx setupQuery();
     RegistryPrx setupRegistry();
     InternalRegistryPrx setupInternalRegistry();
     bool setupUserAccountMapper();
     Ice::ObjectAdapterPtr setupClientSessionFactory(const LocatorPrx&);
-    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const Ice::ObjectPtr&, 
+    Ice::ObjectAdapterPtr setupAdminSessionFactory(const Ice::ObjectPtr&, const Ice::ObjectPtr&,
                                                    const Ice::ObjectPtr&, const LocatorPrx&);
 
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const LocatorPrx&, const std::string&);
@@ -100,7 +100,7 @@ private:
 
     NodePrxSeq registerReplicas(const InternalRegistryPrx&, const NodePrxSeq&);
     void registerNodes(const InternalRegistryPrx&, const NodePrxSeq&);
-    
+
     const Ice::CommunicatorPtr _communicator;
     const TraceLevelsPtr _traceLevels;
     const bool _nowarn;
@@ -122,7 +122,7 @@ private:
     int _sessionTimeout;
     IceInternal::UniquePtr<ReplicaSessionManager> _session;
     mutable PlatformInfo _platform;
-    
+
     ClientSessionFactoryPtr _clientSessionFactory;
     Glacier2::PermissionsVerifierPrx _clientVerifier;
     Glacier2::SSLPermissionsVerifierPrx _sslClientVerifier;

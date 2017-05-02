@@ -42,7 +42,7 @@ public:
 
 Init init;
 
-bool 
+bool
 hasAdapter(const CommunicatorDescriptorPtr& descriptor, const string& adapterId)
 {
     for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
@@ -281,7 +281,7 @@ RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 }
 
 bool
-RegistryPluginFacadeI::hasReplicaGroupFilters() const 
+RegistryPluginFacadeI::hasReplicaGroupFilters() const
 {
     return !_replicaGroupFilters.empty();
 }
@@ -299,7 +299,7 @@ RegistryPluginFacadeI::getTypeFilters(const string& id) const
 }
 
 bool
-RegistryPluginFacadeI::hasTypeFilters() const 
+RegistryPluginFacadeI::hasTypeFilters() const
 {
     return !_typeFilters.empty();
 }

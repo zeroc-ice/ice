@@ -15,14 +15,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
-            <TextBlock Text="ZeroC - UWP Controller" 
-                       Style="{StaticResource TitleStyle}" 
-                       Margin="5" 
+            <TextBlock Text="ZeroC - UWP Controller"
+                       Style="{StaticResource TitleStyle}"
+                       Margin="5"
                        VerticalAlignment="Bottom" TextWrapping="Wrap"/>
         </StackPanel>
         <ListBox Margin="5" Grid.Row="1" x:Name="Output" Background="LightGray"></ListBox>
         <StackPanel Grid.Row="3" VerticalAlignment="Bottom">
-            <TextBlock Text="Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved." 
+            <TextBlock Text="Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved."
                        Style="{StaticResource FooterStyle}"
                        Margin="5"
                        TextWrapping="Wrap"/>

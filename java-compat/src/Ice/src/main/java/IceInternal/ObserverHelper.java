@@ -39,7 +39,7 @@ public final class ObserverHelper
     static public InvocationObserver
     get(Ice.ObjectPrx proxy, String op, java.util.Map<String, String> context)
     {
-        CommunicatorObserver obsv = 
+        CommunicatorObserver obsv =
             ((Ice.ObjectPrxHelperBase)proxy)._getReference().getInstance().initializationData().observer;
         if(obsv != null)
         {

@@ -86,7 +86,7 @@ public:
     typedef DWORD ID;
 #else
     typedef pthread_t ID;
-#endif 
+#endif
     ID id() const;
 
     static void sleep(const Time&);
@@ -173,7 +173,7 @@ private:
 };
 
 typedef Handle<Thread> ThreadPtr;
-    
+
 }
 
 #endif

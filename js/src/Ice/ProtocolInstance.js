@@ -22,7 +22,7 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 // endpoint and suppress the secure member of the protocol instance
 // class bellow.
 //
-class ProtocolInstance 
+class ProtocolInstance
 {
     constructor(instance, type, protocol, secure)
     {

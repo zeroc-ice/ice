@@ -12,7 +12,7 @@ package test.Ice.metrics;
 class ChildInvocationObserverI extends ObserverI implements Ice.Instrumentation.ChildInvocationObserver
 {
     @Override
-    public synchronized void 
+    public synchronized void
     reset()
     {
         super.reset();

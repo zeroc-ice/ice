@@ -17,7 +17,7 @@ void
 oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
 {
     Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx, proxy->ice_oneway());
-    
+
     {
         p->ice_ping();
     }
@@ -65,7 +65,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
 #endif
         {
         }
-    }    
+    }
 
     {
         p->opVoid();

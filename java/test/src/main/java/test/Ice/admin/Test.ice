@@ -21,7 +21,7 @@ interface RemoteCommunicator
     Object* getAdmin();
 
     Ice::PropertyDict getChanges();
-    
+
     //
     // Logger operations
     //

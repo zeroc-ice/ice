@@ -36,7 +36,7 @@ embedded_runpath 	?= yes
 new_dtags              ?= no
 
 #
-# Define OPTIMIZE as no if you want to build with debug iformation and 
+# Define OPTIMIZE as no if you want to build with debug iformation and
 # without optimizations. Otherwise Ice is build with optimizations and
 # without debug information.
 #

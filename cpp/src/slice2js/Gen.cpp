@@ -1074,7 +1074,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
 
-            _out << nl << "Slice.defineValue(" << localScope << "." << name << ", " 
+            _out << nl << "Slice.defineValue(" << localScope << "." << name << ", "
                  << "iceC_" << getLocalScope(scoped, "_") << "_ids[" << scopedPos << "], "
                  << (preserved ? "true" : "false") ;
             if(p->compactId() >= 0)
@@ -1115,7 +1115,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 ClassDefPtr base = *q;
                 if(base->isInterface())
                 {
-                    _out << nl << getLocalScope(base->scope()) << "." << 
+                    _out << nl << getLocalScope(base->scope()) << "." <<
                         (base->isInterface() ? base->name() : base->name() + "Disp");
                     if(++q != bases.end())
                     {
@@ -1132,7 +1132,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
         }
         _out << eb << ";";
-        
+
         //
         // Generate a proxy class for interfaces or classes with operations.
         //
@@ -1157,7 +1157,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << nl << "static get _implements()";
                 _out << sb;
                 _out << nl << "return [";
-            
+
                 _out.inc();
                 for(ClassList::const_iterator q = bases.begin(); q != bases.end();)
                 {

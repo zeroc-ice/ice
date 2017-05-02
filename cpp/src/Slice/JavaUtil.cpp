@@ -1167,7 +1167,7 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
-    
+
     if(local)
     {
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -3614,7 +3614,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "???",
         "???"
     };
-    
+
     if(local)
     {
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)

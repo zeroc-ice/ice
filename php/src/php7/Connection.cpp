@@ -763,13 +763,13 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 
         zval zarr;
         AutoDestroy listDestroyer(&zarr);
-        
+
         Ice::StringSeq encoded;
         for(vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
         {
             encoded.push_back((*i)->encode());
         }
-        
+
         if(createStringArray(&zarr, encoded))
         {
             add_property_zval(zv, STRCAST("certs"), &zarr);

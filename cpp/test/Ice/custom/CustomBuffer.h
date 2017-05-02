@@ -102,7 +102,7 @@ operator!=(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
     {
         return true;
     }
-    
+
     for(size_t i = 0; i < lhs.count(); ++i)
     {
         if(lhs.get()[i] != rhs.get()[i])
@@ -157,13 +157,13 @@ struct StreamableTraits< ::Test::CustomBuffer<T> >
 template<typename T>
 struct StreamHelper< ::Test::CustomBuffer<T>, StreamHelperCategorySequence>
 {
-    template<class S> static inline void 
+    template<class S> static inline void
     write(S* stream, const ::Test::CustomBuffer<T>& v)
     {
         stream->write(v.get(), v.get() + v.count());
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, ::Test::CustomBuffer<T>& v)
     {
 #ifdef ICE_CPP11_MAPPING

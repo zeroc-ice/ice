@@ -1059,7 +1059,7 @@ function allTests($communicator)
     return $test;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 $test = allTests($communicator);
 $test->shutdown();

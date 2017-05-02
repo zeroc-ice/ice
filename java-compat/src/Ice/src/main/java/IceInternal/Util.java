@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadFactory;
 public final class Util
 {
     static String
-    createThreadName(final Ice.Properties properties, final String name) 
+    createThreadName(final Ice.Properties properties, final String name)
     {
         String threadName = properties.getProperty("Ice.ProgramName");
         if(threadName.length() > 0)
@@ -27,7 +27,7 @@ public final class Util
     }
 
     static ThreadFactory
-    createThreadFactory(final Ice.Properties properties, final String name) 
+    createThreadFactory(final Ice.Properties properties, final String name)
     {
         return new java.util.concurrent.ThreadFactory()
         {

@@ -2684,7 +2684,7 @@ IcePHP::ProxyInfo::define(zval* b, zval* i)
         }
         ZEND_HASH_FOREACH_END();
     }
-    
+
     const_cast<bool&>(defined) = true;
 }
 
@@ -2898,7 +2898,7 @@ IcePHP::ObjectWriter::ObjectWriter(zval* object, ObjectMap* objectMap, const Cla
     if(!_formal || !_formal->interface)
     {
         //
-        // For non interface types we need to determine the most-derived Slice type supported by 
+        // For non interface types we need to determine the most-derived Slice type supported by
         // this object. This is typically a Slice class, but it can also be an interface.
         //
         // The caller may have provided a ClassInfo representing the formal type, in
@@ -2941,7 +2941,7 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
     }
 
     os->startValue(slicedData);
-    
+
     if(_formal && _formal->interface)
     {
         //
@@ -2961,7 +2961,7 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
             // ret;
         }
         zend_end_try();
-        
+
         //
         // Bail out if an exception has already been thrown.
         //
@@ -2971,12 +2971,12 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
         }
 
         AutoDestroy destroy(&ret);
-        
+
         if(Z_TYPE(ret) != IS_STRING)
         {
             throw AbortMarshaling();
         }
-        
+
         string id(Z_STRVAL(ret), Z_STRLEN(ret));
         os->startSlice(id, -1, true);
         os->endSlice();
@@ -3710,7 +3710,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
     }
 
     type->define(name, static_cast<Ice::Int>(compactId), preserve ? true : false, interface ? true : false, base, members);
-    
+
     if(!interface)
     {
         addClassInfoByName(type);

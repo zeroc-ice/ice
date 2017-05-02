@@ -20,52 +20,52 @@ public sealed class InitialI : Test.InitialDisp_
         _ib2 = Test.MB.IB2PrxHelper.uncheckedCast(adapter.addWithUUID(new IB2I()));
         _ic = Test.MA.ICPrxHelper.uncheckedCast(adapter.addWithUUID(new ICI()));
     }
-    
+
     public override Test.MA.CAPrx caop(Ice.Current current)
     {
         return _ca;
     }
-    
+
     public override Test.MB.CBPrx cbop(Ice.Current current)
     {
         return _cb;
     }
-    
+
     public override Test.MA.CCPrx ccop(Ice.Current current)
     {
         return _cc;
     }
-    
+
     public override Test.MA.CDPrx cdop(Ice.Current current)
     {
         return _cd;
     }
-    
+
     public override Test.MA.IAPrx iaop(Ice.Current current)
     {
         return _ia;
     }
-    
+
     public override Test.MB.IB1Prx ib1op(Ice.Current current)
     {
         return _ib1;
     }
-    
+
     public override Test.MB.IB2Prx ib2op(Ice.Current current)
     {
         return _ib2;
     }
-    
+
     public override Test.MA.ICPrx icop(Ice.Current current)
     {
         return _ic;
     }
-    
+
     public override void  shutdown(Ice.Current current)
     {
        current.adapter.getCommunicator().shutdown();
     }
-    
+
     private Test.MA.CAPrx _ca;
     private Test.MB.CBPrx _cb;
     private Test.MA.CCPrx _cc;

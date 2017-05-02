@@ -8,20 +8,20 @@
   </PropertyGroup>
 
   <Target Name="Build">
-    <Exec Command="$(NPM) install" 
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
-    <Exec Command="$(NPM) run gulp:build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)" 
+    <Exec Command="$(NPM) run gulp:build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
   </Target>
 
   <Target Name="Clean">
-    <Exec Command="$(NPM) install" 
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
-          StdOutEncoding="utf-8" 
+          StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
     <Exec Command="$(NPM) run gulp:clean -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."

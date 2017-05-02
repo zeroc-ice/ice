@@ -126,7 +126,7 @@ main(int argc, char** argv)
             game.noise = false;
         }
     }
-    
+
     {
         Mutex::Lock sync(game.mutex);
         game.state = StateGameOver;

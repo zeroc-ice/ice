@@ -149,7 +149,7 @@ class DistinguishedNameI : public IceSSL::DistinguishedName
 {
 public:
 
-    DistinguishedNameI(X509_name_st* name) : 
+    DistinguishedNameI(X509_name_st* name) :
         IceSSL::DistinguishedName(IceSSL::RFC2253::parseStrict(convertX509NameToString(name)))
     {
         unescape();

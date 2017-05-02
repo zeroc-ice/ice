@@ -39,7 +39,7 @@ protected:
     void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
 
 private:
-    
+
     std::vector< std::string> _seenProxy;
 };
 

@@ -9,7 +9,7 @@
 
 [System.Serializable]
 public class SystemFailure : Ice.SystemException
-{    
+{
     public override string
     ice_id()
     {

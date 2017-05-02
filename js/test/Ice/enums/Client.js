@@ -197,7 +197,7 @@
                 return proxy.shutdown();
             }
         ).then(p.resolve, p.reject);
-        
+
         return p;
     }
 

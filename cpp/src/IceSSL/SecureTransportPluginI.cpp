@@ -43,7 +43,7 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com) :
 IceSSL::CertificatePtr
 PluginI::create(SecCertificateRef cert) const
 {
-    return IceSSL::SecureTransport::Certificate::create(cert);    
+    return IceSSL::SecureTransport::Certificate::create(cert);
 }
 
 IceSSL::CertificatePtr

@@ -21,7 +21,7 @@ namespace IceInternal
         {
             writeValue(null, obj, null, output);
         }
-        
+
         private static void writeValue(string name, object val, Dictionary<Ice.Object, object> objectTable, OutputBase output)
         {
             if(val == null)
@@ -95,10 +95,10 @@ namespace IceInternal
                 else if(c.IsEnum)
                 {
                     writeName(name, output);
-                    output.print(val.ToString());                
+                    output.print(val.ToString());
                 }
                 else
-                {           
+                {
                     //
                     // Must be struct.
                     //
@@ -106,7 +106,7 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private static void writeFields(string name, object obj, System.Type c, Dictionary<Ice.Object, object> objectTable,
                                         OutputBase output)
         {
@@ -116,17 +116,17 @@ namespace IceInternal
                 // Write the superclass first.
                 //
                 writeFields(name, obj, c.BaseType, objectTable, output);
-                
+
                 //
                 // Write the declared fields of the given class.
                 //
-                FieldInfo[] fields = 
+                FieldInfo[] fields =
                     c.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public);
 
                 for(int i = 0; i < fields.Length; i++)
                 {
                     string fieldName = (name != null ? name + '.' + fields[i].Name : fields[i].Name);
-                    
+
                     try
                     {
                         object val = fields[i].GetValue(obj);
@@ -139,7 +139,7 @@ namespace IceInternal
                 }
             }
         }
-        
+
         private static void writeName(string name, OutputBase output)
         {
             if(name != null)

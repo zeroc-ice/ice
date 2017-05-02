@@ -13,7 +13,7 @@ public sealed class MyObjectI : Test.MyObjectDisp_
     ice_ping(Ice.Current current)
     {
         string name = current.id.name;
-    
+
         if(name == "ObjectNotExist")
         {
             throw new Ice.ObjectNotExistException();

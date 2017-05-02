@@ -24,12 +24,12 @@ namespace IceInternal
         // Message size (Int)
         //
         internal const int headerSize = 14;
-        
+
         //
         // The magic number at the front of each message
         //
         internal static readonly byte[] magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
-        
+
         //
         // The current Ice protocol and encoding version
         //
@@ -50,7 +50,7 @@ namespace IceInternal
         public const byte FLAG_HAS_INDIRECTION_TABLE    = (1<<3);
         public const byte FLAG_HAS_SLICE_SIZE           = (1<<4);
         public const byte FLAG_IS_LAST_SLICE            = (1<<5);
-        
+
         //
         // The Ice protocol message types
         //
@@ -81,7 +81,7 @@ namespace IceInternal
             0, 0, 0, 0, // Message size (placeholder).
             0, 0, 0, 0  // Number of requests in batch (placeholder).
         };
-        
+
         internal static readonly byte[] replyHdr = new byte[]
         {
             magic[0], magic[1], magic[2], magic[3],
@@ -118,7 +118,7 @@ namespace IceInternal
                 throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentEncoding);
             }
         }
-        
+
         //
         // Either return the given protocol if not compatible, or the greatest
         // supported protocol otherwise.
@@ -140,7 +140,7 @@ namespace IceInternal
                 // Unsupported but compatible, use the currently supported
                 // protocol, that's the best we can do.
                 //
-                return Ice.Util.currentProtocol; 
+                return Ice.Util.currentProtocol;
             }
         }
 
@@ -165,7 +165,7 @@ namespace IceInternal
                 // Unsupported but compatible, use the currently supported
                 // encoding, that's the best we can do.
                 //
-                return Ice.Util.currentEncoding; 
+                return Ice.Util.currentEncoding;
             }
         }
 
@@ -180,7 +180,7 @@ namespace IceInternal
         {
             return version.major == supported.major && version.minor <= supported.minor;
         }
-        
+
         private Protocol()
         {
         }

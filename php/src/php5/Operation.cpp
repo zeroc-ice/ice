@@ -878,9 +878,9 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     ProxyInfoPtr c = ProxyInfoPtr::dynamicCast(type);
     assert(c);
 
-    OperationIPtr op = new OperationI(name, 
+    OperationIPtr op = new OperationI(name,
                                       static_cast<Ice::OperationMode>(mode),
-                                      static_cast<Ice::OperationMode>(sendMode), 
+                                      static_cast<Ice::OperationMode>(sendMode),
                                       static_cast<Ice::FormatType>(format),
                                       inParams, outParams, returnType, exceptions TSRMLS_CC);
 

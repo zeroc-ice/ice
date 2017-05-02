@@ -30,7 +30,7 @@ public class Client
         try
         {
             test(IceUtilInternal.Options.split("").length == 0);
-            
+
             args = IceUtilInternal.Options.split("\"\"");
             test(args.length == 1 && args[0].equals(""));
             args = IceUtilInternal.Options.split("''");
@@ -130,7 +130,7 @@ public class Client
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
             arr = IceUtilInternal.StringUtil.splitString(":a:b:", ":");
             test(arr.length == 2 && arr[0].equals("a") && arr[1].equals("b"));
-                 
+
             arr = IceUtilInternal.StringUtil.splitString("\"a\"", ":");
             test(arr.length == 1 && arr[0].equals("a"));
             arr = IceUtilInternal.StringUtil.splitString("\"a\":b", ":");
@@ -148,7 +148,7 @@ public class Client
             test(arr.length == 1 && arr[0].equals("\"a"));
             arr = IceUtilInternal.StringUtil.splitString("\"'a\"", ":");
             test(arr.length == 1 && arr[0].equals("'a"));
-            
+
             arr = IceUtilInternal.StringUtil.splitString("a\\'b", ":");
             test(arr.length == 1 && arr[0].equals("a'b"));
             arr = IceUtilInternal.StringUtil.splitString("'a:b\\'c'", ":");

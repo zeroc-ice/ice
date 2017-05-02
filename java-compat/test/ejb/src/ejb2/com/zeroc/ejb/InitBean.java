@@ -24,20 +24,20 @@ public class InitBean implements Init
     private @EJB Service service;
 
     @PostConstruct
-    public void 
+    public void
     create()
     {
         IceAdapter.add(new ServiceI(service), new Ice.Identity("service", "ejb2"));
     }
 
     @PreDestroy
-    public void 
+    public void
     destroy()
     {
         IceAdapter.remove(new Ice.Identity("service", "ejb2"));
     }
 
-    public void 
+    public void
     init()
     {
     }

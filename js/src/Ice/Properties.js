@@ -84,7 +84,7 @@ class Properties
     {
         return this.getPropertyAsIntWithDefault(key, 0);
     }
-    
+
     getPropertyAsIntWithDefault(key, value)
     {
         const pv = this._properties.get(key);
@@ -184,7 +184,7 @@ class Properties
                 {
                     continue;
                 }
-                
+
                 let found = false;
                 let mismatchCase = false;
                 let otherKey;
@@ -202,7 +202,7 @@ class Properties
                             key = PropertyNames.validProps[i][j].deprecatedBy;
                         }
                     }
-                    
+
                     if(found)
                     {
                         break;
@@ -221,7 +221,7 @@ class Properties
                         }
                     }
                 }
-                
+
                 if(!found)
                 {
                     logger.warning("unknown property: " + key);
@@ -273,7 +273,7 @@ class Properties
         pfx = "--" + pfx;
 
         const result = [];
-        
+
         options.forEach(opt =>
             {
                 if(opt.indexOf(pfx) === 0)
@@ -318,7 +318,7 @@ class Properties
         let whitespace = "";
         let escapedspace = "";
         let finished = false;
-        
+
         for(let i = 0; i < line.length; ++i)
         {
             let c = line.charAt(i);
@@ -473,7 +473,7 @@ class Properties
         {
             return;
         }
-        
+
         this.setProperty(key, value);
     }
 
@@ -494,7 +494,7 @@ class Properties
             });
         return unused;
     }
-    
+
     static createProperties(args, defaults)
     {
         return new Properties(args, defaults);

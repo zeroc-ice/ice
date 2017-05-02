@@ -17,10 +17,10 @@ class ReplicaGroupFilter : public IceUtil::Shared
 {
 public:
 
-    virtual Ice::StringSeq filter(const string& replicaGroupId, const Ice::StringSeq& adapterIds, 
+    virtual Ice::StringSeq filter(const string& replicaGroupId, const Ice::StringSeq& adapterIds,
                                   const Ice::ConnectionPtr&, const Ice::Context&) = 0;
 };
- 
+
 };
 
 #endif

@@ -30,7 +30,7 @@ class ConnectionObserverI extends ObserverI implements com.zeroc.Ice.Instrumenta
     {
         received += s;
     }
-    
+
     int sent;
     int received;
 }

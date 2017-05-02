@@ -31,25 +31,25 @@ public:
 
     void destroy();
 
-    StringSetIPtr 
+    StringSetIPtr
     categories() const
     {
         return _categories;
     }
 
-    StringSetIPtr 
+    StringSetIPtr
     adapterIds() const
     {
         return _adapters;
     }
 
-    IdentitySetIPtr 
+    IdentitySetIPtr
     identities() const
     {
         return _identities;
     }
 
-    StringSetPrx 
+    StringSetPrx
     categoriesPrx() const
     {
         return _categoriesPrx;
@@ -67,7 +67,7 @@ public:
         return _identitiesPrx;
     }
 
-    static FilterManagerPtr 
+    static FilterManagerPtr
     create(const InstancePtr&, const std::string&, const bool);
 
 private:

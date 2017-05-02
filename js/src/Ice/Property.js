@@ -17,7 +17,7 @@ Ice.Property = class
         this._deprecated = deprecated;
         this._deprecatedBy = deprecatedBy;
     }
-    
+
     get pattern()
     {
         return this._pattern;

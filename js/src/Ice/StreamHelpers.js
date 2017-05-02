@@ -145,7 +145,7 @@ class SequenceHelper
     {
         return (v === null || v === undefined) ? 0 : v.length;
     }
-    
+
     get minWireSize()
     {
         return 1;
@@ -263,7 +263,7 @@ class DictionaryHelper
     {
         return (v === null || v === undefined) ? 0 : v.size;
     }
-    
+
     get minWireSize()
     {
         return 1;

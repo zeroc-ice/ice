@@ -49,14 +49,14 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void
     resumeAdapter(Ice.Current current)
     {
         _adapter.activate();
     }
-    
+
     @Override
     public void
     initializeSocketStatus(int status, Ice.Current current)
@@ -84,7 +84,7 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     {
         _configuration.readException(enable ? new Ice.SocketException() : null);
     }
-    
+
     @Override
     public void
     writeReady(boolean enable, Ice.Current current)
@@ -105,7 +105,7 @@ class BackgroundControllerI extends _BackgroundControllerDisp
     {
         _configuration.buffered(enable);
     }
-    
+
     public
     BackgroundControllerI(Configuration configuration, Ice.ObjectAdapter adapter)
     {

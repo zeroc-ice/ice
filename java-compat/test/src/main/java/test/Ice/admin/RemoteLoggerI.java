@@ -27,7 +27,7 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
         Ice.LogMessage front = _expectedLogMessages.pollFirst();
         test(front.type == logMessage.type && front.message.equals(logMessage.message) &&
              front.traceCategory.equals(logMessage.traceCategory));
-        
+
         _receivedCalls++;
         notifyAll();
     }
@@ -37,7 +37,7 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
         _expectedPrefix = prefix;
         _expectedInitMessages = logMessages;
     }
-   
+
     synchronized void checkNextLog(Ice.LogMessageType messageType, String message, String category)
     {
         Ice.LogMessage logMessage = new Ice.LogMessage(messageType, 0, category, message);

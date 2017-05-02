@@ -22,7 +22,7 @@ public:
     FileUserAccountMapperI(const std::string&);
 
     virtual std::string getUserAccount(const std::string&, const Ice::Current&);
-    
+
 private:
 
     std::map<std::string, std::string> _accounts;

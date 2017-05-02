@@ -38,7 +38,7 @@ public class TwowaysAMI
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-        
+
                 _called = false;
             }
         }
@@ -894,7 +894,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Small o;
-                Serialize.Small r = 
+                Serialize.Small r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialSmallCSharp(out o, result);
                 test(o == null);
                 test(r == null);
@@ -911,7 +911,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Small o;
-                Serialize.Small r = 
+                Serialize.Small r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialSmallCSharp(out o, result);
                 test(o.i == 99);
                 test(r.i == 99);
@@ -928,7 +928,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Large o;
-                Serialize.Large r = 
+                Serialize.Large r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialLargeCSharp(out o, result);
                 test(o.d1 == 1.0);
                 test(o.d2 == 2.0);
@@ -963,7 +963,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Struct o;
-                Serialize.Struct r = 
+                Serialize.Struct r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialStructCSharp(out o, result);
                 test(o.o == null);
                 test(o.o2 != null);

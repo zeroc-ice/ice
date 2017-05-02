@@ -26,7 +26,7 @@ class HandleBase
 public:
 
     typedef T element_type;
-    
+
     T* get() const
     {
         return _ptr;
@@ -43,7 +43,7 @@ public:
             // than just a function call). This maximises the chances
             // of inlining by compiler optimization.
             //
-            throwNullHandleException(__FILE__, __LINE__);           
+            throwNullHandleException(__FILE__, __LINE__);
         }
 
         return _ptr;
@@ -60,7 +60,7 @@ public:
             // than just a function call). This maximises the chances
             // of inlining by compiler optimization.
             //
-            throwNullHandleException(__FILE__, __LINE__);           
+            throwNullHandleException(__FILE__, __LINE__);
         }
 
         return *_ptr;
@@ -83,7 +83,7 @@ private:
     void throwNullHandleException(const char *, int) const;
 };
 
-template<typename T> inline void 
+template<typename T> inline void
 HandleBase<T>::throwNullHandleException(const char* file, int line) const
 {
     throw NullHandleException(file, line);
@@ -147,7 +147,7 @@ template<typename T>
 class Handle : public HandleBase<T>
 {
 public:
-    
+
     Handle(T* p = 0)
     {
         this->_ptr = p;
@@ -157,7 +157,7 @@ public:
             this->_ptr->__incRef();
         }
     }
-    
+
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
@@ -178,7 +178,7 @@ public:
             this->_ptr->__incRef();
         }
     }
-    
+
     ~Handle()
     {
         if(this->_ptr)
@@ -186,7 +186,7 @@ public:
             this->_ptr->__decRef();
         }
     }
-    
+
     Handle& operator=(T* p)
     {
         if(this->_ptr != p)
@@ -206,7 +206,7 @@ public:
         }
         return *this;
     }
-        
+
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
@@ -247,7 +247,7 @@ public:
         }
         return *this;
     }
-        
+
     template<class Y>
     static Handle dynamicCast(const HandleBase<Y>& r)
     {

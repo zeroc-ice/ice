@@ -93,7 +93,7 @@ private:
 
     Time _timeout;
 };
-    
+
 }
 
 #endif

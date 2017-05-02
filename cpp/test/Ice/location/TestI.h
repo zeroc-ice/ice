@@ -19,7 +19,7 @@ class ServerManagerI : public Test::ServerManager
 public:
 
     ServerManagerI(const ServerLocatorRegistryPtr&, const Ice::InitializationData&);
-    
+
     virtual void startServer(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 

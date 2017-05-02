@@ -83,7 +83,7 @@ namespace Ice
         {
             $this->id =$id;
         }
-        
+
         public function ice_id()
         {
             return $this->id;
@@ -173,12 +173,12 @@ namespace Ice
         {
             SliceChecksumInit::$_checksums = array_merge(SliceChecksumInit::$_checksums, $checksums);
         }
-        
+
         public static function checksums()
         {
             return SliceChecksumInit::$_checksums;;
         }
-        
+
         private static $_checksums = array();
     };
 

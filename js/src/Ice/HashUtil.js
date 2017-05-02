@@ -39,7 +39,7 @@ class HashUtil
         }
         return h;
     }
-    
+
     static addArray(h, arr, hashCode)
     {
         if(arr !== undefined && arr !== null)

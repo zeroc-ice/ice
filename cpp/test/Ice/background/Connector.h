@@ -16,12 +16,12 @@
 class Connector : public IceInternal::Connector
 {
 public:
-    
+
     IceInternal::TransceiverPtr connect();
 
     Ice::Short type() const;
     std::string toString() const;
-    
+
     virtual bool operator==(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
 

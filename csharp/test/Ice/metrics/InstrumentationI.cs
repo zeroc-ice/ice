@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 public class ObserverI : Ice.Instrumentation.Observer
 {
-    virtual public void 
+    virtual public void
     reset()
     {
         lock(this)
@@ -24,7 +24,7 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
-    public void 
+    public void
     attach()
     {
         lock(this)
@@ -33,7 +33,7 @@ public class ObserverI : Ice.Instrumentation.Observer
             ++current;
         }
     }
-    public void 
+    public void
     detach()
     {
         lock(this)
@@ -41,7 +41,7 @@ public class ObserverI : Ice.Instrumentation.Observer
             --current;
         }
     }
-    public void 
+    public void
     failed(String s)
     {
         lock(this)
@@ -50,7 +50,7 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
-    public int 
+    public int
     getTotal()
     {
         lock(this)
@@ -59,7 +59,7 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
-    public int 
+    public int
     getCurrent()
     {
         lock(this)
@@ -68,7 +68,7 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
 
-    public int 
+    public int
     getFailedCount()
     {
         lock(this)
@@ -84,7 +84,7 @@ public class ObserverI : Ice.Instrumentation.Observer
 
 public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvocationObserver
 {
-    override public void 
+    override public void
     reset()
     {
         lock(this)
@@ -116,7 +116,7 @@ public class CollocatedObserverI : ChildInvocationObserverI, Ice.Instrumentation
 
 public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObserver
 {
-    override public void 
+    override public void
     reset()
     {
         lock(this)
@@ -135,7 +135,7 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
         }
     }
 
-    public void 
+    public void
     retried()
     {
         lock(this)
@@ -144,7 +144,7 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
         }
     }
 
-    public void 
+    public void
     userException()
     {
         lock(this)
@@ -153,7 +153,7 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
         }
     }
 
-    public Ice.Instrumentation.RemoteObserver 
+    public Ice.Instrumentation.RemoteObserver
     getRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
     {
         lock(this)
@@ -190,7 +190,7 @@ public class InvocationObserverI : ObserverI , Ice.Instrumentation.InvocationObs
 
 public class DispatchObserverI : ObserverI , Ice.Instrumentation.DispatchObserver
 {
-    override public void 
+    override public void
     reset()
     {
         lock(this)
@@ -201,7 +201,7 @@ public class DispatchObserverI : ObserverI , Ice.Instrumentation.DispatchObserve
         }
     }
 
-    public void 
+    public void
     userException()
     {
         lock(this)
@@ -210,7 +210,7 @@ public class DispatchObserverI : ObserverI , Ice.Instrumentation.DispatchObserve
         }
     }
 
-    public void 
+    public void
     reply(int s)
     {
         lock(this)
@@ -225,7 +225,7 @@ public class DispatchObserverI : ObserverI , Ice.Instrumentation.DispatchObserve
 
 public class ConnectionObserverI : ObserverI , Ice.Instrumentation.ConnectionObserver
 {
-    override public void 
+    override public void
     reset()
     {
         lock(this)
@@ -236,7 +236,7 @@ public class ConnectionObserverI : ObserverI , Ice.Instrumentation.ConnectionObs
         }
     }
 
-    public void 
+    public void
     sentBytes(int s)
     {
         lock(this)
@@ -245,7 +245,7 @@ public class ConnectionObserverI : ObserverI , Ice.Instrumentation.ConnectionObs
         }
     }
 
-    public void 
+    public void
     receivedBytes(int s)
     {
         lock(this)
@@ -253,14 +253,14 @@ public class ConnectionObserverI : ObserverI , Ice.Instrumentation.ConnectionObs
             received += s;
         }
     }
-    
+
     public int sent;
     public int received;
 };
 
 public class ThreadObserverI : ObserverI , Ice.Instrumentation.ThreadObserver
 {
-    override public void 
+    override public void
     reset()
     {
         lock(this)
@@ -270,7 +270,7 @@ public class ThreadObserverI : ObserverI , Ice.Instrumentation.ThreadObserver
         }
     }
 
-    public void 
+    public void
     stateChanged(Ice.Instrumentation.ThreadState o, Ice.Instrumentation.ThreadState n)
     {
         lock(this)
@@ -284,7 +284,7 @@ public class ThreadObserverI : ObserverI , Ice.Instrumentation.ThreadObserver
 
 public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
 {
-    public void 
+    public void
     setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
     {
         lock(this)
@@ -292,8 +292,8 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             updater = u;
         }
     }
- 
-    public Ice.Instrumentation.Observer 
+
+    public Ice.Instrumentation.Observer
     getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
     {
         lock(this)
@@ -307,8 +307,8 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
- 
-    public Ice.Instrumentation.Observer 
+
+    public Ice.Instrumentation.Observer
     getEndpointLookupObserver(Ice.Endpoint e)
     {
         lock(this)
@@ -321,11 +321,11 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             return endpointLookupObserver;
         }
     }
-    
-    public Ice.Instrumentation.ConnectionObserver 
+
+    public Ice.Instrumentation.ConnectionObserver
     getConnectionObserver(Ice.ConnectionInfo c,
                           Ice.Endpoint e,
-                          Ice.Instrumentation.ConnectionState s, 
+                          Ice.Instrumentation.ConnectionState s,
                           Ice.Instrumentation.ConnectionObserver old)
     {
         lock(this)
@@ -340,7 +340,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
-    public Ice.Instrumentation.ThreadObserver 
+    public Ice.Instrumentation.ThreadObserver
     getThreadObserver(String p, String id, Ice.Instrumentation.ThreadState s,
                       Ice.Instrumentation.ThreadObserver old)
     {
@@ -352,7 +352,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
                 threadObserver = new ThreadObserverI();
                 threadObserver.reset();
             }
-            return threadObserver; 
+            return threadObserver;
         }
    }
 
@@ -418,7 +418,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
     */
-    
+
     protected Ice.Instrumentation.ObserverUpdater updater;
 
     public ObserverI connectionEstablishmentObserver;

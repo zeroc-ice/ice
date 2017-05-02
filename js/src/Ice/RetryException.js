@@ -25,7 +25,7 @@ class RetryException extends Error
             this._ex = ex._ex;
         }
     }
-    
+
     get inner()
     {
         return this._ex;

@@ -61,7 +61,7 @@ class HashMap
         //
         // The first argument can be a HashMap or the keyComparator, the second
         // argument if present is always the value comparator.
-        // 
+        //
         let h, keyComparator, valueComparator;
 
         if(typeof arg1 == "function")
@@ -113,7 +113,7 @@ class HashMap
 
         return setInternal(this, r.key, value, r.hash, index);
     }
-    
+
     get(key)
     {
         const r = this.computeHash(key); // Returns an object with key,hash members.
@@ -183,7 +183,7 @@ class HashMap
 
         return undefined;
     }
-    
+
     clear()
     {
         for(let i = 0; i < this._table.length; ++i)
@@ -238,7 +238,7 @@ class HashMap
             {
                 return this._valueComparator.call(this._valueComparator, v1, v2);
             });
-        
+
         for(let e = this._head; e !== null; e = e._next)
         {
             const oe = other.findEntry(e._key, e._hash);
@@ -421,7 +421,7 @@ class HashMap
     {
         return this._keyComparator.call(this._keyComparator, k1, k2);
     }
-    
+
     get size()
     {
         return this._size;
@@ -457,7 +457,7 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
             return new HashMap(h || keysEqual);
         };
     }
-    
+
     let helper = null;
     Object.defineProperty(module, helperName,
     {
@@ -467,7 +467,7 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
             {
                 helper = Ice.StreamHelpers.generateDictHelper(_ModuleRegistry.type(keyHelper),
                                                               _ModuleRegistry.type(valueHelper),
-                                                              fixed, 
+                                                              fixed,
                                                               _ModuleRegistry.type(valueType),
                                                               module[name]);
             }

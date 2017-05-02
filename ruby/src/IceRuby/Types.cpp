@@ -595,8 +595,8 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool
 #if defined(_MSC_VER) && (_MSC_VER <= 1700)
             _finite(val) &&
 #else
-            isfinite(d) && 
-#endif            
+            isfinite(d) &&
+#endif
             (d > numeric_limits<float>::max() || d < -numeric_limits<float>::max()))
         {
             throw RubyException(rb_eTypeError, "value is out of range for a float");
@@ -2263,7 +2263,7 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
     {
         return true;
     }
-    
+
     return base && base->isA(info);
 }
 
@@ -2286,7 +2286,7 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
         const_cast<ProxyInfoPtr&>(base) = ProxyInfoPtr::dynamicCast(getType(b));
         assert(base);
     }
-    
+
     volatile VALUE arr = callRuby(rb_check_array_type, i);
     assert(!NIL_P(arr));
     for(int n = 0; n < RARRAY_LEN(arr); ++n)
@@ -2295,7 +2295,7 @@ IceRuby::ProxyInfo::define(VALUE t, VALUE b, VALUE i)
         assert(iface);
         const_cast<ProxyInfoList&>(interfaces).push_back(iface);
     }
-    
+
     const_cast<VALUE&>(rubyClass) = t;
 }
 
@@ -3124,7 +3124,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE compactId, VALUE pres
             }
             _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
         }
-        
+
         if(type != Qnil && !info->interface)
         {
             rb_define_const(type, "ICE_TYPE", self);

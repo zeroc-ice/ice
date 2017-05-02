@@ -65,7 +65,7 @@ public class Client extends test.Util.Application
             test(properties.getProperty("Config3").equals("Config3"));
             System.out.println("ok");
         }
-       
+
         {
             System.out.print("testing configuration file escapes... ");
             String[] args1 = new String[]{"--Ice.Config=config/escapes.cfg"};
@@ -93,10 +93,10 @@ public class Client extends test.Util.Application
                                           "AServer", "\\\\server\\dir",
                                           "BServer", "\\server\\dir",
                                           ""};
-            
+
             for(int i = 0; !props[i].isEmpty(); i += 2)
             {
-                test(properties.getProperty(props[i]).equals(props[i + 1])); 
+                test(properties.getProperty(props[i]).equals(props[i + 1]));
             }
             System.out.println("ok");
         }

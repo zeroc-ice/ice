@@ -294,7 +294,7 @@ module Ice
             @mutex = Mutex.new
             @queue = Array.new
             @callback = nil
-            
+
             @read, @write = IO.pipe
 
             #
@@ -356,7 +356,7 @@ module Ice
             }
         end
 
- 
+
         @@_self = nil
     end
 

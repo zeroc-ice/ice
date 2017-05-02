@@ -24,15 +24,15 @@ class MasterDatabaseObserverI : public DatabaseObserver, public IceUtil::Mutex
 public:
 
     MasterDatabaseObserverI(const ReplicaSessionManager::ThreadPtr& thread,
-                            const DatabasePtr& database, 
-                            const ReplicaSessionPrx& session) : 
+                            const DatabasePtr& database,
+                            const ReplicaSessionPrx& session) :
         _thread(thread),
         _database(database),
         _session(session)
     {
     }
 
-    virtual void 
+    virtual void
     applicationInit(int, const ApplicationInfoSeq& applications, const Ice::Current& current)
     {
         int serial;
@@ -40,7 +40,7 @@ public:
         receivedUpdate(ApplicationObserverTopicName, serial);
     }
 
-    virtual void 
+    virtual void
     applicationAdded(int, const ApplicationInfo& application, const Ice::Current& current)
     {
         int serial;
@@ -58,7 +58,7 @@ public:
         receivedUpdate(ApplicationObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     applicationRemoved(int, const std::string& name, const Ice::Current& current)
     {
         int serial;
@@ -76,7 +76,7 @@ public:
         receivedUpdate(ApplicationObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     applicationUpdated(int, const ApplicationUpdateInfo& update, const Ice::Current& current)
     {
         int serial;
@@ -108,7 +108,7 @@ public:
         receivedUpdate(AdapterObserverTopicName, serial);
     }
 
-    virtual void 
+    virtual void
     adapterAdded(const AdapterInfo& info, const Ice::Current& current)
     {
         int serial;
@@ -124,7 +124,7 @@ public:
         receivedUpdate(AdapterObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     adapterUpdated(const AdapterInfo& info, const Ice::Current& current)
     {
         int serial;
@@ -140,7 +140,7 @@ public:
         receivedUpdate(AdapterObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     adapterRemoved(const std::string& id, const Ice::Current& current)
     {
         int serial;
@@ -164,7 +164,7 @@ public:
         receivedUpdate(ObjectObserverTopicName, serial);
     }
 
-    virtual void 
+    virtual void
     objectAdded(const ObjectInfo& info, const Ice::Current& current)
     {
         int serial;
@@ -183,7 +183,7 @@ public:
         receivedUpdate(ObjectObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     objectUpdated(const ObjectInfo& info, const Ice::Current& current)
     {
         int serial;
@@ -208,7 +208,7 @@ public:
         receivedUpdate(ObjectObserverTopicName, serial, failure);
     }
 
-    virtual void 
+    virtual void
     objectRemoved(const Ice::Identity& id, const Ice::Current& current)
     {
         int serial;
@@ -240,7 +240,7 @@ private:
             istringstream is(p->second);
             is >> serial;
         }
-        else 
+        else
         {
             serial = -1;
         }
@@ -258,8 +258,8 @@ private:
             return -1;
         }
     }
-    
-    void 
+
+    void
     receivedUpdate(TopicName name, int serial, const string& failure = string())
     {
         try
@@ -283,12 +283,12 @@ private:
 };
 
 ReplicaSessionManager::ReplicaSessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) :
-    SessionManager(communicator, instanceName) 
+    SessionManager(communicator, instanceName)
 {
 }
 
 void
-ReplicaSessionManager::create(const string& name, 
+ReplicaSessionManager::create(const string& name,
                               const InternalReplicaInfoPtr& info,
                               const DatabasePtr& database,
                               const WellKnownObjectsManagerPtr& wellKnownObjects,
@@ -307,7 +307,7 @@ ReplicaSessionManager::create(const string& name,
         _thread = new Thread(*this, _master, _traceLevels->logger);
         _thread->start();
         notifyAll();
-    }    
+    }
 
     _thread->tryCreateSession();
     _thread->waitTryCreateSession();
@@ -350,7 +350,7 @@ ReplicaSessionManager::getNodes(const NodePrxSeq& nodes) const
             return nodes;
         }
     }
-    else 
+    else
     {
         return nodes;
     }
@@ -420,7 +420,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
     {
         results.push_back((*q)->begin_findObjectById(id));
     }
-    
+
     for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
     {
         QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
@@ -432,7 +432,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
         {
         }
     }
-        
+
     return 0;
 }
 
@@ -473,7 +473,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
             Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
             out << "trying to establish session with master replica";
         }
-        
+
         set<InternalRegistryPrx> used;
         if(!registry->ice_getEndpoints().empty())
         {
@@ -497,7 +497,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
             {
                 results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));
             }
-            
+
             for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
             {
                 QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
@@ -598,7 +598,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
 
 ReplicaSessionPrx
 ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
-{           
+{
     ReplicaSessionPrx session;
     try
     {
@@ -608,7 +608,7 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
         {
             timeout = IceUtil::Time::seconds(t / 2);
         }
-        
+
         //
         // Create a new database observer servant and give its proxy
         // to the session so that it can subscribe it. This call only
@@ -640,7 +640,7 @@ ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
         try
         {
             session->destroy();
-            
+
             if(_traceLevels && _traceLevels->replica > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);

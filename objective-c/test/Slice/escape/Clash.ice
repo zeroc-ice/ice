@@ -27,9 +27,9 @@ interface Intf
     void ok();
     void target();
 
-    void op(string context, string current, string response, string ex, string sent, string cookie, 
+    void op(string context, string current, string response, string ex, string sent, string cookie,
             string sync, string result, string istr, string ostr, string target, optional(1) string proxy, optional(2) string ok);
-    void opOut(out string context, out string current, out string response, out string ex, 
+    void opOut(out string context, out string current, out string response, out string ex,
                out string sent, out string cookie, out string sync, out string result, out string istr,
                out string ostr, out string target, out optional(1) string proxy, out optional(2) string ok);
 };

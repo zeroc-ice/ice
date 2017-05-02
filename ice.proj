@@ -11,7 +11,7 @@
   <PropertyGroup>
     <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
       <Configuration>$(Configuration)</Configuration>

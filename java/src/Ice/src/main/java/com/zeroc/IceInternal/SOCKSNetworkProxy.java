@@ -55,7 +55,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     @Override
     public int endWrite(Buffer buf)
     {
-        // Once the request is sent, read the response 
+        // Once the request is sent, read the response
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
     }
 
@@ -95,11 +95,11 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     public NetworkProxy resolveHost(int protocolSupport)
     {
         assert(_host != null);
-        return new SOCKSNetworkProxy(Network.getAddresses(_host, 
-                                                          _port, 
-                                                          protocolSupport, 
+        return new SOCKSNetworkProxy(Network.getAddresses(_host,
+                                                          _port,
+                                                          protocolSupport,
                                                           com.zeroc.Ice.EndpointSelectionType.Random,
-                                                          false, 
+                                                          false,
                                                           true).get(0));
     }
 

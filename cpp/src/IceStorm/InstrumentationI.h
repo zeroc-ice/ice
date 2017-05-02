@@ -18,7 +18,7 @@
 namespace IceStorm
 {
 
-class TopicObserverI : public IceStorm::Instrumentation::TopicObserver, 
+class TopicObserverI : public IceStorm::Instrumentation::TopicObserver,
                        public IceMX::ObserverT<IceMX::TopicMetrics>
 {
 public:
@@ -27,7 +27,7 @@ public:
     virtual void forwarded();
 };
 
-class SubscriberObserverI : public IceStorm::Instrumentation::SubscriberObserver, 
+class SubscriberObserverI : public IceStorm::Instrumentation::SubscriberObserver,
                             public IceMX::ObserverT<IceMX::SubscriberMetrics>
 {
 public:
@@ -44,10 +44,10 @@ public:
     TopicManagerObserverI(const IceInternal::MetricsAdminIPtr&);
 
     virtual void setObserverUpdater(const IceStorm::Instrumentation::ObserverUpdaterPtr&);
- 
+
     virtual IceStorm::Instrumentation::TopicObserverPtr getTopicObserver(
         const std::string&, const std::string&, const IceStorm::Instrumentation::TopicObserverPtr&);
-    
+
     virtual IceStorm::Instrumentation::SubscriberObserverPtr getSubscriberObserver(
         const std::string&,
         const std::string&,

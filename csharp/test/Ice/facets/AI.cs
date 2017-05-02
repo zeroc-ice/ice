@@ -14,7 +14,7 @@ public sealed class AI : ADisp_
     public AI()
     {
     }
-    
+
     public override string callA(Ice.Current current)
     {
         return "A";

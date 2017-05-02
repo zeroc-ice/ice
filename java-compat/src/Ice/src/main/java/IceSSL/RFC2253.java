@@ -24,7 +24,7 @@ class RFC2253
         {
             this.reason = reason;
         }
-        
+
         @Override
         public String
         ice_id()

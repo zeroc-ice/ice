@@ -33,9 +33,9 @@ namespace IceInternal
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
-                    _observer = obsv.getThreadObserver("Communicator", 
-                                                       _thread.getName(), 
-                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                    _observer = obsv.getThreadObserver("Communicator",
+                                                       _thread.getName(),
+                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
                     if(_observer != null)
                     {
@@ -83,7 +83,7 @@ namespace IceInternal
                 {
                     if(_observer != null && inUse)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO, 
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO,
                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         inUse = false;
                     }
@@ -104,7 +104,7 @@ namespace IceInternal
 
                     if(_observer != null)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                         inUse = true;
                     }

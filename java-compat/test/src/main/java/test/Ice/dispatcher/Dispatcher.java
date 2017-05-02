@@ -27,7 +27,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
     }
 
     @Override
-    public void 
+    public void
     run()
     {
         while(true)
@@ -45,7 +45,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
                     {
                     }
                 }
-                
+
                 if(!_calls.isEmpty())
                 {
                     call = _calls.poll();
@@ -56,7 +56,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
                     return;
                 }
             }
-            
+
             if(call != null)
             {
                 try
@@ -71,7 +71,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
             }
         }
     }
-    
+
     @Override
     synchronized public void
     dispatch(Runnable call, Ice.Connection con)
@@ -104,7 +104,7 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
             }
         }
     }
-    
+
     public boolean
     isDispatcherThread()
     {

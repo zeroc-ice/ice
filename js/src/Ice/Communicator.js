@@ -176,7 +176,7 @@ class Communicator
     {
         this._instance.setDefaultLocator(locator);
     }
-    
+
     flushBatchRequests()
     {
         return this._instance.outgoingConnectionFactory().flushAsyncBatchRequests();

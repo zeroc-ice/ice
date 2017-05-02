@@ -39,7 +39,7 @@ class AsyncResultBase extends Ice.Promise
 
     get adapter()
     {
-        return this._adapter; 
+        return this._adapter;
     }
 
     get operation()

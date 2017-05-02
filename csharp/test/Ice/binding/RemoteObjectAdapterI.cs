@@ -14,7 +14,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
+        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(),
                                                     Ice.Util.stringToIdentity("test")));
         _adapter.activate();
     }

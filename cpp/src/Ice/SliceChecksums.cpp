@@ -42,7 +42,7 @@ Init init;
 class SliceChecksumDictDestroyer
 {
 public:
-    
+
     ~SliceChecksumDictDestroyer()
     {
         delete _sliceChecksums;

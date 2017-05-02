@@ -36,7 +36,7 @@ public:
     virtual Ice::Byte* toUTF8(const wchar_t*, const wchar_t*, Ice::UTF8Buffer&) const;
     virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
                           std::wstring& target) const;
-    
+
 };
 
 }

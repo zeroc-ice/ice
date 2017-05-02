@@ -81,7 +81,7 @@ internal class Configuration
             _readException = ex;
         }
     }
-    
+
     public bool readReady()
     {
         lock(this)
@@ -121,7 +121,7 @@ internal class Configuration
             _writeException = ex;
         }
     }
-    
+
     public bool writeReady()
     {
         lock(this)

@@ -18,7 +18,7 @@ using namespace IceUtil;
 class PriorityTestThread : public Thread
 {
 public:
-    
+
     PriorityTestThread() :
         _priority(-1024) //Initialize to some strange value, so by default is not a valid priority
     {

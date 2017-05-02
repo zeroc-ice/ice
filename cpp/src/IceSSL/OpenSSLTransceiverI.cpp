@@ -190,7 +190,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 }
             }
 #endif
-            
+
             SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
         }
     }
@@ -433,7 +433,7 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
     //
     // It's impossible for packetSize to be more than an Int.
     //
-    int packetSize = 
+    int packetSize =
 #ifdef ICE_USE_IOCP
         std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buf.b.end() - buf.i));
 #else

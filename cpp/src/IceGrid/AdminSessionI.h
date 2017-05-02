@@ -86,7 +86,7 @@ class AdminSessionFactory : public virtual IceUtil::Shared
 public:
 
     AdminSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
-    
+
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     AdminSessionIPtr createSessionServant(const std::string&);
 
@@ -108,11 +108,11 @@ class AdminSessionManagerI : public virtual Glacier2::SessionManager
 public:
 
     AdminSessionManagerI(const AdminSessionFactoryPtr&);
-    
+
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
 
 private:
-    
+
     const AdminSessionFactoryPtr _factory;
 };
 
@@ -121,11 +121,11 @@ class AdminSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
 public:
 
     AdminSSLSessionManagerI(const AdminSessionFactoryPtr&);
-    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
+    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&,
                                         const Ice::Current&);
 
 private:
-    
+
     const AdminSessionFactoryPtr _factory;
 };
 

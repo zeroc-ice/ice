@@ -33,9 +33,9 @@ public:
 
     void destroy();
 
-    Glacier2::Instrumentation::SessionObserverPtr 
+    Glacier2::Instrumentation::SessionObserverPtr
     updateObserver(const Glacier2::Instrumentation::RouterObserverPtr&, const std::string&, const Ice::ConnectionPtr&);
-    
+
     // Returns evicted proxies.
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
     Ice::ObjectPrx get(const Ice::Identity&); // Returns null if no proxy can be found.
@@ -45,7 +45,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const int _traceLevel;
     const int _maxSize;
-    const ProxyVerifierPtr _verifier; 
+    const ProxyVerifierPtr _verifier;
 
     struct EvictorEntry;
     typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;

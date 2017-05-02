@@ -31,7 +31,7 @@ hashAdd(Ice::Int& hashCode, const std::string& value)
     for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)
     {
         hashCode = ((hashCode << 5) + hashCode) ^ *p;
-    }    
+    }
 }
 
 template<typename T> void

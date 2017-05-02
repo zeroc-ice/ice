@@ -65,7 +65,7 @@ final class Connector implements com.zeroc.IceInternal.Connector
         }
 
         return _connector.equals(p._connector);
-    } 
+    }
 
     final private com.zeroc.IceInternal.Connector _connector;
     final private Configuration _configuration;

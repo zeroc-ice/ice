@@ -38,7 +38,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(facetFilter.size() == 1 && facetFilter[0] == "foo'bar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
-    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && 
+    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" &&
          facetFilter[2] == "titi");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");

@@ -119,7 +119,7 @@ public:
     // Changes made to this value have no effect on existing connections.
     //
     virtual SSL_CTX* getContext() = 0;
-    
+
 };
 ICE_DEFINE_PTR(PluginPtr, Plugin);
 

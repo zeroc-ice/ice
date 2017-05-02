@@ -109,7 +109,7 @@ sequence<MyClass*> MyClassProxyStack;
 sequence<MyInterface*> MyInterfaceProxyStack;
 
 //
-// This will produce a warning and use the default 
+// This will produce a warning and use the default
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
@@ -117,7 +117,7 @@ sequence<MyInterface*> MyInterfaceProxyStack;
 sequence<Object> ObjectStack;
 
 //
-// This will produce a warning and use the default 
+// This will produce a warning and use the default
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //
@@ -125,7 +125,7 @@ sequence<Object> ObjectStack;
 sequence<MyClass> MyClassStack;
 
 //
-// This will produce a warning and use the default 
+// This will produce a warning and use the default
 // sequence mapping. The generic:Stack metadata cannot be use
 // with object sequences.
 //

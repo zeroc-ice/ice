@@ -29,7 +29,7 @@ public class TableField extends JTable
         {
             _columnNames.add(name);
         }
-        
+
         //
         // Adjust row height for larger fonts
         //

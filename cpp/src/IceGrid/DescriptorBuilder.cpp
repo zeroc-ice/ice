@@ -17,7 +17,7 @@
 using namespace std;
 using namespace IceGrid;
 
-XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs, 
+XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs,
                                          const Ice::LoggerPtr& logger,
                                          const string& filename,
                                          int line) :
@@ -55,7 +55,7 @@ XmlAttributesHelper::contains(const string& name) const
     return _attributes.find(name) != _attributes.end();
 }
 
-string 
+string
 XmlAttributesHelper::operator()(const string& name) const
 {
     _used.insert(name);
@@ -110,7 +110,7 @@ XmlAttributesHelper::asBool(const string& name) const
     else if(p->second == "true")
     {
         return true;
-    }    
+    }
     else if(p->second == "false")
     {
         return false;
@@ -134,7 +134,7 @@ XmlAttributesHelper::asBool(const string& name, bool def) const
     else if(p->second == "true")
     {
         return true;
-    }    
+    }
     else if(p->second == "false")
     {
         return false;
@@ -152,7 +152,7 @@ DescriptorBuilder::addVariable(const XmlAttributesHelper&)
     throw "the <variable> element can't be a child of this element";
 }
 
-PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() : 
+PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() :
     _inPropertySetRef(false)
 {
 }
@@ -224,7 +224,7 @@ PropertySetDescriptorBuilder::finish()
 }
 
 ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
-                                                           const XmlAttributesHelper& attrs, 
+                                                           const XmlAttributesHelper& attrs,
                                                            const map<string, string>& overrides) :
     _communicator(communicator),
     _overrides(overrides)
@@ -235,7 +235,7 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::Communicat
 
 ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const Ice::CommunicatorPtr& communicator,
                                                            const ApplicationDescriptor& app,
-                                                           const XmlAttributesHelper& attrs, 
+                                                           const XmlAttributesHelper& attrs,
                                                            const map<string, string>& overrides) :
     _communicator(communicator),
     _descriptor(app),
@@ -323,7 +323,7 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     object.proxyOptions = attrs("proxy-options", "");
     if(attrs.contains("property"))
     {
-        throw "property attribute is not allowed in object descriptors from a replica group";   
+        throw "property attribute is not allowed in object descriptors from a replica group";
     }
     _descriptor.replicaGroups.back().objects.push_back(object);
 }
@@ -410,7 +410,7 @@ ApplicationDescriptorBuilder::addPropertySet(const string& id, const PropertySet
     }
 }
 
-void 
+void
 ApplicationDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
     _descriptor.distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
@@ -460,7 +460,7 @@ ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const Pro
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
-NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
+NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app,
                                              const NodeDescriptor& desc,
                                              const XmlAttributesHelper& attrs) :
     _application(app),
@@ -538,8 +538,8 @@ NodeDescriptorBuilder::setDescription(const string& description)
     _descriptor.description = description;
 }
 
-TemplateDescriptorBuilder::TemplateDescriptorBuilder(ApplicationDescriptorBuilder& application, 
-                                                     const XmlAttributesHelper& attrs, 
+TemplateDescriptorBuilder::TemplateDescriptorBuilder(ApplicationDescriptorBuilder& application,
+                                                     const XmlAttributesHelper& attrs,
                                                      bool serviceTemplate) :
     _application(application),
     _serviceTemplate(serviceTemplate),
@@ -553,7 +553,7 @@ TemplateDescriptorBuilder::addParameter(const XmlAttributesHelper& attrs)
     if(find(_descriptor.parameters.begin(), _descriptor.parameters.end(), attrs("name")) !=
        _descriptor.parameters.end())
     {
-        throw "duplicate parameter `" + attrs("name") + "'"; 
+        throw "duplicate parameter `" + attrs("name") + "'";
     }
 
     _descriptor.parameters.push_back(attrs("name"));
@@ -735,7 +735,7 @@ CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
         // We are re-opening the dbenv element to define more properties.
         //
         if(p->name == desc.name)
-        {       
+        {
             break;
         }
     }
@@ -743,18 +743,18 @@ CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
     if(p != _descriptor->dbEnvs.end())
     {
         //
-        // Remove the previously defined dbenv, we'll add it back again when 
+        // Remove the previously defined dbenv, we'll add it back again when
         // the dbenv element end tag is reached.
         //
         desc = *p;
         _descriptor->dbEnvs.erase(p);
-    }   
+    }
 
     if(desc.dbHome.empty())
     {
         desc.dbHome = attrs("home", "");
     }
-    
+
     _descriptor->dbEnvs.push_back(desc);
 }
 

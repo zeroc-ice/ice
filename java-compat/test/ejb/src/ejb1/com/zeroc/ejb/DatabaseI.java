@@ -13,7 +13,7 @@ import com.zeroc.ice.Test.*;
 
 public class DatabaseI extends _DatabaseDisp
 {
-    public final Account 
+    public final Account
     getAccount(String id, Ice.Current current)
         throws AccountNotExistException
     {

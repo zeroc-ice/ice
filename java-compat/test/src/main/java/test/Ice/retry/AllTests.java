@@ -113,7 +113,7 @@ public class AllTests
     }
 
     public static RetryPrx
-    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, PrintWriter out, 
+    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, PrintWriter out,
              Instrumentation instrumentation, String ref)
     {
         out.print("testing stringToProxy... ");
@@ -159,7 +159,7 @@ public class AllTests
         instrumentation.testFailureCount(1);
         instrumentation.testRetryCount(0);
         out.println("ok");
-        
+
         out.print("calling regular operation with first proxy again... ");
         out.flush();
         retry1.op(false);

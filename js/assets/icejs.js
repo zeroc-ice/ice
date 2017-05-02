@@ -33,7 +33,7 @@ $(".source").each(
     {
         $.ajax(
             {
-                url: $(e).attr("data-code"), 
+                url: $(e).attr("data-code"),
                 //
                 // Use text data type to avoid problems interpreting the data.
                 //
@@ -64,10 +64,10 @@ $("#viewSource").click(
 if(document.location.protocol === "file:")
 {
     var setupDialog = "<div id=\"setup-modal\" class=\"reveal-modal\" data-reveal>" +
-        "<p>The Ice for JavaScript demos require a web server. Please refer to the usage instructions " + 
+        "<p>The Ice for JavaScript demos require a web server. Please refer to the usage instructions " +
         "in our <a href=\"https://github.com/zeroc-ice/ice-demos\">GitHub repository</a> for information " +
         "on how to run the web server included with your distribution.</p></div>";
-    
+
     $("body").append(setupDialog);
     $("#setup-modal").foundation({
         reveal:
@@ -84,7 +84,7 @@ if(document.location.protocol === "file:")
 
 //
 // Check if the corresponding generated files can be access, if they
-// cannot be access display the build-required-modal otherwhise do 
+// cannot be access display the build-required-modal otherwhise do
 // nothing.
 //
 function checkGenerated(files)
@@ -92,20 +92,20 @@ function checkGenerated(files)
     var dialog = "<div id=\"build-required-modal\" class=\"reveal-modal\" data-reveal>" +
         "<p>Couldn't find generated file `%FILENAME%'. This is expected if you didn't build the JavaScript demos. " +
         "Please refer to the usage instructions in our " +
-        "<a href=\"https://github.com/zeroc-ice/ice-demos\">GitHub repository</a> " + 
+        "<a href=\"https://github.com/zeroc-ice/ice-demos\">GitHub repository</a> " +
         "for information on how to build the demos.</p>" +
         "</div>";
-    
+
     var basePath = document.location.pathname;
     basePath = basePath.substr(0, basePath.lastIndexOf("/"));
-    
+
     var error = false;
     files.forEach(
         function(f)
         {
             $.ajax(
                 {
-                    headers: {method: "HEAD"}, 
+                    headers: {method: "HEAD"},
                     url: basePath + "/" + f,
                     //
                     // Use text data type to avoid problems interpreting the data.

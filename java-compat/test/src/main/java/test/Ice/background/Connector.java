@@ -69,7 +69,7 @@ final class Connector implements IceInternal.Connector
         }
 
         return _connector.equals(p._connector);
-    } 
+    }
 
     final private IceInternal.Connector _connector;
     final private Configuration _configuration;

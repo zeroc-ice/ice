@@ -853,7 +853,7 @@ module M26
     interface D0 {                      //              \  /            //
         void id0();                     //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1();
@@ -873,27 +873,27 @@ module M26
     {
         void ia2();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();
@@ -927,7 +927,7 @@ module M27
     interface D0 {                      //              \  /            //
         void id0();                     //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1();
@@ -947,27 +947,27 @@ module M27
     {
         void ia2(); void op();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();
@@ -1001,7 +1001,7 @@ module M28
     interface D0 {                      //              \  /            //
         void id0();                     //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1();
@@ -1021,27 +1021,27 @@ module M28
     {
         void ia2();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();
@@ -1075,7 +1075,7 @@ module M29
     interface D0 {                      //              \  /            //
         void id0(); void op();          //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1();
@@ -1095,27 +1095,27 @@ module M29
     {
         void ia2();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();
@@ -1147,7 +1147,7 @@ module M30
     interface D0 {                      //              \  /            //
         void id0();                     //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1();
@@ -1167,27 +1167,27 @@ module M30
     {
         void ia2();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();
@@ -1219,7 +1219,7 @@ module M31
     interface D0 {                      //              \  /            //
         void id0();                     //               A4             //
     };
-                                       
+
     interface A1 extends A0, B0
     {
         void ia1(); void op();
@@ -1239,27 +1239,27 @@ module M31
     {
         void ia2();
     };
-    
+
     interface B2 extends A1
     {
         void ib2();
     };
-    
+
     interface C2 extends B1
     {
         void ic2();
     };
-    
+
     interface D2 extends B1, C1
     {
         void id2();
     };
-    
+
     interface A3 extends A2, B2
     {
         void ia3();
     };
-    
+
     interface B3 extends C2, D2
     {
         void ib3();

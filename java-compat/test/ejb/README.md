@@ -59,7 +59,7 @@ configuration:
 Run the clients
 ---------------
 
-To run the client for the first EJB version: 
+To run the client for the first EJB version:
 
   $ ant run.client1
 

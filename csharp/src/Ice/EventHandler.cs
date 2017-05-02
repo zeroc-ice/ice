@@ -33,7 +33,7 @@ public abstract class EventHandler
     internal int _pending = 0;
     internal int _started = 0;
     internal bool _finish = false;
-    
+
     internal bool _hasMoreData = false;
     internal int _registered = 0;
 }

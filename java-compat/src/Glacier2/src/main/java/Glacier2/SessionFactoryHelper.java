@@ -162,7 +162,7 @@ public class SessionFactoryHelper
     {
         return getProtocol().equals("ssl");
     }
-    
+
     /**
      *
      * Sets the protocol that will be used by the session factory to establish the connection.
@@ -175,7 +175,7 @@ public class SessionFactoryHelper
         {
             throw new IllegalArgumentException("You must use a valid protocol");
         }
-        
+
         if(!protocol.equals("tcp") &&
            !protocol.equals("ssl") &&
            !protocol.equals("wss") &&
@@ -183,7 +183,7 @@ public class SessionFactoryHelper
         {
             throw new IllegalArgumentException("Unknow protocol `" + protocol + "'");
         }
-        
+
         _protocol = protocol;
      }
 
@@ -242,10 +242,10 @@ public class SessionFactoryHelper
     {
         return getPortInternal();
     }
-    
+
     private int getPortInternal()
     {
-        return _port == 0 ? ((_protocol.equals("ssl") || 
+        return _port == 0 ? ((_protocol.equals("ssl") ||
                               _protocol.equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 

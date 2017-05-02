@@ -25,8 +25,8 @@ class SessionServantManager : public Ice::ServantLocator, public IceUtil::Mutex
 {
 public:
 
-    SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool, 
-                          const std::string&, const Ice::ObjectPtr&, 
+    SessionServantManager(const Ice::ObjectAdapterPtr&, const std::string&, bool,
+                          const std::string&, const Ice::ObjectPtr&,
                           const std::string&, const Ice::ObjectPtr&,
                           const std::string&, const Ice::ObjectPtr&,
                           const AdminCallbackRouterPtr&);
@@ -89,7 +89,7 @@ private:
     std::map<Ice::Identity, ServantInfo> _servants;
     std::map<Ice::ObjectPtr, SessionInfo> _sessions;
     std::multiset<Ice::ConnectionPtr> _adminConnections;
-    
+
 };
 typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;
 

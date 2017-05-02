@@ -60,7 +60,7 @@ findPersonalCertificate(String^ friendlyName)
     try
     {
         auto certificates = IceInternal::runSync(CertificateStores::FindAllAsync(query));
-        return certificates->Size > 0 ? certificates->GetAt(0) : nullptr; 
+        return certificates->Size > 0 ? certificates->GetAt(0) : nullptr;
     }
     catch(Platform::Exception^ ex)
     {
@@ -97,7 +97,7 @@ importPfxData(String^ friendlyName, String^ data, String^ password)
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__, 
+            throw PluginInitializationException(__FILE__, __LINE__,
                                                 "IceSSL: certificate error:\n" + wstringToString(ex->Message->Data()));
         }
     }
@@ -296,12 +296,12 @@ UWP::SSLEngine::initialize()
     if(!certFile.empty())
     {
         _certificate = dynamic_pointer_cast<UWP::Certificate>(UWP::Certificate::create(importPersonalCertificate(
-            certFile, 
+            certFile,
             [this]()
             {
                 return password(false);
-            }, 
-            getPasswordPrompt() != nullptr, 
+            },
+            getPasswordPrompt() != nullptr,
             passwordRetryMax)));
     }
     else if(!findCert.empty())

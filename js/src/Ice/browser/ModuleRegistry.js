@@ -10,8 +10,8 @@
 /* global
     self : false
 */
-const root = typeof(window) !== "undefined" ? window : 
-             typeof(global) !== "undefined" ? global : 
+const root = typeof(window) !== "undefined" ? window :
+             typeof(global) !== "undefined" ? global :
              typeof(self) !== "undefined" ? self : {};
 /* global
     self : true
@@ -29,12 +29,12 @@ class _ModuleRegistry
         }
         return m;
     }
-    
+
     static require(name)
     {
         return root;
     }
-    
+
     static type(scoped)
     {
         if(scoped === undefined)

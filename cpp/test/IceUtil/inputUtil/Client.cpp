@@ -116,7 +116,7 @@ main(int, char**)
     vector<string> args;
 
     test(IceUtilInternal::Options::split("").empty());
-    
+
     args = IceUtilInternal::Options::split("\"\"");
     test(args.size() == 1 && args[0] == "");
     args = IceUtilInternal::Options::split("''");

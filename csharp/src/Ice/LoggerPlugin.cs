@@ -21,7 +21,7 @@ namespace Ice
         /// </summary>
         /// <param name="communicator">The communicator using the custom logger.</param>
         /// <param name="logger">The custom logger for the communicator.</param>
-        public 
+        public
         LoggerPlugin(Communicator communicator, Logger logger)
         {
             if(communicator == null)
@@ -30,14 +30,14 @@ namespace Ice
                 ex.reason = "Communicator cannot be null";
                 throw ex;
             }
-    
+
             if(logger == null)
             {
                 PluginInitializationException ex = new PluginInitializationException();
                 ex.reason = "Logger cannot be null";
                 throw ex;
             }
-    
+
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
             instance.setLogger(logger);
         }
@@ -47,11 +47,11 @@ namespace Ice
         /// can override this method to perform any initialization that might be required
         /// by a custom logger.
         /// </summary>
-        public void 
+        public void
         initialize()
         {
         }
-    
+
         /// <summary>
         /// Called by the Ice run time when the communicator is destroyed. The derived class
         /// can override this method to perform any finalization that might be required

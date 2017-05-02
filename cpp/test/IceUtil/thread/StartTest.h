@@ -19,7 +19,7 @@ public:
     StartTest();
 
 private:
-    
+
     virtual void run();
 };
 

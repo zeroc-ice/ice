@@ -120,7 +120,7 @@ class LogPrefsDialog extends JDialog
         setLocationRelativeTo(dialog);
         setVisible(true);
     }
-    
+
     LogPrefsDialog(final ShowIceLogDialog dialog)
     {
         super(dialog, "Preferences - IceGrid GUI", true);
@@ -179,7 +179,7 @@ class LogPrefsDialog extends JDialog
         builder.nextLine();
         builder.append("Number of log messages retrieved initially", initialMessagesField);
         builder.nextLine();
-        
+
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 

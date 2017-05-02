@@ -19,7 +19,7 @@
 namespace IceBox
 {
 
-class ServiceManagerI : public ServiceManager, 
+class ServiceManagerI : public ServiceManager,
                         public IceUtil::Monitor<IceUtil::Mutex>
 #ifdef ICE_CPP11_MAPPING
                       , public std::enable_shared_from_this<ServiceManagerI>
@@ -86,7 +86,7 @@ private:
 
     Ice::PropertiesPtr createServiceProperties(const std::string&);
     void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
-    
+
     bool configureAdmin(const Ice::PropertiesPtr&, const std::string&);
     void removeAdminFacets(const std::string&);
 

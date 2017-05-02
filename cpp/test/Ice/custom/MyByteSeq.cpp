@@ -50,7 +50,7 @@ MyByteSeq::size() const
     return _size;
 }
 
-void 
+void
 MyByteSeq::swap(MyByteSeq& seq)
 {
     size_t tmpSize = seq._size;

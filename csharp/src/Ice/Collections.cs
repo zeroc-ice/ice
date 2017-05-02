@@ -50,7 +50,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static bool SequenceEquals(IEnumerable seq1, IEnumerable seq2)
@@ -91,7 +91,7 @@ namespace IceUtilInternal
                 return false;
             }
 
-            return true;           
+            return true;
         }
 
         public static int SequenceGetHashCode(IEnumerable seq)
@@ -102,7 +102,7 @@ namespace IceUtilInternal
             {
                 IceInternal.HashUtil.hashAdd(ref h, e.Current);
             }
-            return h;           
+            return h;
         }
 
         public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
@@ -144,7 +144,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static int DictionaryGetHashCode(IDictionary d)
@@ -156,7 +156,7 @@ namespace IceUtilInternal
                 IceInternal.HashUtil.hashAdd(ref h, e.Key);
                 IceInternal.HashUtil.hashAdd(ref h, e.Value);
             }
-            return h;           
+            return h;
         }
 
         public static void Shuffle<T>(ref List<T> l)
@@ -224,16 +224,16 @@ namespace IceUtilInternal
             {
                 tmp[k++] = array[i++];
             }
-            while(j < end) 
+            while(j < end)
             {
                 tmp[k++] = array[j++];
             }
-            for(i = 0; i < (end - begin); ++i) 
+            for(i = 0; i < (end - begin); ++i)
             {
                 array[begin + i] = tmp[i];
             }
         }
 
-        private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));        
+        private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
     }
 }

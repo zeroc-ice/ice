@@ -34,7 +34,7 @@ public:
     virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
 
     virtual void throwModA(Ice::Int, Ice::Int, const Ice::Current&);
-    
+
     virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);

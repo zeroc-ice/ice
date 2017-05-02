@@ -38,7 +38,7 @@ Ice.stringToIdentity = function(s)
         {
             escapes++;
         }
-            
+
         //
         // We ignore escaped escapes
         //

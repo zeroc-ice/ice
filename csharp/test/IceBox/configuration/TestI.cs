@@ -21,12 +21,12 @@ public class TestI : TestIntfDisp_
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
-    
+
     public override string[]
     getArgs(Ice.Current current)
     {
         return _args;
     }
-    
+
     private string[] _args;
 }

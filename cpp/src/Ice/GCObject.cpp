@@ -18,7 +18,7 @@ using namespace std;
 using namespace IceUtil;
 using namespace IceInternal;
 
-namespace 
+namespace
 {
 
 typedef ::map<GCObject*, int> GCCountMap;
@@ -41,11 +41,11 @@ public:
 };
 
 Init init;
-    
+
 class ClearMembers : public GCVisitor
 {
 public:
-    
+
     virtual bool visit(GCObject*);
 };
 ClearMembers clearMembers;
@@ -53,7 +53,7 @@ ClearMembers clearMembers;
 class DecreaseRefCounts : public GCVisitor
 {
 public:
-    
+
     DecreaseRefCounts(GCCountMap&);
 
     virtual bool visit(GCObject*);
@@ -66,7 +66,7 @@ private:
 class RestoreRefCountsIfReachable : public GCVisitor
 {
 public:
-        
+
     RestoreRefCountsIfReachable(GCCountMap&);
 
     virtual bool visit(GCObject*);
@@ -111,7 +111,7 @@ private:
 class ClearCollectable : public GCVisitor
 {
 public:
-    
+
     virtual bool visit(GCObject*);
 };
 
@@ -127,7 +127,7 @@ DecreaseRefCounts::DecreaseRefCounts(GCCountMap& counts) : _counts(counts)
 {
 }
 
-bool 
+bool
 DecreaseRefCounts::visit(GCObject* obj)
 {
     //
@@ -159,7 +159,7 @@ RestoreRefCountsIfReachable::RestoreRefCountsIfReachable(GCCountMap& counts) : _
 {
 }
 
-bool 
+bool
 RestoreRefCountsIfReachable::visit(GCObject* obj)
 {
     GCCountMap::iterator p = _counts.find(obj);
@@ -170,7 +170,7 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // it's reachable.
         //
         return false;
-    } 
+    }
     else if(_reachable)
     {
         //
@@ -198,8 +198,8 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // and visit its sub-graph to remove children wobjects from
         // the counts map since they are also reachable.
         //
-        _counts.erase(p); 
-            
+        _counts.erase(p);
+
         _reachable = true;
         obj->_iceGcVisitMembers(*this);
         _reachable = false;
@@ -212,7 +212,7 @@ MarkCollectable::MarkCollectable() : _counter(0)
     _neighborsVisitor.setVisitor(this);
 }
 
-bool 
+bool
 MarkCollectable::visit(GCObject* obj)
 {
     //
@@ -229,7 +229,7 @@ MarkCollectable::visit(GCObject* obj)
         return false;
     }
     obj->__setFlag(GCObject::Collectable);
-        
+
     _numbers[obj] = ++_counter;
     _p.push(obj);
     _s.push(obj);
@@ -274,14 +274,14 @@ MarkCollectable::VisitNeighbors::setVisitor(MarkCollectable* visitor)
     _visitor = visitor;
 }
 
-bool 
+bool
 MarkCollectable::VisitNeighbors::visit(GCObject* obj)
 {
     _visitor->visitNeighbor(obj);
     return false;
 }
 
-bool 
+bool
 ClearCollectable::visit(GCObject* obj)
 {
     //

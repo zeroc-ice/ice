@@ -50,7 +50,7 @@ public:
 
     const std::string& getId() const { return _id; }
     virtual void destroyImpl(bool);
-    
+
 protected:
 
     BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
@@ -110,7 +110,7 @@ class ClientSessionFactory : public virtual IceUtil::Shared
 {
 public:
 
-    ClientSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const IceUtil::TimerPtr&, 
+    ClientSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const IceUtil::TimerPtr&,
                          const ReapThreadPtr&);
 
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
@@ -133,7 +133,7 @@ class ClientSessionManagerI : public virtual Glacier2::SessionManager
 public:
 
     ClientSessionManagerI(const ClientSessionFactoryPtr&);
-    
+
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
 
 private:
@@ -146,8 +146,8 @@ class ClientSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
 public:
 
     ClientSSLSessionManagerI(const  ClientSessionFactoryPtr&);
-    
-    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
+
+    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&,
                                         const Ice::Current&);
 
 private:

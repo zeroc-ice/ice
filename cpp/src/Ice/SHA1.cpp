@@ -31,21 +31,21 @@ namespace IceInternal
 class SHA1::Hasher
 {
 public:
-    
+
     Hasher();
 #   ifdef _WIN32
     ~Hasher();
 #endif
-    
+
     void update(const unsigned char*, std::size_t);
     void finalize(std::vector<unsigned char>&);
-    
+
 private:
 
     // noncopyable
     Hasher(const Hasher&);
     Hasher operator=(const Hasher&);
-    
+
 #   if defined (_WIN32)
     HCRYPTPROV _ctx;
     HCRYPTHASH _hash;

@@ -72,7 +72,7 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
             {
                 System.Threading.Monitor.Wait(this);
             }
-            
+
             _callback = false;
         }
     }

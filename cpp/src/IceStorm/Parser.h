@@ -53,7 +53,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const TopicManagerPrx&, 
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const TopicManagerPrx&,
                                   const std::map<Ice::Identity, TopicManagerPrx>&);
 
     void usage();
@@ -71,10 +71,10 @@ public:
     void showBanner();
 
     //
-    // With older flex version <= 2.5.35 YY_INPUT second 
+    // With older flex version <= 2.5.35 YY_INPUT second
     // paramenter is of type int&, in newer versions it
     // changes to size_t&
-    // 
+    //
     void getInput(char*, int&, size_t);
     void getInput(char*, size_t&, size_t);
 
@@ -99,7 +99,7 @@ private:
     TopicPrx findTopic(const std::string&) const;
 
     Parser(const Ice::CommunicatorPtr&, const TopicManagerPrx&, const std::map<Ice::Identity, TopicManagerPrx>&);
-    
+
     void exception(const Ice::Exception&, bool = false);
 
     const Ice::CommunicatorPtr _communicator;

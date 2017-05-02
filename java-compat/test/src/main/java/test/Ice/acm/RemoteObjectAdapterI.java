@@ -26,7 +26,7 @@ public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
     {
         return _testIntf;
     }
-    
+
     public void activate(Ice.Current current)
     {
         _adapter.activate();

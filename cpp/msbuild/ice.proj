@@ -204,7 +204,7 @@
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </UWPTestSolution>
       </ItemGroup>
-            
+
     </Otherwise>
   </Choose>
 
@@ -283,7 +283,7 @@
              BuildInParallel="true"
              Properties="%(Properties)"
              Targets="C++98\slice2cpp;C++98\slice2html"/>
-    
+
     <MSBuild Projects="@(UWPDistSolution)"
              BuildInParallel="true"
              Properties="%(Properties)" />

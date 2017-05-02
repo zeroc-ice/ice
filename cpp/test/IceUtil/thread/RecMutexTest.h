@@ -19,7 +19,7 @@ public:
     RecMutexTest();
 
 private:
-    
+
     virtual void run();
 };
 

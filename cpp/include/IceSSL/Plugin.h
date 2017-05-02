@@ -230,7 +230,7 @@ public:
     //
     virtual bool operator==(const Certificate&) const = 0;
     virtual bool operator!=(const Certificate&) const = 0;
-    
+
     //
     // Authority key identifier
     //
@@ -346,11 +346,11 @@ public:
     virtual std::string toString() const = 0;
 
     //
-    // Return a list with the X509v3 extensions contained in the 
+    // Return a list with the X509v3 extensions contained in the
     // certificate.
     //
     virtual std::vector<X509ExtensionPtr> getX509Extensions() const = 0;
-    
+
     //
     // Return the extension with the given OID or null if the certificate
     // does not contain a extension with the given OID.

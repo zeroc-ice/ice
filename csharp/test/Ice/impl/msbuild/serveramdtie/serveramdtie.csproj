@@ -60,7 +60,7 @@
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
   <Target Name="BeforeBuild" Inputs="$(IceToolsPath)slice2cs.exe;..\..\TestAMD.ice" Outputs="TestAMDI.cs">
     <Delete Files="generated\TestAMDI.cs" Condition="Exists('generated\TestAMDI.cs')" />
-    <MakeDir Directories="generated" Condition="!Exists('generated')"/>  
+    <MakeDir Directories="generated" Condition="!Exists('generated')"/>
     <Exec Command="$(IceToolsPath)\slice2cs.exe --tie --output-dir generated -I$(IceHome)\slice --impl ..\..\TestAMD.ice" />
   </Target>
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">

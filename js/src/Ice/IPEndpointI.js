@@ -204,7 +204,7 @@ class IPEndpointI extends Ice.EndpointI
         s.writeString(this._host);
         s.writeInt(this._port);
     }
-    
+
     hashInit(h)
     {
         h = HashUtil.addNumber(h, this.type());

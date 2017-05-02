@@ -179,11 +179,11 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     {
         paths.push_back(canonicalPath);
     }
-    
+
     for(vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
         for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
-        {            
+        {
             if(i->compare(0, j->length(), *j) == 0)
             {
                 string s = i->substr(j->length() + 1); // + 1 for the '/'
@@ -193,7 +193,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
                 }
             }
         }
-        
+
         //
         // If the path has been already shortened no need to test
         // with canonical path.

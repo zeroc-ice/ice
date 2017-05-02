@@ -3,7 +3,7 @@
     <UsingTask TaskName="GetPublicKeyToken"
                TaskFactory="CodeTaskFactory"
                AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-               
+
         <ParameterGroup>
             <AssemblyFile ParameterType="System.String" Required="true"/>
             <PublicKeyToken ParameterType="System.String" Output="true" />
@@ -47,5 +47,5 @@
                 ]]>
             </Code>
         </Task>
-    </UsingTask>  
+    </UsingTask>
 </Project>

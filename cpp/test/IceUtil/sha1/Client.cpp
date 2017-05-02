@@ -39,7 +39,7 @@ SHA1Item items[] =
      "Nullam elit neque, suscipit ac convallis non, convallis et urna. "
      "Sed semper elementum erat, ut egestas lacus interdum sit amet. "
      "Sed ipsum nisi, ultricies congue augue id, euismod posuere sapien. "
-     "Fusce volutpat nisl in orci laoreet, vitae lacinia urna venenatis.", 
+     "Fusce volutpat nisl in orci laoreet, vitae lacinia urna venenatis.",
      "84fac2d6a78ab4acbeae1408ab4de49c4bd145bb"},
     {"Pellentesque accumsan mauris neque, nec sollicitudin metus ornare eu. "
      "Sed dignissim nisi neque, sit amet dapibus purus faucibus laoreet. "
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
         string digest = toHex(string(reinterpret_cast<const char*>(&buffer[0]), 20));
         test(item->digest == digest);
     }
-    
+
     for(int i = 0; i < itemsSize; ++i)
     {
         const SHA1Item* item = &items[i];

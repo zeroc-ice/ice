@@ -28,7 +28,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, U
 }
 
 void
-Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
+Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
                                  string& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
@@ -58,7 +58,7 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
 }
 
 void
-Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, 
+Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
                                   wstring& target) const
 {
     string s(sourceStart, sourceEnd);

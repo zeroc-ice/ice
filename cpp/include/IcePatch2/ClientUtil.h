@@ -21,7 +21,7 @@ namespace IcePatch2
 
 //
 // The IcePatch2::PatcherFeedback class is implemented by IcePatch2 clients to
-// allow the user to interact with the patching and report progress 
+// allow the user to interact with the patching and report progress
 // on the patching.
 //
 class ICEPATCH2_API PatcherFeedback : public IceUtil::Shared
@@ -87,7 +87,7 @@ public:
     // files if no summary file exists or if a thorough patch was
     // specified. This method also computes the list of files to be
     // patched. This should be called once before any call to patch().
-    // 
+    //
     // Returns true if the patch preparation was successful, false if
     // preparation failed (for example, because a thorough patch is
     // necessary, but the user chose not to patch thorough), or raises
@@ -120,10 +120,10 @@ typedef IceUtil::Handle<Patcher> PatcherPtr;
 class ICEPATCH2_API PatcherFactory : public IceUtil::noncopyable
 {
 public:
-    
+
     //
     // Create a patcher using configuration properties. The following
-    // properties are used to configure the patcher: 
+    // properties are used to configure the patcher:
     //
     // - IcePatch2.InstanceName
     // - IcePatch2.Endpoints

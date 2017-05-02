@@ -17,7 +17,7 @@ public class RemoteObjectAdapterI implements RemoteObjectAdapter
     public RemoteObjectAdapterI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrx.uncheckedCast(_adapter.add(new TestI(), 
+        _testIntf = TestIntfPrx.uncheckedCast(_adapter.add(new TestI(),
                                                            com.zeroc.Ice.Util.stringToIdentity("test")));
         _adapter.activate();
     }

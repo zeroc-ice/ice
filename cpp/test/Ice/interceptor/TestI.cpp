@@ -14,7 +14,7 @@
 #include <Test.h>
 #include <iostream>
 
-using namespace IceUtil; 
+using namespace IceUtil;
 using namespace std;
 
 void

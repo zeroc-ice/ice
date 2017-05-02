@@ -346,7 +346,7 @@ class TcpTransceiver
             this._bytesAvailableCallback();
         }
     }
-    
+
     static createOutgoing(instance, addr, sourceAddr)
     {
         const transceiver = new TcpTransceiver(instance);

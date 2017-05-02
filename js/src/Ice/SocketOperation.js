@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.SocketOperation = 
+Ice.SocketOperation =
 {
     None: 0,
     Read: 1,

@@ -6,7 +6,7 @@
   <property name="AppVarDefinedInNodeProp" value="${AppVarDefinedInNode}"/>
   <property name="EscapedAppVarProp" value="${EscapedAppVar}"/>
   <property name="RecursiveEscapedAppVarProp" value="${RecursiveEscapedAppVar}"/>
-  <property name="Recursive2EscapedAppVarProp" value="${Recursive2EscapedAppVar}"/>      
+  <property name="Recursive2EscapedAppVarProp" value="${Recursive2EscapedAppVar}"/>
   <property name="RecursiveNodeVarProp" value="${RecursiveNodeVar}"/>
   <property name="TestDirProp" value="${test.dir}"/>
 </icegrid>

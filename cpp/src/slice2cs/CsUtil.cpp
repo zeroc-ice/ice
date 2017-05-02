@@ -2554,7 +2554,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
             else if(DataMemberPtr::dynamicCast(cont))
             {
-                DataMemberPtr dataMember = DataMemberPtr::dynamicCast(cont);                
+                DataMemberPtr dataMember = DataMemberPtr::dynamicCast(cont);
                 StructPtr st = StructPtr::dynamicCast(dataMember->container());
                 ExceptionPtr ex = ExceptionPtr::dynamicCast(dataMember->container());
                 ClassDefPtr cl = ClassDefPtr::dynamicCast(dataMember->container());

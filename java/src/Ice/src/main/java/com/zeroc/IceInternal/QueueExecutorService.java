@@ -71,7 +71,7 @@ public final class QueueExecutorService
             Future<T> future = _executor.submit(callable);
             while(true)
             {
-                try 
+                try
                 {
                     T value = future.get();
                     return value;

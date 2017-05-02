@@ -23,7 +23,7 @@ interface Metrics
     ["amd"] void op();
 
     ["amd"] idempotent void fail();
-    
+
     ["amd"] void opWithUserException()
         throws UserEx;
 

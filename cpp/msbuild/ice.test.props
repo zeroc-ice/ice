@@ -4,7 +4,7 @@
   <PropertyGroup>
     <IceSoVersion>37b0</IceSoVersion>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)' == 'Cpp11-Debug' Or '$(Configuration)' == 'Cpp11-Release'">
     <Ice_CppMapping>cpp11</Ice_CppMapping>
   </PropertyGroup>
@@ -35,7 +35,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Debug|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)++11d</TargetName>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Release|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)++11</TargetName>
   </PropertyGroup>
@@ -47,7 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
-  
+
   <ItemDefinitionGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary'">
     <Link>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>

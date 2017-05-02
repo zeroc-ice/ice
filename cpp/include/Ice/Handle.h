@@ -46,7 +46,7 @@ public:
             upCast(this->_ptr)->__incRef();
         }
     }
-    
+
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
@@ -78,7 +78,7 @@ public:
             upCast(this->_ptr)->__incRef();
         }
     }
-    
+
     ~Handle()
     {
         if(this->_ptr)
@@ -86,7 +86,7 @@ public:
             upCast(this->_ptr)->__decRef();
         }
     }
-    
+
     Handle& operator=(T* p)
     {
         if(this->_ptr != p)
@@ -106,7 +106,7 @@ public:
         }
         return *this;
     }
-        
+
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
@@ -168,7 +168,7 @@ public:
         }
         return *this;
     }
-        
+
     template<class Y>
     static Handle dynamicCast(const ::IceUtil::HandleBase<Y>& r)
     {

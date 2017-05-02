@@ -24,7 +24,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
     {
         updater = u;
     }
- 
+
     @Override
     synchronized public com.zeroc.Ice.Instrumentation.Observer getConnectionEstablishmentObserver(
         com.zeroc.Ice.Endpoint e, String s)
@@ -36,7 +36,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
         }
         return connectionEstablishmentObserver;
     }
- 
+
     @Override
     synchronized public com.zeroc.Ice.Instrumentation.Observer getEndpointLookupObserver(com.zeroc.Ice.Endpoint e)
     {
@@ -47,12 +47,12 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
         }
         return endpointLookupObserver;
     }
-    
+
     @Override
     synchronized public com.zeroc.Ice.Instrumentation.ConnectionObserver getConnectionObserver(
         com.zeroc.Ice.ConnectionInfo c,
         com.zeroc.Ice.Endpoint e,
-        com.zeroc.Ice.Instrumentation.ConnectionState s, 
+        com.zeroc.Ice.Instrumentation.ConnectionState s,
         com.zeroc.Ice.Instrumentation.ConnectionObserver old)
     {
         test(old == null || old instanceof ConnectionObserverI);
@@ -77,7 +77,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
             threadObserver = new ThreadObserverI();
             threadObserver.reset();
         }
-        return threadObserver; 
+        return threadObserver;
    }
 
     @Override
@@ -134,7 +134,7 @@ class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Communicato
             dispatchObserver.reset();
         }
     }
-    
+
     com.zeroc.Ice.Instrumentation.ObserverUpdater updater;
 
     ObserverI connectionEstablishmentObserver;

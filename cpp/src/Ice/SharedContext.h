@@ -30,7 +30,7 @@ public:
     SharedContext()
     {
     }
-    
+
     SharedContext(const Ice::Context& val) :
         _val(val)
     {

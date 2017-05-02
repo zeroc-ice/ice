@@ -71,7 +71,7 @@ IceUtilInternal::Semaphore::timedWait(const IceUtil::Time& timeout) const
     if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
     {
         throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    } 
+    }
 
     DWORD rc = WaitForSingleObject(_sem, static_cast<DWORD>(msTimeout));
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
@@ -333,7 +333,7 @@ IceUtil::Cond::Cond()
     }
 
 #if !defined(__hppa) && !defined(__APPLE__)
-    rc = pthread_condattr_setclock(&attr, CLOCK_MONOTONIC); 
+    rc = pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);

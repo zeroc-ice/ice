@@ -23,7 +23,7 @@ public:
     SystemFailure(const SystemFailure& ex) : Ice::SystemException(ex.ice_file(), ex.ice_line())
     {
     }
-    
+
     virtual std::string ice_id() const
     {
         return "SystemFailure";

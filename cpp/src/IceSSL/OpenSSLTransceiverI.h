@@ -86,7 +86,7 @@ private:
     IceInternal::Buffer _readBuffer;
     int _sentBytes;
     size_t _maxSendPacketSize;
-    size_t _maxRecvPacketSize; 
+    size_t _maxRecvPacketSize;
 #endif
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

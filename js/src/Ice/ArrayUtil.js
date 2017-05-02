@@ -6,7 +6,7 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-    
+
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
 const Slice = Ice.Slice;
@@ -55,7 +55,7 @@ class ArrayUtil
     }
 
     static equals(v1, v2, valuesEqual)
-    {        
+    {
         if(v1.length != v2.length)
         {
             return false;
@@ -90,7 +90,7 @@ ArrayUtil.eq = eq;
 Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
 {
     let helper = null;
-    Object.defineProperty(module, name, 
+    Object.defineProperty(module, name,
         {
             get: function()
                 {

@@ -53,6 +53,6 @@ public class Logger extends com.zeroc.Ice.LoggerI
     }
 
     private final JFrame _mainFrame;
-    
-    private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS"); 
+
+    private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS");
 }

@@ -19,7 +19,7 @@ namespace IceInternal
 //
 // Adapter for ToStringMode
 //
-inline std::string 
+inline std::string
 escapeString(const std::string& s, const std::string& special, Ice::ToStringMode mode)
 {
     return IceUtilInternal::escapeString(s, special, static_cast<IceUtilInternal::ToStringMode>(mode));

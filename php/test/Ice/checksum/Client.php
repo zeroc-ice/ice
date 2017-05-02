@@ -33,7 +33,7 @@ function test($b)
 
 require_once($NS ? "Checksums_ns.php" : "Checksums_no_ns.php");
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 
 $checksum = allTests($communicator);

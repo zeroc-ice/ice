@@ -16,48 +16,48 @@ import test.Ice.servantLocator.Test._TestIntfDisp;
 public final class TestI extends _TestIntfDisp
 {
     @Override
-    public void 
+    public void
     requestFailedException(Ice.Current current)
     {
     }
 
     @Override
-    public void 
+    public void
     unknownUserException(Ice.Current current)
     {
     }
 
     @Override
-    public void 
+    public void
     unknownLocalException(Ice.Current current)
     {
     }
 
     @Override
-    public void 
+    public void
     unknownException(Ice.Current current)
     {
     }
 
     @Override
-    public void 
+    public void
     localException(Ice.Current current)
     {
     }
 
-//     public void 
+//     public void
 //     userException(Ice.Current current)
 //     {
 //     }
 
     @Override
-    public void 
+    public void
     javaException(Ice.Current current)
     {
     }
 
     @Override
-    public void 
+    public void
     unknownExceptionWithServantException(Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();

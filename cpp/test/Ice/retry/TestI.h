@@ -25,7 +25,7 @@ public:
     virtual void shutdown(const Ice::Current&);
 
 private:
-    
+
     int _counter;
 };
 

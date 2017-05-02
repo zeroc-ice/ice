@@ -729,7 +729,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                     if(templateDescriptor == null)
                     {
                         throw new UpdateFailedException("Cannot find template descriptor '" +
-                                                        descriptor.template + 
+                                                        descriptor.template +
                                                         "' referenced by service-instance");
                     }
 
@@ -738,10 +738,10 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                                                          templateDescriptor.parameterDefaults);
 
                     ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
-                    
+
                     //
                     // If it's not null, it's a bug in the provider of this descriptor, e.g.
-                    // the icegridadmin parsing code. 
+                    // the icegridadmin parsing code.
                     //
                     assert serviceDescriptor != null;
 

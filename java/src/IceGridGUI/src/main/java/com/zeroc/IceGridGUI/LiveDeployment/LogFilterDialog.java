@@ -37,25 +37,25 @@ class LogFilterDialog extends JDialog
     {
         super(dialog, "Ice log filter - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
- 
+
         java.util.Set<com.zeroc.Ice.LogMessageType> messageTypeFilterSet = null;
         if(dialog.getMessageTypeFilter() != null)
         {
             messageTypeFilterSet = new java.util.HashSet<>(java.util.Arrays.asList(dialog.getMessageTypeFilter()));
         }
-        
-        final JCheckBox error = new JCheckBox("Error", 
+
+        final JCheckBox error = new JCheckBox("Error",
                     messageTypeFilterSet == null || messageTypeFilterSet.contains(LogMessageType.ErrorMessage));
-        final JCheckBox warning = new JCheckBox("Warning", 
+        final JCheckBox warning = new JCheckBox("Warning",
                     messageTypeFilterSet == null || messageTypeFilterSet.contains(LogMessageType.WarningMessage));
-        final JCheckBox print = new JCheckBox("Print", 
+        final JCheckBox print = new JCheckBox("Print",
                     messageTypeFilterSet == null || messageTypeFilterSet.contains(LogMessageType.PrintMessage));
         final JCheckBox trace = new JCheckBox("Trace",
                     messageTypeFilterSet == null || messageTypeFilterSet.contains(LogMessageType.TraceMessage));
-        
+
         final JTextArea traceCategories = new JTextArea(3, 40);
         traceCategories.setLineWrap(true);
-        
+
         String[] traceCategoryFilter = dialog.getTraceCategoryFilter();
         if(traceCategoryFilter != null)
         {
@@ -67,7 +67,7 @@ class LogFilterDialog extends JDialog
         {
             traceCategories.setText(null);
         }
-    
+
         traceCategories.setToolTipText("Trace categories separated by commas; leave blank to get all categories");
 
         JButton okButton = new JButton("OK");
@@ -77,7 +77,7 @@ class LogFilterDialog extends JDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     String[] traceCategoryFilter = null;
-                    
+
                     String txt = traceCategories.getText();
                     if(txt != null && !txt.isEmpty())
                     {
@@ -90,13 +90,13 @@ class LogFilterDialog extends JDialog
                                                           "Invalid entry", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        
+
                         if(traceCategoryFilter.length == 0) // only separators
                         {
                             traceCategoryFilter = null;
                         }
                     }
-                    
+
                     java.util.Set<LogMessageType> messageTypeFilterSet = new java.util.HashSet<>();
                     if(error.isSelected())
                     {
@@ -124,7 +124,7 @@ class LogFilterDialog extends JDialog
                     {
                         messageTypeFilter = messageTypeFilterSet.toArray(new LogMessageType[0]);
                     }
-                    
+
                     dispose();
                     dialog.setFilters(messageTypeFilter, traceCategoryFilter);
                 }
@@ -168,7 +168,7 @@ class LogFilterDialog extends JDialog
         builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 1, 3));
         builder.nextRow(2);
         builder.nextLine();
-          
+
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 

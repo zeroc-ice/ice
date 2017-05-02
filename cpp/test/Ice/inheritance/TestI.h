@@ -132,7 +132,7 @@ class IB1I : public virtual Test::MB::IB1, public virtual IAI
 {
 public:
 
-    virtual Test::MB::IB1Prx ib1op(const Test::MB::IB1Prx&, const Ice::Current&);                  
+    virtual Test::MB::IB1Prx ib1op(const Test::MB::IB1Prx&, const Ice::Current&);
 };
 
 class IB2I : public virtual Test::MB::IB2, public virtual IAI

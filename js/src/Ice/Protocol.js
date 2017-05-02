@@ -10,9 +10,9 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/StringUtil", 
-        "../Ice/LocalException", 
-        "../Ice/Version", 
+        "../Ice/StringUtil",
+        "../Ice/LocalException",
+        "../Ice/Version",
         "../Ice/Buffer"
     ]);
 
@@ -122,7 +122,7 @@ Protocol.replyHdr = new Uint8Array([
 ]);
 
 Protocol.currentProtocol = new Ice.ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
-Protocol.currentProtocolEncoding = new Ice.EncodingVersion(Protocol.protocolEncodingMajor, 
+Protocol.currentProtocolEncoding = new Ice.EncodingVersion(Protocol.protocolEncodingMajor,
                                                             Protocol.protocolEncodingMinor);
 
 Protocol.currentEncoding = new Ice.EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
@@ -172,7 +172,7 @@ Protocol.getCompatibleProtocol = function(v)
         // Unsupported but compatible, use the currently supported
         // protocol, that's the best we can do.
         //
-        return Protocol.currentProtocol; 
+        return Protocol.currentProtocol;
     }
 };
 
@@ -196,7 +196,7 @@ Protocol.getCompatibleEncoding = function(v)
         // Unsupported but compatible, use the currently supported
         // encoding, that's the best we can do.
         //
-        return Protocol.currentEncoding; 
+        return Protocol.currentEncoding;
     }
 };
 

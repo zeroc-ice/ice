@@ -53,7 +53,7 @@ template<typename R> struct ReferenceWrapper<const IceInternal::ProxyHandle<R>& 
         return v.get();
     }
 };
-    
+
 template<typename R> struct ReferenceWrapper<IceInternal::Handle<R> >
 {
     static R* get(const IceInternal::Handle<R>& v)
@@ -70,7 +70,7 @@ template<typename R> struct ReferenceWrapper<const IceInternal::Handle<R>& >
     }
 };
 #endif
-    
+
 template<typename R> struct ReferenceWrapper<R*>
 {
     static R* get(R* v)

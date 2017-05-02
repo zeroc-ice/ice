@@ -31,7 +31,7 @@ public:
     virtual void removeObject(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
-    
+
 private:
 
     std::map<std::string, Ice::ObjectAdapterPtr> _adapters;

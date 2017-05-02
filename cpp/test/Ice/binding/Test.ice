@@ -20,7 +20,7 @@ interface TestIntf
 interface RemoteObjectAdapter
 {
     TestIntf* getTestIntf();
-    
+
     void deactivate();
 };
 

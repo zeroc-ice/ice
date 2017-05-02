@@ -67,7 +67,7 @@ public:
     virtual void caseAsync(int,
                            ::std::function<void(int)>,
                            ::std::function<void(::std::exception_ptr)>,
-                           const ::Ice::Current&) 
+                           const ::Ice::Current&)
     {
     }
 #else

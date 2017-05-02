@@ -26,10 +26,10 @@ int main()
         cout << "First ignore CTRL+C and the like for 10 seconds (try it!)" << endl;
         CtrlCHandler handler;
         ThreadControl::sleep(Time::seconds(10));
-        
+
         cout << "Then handling them for another 30 seconds (try it)" << endl;
         handler.setCallback(callback);
-        ThreadControl::sleep(Time::seconds(10));                 
+        ThreadControl::sleep(Time::seconds(10));
     }
     cout << "And another 10 seconds after ~CtrlCHandler" << endl;
     ThreadControl::sleep(Time::seconds(10));

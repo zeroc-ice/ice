@@ -26,13 +26,13 @@ public class TestI extends _TestIntfDisp
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
-    
+
     @Override
     public String[]
     getArgs(Ice.Current current)
     {
         return _args;
     }
-    
+
     final private String[] _args;
 }

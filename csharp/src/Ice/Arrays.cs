@@ -46,7 +46,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static bool Equals(Array arr1, Array arr2)
@@ -84,7 +84,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static int GetHashCode(object[] arr)
@@ -100,7 +100,7 @@ namespace IceUtilInternal
                 }
             }
 
-            return h;           
+            return h;
         }
 
         public static int GetHashCode(Array arr)
@@ -115,7 +115,7 @@ namespace IceUtilInternal
                 }
             }
 
-            return h;           
+            return h;
         }
     }
 }

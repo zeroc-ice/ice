@@ -65,14 +65,14 @@ public class TestControllerI : TestIntfControllerDisp_
         test(Dispatcher.isDispatcherThread());
         _adapter.hold();
     }
-    
+
     override public void
     resumeAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
         _adapter.activate();
     }
-    
+
     public
     TestControllerI(Ice.ObjectAdapter adapter)
     {

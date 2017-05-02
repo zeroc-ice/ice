@@ -28,19 +28,19 @@ public:
 
     void addMapping(const std::string&, const Ice::ConnectionPtr&);
     void removeMapping(const std::string&);
-    
-    virtual void invokeResponse(bool, 
-                                const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, 
+
+    virtual void invokeResponse(bool,
+                                const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
                                 const Ice::AMD_Object_ice_invokePtr&);
-    
+
     virtual void invokeException(const Ice::Exception&, const Ice::AMD_Object_ice_invokePtr&);
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                                   const Ice::Current&);
-    
+
 private:
-    
+
     IceUtil::Mutex _mutex;
     std::map<std::string, Ice::ConnectionPtr> _categoryToConnection;
 };

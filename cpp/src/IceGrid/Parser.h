@@ -109,7 +109,7 @@ public:
     void propertiesService(const std::list<std::string>&, bool);
     void describeService(const std::list<std::string>&);
     void listServices(const std::list<std::string>&);
-    
+
     void endpointsAdapter(const std::list<std::string>&);
     void removeAdapter(const std::list<std::string>&);
     void listAllAdapters(const std::list<std::string>&);
@@ -121,16 +121,16 @@ public:
     void listObject(const std::list<std::string>&);
 
     void show(const std::string&, const std::list<std::string>&);
-    
+
     void showBanner();
     void showCopying();
     void showWarranty();
 
     //
-    // With older flex version <= 2.5.35 YY_INPUT second 
+    // With older flex version <= 2.5.35 YY_INPUT second
     // paramenter is of type int&, in newer versions it
     // changes to size_t&
-    // 
+    //
     void getInput(char*, int&, size_t);
     void getInput(char*, size_t&, size_t);
     void continueLine();
@@ -159,7 +159,7 @@ private:
 
     void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
     void showLog(const std::string&, const std::string&, bool, bool, int);
-    
+
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;

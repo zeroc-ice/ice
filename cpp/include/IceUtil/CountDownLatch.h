@@ -22,16 +22,16 @@ namespace IceUtilInternal
 class ICE_API CountDownLatch
 {
 public:
-    
+
     CountDownLatch(int);
     ~CountDownLatch();
 
     void await() const;
     void countDown();
     int getCount() const;
-   
+
 private:
-   
+
 #ifdef _WIN32
     mutable LONG _count;
     HANDLE _event;

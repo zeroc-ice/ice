@@ -18,14 +18,14 @@ import com.zeroc.ice.Test.*;
 public class ServiceBean implements Service
 {
     @PostConstruct
-    public void 
+    public void
     create()
     {
         Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10001");
         database = DatabasePrxHelper.uncheckedCast(db);
     }
 
-    public final Account 
+    public final Account
     getAccount(String id)
     {
         try

@@ -384,7 +384,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         [this] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                         {
                             //
-                            // COMPILERFIX with VC141 using operator!= and operator== inside 
+                            // COMPILERFIX with VC141 using operator!= and operator== inside
                             // a lambda callback triggers a compiler bug, we move the code to
                             // a seperate private method to workaround the issue.
                             //
@@ -406,7 +406,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         [=](IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
                         {
                             //
-                            // COMPILERFIX with VC141 using operator!= and operator== inside 
+                            // COMPILERFIX with VC141 using operator!= and operator== inside
                             // a lambda callback triggers a compiler bug, we move the code to
                             // a seperate private method to workaround the issue.
                             //
@@ -439,7 +439,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 [=, &buf](concurrency::task<IOutputStream^> task)
                 {
                     //
-                    // COMPILERFIX with VC141 using operator!= and operator== inside 
+                    // COMPILERFIX with VC141 using operator!= and operator== inside
                     // a lambda callback triggers a compiler bug, we move the code to
                     // a seperate private method to workaround the issue.
                     //

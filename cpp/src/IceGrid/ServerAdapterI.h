@@ -24,7 +24,7 @@ class ServerI;
 class ServerAdapterI : public Adapter, public IceUtil::Mutex
 {
 public:
-    
+
     ServerAdapterI(const NodeIPtr&, ServerI*, const std::string&, const AdapterPrx&, const std::string&, bool);
     virtual ~ServerAdapterI();
 

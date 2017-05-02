@@ -40,7 +40,7 @@ interface extends
 interface Foo
 {
     void implements();
-    
+
     int bar(string throws, long l, out bool void, out short s);
 
     int bar2(string s, long byte, out bool b, out short short);

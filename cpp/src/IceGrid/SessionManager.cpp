@@ -90,7 +90,7 @@ SessionManager::findAllQueryObjects(bool cached)
                 // Ignore.
             }
         }
-        
+
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             Ice::EndpointSeq singleEndpoint;
@@ -117,7 +117,7 @@ SessionManager::findAllQueryObjects(bool cached)
             {
                 break;
             }
-            
+
             try
             {
                 Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
@@ -141,7 +141,7 @@ SessionManager::findAllQueryObjects(bool cached)
         }
     }
     while(proxies.size() != previousSize);
-    
+
     Lock sync(*this);
     _queryObjects.swap(queryObjects);
     return _queryObjects;

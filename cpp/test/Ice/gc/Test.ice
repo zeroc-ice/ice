@@ -163,7 +163,7 @@ module CCC
 };
 
 module DDD
-{     
+{
     interface I
     {
         void op();
@@ -176,7 +176,7 @@ module DDD
     class C2;
 
     class U
-    { 
+    {
         I myI;
         I* myIstar;
         C myC;

@@ -167,7 +167,7 @@ private:
             throw;
         }
     }
-    
+
 #else
 
     template <typename M> void waitImpl(const M&) const;
@@ -177,7 +177,7 @@ private:
 
 #ifdef _WIN32
 #  ifdef ICE_HAS_WIN32_CONDVAR
-    mutable CONDITION_VARIABLE _cond;   
+    mutable CONDITION_VARIABLE _cond;
 #  else
     void wake(bool);
     void preWait() const;
@@ -212,12 +212,12 @@ template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
 {
     typedef typename M::LockState LockState;
-    
+
     LockState state;
     mutex.unlock(state);
-    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, INFINITE);  
+    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, INFINITE);
     mutex.lock(state);
-    
+
     if(!ok)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -231,19 +231,19 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
     {
         throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    } 
+    }
 
     typedef typename M::LockState LockState;
 
     LockState state;
     mutex.unlock(state);
-    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, static_cast<DWORD>(msTimeout));  
+    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, static_cast<DWORD>(msTimeout));
     mutex.lock(state);
-   
+
     if(!ok)
     {
         DWORD err = GetLastError();
-        
+
         if(err != ERROR_TIMEOUT)
         {
             throw ThreadSyscallException(__FILE__, __LINE__, err);
@@ -260,12 +260,12 @@ template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
 {
     typedef typename M::LockState LockState;
-    
+
     LockState state;
     mutex.unlock(state);
     int rc = pthread_cond_wait(&_cond, state.mutex);
     mutex.lock(state);
-    
+
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
@@ -281,10 +281,10 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     }
 
     typedef typename M::LockState LockState;
-    
+
     LockState state;
     mutex.unlock(state);
-    
+
 #   ifdef __APPLE__
     //
     // The monotonic time is based on mach_absolute_time and pthread
@@ -300,7 +300,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     ts.tv_nsec = tv.tv_usec * 1000;
     int rc = pthread_cond_timedwait(&_cond, state.mutex, &ts);
     mutex.lock(state);
-    
+
     if(rc != 0)
     {
         //

@@ -17,7 +17,7 @@
 namespace IceUtilInternal
 {
 
-struct NoneType 
+struct NoneType
 {
 };
 
@@ -52,11 +52,11 @@ public:
     Optional(const Optional<Y>& r) : _value(r._value), _isSet(r._isSet)
     {
     }
-    
+
     ~Optional()
     {
     }
-    
+
     Optional& operator=(IceUtilInternal::NoneType)
     {
         _value = T();
@@ -71,7 +71,7 @@ public:
         _isSet = true;
         return *this;
     }
-        
+
     template<typename Y>
     Optional& operator=(const Optional<Y>& r)
     {
@@ -132,8 +132,8 @@ public:
         return _isSet;
     }
 
-    bool operator!() const 
-    { 
+    bool operator!() const
+    {
         return !_isSet;
     }
 
@@ -157,20 +157,20 @@ private:
             throwOptionalNotSetException(__FILE__, __LINE__);
         }
     }
-    
+
     void throwOptionalNotSetException(const char *, int) const;
 
     T _value;
     bool _isSet;
 };
 
-template<class T> inline Optional<T> 
+template<class T> inline Optional<T>
 makeOptional(const T& v)
 {
     return Optional<T>(v);
 }
 
-template<typename T> inline void 
+template<typename T> inline void
 Optional<T>::throwOptionalNotSetException(const char* file, int line) const
 {
     throw OptionalNotSetException(file, line);
@@ -235,7 +235,7 @@ inline bool operator==(const Optional<T>& lhs, const Y& rhs)
     {
         return false;
     }
-    else 
+    else
     {
         return *lhs == rhs;
     }
@@ -287,7 +287,7 @@ inline bool operator==(const Y& lhs, const Optional<T>& rhs)
     {
         return false;
     }
-    else 
+    else
     {
         return lhs == *rhs;
     }

@@ -25,7 +25,7 @@ public:
     {
         _s = IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
-    
+
     IceUtil::Int64 stop()
     {
         assert(isStarted());

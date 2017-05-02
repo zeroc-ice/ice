@@ -80,10 +80,10 @@ class UpdateUtilizationAverageThread : public IceUtil::Thread
 {
 public:
 
-    UpdateUtilizationAverageThread(PlatformInfo& platform) : 
+    UpdateUtilizationAverageThread(PlatformInfo& platform) :
         IceUtil::Thread("IceGrid update utilization average thread"),
         _platform(platform)
-    { 
+    {
     }
 
     virtual void
@@ -93,7 +93,7 @@ public:
     }
 
 private:
-    
+
     PlatformInfo& _platform;
 };
 
@@ -104,7 +104,7 @@ getSocketCount(const Ice::LoggerPtr& logger)
 {
     LPFN_GLPI glpi;
     glpi = (LPFN_GLPI) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
-    if(!glpi) 
+    if(!glpi)
     {
         Ice::Warning out(logger);
         out << "Unable to figure out the number of process sockets:\n";
@@ -117,15 +117,15 @@ getSocketCount(const Ice::LoggerPtr& logger)
     while(true)
     {
         DWORD rc = glpi(&buffer[0], &returnLength);
-        if(!rc) 
+        if(!rc)
         {
             if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
             {
                 buffer.resize(returnLength / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) + 1);
                 continue;
-            } 
+            }
             else
-            { 
+            {
                 Ice::Warning out(logger);
                 out << "Unable to figure out the number of process sockets:\n";
                 out << IceUtilInternal::lastErrorToString();
@@ -179,9 +179,9 @@ toNodeInfo(const InternalNodeInfoPtr& node)
 
 }
 
-PlatformInfo::PlatformInfo(const string& prefix, 
-                           const Ice::CommunicatorPtr& communicator, 
-                           const TraceLevelsPtr& traceLevels) : 
+PlatformInfo::PlatformInfo(const string& prefix,
+                           const Ice::CommunicatorPtr& communicator,
+                           const TraceLevelsPtr& traceLevels) :
     _traceLevels(traceLevels)
 {
     //
@@ -252,7 +252,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
 
 //
 // GetVersionEx will return the Windows 8 OS version value (6.2) for applications
-// not manifested for Windows 8.1 or Windows 10. We read the OS version info from 
+// not manifested for Windows 8.1 or Windows 10. We read the OS version info from
 // a system file resource and if that fail we just return whatever GetVersionEx
 // returns.
 //
@@ -344,7 +344,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #elif defined(__linux)
         ifstream is("/proc/cpuinfo");
         set<string> ids;
-        
+
         int nprocessor = 0;
         while(is)
         {
@@ -397,7 +397,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     }
     _cwd = string(cwd);
 
-    _dataDir = properties->getProperty(prefix + ".Data");    
+    _dataDir = properties->getProperty(prefix + ".Data");
     if(!IceUtilInternal::isAbsolutePath(_dataDir))
     {
         _dataDir = _cwd + '/' + _dataDir;
@@ -592,7 +592,7 @@ PlatformInfo::runUpdateLoadInfo()
     //
     // If either lookup fails, close the query system, and we're done.
     //
-    
+
     string processor;
     string percentProcessorTime;
     try
@@ -643,11 +643,11 @@ PlatformInfo::runUpdateLoadInfo()
             Ice::Warning out(_traceLevels->logger);
             out << "Could not collect performance counter data:\n" << pdhErrorToString(err);
         }
-        
+
         _last1Total += usage - _usages1.back();
         _last5Total += usage - _usages5.back();
         _last15Total += usage - _usages15.back();
-        
+
         _usages1.pop_back();
         _usages5.pop_back();
         _usages15.pop_back();

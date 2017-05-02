@@ -28,7 +28,7 @@ namespace IceGrid
 class DescriptorHandler : public IceXML::Handler
 {
 public:
-    
+
     DescriptorHandler(const string&, const Ice::CommunicatorPtr&);
 
     void setAdmin(const IceGrid::AdminPrx&);
@@ -38,11 +38,11 @@ public:
     virtual void endElement(const string&, int, int);
     virtual void characters(const string&, int, int);
     virtual void error(const string&, int, int);
-    
+
     const ApplicationDescriptor& getApplicationDescriptor() const;
 
 private:
-    
+
     bool isCurrentTargetDeployable() const;
     string elementValue();
     vector<string> getTargets(const string&) const;
@@ -52,7 +52,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     IceGrid::AdminPrx _admin;
     string _filename;
-    map<string, string> _overrides; 
+    map<string, string> _overrides;
     vector<string> _targets;
     string _data;
     string _previousElementName;
@@ -80,7 +80,7 @@ private:
 
 }
 
-DescriptorHandler::DescriptorHandler(const string& filename, const Ice::CommunicatorPtr& communicator) : 
+DescriptorHandler::DescriptorHandler(const string& filename, const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _filename(filename),
     _isCurrentTargetDeployable(true),
@@ -105,7 +105,7 @@ DescriptorHandler::setVariables(const map<string, string>& variables, const vect
     _targets = targets;
 }
 
-void 
+void
 DescriptorHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int column)
 {
     _line = line;
@@ -142,7 +142,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
         else if(!isCurrentTargetDeployable())
         {
             //
-            // We don't bother to parse the elements if the elements are enclosed in a target element 
+            // We don't bother to parse the elements if the elements are enclosed in a target element
             // which won't be deployed.
             //
             attributes.asMap();
@@ -160,15 +160,15 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
                     file = _filename.substr(0, end) + "/" + file;
                 }
             }
-            
+
             string oldFileName = _filename;
             vector<string> oldTargets = _targets;
             _isTopLevel = true;
             _filename = file;
             _targets = getTargets(targets);
-            
+
             IceXML::Parser::parse(file, *this);
-            
+
             _filename = oldFileName;
             _targets = oldTargets;
         }
@@ -178,18 +178,18 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             {
                 error("only one <application> element is allowed");
             }
-            
+
             bool importTemplates = attributes.asBool("import-default-templates", false);
 
             //
-            // TODO: is ignoring importTemplates the desired behavior when _admin == 0? 
+            // TODO: is ignoring importTemplates the desired behavior when _admin == 0?
             //
             if(importTemplates && _admin != 0)
             {
                 try
                 {
                     ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
-                    _currentApplication.reset(new ApplicationDescriptorBuilder(_communicator, application, 
+                    _currentApplication.reset(new ApplicationDescriptorBuilder(_communicator, application,
                                                                                attributes, _overrides));
                 }
                 catch(const DeploymentException& ex)
@@ -489,12 +489,12 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
     _previousElementName = name;
 }
 
-void 
+void
 DescriptorHandler::endElement(const string& name, int line, int column)
 {
     _line = line;
     _column = column;
-    
+
     try
     {
         if(name == "target")
@@ -509,7 +509,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
         else if(!isCurrentTargetDeployable())
         {
             //
-            // We don't bother to parse the elements if the elements are enclosed in a target element 
+            // We don't bother to parse the elements if the elements are enclosed in a target element
             // which won't be deployed.
             //
             return;
@@ -585,7 +585,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
                 }
                 else if(_currentServerInstance.get())
                 {
-                    _currentServerInstance->addPropertySet(_currentPropertySet->getService(), 
+                    _currentServerInstance->addPropertySet(_currentPropertySet->getService(),
                                                            _currentPropertySet->getDescriptor());
                 }
                 else if(_currentCommunicator)
@@ -594,7 +594,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
                 }
                 else if(_currentNode.get())
                 {
-                    _currentNode->addPropertySet(_currentPropertySet->getId(), 
+                    _currentNode->addPropertySet(_currentPropertySet->getId(),
                                                  _currentPropertySet->getDescriptor());
                 }
                 else if(_currentApplication.get())
@@ -675,12 +675,12 @@ DescriptorHandler::endElement(const string& name, int line, int column)
         else if(name == "adapter")
         {
             _inAdapter = false;
-        } 
+        }
         else if(name == "replica-group")
         {
             _currentApplication->finishReplicaGroup();
             _inReplicaGroup = false;
-        } 
+        }
         else if(name == "dbenv")
         {
             _inDbEnv = false;
@@ -710,7 +710,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
 }
 
-void 
+void
 DescriptorHandler::characters(const string& chars, int, int)
 {
     if(isCurrentTargetDeployable())
@@ -719,7 +719,7 @@ DescriptorHandler::characters(const string& chars, int, int)
     }
 }
 
-void 
+void
 DescriptorHandler::error(const string& msg, int line, int column)
 {
     ostringstream os;
@@ -838,7 +838,7 @@ DescriptorHandler::isTargetDeployable(const string& target) const
             while(end != string::npos)
             {
                 //
-                // Add the first communicator name from the communicator fully qualified name to the 
+                // Add the first communicator name from the communicator fully qualified name to the
                 // target and see if matches.
                 //
                 end = fqn.find('.', end);
@@ -864,8 +864,8 @@ DescriptorHandler::isTargetDeployable(const string& target) const
 }
 
 ApplicationDescriptor
-DescriptorParser::parseDescriptor(const string& descriptor, 
-                                  const Ice::StringSeq& targets, 
+DescriptorParser::parseDescriptor(const string& descriptor,
+                                  const Ice::StringSeq& targets,
                                   const map<string, string>& variables,
                                   const Ice::CommunicatorPtr& communicator,
                                   const IceGrid::AdminPrx& admin)

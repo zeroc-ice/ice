@@ -18,7 +18,7 @@ interface TestIntf
 {
     string getProperty(string name);
     Ice::StringSeq getArgs();
-    
+
 };
 
 };

@@ -132,14 +132,14 @@ CallbackReceiverI::callbackWithPayloadOK(int count)
     return _callbackWithPayload;
 }
 
-void 
+void
 CallbackReceiverI::hold()
 {
     Lock sync(*this);
     _holding = true;
 }
 
-void 
+void
 CallbackReceiverI::activate()
 {
     Lock sync(*this);
@@ -174,8 +174,8 @@ CallbackI::initiateCallback_async(const AMD_Callback_initiateCallbackPtr& cb,
     if(proxy->ice_isTwoway())
     {
         AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callback(token, ctx, 
-            newCallback_CallbackReceiver_callback(acb, &AsyncCB::responseCallback, &AsyncCB::exceptionCallback), 
+        proxy->begin_callback(token, ctx,
+            newCallback_CallbackReceiver_callback(acb, &AsyncCB::responseCallback, &AsyncCB::exceptionCallback),
             newCookie(cb));
     }
     else
@@ -186,8 +186,8 @@ CallbackI::initiateCallback_async(const AMD_Callback_initiateCallbackPtr& cb,
 }
 
 void
-CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallbackWithPayloadPtr& cb, 
-                                             const CallbackReceiverPrx& proxy, 
+CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallbackWithPayloadPtr& cb,
+                                             const CallbackReceiverPrx& proxy,
                                              const Current& current)
 {
     Ice::Context::const_iterator p = current.ctx.find("serverOvrd");
@@ -201,14 +201,14 @@ CallbackI::initiateCallbackWithPayload_async(const AMD_Callback_initiateCallback
     if(proxy->ice_isTwoway())
     {
         AsyncCBPtr acb = new AsyncCB();
-        proxy->begin_callbackWithPayload(seq, ctx, 
+        proxy->begin_callbackWithPayload(seq, ctx,
                                          newCallback_CallbackReceiver_callbackWithPayload(
-                                             acb, 
-                                             &AsyncCB::responseCallbackWithPayload, 
+                                             acb,
+                                             &AsyncCB::responseCallbackWithPayload,
                                              &AsyncCB::exceptionCallbackWithPayload),
                                          newCookie(cb));
-    } 
-    else 
+    }
+    else
     {
         proxy->callbackWithPayload(seq, ctx);
         cb->ice_response();

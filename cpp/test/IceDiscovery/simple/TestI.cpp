@@ -21,8 +21,8 @@ TestIntfI::getAdapterId(const Ice::Current& current)
 }
 
 void
-ControllerI::activateObjectAdapter(ICE_IN(string) name, 
-                                   ICE_IN(string) adapterId, 
+ControllerI::activateObjectAdapter(ICE_IN(string) name,
+                                   ICE_IN(string) adapterId,
                                    ICE_IN(string) replicaGroupId,
                                    const Ice::Current& current)
 {

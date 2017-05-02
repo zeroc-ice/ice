@@ -19,7 +19,7 @@ public:
     SleepTest();
 
 private:
-    
+
     virtual void run();
 };
 

@@ -569,7 +569,7 @@ class Node extends TreeNode implements PropertySetParent
         if(templateDescriptor == null)
         {
             throw new UpdateFailedException("Cannot find template descriptor '" +
-                                            instanceDescriptor.template + 
+                                            instanceDescriptor.template +
                                             "' referenced by server-instance");
         }
         ServerDescriptor serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;

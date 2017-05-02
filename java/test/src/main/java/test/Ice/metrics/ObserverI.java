@@ -36,7 +36,7 @@ class ObserverI implements com.zeroc.Ice.Instrumentation.Observer
     {
         ++failedCount;
     }
-    
+
     synchronized int getTotal()
     {
         return total;

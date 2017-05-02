@@ -120,7 +120,7 @@ public:
     {
         return (_flags & flag) > 0;
     }
-    
+
 protected:
 
     IceUtilInternal::Atomic _ref;

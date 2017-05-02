@@ -20,7 +20,7 @@ public class UpdateFailedException extends Exception
     {
         _message = message;
     }
-    
+
     @Override
     public String toString()
     {

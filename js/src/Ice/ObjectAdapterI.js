@@ -391,7 +391,7 @@ class ObjectAdapterI
         this.checkIdentity(ident);
         return this._servantManager.findAllFacets(ident);
     }
-    
+
     findByProxy(proxy)
     {
         this.checkForDeactivation();
@@ -422,7 +422,7 @@ class ObjectAdapterI
         this.checkForDeactivation();
         return this._servantManager.findServantLocator(prefix);
     }
-    
+
     createProxy(ident)
     {
         this.checkForDeactivation();
@@ -489,7 +489,7 @@ class ObjectAdapterI
         // Create a reference and return a proxy for this reference.
         //
         return this._instance.proxyFactory().referenceToProxy(
-            this._instance.referenceFactory().create(ident, facet, this._reference, 
+            this._instance.referenceFactory().create(ident, facet, this._reference,
                                                      Array.from(this._routerEndpoints)));
     }
 

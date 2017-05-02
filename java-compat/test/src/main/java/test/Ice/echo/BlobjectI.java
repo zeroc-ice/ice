@@ -24,13 +24,13 @@ public class BlobjectI extends Ice.BlobjectAsync
         {
             _cb.ice_response(ok, encaps);
         }
-        
+
         @Override
         public void exception(Ice.LocalException ex)
         {
             _cb.ice_exception(ex);
         }
-        
+
         @Override
         public void sent(boolean sync)
         {

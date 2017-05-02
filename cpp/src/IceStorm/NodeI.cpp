@@ -109,7 +109,7 @@ GroupNodeInfo::operator==(const GroupNodeInfo& rhs) const
 #if defined(__clang__) && defined(_LIBCPP_VERSION)
 GroupNodeInfo&
 GroupNodeInfo::operator=(const GroupNodeInfo& other)
-    
+
 {
     const_cast<int&>(this->id) = other.id;
     const_cast<LogUpdate&>(this->llu) = other.llu;
@@ -204,13 +204,13 @@ NodeI::start()
     // By setting _checkTask first we stop recovery() from setting it
     // to the regular election interval.
     //
-    
+
     //
     // We use this lock to ensure that recovery is called before CheckTask
     // is scheduled, even if timeout is 0
     //
     Lock sync(*this);
-    
+
     _checkTask = new CheckTask(this);
     _timer->schedule(_checkTask, IceUtil::Time::seconds((_nodes.size() - _id) * 2));
     recovery();
@@ -233,7 +233,7 @@ NodeI::check()
             _timer->schedule(_checkTask, _electionTimeout);
             return;
         }
-        
+
         // Next get the set of nodes that were detected as unreachable
         // from the replica and remove them from our slave list.
         vector<int> dead;
@@ -253,7 +253,7 @@ NodeI::check()
                     _up.erase(q);
                 }
             }
-                
+
             // If we no longer have the majority of the nodes under our
             // care then we need to stop our replica.
             if(_up.size() < _nodes.size()/2)
@@ -497,7 +497,7 @@ NodeI::merge(const set<int>& coordinatorSet)
         // Schedule the mergeContinueTask.
         assert(_mergeContinueTask == 0);
         _mergeContinueTask = new MergeContinueTask(this);
-            
+
         // At this point we may have already accepted all of the
         // invitations, if so then we want to schedule the
         // mergeContinue immediately.
@@ -538,7 +538,7 @@ NodeI::mergeContinue()
             Ice::Trace out(_traceLevels->logger, _traceLevels->electionCat);
             out << "node " << _id << ": coordinator for " << (tmpSet.size() +1) << " nodes (including myself)";
         }
-        
+
         // Now we need to decide whether we can start serving content. If
         // we're on initial startup then we need all nodes to participate
         // in the election. If we're running a subsequent election then we
@@ -1026,7 +1026,7 @@ NodeI::recovery(Ice::Long generation)
     _generation = -1;
     _coord = _id;
     _up.clear();
-    
+
     if(_traceLevels->election > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->electionCat);
@@ -1107,7 +1107,7 @@ NodeI::startUpdate(Ice::Long& generation, const char* file, int line)
     bool majority = _observers->check();
 
     Lock sync(*this);
-    
+
     // If we've actively replicating & lost the majority of our replicas then recover.
     if(!_coordinatorProxy && !_destroy && _state == NodeStateNormal && !majority)
     {
@@ -1143,7 +1143,7 @@ NodeI::updateMaster(const char* /*file*/, int /*line*/)
     {
         return false;
     }
-    
+
     // If we've lost the majority of our replicas then recover.
     if(_state == NodeStateNormal && !majority)
     {

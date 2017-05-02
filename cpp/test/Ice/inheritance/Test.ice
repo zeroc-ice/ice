@@ -110,7 +110,7 @@ class C extends B
 
 module MD
 {
-    
+
 ["cpp:virtual"] class A
 {
     int aA;
@@ -135,7 +135,7 @@ module MD
 
 module ME
 {
-    
+
 class A
 {
     int aA;
@@ -160,7 +160,7 @@ class B extends A
 
 module MF
 {
-    
+
 class A
 {
     int aA;
@@ -185,7 +185,7 @@ class C extends B
 
 module MG
 {
-    
+
 class A
 {
     int aA;
@@ -210,7 +210,7 @@ class D extends C
 
 module MH
 {
-    
+
 class A
 {
     int aA;

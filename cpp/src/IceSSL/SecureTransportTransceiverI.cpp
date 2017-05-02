@@ -98,7 +98,7 @@ socketRead(SSLConnectionRef connection, void* data, size_t* length)
 }
 
 bool
-checkTrustResult(SecTrustRef trust, 
+checkTrustResult(SecTrustRef trust,
                  const IceSSL::SecureTransport::SSLEnginePtr& engine,
                  const IceSSL::InstancePtr& instance,
                  const string& host)
@@ -302,7 +302,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
-        
+
         Trace out(_instance->logger(), _instance->traceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 

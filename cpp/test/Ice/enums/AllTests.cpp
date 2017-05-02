@@ -164,7 +164,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        ShortEnum values[] = 
+        ShortEnum values[] =
         {
             ICE_ENUM(ShortEnum, senum1),
             ICE_ENUM(ShortEnum, senum2),

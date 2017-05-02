@@ -16,7 +16,7 @@ compiler versions listed for our [supported platforms][2].
 
 ### Third-Party Packages
 
-Ice has dependencies on a number of third-party packages. Install these packages 
+Ice has dependencies on a number of third-party packages. Install these packages
 before building Ice for C++:
 
  - [bzip][3] 1.0
@@ -25,9 +25,9 @@ before building Ice for C++:
  - [mcpp][6] 2.7.2 (with patches)
  - [OpenSSL][7] 1.0.0 or later
 
-Bzip, Expat and OpenSSL are included with most Linux distributions. 
+Bzip, Expat and OpenSSL are included with most Linux distributions.
 
-ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions 
+ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions
 that do not include them. You can install these packages as shown below:
 
 #### Amazon Linux
@@ -115,7 +115,7 @@ On an x86_64 system:
 
 When compiling Ice programs, you must pass the location of the `<prefix>/include`
 directory to the compiler with the `-I` option, and the location of the library
-directory with the `-L` option. 
+directory with the `-L` option.
 
 If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro during
 compilation with the `-D` option (`g++ -DICE_CPP11_MAPPING`) and add
@@ -135,7 +135,7 @@ After a successful source build, you can run the tests as follows:
 This command is equivalent to:
 
     $ python allTests.py
-    
+
 For the C++11 mapping it also includes the `--c++11` argument:
 
     $ python allTests.py --c++11

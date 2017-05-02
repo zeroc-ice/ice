@@ -34,7 +34,7 @@ namespace IceInternal
 class ProxyFactory : public IceUtil::Shared
 {
 public:
-    
+
     Ice::ObjectPrxPtr stringToProxy(const std::string&) const;
     std::string proxyToString(const Ice::ObjectPrxPtr&) const;
 

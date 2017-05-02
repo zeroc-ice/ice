@@ -19,8 +19,8 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
     {
         _threads.add(Thread.currentThread());
     }
-    
-    synchronized void 
+
+    synchronized void
     removeUpcallThread()
     {
         _threads.remove(Thread.currentThread());
@@ -29,7 +29,7 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
         //
         Thread.interrupted();
     }
-    
+
     @Override
     synchronized public void
     interrupt(Ice.Current current)
@@ -51,7 +51,7 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void
     resumeAdapter(Ice.Current current)

@@ -61,7 +61,7 @@ public sealed class ControllerI : Test.ControllerDisp_
 
 public sealed class TestIntfI : Test.TestIntfDisp_
 {
-    public override string 
+    public override string
     getAdapterId(Ice.Current current)
     {
         return current.adapter.getCommunicator().getProperties().getProperty(current.adapter.getName() + ".AdapterId");

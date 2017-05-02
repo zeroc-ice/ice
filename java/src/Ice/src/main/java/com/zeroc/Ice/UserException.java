@@ -56,7 +56,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
     {
         return ice_id().substring(2);
     }
-    
+
     /**
      * Returns the type id of this exception.
      *

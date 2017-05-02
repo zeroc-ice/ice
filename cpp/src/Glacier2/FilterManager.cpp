@@ -27,7 +27,7 @@ static void
 stringToSeq(const string& str, vector<string>& seq)
 {
     IceUtilInternal::splitString(str, " \t", seq);
-    
+
     //
     // TODO: do something about unmatched quotes
     //
@@ -83,7 +83,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
                 {
                     ++end;
                 }
-            } 
+            }
             if(end != string::npos)
             {
                 ++end;
@@ -108,7 +108,7 @@ Glacier2::FilterManager::~FilterManager()
     destroy();
 }
 
-void 
+void
 Glacier2::FilterManager::destroy()
 {
     Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
@@ -147,7 +147,7 @@ Glacier2::FilterManager::destroy()
     }
 }
 
-Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacier2::StringSetIPtr& categories, 
+Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacier2::StringSetIPtr& categories,
                                        const Glacier2::StringSetIPtr& adapters,
                                        const Glacier2::IdentitySetIPtr& identities) :
     _categories(categories),
@@ -187,7 +187,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
         {
             addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
         }
-       
+
         if(addUserMode > 0 && !userId.empty())
         {
             if(addUserMode == 1)
@@ -198,7 +198,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
             {
                 allowSeq.push_back('_' + userId); // Add user id with prepended underscore to allowed categories.
             }
-        }       
+        }
     }
     Glacier2::StringSetIPtr categoryFilter = new Glacier2::StringSetI(allowSeq);
 
@@ -211,7 +211,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
 
     //
     // TODO: Object id's from configurations?
-    // 
+    //
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowIdSeq);

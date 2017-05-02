@@ -26,9 +26,9 @@ class SessionManagerI : public Glacier2::SessionManager
 {
 public:
     SessionManagerI(const TestControllerIPtr&);
-    
+
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
-    
+
 private:
     TestControllerIPtr _controller;
 };

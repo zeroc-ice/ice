@@ -13,7 +13,7 @@
     public static void main(java.lang.String[]);
 }
 
-# Following options are useful for debugging. 
+# Following options are useful for debugging.
 # -printseeds
 # -verbose
 
@@ -68,7 +68,7 @@
 -keepclass class com.zeroc.Ice.* {
     java.lang.String typeId;
 }
-# Your application may contain more items that need to be preserved; 
+# Your application may contain more items that need to be preserved;
 # typically classes that are dynamically created using Class.forName:
 
 -keep,includedescriptorclasses public class com.zeroc.Ice.** {
@@ -86,7 +86,7 @@
 
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticFieldCaret
--keep,includedescriptorclasses class com.jgoodies.looks.windows.WindowsFieldCaret 
+-keep,includedescriptorclasses class com.jgoodies.looks.windows.WindowsFieldCaret
 
 #
 # Without this directive, the menus on Windows don't look good

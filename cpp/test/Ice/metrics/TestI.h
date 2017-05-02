@@ -39,7 +39,7 @@ class ControllerI : public Test::Controller
 public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
-    
+
     virtual void hold(const Ice::Current&);
 
     virtual void resume(const Ice::Current&);

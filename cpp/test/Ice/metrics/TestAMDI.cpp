@@ -98,7 +98,7 @@ MetricsI::opWithUserException_async(const Test::AMD_Metrics_opWithUserExceptionP
 }
 
 void
-MetricsI::opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr& cb, 
+MetricsI::opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr& cb,
                                              const Ice::Current&)
 {
     cb->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));

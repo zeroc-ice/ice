@@ -105,7 +105,7 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
 class AddressMatcher
 {
 public:
-    virtual ~AddressMatcher() {} 
+    virtual ~AddressMatcher() {}
     virtual bool match(const string&, string::size_type& pos) = 0;
 
     virtual const char* toString() const = 0;
@@ -116,7 +116,7 @@ protected:
 class MatchesAny : public AddressMatcher
 {
 public:
-    MatchesAny() 
+    MatchesAny()
     {
     }
 
@@ -136,7 +136,7 @@ public:
 //
 // Match the start of a string (i.e. position == 0). Occurs when filter
 // string starts with a set of characters followed by a wildcard or
-// numeric range. 
+// numeric range.
 //
 class StartsWithString : public AddressMatcher
 {
@@ -147,7 +147,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         assert(pos == 0);
@@ -183,7 +183,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         if(space.size() - pos < _criteria.size())
@@ -216,7 +216,7 @@ private:
 
 class MatchesString : public AddressMatcher
 {
-public: 
+public:
     MatchesString(const string& criteria):
         _criteria(criteria),
         _description("matches " + criteria)
@@ -289,7 +289,7 @@ private:
 class MatchesNumber : public AddressMatcher
 {
 public:
-    MatchesNumber(const vector<int>& values, const vector<Range>& ranges, 
+    MatchesNumber(const vector<int>& values, const vector<Range>& ranges,
                   const char* descriptionPrefix = "matches "):
         _values(values),
         _ranges(ranges)
@@ -393,10 +393,10 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
-        while(true) 
+        while(true)
         {
             pos = space.find_first_of("0123456789", pos);
             if(pos == string::npos)
@@ -421,7 +421,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         pos = space.find_last_not_of("0123456789", pos);
@@ -446,25 +446,25 @@ public:
 class AddressMatcherFactory
 {
 public:
-    virtual ~AddressMatcherFactory() {} 
+    virtual ~AddressMatcherFactory() {}
 
-    virtual AddressMatcher* 
+    virtual AddressMatcher*
     create(const string& criteria) = 0;
 
-    virtual AddressMatcher* 
+    virtual AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges) = 0;
 };
 
 class StartFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new StartsWithString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new MatchesNumber(ports, ranges);
@@ -474,13 +474,13 @@ public:
 class WildCardFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new ContainsString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new ContainsNumberMatch(ports, ranges);
@@ -490,13 +490,13 @@ public:
 class FollowingFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new MatchesString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new MatchesNumber(ports, ranges);
@@ -512,7 +512,7 @@ public:
         return new EndsWithString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new EndsWithNumber(ports, ranges);
@@ -543,7 +543,7 @@ public:
         delete _portMatcher;
     }
 
-    virtual bool 
+    virtual bool
     check(const ObjectPrx& prx) const
     {
         EndpointSeq endpoints = prx->ice_getEndpoints();
@@ -599,7 +599,7 @@ public:
         return true;
     }
 
-    void 
+    void
     dump() const
     {
         consoleErr << "address(";
@@ -616,7 +616,7 @@ public:
 
 private:
 
-    bool 
+    bool
     extractPart(const char* opt, const string& source, string& result) const
     {
         string::size_type start = source.find(opt);
@@ -644,7 +644,7 @@ private:
 };
 
 static void
-parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules, 
+parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules,
               const int traceLevel)
 {
     StartFactory startsWithFactory;
@@ -806,7 +806,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 }
 
 //
-// Helper function for checking a rule set. 
+// Helper function for checking a rule set.
 //
 static bool
 match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
@@ -823,7 +823,7 @@ match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
 
 //
 // ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured
-// length. 
+// length.
 //
 class ProxyLengthRule : public ProxyRule
 {
@@ -851,7 +851,7 @@ public:
         if(_traceLevel >= 1)
         {
             Trace out(_communicator->getLogger(), "Glacier2");
-            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
+            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ")
                 << "proxy size restriction\n";
         }
         return result;
@@ -871,7 +871,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
 {
     //
     // Evaluation order is dependant on how the rules are stored to the
-    // rules vectors. 
+    // rules vectors.
     //
     string s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
     if(s != "")

@@ -15,16 +15,16 @@ public sealed class GI : GDisp_
     {
         _communicator = communicator;
     }
-    
+
     public override string callG(Ice.Current current)
     {
         return "G";
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         _communicator.shutdown();
     }
-    
+
     private Ice.Communicator _communicator;
 }

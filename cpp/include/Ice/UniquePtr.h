@@ -62,7 +62,7 @@ public:
     {
         return *_ptr;
     }
-    
+
     T* operator->() const
     {
         return _ptr;

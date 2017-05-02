@@ -51,7 +51,7 @@ namespace Ice
                 return result;
             }
         }
-        
+
         public string getPropertyWithDefault(string key, string val)
         {
             lock(this)
@@ -66,12 +66,12 @@ namespace Ice
                 return result;
             }
         }
-        
+
         public int getPropertyAsInt(string key)
         {
             return getPropertyAsIntWithDefault(key, 0);
         }
-        
+
         public int getPropertyAsIntWithDefault(string key, int val)
         {
             lock(this)
@@ -79,7 +79,7 @@ namespace Ice
                 PropertyValue pv;
                 if(!_properties.TryGetValue(key, out pv))
                 {
-                    return val; 
+                    return val;
                 }
                 pv.used = true;
                 try
@@ -88,18 +88,18 @@ namespace Ice
                 }
                 catch(FormatException)
                 {
-                    Util.getProcessLogger().warning("numeric property " + key + 
+                    Util.getProcessLogger().warning("numeric property " + key +
                                                     " set to non-numeric value, defaulting to " + val);
                     return val;
                 }
             }
         }
-        
+
         public string[] getPropertyAsList(string key)
         {
             return getPropertyAsListWithDefault(key, null);
         }
-        
+
         public string[] getPropertyAsListWithDefault(string key, string[] val)
         {
             if(val == null)
@@ -120,7 +120,7 @@ namespace Ice
                 string[] result = IceUtilInternal.StringUtil.splitString(pv.val, ", \t\r\n");
                 if(result == null)
                 {
-                    Util.getProcessLogger().warning("mismatched quotes in property " + key 
+                    Util.getProcessLogger().warning("mismatched quotes in property " + key
                                                     + "'s value, returning default value");
                     return val;
                 }
@@ -150,7 +150,7 @@ namespace Ice
                 return result;
             }
         }
-        
+
         public void setProperty(string key, string val)
         {
             //
@@ -252,7 +252,7 @@ namespace Ice
                 }
             }
         }
-        
+
         public string[] getCommandLineOptions()
         {
             lock(this)
@@ -300,7 +300,7 @@ namespace Ice
             }
             return arr;
         }
-        
+
         public string[] parseIceCommandLineOptions(string[] options)
         {
             string[] args = options;
@@ -310,7 +310,7 @@ namespace Ice
             }
             return args;
         }
-        
+
         public void load(string file)
         {
             if(file.StartsWith("HKLM\\", StringComparison.Ordinal))
@@ -349,7 +349,7 @@ namespace Ice
                 }
             }
         }
-        
+
         public Properties ice_clone_()
         {
             lock(this)
@@ -357,7 +357,7 @@ namespace Ice
                 return new PropertiesI(this);
             }
         }
-        
+
         public List<string> getUnusedProperties()
         {
             lock(this)
@@ -373,7 +373,7 @@ namespace Ice
                 return unused;
             }
         }
-        
+
         internal PropertiesI(PropertiesI p)
         {
             //
@@ -392,7 +392,7 @@ namespace Ice
         {
             _properties = new Dictionary<string, PropertyValue>();
         }
-        
+
         internal PropertiesI(ref string[] args, Properties defaults)
         {
             if(defaults == null)
@@ -412,7 +412,7 @@ namespace Ice
                     _properties[entry.Key] = new PropertyValue(entry.Value);
                 }
             }
-            
+
             PropertyValue pv;
             if(_properties.TryGetValue("Ice.ProgramName", out pv))
             {
@@ -454,15 +454,15 @@ namespace Ice
                 //
                 loadConfigFiles = !_properties.ContainsKey("Ice.Config");
             }
-            
+
             if(loadConfigFiles)
             {
                 loadConfig();
             }
-            
-            args = parseIceCommandLineOptions(args); 
+
+            args = parseIceCommandLineOptions(args);
         }
-        
+
         private void parse(System.IO.StreamReader input)
         {
             try
@@ -482,7 +482,7 @@ namespace Ice
 
         private const int ParseStateKey = 0;
         private const int ParseStateValue = 1;
-        
+
         private void parseLine(string line)
         {
             string key = "";
@@ -515,14 +515,14 @@ namespace Ice
                                   whitespace= "";
                                   key += c;
                                   break;
-        
+
                                 case ' ':
                                   if(key.Length != 0)
                                   {
                                       whitespace += c;
                                   }
                                   break;
-        
+
                                 default:
                                   key += whitespace;
                                   whitespace= "";
@@ -537,7 +537,7 @@ namespace Ice
                               key += c;
                           }
                           break;
-        
+
                         case ' ':
                         case '\t':
                         case '\r':
@@ -547,16 +547,16 @@ namespace Ice
                                 whitespace += c;
                             }
                             break;
-        
+
                         case '=':
                             whitespace= "";
                             state = ParseStateValue;
                             break;
-        
+
                         case '#':
                             finished = true;
                             break;
-        
+
                         default:
                             key += whitespace;
                             whitespace= "";
@@ -584,12 +584,12 @@ namespace Ice
                                   escapedspace= "";
                                   val += c;
                                   break;
-        
+
                                 case ' ':
                                   whitespace += c;
                                   escapedspace += c;
                                   break;
-        
+
                                 default:
                                   val += val.Length == 0 ? escapedspace : whitespace;
                                   whitespace= "";
@@ -605,7 +605,7 @@ namespace Ice
                               val += c;
                           }
                           break;
-        
+
                         case ' ':
                         case '\t':
                         case '\r':
@@ -615,11 +615,11 @@ namespace Ice
                                 whitespace += c;
                             }
                             break;
-        
+
                         case '#':
                             finished = true;
                             break;
-        
+
                         default:
                             val += val.Length == 0 ? escapedspace : whitespace;
                             whitespace = "";
@@ -636,7 +636,7 @@ namespace Ice
                 }
             }
             val += escapedspace;
-        
+
             if((state == ParseStateKey && key.Length != 0) || (state == ParseStateValue && key.Length == 0))
             {
                 Util.getProcessLogger().warning("invalid config file entry: \"" + line + "\"");
@@ -649,7 +649,7 @@ namespace Ice
 
             setProperty(key, val);
         }
-        
+
         private void loadConfig()
         {
             string val = getProperty("Ice.Config");
@@ -670,10 +670,10 @@ namespace Ice
                 {
                     load(files[i].Trim());
                 }
-            
+
                 _properties["Ice.Config"] = new PropertyValue(val, true);
             }
-        }        
+        }
 
         private Dictionary<string, PropertyValue> _properties;
     }

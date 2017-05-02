@@ -62,7 +62,7 @@ struct IFileInfoPathLess: public binary_function<const LargeFileInfo&, const Lar
             {
                 return true;
             }
-            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) > 
+            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) >
                     ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
@@ -102,7 +102,7 @@ void
 usage(const string& appName)
 {
     consoleErr << "Usage: " << appName << " [options] DIR [FILES...]\n";
-    consoleErr <<     
+    consoleErr <<
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -141,7 +141,7 @@ main(int argc, char* argv[])
     opts.addOpt("Z", "no-compress");
     opts.addOpt("V", "verbose");
     opts.addOpt("i", "case-insensitive");
-    
+
     vector<string> args;
     try
     {
@@ -199,7 +199,7 @@ main(int argc, char* argv[])
     try
     {
         string absDataDir = dataDir;
-    
+
         string cwd;
         if(IceUtilInternal::getcwd(cwd) != 0)
         {
@@ -210,7 +210,7 @@ main(int argc, char* argv[])
         {
             absDataDir = simplify(cwd + '/' + absDataDir);
         }
-        
+
         for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
             if(!IceUtilInternal::isAbsolutePath(*p))
@@ -232,12 +232,12 @@ main(int argc, char* argv[])
             {
                 throw "`" + *p + "' is not a path in `" + dataDir + "'";
             }
-            
+
             p->erase(0, absDataDirWithSlash.size());
         }
-    
+
         LargeFileInfoSeq infoSeq;
-            
+
         if(fileSeq.empty())
         {
             CalcCB calcCB;

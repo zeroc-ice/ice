@@ -59,15 +59,15 @@ public:
         return binary_search(_items.begin(), _items.end(), candidate);
     }
 
-    bool 
+    bool
     empty() const
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
         return _items.size() == 0;
     }
-        
+
 private:
-    
+
     std::vector<T> _items;
 };
 
@@ -115,14 +115,14 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     // match between the current set and the set of items to be removed,
     // we do not need to traverse the whole of the current set each
     // time. We also use a list of deletions instead of erasing things
-    // itemwise. 
+    // itemwise.
     //
 
     //
     // The presence of the 'typename' is a GCC specific workaround. The
     // iterator types apparently resolve to a 'void' in GCC type
     // causing compiler errors.
-    // 
+    //
     const_iterator r = toRemove.begin();
     iterator mark = _items.begin();
     std::list<iterator> deleteList;
@@ -162,7 +162,7 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
     }
 }
 
-template<class T, class P> std::vector<T> 
+template<class T, class P> std::vector<T>
 FilterT<T, P>::get(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);

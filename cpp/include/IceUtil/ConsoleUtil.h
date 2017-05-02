@@ -68,7 +68,7 @@ operator<<(ConsoleOut& out, const T& val)
 
 ICE_API ConsoleOut& endl(ConsoleOut&);
 ICE_API ConsoleOut& flush(ConsoleOut&);
- 
+
 template<typename T>
 ConsoleErr&
 operator<<(ConsoleErr& err, const T& val)

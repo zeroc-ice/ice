@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <!-- Slice compiler from x64 Release builds -->
         <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2cpp.exe;

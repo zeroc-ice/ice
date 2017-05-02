@@ -116,7 +116,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         views = ma->getMetricsViewNames(disabledViews);
         test(views.size() == 3);
-        
+
         // Make sure that the IceBox communicator metrics admin is a separate instance.
 #ifdef ICE_CPP11_MAPPING
         test(Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());

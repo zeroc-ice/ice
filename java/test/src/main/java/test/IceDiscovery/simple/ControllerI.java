@@ -58,6 +58,6 @@ public final class ControllerI implements Controller
         current.adapter.getCommunicator().shutdown();
     }
 
-    final private java.util.Map<String, com.zeroc.Ice.ObjectAdapter> _adapters = 
+    final private java.util.Map<String, com.zeroc.Ice.ObjectAdapter> _adapters =
         new java.util.HashMap<String, com.zeroc.Ice.ObjectAdapter>();
 }

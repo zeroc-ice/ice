@@ -23,11 +23,11 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
         test([com findAdminFacet:@"Logger"]);
         test([com findAdminFacet:@"Metrics"]);
     }
-    
+
     TestAdminTestFacet* f1 = [TestAdminTestFacetI testFacet];
     TestAdminTestFacet* f2 = [TestAdminTestFacetI testFacet];
     TestAdminTestFacet* f3 = [TestAdminTestFacetI testFacet];
-    
+
     [com addAdminFacet:f1 facet:@"Facet1"];
     [com addAdminFacet:f2 facet:@"Facet2"];
     [com addAdminFacet:f3 facet:@"Facet3"];
@@ -38,7 +38,7 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     test(![com findAdminFacet:@"Bogus"]);
 
     ICEFacetMap* facetMap = [com findAllAdminFacets];
-    
+
     if(builtInFacets)
     {
         test([facetMap count] == 7);
@@ -54,8 +54,8 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     test([facetMap objectForKey:@"Facet1"] != nil);
     test([facetMap objectForKey:@"Facet2"] != nil);
     test([facetMap objectForKey:@"Facet3"] != nil);
-   
-     
+
+
     @try
     {
         [com addAdminFacet:f1 facet:@"Facet1"];
@@ -149,8 +149,8 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     @try
     {
         ICELogMessage* front = [_expectedLogMessages objectAtIndex:0];
-        
-        test(front.type == logMessage.type && 
+
+        test(front.type == logMessage.type &&
              [front.message isEqual:logMessage.message] &&
              [front.traceCategory isEqual:logMessage.traceCategory]);
 
@@ -267,7 +267,7 @@ adminAllTests(id<ICECommunicator> communicator)
         id<ICEObjectAdapter> adapter = [com createObjectAdapter:@""];
         test([com createAdmin:adapter adminId:ident] != nil);
         test([com getAdmin] != nil);
-       
+
         testFacets(com, YES);
         [com destroy];
     }
@@ -289,7 +289,7 @@ adminAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     NSString* ref = @"factory:default -p 12010 -t 10000";
-    id<TestAdminRemoteCommunicatorFactoryPrx> factory = 
+    id<TestAdminRemoteCommunicatorFactoryPrx> factory =
         [TestAdminRemoteCommunicatorFactoryPrx uncheckedCast:[communicator stringToProxy:ref]];
 
     tprintf("testing process facet... ");
@@ -382,7 +382,7 @@ adminAllTests(id<ICECommunicator> communicator)
         [com warning:@"warning"];
         [com error:@"error"];
         [com print:@"print"];
-       
+
         id<ICEObjectPrx> obj = [com getAdmin];
         id<ICELoggerAdminPrx> logger = [ICELoggerAdminPrx checkedCast:obj facet:@"Logger"];
         test(logger);
@@ -393,16 +393,16 @@ adminAllTests(id<ICECommunicator> communicator)
         // Get all
         //
         ICELogMessageSeq* logMessages = [logger getLog:nil traceCategories:nil messageMax:-1 prefix:&prefix];
-        
+
         test([logMessages count] == 4);
         test([prefix isEqual:@"NullLogger"]);
         int i = 0;
-        test([((ICELogMessage*)[logMessages objectAtIndex:i]).traceCategory isEqual:@"testCat"] && 
-             [((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"trace"]); 
+        test([((ICELogMessage*)[logMessages objectAtIndex:i]).traceCategory isEqual:@"testCat"] &&
+             [((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"trace"]);
         test([((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"warning"]);
         test([((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"error"]);
         test([((ICELogMessage*)[logMessages objectAtIndex:i++]).message isEqual:@"print"]);
-       
+
         //
         // Get only errors and warnings
         //
@@ -410,8 +410,8 @@ adminAllTests(id<ICECommunicator> communicator)
         [com print:@"print2"];
         [com trace:@"testCat" message:@"trace2"];
         [com warning:@"warning2"];
-        
-    
+
+
         ICELogMessageTypeSeq* messageTypes;
 
         ICELogMessageType messageTypesArray1[] = { ICEErrorMessage, ICEWarningMessage };
@@ -425,17 +425,17 @@ adminAllTests(id<ICECommunicator> communicator)
         {
             test(message.type == ICEErrorMessage || message.type == ICEWarningMessage);
         }
-        
+
         //
         // Get only errors and traces with Cat = "testCat"
         //
         [com trace:@"testCat2" message:@"A"];
         [com trace:@"testCat" message:@"trace3"];
         [com trace:@"testCat2" message:@"B"];
-        
+
         ICELogMessageType messageTypesArray2[] = { ICEErrorMessage, ICETraceMessage };
         messageTypes = [ICEMutableLogMessageTypeSeq dataWithBytes:messageTypesArray2 length:sizeof(messageTypesArray2)];
-        
+
         ICEMutableStringSeq* categories = [ICEMutableStringSeq array];
         [categories addObject:@"testCat"];
 
@@ -445,7 +445,7 @@ adminAllTests(id<ICECommunicator> communicator)
 
         for(ICELogMessage* message in logMessages)
         {
-            test(message.type == ICEErrorMessage || 
+            test(message.type == ICEErrorMessage ||
                  (message.type == ICETraceMessage && [message.traceCategory isEqual:@"testCat"]));
         }
 
@@ -453,7 +453,7 @@ adminAllTests(id<ICECommunicator> communicator)
         // Same, but limited to last 2 messages (trace3 + error3)
         //
         [com error:@"error3"];
-        
+
         logMessages = [logger getLog:messageTypes traceCategories:categories messageMax:2 prefix:&prefix];
         test([logMessages count] == 2);
         test([prefix isEqual:@"NullLogger"]);
@@ -466,20 +466,20 @@ adminAllTests(id<ICECommunicator> communicator)
         // Now, test RemoteLogger
         //
 
-        id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"RemoteLoggerAdapter" 
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"RemoteLoggerAdapter"
                                                                             endpoints:@"tcp -h localhost"];
-   
+
         RemoteLoggerI* remoteLogger = [RemoteLoggerI remoteLogger];
         id<ICERemoteLoggerPrx> myProxy = [ICERemoteLoggerPrx uncheckedCast:[adapter addWithUUID:remoteLogger]];
-        
+
         [adapter activate];
-         
+
         //
         // No filtering
         //
         logMessages = [logger getLog:nil traceCategories:nil messageMax:-1 prefix:&prefix];
         [remoteLogger checkNextInit:prefix logMessages:logMessages];
-       
+
         [logger attachRemoteLogger:myProxy messageTypes:nil traceCategories:nil messageMax:-1];
         [remoteLogger wait:1];
 
@@ -508,7 +508,7 @@ adminAllTests(id<ICECommunicator> communicator)
 
         [remoteLogger checkNextLog:ICETraceMessage message:@"rtrace2" category:@"testCat"];
         [remoteLogger checkNextLog:ICEErrorMessage message:@"rerror2" category:@""];
-     
+
         [com warning:@"rwarning2"];
         [com trace:@"testCat" message:@"rtrace2"];
         [com warning:@"rwarning3"];
@@ -521,8 +521,8 @@ adminAllTests(id<ICECommunicator> communicator)
         //
         @try
         {
-            [logger attachRemoteLogger:[myProxy ice_oneway] 
-                          messageTypes:messageTypes 
+            [logger attachRemoteLogger:[myProxy ice_oneway]
+                          messageTypes:messageTypes
                        traceCategories:categories
                             messageMax:4];
             test(NO);

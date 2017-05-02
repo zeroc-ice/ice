@@ -3079,7 +3079,7 @@ IcePHP::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
         }
 
         AutoDestroy destroy(ret);
-    
+
         if(Z_TYPE_P(ret) != IS_STRING)
         {
             throw AbortMarshaling();

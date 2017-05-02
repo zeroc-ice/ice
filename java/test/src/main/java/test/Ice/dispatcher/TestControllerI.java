@@ -18,13 +18,13 @@ class TestControllerI implements TestIntfController
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void resumeAdapter(com.zeroc.Ice.Current current)
     {
         _adapter.activate();
     }
-    
+
     public TestControllerI(com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;

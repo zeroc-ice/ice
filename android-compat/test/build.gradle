@@ -56,7 +56,7 @@ tests.each {
                     include "test/Ice/${dirName}/**"
                     exclude 'test/Ice/**/lambda'
                     srcDir "$rootProject.projectDir/test/build/generated-src/"
-                    include "test/Ice/${dirName}/**"                
+                    include "test/Ice/${dirName}/**"
                 }
             }
         }

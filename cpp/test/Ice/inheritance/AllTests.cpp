@@ -107,7 +107,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
     test(cao == ca);
 #endif
-    
+
     cao = cb->caop(cb);
 #ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(cao, cb));
@@ -191,7 +191,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
     test(cao == cc);
 #endif
-    
+
     cbo = cc->cbop(cc);
 #ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(cbo, cc));
@@ -205,14 +205,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #else
     test(cao == cc);
 #endif
-    
+
     cbo = cc->ccop(cc);
 #ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(cbo, cc));
 #else
     test(cbo == cc);
 #endif
-    
+
     cco = cc->ccop(cc);
 #ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(cco, cc));
@@ -568,56 +568,56 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
 
     cout << "ok" << endl;
-    
+
     cout << "testing one shot constructor... " << flush;
     {
         MC::APtr a = ICE_MAKE_SHARED(MC::A, 1);
         test(a->aA == 1);
-        
+
         MC::BPtr b = ICE_MAKE_SHARED(MC::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         MC::CPtr c = ICE_MAKE_SHARED(MC::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);
         test(c->cC == 3);
-        
+
         MC::DPtr d = ICE_MAKE_SHARED(MC::D, 1, 2, 3, 4);
         test(d->aA == 1);
         test(d->bB == 2);
         test(d->cC == 3);
         test(d->dD == 4);
     }
-    
+
     {
         MD::APtr a = ICE_MAKE_SHARED(MD::A, 1);
         test(a->aA == 1);
-        
+
         MD::BPtr b = ICE_MAKE_SHARED(MD::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         MD::CPtr c = ICE_MAKE_SHARED(MD::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);
         test(c->cC == 3);
-        
+
         MD::DPtr d = ICE_MAKE_SHARED(MD::D, 1, 2, 3, 4);
         test(d->aA == 1);
         test(d->bB == 2);
         test(d->cC == 3);
         test(d->dD == 4);
     }
-    
+
     {
         ME::APtr a = ICE_MAKE_SHARED(ME::A, 1);
         test(a->aA == 1);
-        
+
         ME::BPtr b = ICE_MAKE_SHARED(ME::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         ME::CPtr c = ICE_MAKE_SHARED(ME::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);
@@ -629,15 +629,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(d->cC == 3);
         test(d->dD == 4);
     }
-    
+
     {
         MF::APtr a = ICE_MAKE_SHARED(MF::A, 1);
         test(a->aA == 1);
-        
+
         MF::BPtr b = ICE_MAKE_SHARED(MF::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         MF::CPtr c = ICE_MAKE_SHARED(MF::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);
@@ -649,15 +649,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(d->cC == 3);
         test(d->dD == 4);
     }
-    
+
     {
         MG::APtr a = ICE_MAKE_SHARED(MG::A, 1);
         test(a->aA == 1);
-        
+
         MG::BPtr b = ICE_MAKE_SHARED(MG::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         MG::CPtr c = ICE_MAKE_SHARED(MG::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);
@@ -669,15 +669,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(d->cC == 3);
         test(d->dD == 4);
     }
-    
+
     {
         MH::APtr a = ICE_MAKE_SHARED(MH::A, 1);
         test(a->aA == 1);
-        
+
         MH::BPtr b = ICE_MAKE_SHARED(MH::B, 1, 2);
         test(b->aA == 1);
         test(b->bB == 2);
-        
+
         MH::CPtr c = ICE_MAKE_SHARED(MH::C, 1, 2, 3);
         test(c->aA == 1);
         test(c->bB == 2);

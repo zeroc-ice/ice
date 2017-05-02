@@ -96,9 +96,9 @@ isSupported(const T& version, const T& supported)
     return version.major == supported.major && version.minor <= supported.minor;
 }
 
-ICE_API void throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&, 
+ICE_API void throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&,
                                                const Ice::ProtocolVersion&);
-ICE_API void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, 
+ICE_API void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&,
                                                const Ice::EncodingVersion&);
 
 const ::Ice::Byte OPTIONAL_END_MARKER        = 0xFF;
@@ -126,25 +126,25 @@ ICE_API extern const EncodingVersion currentProtocolEncoding;
 
 ICE_API extern const EncodingVersion currentEncoding;
 
-inline ::std::string 
+inline ::std::string
 protocolVersionToString(const Ice::ProtocolVersion& v)
 {
     return IceInternal::versionToString<ProtocolVersion>(v);
 }
 
-inline ::Ice::ProtocolVersion 
+inline ::Ice::ProtocolVersion
 stringToProtocolVersion(const ::std::string& v)
 {
     return IceInternal::stringToVersion<ProtocolVersion>(v);
 }
 
-inline ::std::string 
+inline ::std::string
 encodingVersionToString(const Ice::EncodingVersion& v)
 {
     return IceInternal::versionToString<EncodingVersion>(v);
 }
 
-inline ::Ice::EncodingVersion 
+inline ::Ice::EncodingVersion
 stringToEncodingVersion(const ::std::string& v)
 {
     return IceInternal::stringToVersion<EncodingVersion>(v);
@@ -215,7 +215,7 @@ getCompatibleProtocol(const Ice::ProtocolVersion& v)
         // Unsupported but compatible, use the currently supported
         // protocol, that's the best we can do.
         //
-        return Ice::currentProtocol; 
+        return Ice::currentProtocol;
     }
 }
 
@@ -240,7 +240,7 @@ getCompatibleEncoding(const Ice::EncodingVersion& v)
         // Unsupported but compatible, use the currently supported
         // encoding, that's the best we can do.
         //
-        return Ice::currentEncoding; 
+        return Ice::currentEncoding;
     }
 }
 

@@ -14,7 +14,7 @@ import test.IceDiscovery.simple.Test.*;
 public final class TestIntfI extends _TestIntfDisp
 {
     @Override
-    public String 
+    public String
     getAdapterId(Ice.Current current)
     {
         return current.adapter.getCommunicator().getProperties().getProperty(current.adapter.getName() + ".AdapterId");

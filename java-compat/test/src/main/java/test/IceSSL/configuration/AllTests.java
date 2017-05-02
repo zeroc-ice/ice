@@ -536,7 +536,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host does not match the certificate DNS altName
                 //
@@ -561,7 +561,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host matches the certificate Common Name and the certificate does not
                 // include a DNS altName
@@ -586,7 +586,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host does not match the certificate Common Name and the certificate does not
                 // include a DNS altName
@@ -612,7 +612,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host matches the certificate Common Name and the certificate has
                 // a DNS altName that does not matches the target host
@@ -638,11 +638,11 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Test using 127.0.0.1 as target host
                 //
-                
+
                 //
                 // Target host matches the certificate IP altName
                 //
@@ -666,7 +666,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host does not match the certificate IP altName
                 //
@@ -691,7 +691,7 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                
+
                 //
                 // Target host is an IP addres that matches the CN and the certificate doesn't
                 // include an IP altName

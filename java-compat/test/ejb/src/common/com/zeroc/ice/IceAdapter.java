@@ -9,7 +9,7 @@
 
 package com.zeroc.ice;
 
-public class IceAdapter 
+public class IceAdapter
 {
     synchronized static public void
     add(Ice.Object servant, Ice.Identity id)

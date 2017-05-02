@@ -109,7 +109,7 @@ public class Client
         e1._if = 0;
         e1._equals = null;
         e1._final = 0;
-        
+
         finalizePrx f = null;
         f._checkedCast(0);
         f._do();

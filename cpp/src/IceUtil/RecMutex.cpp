@@ -202,7 +202,7 @@ IceUtil::RecMutex::tryLock() const
         {
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
-    } 
+    }
     else if(++_count > 1)
     {
         rc = pthread_mutex_unlock(&_mutex);

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-// No pragma once as this file can be included several times in a translation 
+// No pragma once as this file can be included several times in a translation
 // unit
 
 #if defined(_MSC_VER)

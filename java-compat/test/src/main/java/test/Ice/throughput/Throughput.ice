@@ -42,7 +42,7 @@ interface Throughput
     bool needsWarmup();
     void startWarmup();
     void endWarmup();
-    
+
     void sendByteSeq(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);

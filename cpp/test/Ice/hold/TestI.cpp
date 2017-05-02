@@ -52,7 +52,7 @@ HoldI::waitForHold(const Ice::Current& current)
         {
         }
 
-        void 
+        void
         runTimerTask()
         {
             try
@@ -63,7 +63,7 @@ HoldI::waitForHold(const Ice::Current& current)
             catch(const Ice::ObjectAdapterDeactivatedException&)
             {
                 //
-                // This shouldn't occur. The test ensures all the waitForHold timers are 
+                // This shouldn't occur. The test ensures all the waitForHold timers are
                 // finished before shutting down the communicator.
                 //
                 test(false);
@@ -71,7 +71,7 @@ HoldI::waitForHold(const Ice::Current& current)
         }
 
     private:
-        
+
         const Ice::ObjectAdapterPtr _adapter;
     };
 

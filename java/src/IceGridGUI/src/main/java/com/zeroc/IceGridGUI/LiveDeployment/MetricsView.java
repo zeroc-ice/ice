@@ -91,7 +91,7 @@ class MetricsView extends TreeNode
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //
-                                        // If the metrics view is selected when enabled success, 
+                                        // If the metrics view is selected when enabled success,
                                         // we must start the refresh thread to pull updates.
                                         //
                                         MetricsViewEditor.startRefresh(MetricsView.this);
@@ -111,7 +111,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }
@@ -134,7 +134,7 @@ class MetricsView extends TreeNode
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //
-                                        // If the metrics view is selected when disabled success, 
+                                        // If the metrics view is selected when disabled success,
                                         // we stop the refresh.
                                         //
                                         MetricsViewEditor.stopRefresh();
@@ -154,7 +154,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }
@@ -169,7 +169,7 @@ class MetricsView extends TreeNode
     {
         return _enabled;
     }
-    
+
     public String name()
     {
         return _name;
@@ -246,7 +246,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }

@@ -66,7 +66,7 @@ Follow these steps to import the Ice for Android project into Android Studio:
 2. Select Open Project
 3. Navigate to the android subdirectory
 4. If presented with an "Import Project from Gradle" dialog, select
-   "Use default gradle wrapper" and press OK 
+   "Use default gradle wrapper" and press OK
 
 The Android Studio project contains a `testApp` application for the Ice test
 suite. To run the application, select it in the configuration pull down and run

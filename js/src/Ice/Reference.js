@@ -687,7 +687,7 @@ class ReferenceFactory
         unknownProps = unknownProps.concat(Array.from(properties.keys()).filter(
             key => !suffixes.some(suffix => key === prefix + "." + suffix)));
         if(unknownProps.length > 0)
-        {            
+        {
             let message = [];
             message.push("found unknown properties for proxy '");
             message.push(prefix);

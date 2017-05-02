@@ -21,7 +21,7 @@ interface Backend
 };
 
 enum StateCode { Initial, Running, Finished };
-    
+
 struct TestToken
 {
     bool expectedResult;

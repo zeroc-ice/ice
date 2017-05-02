@@ -319,7 +319,7 @@ ThrowerI::throwLocalExceptionIdempotentAsync(function<void()>,
     {
         exception(current_exception());
     }
-    
+
 }
 
 void

@@ -29,7 +29,7 @@
     const char* bundle = "Cpp98ControllerBundle.bundle";
 #endif
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:bundle]];
-    
+
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
     CFBundleRef handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
     if(!handle)
@@ -37,7 +37,7 @@
         [self println:[NSString stringWithFormat:@"Could not find bundle %@", bundlePath]];
         return;
     }
-    
+
     CFErrorRef error = nil;
     Boolean loaded = CFBundleLoadExecutableAndReturnError(handle, &error);
     if(error != nil || !loaded)
@@ -45,7 +45,7 @@
         [self println:[(__bridge NSError *)error description]];
         return;
     }
-    
+
     startController = CFBundleGetFunctionPointerForName(handle, CFSTR("startController"));
     if(startController == 0)
     {
@@ -54,7 +54,7 @@
         [self println:err];
         return;
     }
-    
+
     stopController = CFBundleGetFunctionPointerForName(handle, CFSTR("stopController"));
     if(stopController == 0)
     {
@@ -63,7 +63,7 @@
         [self println:err];
         return;
     }
-    
+
     //
     // Search for local network interfaces
     //

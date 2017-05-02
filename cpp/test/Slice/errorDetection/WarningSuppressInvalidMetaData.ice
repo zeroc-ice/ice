@@ -37,16 +37,16 @@ interface I
 {
     ["cpp:noexcept"]
     void op();
-    
+
     ["cpp:type:std::list< ::std::string>"]
     void op1();
-    
+
     ["cpp:view-type:std::experimental::string_view"]
     void op2();
-    
+
     ["cpp:array"]
     void op3();
-    
+
     ["cpp:range"]
     void op4();
 };

@@ -20,7 +20,7 @@ static const string mutexTestName("mutex");
 class MutexTestThread : public Thread
 {
 public:
-    
+
     MutexTestThread(Mutex& m) :
         _mutex(m),
         _tryLock(false)
@@ -28,7 +28,7 @@ public:
     }
 
     virtual void run()
-    {   
+    {
         Mutex::TryLock tlock(_mutex);
         test(!tlock.acquired());
 
@@ -79,7 +79,7 @@ MutexTest::run()
     {
         Mutex::Lock lock(mutex);
 
-        // LockT testing: 
+        // LockT testing:
         //
 
         test(lock.acquired());
@@ -117,7 +117,7 @@ MutexTest::run()
         {
             // Expected
         }
-        
+
         Mutex::TryLock lock2(mutex);
         try
         {
@@ -128,7 +128,7 @@ MutexTest::run()
         }
         lock2.release();
         test(lock.tryAcquire() == true);
-        test(lock.acquired());  
+        test(lock.acquired());
 
         // Deadlock testing
         //
@@ -140,7 +140,7 @@ MutexTest::run()
             test(false);
         }
         catch(const ThreadLockedException&)
-        {    
+        {
             // Expected
         }
 #endif
@@ -148,7 +148,7 @@ MutexTest::run()
         // TEST: Start thread, try to acquire the mutex.
         t = new MutexTestThread(mutex);
         control = t->start();
-        
+
         // TEST: Wait until the tryLock has been tested.
         t->waitTryLock();
     }

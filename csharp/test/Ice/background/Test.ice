@@ -26,7 +26,7 @@ interface BackgroundController
 {
     void pauseCall(string call);
     void resumeCall(string call);
-    
+
     void holdAdapter();
     void resumeAdapter();
 

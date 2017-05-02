@@ -54,21 +54,21 @@ public final class RetryI extends _RetryDisp
         _counter = 0;
         return counter;
     }
-    
+
     @Override
     public void
     opNotIdempotent(Ice.Current current)
     {
         throw new Ice.ConnectionLostException();
     }
-    
+
     @Override
     public void
     opSystemException(Ice.Current c)
     {
         throw new SystemFailure();
     }
-    
+
     @Override
     public void
     shutdown(Ice.Current current)

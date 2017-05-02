@@ -25,7 +25,7 @@ public class RemoteObjectAdapterI implements RemoteObjectAdapter
     {
         return _testIntf;
     }
-    
+
     public void activate(com.zeroc.Ice.Current current)
     {
         _adapter.activate();

@@ -351,7 +351,7 @@ public:
         if(intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesAdded")
         {
             //
-            // The InterfacesAdded signal contains two values: 
+            // The InterfacesAdded signal contains two values:
             //
             //   OBJPATH obj_path
             //   DICT<STRING,DICT<STRING,VARIANT>> interfaces_and_properties
@@ -388,7 +388,7 @@ public:
         else if(intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesRemoved")
         {
             //
-            // The InterfacesRemoved signal contains two values: 
+            // The InterfacesRemoved signal contains two values:
             //
             //   OBJPATH obj_path
             //   ARRAY<STRING> interfaces
@@ -424,7 +424,7 @@ public:
         else if(intf == "org.freedesktop.DBus.Properties" && member == "PropertiesChanged")
         {
             //
-            // The PropertiesChanged signal contains three values: 
+            // The PropertiesChanged signal contains three values:
             //
             //   STRING interface_name
             //   DICT<STRING,VARIANT> changed_properties

@@ -23,12 +23,12 @@ public class TestI implements TestIntf
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
-    
+
     @Override
     public String[] getArgs(com.zeroc.Ice.Current current)
     {
         return _args;
     }
-    
+
     final private String[] _args;
 }

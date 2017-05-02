@@ -28,7 +28,7 @@ can open one of:
 - VS2015 x86 Native Tools Command Prompt
 - VS2015 x64 Native Tools Command Prompt
 
-Using the first Command Prompt produces `Win32` binaries by default, while 
+Using the first Command Prompt produces `Win32` binaries by default, while
 the second Command Promt produces `x64` binaries by default.
 
 In the Command Prompt, change to the `php` subdirectory:
@@ -44,7 +44,7 @@ The extension will be placed in `lib\x64\Release\php_ice.dll` for the `x64` plat
 and `lib\Win32\Release\php_ice.dll` for the `Win32` platform.
 
 The default configuration builds the extension against the thread-safe PHP run time.
-You can build with the non-thread-safe run time using the `NTS-Release` or `NTS-Debug` 
+You can build with the non-thread-safe run time using the `NTS-Release` or `NTS-Debug`
 configuration:
 
     msbuild msbuild\ice.proj /p:Configuration=NTS-Release
@@ -126,10 +126,10 @@ Ice run time definitions (`Ice.php`) along with PHP source
 files generated from the Slice files included in the Ice distribution.
 
 The Ice extension makes no assumptions about the location of these files, so
-you can install them anywhere you like. 
+you can install them anywhere you like.
 
 An easy way to do that is to update the PHP include path in php.ini to include
-the directory with Ice for PHP sources, to do that open `php.ini` and append 
+the directory with Ice for PHP sources, to do that open `php.ini` and append
 the following directive:
 
     include_path=${include_path}";C\ice\php\lib"

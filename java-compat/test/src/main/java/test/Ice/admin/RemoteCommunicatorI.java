@@ -56,7 +56,7 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp implements Ice.
     {
         _communicator.getLogger().print(message);
     }
-    
+
     @Override
     public void trace(String category, String message, Ice.Current current)
     {

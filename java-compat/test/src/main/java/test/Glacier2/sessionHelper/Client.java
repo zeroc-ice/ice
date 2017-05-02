@@ -29,7 +29,7 @@ public class Client extends test.Util.Application
             throw new RuntimeException();
         }
     }
-    
+
     public class WorkQueue extends Thread
     {
         @Override
@@ -110,7 +110,7 @@ public class Client extends test.Util.Application
         String host = getTestHost();
         _workQueue = new WorkQueue();
         _workQueue.start();
-        
+
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 @Override
@@ -570,7 +570,7 @@ public class Client extends test.Util.Application
             _session.destroy();
             out.println("ok");
         }
-        
+
         _workQueue._destroy();
 
         return 0;

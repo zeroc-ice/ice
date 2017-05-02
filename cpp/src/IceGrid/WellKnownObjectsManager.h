@@ -22,7 +22,7 @@ typedef IceUtil::Handle<Database> DatabasePtr;
 class WellKnownObjectsManager : public IceUtil::Mutex, public IceUtil::Shared
 {
 public:
-    
+
     WellKnownObjectsManager(const DatabasePtr&);
 
     void add(const Ice::ObjectPrx&, const std::string&);
@@ -34,10 +34,10 @@ public:
     void updateReplicatedWellKnownObjects();
 
     Ice::ObjectPrx getEndpoints(const std::string&);
-    
+
     LocatorPrx getLocator();
     Ice::LocatorRegistryPrx getLocatorRegistry();
-    
+
 private:
 
     bool initialized() const;

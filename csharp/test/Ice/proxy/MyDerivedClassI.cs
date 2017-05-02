@@ -14,7 +14,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     public MyDerivedClassI()
     {
     }
-    
+
     public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
     {
         return obj;
@@ -24,7 +24,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     {
         current.adapter.getCommunicator().shutdown();
     }
-    
+
     public override Dictionary<string, string> getContext(Ice.Current current)
     {
         return _ctx;

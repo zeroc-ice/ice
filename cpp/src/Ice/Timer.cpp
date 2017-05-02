@@ -103,7 +103,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
 
     IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     const Token token(now + delay, delay, task);
-    if(delay > IceUtil::Time() && token.scheduledTime < now) 
+    if(delay > IceUtil::Time() && token.scheduledTime < now)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
     }
@@ -113,8 +113,8 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
     }
-    _tokens.insert(token); 
-   
+    _tokens.insert(token);
+
     if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
     {
         _monitor.notify();
@@ -175,12 +175,12 @@ Timer::run()
                     _monitor.wait();
                 }
             }
-            
+
             if(_destroyed)
             {
                 break;
             }
-            
+
             while(!_tokens.empty() && !_destroyed)
             {
                 const IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
@@ -195,22 +195,22 @@ Timer::run()
                     }
                     break;
                 }
-                
+
                 _wakeUpTime = first.scheduledTime;
-                try 
+                try
                 {
                     _monitor.timedWait(first.scheduledTime - now);
-                } 
+                }
                 catch(const IceUtil::InvalidTimeoutException&)
                 {
                     IceUtil::Time timeout = (first.scheduledTime - now) / 2;
                     while(timeout > IceUtil::Time())
                     {
-                        try 
+                        try
                         {
                             _monitor.timedWait(timeout);
                             break;
-                        } 
+                        }
                         catch(const IceUtil::InvalidTimeoutException&)
                         {
                             timeout = timeout / 2;
@@ -223,7 +223,7 @@ Timer::run()
             {
                 break;
             }
-        }     
+        }
 
         if(token.task)
         {
@@ -238,11 +238,11 @@ Timer::run()
                 consoleErr << "\n" << e.ice_stackTrace();
 #endif
                 consoleErr << endl;
-            } 
+            }
             catch(const std::exception& e)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
-            } 
+            }
             catch(...)
             {
                 consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;

@@ -30,7 +30,7 @@ interface TestLocator extends ::Ice::Locator
     //
     idempotent int getRequestCount();
 };
-    
+
 interface ServerManager
 {
     void startServer();

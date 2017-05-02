@@ -30,7 +30,7 @@
     [super dealloc];
 }
 #endif
--(void) schedule:(void(^)())callback timeout:(ICEInt)t 
+-(void) schedule:(void(^)())callback timeout:(ICEInt)t
 {
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, t * NSEC_PER_MSEC), DISPATCH_TIME_FOREVER, 0);
@@ -75,11 +75,11 @@
     }
     else
     {
-        [timer schedule:^{ 
+        [timer schedule:^{
                 @try
                 {
-                    [current.adapter hold]; 
-                    [current.adapter activate]; 
+                    [current.adapter hold];
+                    [current.adapter activate];
                 }
                 @catch(ICEObjectAdapterDeactivatedException* ex)
                 {
@@ -94,11 +94,11 @@
 
 -(void) waitForHold:(ICECurrent*)current
 {
-    [timer schedule:^{ 
+    [timer schedule:^{
             @try
             {
-                [current.adapter waitForHold]; 
-                [current.adapter activate]; 
+                [current.adapter waitForHold];
+                [current.adapter activate];
             }
             @catch(ICEObjectAdapterDeactivatedException* ex)
             {

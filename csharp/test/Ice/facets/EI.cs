@@ -14,7 +14,7 @@ public sealed class EI : EDisp_
     public EI()
     {
     }
-    
+
     public override string callE(Ice.Current current)
     {
         return "E";

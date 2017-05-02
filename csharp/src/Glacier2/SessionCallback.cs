@@ -30,7 +30,7 @@ public interface SessionCallback
     /// </summary>
     /// <param name="session">The established session.</param>
     void connected(SessionHelper session);
-    
+
     /// <summary>
     /// Notifies the application that the Glacier2 session has been
     /// disconnected.
@@ -40,7 +40,7 @@ public interface SessionCallback
 
     /// <summary>
     /// Notifies the application that the Glacier2 session
-    /// establishment failed. 
+    /// establishment failed.
     /// </summary>
     /// <param name="session">The session reporting the connection
     /// failure.</param>

@@ -256,7 +256,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     _out << sp << nl << "module " << getAbsolute(p, IdentToUpper) << "_Mixin";
     _out << nl << "end";
-    
+
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     ClassList bases = p->bases();
@@ -329,7 +329,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
             _out << nl << "end";
         }
-        
+
         //
         // read/write accessors for data members.
         //
@@ -467,10 +467,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
 
 
-    _out << sp << nl << "T_" << name << ".defineClass(" 
-         << (isInterface ? "::Ice::Value" : name) << ", " 
+    _out << sp << nl << "T_" << name << ".defineClass("
+         << (isInterface ? "::Ice::Value" : name) << ", "
          << p->compactId() << ", "
-         << (preserved ? "true" : "false") << ", " 
+         << (preserved ? "true" : "false") << ", "
          << (isInterface ? "true" : "false") << ", ";
     if(!base)
     {
@@ -528,7 +528,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isLocal() && isAbstract)
     {
         _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, ";
-        
+
         if(!base || (!base->isInterface() && base->allOperations().size() == 0))
         {
             _out << "nil";
@@ -685,7 +685,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
     }
-    
+
     _out.dec();
     _out << nl << "end"; // if not defined?()
 
@@ -1220,7 +1220,7 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
         }
         return;
     }
-    
+
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {

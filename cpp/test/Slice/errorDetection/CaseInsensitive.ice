@@ -279,35 +279,35 @@ module DI
         void aa(int AA);
         void xx(int base);
     };
-    
+
     class base1
     {
         int base1;
         void aa(int BASE1);
-        
+
         void bb(int base1, string BASE1);
     };
-    
+
     struct Foo
     {
         int foo;
     };
-    
+
     struct Foo1
     {
         int Foo1;
     };
-    
+
     exception Bar
     {
         string bar;
     };
-    
+
     exception Bar1
     {
         string Bar1;
     };
-    
+
     class base2
     {
         int X;
@@ -317,7 +317,7 @@ module DI
     {
         string x;
     };
-    
+
 };
 
 };

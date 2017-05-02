@@ -19,7 +19,7 @@ public:
     CountDownLatchTest();
 
 private:
-    
+
     virtual void run();
 };
 

@@ -78,7 +78,7 @@ struct FileInfoEqual : public std::binary_function<const IcePatch2::LargeFileInf
         {
             return false;
         }
-        
+
         return lhs.checksum == rhs.checksum;
     }
 };
@@ -128,7 +128,7 @@ struct FileInfoWithoutFlagsLess : public std::binary_function<const IcePatch2::L
         {
             return 1;
         }
-        
+
         return 0;
     }
 };

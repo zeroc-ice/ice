@@ -108,7 +108,7 @@ public class LoggerI implements Logger
         write(s, true);
     }
 
-    
+
     @Override
     public String
     getPrefix()

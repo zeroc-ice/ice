@@ -19,7 +19,7 @@ using namespace Glacier2;
 using namespace Glacier2::Instrumentation;
 using namespace IceMX;
 
-namespace 
+namespace
 {
 
 class SessionHelper : public MetricsHelperT<SessionMetrics>
@@ -29,7 +29,7 @@ public:
     class Attributes : public AttributeResolverT<SessionHelper>
     {
     public:
-        
+
         Attributes()
         {
             add("parent", &SessionHelper::getInstanceName);
@@ -39,7 +39,7 @@ public:
         }
     };
     static Attributes attributes;
-    
+
     SessionHelper(const string& instanceName, const string& id, const ::Ice::ConnectionPtr& connection, int rtSize) :
         _instanceName(instanceName), _id(id), _connection(connection), _routingTableSize(rtSize)
     {
@@ -64,7 +64,7 @@ public:
     {
         return _id;
     }
-    
+
     ::Ice::ConnectionInfoPtr
     getConnectionInfo() const
     {
@@ -178,7 +178,7 @@ SessionObserverI::routingTableSize(int delta)
     forEach(add(&SessionMetrics::routingTableSize, delta));
 }
 
-RouterObserverI::RouterObserverI(const IceInternal::MetricsAdminIPtr& metrics, const string& instanceName) : 
+RouterObserverI::RouterObserverI(const IceInternal::MetricsAdminIPtr& metrics, const string& instanceName) :
     _metrics(metrics), _instanceName(instanceName), _sessions(metrics, "Session")
 {
 }
@@ -190,8 +190,8 @@ RouterObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 }
 
 SessionObserverPtr
-RouterObserverI::getSessionObserver(const string& id, 
-                                    const ::Ice::ConnectionPtr& connection, 
+RouterObserverI::getSessionObserver(const string& id,
+                                    const ::Ice::ConnectionPtr& connection,
                                     int routingTableSize,
                                     const SessionObserverPtr& old)
 {

@@ -22,7 +22,7 @@ static const string createTestName("thread start");
 class StartTestThread : public Thread
 {
 public:
-    
+
     StartTestThread()
     {
     }

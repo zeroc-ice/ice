@@ -19,7 +19,7 @@ public:
     TimerPriorityTest();
 
 private:
-    
+
     virtual void run();
 };
 

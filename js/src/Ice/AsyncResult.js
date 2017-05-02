@@ -133,13 +133,13 @@ class AsyncResult extends AsyncResultBase
     {
         return this._os;
     }
-    
+
     startReadParams()
     {
         this._is.startEncapsulation();
         return this._is;
     }
-    
+
     endReadParams()
     {
         this._is.endEncapsulation();

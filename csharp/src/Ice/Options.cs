@@ -24,12 +24,12 @@ namespace IceUtilInternal
         }
 
         enum State { Normal, DoubleQuote, SingleQuote, ANSIQuote };
- 
+
         static public string[]
         split(string line)
         {
             string IFS = " \t\n";
-            
+
             string l = line.Trim();
             if(l.Length == 0)
             {
@@ -40,7 +40,7 @@ namespace IceUtilInternal
 
             string arg = "";
             List<string> vec = new List<string>();
-            
+
             for(int i = 0; i < l.Length; ++i)
             {
                 char c = l[i];
@@ -116,7 +116,7 @@ namespace IceUtilInternal
                                 {
                                     vec.Add(arg);
                                     arg = "";
-                                    
+
                                     //
                                     // Move to start of next argument.
                                     //
@@ -317,9 +317,9 @@ namespace IceUtilInternal
                                     //
                                     case 'c':
                                     {
-                                        c = l[++i]; 
-                                        if((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' && char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') || 
-                                           c == '@' || 
+                                        c = l[++i];
+                                        if((char.ToUpper(c, CultureInfo.InvariantCulture) >= 'A' && char.ToUpper(c, CultureInfo.InvariantCulture) <= 'Z') ||
+                                           c == '@' ||
                                            (c >= '[' && c <= '_'))
                                         {
                                             arg += (char)(char.ToUpper(c, CultureInfo.InvariantCulture) - '@');
@@ -374,7 +374,7 @@ namespace IceUtilInternal
                     }
                 }
             }
-            
+
             switch(state)
             {
                 case State.Normal:
@@ -400,7 +400,7 @@ namespace IceUtilInternal
                     break;
                 }
             }
-            
+
             return vec.ToArray();
         }
     }

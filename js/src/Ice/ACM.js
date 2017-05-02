@@ -170,7 +170,7 @@ class FactoryACMMonitor
         // that connections can be added or removed during monitoring.
         //
         let now = Date.now();
-        
+
         this._connections.forEach(connection =>
             {
                 try
@@ -203,7 +203,7 @@ class ConnectionACMMonitor
         this._config = config;
         this._connection = null;
     }
-    
+
     add(connection)
     {
         Debug.assert(this._connection === null);
@@ -213,7 +213,7 @@ class ConnectionACMMonitor
             this._timerToken = this._timer.scheduleRepeated(() => this.runTimerTask(), this._config.timeout / 2);
         }
     }
-    
+
     remove(connection)
     {
         Debug.assert(this._connection === connection);
@@ -233,7 +233,7 @@ class ConnectionACMMonitor
     {
         return this._parent.acm(timeout, close, heartbeat);
     }
-    
+
     getACM()
     {
         return new Ice.ACM(this._config.timeout / 1000, this._config.close, this._config.heartbeat);

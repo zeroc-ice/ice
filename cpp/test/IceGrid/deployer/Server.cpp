@@ -39,7 +39,7 @@ Server::run(int argc, char* argv[])
         adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
         adapter->activate();
     }
-    
+
     adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(properties);
     adapter->add(object, Ice::stringToIdentity(name));
@@ -101,7 +101,7 @@ main(int argc, char* argv[])
 
     char* value4 = getenv(varname2.c_str());
     test(value4 != 0 && string(value4) == "2");
-    
+
     char* value5 = getenv("MY_UNIX_COMPOSED_VARIABLE");
     test(value5 != 0 && string(value5) == "BAR;12");
 #endif

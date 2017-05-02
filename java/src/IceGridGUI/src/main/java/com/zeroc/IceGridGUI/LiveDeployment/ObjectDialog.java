@@ -123,10 +123,10 @@ class ObjectDialog extends JDialog
                     }
                 };
             cancelButton.addActionListener(cancelListener);
-            
+
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
             buttonBar.setBorder(Borders.DIALOG);
-            
+
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(builder.getPanel());
             contentPane.add(buttonBar);

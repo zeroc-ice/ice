@@ -58,7 +58,7 @@ public final class Configuration
     {
         _initializeException = ex;
     }
-    
+
     public synchronized int
     initializeSocketStatus()
     {
@@ -90,7 +90,7 @@ public final class Configuration
     {
         _readException = ex;
     }
-    
+
     public synchronized boolean
     readReady()
     {
@@ -122,7 +122,7 @@ public final class Configuration
     {
         _writeException = ex;
     }
-    
+
     public synchronized boolean
     writeReady()
     {

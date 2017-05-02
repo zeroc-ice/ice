@@ -15,9 +15,9 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx& registry, 
+NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrx& registry,
                                                        const NodeIPtr& node,
-                                                       NodeSessionManager& manager) : 
+                                                       NodeSessionManager& manager) :
     SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger), _node(node), _manager(manager)
 {
     assert(registry && node);
@@ -68,7 +68,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
             {
                 results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));
             }
-            
+
             for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
             {
                 QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
@@ -111,7 +111,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
     catch(const PermissionDeniedException& ex)
     {
         if(traceLevels)
-        { 
+        {
             traceLevels->logger->error("connection to the registry `" + _name + "' was denied:\n" + ex.reason);
         }
         exception.reset(ex.ice_clone());
@@ -127,7 +127,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
             out << "established session with replica `" << _name << "'";
-        }       
+        }
     }
     else
     {
@@ -145,7 +145,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
             }
         }
     }
-    
+
     return session;
 }
 
@@ -171,7 +171,7 @@ NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrx& registr
     }
 }
 
-void 
+void
 NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
     _node->removeObserver(session);
@@ -181,7 +181,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
         try
         {
             session->destroy();
-            
+
             if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
             {
                 Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
@@ -199,7 +199,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
     }
 }
 
-bool 
+bool
 NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 {
     if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
@@ -225,7 +225,7 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     }
 }
 
-NodeSessionManager::NodeSessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) : 
+NodeSessionManager::NodeSessionManager(const Ice::CommunicatorPtr& communicator, const string& instanceName) :
     SessionManager(communicator, instanceName),
     _destroyed(false),
     _activated(false)
@@ -246,7 +246,7 @@ NodeSessionManager::create(const NodeIPtr& node)
     //
     // Try to create the session. It's important that we wait for the
     // creation of the session as this will also try to create sessions
-    // with replicas (see createdSession below) and this must be done 
+    // with replicas (see createdSession below) and this must be done
     // before the node is activated.
     //
     _thread->tryCreateSession();
@@ -286,7 +286,7 @@ NodeSessionManager::activate()
 
     //
     // Get the master session, if it's not created, try to create it
-    // again and make sure that the servers are synchronized and the 
+    // again and make sure that the servers are synchronized and the
     // replica observer is set on the session.
     //
     NodeSessionPrx session = _thread->getSession();
@@ -362,7 +362,7 @@ NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas)
     {
         return;
     }
-    
+
     //
     // Initialize the set of replicas known by the master.
     //
@@ -434,7 +434,7 @@ NodeSessionManager::reapReplicas()
         {
             return;
         }
-        
+
         NodeSessionMap::iterator q = _sessions.begin();
         while(q != _sessions.end())
         {
@@ -490,7 +490,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     // node adapter has been activated (otherwise, the servers will be
     // synced after the node adapter activation, see activate()).
     //
-    // We also set the replica observer to receive notifications of 
+    // We also set the replica observer to receive notifications of
     // replica addition/removal.
     //
     if(session && activated)
@@ -546,7 +546,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
         // proxies have fixed endpoints (no random port) so they are
         // more reliable.
         //
-        
+
         for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
         {
             results1.push_back((*q)->begin_findAllObjectsByType(InternalRegistry::ice_staticId()));
@@ -599,7 +599,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
                         continue; // Ignore the master registry proxy.
                     }
                     id.name = "InternalRegistry-" + id.name.substr(prefix.size());
-        
+
                     Ice::ObjectPrx prx = (*q)->ice_identity(id)->ice_endpoints(Ice::EndpointSeq());
                     id.name = "Locator";
                     prx = prx->ice_locator(Ice::LocatorPrx::uncheckedCast((*q)->ice_identity(id)));

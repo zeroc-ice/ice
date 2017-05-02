@@ -31,7 +31,7 @@ public class TestContainer extends ListActivity implements TestApp.TestListener
         setContentView(R.layout.container);
         _adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, _strings);
         setListAdapter(_adapter);
-        
+
         _next = (Button)findViewById(R.id.next);
         _next.setOnClickListener(new android.view.View.OnClickListener()
         {
@@ -68,7 +68,7 @@ public class TestContainer extends ListActivity implements TestApp.TestListener
         _adapter.notifyDataSetChanged();
         _next.setEnabled(false);
     }
-    
+
     public void onComplete(int status)
     {
         _next.setEnabled(true);
@@ -94,7 +94,7 @@ public class TestContainer extends ListActivity implements TestApp.TestListener
             addData(s.substring(start, end), true);
         }
     }
-    
+
     private void addData(String s, boolean partialLine)
     {
         if(_partial)

@@ -79,7 +79,7 @@ class Ice_InterfaceByValue extends Ice_Value
     {
         $this->id =$id;
     }
-    
+
     public function ice_id()
     {
         return $this->id;

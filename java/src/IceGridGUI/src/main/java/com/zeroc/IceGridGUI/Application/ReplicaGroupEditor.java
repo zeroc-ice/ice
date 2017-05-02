@@ -475,9 +475,9 @@ class ReplicaGroupEditor extends Editor
     private JTextField _proxyOptions = new JTextField(20);
     private JTextField _filter = new JTextField(20);
 
-    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE, 
-                                                                   ORDERED, 
-                                                                   RANDOM, 
+    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE,
+                                                                   ORDERED,
+                                                                   RANDOM,
                                                                    ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);

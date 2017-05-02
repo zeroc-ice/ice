@@ -1176,37 +1176,37 @@ def twowaysAMI(communicator, p):
     cb = Callback()
     derived.begin_opDerived(cb.opDerived, cb.exCB)
     cb.check()
-    
-    
+
+
     r = p.begin_opByte1(0xFF)
     test(p.end_opByte1(r) == 0xFF)
-    
+
     r = p.begin_opShort1(0x7FFF)
     test(p.end_opShort1(r) == 0x7FFF)
-    
+
     r = p.begin_opInt1(0x7FFFFFFF)
     test(p.end_opInt1(r) == 0x7FFFFFFF)
-    
+
     r = p.begin_opLong1(0x7FFFFFFFFFFFFFFF)
     test(p.end_opLong1(r) == 0x7FFFFFFFFFFFFFFF)
-    
+
     r = p.begin_opFloat1(1.0)
     test(p.end_opFloat1(r) == 1.0)
-    
+
     r = p.begin_opDouble1(1.0)
     test(p.end_opDouble1(r) == 1.0)
-    
+
     r = p.begin_opString1("opString1")
     test(p.end_opString1(r) == "opString1")
-    
+
     r = p.begin_opStringS1(None)
     test(len(p.end_opStringS1(r)) == 0)
-    
+
     r = p.begin_opByteBoolD1(None)
     test(len(p.end_opByteBoolD1(r)) == 0)
-    
+
     r = p.begin_opStringS2(None)
     test(len(p.end_opStringS2(r)) == 0)
-    
+
     r = p.begin_opByteBoolD2(None)
     test(len(p.end_opByteBoolD2(r)) == 0)

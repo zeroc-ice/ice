@@ -55,7 +55,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         }
 
         test(current.id.category.equals(_category) || _category.length() == 0);
-        
+
         if(current.id.name.equals("unknown"))
         {
             return null;
@@ -95,12 +95,12 @@ public final class ServantLocatorI implements Ice.ServantLocator
 
         test(current.id.category.equals(_category)  || _category.length() == 0);
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
-        
+
         if(current.id.name.equals("finished"))
         {
             exception(current);
         }
-        
+
         Cookie co = (Cookie)cookie;
         test(co.message().equals("blahblah"));
     }
@@ -143,7 +143,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         //
         // User exceptions are checked exceptions in Java, so it's not
         // possible to throw it from the servant locator.
-        // 
+        //
 //      else if(current.operation.equals("userException"))
 //      {
 //          throw new TestIntfUserException();

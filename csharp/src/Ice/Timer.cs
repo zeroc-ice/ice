@@ -12,7 +12,7 @@
 // the C++ & Java timers and it's not clear what is the cost of
 // scheduling and cancelling timers.
 //
-    
+
 namespace IceInternal
 {
     using System.Diagnostics;
@@ -37,7 +37,7 @@ namespace IceInternal
 
                 _instance = null;
                 Monitor.Pulse(this);
-            
+
                 _tokens.Clear();
                 _tasks.Clear();
             }
@@ -65,7 +65,7 @@ namespace IceInternal
                 {
                     Debug.Assert(false);
                 }
-            
+
                 if(token.scheduledTime < _wakeUpTime)
                 {
                     Monitor.Pulse(this);
@@ -99,8 +99,8 @@ namespace IceInternal
                     Monitor.Pulse(this);
                 }
             }
-        } 
-        
+        }
+
         public bool cancel(TimerTask task)
         {
             lock(this)
@@ -154,7 +154,7 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(obsv != null);
-                _observer = obsv.getThreadObserver("Communicator", 
+                _observer = obsv.getThreadObserver("Communicator",
                                                    _thread.Name,
                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
@@ -199,12 +199,12 @@ namespace IceInternal
                         _wakeUpTime = long.MaxValue;
                         Monitor.Wait(this);
                     }
-            
+
                     if(_instance == null)
                     {
                         break;
                     }
-                
+
                     while(_tokens.Count > 0 && _instance != null)
                     {
                         long now = Time.currentMonotonicTimeMillis();
@@ -227,11 +227,11 @@ namespace IceInternal
                             }
                             break;
                         }
-                    
+
                         _wakeUpTime = first.scheduledTime;
                         Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
-                
+
                     if(_instance == null)
                     {
                         break;
@@ -272,7 +272,7 @@ namespace IceInternal
                                 _instance.initializationData().logger.error(s);
                             }
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace IceInternal
                 {
                     return 1;
                 }
-            
+
                 return 0;
             }
 
@@ -350,7 +350,7 @@ namespace IceInternal
         // We use a volatile to avoid synchronization when reading
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
-        // 
+        //
         private volatile Ice.Instrumentation.ThreadObserver _observer;
 }
 

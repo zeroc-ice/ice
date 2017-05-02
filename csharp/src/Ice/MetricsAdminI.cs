@@ -44,7 +44,7 @@ namespace IceInternal
         void update();
         IMetricsMap create(string mapPrefix, Ice.Properties properties);
     }
-    
+
     internal class SubMap<S> : ISubMap where S : IceMX.Metrics, new()
     {
         internal SubMap(MetricsMap<S> map, System.Reflection.FieldInfo field)
@@ -57,7 +57,7 @@ namespace IceInternal
         {
             return _map.getMatching(helper, null);
         }
-        
+
         public void addSubMapToMetrics(IceMX.Metrics metrics)
         {
             try
@@ -69,7 +69,7 @@ namespace IceInternal
                 Debug.Assert(false);
             }
         }
-            
+
         readonly private MetricsMap<S> _map;
         readonly private System.Reflection.FieldInfo _field;
     }
@@ -81,12 +81,12 @@ namespace IceInternal
             _map = map;
             _field = field;
         }
-        
+
         public ISubMap create()
         {
             return new SubMap<S>(new MetricsMap<S>(_map), _field);
         }
-        
+
         readonly private MetricsMap<S> _map;
         readonly private System.Reflection.FieldInfo _field;
     }
@@ -97,7 +97,7 @@ namespace IceInternal
         {
             _field = field;
         }
-        
+
         public ISubMapCloneFactory createCloneFactory(string subMapPrefix, Ice.Properties properties)
         {
             return new SubMapCloneFactory<S>(new MetricsMap<S>(subMapPrefix, properties, null), _field);
@@ -208,7 +208,7 @@ namespace IceInternal
             {
                 return _object.current == 0;
             }
-            
+
             internal IceMX.Metrics clone()
             {
                 T metrics = (T)_object.Clone();
@@ -237,7 +237,7 @@ namespace IceInternal
         {
             MetricsAdminI.validateProperties(mapPrefix, props);
             _properties = props.getPropertiesForPrefix(mapPrefix);
-        
+
             _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
             _accept = parseRule(props, mapPrefix + "Accept");
             _reject = parseRule(props, mapPrefix + "Reject");
@@ -253,7 +253,7 @@ namespace IceInternal
                 {
                     _groupByAttributes.Add("");
                 }
-            
+
                 foreach(char p in groupBy)
                 {
                     bool isAlphaNum = char.IsLetter(p) || char.IsDigit(p) || p == '.';
@@ -274,7 +274,7 @@ namespace IceInternal
                         v += p;
                     }
                 }
-            
+
                 if(attribute)
                 {
                     _groupByAttributes.Add(v);
@@ -315,7 +315,7 @@ namespace IceInternal
                 _subMaps = null;
             }
         }
-    
+
         internal MetricsMap(MetricsMap<T> map)
         {
             _properties = map._properties;
@@ -345,7 +345,7 @@ namespace IceInternal
                 return metrics;
             }
         }
-    
+
         public IceMX.MetricsFailures[] getFailures()
         {
             lock(this)
@@ -362,7 +362,7 @@ namespace IceInternal
                 return failures.ToArray();
             }
         }
-    
+
         public IceMX.MetricsFailures getFailures(string id)
         {
             lock(this)
@@ -402,7 +402,7 @@ namespace IceInternal
                     return null;
                 }
             }
-        
+
             foreach(KeyValuePair<string, Regex> e in _reject)
             {
                 if(match(e.Key, e.Value, helper, true))
@@ -440,10 +440,10 @@ namespace IceInternal
             {
                 return null;
             }
-            
+
             //
             // Lookup the metrics object.
-            // 
+            //
             lock(this)
             {
                 if(previous != null && previous.getId().Equals(key))
@@ -451,7 +451,7 @@ namespace IceInternal
                     Debug.Assert(_objects[key] == previous);
                     return previous;
                 }
-                
+
                 Entry e;
                 if(!_objects.TryGetValue(key, out e))
                 {
@@ -471,7 +471,7 @@ namespace IceInternal
                 return e;
             }
         }
-    
+
         private void detached(Entry entry)
         {
             if(_retain == 0)
@@ -484,7 +484,7 @@ namespace IceInternal
                 _detachedQueue = new LinkedList<Entry>();
             }
             Debug.Assert(_detachedQueue.Count <= _retain);
-            
+
             // Compress the queue by removing entries which are no longer detached.
             LinkedListNode<Entry> p = _detachedQueue.First;
             while(p != null)
@@ -496,18 +496,18 @@ namespace IceInternal
                 }
                 p = next;
             }
-            
+
             // If there's still no room, remove the oldest entry (at the front).
             if(_detachedQueue.Count == _retain)
             {
                 _objects.Remove(_detachedQueue.First.Value.getId());
                 _detachedQueue.RemoveFirst();
             }
-            
+
             // Add the entry at the back of the queue.
             _detachedQueue.AddLast(entry);
         }
-    
+
         private Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)
         {
             Dictionary<string, Regex> pats = new Dictionary<string, Regex>();
@@ -552,7 +552,7 @@ namespace IceInternal
             _name = name;
         }
 
-        internal bool addOrUpdateMap(Ice.Properties properties, string mapName, IMetricsMapFactory factory, 
+        internal bool addOrUpdateMap(Ice.Properties properties, string mapName, IMetricsMapFactory factory,
                                    Ice.Logger logger)
         {
             //
@@ -561,7 +561,7 @@ namespace IceInternal
             string viewPrefix = "IceMX.Metrics." + _name + ".";
             string mapsPrefix = viewPrefix + "Map.";
             Dictionary<string, string> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);
-            
+
             string mapPrefix;
             Dictionary<string, string> mapProps = new Dictionary<string, string>();
             if(mapsProps.Count > 0)
@@ -585,14 +585,14 @@ namespace IceInternal
                 // This map is disabled for this view.
                 return _maps.Remove(mapName);
             }
-            
+
             IMetricsMap m;
-            if(_maps.TryGetValue(mapName, out m) && 
+            if(_maps.TryGetValue(mapName, out m) &&
                IceUtilInternal.Collections.DictionaryEquals(m.getProperties(), mapProps))
             {
                 return false; // The map configuration didn't change, no need to re-create.
             }
-            
+
             try
             {
                 _maps[mapName] = factory.create(mapPrefix, properties);
@@ -604,7 +604,7 @@ namespace IceInternal
             }
             return true;
         }
-        
+
         internal bool removeMap(string mapName)
         {
             return _maps.Remove(mapName);
@@ -648,7 +648,7 @@ namespace IceInternal
         {
             return _maps.Keys;
         }
-        
+
         internal MetricsMap<T> getMap<T>(string mapName) where T : IceMX.Metrics, new()
         {
             IMetricsMap m;
@@ -658,7 +658,7 @@ namespace IceInternal
             }
             return null;
         }
-        
+
         readonly private string _name;
         readonly private Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
     }
@@ -696,7 +696,7 @@ namespace IceInternal
                     unknownProps.Add(prop);
                 }
             }
-        
+
             if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown IceMX properties for `");
@@ -729,7 +729,7 @@ namespace IceInternal
                 return new MetricsMap<T>(mapPrefix, properties, _subMaps);
             }
 
-            public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field) 
+            public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)
                 where S : IceMX.Metrics, new()
             {
                 _subMaps.Add(subMap, new SubMapFactory<S>(field));
@@ -763,20 +763,20 @@ namespace IceInternal
                     {
                         viewName = viewName.Substring(0, dotPos);
                     }
-                
+
                     if(views.ContainsKey(viewName) || _disabledViews.Contains(viewName))
                     {
                         continue; // View already configured.
                     }
-                
+
                     validateProperties(viewsPrefix + viewName + ".", _properties);
-                
+
                     if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                     {
                         _disabledViews.Add(viewName);
                         continue; // The view is disabled
                     }
-                
+
                     //
                     // Create the view or update it.
                     //
@@ -799,7 +799,7 @@ namespace IceInternal
                 Dictionary<string, MetricsViewI> tmp = _views;
                 _views = views;
                 views = tmp;
-        
+
                 //
                 // Go through removed views to collect maps to update.
                 //
@@ -814,7 +814,7 @@ namespace IceInternal
                     }
                 }
             }
-        
+
             //
             // Call the updaters to update the maps.
             //
@@ -853,7 +853,7 @@ namespace IceInternal
             updateViews();
         }
 
-        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp, 
+        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp,
                                                                            Ice.Current current)
         {
             lock(this)
@@ -881,7 +881,7 @@ namespace IceInternal
             }
         }
 
-        override public IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id, 
+        override public IceMX.MetricsFailures getMetricsFailures(string viewName, string mapName, string id,
                                                                  Ice.Current c)
         {
             lock(this)
@@ -912,7 +912,7 @@ namespace IceInternal
             }
         }
 
-        public void registerSubMap<S>(string map, string subMap, System.Reflection.FieldInfo field) 
+        public void registerSubMap<S>(string map, string subMap, System.Reflection.FieldInfo field)
             where S : IceMX.Metrics, new()
         {
             bool updated;
@@ -972,7 +972,7 @@ namespace IceInternal
         }
 
         public void updated(Dictionary<string, string> props)
-        { 
+        {
             foreach(KeyValuePair<string, string> e in props)
             {
                 if(e.Key.IndexOf("IceMX.") == 0)
@@ -984,7 +984,7 @@ namespace IceInternal
                     }
                     catch(Exception ex)
                     {
-                        _logger.warning("unexpected exception while updating metrics view configuration:\n" + 
+                        _logger.warning("unexpected exception while updating metrics view configuration:\n" +
                                         ex.ToString());
                     }
                     return;
@@ -1005,7 +1005,7 @@ namespace IceInternal
             }
             return view;
         }
-    
+
         private bool addOrUpdateMap(string mapName, IMetricsMapFactory factory)
         {
             bool updated = false;
@@ -1028,7 +1028,7 @@ namespace IceInternal
 
         private Ice.Properties _properties;
         readonly private Ice.Logger _logger;
-        readonly private Dictionary<string, IMetricsMapFactory> _factories = 
+        readonly private Dictionary<string, IMetricsMapFactory> _factories =
             new Dictionary<string, IMetricsMapFactory>();
         private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
         private List<string> _disabledViews = new List<string>();

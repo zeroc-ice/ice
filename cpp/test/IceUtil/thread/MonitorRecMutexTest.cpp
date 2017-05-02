@@ -18,7 +18,7 @@ using namespace IceUtil;
 class MonitorRecMutexTestThread : public Thread
 {
 public:
-    
+
     MonitorRecMutexTestThread(Monitor<RecMutex>& m) :
         _monitor(m),
         _tryLock(false)
@@ -27,10 +27,10 @@ public:
 
     virtual void run()
     {
-        
+
         Monitor<RecMutex>::TryLock tlock(_monitor);
         test(!tlock.acquired());
-        
+
         {
             Mutex::Lock lock(_tryLockMutex);
             _tryLock = true;
@@ -66,7 +66,7 @@ typedef Handle<MonitorRecMutexTestThread> MonitorRecMutexTestThreadPtr;
 class MonitorRecMutexTestThread2 : public Thread, public Monitor<RecMutex>
 {
 public:
-    
+
     MonitorRecMutexTestThread2(Monitor<RecMutex>& monitor) :
         finished(false),
         _monitor(monitor)
@@ -112,16 +112,16 @@ MonitorRecMutexTest::run()
 
         Monitor<RecMutex>::TryLock lock2(monitor);
         test(lock2.acquired());
-        
+
         // TEST: TryLock
-        
+
         Monitor<RecMutex>::TryLock tlock(monitor);
         test(tlock.acquired());
-        
+
         // TEST: Start thread, try to acquire the mutex.
         t = new MonitorRecMutexTestThread(monitor);
         control = t->start();
-        
+
         // TEST: Wait until the tryLock has been tested.
         t->waitTryLock();
     }

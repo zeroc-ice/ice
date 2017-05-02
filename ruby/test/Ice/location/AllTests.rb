@@ -40,8 +40,8 @@ def allTests(communicator, ref)
     test(Ice::proxyIdentityEqual(base.ice_getLocator(), anotherLocator))
     communicator.setDefaultLocator(locator)
     base = communicator.stringToProxy("test @ TestAdapter")
-    test(Ice::proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())); 
-        
+    test(Ice::proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator()));
+
     #
     # We also test ice_router/ice_getRouter (perhaps we should add a
     # test/Ice/router test?)

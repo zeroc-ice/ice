@@ -246,7 +246,7 @@ function allTests($communicator)
     return $proxy;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") : 
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
                       eval("return Ice_initialize(\$argv);");
 
 $t = allTests($communicator);

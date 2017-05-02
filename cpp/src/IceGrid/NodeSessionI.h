@@ -67,10 +67,10 @@ public:
     virtual void waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr&,
                                                 const std::string&, int, const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
-    
+
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();
-    void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&, 
+    void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&,
                const InternalDistributionDescriptorPtr&, bool);
 
     const NodePrx& getNode() const;
@@ -84,7 +84,7 @@ public:
 private:
 
     void destroyImpl(bool);
-    
+
     const DatabasePtr _database;
     const TraceLevelsPtr _traceLevels;
     const std::string _name;

@@ -21,7 +21,7 @@ public sealed class TestI : TestIntfDisp_
             _pid = _p.Id;
         }
     }
-    
+
     private void commitSuicide()
     {
         _p.Kill();
@@ -32,12 +32,12 @@ public sealed class TestI : TestIntfDisp_
     {
         commitSuicide();
     }
-    
+
     public override void idempotentAbort(Ice.Current current)
     {
         commitSuicide();
     }
-    
+
     public override int pid(Ice.Current current)
     {
         lock(this)
@@ -45,7 +45,7 @@ public sealed class TestI : TestIntfDisp_
             return _pid;
         }
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

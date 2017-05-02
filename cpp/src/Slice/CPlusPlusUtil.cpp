@@ -648,7 +648,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
         "::std::shared_ptr<void>",
         "::std::shared_ptr<::Ice::Value>"
     };
-    
+
     if((typeCtx & TypeContextLocal) != 0)
     {
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -1191,14 +1191,14 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] =
     {
-        "alignas", "alignof", "and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", 
-        "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "const", "const_exptr", "const_cast", "continue", 
-        "decltype", "default", "delete", "do", "double", "dynamic_cast", 
-        "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend", 
+        "alignas", "alignof", "and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break",
+        "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "const", "const_exptr", "const_cast", "continue",
+        "decltype", "default", "delete", "do", "double", "dynamic_cast",
+        "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend",
         "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq",
-        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "return", 
-        "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch", 
-        "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename", 
+        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "return",
+        "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch",
+        "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename",
         "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
     };
     bool found =  binary_search(&keywordList[0],

@@ -17,7 +17,7 @@ namespace Glacier2
 {
 
 //
-// Base class for proxy rule implementations. 
+// Base class for proxy rule implementations.
 //
 
 class ProxyRule
