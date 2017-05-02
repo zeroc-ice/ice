@@ -407,7 +407,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         emitGeneratedCodeAttribute();
     }
 
-    _out << nl << "private static readonly string[] _ids = ";
+    _out << nl << "private static readonly string[] _ids =";
     _out << sb;
     {
         StringList::const_iterator q = ids.begin();
@@ -1447,7 +1447,11 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
 
     for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
     {
-        _out << nl << "/// " << *i;
+        _out << nl << "///";
+        if(!(*i).empty())
+        {
+            _out << " " << *i;
+        }
     }
 
     //
@@ -1485,7 +1489,11 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
             }
             else
             {
-                _out << nl << "/// " << *i;
+                _out << nl << "///";
+                if(!(*i).empty())
+                {
+                    _out << " " << *i;
+                }
             }
         }
     }
@@ -1500,7 +1508,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
         _out << nl << "/// " << extraParam;
     }
 
-    _out << nl;
+    _out << sp;
 }
 
 void
@@ -1522,7 +1530,11 @@ Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p, ParamDir paramType, 
     _out << nl << "/// <summary>";
     for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
     {
-        _out << nl << "/// " << *i;
+        _out << nl << "///";
+        if(!(*i).empty())
+        {
+            _out << " " << *i;
+        }
     }
 
     bool done = false;
@@ -1539,7 +1551,11 @@ Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p, ParamDir paramType, 
         }
         else
         {
-            _out << nl << "/// " << *i;
+            _out << nl << "///";
+            if(!(*i).empty())
+            {
+                _out << " " << *i;
+            }
         }
     }
     _out << nl << "/// </summary>";
@@ -1607,7 +1623,11 @@ Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p, ParamDir paramType, 
                 }
                 else
                 {
-                    _out << nl << "/// " << *i;
+                    _out << nl << "///";
+                    if(!(*i).empty())
+                    {
+                        _out << " " << *i;
+                    }
                 }
             }
         }
@@ -1643,7 +1663,11 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(const OperationPtr& p, const strin
     _out << nl << "/// <summary>";
     for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
     {
-        _out << nl << "/// " << *i;
+        _out << nl << "///";
+        if(!(*i).empty())
+        {
+            _out << " " << *i;
+        }
     }
 
     bool done = false;
@@ -1660,7 +1684,11 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(const OperationPtr& p, const strin
         }
         else
         {
-            _out << nl << "/// " << *i;
+            _out << nl << "///";
+            if(!(*i).empty())
+            {
+                _out << " " << *i;
+            }
         }
     }
     _out << nl << "/// </summary>";
@@ -1716,7 +1744,11 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
     _out << nl << "/// <summary>";
     for(StringList::const_iterator i = summaryLines.begin(); i != summaryLines.end(); ++i)
     {
-        _out << nl << "/// " << *i;
+        _out << nl << "///";
+        if(!(*i).empty())
+        {
+            _out << " " << *i;
+        }
     }
 
     bool done = false;
@@ -1733,7 +1765,11 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
         }
         else
         {
-            _out << nl << "/// " << *i;
+            _out << nl << "///";
+            if(!(*i).empty())
+            {
+                _out << " " << *i;
+            }
         }
     }
     _out << nl << "/// </summary>";
@@ -1810,7 +1846,12 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
                         if(endpos == string::npos)
                         {
                             i = j;
-                            _out << nl << "/// " << *j++;
+                            string s = *j++;
+                            _out << nl << "///";
+                            if(!s.empty())
+                            {
+                                _out << " " << s;
+                            }
                         }
                         else
                         {
@@ -2346,7 +2387,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface() && !p->isLocal())
     {
-        _out << sp << nl;
+        _out << sp;
         _out << nl << "private const string _id = \""
              << p->scoped() << "\";";
 
@@ -2383,7 +2424,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         if(isInterface)
         {
-            _out << nl;
+            _out << sp;
         }
 
         writeDocComment(p, getDeprecateReason(p, cl, "operation"));
@@ -3067,7 +3108,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(isClass)
         {
-            _out << nl << nl << "private static readonly " << name << " _nullMarshalValue = new " << name << "();";
+            _out << sp << nl << "private static readonly " << name << " _nullMarshalValue = new " << name << "();";
         }
         _out << sp << nl << "#endregion"; // Marshalling support
     }
