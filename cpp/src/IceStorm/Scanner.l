@@ -70,12 +70,12 @@ static StringTokenMap keywordMap;
 void initScanner();
 
 }
-#define	YY_USER_INIT initScanner();
+#define         YY_USER_INIT initScanner();
 
 %}
 
-WS	[ \t\v\f\r]
-NL	[\n]
+WS      [ \t\v\f\r]
+NL      [\n]
 keyword [[:alpha:]]*
 
 %option noyywrap
@@ -88,7 +88,7 @@ keyword [[:alpha:]]*
     int c;
     do
     {
-	c = yyinput();
+        c = yyinput();
     }
     while(c != '\n' && c != EOF);
 }
@@ -97,24 +97,24 @@ keyword [[:alpha:]]*
     // C-style comment
     while(true)
     {
-	int c = yyinput();
-	if(c == '*')
-	{
-	    int next = yyinput();
-	    if(next == '/')
-	    {
-		break;
-	    }
-	    else
-	    {
-		unput(next);
-	    }
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in comment");
-	    break;
-	}
+        int c = yyinput();
+        if(c == '*')
+        {
+            int next = yyinput();
+            if(next == '/')
+            {
+                break;
+            }
+            else
+            {
+                unput(next);
+            }
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in comment");
+            break;
+        }
     }
 }
 
@@ -122,10 +122,10 @@ keyword [[:alpha:]]*
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
     {
-	if(yytext[i] == '\\')
-	{
-	    parser->continueLine();
-	}
+        if(yytext[i] == '\\')
+        {
+            parser->continueLine();
+        }
     }
 }
 
@@ -138,39 +138,39 @@ keyword [[:alpha:]]*
     string s;
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '"')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in string");
-	    break;
-	}
-	else if(c == '\\')
-	{
-	    char next = static_cast<char>(yyinput());
-	    switch(next)
-	    {
-		case '\\':
-		case '"':
-		{
-		    s += next;
-		    break;
-		}
-	    
-		default:
-		{
-		    s += c;
-		    unput(next);
-		}
-	    }
-	}
-	else
-	{
-	    s += c;
-	}
+        char c = static_cast<char>(yyinput());
+        if(c == '"')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in string");
+            break;
+        }
+        else if(c == '\\')
+        {
+            char next = static_cast<char>(yyinput());
+            switch(next)
+            {
+                case '\\':
+                case '"':
+                {
+                    s += next;
+                    break;
+                }
+
+                default:
+                {
+                    s += c;
+                    unput(next);
+                }
+            }
+        }
+        else
+        {
+            s += c;
+        }
     }
     yylvalp->clear();
     yylvalp->push_back(s);
@@ -182,20 +182,20 @@ keyword [[:alpha:]]*
     string s;
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '\'')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in string");
-	    break;
-	}
-	else
-	{
-	    s += c;
-	}
+        char c = static_cast<char>(yyinput());
+        if(c == '\'')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in string");
+            break;
+        }
+        else
+        {
+            s += c;
+        }
     }
     yylvalp->clear();
     yylvalp->push_back(s);
@@ -208,18 +208,18 @@ keyword [[:alpha:]]*
     s += yytext[0];
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == EOF)
-	{
-	    break;
-	}
-	else if(isspace(static_cast<unsigned char>(c)) || c == ';')
-	{
+        char c = static_cast<char>(yyinput());
+        if(c == EOF)
+        {
+            break;
+        }
+        else if(isspace(static_cast<unsigned char>(c)) || c == ';')
+        {
             unput(c);
             break;
-	}
-	
-	s += c;
+        }
+
+        s += c;
     }
 
     yylvalp->clear();

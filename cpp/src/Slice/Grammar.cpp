@@ -2341,7 +2341,7 @@ yyreduce:
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v 
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -2359,7 +2359,7 @@ yyreduce:
                 {
                     os << " or";
                 }
-                
+
                 os << " `" << (*p)->scoped() << "'";
             }
             unit->error(os.str());
@@ -2609,7 +2609,7 @@ yyreduce:
     {
         unit->error("invalid compact id for class: value is out of range");
     }
-    else 
+    else
     {
         string typeId = unit->getTypeId(static_cast<int>(id));
         if(!typeId.empty() && !unit->ignRedefs())
@@ -2642,7 +2642,7 @@ yyreduce:
             // Found
             cl.push_back(enumerators.front());
             scoped->v = enumerators.front()->scoped();
-            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v 
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
                           + "' without its enumeration's scope is deprecated");
         }
         else if(enumerators.size() > 1)
@@ -2660,7 +2660,7 @@ yyreduce:
                 {
                     os << " or";
                 }
-                
+
                 os << " `" << (*p)->scoped() << "'";
             }
             unit->error(os.str());
@@ -2714,7 +2714,7 @@ yyreduce:
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
-    else 
+    else
     {
         string typeId = unit->getTypeId(id);
         if(!typeId.empty() && !unit->ignRedefs())
