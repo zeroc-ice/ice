@@ -883,7 +883,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         if(r != memberList.begin())
         {
-            _out << ", ";
+            _out << ",";
         }
         _out.inc();
         _out << nl << "array('" << r->fixedName << "', ";
