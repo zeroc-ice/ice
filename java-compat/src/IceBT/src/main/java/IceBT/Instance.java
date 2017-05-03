@@ -15,11 +15,7 @@ class Instance extends IceInternal.ProtocolInstance
 {
     Instance(Ice.Communicator communicator, short type, String protocol)
     {
-        //
-        // We consider the transport to be "secure" because it uses the secure versions Android's Bluetooth API
-        // methods for establishing and accepting connections. The boolean argument below sets secure=true.
-        //
-        super(communicator, type, protocol, true);
+        super(communicator, type, protocol, type == Ice.BTSEndpointType.value);
 
         _communicator = communicator;
 
