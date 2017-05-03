@@ -30,7 +30,7 @@ build-platform          := $(or $(build-platform),$(firstword $(supported-platfo
 # <platform>_components and <platform>_projects variables.
 #
 component-platforms    = $(call unique,$(foreach p,$(platforms),\
-                     		$(if $(and $(if $(filter $($p_excludes),$1 $2),,true),\
+                                $(if $(and $(if $(filter $($p_excludes),$1 $2),,true),\
                                          $(or $(filter $($p_components),$2),\
                                            $(filter $(or $($p_projects),$(if $($p_components),,%)),$1))),\
                               $(strip $p))))

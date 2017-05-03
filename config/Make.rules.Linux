@@ -117,7 +117,7 @@ ifeq ($(OPTIMIZE),yes)
         opt-cppflags = $(if $(CXXFLAGS),,$(shell setarch $1 rpm --eval %optflags))
         opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
     else
-    	opt-cppflags = $(if $(CXXFLAGS),,-O2)
+        opt-cppflags = $(if $(CXXFLAGS),,-O2)
     endif
 endif
 
