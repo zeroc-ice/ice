@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_client_sources 	= DefaultServantTest.ice Client.m TestI.m
+$(test)_client_sources  = DefaultServantTest.ice Client.m TestI.m
 
 tests += $(test)

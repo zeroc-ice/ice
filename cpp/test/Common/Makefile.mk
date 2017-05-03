@@ -7,15 +7,15 @@
 #
 # **********************************************************************
 
-$(project)_libraries	= TestCommon
-$(project)_noinstall	:= 1
+$(project)_libraries    = TestCommon
+$(project)_noinstall    := 1
 
 #
 # Put the shared TestCommon library in the lib directory for convenience on platforms
 # which don't support something like @loader_path.
 #
-TestCommon[shared]_targetdir	:= lib
-TestCommon_dependencies 	:= Ice
-TestCommon_cppflags		:= -DTEST_API_EXPORTS -I$(includedir) -I$(project) -Itest/include
+TestCommon[shared]_targetdir    := lib
+TestCommon_dependencies         := Ice
+TestCommon_cppflags             := -DTEST_API_EXPORTS -I$(includedir) -I$(project) -Itest/include
 
 projects += $(project)

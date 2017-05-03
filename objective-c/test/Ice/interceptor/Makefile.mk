@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_client_sources 	= InterceptorTest.ice Client.m InterceptorI.m MyObjectI.m
+$(test)_client_sources  = InterceptorTest.ice Client.m InterceptorI.m MyObjectI.m
 
 tests += $(test)

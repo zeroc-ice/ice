@@ -11,7 +11,7 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			?= /opt/Ice-$(version)
+prefix                  ?= /opt/Ice-$(version)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
@@ -26,7 +26,7 @@ prefix			?= /opt/Ice-$(version)
 # Define embedded_runpath as no if you don't want any runpath added to
 # the executables. If not set, defaults to to "yes"
 #
-embedded_runpath 	?= yes
+embedded_runpath        ?= yes
 
 #
 # Define new_dtags as yes if you want the linker to enable the new style
@@ -40,7 +40,7 @@ new_dtags              ?= no
 # without optimizations. Otherwise Ice is build with optimizations and
 # without debug information.
 #
-OPTIMIZE		?= yes
+OPTIMIZE                ?= yes
 
 #
 # Default Mutex protocol: one of PrioNone or PrioInherit.
@@ -54,7 +54,7 @@ OPTIMIZE		?= yes
 # Run `make print V=supported-platforms' to see the list of supported
 # platforms on this system.
 #
-PLATFORMS              	?= $(firstword $(supported-platforms))
+PLATFORMS               ?= $(firstword $(supported-platforms))
 
 #
 # Configurations to build. This defaults to the first supported
@@ -63,7 +63,7 @@ PLATFORMS              	?= $(firstword $(supported-platforms))
 # Run `make print V=supported-configs` to see the list of supported
 # configurations.
 #
-CONFIGS			?= $(firstword $(supported-configs))
+CONFIGS                 ?= $(firstword $(supported-configs))
 
 #
 # List of binary distributions to build against. Defaults to undefined,
@@ -79,49 +79,49 @@ CONFIGS			?= $(firstword $(supported-configs))
 # where the compiler can find it, set the corresponding variable
 # below to the installation directory of the library.
 #
-#MCPP_HOME 		?= /opt/mcpp
-#ICONV_HOME 		?= /opt/iconv
-#EXPAT_HOME 		?= /opt/expat
-#BZ2_HOME 		?= /opt/bz2
-#LMDB_HOME 		?= /opt/lmdb
+#MCPP_HOME              ?= /opt/mcpp
+#ICONV_HOME             ?= /opt/iconv
+#EXPAT_HOME             ?= /opt/expat
+#BZ2_HOME               ?= /opt/bz2
+#LMDB_HOME              ?= /opt/lmdb
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-os			?= $(shell uname)
+os                      ?= $(shell uname)
 
-include	$(top_srcdir)/config/Make.rules.$(os)
-include	$(top_srcdir)/config/Make.project.rules
-include	$(top_srcdir)/config/Make.tests.rules
+include $(top_srcdir)/config/Make.rules.$(os)
+include $(top_srcdir)/config/Make.project.rules
+include $(top_srcdir)/config/Make.tests.rules
 
 ifneq ($(ICE_BIN_DIST),)
-prefix 			:= $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
-bindir			= $(install_bindir)
-libdir			= $(install_libdir)
-slicedir 		= $(install_slicedir)
-includedir		= $(install_includedir)
+prefix                  := $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
+bindir                  = $(install_bindir)
+libdir                  = $(install_libdir)
+slicedir                = $(install_slicedir)
+includedir              = $(install_includedir)
 else
-bindir			= $(call mappingdir,$(or $1,$(currentdir)),bin)
-libdir			= $(call mappingdir,$(or $1,$(currentdir)),lib)
-slicedir		= $(top_srcdir)/slice
-includedir		= $(call mappingdir,$(or $1,$(currentdir)),include)
+bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
+libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)
+slicedir                = $(top_srcdir)/slice
+includedir              = $(call mappingdir,$(or $1,$(currentdir)),include)
 endif
 
-srcdir 			= $(call mappingdir,$(or $1,$(currentdir)),src)
+srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 
-usr_dir_install		:= $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
-install_bindir	  	?= $(prefix)/bin
-install_libdir	  	?= $(prefix)/lib
-install_slicedir 	?= $(prefix)$(if $(usr_dir_install),/share/ice)/slice
-install_includedir	?= $(prefix)/include
-install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/ice)
-install_mandir		?= $(prefix)$(if $(usr_dir_install),/share)/man
-install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
+usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
+install_bindir          ?= $(prefix)/bin
+install_libdir          ?= $(prefix)/lib
+install_slicedir        ?= $(prefix)$(if $(usr_dir_install),/share/ice)/slice
+install_includedir      ?= $(prefix)/include
+install_docdir          ?= $(prefix)$(if $(usr_dir_install),/share/ice)
+install_mandir          ?= $(prefix)$(if $(usr_dir_install),/share)/man
+install_configdir       ?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
 
-version     		= 3.7.0
-mmversion		= 3.7
-soversion   		= 37
+version                 = 3.7.0
+mmversion               = 3.7
+soversion               = 37
 
 #
 # The compatversion is the lowest patch release with the same API.
@@ -134,18 +134,18 @@ compatversion           = $(version)
 #
 # Support for 3rd party libraries
 #
-thirdparties		:= mcpp iconv expat bz2 lmdb
-mcpp_home 		:= $(MCPP_HOME)
-iconv_home 		:= $(ICONV_HOME)
-expat_home 		:= $(EXPAT_HOME)
-bz2_home 		:= $(BZ2_HOME)
-lmdb_home 		:= $(LMDB_HOME)
+thirdparties            := mcpp iconv expat bz2 lmdb
+mcpp_home               := $(MCPP_HOME)
+iconv_home              := $(ICONV_HOME)
+expat_home              := $(EXPAT_HOME)
+bz2_home                := $(BZ2_HOME)
+lmdb_home               := $(LMDB_HOME)
 
 $(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
 
 #
 # Languages, platforms and configurations to build
 #
-supported-languages	?= cpp java java-compat python js ruby php
-supported-configs	?= shared
+supported-languages     ?= cpp java java-compat python js ruby php
+supported-configs       ?= shared
 

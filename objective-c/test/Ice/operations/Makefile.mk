@@ -7,12 +7,12 @@
 #
 # **********************************************************************
 
-$(test)_client_sources 	= $(test-client-sources) \
-			  Twoways.m \
-			  TwowaysNewAMI.m \
-			  Oneways.m \
-			  OnewaysNewAMI.m \
-			  BatchOneways.m \
-			  BatchOnewaysAMI.m
+$(test)_client_sources  = $(test-client-sources) \
+                          Twoways.m \
+                          TwowaysNewAMI.m \
+                          Oneways.m \
+                          OnewaysNewAMI.m \
+                          BatchOneways.m \
+                          BatchOnewaysAMI.m
 
 tests += $(test)

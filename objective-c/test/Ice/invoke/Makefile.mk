@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_server_sources 	= InvokeTest.ice Server.m BlobjectI.m
+$(test)_server_sources  = InvokeTest.ice Server.m BlobjectI.m
 
 tests += $(test)

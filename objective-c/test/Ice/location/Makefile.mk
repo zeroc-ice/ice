@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_server_sources 	= LocationTest.ice ServerLocator.m Server.m TestI.m
+$(test)_server_sources  = LocationTest.ice ServerLocator.m Server.m TestI.m
 
 tests += $(test)

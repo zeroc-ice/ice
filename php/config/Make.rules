@@ -55,17 +55,17 @@ $(firstword $(supported-platforms))_installdir[IcePHP] :=
 #
 # PHP installation directory
 #
-install_phpdir  	?= $(if $(usr_dir_install),$(prefix)/share/php,$(prefix)/php)
-install_phplibdir	?= $(if $(usr_dir_install),$(shell $(PHP_CONFIG) --extension-dir),$(prefix)/php)
+install_phpdir          ?= $(if $(usr_dir_install),$(prefix)/share/php,$(prefix)/php)
+install_phplibdir       ?= $(if $(usr_dir_install),$(shell $(PHP_CONFIG) --extension-dir),$(prefix)/php)
 
 #
 # Rules to build a php module. We just compute the name of the php module
 # and delegate to make-shared-module.
 #
-mkphpmodulename              	?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-php-module       	= $(call make-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
-get-shared-php-module-targets	= $(call get-shared-module-targets,$(call mkphpmodulename,$1),$2,$3,$4)
-install-shared-php-module	= $(call install-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5)
+mkphpmodulename                 ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-php-module          = $(call make-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-php-module-targets   = $(call get-shared-module-targets,$(call mkphpmodulename,$1),$2,$3,$4)
+install-shared-php-module       = $(call install-shared-module,$(call mkphpmodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_phpdir):
 	$(Q)$(MKDIR) -p $@

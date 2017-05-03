@@ -9,19 +9,19 @@
 
 include $(top_srcdir)/config/Make.xcodesdk.rules
 
-supported-configs	+= xcodesdk arc-xcodesdk
+supported-configs       += xcodesdk arc-xcodesdk
 
 #
 # Xcode configuration to build Xcode IceSDK.
 #
-xcodesdk_targetdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
-xcodesdk_installdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
-xcodesdk_targetrule	= $(if $(filter-out program,$($1_target)),static)
+xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
+xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
+xcodesdk_targetrule     = $(if $(filter-out program,$($1_target)),static)
 
-xcodesdk_components	= Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
-xcodesdk_projects	= test/Ice/%
+xcodesdk_components     = Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
+xcodesdk_projects       = test/Ice/%
 
-iphoneos_excludes	 = test/%
+iphoneos_excludes        = test/%
 iphonesimulator_excludes = test/%
 
 ifneq ($(findstring xcodesdk,$(configs)),)

@@ -7,34 +7,34 @@
 #
 # **********************************************************************
 
-supported-platforms		= macosx iphoneos iphonesimulator
-supported-languages		= cpp java java-compat python js ruby php objective-c
+supported-platforms             = macosx iphoneos iphonesimulator
+supported-languages             = cpp java java-compat python js ruby php objective-c
 
 macosx_ar                       = libtool
-macosx_cppflags			= -mmacosx-version-min=10.9 -arch x86_64
-macosx_ldflags			= $(macosx_cppflags)
-macosx_targetdir		= $(if $(filter %/build,$5),/macosx)
+macosx_cppflags                 = -mmacosx-version-min=10.9 -arch x86_64
+macosx_ldflags                  = $(macosx_cppflags)
+macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
 
-iphoneos_ar			= libtool
-iphoneos_cc			= xcrun -sdk iphoneos clang
-iphoneos_cxx			= xcrun -sdk iphoneos clang++
-iphoneos_cppflags		= -miphoneos-version-min=7.1 -arch armv7s -arch arm64 -fembed-bitcode
-iphoneos_ldflags		= -miphoneos-version-min=7.1 -arch armv7s -arch arm64
-iphoneos_configs		= %xcodesdk
-iphoneos_targetdir		= $(if $(filter %/build,$5),/iphoneos)
+iphoneos_ar                     = libtool
+iphoneos_cc                     = xcrun -sdk iphoneos clang
+iphoneos_cxx                    = xcrun -sdk iphoneos clang++
+iphoneos_cppflags               = -miphoneos-version-min=7.1 -arch armv7s -arch arm64 -fembed-bitcode
+iphoneos_ldflags                = -miphoneos-version-min=7.1 -arch armv7s -arch arm64
+iphoneos_configs                = %xcodesdk
+iphoneos_targetdir              = $(if $(filter %/build,$5),/iphoneos)
 
-iphonesimulator_ar		= libtool
-iphonesimulator_cc		= xcrun -sdk iphonesimulator clang
-iphonesimulator_cxx		= xcrun -sdk iphonesimulator clang++
-iphonesimulator_cppflags	= -mios-simulator-version-min=7.1 -arch i386 -arch x86_64
-iphonesimulator_ldflags		= $(iphonesimulator_cppflags)
-iphonesimulator_configs		= %xcodesdk
-iphonesimulator_targetdir	= $(if $(filter %/build,$5),/iphonesimulator)
+iphonesimulator_ar              = libtool
+iphonesimulator_cc              = xcrun -sdk iphonesimulator clang
+iphonesimulator_cxx             = xcrun -sdk iphonesimulator clang++
+iphonesimulator_cppflags        = -mios-simulator-version-min=7.1 -arch i386 -arch x86_64
+iphonesimulator_ldflags         = $(iphonesimulator_cppflags)
+iphonesimulator_configs         = %xcodesdk
+iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 
 # If building objects for a shared library, enable fPIC
-shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
+shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
-cppflags	= -Wall -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
+cppflags        = -Wall -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 ifeq ($(MAXWARN),yes)
     cppflags	+= -Wextra -Wshadow -Wredundant-decls -Wweak-vtables
 endif
@@ -63,14 +63,14 @@ mkshlibfilename   = lib$1$(if $2,.$2).dylib
 mkshlibname       = lib$1.dylib
 mkshlibnametarget = $(mkshlibfilename)
 
-mkpymodulename	= $1.so
-mkrbmodulename	= $1.bundle
+mkpymodulename  = $1.so
+mkrbmodulename  = $1.bundle
 mkphpmodulename = $1.so
 
 #
 # System libraries
 #
-Ice_system_libs	:= -ldl
+Ice_system_libs := -ldl
 
 # Frameworks for macos
 IceSSL[macosx]_system_libs := -framework Security -framework CoreFoundation

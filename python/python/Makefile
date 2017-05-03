@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
-top_srcdir	:= ../..
-lang_srcdir	:= $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))))
+top_srcdir      := ../..
+lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))))
 
 include $(top_srcdir)/config/Make.rules
 include $(lang_srcdir)/config/Make.rules

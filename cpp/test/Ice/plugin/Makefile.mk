@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-$(test)_libraries 	:= $(test)_TestPlugin
+$(test)_libraries       := $(test)_TestPlugin
 
 $(test)_TestPlugin_sources := Plugin.cpp
 

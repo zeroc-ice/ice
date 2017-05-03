@@ -7,15 +7,15 @@
 #
 # **********************************************************************
 
-$(test)_client_sources 	= Test.ice \
-	          	  Client.cpp \
-		          AllTests.cpp \
-		          Twoways.cpp \
-		          Oneways.cpp \
-		          TwowaysAMI.cpp \
-		          OnewaysAMI.cpp \
-		          BatchOneways.cpp \
-		          BatchOnewaysAMI.cpp
+$(test)_client_sources  = Test.ice \
+                          Client.cpp \
+                          AllTests.cpp \
+                          Twoways.cpp \
+                          Oneways.cpp \
+                          TwowaysAMI.cpp \
+                          OnewaysAMI.cpp \
+                          BatchOneways.cpp \
+                          BatchOnewaysAMI.cpp
 
 ifeq ($(xlc_compiler),yes)
     $(test)_cppflags += -qsuppress="1540-0895"

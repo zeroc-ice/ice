@@ -10,7 +10,7 @@
 $(test)_dependencies = IceSSL Ice TestCommon
 
 # Need to load certificates with functions from src/IceSSL/Util.h
-$(test)[iphoneos]_cppflags		:= -Isrc
-$(test)[iphonesimulator]_cppflags	:= -Isrc
+$(test)[iphoneos]_cppflags              := -Isrc
+$(test)[iphonesimulator]_cppflags       := -Isrc
 
 tests += $(test)

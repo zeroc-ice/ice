@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_client_sources 	= $(test-client-sources) TestI.m
+$(test)_client_sources  = $(test-client-sources) TestI.m
 
 tests += $(test)

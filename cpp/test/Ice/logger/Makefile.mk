@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
-$(test)_programs 	= client1 client2 client3 client4 client5
-$(test)_libs 		= iconv
+$(test)_programs        = client1 client2 client3 client4 client5
+$(test)_libs            = iconv
 
 $(test)_client1_sources = Client1.cpp
 $(test)_client2_sources = Client2.cpp

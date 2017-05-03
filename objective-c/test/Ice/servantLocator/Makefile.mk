@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_server_sources 	= $(test-server-sources) ServantLocatorI.m
+$(test)_server_sources  = $(test-server-sources) ServantLocatorI.m
 
 tests += $(test)

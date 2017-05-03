@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
-$(test)_server_impl 	= Test
-$(test)_serveramd_impl 	= TestAMD
+$(test)_server_impl     = Test
+$(test)_serveramd_impl  = TestAMD
 
 #
 # $(call make-impl-with-config,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
@@ -16,9 +16,9 @@ $(test)_serveramd_impl 	= TestAMD
 define make-impl-with-config
 
 ifneq ($$($2_impl),)
-$5_sources	+= $$($5_objdir)/$$($2_impl)I.cpp
-$5_objects	+= $$(addprefix $$($5_objdir)/,$$(call source-to-object,$$($5_objdir)/$$($2_impl)I.cpp))
-$5_cppflags 	+= -I$$($5_objdir)
+$5_sources      += $$($5_objdir)/$$($2_impl)I.cpp
+$5_objects      += $$(addprefix $$($5_objdir)/,$$(call source-to-object,$$($5_objdir)/$$($2_impl)I.cpp))
+$5_cppflags     += -I$$($5_objdir)
 
 $$($5_objects): $$($5_objdir)/$$($2_impl)I.cpp
 

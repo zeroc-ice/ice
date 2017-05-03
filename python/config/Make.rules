@@ -20,17 +20,17 @@ PYTHON              ?= python
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-python-call		= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write($1)")
+python-call             = $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write($1)")
 
-PYTHON_VERSION 		?= python$(PYTHON_BASE_VERSION)
-PYTHON_BASE_VERSION 	?= $(call python-call,ds.get_python_version())
-PYTHON_INCLUDE_DIR  	?= $(call python-call,ds.get_python_inc())
-PYTHON_LIB_DIR	    	?= $(call python-call,ds.get_config_var('LIBPL'))
-PYTHON_LIB_SUFFIX   	?= $(call python-call,sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')
-PYTHON_LIB_NAME	    	?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
+PYTHON_VERSION          ?= python$(PYTHON_BASE_VERSION)
+PYTHON_BASE_VERSION     ?= $(call python-call,ds.get_python_version())
+PYTHON_INCLUDE_DIR      ?= $(call python-call,ds.get_python_inc())
+PYTHON_LIB_DIR          ?= $(call python-call,ds.get_config_var('LIBPL'))
+PYTHON_LIB_SUFFIX       ?= $(call python-call,sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')
+PYTHON_LIB_NAME         ?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
 
-python_cppflags		:= -I$(PYTHON_INCLUDE_DIR)
-python_ldflags		:= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
+python_cppflags         := -I$(PYTHON_INCLUDE_DIR)
+python_ldflags          := -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 
 #
 # Python installation directory
@@ -41,10 +41,10 @@ install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/co
 # Rules to build a python module. We just compute the name of the python module
 # and delegate to make-shared-module.
 #
-mkpymodulename			 ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-python-module 	 = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+mkpymodulename                   ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-python-module        = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
 get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2,$3,$4)
-install-shared-python-module	 = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
+install-shared-python-module     = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_pythondir):
 	$(Q)$(MKDIR) -p $@

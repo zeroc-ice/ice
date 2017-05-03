@@ -10,13 +10,13 @@
 #
 # Xcode configuration to build Xcode IceSDK.
 #
-xcodesdk_objdir		= static
-xcodesdk_cppflags	= $(static_cppflags)
-xcodesdk_ldflags	= $(static_ldflags)
+xcodesdk_objdir         = static
+xcodesdk_cppflags       = $(static_cppflags)
+xcodesdk_ldflags        = $(static_ldflags)
 
 ifeq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
 $(foreach d,Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP \
-	    IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC,$(eval $d[xcodesdk]_targetdir := $(top_srcdir)))
+            IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC,$(eval $d[xcodesdk]_targetdir := $(top_srcdir)))
 endif
 
 #
@@ -34,10 +34,10 @@ $(install_libdir)/IceSDK/bin/$(notdir $1) $(top_srcdir)/IceSDK/bin/$(notdir $1):
 	$(Q)$(INSTALL) $1 $$@
 
 $$(eval $$(call install-data-files,\
-	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(top_srcdir)/IceSDK/slice,all))
+        $$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(top_srcdir)/IceSDK/slice,all))
 
 $$(eval $$(call install-data-files,\
-	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(install_libdir)/IceSDK/slice,install))
+        $$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(install_libdir)/IceSDK/slice,install))
 
 srcs all:: $$(foreach p,$$(platforms),$(top_srcdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
 	$(top_srcdir)/IceSDK/bin/$(notdir $1)
@@ -59,14 +59,14 @@ ifneq ($$(filter-out $$($2_sdk_includedirs),$3-$2),)
 $2_sdk_includedirs += $3-$2
 
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
-	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+        $(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
-	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+        $(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
-	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+        $(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
-	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+        $(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
 endif
 
 endef
@@ -116,7 +116,7 @@ define make-xcode-project
 $$(foreach p,$$(filter $(platforms),$$($1_platforms)),\
     $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$(filter $(configs),$$($1_configs))),\
         $$(if $$(filter $(SKIP),$1[$$p-$$c]),,\
-	    $$(eval $$(call make-xcode-project-with-config,$1,$$p,$$c,$1[$$p-$$c])))))
+            $$(eval $$(call make-xcode-project-with-config,$1,$$p,$$c,$1[$$p-$$c])))))
 
 $1::
 $1_clean::

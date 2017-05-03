@@ -14,10 +14,10 @@
 #
 # Objective-C mapping configurations
 #
-supported-configs	= shared static arc-shared arc-static
+supported-configs       = shared static arc-shared arc-static
 
 ifeq ($(os),Darwin)
-include		$(lang_srcdir)/config/Make.xcodesdk.rules
+include         $(lang_srcdir)/config/Make.xcodesdk.rules
 endif
 
 ifneq ($(filter arc-%,$(CONFIGS)),)
@@ -28,14 +28,14 @@ endif
 #
 # Build only few components with the static configuration (libraries)
 #
-static_components 	= Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC
-static_projects		= test/%
-static_ldflags		+= $(if $(filter program,$($1_target)),-ObjC)
+static_components       = Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC
+static_projects         = test/%
+static_ldflags          += $(if $(filter program,$($1_target)),-ObjC)
 
 #
 # Build only the tests with the ARC configuration
 #
-arc_projects		= test/Slice/% test/Ice/%
+arc_projects            = test/Slice/% test/Ice/%
 
 #
 # Define the arc configuration to build the tests with ARC support.
@@ -46,14 +46,14 @@ arc_projects		= test/Slice/% test/Ice/%
 # Ice[osx-shared] not Ice[osx-arc-shared]). This is necessary since
 # we don't have an ARC specific build of the libraries.
 #
-arc_cppflags 		:= -fobjc-arc -fobjc-arc-exceptions
-arc_dependency	 	:=
+arc_cppflags            := -fobjc-arc -fobjc-arc-exceptions
+arc_dependency          :=
 
 #
 # Define slice2objc target extension since it can't be figured out
 # automatically from the slice2objc translator name.
 #
-slice2objc_targetext	= m
+slice2objc_targetext    = m
 
 # Rule for installing headers file from include/objc directory
 ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
@@ -69,10 +69,10 @@ endif
 #
 define make-objc-src-project
 ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
-$1_slicecompiler 	:= slice2objc
-$1_sliceflags		+= -I$(slicedir)
-$1_cppflags 		+= -I$(includedir) -I$(includedir)/generated
-$1_ldflags		+= -framework Foundation
+$1_slicecompiler        := slice2objc
+$1_sliceflags           += -I$(slicedir)
+$1_cppflags             += -I$(includedir) -I$(includedir)/generated
+$1_ldflags              += -framework Foundation
 $(make-project)
 srcs:: $1
 endif
@@ -82,12 +82,12 @@ endef
 # $(make-objc-test-project $1=project)
 #
 define make-objc-test-project
-$1_slicecompiler 	:= slice2objc
-$1_sliceflags		:= -I$(slicedir) $$($1_sliceflags)
-$1_cppflags		:= -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
-$1_ldflags		+= -framework Foundation
+$1_slicecompiler        := slice2objc
+$1_sliceflags           := -I$(slicedir) $$($1_sliceflags)
+$1_cppflags             := -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
+$1_ldflags              += -framework Foundation
 ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
-$1_cppflags		+= -I$(includedir)/generated
+$1_cppflags             += -I$(includedir)/generated
 endif
 $(make-project)
 tests:: $1
@@ -97,12 +97,12 @@ endef
 # $(create-objc-test-project $1=test)
 #
 define create-objc-test-project
-$1_srcext		:= m
-$1_dependencies 	:= $$(or $$($1_dependencies),TestCommonObjC IceObjC)
-$1_cppflags		+= -Itest/Ice
+$1_srcext               := m
+$1_dependencies         := $$(or $$($1_dependencies),TestCommonObjC IceObjC)
+$1_cppflags             += -Itest/Ice
 
 # Also link with IceSSL when compiling the project with the static configuration
-$1[static]_dependencies	:= IceSSL
+$1[static]_dependencies := IceSSL
 
 # Dependencies for Xcode SDK configuration
 $1[xcodesdk]_dependencies := IceSSL
