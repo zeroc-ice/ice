@@ -1986,7 +1986,7 @@ public class SessionKeeper
                             {
                                 if(_directConnection.isSelected())
                                 {
-                                	_cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
                                     _wizardSteps.push(WizardStep.DirectMasterStep);
                                 }
                                 else
@@ -2081,7 +2081,7 @@ public class SessionKeeper
                                 else
                                 {
                                     _cardLayout.show(_cardPanel,
-                                    		WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                    WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -2110,7 +2110,7 @@ public class SessionKeeper
                                 else
                                 {
                                     _cardLayout.show(_cardPanel,
-                                    		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                    WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -2206,7 +2206,7 @@ public class SessionKeeper
                                     else
                                     {
                                         _cardLayout.show(_cardPanel,
-                                        		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
@@ -2631,7 +2631,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                    	lastStep = true;
+                        lastStep = true;
                         _certificateAuthButton.requestFocusInWindow();
                     }
                     break;

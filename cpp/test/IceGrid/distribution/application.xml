@@ -37,8 +37,8 @@
 
       <server id="server-all" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
-	  <object identity="${server}"/>
-	</adapter>
+          <object identity="${server}"/>
+        </adapter>
         <distrib/>
         <properties>
           <property name="ApplicationDistrib" value="${application.distrib}"/>
@@ -48,8 +48,8 @@
 
       <server id="server-all-direct" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
-	  <object identity="${server}"/>
-	</adapter>
+          <object identity="${server}"/>
+        </adapter>
         <distrib icepatch="IcePatch2-Direct/server:default -p 12001"/>
         <properties>
           <property name="ApplicationDistrib" value="${application.distrib}"/>
@@ -59,8 +59,8 @@
 
       <server id="server-dir1" exe="${server.dir}/server" activation="on-demand">
         <adapter name="Server" endpoints="default">
-	  <object identity="${server}"/>
-	</adapter>
+          <object identity="${server}"/>
+        </adapter>
         <distrib>
           <directory>dir1</directory>
         </distrib>

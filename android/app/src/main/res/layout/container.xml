@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
 
 	<ListView
-	    android:id="@android:id/list"
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dip"
-        android:layout_weight="1"
-        android:stackFromBottom="true"
+		android:id="@android:id/list"
+		android:layout_width="fill_parent"
+		android:layout_height="0dip"
+		android:layout_weight="1"
+		android:stackFromBottom="true"
 	 android:transcriptMode="alwaysScroll"/>
 
 	<Button
@@ -21,5 +21,4 @@
 		android:text="@string/next"
 		/>
 
- </LinearLayout>
-
+</LinearLayout>

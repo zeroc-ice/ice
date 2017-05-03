@@ -88,10 +88,10 @@
 
       <icebox id="${instance-name}" exe="icebox" activation="on-demand">
         <service-instance template="IceStorm"
-			  instance-name="${instance-name}"
-			  topic-manager-endpoints="${topic-manager-endpoints}"
-			  publish-endpoints="${publish-endpoints}"
-			  flush-timeout="${flush-timeout}"/>
+                          instance-name="${instance-name}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          flush-timeout="${flush-timeout}"/>
       </icebox>
 
     </server-template>
@@ -111,16 +111,16 @@
       <service name="${instance-name}${node-id}" entry="IceStormService,37:createIceStorm">
 
         <adapter name="${service}.TopicManager"
-		 id="${instance-name}${node-id}.TopicManager"
-		 endpoints="${topic-manager-endpoints}"
+                 id="${instance-name}${node-id}.TopicManager"
+                 endpoints="${topic-manager-endpoints}"
                  replica-group="${topic-manager-replica-group}"/>
 
-	<adapter name="${service}.Publish"
-		 id="${instance-name}${node-id}.Publish"
-		 endpoints="${publish-endpoints}"
+        <adapter name="${service}.Publish"
+                 id="${instance-name}${node-id}.Publish"
+                 endpoints="${publish-endpoints}"
                  replica-group="${publish-replica-group}"/>
 
-	<adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
+        <adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
 
         <properties>
            <property name="${service}.LMDB.Path" value="${service.data}"/>
@@ -146,12 +146,12 @@
 
       <icebox id="${instance-name}${node-id}" exe="icebox" activation="on-demand">
         <service-instance template="IceStorm-HA"
-			  instance-name="${instance-name}"
-			  node-id="${node-id}"
-			  topic-manager-endpoints="${topic-manager-endpoints}"
-			  publish-endpoints="${publish-endpoints}"
-			  node-endpoints="${node-endpoints}"
-			  flush-timeout="${flush-timeout}"
+                          instance-name="${instance-name}"
+                          node-id="${node-id}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          node-endpoints="${node-endpoints}"
+                          flush-timeout="${flush-timeout}"
                           publish-replica-group="${publish-replica-group}"
                           topic-manager-replica-group="${topic-manager-replica-group}"/>
       </icebox>

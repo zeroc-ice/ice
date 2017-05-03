@@ -21,7 +21,7 @@
 
       <service name="Service4" entry="TestService:create">
         <adapter name="${service}" endpoints="default">
-	  <object identity="${server}-${service}" type="::Test"/>
+          <object identity="${server}-${service}" type="::Test"/>
         </adapter>
         <properties>
           <property name="Ice.Warn.UnknownProperties" value="0"/>

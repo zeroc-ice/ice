@@ -7,7 +7,7 @@
     <service name="${name}" entry="TestService:create">
 
       <adapter name="${service}" endpoints="default">
-	<object identity="${server}-${service}" type="::Test" property="Test${service}Identity"/>
+        <object identity="${server}-${service}" type="::Test" property="Test${service}Identity"/>
       </adapter>
 
       <log path="test-${service}.log" property="LogFilePath"/>

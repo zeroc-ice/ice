@@ -896,12 +896,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
 #ifdef ICE_CPP11_MAPPING
         auto clearS = [](MyClassS& arr) {
-	    for(MyClassS::iterator p = arr.begin(); p != arr.end(); ++p)
+            for(MyClassS::iterator p = arr.begin(); p != arr.end(); ++p)
             {
-	        if(*p)
+                if(*p)
                 {
-		    (*p)->c = nullptr;
-		    (*p)->o = nullptr;
+                    (*p)->c = nullptr;
+                    (*p)->o = nullptr;
                     (*p)->d["hi"] = nullptr;
                 }
             }
@@ -909,7 +909,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         auto clearSS = [clearS](MyClassSS& arr) {
             for(MyClassSS::iterator p = arr.begin(); p != arr.end(); ++p)
             {
-	        clearS(*p);
+                clearS(*p);
             }
         };
         clearS(arr);
@@ -1077,12 +1077,12 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 
 #ifdef ICE_CPP11_MAPPING
             ex1.c->c = nullptr;
-	    ex1.c->o = nullptr;
+            ex1.c->o = nullptr;
 #endif
         }
 #ifdef ICE_CPP11_MAPPING
         c->c = nullptr;
-	c->o = nullptr;
+        c->o = nullptr;
 #endif
     }
 

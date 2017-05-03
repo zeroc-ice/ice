@@ -84,7 +84,7 @@ public class RoutableReference extends Reference
     @Override
     public final com.zeroc.IceInternal.ThreadPool getThreadPool()
     {
-        return getInstance().clientThreadPool();   
+        return getInstance().clientThreadPool();
     }
 
     @Override

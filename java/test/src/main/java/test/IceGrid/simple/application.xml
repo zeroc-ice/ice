@@ -3,18 +3,18 @@
     <node name="localnode">
       <server id="server" exe="${java.exe}" pwd="." activation="on-demand">
         <option>-Djava.security.egd=file:/dev/urandom</option>
-	<option>test.IceGrid.simple.Server</option>
-	<adapter name="TestAdapter" id="TestAdapter" endpoints="default">
-	  <object identity="test" type="Test"/>
-	</adapter>
+        <option>test.IceGrid.simple.Server</option>
+        <adapter name="TestAdapter" id="TestAdapter" endpoints="default">
+          <object identity="test" type="Test"/>
+        </adapter>
       </server>
 
       <server id="server10" exe="${java.exe}" pwd="." activation="on-demand">
         <option>-Djava.security.egd=file:/dev/urandom</option>
-	<option>test.IceGrid.simple.Server</option>
+        <option>test.IceGrid.simple.Server</option>
         <adapter name="TestAdapter" endpoints="default" id="TestAdapter10">
-	  <object identity="test10" type="Test" property="Identity"/>
-	</adapter>
+          <object identity="test10" type="Test" property="Identity"/>
+        </adapter>
         <property name="Ice.Default.EncodingVersion" value="1.0"/>
       </server>
     </node>

@@ -11,7 +11,7 @@
       http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
     -->
     <application android:icon="@raw/icon" android:label="@string/app_name" android:name="TestApp"
-        		 android:allowBackup="false">
+                 android:allowBackup="false">
         <activity android:name=".TestSuite"
                   android:label="@string/app_name">
             <intent-filter>

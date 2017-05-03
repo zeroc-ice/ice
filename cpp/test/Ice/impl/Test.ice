@@ -316,17 +316,17 @@ const string sw9 = "\U0001F34C";                      // BANANA (U+1F34C)
 const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
 
 /**
-\'	single quote	byte 0x27 in ASCII encoding
-\"	double quote	byte 0x22 in ASCII encoding
-\?	question mark	byte 0x3f in ASCII encoding
-\\	backslash	byte 0x5c in ASCII encoding
-\a	audible bell	byte 0x07 in ASCII encoding
-\b	backspace	byte 0x08 in ASCII encoding
-\f	form feed - new page	byte 0x0c in ASCII encoding
-\n	line feed - new line	byte 0x0a in ASCII encoding
-\r	carriage return	byte 0x0d in ASCII encoding
-\t	horizontal tab	byte 0x09 in ASCII encoding
-\v	vertical tab	byte 0x0b in ASCII encoding
+\'      single quote    byte 0x27 in ASCII encoding
+\"      double quote    byte 0x22 in ASCII encoding
+\?      question mark   byte 0x3f in ASCII encoding
+\\      backslash       byte 0x5c in ASCII encoding
+\a      audible bell    byte 0x07 in ASCII encoding
+\b      backspace       byte 0x08 in ASCII encoding
+\f      form feed - new page    byte 0x0c in ASCII encoding
+\n      line feed - new line    byte 0x0a in ASCII encoding
+\r      carriage return byte 0x0d in ASCII encoding
+\t      horizontal tab  byte 0x09 in ASCII encoding
+\v      vertical tab    byte 0x0b in ASCII encoding
 **/
 
 const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
@@ -384,17 +384,17 @@ const ["cpp:type:wstring"]string wsw9 = "\U0001F34C";                      // BA
 const ["cpp:type:wstring"]string wsw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
 
 /**
-\'	single quote	byte 0x27 in ASCII encoding
-\"	double quote	byte 0x22 in ASCII encoding
-\?	question mark	byte 0x3f in ASCII encoding
-\\	backslash	byte 0x5c in ASCII encoding
-\a	audible bell	byte 0x07 in ASCII encoding
-\b	backspace	byte 0x08 in ASCII encoding
-\f	form feed - new page	byte 0x0c in ASCII encoding
-\n	line feed - new line	byte 0x0a in ASCII encoding
-\r	carriage return	byte 0x0d in ASCII encoding
-\t	horizontal tab	byte 0x09 in ASCII encoding
-\v	vertical tab	byte 0x0b in ASCII encoding
+\'      single quote    byte 0x27 in ASCII encoding
+\"      double quote    byte 0x22 in ASCII encoding
+\?      question mark   byte 0x3f in ASCII encoding
+\\      backslash       byte 0x5c in ASCII encoding
+\a      audible bell    byte 0x07 in ASCII encoding
+\b      backspace       byte 0x08 in ASCII encoding
+\f      form feed - new page    byte 0x0c in ASCII encoding
+\n      line feed - new line    byte 0x0a in ASCII encoding
+\r      carriage return byte 0x0d in ASCII encoding
+\t      horizontal tab  byte 0x09 in ASCII encoding
+\v      vertical tab    byte 0x0b in ASCII encoding
 **/
 const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
 const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";

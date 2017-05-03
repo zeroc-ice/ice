@@ -503,7 +503,7 @@ namespace IceInternal
 
         protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks()
         {
-            return new System.Threading.Tasks.Task[0]; 
+            return new System.Threading.Tasks.Task[0];
         }
 
         private void run(WorkerThread thread)

@@ -32,17 +32,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public ObjectImpl
     clone()
     {
-    	ObjectImpl c = null;
+        ObjectImpl c = null;
 
-    	try
-    	{
-    	   c = (ObjectImpl)super.clone();
-    	}
-    	catch(CloneNotSupportedException ex)
-    	{
-    	    assert false;
-    	}
-    	return c;
+        try
+        {
+           c = (ObjectImpl)super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false;
+        }
+        return c;
     }
 
     private final static String[] _ids =

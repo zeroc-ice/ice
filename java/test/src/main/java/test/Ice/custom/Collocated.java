@@ -30,7 +30,7 @@ public class Collocated extends test.Util.Application
         com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
         initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-	initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
+        initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
         return initData;
     }
 

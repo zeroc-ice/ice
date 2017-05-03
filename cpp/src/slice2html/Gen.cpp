@@ -2977,7 +2977,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
 }
 
 Slice::PageVisitor::PageVisitor(const Files& files) :
-	_files(files)
+    _files(files)
 {
 }
 

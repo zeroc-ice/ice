@@ -6,7 +6,7 @@
 
     <service name="${name}" entry="TestService:create">
       <adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
-	<object identity="${server}-${name}" type="::Test"/>
+        <object identity="${server}-${name}" type="::Test"/>
       </adapter>
 
       <properties>

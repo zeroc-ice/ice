@@ -2,15 +2,15 @@
   <application name="Test">
     <node name="localnode">
       <server id="server" exe="${test.dir}/msbuild/server/server.exe" pwd="." activation="on-demand">
-	<adapter name="TestAdapter" id="TestAdapter" endpoints="default">
-	  <object identity="test" type="Test"/>
-	</adapter>
+        <adapter name="TestAdapter" id="TestAdapter" endpoints="default">
+          <object identity="test" type="Test"/>
+        </adapter>
       </server>
 
       <server id="server10" exe="${test.dir}/msbuild/server/server.exe" pwd="." activation="on-demand">
         <adapter name="TestAdapter" endpoints="default" id="TestAdapter10">
-	  <object identity="test10" type="Test" property="Identity"/>
-	</adapter>
+          <object identity="test10" type="Test" property="Identity"/>
+        </adapter>
         <property name="Ice.Default.EncodingVersion" value="1.0"/>
       </server>
     </node>

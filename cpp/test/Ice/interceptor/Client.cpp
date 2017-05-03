@@ -108,7 +108,7 @@ main(int argc, char* argv[])
     sigaction(SIGPIPE, &action, 0);
 #endif
 
-	ClientApp app;
+    ClientApp app;
 #if defined(__APPLE__) || defined(ICE_OS_UWP)
     int result = app._main(argc, argv);
 #else

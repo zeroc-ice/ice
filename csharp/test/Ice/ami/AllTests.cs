@@ -3754,7 +3754,7 @@ public class AllTests : TestCommon.AllTests
             p.ice_pingAsync().ContinueWith(
                 (t) =>
                 {
-                    test(Thread.CurrentThread.Name == null || 
+                    test(Thread.CurrentThread.Name == null ||
                          !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
                 }).Wait();
 

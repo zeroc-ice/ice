@@ -109,7 +109,7 @@
         <description>SERVER ${NodeVar}</description>
         <adapter name="Server" endpoints="default">
           <description>ADAPTER ${NodeVar}</description>
-	      <object identity="${server}" type="::Test"/>
+          <object identity="${server}" type="::Test"/>
           <object identity="cat\/cat/name\/name" type="::Test"/>
           <object identity="${ObjectId}" type="::TestId1"/>
           <object identity="${ObjectCategory1}/${ObjectName1}" type="::TestId2"/>
@@ -154,16 +154,16 @@
 
       <icebox id="SimpleIceBox" exe="${icebox.exe}" activation="on-demand" pwd=".">
         <description>SERVER ${NodeVar}</description>
-	<service name="SimpleService" entry="TestService:create">
-	  <adapter name="${service}" endpoints="default">
-	    <object identity="${server}-${service}" type="::Test"/>
-	  </adapter>
+        <service name="SimpleService" entry="TestService:create">
+          <adapter name="${service}" endpoints="default">
+            <object identity="${server}-${service}" type="::Test"/>
+          </adapter>
           <property name="Ice.Warn.UnknownProperties" value="0"/>
-	  <property name="${service}.Identity" value="${server}-${service}"/>
-	  <property name="${service}.Type" value="standard"/>
-	  <property name="${service}.ServiceName" value="${service}"/>
-	  <include file="varproperties.xml"/>
-	</service>
+          <property name="${service}.Identity" value="${server}-${service}"/>
+          <property name="${service}.Type" value="standard"/>
+          <property name="${service}.ServiceName" value="${service}"/>
+          <include file="varproperties.xml"/>
+        </service>
       </icebox>
 
       <target name="moreservers">
@@ -175,7 +175,7 @@
 
       <server id="LogServer" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	      <object identity="${server}" type="::Test"/>
+          <object identity="${server}" type="::Test"/>
         </adapter>
 
         <log path="${server.dir}/log1.txt"/>

@@ -74,7 +74,7 @@ clear(const BPtr& b)
     // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(b->theA))
     {
-	auto tmp = b->theA;
+        auto tmp = b->theA;
         b->theA = nullptr;
         clear(dynamic_pointer_cast<B>(tmp));
     }

@@ -468,7 +468,7 @@ interface BaseInterface10 extends Interface1
 //
 class Compact1(1)
 {
-	int id;
+    int id;
 };
 
 //

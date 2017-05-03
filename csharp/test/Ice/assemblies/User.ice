@@ -10,7 +10,7 @@ class UserInfo
 
 interface Registry
 {
-	UserInfo getUserInfo(string id) throws Core::ArgumentException;
+    UserInfo getUserInfo(string id) throws Core::ArgumentException;
 };
 
 

@@ -46,7 +46,7 @@
         <property name="IceGrid.Registry.SSLPermissionsVerifier" value="RepTestIceGrid/NullSSLPermissionsVerifier"/>
         <property name="IceGrid.Registry.AdminPermissionsVerifier" value="RepTestIceGrid/NullPermissionsVerifier"/>
         <property name="IceGrid.Registry.SessionTimeout" value="0"/>
-	      <property name="IceGrid.Registry.DynamicRegistration" value="1"/>
+        <property name="IceGrid.Registry.DynamicRegistration" value="1"/>
         <property name="Ice.Default.Locator" value="RepTestIceGrid/Locator:default -p 12050:default -p 12051:default -p 12052"/>
         <property name="IceGrid.Registry.Trace.Replica" value="0"/>
         <property name="IceGrid.Registry.Trace.Node" value="0"/>

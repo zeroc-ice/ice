@@ -50,7 +50,7 @@ interface TestIntf
     bool supportsAMD();
     bool supportsFunctionalTests();
 
-    void pingBiDir(Ice::Identity id); 
+    void pingBiDir(Ice::Identity id);
 };
 
 interface TestIntfController

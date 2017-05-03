@@ -774,7 +774,7 @@ namespace Ice
 
         /// <summary>
         /// Returns an scheduler object that use the Ice thread pool.
-        /// </summary> 
+        /// </summary>
         /// <returns>The task scheduler object.</returns>
         System.Threading.Tasks.TaskScheduler ice_scheduler();
     }

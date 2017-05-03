@@ -311,7 +311,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         int i = 0;
         for(Entry e : _objects.values())
         {
-	    metrics[i++] = e.clone();
+            metrics[i++] = e.clone();
         }
         return metrics;
     }

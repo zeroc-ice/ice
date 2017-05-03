@@ -18,10 +18,10 @@ project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
 #
 # The platforms, configs and languages to build.
 #
-platforms 		= $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS)))
-configs 		= $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS)))
-languages 		= $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES)))
-build-platform		:= $(or $(build-platform),$(firstword $(supported-platforms)))
+platforms               = $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS)))
+configs                 = $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS)))
+languages               = $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES)))
+build-platform          := $(or $(build-platform),$(firstword $(supported-platforms)))
 
 #
 # The list of platforms to build for the given component. We iterate over the platform
@@ -29,8 +29,8 @@ build-platform		:= $(or $(build-platform),$(firstword $(supported-platforms)))
 # component is either included/excluded for this platform based on the <platform>_excludes,
 # <platform>_components and <platform>_projects variables.
 #
-component-platforms 	= $(call unique,$(foreach p,$(platforms),\
-			    $(if $(and $(if $(filter $($p_excludes),$1 $2),,true),\
+component-platforms    = $(call unique,$(foreach p,$(platforms),\
+                     		$(if $(and $(if $(filter $($p_excludes),$1 $2),,true),\
 			 		 $(or $(filter $($p_components),$2),\
 			 		   $(filter $(or $($p_projects),$(if $($p_components),,%)),$1))),\
 			      $(strip $p))))

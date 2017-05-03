@@ -66,12 +66,12 @@ exception sizeof extends return
 
 local interface friend
 {
-	auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
-		  char* new, switch* not, do* operator, int or, int protected, int public, int register)
-            throws return, sizeof;
+    auto goto(continue if, auto d, delete inline, switch private, do mutable, break* namespace,
+              char* new, switch* not, do* operator, int or, int protected, int public, int register)
+              throws return, sizeof;
 
-	void objc(int bycopy, int byref, int id, int IMP, int in, int inout, int nil, int NO, int oneway,
-		int SEL, int super, int YES);
+    void objc(int bycopy, int byref, int id, int IMP, int in, int inout, int nil, int NO, int oneway,
+              int SEL, int super, int YES);
 };
 
 const int template = 0;
