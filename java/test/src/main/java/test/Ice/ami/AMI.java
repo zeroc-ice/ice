@@ -22,6 +22,7 @@ import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfPrx;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.PingReplyPrx;
 import test.Util.Application;
 
 public class AMI
@@ -36,6 +37,47 @@ public class AMI
             //
             throw new RuntimeException();
         }
+    }
+
+    public static class PingReplyI implements test.Ice.ami.Test.PingReply
+    {
+        @Override
+        public synchronized void reply(com.zeroc.Ice.Current current)
+        {
+            ++_replies;
+            notify();
+        }
+
+        public synchronized void reset()
+        {
+             _replies = 0;
+        }
+
+        public synchronized boolean waitReply(int expectedReplies, long timeout)
+        {
+            long end = System.currentTimeMillis() + timeout;
+            while(_replies < expectedReplies)
+            {
+                long delay = end - System.currentTimeMillis();
+                if(delay > 0)
+                {
+                    try
+                    {
+                        wait(delay);
+                    }
+                    catch(java.lang.InterruptedException ex)
+                    {
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return _replies == expectedReplies;
+        }
+
+        private int _replies;
     }
 
     private static class Callback
@@ -920,5 +962,36 @@ public class AMI
             }
             out.println("ok");
         }
+
+        out.print("testing ice_executor... ");
+        out.flush();
+        {
+            p.ice_pingAsync().whenCompleteAsync(
+                (result, ex) ->
+                {
+                    test(Thread.currentThread().getName().indexOf("Ice.ThreadPool.Client") == -1);
+                }).join();
+
+            p.ice_pingAsync().whenCompleteAsync(
+                (result, ex) ->
+                {
+                    test(Thread.currentThread().getName().indexOf("Ice.ThreadPool.Client") != -1);
+                },
+                p.ice_executor()).join();
+
+            if(!collocated)
+            {
+                communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "tcp");
+                com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+                PingReplyI replyI = new PingReplyI();
+                PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
+                adapter.activate();
+
+                p.ice_getConnection().setAdapter(adapter);
+                p.pingBiDir(reply.ice_getIdentity());
+                replyI.waitReply(1, 100);
+            }
+        }
+        out.println("ok");
     }
 }

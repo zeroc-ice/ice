@@ -9,7 +9,7 @@
 
 package com.zeroc.IceInternal;
 
-public final class ThreadPool
+public final class ThreadPool implements java.util.concurrent.Executor
 {
     final class ShutdownWorkItem implements ThreadPoolWorkItem
     {
@@ -384,6 +384,22 @@ public final class ThreadPool
         // Destroy the selector
         //
         _selector.destroy();
+    }
+
+    //
+    // Implment execute method from java.util.concurrent.Executor interface
+    //
+    @Override
+    public void execute(Runnable command)
+    {
+        dispatch(new com.zeroc.IceInternal.DispatchWorkItem()
+            {
+                @Override
+                public void run()
+                {
+                    command.run();
+                }
+            });
     }
 
     private void

@@ -1620,6 +1620,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         setState(StateClosed, ex);
     }
 
+    public com.zeroc.IceInternal.ThreadPool getThreadPool()
+    {
+        return _threadPool;
+    }
+
     public ConnectionI(Communicator communicator, com.zeroc.IceInternal.Instance instance,
                        com.zeroc.IceInternal.ACMMonitor monitor, com.zeroc.IceInternal.Transceiver transceiver,
                        com.zeroc.IceInternal.Connector connector, com.zeroc.IceInternal.EndpointI endpoint,

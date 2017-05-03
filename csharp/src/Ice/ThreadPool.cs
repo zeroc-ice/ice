@@ -154,7 +154,7 @@ namespace IceInternal
         internal readonly EventHandler _handler;
     }
 
-    public sealed class ThreadPool
+    public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
     {
         public ThreadPool(Instance instance, string prefix, int timeout)
         {
@@ -484,6 +484,26 @@ namespace IceInternal
         public bool serialize()
         {
             return _serialize;
+        }
+
+        protected sealed override void QueueTask(System.Threading.Tasks.Task task)
+        {
+            dispatch(() => { TryExecuteTask(task); }, null, false);
+        }
+
+        protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
+        {
+            return false;
+        }
+
+        protected sealed override bool TryDequeue(System.Threading.Tasks.Task task)
+        {
+            return false;
+        }
+
+        protected sealed override IEnumerable<System.Threading.Tasks.Task> GetScheduledTasks()
+        {
+            return new System.Threading.Tasks.Task[0]; 
         }
 
         private void run(WorkerThread thread)

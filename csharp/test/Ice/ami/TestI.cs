@@ -140,6 +140,18 @@ public class TestI : TestIntfDisp_
         await self(current).opWithUEAsync();
     }
 
+    override public void
+    pingBiDir(Ice.Identity id, Ice.Current current)
+    {
+        PingReplyPrx p = PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id));
+        p.replyAsync().ContinueWith(
+            (t) =>
+            {
+                test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+            },
+            p.ice_scheduler()).Wait();
+    }
+
     TestIntfPrx
     self(Ice.Current current)
     {

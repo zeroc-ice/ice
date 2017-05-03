@@ -10,6 +10,7 @@
 #pragma once
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/Identity.ice>
 
 [["java:package:test.Ice.ami"]]
 module Test
@@ -24,6 +25,11 @@ enum CloseMode
     Forcefully,
     Gracefully,
     GracefullyWithWait
+};
+
+interface PingReply
+{
+    void reply();
 };
 
 interface TestIntf
@@ -51,6 +57,8 @@ interface TestIntf
     long opLong(long l);
     float opFloat(float f);
     double opDouble(double d);
+
+    void pingBiDir(Ice::Identity id);
 };
 
 interface TestIntfController

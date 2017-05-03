@@ -77,6 +77,9 @@ class TestIntfI(Test.TestIntf):
     def supportsFunctionalTests(self, current=None):
         return False
 
+    def pingBiDir(self, id, current = None):
+        Test.PingReplyPrx.uncheckedCast(current.con.createProxy(id)).reply()
+
 class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):
         self._adapter = adapter

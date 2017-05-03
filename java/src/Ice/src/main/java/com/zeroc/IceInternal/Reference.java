@@ -94,6 +94,7 @@ public abstract class Reference implements Cloneable
     public abstract com.zeroc.Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract String getConnectionId();
+    public abstract com.zeroc.IceInternal.ThreadPool getThreadPool();
 
     //
     // The change* methods (here and in derived classes) create

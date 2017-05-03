@@ -46,6 +46,8 @@ public:
     virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
 
+    virtual void pingBiDir(ICE_IN(Ice::Identity), const Ice::Current&);
+
 private:
 
     int _batchCount;

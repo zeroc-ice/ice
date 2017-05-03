@@ -630,6 +630,16 @@ public interface ObjectPrx
     Connection ice_getConnection();
 
     /**
+     * Returns an executor object that use the Ice thread pool.
+     *
+     * @return The Executor object.
+     **/
+    default java.util.concurrent.Executor ice_executor()
+    {
+        return _getReference().getThreadPool();
+    }
+
+    /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
      * @return A future for the completion of the request.

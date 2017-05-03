@@ -16,6 +16,49 @@ using Test;
 
 public class AllTests : TestCommon.AllTests
 {
+    public class PingReplyI : Test.PingReplyDisp_
+    {
+        public override void reply(Ice.Current current)
+        {
+            lock(this)
+            {
+                ++_replies;
+                System.Threading.Monitor.Pulse(this);
+            }
+        }
+
+        public void reset()
+        {
+            lock(this)
+            {
+                 _replies = 0;
+            }
+        }
+
+        public bool waitReply(int expectedReplies, long timeout)
+        {
+            lock(this)
+            {
+                long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
+                while(_replies < expectedReplies)
+                {
+                    int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
+                    if(delay > 0)
+                    {
+                        System.Threading.Monitor.Wait(this, delay);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return _replies == expectedReplies;
+            }
+        }
+
+        private int _replies = 0;
+    }
+
     private class Cookie
     {
         public Cookie(int i)
@@ -3704,6 +3747,37 @@ public class AllTests : TestCommon.AllTests
             }
             WriteLine("ok");
         }
+
+        Write("testing ice_scheduler... ");
+        Flush();
+        {
+            p.ice_pingAsync().ContinueWith(
+                (t) =>
+                {
+                    test(Thread.CurrentThread.Name == null || 
+                         !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                }).Wait();
+
+            p.ice_pingAsync().ContinueWith(
+                (t) =>
+                {
+                    test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                }, p.ice_scheduler()).Wait();
+
+            if(!collocated)
+            {
+                communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "tcp");
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+                PingReplyI replyI = new PingReplyI();
+                Test.PingReplyPrx reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+                adapter.activate();
+
+                p.ice_getConnection().setAdapter(adapter);
+                p.pingBiDir(reply.ice_getIdentity());
+                replyI.waitReply(1, 100);
+            }
+        }
+        WriteLine("ok");
 
         p.shutdown();
     }

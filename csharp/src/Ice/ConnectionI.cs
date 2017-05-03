@@ -1746,6 +1746,11 @@ namespace Ice
             }
         }
 
+        public IceInternal.ThreadPool getThreadPool()
+        {
+            return _threadPool;
+        }
+
         static ConnectionI()
         {
             _compressionSupported = IceInternal.BZip2.supported();

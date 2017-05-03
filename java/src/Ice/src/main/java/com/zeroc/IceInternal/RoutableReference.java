@@ -82,6 +82,12 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public final com.zeroc.IceInternal.ThreadPool getThreadPool()
+    {
+        return getInstance().clientThreadPool();   
+    }
+
+    @Override
     public Reference
     changeEncoding(com.zeroc.Ice.EncodingVersion newEncoding)
     {

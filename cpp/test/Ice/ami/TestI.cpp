@@ -174,6 +174,12 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
+TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
+{
+    ICE_UNCHECKED_CAST(Test::PingReplyPrx, current.con->createProxy(id))->reply();
+}
+
+void
 TestIntfControllerI::holdAdapter(const Ice::Current&)
 {
     _adapter->hold();

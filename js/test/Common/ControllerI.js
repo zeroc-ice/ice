@@ -239,7 +239,7 @@ function runController(clientOutput, serverOutput, scripts)
     let protocol = uri.protocol() === "http" ? "ws" : "wss";
     let query = uri.search(true);
     let port = query.port || 15002;
-    let worker = query.worker === "True" ? true : false;
+    let worker = query.worker === "True";
     initData.logger = new Logger(out);
 
     let registerProcessController = function(adapter, registry, processController) {

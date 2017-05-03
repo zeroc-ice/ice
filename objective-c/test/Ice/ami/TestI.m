@@ -137,6 +137,11 @@
 {
     return NO;
 }
+
+-(void) pingBiDir:(ICEIdentity*)id_ current:(ICECurrent *)current
+{
+    [TestAMIPingReplyPrx uncheckedCast:[current.con createProxy:id_] reply];
+}
 @end
 
 @implementation TestAMITestIntfControllerI

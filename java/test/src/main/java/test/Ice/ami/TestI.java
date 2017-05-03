@@ -12,12 +12,24 @@ package test.Ice.ami;
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
-
+import test.Ice.ami.Test.PingReplyPrx;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 
 public class TestI implements TestIntf
 {
+    private static void test(boolean b)
+    {
+        if(!b)
+        {
+            new Throwable().printStackTrace();
+            //
+            // Exceptions raised by callbacks are swallowed by CompletableFuture.
+            //
+            throw new RuntimeException();
+        }
+    }
+
     TestI()
     {
     }
@@ -110,6 +122,17 @@ public class TestI implements TestIntf
     public double opDouble(double d, com.zeroc.Ice.Current current)
     {
         return d;
+    }
+
+    @Override
+    public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
+    {
+        PingReplyPrx p = PingReplyPrx.uncheckedCast(current.con.createProxy(id));
+        p.replyAsync().whenCompleteAsync(
+            (result, ex) ->
+            {
+                test(Thread.currentThread().getName().indexOf("Ice.ThreadPool.Server") != -1);
+            }, p.ice_executor()).join();
     }
 
     @Override

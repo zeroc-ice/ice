@@ -770,6 +770,13 @@ namespace Ice
         /// <param name="os">Output stream object to write the proxy.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         void iceWrite(OutputStream os);
+
+
+        /// <summary>
+        /// Returns an scheduler object that use the Ice thread pool.
+        /// </summary> 
+        /// <returns>The task scheduler object.</returns>
+        System.Threading.Tasks.TaskScheduler ice_scheduler();
     }
 
     /// <summary>
@@ -2350,6 +2357,11 @@ namespace Ice
         {
             var resultI = AsyncResultI.check(r, this, _ice_flushBatchRequests_name);
             resultI.wait();
+        }
+
+        public System.Threading.Tasks.TaskScheduler ice_scheduler()
+        {
+            return _reference.getThreadPool();
         }
 
         /// <summary>

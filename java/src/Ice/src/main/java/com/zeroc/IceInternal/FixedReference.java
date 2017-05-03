@@ -97,6 +97,13 @@ public class FixedReference extends Reference
     }
 
     @Override
+    public com.zeroc.IceInternal.ThreadPool
+    getThreadPool()
+    {
+        return _fixedConnection.getThreadPool();
+    }
+
+    @Override
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {

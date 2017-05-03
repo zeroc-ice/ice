@@ -93,6 +93,7 @@ namespace IceInternal
         public abstract Ice.EndpointSelectionType getEndpointSelection();
         public abstract int getLocatorCacheTimeout();
         public abstract string getConnectionId();
+        public abstract ThreadPool getThreadPool();
 
         //
         // The change* methods (here and in derived classes) create
@@ -606,6 +607,11 @@ namespace IceInternal
             return "";
         }
 
+        public override ThreadPool getThreadPool()
+        {
+            return _fixedConnection.getThreadPool();
+        }
+
         public override Reference changeEndpoints(EndpointI[] newEndpoints)
         {
             throw new Ice.FixedProxyException();
@@ -826,6 +832,11 @@ namespace IceInternal
         public override string getConnectionId()
         {
             return _connectionId;
+        }
+
+        public override ThreadPool getThreadPool()
+        {
+            return getInstance().clientThreadPool();
         }
 
         public override Reference changeEncoding(Ice.EncodingVersion newEncoding)

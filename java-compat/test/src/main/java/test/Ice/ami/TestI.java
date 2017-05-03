@@ -13,6 +13,7 @@ import test.Ice.ami.Test._TestIntfDisp;
 import test.Ice.ami.Test.AMD_TestIntf_startDispatch;
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.PingReplyPrxHelper;
 
 public class TestI extends _TestIntfDisp
 {
@@ -114,6 +115,12 @@ public class TestI extends _TestIntfDisp
     public double opDouble(double d, Ice.Current current)
     {
         return d;
+    }
+
+    @Override
+    public void pingBiDir(Ice.Identity id, Ice.Current current)
+    {
+        PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
     }
 
     @Override
