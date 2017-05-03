@@ -119,9 +119,9 @@ install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/ice)
 install_mandir		?= $(prefix)$(if $(usr_dir_install),/share)/man
 install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
 
-version     		= 3.7b0
+version     		= 3.7.0
 mmversion		= 3.7
-soversion   		= 37b0
+soversion   		= 37
 
 #
 # The compatversion is the lowest patch release with the same API.

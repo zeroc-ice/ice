@@ -60,7 +60,7 @@ to `no`:
 
 It is also possible to build the test suite against a binary Ice distribution:
 
-    msbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7b0"
+    msbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7.0"
 
 ## Installing the PHP Extension
 
@@ -96,9 +96,9 @@ and its third-party dependencies. On Windows, these DLLs are required:
 
     bzip2.dll
     ice37b0.dll
-    icediscovery37b0.dll
-    icelocatordiscovery37b0.dll
-    icessl37b0.dll
+    icediscovery37.dll
+    icelocatordiscovery37.dll
+    icessl37.dll
 
 In general, these libraries must reside in a directory of the user's PATH. For
 IIS configured to run PHP as FastCGI, the simplest solution is to copy the

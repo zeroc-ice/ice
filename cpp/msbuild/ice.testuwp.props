@@ -3,7 +3,7 @@
 
     <PropertyGroup>
       <Ice_CppMapping>uwp</Ice_CppMapping>
-      <IceSoVersion>37b0</IceSoVersion>
+      <IceSoVersion>37</IceSoVersion>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>

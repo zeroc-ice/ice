@@ -3,7 +3,7 @@
   <metadata>
     <id>zeroc.ice.uwp.v140</id>
     <title>ZeroC Ice for UWP and Visual Studio 2015</title>
-    <version>3.7.0-beta0</version>
+    <version>3.7.0</version>
     <authors>ZeroC</authors>
     <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
     <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
@@ -13,8 +13,8 @@
     <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.0+Release+Notes</releaseNotes>
     <tags>ice native rpc uwp v140 zeroc</tags>
     <dependencies>
-      <dependency id="zeroc.ice.uwp.v140.x86" version="[3.7.0-beta0]"/>
-      <dependency id="zeroc.ice.uwp.v140.x64" version="[3.7.0-beta0]"/>
+      <dependency id="zeroc.ice.uwp.v140.x86" version="[3.7.0]"/>
+      <dependency id="zeroc.ice.uwp.v140.x64" version="[3.7.0]"/>
     </dependencies>
   </metadata>
 </package>

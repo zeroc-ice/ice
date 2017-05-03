@@ -3,7 +3,7 @@
   <metadata>
     <id>zeroc.ice.uwp.v140.x64</id>
     <title>ZeroC Ice for UWP and Visual Studio 2015</title>
-    <version>3.7.0-beta0</version>
+    <version>3.7.0</version>
     <authors>ZeroC</authors>
     <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
     <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
