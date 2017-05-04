@@ -29,6 +29,11 @@ public class Client : TestCommon.Application
         Ice.InitializationData initData = base.getInitData(ref args);
         initData.properties.setProperty("Ice.Warn.AMICallback", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
+        //
+        // We use a client thread pool with more than one thread to test
+        // that task inlining works.
+        //
+        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "5");
 
         //
         // Limit the send buffer size, this test relies on the socket

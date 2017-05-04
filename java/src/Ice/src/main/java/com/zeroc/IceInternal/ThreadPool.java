@@ -387,16 +387,12 @@ public final class ThreadPool implements java.util.concurrent.Executor
     }
 
     //
-    // Implment execute method from java.util.concurrent.Executor interface
+    // Implement execute method from java.util.concurrent.Executor interface
     //
     @Override
     public void execute(Runnable command)
     {
-        long id = Thread.currentThread().getId();
-        if(_dispatcher != null || 
-           _threads.stream().filter(t -> t.getThread().getId() == id).findAny().isPresent())
-        {
-            dispatchFromThisThread(new com.zeroc.IceInternal.DispatchWorkItem()
+        dispatch(new com.zeroc.IceInternal.DispatchWorkItem()
             {
                 @Override
                 public void run()
@@ -404,18 +400,6 @@ public final class ThreadPool implements java.util.concurrent.Executor
                     command.run();
                 }
             });
-        }
-        else
-        {
-            dispatch(new com.zeroc.IceInternal.DispatchWorkItem()
-                {
-                    @Override
-                    public void run()
-                    {
-                        command.run();
-                    }
-                });
-        }
     }
 
     private void

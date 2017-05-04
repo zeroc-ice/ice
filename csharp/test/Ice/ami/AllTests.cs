@@ -3764,6 +3764,47 @@ public class AllTests : TestCommon.AllTests
                     test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
                 }, p.ice_scheduler()).Wait();
 
+            {
+                TaskCompletionSource<int> s1 = new TaskCompletionSource<int>();
+                TaskCompletionSource<int> s2 = new TaskCompletionSource<int>();
+                Task t1 = s1.Task;
+                Task t2 = s2.Task;
+                Task t3 = null;
+                Task t4 = null;
+                p.ice_pingAsync().ContinueWith(
+                    (t) =>
+                    {
+                        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                        //
+                        // t1 Continuation run in the thread that completes it.
+                        //
+                        var id = Thread.CurrentThread.ManagedThreadId;
+                        t3 = t1.ContinueWith(prev =>
+                            {
+                                test(id == Thread.CurrentThread.ManagedThreadId);
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.ExecuteSynchronously,
+                            p.ice_scheduler());
+                        s1.SetResult(1);
+
+                        //
+                        // t2 completed from the main thread
+                        //
+                        t4 = t2.ContinueWith(prev =>
+                            {
+                                test(id != Thread.CurrentThread.ManagedThreadId);
+                                test(Thread.CurrentThread.Name == null ||
+                                     !Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
+                            },
+                            CancellationToken.None,
+                            TaskContinuationOptions.ExecuteSynchronously,
+                            p.ice_scheduler());
+                    }, p.ice_scheduler()).Wait();
+                s2.SetResult(1);
+                Task.WaitAll(t1, t2, t3, t4);
+            }
+
             if(!collocated)
             {
                 communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "tcp");

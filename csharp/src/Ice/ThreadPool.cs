@@ -12,6 +12,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
 
     public delegate void ThreadPoolWorkItem();
     public delegate void AsyncCallback(object state);
@@ -493,13 +494,10 @@ namespace IceInternal
 
         protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
         {
-            if(_dispatcher == null && !taskWasPreviouslyQueued)
+            if(!taskWasPreviouslyQueued)
             {
-                if(_threads.Find(t => t.getThread().ManagedThreadId.Equals(Thread.CurrentThread.ManagedThreadId)) != null)
-                {
-                    dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
-                    return true;
-                }
+                dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
+                return true;
             }
             return false;
         }
@@ -912,5 +910,4 @@ namespace IceInternal
 
         private Queue<ThreadPoolWorkItem> _workItems;
     }
-
 }
