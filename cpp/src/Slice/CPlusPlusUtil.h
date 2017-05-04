@@ -71,8 +71,6 @@ std::string findMetaData(const StringList&, int = 0);
 bool inWstringModule(const SequencePtr&);
 
 std::string getDataMemberRef(const DataMemberPtr&);
-
-std::string classDefToDelegateString(const ClassDefPtr&, int = 0);
 }
 
 #endif

@@ -26,12 +26,12 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(ICE_IN(ICE_VALUE_FACTORY), const std::string&);
-    virtual ICE_VALUE_FACTORY find(const std::string&) const;
+    virtual void add(ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)), const std::string&);
+    virtual ICE_DELEGATE(::Ice::ValueFactory) find(const std::string&) const;
 
 private:
 
-    typedef std::map<std::string, ICE_VALUE_FACTORY> FactoryMap;
+    typedef std::map<std::string, ICE_DELEGATE(::Ice::ValueFactory)> FactoryMap;
 
     FactoryMap _factoryMap;
     mutable FactoryMap::iterator _factoryMapHint;

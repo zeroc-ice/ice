@@ -6408,12 +6408,41 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         return false;
     }
+
+    string name = fixKwd(p->name());
+
     if(p->isDelegate())
     {
+        int typeCtx = _useWstring | TypeContextLocal | TypeContextCpp11;
+
+        // Generate alias
+        H << sp << nl << "using " << name << " = ";
+
+        // A delegate only has one operation
+        OperationPtr op = p->allOperations().front();
+        TypePtr ret = op->returnType();
+        string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx);
+
+        H << "::std::function<" << retS << "(";
+
+        ParamDeclList paramList = op->parameters();
+        for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            if((*q)->isOutParam())
+            {
+                H << outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
+            }
+            else
+            {
+                H << inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
+            }
+            H << (IceUtilInternal::distance(q, paramList.end()) == 1  ? "" : ", ");
+        }
+        H << ")>;";
+
         return false;
     }
 
-    string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
@@ -6434,7 +6463,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         bool virtualInheritance = p->isInterface();
         while(q != bases.end())
         {
-             H << "public ";
+            H << "public ";
             if(virtualInheritance || (*q)->isInterface())
             {
                 H << "virtual ";
@@ -6589,7 +6618,7 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     int typeCtx = _useWstring | TypeContextLocal | TypeContextCpp11;
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, p->returnIsOptional(), p->getMetaData(),
-                                     typeCtx | TypeContextCpp11);
+                                     typeCtx);
 
     string params = "(";
     string paramsDecl = "(";

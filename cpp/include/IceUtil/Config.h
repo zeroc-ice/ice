@@ -378,10 +378,7 @@ typedef long long Int64;
 #   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value>(const std::string&)>
-#   define ICE_USER_EXCEPTION_FACTORY ::std::function<void(const std::string&)>
-#   define ICE_CLOSE_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
-#   define ICE_HEARTBEAT_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_DELEGATE(T) T
 #   define ICE_IN(...) __VA_ARGS__
 #   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 #else // C++98 mapping
@@ -399,10 +396,7 @@ typedef long long Int64;
 #   define ICE_GET_SHARED_FROM_THIS(p) p
 #   define ICE_CHECKED_CAST(T, ...) T::checkedCast(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) T::uncheckedCast(__VA_ARGS__)
-#   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
-#   define ICE_USER_EXCEPTION_FACTORY ::Ice::UserExceptionFactoryPtr
-#   define ICE_CLOSE_CALLBACK ::Ice::CloseCallbackPtr
-#   define ICE_HEARTBEAT_CALLBACK ::Ice::HeartbeatCallbackPtr
+#   define ICE_DELEGATE(T) T##Ptr
 #   define ICE_IN(...) const __VA_ARGS__&
 #   define ICE_SET_EXCEPTION_FROM_CLONE(T, V) T.reset(V)
 #endif

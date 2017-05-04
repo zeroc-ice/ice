@@ -1437,7 +1437,7 @@ Ice::InputStream::readEnum(Int maxValue)
 }
 
 void
-Ice::InputStream::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
+Ice::InputStream::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
 {
     initEncaps();
     _currentEncaps->decoder->throwException(factory);
@@ -1998,7 +1998,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
+Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
 {
     assert(_sliceType == NoSlice);
 
@@ -2020,7 +2020,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_USER_EXCEPTION_FACT
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ICE_USER_EXCEPTION_FACTORY exceptionFactory = factory;
+    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
     while(true)
     {
         //
@@ -2328,7 +2328,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_USER_EXCEPTION_FACTORY) factory)
+Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
 {
     assert(!_current);
 
@@ -2339,7 +2339,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_USER_EXCEPTION_FACT
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    ICE_USER_EXCEPTION_FACTORY exceptionFactory = factory;
+    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
     while(true)
     {
         //

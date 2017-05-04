@@ -697,11 +697,11 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
         {
             if(cl->definition() && cl->definition()->isDelegate())
             {
-                return classDefToDelegateString(cl->definition());
+                return fixKwd(cl->scoped());
             }
             else if(cl->isInterface() && !cl->isLocal())
             {
-                return "std::shared_ptr<::Ice::Value>";
+                return "::std::shared_ptr<::Ice::Value>";
             }
             else
             {
@@ -886,7 +886,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
         {
             if(cl->definition() && cl->definition()->isDelegate())
             {
-                return classDefToDelegateString(cl->definition(), typeCtx);
+                return fixKwd(cl->scoped());
             }
             else if(cl->isInterface() && !cl->isLocal())
             {
@@ -1047,7 +1047,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
         {
             if(cl->definition() && cl->definition()->isDelegate())
             {
-                return classDefToDelegateString(cl->definition(), typeCtx) + "&";
+                  return fixKwd(cl->scoped()) + "&";
             }
             else if(cl->isInterface() && !cl->isLocal())
             {
@@ -1799,36 +1799,4 @@ Slice::getDataMemberRef(const DataMemberPtr& p)
     {
         return "(*" + name + ")";
     }
-}
-
-string
-Slice::classDefToDelegateString(const ClassDefPtr& cl, int typeCtx)
-{
-    assert(cl->isDelegate());
-
-    // A delegate only has one operation
-    OperationPtr op = cl->allOperations().front();
-
-    TypePtr ret = op->returnType();
-    string retS = returnTypeToString(ret, op->returnIsOptional(), op->getMetaData(), typeCtx);
-
-    string t = "::std::function<" + retS + "(";
-
-    ParamDeclList paramList = cl->allOperations().front()->parameters();
-    for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        if((*q)->isOutParam())
-        {
-            t += outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
-        }
-        else
-        {
-            t += inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), typeCtx);
-        }
-
-        t += distance(q, paramList.end()) == 1  ? "" : ", ";
-    }
-
-    t += ")>";
-    return t;
 }

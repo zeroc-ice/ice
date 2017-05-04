@@ -16,6 +16,13 @@
 
 #ifdef ICE_CPP11_MAPPING
 
+namespace Ice
+{
+
+using UserExceptionFactory = std::function<void(const std::string&)>;
+
+}
+
 namespace IceInternal
 {
 
