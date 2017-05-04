@@ -148,28 +148,28 @@ class InitialI(Test.Initial):
         pass
 
     def opMStruct1(self, current):
-        return Test.SmallStruct()
+        return Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current)
 
     def opMStruct2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMStruct2MarshaledResult((p1, p1), current)
 
     def opMSeq1(self, current):
-        return []
+        return Test.Initial.OpMSeq1MarshaledResult([], current)
 
     def opMSeq2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMSeq2MarshaledResult((p1, p1), current)
 
     def opMDict1(self, current):
-        return {}
+        return Test.Initial.OpMDict1MarshaledResult({}, current)
 
     def opMDict2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
 
     def opMG1(self, current):
-        return Test.G()
+        return Test.Initial.OpMG1MarshaledResult(Test.G(), current)
 
     def opMG2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
 
     def supportsRequiredParams(self, current=None):
         return False

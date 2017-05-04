@@ -426,22 +426,22 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):
-        return Ice.Future.completed(Test.Structure())
+        return Ice.Future.completed(Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current))
 
     def opMStruct2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current))
 
     def opMSeq1(self, current):
-        return Ice.Future.completed([])
+        return Ice.Future.completed(Test.MyClass.OpMSeq1MarshaledResult([], current))
 
     def opMSeq2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current))
 
     def opMDict1(self, current):
-        return Ice.Future.completed({})
+        return Ice.Future.completed(Test.MyClass.OpMDict1MarshaledResult({}, current))
 
     def opMDict2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.MyClass.OpMDict2MarshaledResult((p1, p1), current))
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

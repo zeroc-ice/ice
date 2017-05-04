@@ -869,6 +869,9 @@ class CommunicatorI(Communicator):
     def __exit__(self, type, value, traceback):
         self._impl.destroy()
 
+    def getImpl(self):
+        return self._impl
+
     def destroy(self):
         self._impl.destroy()
 

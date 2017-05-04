@@ -1172,8 +1172,15 @@ extern "C"
 static PyObject*
 proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
 {
+    PyObject* versionType = IcePy::lookupType("Ice.EncodingVersion");
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
+    {
+        return 0;
+    }
+
     Ice::EncodingVersion val;
-    if(!getEncodingVersion(args, val))
+    if(!getEncodingVersion(p, val))
     {
         PyErr_Format(PyExc_ValueError, STRCAST("ice_encodingVersion requires an encoding version"));
         return 0;

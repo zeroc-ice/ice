@@ -82,7 +82,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
-        r.reverse();
+        r.reverse()
         return (r, p3)
 
     def opShortIntLongS(self, p1, p2, p3, current=None):
@@ -307,7 +307,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return current.ctx
 
     def opDoubleMarshaling(self, p1, p2, current=None):
-        d = 1278312346.0 / 13.0;
+        d = 1278312346.0 / 13.0
         test(p1 == d)
         for i in p2:
             test(i == d)
@@ -370,19 +370,19 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):
-        return Test.Structure();
+        return Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current)
 
     def opMStruct2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current)
 
     def opMSeq1(self, current):
-        return ()
+        return Test.MyClass.OpMSeq1MarshaledResult((), current)
 
     def opMSeq2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current)
 
     def opMDict1(self, current):
-        return {};
+        return Test.MyClass.OpMDict1MarshaledResult({}, current)
 
     def opMDict2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMDict2MarshaledResult((p1, p1), current)

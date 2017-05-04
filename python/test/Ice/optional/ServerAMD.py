@@ -154,28 +154,28 @@ class InitialI(Test.Initial):
         return Ice.Future.completed(None)
 
     def opMStruct1(self, current):
-        return Ice.Future.completed(Test.SmallStruct())
+        return Ice.Future.completed(Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current))
 
     def opMStruct2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.Initial.OpMStruct2MarshaledResult((p1, p1), current))
 
     def opMSeq1(self, current):
-        return Ice.Future.completed([])
+        return Ice.Future.completed(Test.Initial.OpMSeq1MarshaledResult([], current))
 
     def opMSeq2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.Initial.OpMSeq2MarshaledResult((p1, p1), current))
 
     def opMDict1(self, current):
-        return Ice.Future.completed({})
+        return Ice.Future.completed(Test.Initial.OpMDict1MarshaledResult({}, current))
 
     def opMDict2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.Initial.OpMDict2MarshaledResult((p1, p1), current))
 
     def opMG1(self, current):
-        return Ice.Future.completed(Test.G())
+        return Ice.Future.completed(Test.Initial.OpMG1MarshaledResult(Test.G(), current))
 
     def opMG2(self, p1, current):
-        return Ice.Future.completed((p1, p1))
+        return Ice.Future.completed(Test.Initial.OpMG2MarshaledResult((p1, p1), current))
 
     def supportsRequiredParams(self, current=None):
         return Ice.Future.completed(False)

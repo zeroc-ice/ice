@@ -64,6 +64,8 @@ public:
 
     Operation(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
+    void marshalResult(Ice::OutputStream&, PyObject*);
+
     void deprecate(const string&);
 
     string name;
@@ -409,6 +411,14 @@ struct AsyncResultObject
     PyObject* connection;
     PyObject* communicator;
 };
+
+struct MarshaledResultObject
+{
+    PyObject_HEAD
+    Ice::OutputStream* out;
+};
+
+extern PyTypeObject MarshaledResultType;
 
 extern PyTypeObject OperationType;
 
@@ -1140,6 +1150,82 @@ asyncResultCallLater(AsyncResultObject* self, PyObject* args)
 }
 
 //
+// MarshaledResult operations
+//
+
+#ifdef WIN32
+extern "C"
+#endif
+static MarshaledResultObject*
+marshaledResultNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
+{
+    MarshaledResultObject* self = reinterpret_cast<MarshaledResultObject*>(type->tp_alloc(type, 0));
+    if(!self)
+    {
+        return 0;
+    }
+    self->out = 0;
+    return self;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static int
+marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
+{
+    PyObject* result;
+    OperationObject* opObj;
+    PyObject* communicatorObj;
+    PyObject* encodingObj;
+    if(!PyArg_ParseTuple(args, STRCAST("OOOO"), &result, &opObj, &communicatorObj, &encodingObj))
+    {
+        return -1;
+    }
+
+    Ice::CommunicatorPtr communicator = getCommunicator(communicatorObj);
+    Ice::EncodingVersion encoding;
+    if(!getEncodingVersion(encodingObj, encoding))
+    {
+        return -1;
+    }
+
+    self->out = new Ice::OutputStream(communicator);
+
+    OperationPtr op = *opObj->op;
+    self->out->startEncapsulation(encoding, op->format);
+
+    try
+    {
+        op->marshalResult(*self->out, result);
+    }
+    catch(const AbortMarshaling&)
+    {
+        assert(PyErr_Occurred());
+        return -1;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return -1;
+    }
+
+    self->out->endEncapsulation();
+
+    return 0;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static void
+marshaledResultDealloc(MarshaledResultObject* self)
+{
+    delete self->out;
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
+}
+
+//
 // ParamInfo implementation.
 //
 void
@@ -1274,6 +1360,122 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     // Does the operation name start with "ice_"?
     //
     pseudoOp = name.find("ice_") == 0;
+}
+
+void
+Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
+{
+    //
+    // Marshal the results. If there is more than one value to be returned, then they must be
+    // returned in a tuple of the form (result, outParam1, ...).
+    //
+
+    Py_ssize_t numResults = static_cast<Py_ssize_t>(outParams.size());
+    if(returnType)
+    {
+        numResults++;
+    }
+
+    if(numResults > 1 && (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != numResults))
+    {
+        ostringstream ostr;
+        ostr << "operation `" << fixIdent(name) << "' should return a tuple of length " << numResults;
+        string str = ostr.str();
+        PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
+        throw Ice::MarshalException(__FILE__, __LINE__);
+    }
+
+    //
+    // Normalize the result value. When there are multiple result values, result is already a tuple.
+    // Otherwise, we create a tuple to make the code a little simpler.
+    //
+    PyObjectHandle t;
+    if(numResults > 1)
+    {
+        t = incRef(result);
+    }
+    else
+    {
+        t = PyTuple_New(1);
+        if(!t.get())
+        {
+            throw AbortMarshaling();
+        }
+        PyTuple_SET_ITEM(t.get(), 0, incRef(result));
+    }
+
+    ObjectMap objectMap;
+    ParamInfoList::iterator p;
+
+    //
+    // Validate the results.
+    //
+    for(p = outParams.begin(); p != outParams.end(); ++p)
+    {
+        ParamInfoPtr info = *p;
+        PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+        if((!info->optional || arg != Unset) && !info->type->validate(arg))
+        {
+            // TODO: Provide the parameter name instead?
+            ostringstream ostr;
+            ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `" << dispatchName << "'";
+            string str = ostr.str();
+            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
+    }
+    if(returnType)
+    {
+        PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+        if((!returnType->optional || res != Unset) && !returnType->type->validate(res))
+        {
+            ostringstream ostr;
+            ostr << "invalid return value for operation `" << dispatchName << "'";
+            string str = ostr.str();
+            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
+            throw Ice::MarshalException(__FILE__, __LINE__);
+        }
+    }
+
+    //
+    // Marshal the required out parameters.
+    //
+    for(p = outParams.begin(); p != outParams.end(); ++p)
+    {
+        ParamInfoPtr info = *p;
+        if(!info->optional)
+        {
+            PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+            info->type->marshal(arg, &os, &objectMap, false, &info->metaData);
+        }
+    }
+
+    //
+    // Marshal the required return value, if any.
+    //
+    if(returnType && !returnType->optional)
+    {
+        PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+        returnType->type->marshal(res, &os, &objectMap, false, &metaData);
+    }
+
+    //
+    // Marshal the optional results.
+    //
+    for(p = optionalOutParams.begin(); p != optionalOutParams.end(); ++p)
+    {
+        ParamInfoPtr info = *p;
+        PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+        if(arg != Unset && os.writeOptional(info->tag, info->type->optionalFormat()))
+        {
+            info->type->marshal(arg, &os, &objectMap, true, &info->metaData);
+        }
+    }
+
+    if(returnsClasses)
+    {
+        os.writePendingValues();
+    }
 }
 
 void
@@ -1602,6 +1804,53 @@ PyTypeObject AsyncResultType =
     0,                               /* tp_is_gc */
 };
 
+PyTypeObject MarshaledResultType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyVarObject_HEAD_INIT(0, 0)
+    STRCAST("IcePy.MarshaledResult"),/* tp_name */
+    sizeof(MarshaledResultObject),   /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    reinterpret_cast<destructor>(marshaledResultDealloc), /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_reserved */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,              /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    reinterpret_cast<initproc>(marshaledResultInit), /* tp_init */
+    0,                               /* tp_alloc */
+    reinterpret_cast<newfunc>(marshaledResultNew), /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
 }
 
 bool
@@ -1643,6 +1892,16 @@ IcePy::initOperation(PyObject* module)
     }
     PyTypeObject* arType = &AsyncResultType; // Necessary to prevent GCC's strict-alias warnings.
     if(PyModule_AddObject(module, STRCAST("AsyncResult"), reinterpret_cast<PyObject*>(arType)) < 0)
+    {
+        return false;
+    }
+
+    if(PyType_Ready(&MarshaledResultType) < 0)
+    {
+        return false;
+    }
+    PyTypeObject* mrType = &MarshaledResultType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("MarshaledResult"), reinterpret_cast<PyObject*>(mrType)) < 0)
     {
         return false;
     }
@@ -3672,137 +3931,38 @@ IcePy::TypedUpcall::response(PyObject* result)
 {
     try
     {
-        //
-        // Marshal the results. If there is more than one value to be returned, then they must be
-        // returned in a tuple of the form (result, outParam1, ...).
-        //
-
-        Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size());
-        if(_op->returnType)
+        if(PyObject_IsInstance(result, reinterpret_cast<PyObject*>(&MarshaledResultType)))
         {
-            numResults++;
-        }
-
-        if(numResults > 1 && (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != numResults))
-        {
-            ostringstream ostr;
-            ostr << "operation `" << fixIdent(_op->name) << "' should return a tuple of length " << numResults;
-            string str = ostr.str();
-            PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-            throw Ice::MarshalException(__FILE__, __LINE__);
-        }
-
-        //
-        // Normalize the result value. When there are multiple result values, result is already a tuple.
-        // Otherwise, we create a tuple to make the code a little simpler.
-        //
-        PyObjectHandle t;
-        if(numResults > 1)
-        {
-            t = incRef(result);
+            MarshaledResultObject* mro = reinterpret_cast<MarshaledResultObject*>(result);
+            AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+            _callback->ice_response(true, mro->out->finished());
         }
         else
         {
-            t = PyTuple_New(1);
-            if(!t.get())
+            try
             {
-                throw AbortMarshaling();
+                Ice::OutputStream os(_communicator);
+                os.startEncapsulation(_encoding, _op->format);
+
+                _op->marshalResult(os, result);
+
+                os.endEncapsulation();
+
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                _callback->ice_response(true, os.finished());
             }
-            PyTuple_SET_ITEM(t.get(), 0, incRef(result));
-        }
-
-        ObjectMap objectMap;
-        ParamInfoList::iterator p;
-
-        //
-        // Validate the results.
-        //
-        for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
-        {
-            ParamInfoPtr info = *p;
-            PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-            if((!info->optional || arg != Unset) && !info->type->validate(arg))
+            catch(const AbortMarshaling&)
             {
-                // TODO: Provide the parameter name instead?
-                ostringstream ostr;
-                ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `"
-                     << _op->dispatchName << "'";
-                string str = ostr.str();
-                PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-                throw Ice::MarshalException(__FILE__, __LINE__);
+                try
+                {
+                    throwPythonException();
+                }
+                catch(const Ice::Exception& ex)
+                {
+                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                    _callback->ice_exception(ex);
+                }
             }
-        }
-        if(_op->returnType)
-        {
-            PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
-            if((!_op->returnType->optional || res != Unset) && !_op->returnType->type->validate(res))
-            {
-                ostringstream ostr;
-                ostr << "invalid return value for operation `" << _op->dispatchName << "'";
-                string str = ostr.str();
-                PyErr_WarnEx(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()), 1);
-                throw Ice::MarshalException(__FILE__, __LINE__);
-            }
-        }
-
-        Ice::OutputStream os(_communicator);
-        os.startEncapsulation(_encoding, _op->format);
-
-        //
-        // Marshal the required out parameters.
-        //
-        for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
-        {
-            ParamInfoPtr info = *p;
-            if(!info->optional)
-            {
-                PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-                info->type->marshal(arg, &os, &objectMap, false, &info->metaData);
-            }
-        }
-
-        //
-        // Marshal the required return value, if any.
-        //
-        if(_op->returnType && !_op->returnType->optional)
-        {
-            PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
-            _op->returnType->type->marshal(res, &os, &objectMap, false, &_op->metaData);
-        }
-
-        //
-        // Marshal the optional results.
-        //
-        for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
-        {
-            ParamInfoPtr info = *p;
-            PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-            if(arg != Unset && os.writeOptional(info->tag, info->type->optionalFormat()))
-            {
-                info->type->marshal(arg, &os, &objectMap, true, &info->metaData);
-            }
-        }
-
-        if(_op->returnsClasses)
-        {
-            os.writePendingValues();
-        }
-
-        os.endEncapsulation();
-
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-        _callback->ice_response(true, os.finished());
-    }
-    catch(const AbortMarshaling&)
-    {
-        try
-        {
-            throwPythonException();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-            _callback->ice_exception(ex);
         }
     }
     catch(const Ice::Exception& ex)

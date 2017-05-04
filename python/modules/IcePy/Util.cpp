@@ -1098,15 +1098,8 @@ IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 }
 
 bool
-IcePy::getEncodingVersion(PyObject* args, Ice::EncodingVersion& v)
+IcePy::getEncodingVersion(PyObject* p, Ice::EncodingVersion& v)
 {
-    PyObject* versionType = IcePy::lookupType(Ice_EncodingVersion);
-    PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
-    {
-        return false;
-    }
-
     if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
     {
         return false;

@@ -16,7 +16,7 @@ def test(b):
 
 def twoways(communicator, p):
 
-    literals = p.opStringLiterals();
+    literals = p.opStringLiterals()
 
     test(Test.s0 == "\\")
     test(Test.s0 == Test.sw0)
@@ -1226,7 +1226,7 @@ def twoways(communicator, p):
     sdi1 = { "Hello!!": (1.1E10, 1.2E10, 1.3E10), "Goodbye": (1.4E10, 1.5E10) }
     sdi2 = { "": (1.6E10, 1.7E10) }
 
-    ro, do = p.opStringDoubleSD(sdi1, sdi2);
+    ro, do = p.opStringDoubleSD(sdi1, sdi2)
 
     test(len(do) == 1)
     test(len(do[""]) == 2)
@@ -1426,12 +1426,12 @@ def twoways(communicator, p):
     (p3, p2) = p.opMStruct2(p1)
     test(p2 == p1 and p3 == p1)
 
-    p.opMSeq1();
+    p.opMSeq1()
     p1 = ["test"]
     (p3, p2) = p.opMSeq2(p1)
-    test(p2[0] == "test" and p3[0] == "test");
+    test(p2[0] == "test" and p3[0] == "test")
 
-    p.opMDict1();
+    p.opMDict1()
 
     p1 = { "test": "test" }
     (p3, p2) = p.opMDict2(p1)

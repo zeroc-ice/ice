@@ -132,10 +132,10 @@ class InitialI(Test.Initial):
         return True
 
     def getMB(self, current):
-        return self._b1
+        return Test.Initial.GetMBMarshaledResult(self._b1, current)
 
     def getAMDMB(self, current):
-        return Ice.Future.completed(self._b1)
+        return Ice.Future.completed(Test.Initial.GetAMDMBMarshaledResult(self._b1, current))
 
     def getAll(self, current=None):
         self._b1.preMarshalInvoked = False

@@ -40,7 +40,6 @@ getEscapedParamName(const OperationPtr& p, const string& name)
 
 }
 
-
 namespace Slice
 {
 namespace Python
@@ -457,6 +456,28 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
             string fixedOpName = fixIdent((*oli)->name());
             if(!p->isLocal())
             {
+                if((*oli)->hasMarshaledResult())
+                {
+                    string name = (*oli)->name();
+                    name[0] = toupper(static_cast<unsigned char>(name[0]));
+                    _out << sp;
+                    _out << nl << "\"\"\"";
+                    _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name()
+                         << nl << "and returns an object that the servant implementation must return"
+                         << nl << "as its result."
+                         << nl << "Arguments:"
+                         << nl << "result -- The result (or result tuple) of the invocation."
+                         << nl << "current -- The Current object passed to the invocation."
+                         << nl << "Returns: An object containing the marshaled result.";
+                    _out << nl << "\"\"\"";
+                    _out << nl << "@staticmethod";
+                    _out << nl << "def " << name << "MarshaledResult(result, current):";
+                    _out.inc();
+                    _out << nl << "return IcePy.MarshaledResult(result, _M_" << getAbsolute(p) << "._op_"
+                        << (*oli)->name() << ", current.adapter.getCommunicator().getImpl(), current.encoding)";
+                    _out.dec();
+                }
+
                 _out << sp << nl << "def " << fixedOpName << "(self";
 
                 ParamDeclList params = (*oli)->parameters();
@@ -479,7 +500,7 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
 
                 writeDocstring(*oli, DocAsyncDispatch, false);
 
-                _out << nl << "pass";
+                _out << nl << "raise NotImplementedError(\"servant method '" << fixedOpName << "' not implemented\")";
                 _out.dec();
             }
             else
@@ -503,7 +524,7 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
                 _out << "):";
                 _out.inc();
                 writeDocstring(*oli, DocDispatch, p->isLocal());
-                _out << nl << "pass";
+                _out << nl << "raise NotImplementedError(\"method '" << fixedOpName << "' not implemented\")";
                 _out.dec();
             }
         }
