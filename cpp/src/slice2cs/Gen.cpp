@@ -3399,17 +3399,20 @@ Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
     for(ClassList::const_iterator i = classes.begin(); i != classes.end(); ++i)
     {
         ClassDefPtr cl = *i;
-        OperationList operations = cl->operations();
-        for(OperationList::const_iterator j = operations.begin(); j != operations.end(); ++j)
+        if(!cl->isLocal())
         {
-            OperationPtr op = *j;
-            ParamDeclList outParams = op->outParameters();
-            TypePtr ret = op->returnType();
-            if(outParams.size() > 1 || (ret && outParams.size() > 0))
+            OperationList operations = cl->operations();
+            for(OperationList::const_iterator j = operations.begin(); j != operations.end(); ++j)
             {
-                _out << sp << nl << "namespace " << fixId(p->name());
-                _out << sb;
-                return true;
+                OperationPtr op = *j;
+                ParamDeclList outParams = op->outParameters();
+                TypePtr ret = op->returnType();
+                if(outParams.size() > 1 || (ret && outParams.size() > 0))
+                {
+                    _out << sp << nl << "namespace " << fixId(p->name());
+                    _out << sb;
+                    return true;
+                }
             }
         }
     }
@@ -3437,6 +3440,10 @@ void
 Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    if(cl->isLocal())
+    {
+        return;
+    }
     ParamDeclList outParams = p->outParameters();
     TypePtr ret = p->returnType();
 
