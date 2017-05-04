@@ -488,11 +488,19 @@ namespace IceInternal
 
         protected sealed override void QueueTask(System.Threading.Tasks.Task task)
         {
-            dispatch(() => { TryExecuteTask(task); }, null, false);
+            dispatch(() => { TryExecuteTask(task); }, null, _dispatcher != null);
         }
 
         protected sealed override bool TryExecuteTaskInline(System.Threading.Tasks.Task task, bool taskWasPreviouslyQueued)
         {
+            if(_dispatcher == null && !taskWasPreviouslyQueued)
+            {
+                if(_threads.Find(t => t.getThread().ManagedThreadId.Equals(Thread.CurrentThread.ManagedThreadId)) != null)
+                {
+                    dispatchFromThisThread(() => { TryExecuteTask(task); }, null);
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -805,6 +813,11 @@ namespace IceInternal
                     }
                 }
                 _state = s;
+            }
+
+            public Thread getThread()
+            {
+                return _thread;
             }
 
             public void join()

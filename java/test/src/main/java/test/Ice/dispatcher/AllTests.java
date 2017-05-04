@@ -107,6 +107,24 @@ public class AllTests
             }
 
             {
+                final Callback cb = new Callback();
+                p.opAsync().whenCompleteAsync((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            ex.printStackTrace();
+                            test(false);
+                        }
+                        else
+                        {
+                            test(dispatcher.isDispatcherThread());
+                            cb.called();
+                        }
+                    }, p.ice_executor());
+                cb.check();
+            }
+
+            {
                 TestIntfPrx i = p.ice_adapterId("dummy");
                 final Callback cb = new Callback();
                 i.opAsync().whenCompleteAsync((result, ex) ->
@@ -122,6 +140,25 @@ public class AllTests
                             test(false);
                         }
                     }, dispatcher);
+                cb.check();
+            }
+
+            {
+                TestIntfPrx i = p.ice_adapterId("dummy");
+                final Callback cb = new Callback();
+                i.opAsync().whenCompleteAsync((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.NoEndpointException);
+                            test(dispatcher.isDispatcherThread());
+                            cb.called();
+                        }
+                        else
+                        {
+                            test(false);
+                        }
+                    }, p.ice_executor());
                 cb.check();
             }
 
@@ -150,6 +187,34 @@ public class AllTests
                         test(ex == null);
                         test(dispatcher.isDispatcherThread());
                     }, dispatcher);
+                cb.check();
+            }
+
+            {
+                //
+                // Expect InvocationTimeoutException.
+                //
+                TestIntfPrx to = p.ice_invocationTimeout(250);
+                final Callback cb = new Callback();
+                CompletableFuture<Void> r = to.sleepAsync(500 * mult);
+                r.whenCompleteAsync((result, ex) ->
+                    {
+                        if(ex != null)
+                        {
+                            test(ex instanceof com.zeroc.Ice.InvocationTimeoutException);
+                            test(dispatcher.isDispatcherThread());
+                            cb.called();
+                        }
+                        else
+                        {
+                            test(false);
+                        }
+                    }, dispatcher);
+                com.zeroc.Ice.Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        test(dispatcher.isDispatcherThread());
+                    }, p.ice_executor());
                 cb.check();
             }
 
@@ -186,7 +251,6 @@ public class AllTests
             r.join();
         }
         out.println("ok");
-
         p.shutdown();
     }
 }

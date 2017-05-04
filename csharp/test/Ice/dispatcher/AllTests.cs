@@ -11,6 +11,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Threading;
 using Test;
 
 public class AllTests : TestCommon.AllTests
@@ -179,8 +180,8 @@ public class AllTests : TestCommon.AllTests
             t.Wait();
             cb.check();
 
-            TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.opAsync().ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            var i = (TestIntfPrx)p.ice_adapterId("dummy");
+            i.sleepAsync(100).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
             cb.check();
 
             //
@@ -202,6 +203,39 @@ public class AllTests : TestCommon.AllTests
                             test(Dispatcher.isDispatcherThread());
                         }
                     }, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            }
+
+            //
+            // Repeat using the proxy scheduler in this case we don't need to call sleepAsync, continuations
+            // are waranted to run with the dispatcher even if not executed synchronously.
+            //
+
+            t = p.opAsync().ContinueWith(continuation, p.ice_scheduler());
+            t.Wait();
+            cb.check();
+
+            i.opAsync().ContinueWith(continuation, i.ice_scheduler()).Wait();
+            cb.check();
+
+            //
+            // Expect InvocationTimeoutException.
+            //
+            {
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                to.sleepAsync(500).ContinueWith(
+                    previous =>
+                    {
+                        try
+                        {
+                            previous.Wait();
+                            test(false);
+                        }
+                        catch(System.AggregateException ex)
+                        {
+                            test(ex.InnerException is Ice.InvocationTimeoutException);
+                            test(Dispatcher.isDispatcherThread());
+                        }
+                    }, p.ice_scheduler()).Wait();
             }
 
             testController.holdAdapter();
