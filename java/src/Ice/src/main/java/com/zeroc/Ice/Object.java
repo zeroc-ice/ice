@@ -121,36 +121,6 @@ public interface Object
         return _iceIds[0];
     }
 
-    /**
-     * Returns the Freeze metadata attributes for an operation.
-     *
-     * @param operation The name of the operation.
-     * @return The least significant bit indicates whether the operation is a read
-     * or write operation. If the bit is set, the operation is a write operation.
-     * The expression <code>ice_operationAttributes("op") &amp; 0x1</code> is true if
-     * the operation has a <code>["freeze:write"]</code> metadata directive.
-     * <p>
-     * The second and third least significant bit indicate the transactional mode
-     * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
-     * indicates the transactional mode as follows:
-     * <dl>
-     *   <dt>0</dt>
-     *   <dd><code>["freeze:read:supports"]</code></dd>
-     *   <dt>1</dt>
-     *   <dd><code>["freeze:read:mandatory"]</code> or <code>["freeze:write:mandatory"]</code></dd>
-     *   <dt>2</dt>
-     *   <dd><code>["freeze:read:required"]</code> or <code>["freeze:write:required"]</code></dd>
-     *   <dt>3</dt>
-     *   <dd><code>["freeze:read:never"]</code></dd>
-     * </dl>
-     *
-     * Refer to the Freeze manual for more information on the TransactionalEvictor.
-     **/
-    default int ice_operationAttributes(String operation)
-    {
-        return 0;
-    }
-
     final static String[] _iceOps =
     {
         "ice_id",

@@ -1475,53 +1475,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << nl << "throw new "
             << "com.zeroc.Ice.OperationNotExistException(current.id, current.facet, current.operation);";
         out << eb;
-
-        //
-        // Check if we need to generate ice_operationAttributes()
-        //
-
-        map<string, int> attributesMap;
-        for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
-        {
-            int attributes = (*r)->attributes();
-            if(attributes != 0)
-            {
-                attributesMap.insert(map<string, int>::value_type((*r)->name(), attributes));
-            }
-        }
-
-        if(!attributesMap.empty())
-        {
-            out << sp << nl << "final static int[] _iceOperationAttributes =";
-            out << sb;
-            for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-            {
-                int attributes = 0;
-                string opName = *q;
-                map<string, int>::iterator it = attributesMap.find(opName);
-                if(it != attributesMap.end())
-                {
-                    attributes = it->second;
-                }
-                out << nl << attributes;
-                if(++q != allOpNames.end())
-                {
-                    out << ',';
-                }
-                out  << " // " << opName;
-            }
-            out << eb << ';';
-
-            out << sp << nl << "@Override" << nl << "default int ice_operationAttributes(String operation)";
-            out << sb;
-            out << nl << "int pos = java.util.Arrays.binarySearch(_iceOps, operation);";
-            out << nl << "if(pos < 0)";
-            out << sb;
-            out << nl << "return -1;";
-            out << eb;
-            out << sp << nl << "return _iceOperationAttributes[pos];";
-            out << eb;
-        }
     }
 }
 
