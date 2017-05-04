@@ -2496,9 +2496,18 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << " extends com.zeroc.Ice.Value";
         }
-        else
+
+        if(p->isLocal())
         {
-            implements.push_back("java.lang.Cloneable");
+            if(!baseClass)
+            {
+                implements.push_back("java.lang.Cloneable");
+            }
+
+            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                implements.push_back(getAbsolute(*q, package));
+            }
         }
 
         if(!implements.empty())
