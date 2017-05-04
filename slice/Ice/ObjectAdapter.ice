@@ -679,6 +679,8 @@ local interface ObjectAdapter
      * Set of the endpoints that proxies created by this object
      * adapter will contain.
      *
+     * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
+     *
      * @see #refreshPublishedEndpoints
      * @see Endpoint
      *
