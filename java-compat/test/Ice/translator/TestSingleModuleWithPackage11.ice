@@ -28,13 +28,13 @@ struct smwpTest11Struct
     M::smwpStringStructDict dict;
     M::smwpClass c;
     M::smwpInterface i;
-};
+}
 
 sequence<M::smwpStruct> smwpTest11StructSeq;
 
 dictionary<M::smwpStruct, M::smwpBaseClass> smwpTest11StructClassSeq;
 
-interface smwpTest11Interface extends M::smwpInterface {};
+interface smwpTest11Interface extends M::smwpInterface {}
 
 exception smwpTest11Exception extends M::smwpException
 {
@@ -44,7 +44,7 @@ exception smwpTest11Exception extends M::smwpException
     M::smwpStringStructDict dict1;
     M::smwpClass c1;
     M::smwpInterface i1;
-};
+}
 
 class smwpTest11Class extends M::smwpBaseClass implements M::smwpBaseInterface
 {
@@ -78,7 +78,7 @@ class smwpTest11Class extends M::smwpBaseClass implements M::smwpBaseInterface
                   out M::smwpInterface o5,
                   out M::smwpClass o6)
         throws M::smwpException;
-};
+}
 
-};
-};
+}
+}

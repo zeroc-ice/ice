@@ -20,7 +20,7 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 class MyClass;
 
@@ -39,13 +39,13 @@ struct SmallStruct
     MyEnum e;
     MyClass* p;
     SerialSmall ss;
-};
+}
 
 struct Point
 {
     int x;
     int y;
-};
+}
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
@@ -74,7 +74,7 @@ class OptionalClass
     optional(13) Ice::ByteSeq byteSeq13;
     optional(14) Ice::StringSeq stringSeq14;
     optional(15) Point p15;
-};
+}
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -109,11 +109,11 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
-};
+}
 
 exception MyException
 {
     MyClass c;
-};
+}
 
-};
+}

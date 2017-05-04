@@ -22,4 +22,4 @@ module Glacier2
 interface PermissionsVerifier;
 interface SSLPermissionsVerifier;
 
-};
+}

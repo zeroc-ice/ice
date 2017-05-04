@@ -12,7 +12,7 @@
 module Test
 {
 
-exception BadEncodingException {};
+exception BadEncodingException {}
 
 interface MyObject
 {
@@ -20,7 +20,7 @@ interface MyObject
     string narrow(["cpp:type:wstring"] string wmsg);
 
     void shutdown();
-};
+}
 
-};
+}
 

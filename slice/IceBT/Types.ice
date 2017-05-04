@@ -34,6 +34,6 @@ local exception BluetoothException
 {
     /** Provides more information about the failure. */
     string reason;
-};
+}
 
-};
+}

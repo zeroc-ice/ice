@@ -18,18 +18,18 @@ module Test
 struct S
 {
     string str;
-};
+}
 
 class Base
 {
     S theS;
     string str;
-};
+}
 
 class AbstractBase extends Base
 {
     void op();
-};
+}
 
 class B;
 class C;
@@ -41,12 +41,12 @@ class A
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 class B extends A
 {
     A theA;
-};
+}
 
 class C
 {
@@ -54,7 +54,7 @@ class C
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 class D
 {
@@ -64,31 +64,31 @@ class D
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 ["protected"] class E
 {
     int i;
     string s;
-};
+}
 
 class F
 {
     ["protected"] E e1;
     E e2;
-};
+}
 
 interface I
 {
-};
+}
 
 interface J extends I
 {
-};
+}
 
 class H implements I
 {
-};
+}
 
 sequence<Base> BaseSeq;
 
@@ -96,13 +96,13 @@ class CompactExt;
 
 class Compact(1)
 {
-};
+}
 
 const int CompactExtId = 789;
 
 class CompactExt(CompactExtId) extends Compact
 {
-};
+}
 
 module Inner
 {
@@ -110,12 +110,12 @@ module Inner
 class A
 {
     ::Test::A theA;
-};
+}
 
 exception Ex
 {
     string reason;
-};
+}
 
 module Sub
 {
@@ -123,50 +123,50 @@ module Sub
 class A
 {
     ::Test::Inner::A theA;
-};
+}
 
 exception Ex
 {
     string reason;
-};
+}
 
-};
+}
 
-};
+}
 
 class A1
 {
     string name;
-};
+}
 
 class B1
 {
     A1 a1;
     A1 a2;
-};
+}
 
 class D1 extends B1
 {
     A1 a3;
     A1 a4;
-};
+}
 
 exception EBase
 {
     A1 a1;
     A1 a2;
-};
+}
 
 exception EDerived extends EBase
 {
     A1 a3;
     A1 a4;
-};
+}
 
 class Recursive
 {
     Recursive v;
-};
+}
 
 class Initial
 {
@@ -204,20 +204,20 @@ class Initial
 
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
-};
+}
 
 class Empty
 {
-};
+}
 
 class AlsoEmpty
 {
-};
+}
 
 interface UnexpectedObjectExceptionTest
 {
     Empty op();
-};
+}
 
 //
 // Remaining definitions are here to ensure that the generated code compiles.
@@ -226,37 +226,37 @@ interface UnexpectedObjectExceptionTest
 class COneMember
 {
     Empty e;
-};
+}
 
 class CTwoMembers
 {
     Empty e1;
     Empty e2;
-};
+}
 
 exception EOneMember
 {
     Empty e;
-};
+}
 
 exception ETwoMembers
 {
     Empty e1;
     Empty e2;
-};
+}
 
 struct SOneMember
 {
     Empty e;
-};
+}
 
 struct STwoMembers
 {
     Empty e1;
     Empty e2;
-};
+}
 
 dictionary<int, COneMember> DOneMember;
 dictionary<int, CTwoMembers> DTwoMembers;
 
-};
+}

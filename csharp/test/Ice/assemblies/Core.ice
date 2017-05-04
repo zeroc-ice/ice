@@ -3,6 +3,6 @@ module Core
 
 exception ArgumentException
 {
-};
+}
 
-};
+}

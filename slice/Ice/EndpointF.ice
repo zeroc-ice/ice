@@ -33,4 +33,4 @@ local interface Endpoint;
  **/
 local sequence<Endpoint> EndpointSeq;
 
-};
+}

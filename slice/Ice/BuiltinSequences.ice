@@ -49,4 +49,4 @@ sequence<Object> ObjectSeq;
 /** A sequence of object proxies. **/
 sequence<Object*> ObjectProxySeq;
 
-};
+}

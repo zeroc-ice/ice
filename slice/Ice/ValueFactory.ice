@@ -48,7 +48,7 @@ local interface ValueFactory
      *
      **/
     Value create(string type);
-};
+}
 
 /**
  *
@@ -122,6 +122,6 @@ local interface ValueFactoryManager
      *
      **/
     ["cpp:const"] ValueFactory find(string id);
-};
+}
 
-};
+}

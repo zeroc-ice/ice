@@ -15,7 +15,7 @@
 module M
 {
 
-class C { long l; };
+class C { long l; }
 sequence<int> S;
 dictionary<string, string> D;
 
@@ -26,6 +26,6 @@ interface Bar
     void foo3() throws D;
     void foo4() throws int;
     void op();
-};
+}
 
-};
+}

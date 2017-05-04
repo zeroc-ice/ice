@@ -23,6 +23,6 @@ interface Timeout
     void holdAdapter(int to);
 
     void shutdown();
-};
+}
 
-};
+}

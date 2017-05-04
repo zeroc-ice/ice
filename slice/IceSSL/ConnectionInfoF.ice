@@ -21,4 +21,4 @@ module IceSSL
 
 local class ConnectionInfo;
 
-};
+}

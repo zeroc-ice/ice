@@ -23,4 +23,4 @@ local class ConnectionInfo;
 local class WSConnectionInfo;
 local interface Connection;
 
-};
+}

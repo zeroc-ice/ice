@@ -17,14 +17,14 @@ module Test
 class ConcreteClass
 {
     int i;
-};
+}
 
 class AbstractClass
 {
     void op();
-};
+}
 
-exception E {};
+exception E {}
 
 interface Initial
 {
@@ -32,6 +32,6 @@ interface Initial
     AbstractClass getAbstractClass();
     void throwException() throws E;
     void shutdown();
-};
+}
 
-};
+}

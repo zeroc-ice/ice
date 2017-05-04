@@ -46,6 +46,6 @@ local class EndpointInfo extends Ice::EndpointInfo
      *
      **/
     string uuid;
-};
+}
 
-};
+}

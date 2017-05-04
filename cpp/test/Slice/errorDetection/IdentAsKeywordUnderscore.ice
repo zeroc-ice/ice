@@ -12,35 +12,35 @@
 module Test
 {
 
-INTERFACE i { void op(); };
+INTERFACE i { void op(); }
 
-exception Void {};
-exception int {};
+exception Void {}
+exception int {}
 
-struct OUT { long l; };
-struct double { long l; };
+struct OUT { long l; }
+struct double { long l; }
 
-struct s1 { long Int; };
-struct s2 { long byte; };
-struct s3 { short Int; byte b; };
-struct s4 { float byte; byte b; };
+struct s1 { long Int; }
+struct s2 { long byte; }
+struct s3 { short Int; byte b; }
+struct s4 { float byte; byte b; }
 
 class inTERface;
 class interface;
 
-class MOdule { long l; };
-class module { long l; };
+class MOdule { long l; }
+class module { long l; }
 
-class C { long extendS; };
-class C { long extends; };
-class D { long extends; };
+class C { long extendS; }
+class C { long extends; }
+class D { long extends; }
 
 interface local;
 interface Local;
 
-interface Object { void op(); };
-interface object { void op(); };
-interface long { void op(); };
+interface Object { void op(); }
+interface object { void op(); }
+interface long { void op(); }
 
 sequence<long> impLEments;
 sequence<long> implements;
@@ -62,28 +62,28 @@ dictionary<long, OUT> d4;
 dictionary<void, void> d5;
 dictionary<VOID, VOID> d6;
 
-enum local { a, b };
-enum LOCAL { c, e };
+enum local { a, b }
+enum LOCAL { c, e }
 
-enum e1 { long, byte, foo };
-enum e2 { LONG, BYTE, bar };
+enum e1 { long, byte, foo }
+enum e2 { LONG, BYTE, bar }
 
-interface i1 { long module(); };
-interface i2 { long mODule(); };
+interface i1 { long module(); }
+interface i2 { long mODule(); }
 
-interface i3 { void exception(); };
-interface i4 { void EXception(); };
+interface i3 { void exception(); }
+interface i4 { void EXception(); }
 
-interface i5 { out op(); };
-interface i6 { OUT op(); };
+interface i5 { out op(); }
+interface i6 { OUT op(); }
 
-interface i7 { void op(double byte); };
-interface i8 { void op(double BYTE); };
+interface i7 { void op(double byte); }
+interface i8 { void op(double BYTE); }
 
-interface i9 { void op(out double byte); };
-interface i10 { void op(out double BYTE); };
+interface i9 { void op(out double byte); }
+interface i10 { void op(out double BYTE); }
 
-interface \true {};     // OK, escaped keyword
+interface \true {}     // OK, escaped keyword
 
 interface _a;           // Illegal leading underscore
 interface _true;        // Illegal leading underscore
@@ -97,4 +97,4 @@ interface b___c;        // Illegal underscores
 interface a_b;          // OK
 interface a_b_c;        // OK
 
-};
+}

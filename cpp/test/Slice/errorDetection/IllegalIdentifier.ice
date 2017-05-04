@@ -22,5 +22,5 @@ module Test
    interface Œuvre
    {
       void cœur();
-   };
-};
+   }
+}

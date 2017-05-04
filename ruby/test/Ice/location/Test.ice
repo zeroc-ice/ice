@@ -20,18 +20,18 @@ interface TestLocatorRegistry extends ::Ice::LocatorRegistry
     // Allow remote addition of objects to the locator registry.
     //
     void addObject(Object* obj);
-};
+}
 
 interface ServerManager
 {
     void startServer();
     void shutdown();
-};
+}
 
 interface Hello
 {
     void sayHello();
-};
+}
 
 interface TestIntf
 {
@@ -40,6 +40,6 @@ interface TestIntf
     Hello* getHello();
 
     void migrateHello();
-};
+}
 
-};
+}

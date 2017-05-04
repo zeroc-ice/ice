@@ -19,7 +19,7 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 class MyClass;
 
@@ -31,7 +31,7 @@ struct ValStruct
     int i;
     long l;
     MyEnum e;
-};
+}
 
 sequence<MyClass*> ProxySeq;
 
@@ -42,7 +42,7 @@ struct RefStruct
     string sp;
     MyClass* p;
     ProxySeq seq;
-};
+}
 
 sequence<ValStruct> ValStructS;
 ["clr:generic:List"]
@@ -68,14 +68,14 @@ class Base
     int i;
     long l;
     MyEnum e;
-};
+}
 
 class MyClass extends Base
 {
     MyClass c;
     Object o;
     ValStruct s;
-};
+}
 
 exception MyException
 {
@@ -105,6 +105,6 @@ exception MyException
     optional(4) RefStruct optRefStruct;
     optional(5) MyEnum optEnum;
     optional(6) MyClass* optProxy;
-};
+}
 
-};
+}

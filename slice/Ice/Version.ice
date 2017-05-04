@@ -28,7 +28,7 @@ struct ProtocolVersion
 {
     byte major;
     byte minor;
-};
+}
 
 /**
  *
@@ -39,6 +39,6 @@ struct EncodingVersion
 {
     byte major;
     byte minor;
-};
+}
 
-};
+}

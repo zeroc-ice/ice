@@ -18,11 +18,11 @@ interface TestIntf
     void transient();
 
     void deactivate();
-};
+}
 
 local class Cookie
 {
     idempotent string message();
-};
+}
 
-};
+}

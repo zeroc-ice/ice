@@ -24,13 +24,13 @@ interface LookupReply
     void foundObjectById(Ice::Identity id, Object* prx);
 
     void foundAdapterById(string id, Object* prx, bool isReplicaGroup);
-};
+}
 
 interface Lookup
 {
     idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply* reply);
 
     idempotent void findAdapterById(string domainId, string id, LookupReply* reply);
-};
+}
 
-};
+}

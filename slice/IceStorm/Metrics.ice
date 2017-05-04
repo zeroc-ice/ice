@@ -42,7 +42,7 @@ class TopicMetrics extends Metrics
      *
      **/
     long forwarded = 0;
-};
+}
 
 /**
  *
@@ -71,6 +71,6 @@ class SubscriberMetrics extends Metrics
      *
      **/
     long delivered = 0;
-};
+}
 
-};
+}

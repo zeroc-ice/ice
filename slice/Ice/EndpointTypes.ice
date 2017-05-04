@@ -36,6 +36,6 @@ local enum EndpointSelectionType
      * order they appeared in the proxy.
      */
     Ordered
-};
+}
 
-};
+}

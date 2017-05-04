@@ -16,6 +16,6 @@ interface TestIntf
 {
     string getServerFile(string path);
     string getApplicationFile(string path);
-};
+}
 
-};
+}

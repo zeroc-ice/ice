@@ -14,6 +14,6 @@ module Test
 
 interface TestIntf
 {
-};
+}
 
-};
+}

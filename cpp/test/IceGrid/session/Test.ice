@@ -16,6 +16,6 @@ module Test
 
 exception ExtendedPermissionDeniedException extends Glacier2::PermissionDeniedException
 {
-};
+}
 
-};
+}

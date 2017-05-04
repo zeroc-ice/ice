@@ -108,17 +108,17 @@ module MetadataTest
         ["amd", "java:type:java.util.ArrayList<Ice.Object>"] ObjectList
         opObjectList2AMD(["java:type:java.util.ArrayList<Ice.Object>"] ObjectList inArg,
                       out ["java:type:Test.CustomList<Ice.Object>"] ObjectList outArg);
-    };
+    }
 
     ["protected", "java:getset"] class C2
     {
         IntSeq intSeqMember;
         ["java:type:java.util.ArrayList<Integer>"] IntSeq modifiedIntSeqMember;
-    };
+    }
 
     class C3
     {
         ["protected"] IntSeq intSeqMember;
         ["protected", "java:type:java.util.ArrayList<Integer>"] IntSeq modifiedIntSeqMember;
-    };
-};
+    }
+}

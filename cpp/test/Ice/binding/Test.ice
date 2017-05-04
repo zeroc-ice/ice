@@ -15,14 +15,14 @@ module Test
 interface TestIntf
 {
     string getAdapterName();
-};
+}
 
 interface RemoteObjectAdapter
 {
     TestIntf* getTestIntf();
 
     void deactivate();
-};
+}
 
 interface RemoteCommunicator
 {
@@ -31,7 +31,7 @@ interface RemoteCommunicator
     void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
 
     void shutdown();
-};
+}
 
-};
+}
 

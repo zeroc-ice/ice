@@ -44,7 +44,7 @@ struct Identity
      *
      **/
     string category;
-};
+}
 
 /**
  *
@@ -65,4 +65,4 @@ local dictionary<Identity, Object> ObjectDict;
  **/
 sequence<Identity> IdentitySeq;
 
-};
+}

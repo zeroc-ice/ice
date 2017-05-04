@@ -14,14 +14,14 @@
 module Test
 {
 
-enum Color { red, green, blue };
+enum Color { red, green, blue }
 
 module Nested
 {
 
-enum Color { red, green, blue };
+enum Color { red, green, blue }
 
-};
+}
 
 struct Struct1
 {
@@ -47,7 +47,7 @@ struct Struct1
     float zeroDotF = 0.0;
     double zeroD = 0;
     double zeroDotD = 0;
-};
+}
 
 const bool ConstBool = true;
 const byte ConstByte = 254;
@@ -92,7 +92,7 @@ struct Struct2
     float zeroDotF = ConstZeroDotF;
     double zeroD = ConstZeroD;
     double zeroDotD = ConstZeroDotD;
-};
+}
 
 ["cpp:class"]
 struct Struct3
@@ -119,7 +119,7 @@ struct Struct3
     float zeroDotF = 0.0;
     double zeroD = 0;
     double zeroDotD = 0;
-};
+}
 
 class Base
 {
@@ -139,7 +139,7 @@ class Base
     float zeroDotF = 0.0;
     double zeroD = 0;
     double zeroDotD = 0;
-};
+}
 
 class Derived extends Base
 {
@@ -149,7 +149,7 @@ class Derived extends Base
     Nested::Color nc1 = ::Test::Nested::Color::red;
     Nested::Color nc2 = Nested::green;
     Nested::Color nc3 = blue;
-};
+}
 
 exception BaseEx
 {
@@ -169,7 +169,7 @@ exception BaseEx
     float zeroDotF = 0.0;
     double zeroD = 0;
     double zeroDotD = 0;
-};
+}
 
 exception DerivedEx extends BaseEx
 {
@@ -179,7 +179,7 @@ exception DerivedEx extends BaseEx
     Nested::Color nc1 = ConstNestedColor1;
     Nested::Color nc2 = ConstNestedColor2;
     Nested::Color nc3 = ConstNestedColor3;
-};
+}
 
 sequence<byte> ByteSeq;
 sequence<int> IntSeq;
@@ -188,7 +188,7 @@ dictionary<int, string> IntStringDict;
 struct InnerStruct
 {
     int a;
-};
+}
 
 struct StructNoDefaults
 {
@@ -205,32 +205,32 @@ struct StructNoDefaults
     IntSeq is;
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
 exception ExceptionNoDefaultsBase
 {
     string str;
     Color c1;
     ByteSeq bs;
-};
+}
 
 exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
 class ClassNoDefaultsBase
 {
     string str;
     Color c1;
     ByteSeq bs;
-};
+}
 
 class ClassNoDefaults extends ClassNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
-};
+}

@@ -24,13 +24,13 @@ struct smnpTest4Struct
     smnpStringStructDict dict;
     smnpClass c;
     smnpInterface i;
-};
+}
 
 sequence<smnpStruct> smnpTest4StructSeq;
 
 dictionary<smnpStruct, smnpBaseClass> smnpTest4StructClassSeq;
 
-interface smnpTest4Interface extends smnpInterface {};
+interface smnpTest4Interface extends smnpInterface {}
 
 exception smnpTest4Exception extends smnpException
 {
@@ -40,7 +40,7 @@ exception smnpTest4Exception extends smnpException
     smnpStringStructDict dict1;
     smnpClass c1;
     smnpInterface i1;
-};
+}
 
 class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
 {
@@ -74,6 +74,6 @@ class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
                  out smnpInterface o5,
                  out smnpClass o6)
         throws smnpException;
-};
+}
 
-};
+}

@@ -15,7 +15,7 @@
 module Test
 {
 
-class C {};
+class C {}
 
 sequence<C> CSeq;
 ["java:type:java.util.ArrayList<C>"] sequence<C> CArray;
@@ -37,13 +37,13 @@ sequence<C> CSeq;
 ["java:buffer"] sequence<float> FloatBuffer;
 ["java:buffer"] sequence<double> DoubleBuffer;
 
-enum E { E1, E2, E3 };
+enum E { E1, E2, E3 }
 ["java:type:java.util.ArrayList<E>"] sequence<E> ESeq;
 
 struct S
 {
     E en;
-};
+}
 ["java:type:java.util.ArrayList<S>"] sequence<S> SSeq;
 
 dictionary<int, string> D;
@@ -100,6 +100,6 @@ interface TestIntf
     optional(1) DoubleBuffer opOptDoubleBufferSeq(optional(2) DoubleBuffer inSeq, out optional(3) DoubleBuffer outSeq);
 
     void shutdown();
-};
+}
 
-};
+}

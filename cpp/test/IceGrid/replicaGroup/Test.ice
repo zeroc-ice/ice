@@ -16,6 +16,6 @@ interface TestIntf
 {
     string getReplicaId();
     string getReplicaIdAndShutdown();
-};
+}
 
-};
+}

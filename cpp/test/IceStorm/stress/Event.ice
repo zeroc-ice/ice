@@ -15,6 +15,6 @@ module Test
 interface Event
 {
     void pub(int counter);
-};
+}
 
-};
+}

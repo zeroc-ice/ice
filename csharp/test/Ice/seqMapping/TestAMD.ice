@@ -72,7 +72,7 @@ sequence<Object*> AObjectPrxS;
 struct S
 {
     int i;
-};
+}
 
 sequence<S> AStructS;
 ["clr:generic:List"] sequence<S> LStructS;
@@ -83,7 +83,7 @@ sequence<S> AStructS;
 struct SD
 {
     int i = 1;
-};
+}
 
 sequence<SD> AStructSD;
 ["clr:generic:List"] sequence<SD> LStructSD;
@@ -94,7 +94,7 @@ sequence<SD> AStructSD;
 class CV
 {
     int i;
-};
+}
 
 sequence<CV> ACVS;
 ["clr:generic:List"] sequence<CV> LCVS;
@@ -108,12 +108,12 @@ sequence<CV*> ACVPrxS;
 class CR
 {
     CV v;
-};
+}
 
 sequence<CR> ACRS;
 ["clr:generic:List"] sequence<CR> LCRS;
 
-enum En { A, B, C };
+enum En { A, B, C }
 
 sequence<En> AEnS;
 ["clr:generic:List"] sequence<En> LEnS;
@@ -231,6 +231,6 @@ sequence<En> AEnS;
     SerialSmall opSerialSmallCSharp(SerialSmall i, out SerialSmall o);
     SerialLarge opSerialLargeCSharp(SerialLarge i, out SerialLarge o);
     SerialStruct opSerialStructCSharp(SerialStruct i, out SerialStruct o);
-};
+}
 
-};
+}

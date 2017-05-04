@@ -14,12 +14,12 @@ module BEGIN
     enum END
     {
         alias
-    };
+    }
 
     struct and
     {
         int begin;
-    };
+    }
 
     interface break
     {
@@ -27,7 +27,7 @@ module BEGIN
         void to_a();
         void instance_variable_set();
         void instance_variables();
-    };
+    }
 
     class display
     {
@@ -35,11 +35,11 @@ module BEGIN
         int do;
         break* dup;
         int else;
-    };
+    }
 
     interface elsif extends break
     {
-    };
+    }
 
     sequence<END> rescue;
     dictionary<string, END> ensure;
@@ -47,19 +47,19 @@ module BEGIN
     exception next
     {
         int new;
-    };
+    }
 
     exception nil extends next
     {
         int not;
         int or;
-    };
+    }
 
     local interface extend
     {
         END for(display freeze, elsif hash, break* if, display inspect, elsif method, int methods)
             throws nil;
-    };
+    }
 
     const int redo = 1;
-};
+}

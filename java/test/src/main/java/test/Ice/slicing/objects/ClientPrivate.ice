@@ -21,42 +21,42 @@ module Test
 class SBase
 {
     string sb;
-};
+}
 
 class SBSKnownDerived extends SBase
 {
     string sbskd;
-};
+}
 
 class B
 {
     string sb;
     B pb;
-};
+}
 
 class D1 extends B
 {
     string sd1;
     B pd1;
-};
+}
 
 sequence<B> BSeq;
 
 class SS1
 {
     BSeq s;
-};
+}
 
 class SS2
 {
     BSeq s;
-};
+}
 
 struct SS3
 {
     SS1 c1;
     SS2 c2;
-};
+}
 
 dictionary<int, B> BDict;
 
@@ -64,20 +64,20 @@ exception BaseException
 {
     string sbe;
     B pb;
-};
+}
 
 exception DerivedException extends BaseException
 {
     string sde;
     D1 pd1;
-};
+}
 
 class Forward;
 
 class PBase
 {
     int pi;
-};
+}
 
 sequence<PBase> PBaseSeq;
 
@@ -85,28 +85,28 @@ sequence<PBase> PBaseSeq;
 class Preserved extends PBase
 {
     string ps;
-};
+}
 
 class PDerived extends Preserved
 {
     PBase pb;
-};
+}
 
 class CompactPDerived(56) extends Preserved
 {
     PBase pb;
-};
+}
 
 ["preserve-slice"]
 class PNode
 {
     PNode next;
-};
+}
 
 ["preserve-slice"]
 exception PreservedException
 {
-};
+}
 
 ["format:sliced"]
 interface TestIntf
@@ -164,7 +164,7 @@ interface TestIntf
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 
     void shutdown();
-};
+}
 
 //
 // Types private to the client.
@@ -174,42 +174,42 @@ class D3 extends B
 {
     string sd3;
     B pd3;
-};
+}
 
 ["preserve-slice"]
 class PCUnknown extends PBase
 {
     string pu;
-};
+}
 
 class PCDerived extends PDerived
 {
     PBaseSeq pbs;
-};
+}
 
 class PCDerived2 extends PCDerived
 {
     int pcd2;
-};
+}
 
 class PCDerived3 extends PCDerived2
 {
     Object pcd3;
-};
+}
 
 class CompactPCDerived(57) extends CompactPDerived
 {
     PBaseSeq pbs;
-};
+}
 
 class Hidden
 {
     Forward f;
-};
+}
 
 class Forward
 {
     Hidden h;
-};
+}
 
-};
+}

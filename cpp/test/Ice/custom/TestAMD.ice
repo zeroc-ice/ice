@@ -39,7 +39,7 @@ sequence<StringList> StringListSeq;
 struct Fixed
 {
     short s;
-};
+}
 
 sequence<Fixed> FixedSeq;
 ["cpp:type:std::list< ::Test::Fixed>"] sequence<Fixed> FixedList;
@@ -53,7 +53,7 @@ struct Variable
     string s;
     BoolList bl;
     ["cpp:type:std::list<std::string>"] StringSeq ss;
-};
+}
 
 sequence<Variable> VariableSeq;
 ["cpp:type:std::list< ::Test::Variable>"] sequence<Variable> VariableList;
@@ -70,7 +70,7 @@ sequence<StringStringDict> StringStringDictSeq;
 sequence<StringStringDictList> StringStringDictListSeq;
 ["cpp:type:std::list< ::Test::StringStringDictSeq>"] sequence<StringStringDictSeq> StringStringDictSeqList;
 
-enum E { E1, E2, E3 };
+enum E { E1, E2, E3 }
 sequence<E> ESeq;
 ["cpp:type:std::list< ::Test::E>"] sequence<E> EList;
 
@@ -78,7 +78,7 @@ sequence<E> ESeq;
 sequence<EList> EListSeq;
 ["cpp:type:std::list< ::Test::ESeq>"] sequence<ESeq> ESeqList;
 
-class C {};
+class C {}
 sequence<C> CSeq;
 ["cpp:type:std::list< ::Test::CPtr>", "cpp11:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
@@ -98,7 +98,7 @@ sequence<double> DoubleSeq;
 ["cpp:class"] struct ClassOtherStruct
 {
     int x;
-};
+}
 sequence<ClassOtherStruct> ClassOtherStructSeq;
 
 ["cpp:class"] struct ClassStruct
@@ -106,7 +106,7 @@ sequence<ClassOtherStruct> ClassOtherStructSeq;
     ClassOtherStructSeq otherSeq;
     ClassOtherStruct other;
     int y;
-};
+}
 sequence<ClassStruct> ClassStructSeq;
 
 ["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
@@ -116,7 +116,7 @@ dictionary<string, int> StringIntDict;
 class DictClass
 {
     IntStringDict isdict;
-};
+}
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
@@ -134,7 +134,7 @@ struct BufferStruct
     LongBuffer longBuf;
     FloatBuffer floatBuf;
     DoubleBuffer doubleBuf;
-};
+}
 
 ["amd"] interface TestIntf
 {
@@ -244,6 +244,6 @@ struct BufferStruct
     BufferStruct opBufferStruct(BufferStruct s);
 
     void shutdown();
-};
+}
 
-};
+}

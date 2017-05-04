@@ -41,6 +41,6 @@ local class ConnectionInfo extends Ice::ConnectionInfo
 
     /** The certificate chain verification status. */
     bool verified;
-};
+}
 
-};
+}

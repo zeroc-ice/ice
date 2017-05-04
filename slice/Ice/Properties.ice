@@ -228,6 +228,6 @@ local interface Properties
      *
      **/
     Properties clone();
-};
+}
 
-};
+}

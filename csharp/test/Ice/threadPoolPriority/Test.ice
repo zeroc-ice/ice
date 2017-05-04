@@ -16,7 +16,7 @@ interface Priority
 {
     void shutdown();
     string getPriority();
-};
+}
 
-};
+}
 

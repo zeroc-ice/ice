@@ -26,6 +26,6 @@ module Instrumentation
 local interface Observer;
 local interface CommunicatorObserver;
 
-};
+}
 
-};
+}

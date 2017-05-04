@@ -27,6 +27,6 @@ struct LinkRecord
     TopicLink* obj; // The topic link object.
     int cost; // The cost.
     Topic* theTopic;  // The linked topic for getLinkInfoSeq
-};
+}
 
-}; // End module IceStorm
+} // End module IceStorm

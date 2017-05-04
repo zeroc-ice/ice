@@ -35,7 +35,7 @@ struct SubscriberRecordKey
     // The identity of the subscriber. If this is empty then the key
     // is a placeholder for a topic.
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -61,9 +61,9 @@ struct SubscriberRecord
     // Link subscriber data.
     int cost; // The cost.
     Topic* theTopic;  // The linked topic.
-};
+}
 
 sequence<SubscriberRecord> SubscriberRecordSeq;
 
-}; // End module IceStorm
+} // End module IceStorm
 

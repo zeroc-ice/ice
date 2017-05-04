@@ -19,6 +19,6 @@ interface TestIntf
     void abort();
     idempotent void idempotentAbort();
     idempotent int pid();
-};
+}
 
-};
+}

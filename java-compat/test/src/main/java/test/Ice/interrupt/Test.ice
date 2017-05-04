@@ -17,7 +17,7 @@ module Test
 
 exception InterruptedException
 {
-};
+}
 
 interface TestIntf
 {
@@ -27,11 +27,11 @@ interface TestIntf
         throws InterruptedException;
     void opWithPayload(Ice::ByteSeq seq);
     void shutdown();
-};
+}
 
 exception CannotInterruptException
 {
-};
+}
 
 interface TestIntfController
 {
@@ -39,6 +39,6 @@ interface TestIntfController
     void resumeAdapter();
     void interrupt()
         throws CannotInterruptException;
-};
+}
 
-};
+}

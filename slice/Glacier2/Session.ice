@@ -38,7 +38,7 @@ exception CannotCreateSessionException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -56,7 +56,7 @@ interface Session
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -99,7 +99,7 @@ interface StringSet
      *
      **/
     idempotent Ice::StringSeq get();
-};
+}
 
 /**
  *
@@ -141,7 +141,7 @@ interface IdentitySet
      *
      **/
     idempotent Ice::IdentitySeq get();
-};
+}
 
 /**
  *
@@ -198,7 +198,7 @@ interface SessionControl
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -231,7 +231,7 @@ interface SessionManager
     ["format:sliced"]
     Session* create(string userId, SessionControl* control)
         throws CannotCreateSessionException;
-};
+}
 
 /**
  *
@@ -264,6 +264,6 @@ interface SSLSessionManager
     ["format:sliced"]
     Session* create(SSLInfo info, SessionControl* control)
         throws CannotCreateSessionException;
-};
+}
 
-};
+}

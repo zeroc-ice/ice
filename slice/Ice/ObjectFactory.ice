@@ -57,6 +57,6 @@ local interface ObjectFactory
      *
      **/
     void destroy();
-};
+}
 
-};
+}

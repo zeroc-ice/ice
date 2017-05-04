@@ -15,7 +15,7 @@ struct Struct1
 {
     int isa;
     int retainCount;
-};
+}
 
 exception Exception1
 {
@@ -26,7 +26,7 @@ exception Exception1
     int callStackReturnAddresses;
     int userInfo;
     int reserved;
-};
+}
 
 class Class1
 {
@@ -48,7 +48,7 @@ class Class1
     int self;
     int superclass;
     int zone;
-};
+}
 
 interface Intf1
 {
@@ -69,7 +69,7 @@ interface Intf1
     void self();
     void superclass();
     void zone();
-};
+}
 
 interface Intf2
 {
@@ -90,6 +90,6 @@ interface Intf2
     void self(int a);
     void superclass(int a);
     void zone(int a);
-};
+}
 
-};
+}

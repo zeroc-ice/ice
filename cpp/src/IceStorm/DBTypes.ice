@@ -17,7 +17,7 @@
 module IceStormElection
 {
 dictionary<string, LogUpdate> StringLogUpdateDict;
-};
+}
 
 module IceStorm
 {
@@ -27,6 +27,6 @@ struct AllData
 {
     IceStormElection::StringLogUpdateDict llus;
     IceStorm::SubscriberRecordDict subscribers;
-};
+}
 
-};
+}

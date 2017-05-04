@@ -44,7 +44,7 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
  **/
 exception PartitionOutOfRangeException
 {
-};
+}
 
 /**
  *
@@ -59,7 +59,7 @@ exception FileAccessException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -69,7 +69,7 @@ exception FileAccessException
  **/
 exception FileSizeRangeException extends FileAccessException
 {
-};
+}
 
 /**
  *
@@ -180,6 +180,6 @@ interface FileServer
     ["amd", "nonmutating", "cpp:const", "cpp:array"]
     idempotent Ice::ByteSeq getLargeFileCompressed(string path, long pos, int num)
         throws FileAccessException;
-};
+}
 
-};
+}

@@ -21,4 +21,4 @@ module Ice
 
 local interface ServantLocator;
 
-};
+}

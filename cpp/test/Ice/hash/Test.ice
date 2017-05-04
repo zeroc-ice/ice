@@ -14,7 +14,7 @@ module Test
 
 class Point
 {
-};
+}
 
-};
+}
 

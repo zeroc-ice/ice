@@ -59,7 +59,7 @@ local class EndpointInfo extends Ice::EndpointInfo
      *
      **/
     string protocol;
-};
+}
 
-};
+}
 

@@ -41,7 +41,7 @@ exception ApplicationNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -56,7 +56,7 @@ exception ServerNotExistException
      *
      */
     string id;
-};
+}
 
 /**
  *
@@ -78,7 +78,7 @@ exception ServerStartException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -100,7 +100,7 @@ exception ServerStopException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -115,7 +115,7 @@ exception AdapterNotExistException
      *
      **/
     string id;
-};
+}
 
 /**
  *
@@ -130,7 +130,7 @@ exception ObjectExistsException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -145,7 +145,7 @@ exception ObjectNotRegisteredException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -160,7 +160,7 @@ exception NodeNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -175,7 +175,7 @@ exception RegistryNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -190,7 +190,7 @@ exception DeploymentException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -212,7 +212,7 @@ exception NodeUnreachableException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -234,7 +234,7 @@ exception ServerUnreachableException
      *
      **/
     string reason;
-};
+}
 
 
 /**
@@ -257,7 +257,7 @@ exception RegistryUnreachableException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -273,7 +273,7 @@ exception BadSignalException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -288,7 +288,7 @@ exception PatchException
      *
      **/
     Ice::StringSeq reasons;
-};
+}
 
 /**
  *
@@ -304,7 +304,7 @@ exception AccessDeniedException
      *
      **/
     string lockUserId;
-};
+}
 
 /**
  *
@@ -319,7 +319,7 @@ exception AllocationException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -329,7 +329,7 @@ exception AllocationException
  **/
 exception AllocationTimeoutException extends AllocationException
 {
-};
+}
 
 /**
  *
@@ -345,7 +345,7 @@ exception PermissionDeniedException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -364,7 +364,7 @@ exception ObserverAlreadyRegisteredException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -386,7 +386,7 @@ exception FileNotAvailableException
      *
      **/
     string reason;
-};
+}
 
 
-};
+}

@@ -30,7 +30,7 @@ interface Intf
     void opOut(out string context, out string current, out string response, out string ex,
                out string sent, out string cookie, out string sync, out string result, out string istr,
                out string ostr, out optional(1) string proxy);
-};
+}
 
 class Cls
 {
@@ -49,7 +49,7 @@ class Cls
     string inS;
     string in;
     string proxy;
-};
+}
 
 struct St
 {
@@ -58,12 +58,12 @@ struct St
     int ostr;
     int rhs;
     string other;
-};
+}
 
 exception Ex
 {
     short istr;
     int ostr;
-};
+}
 
-};
+}

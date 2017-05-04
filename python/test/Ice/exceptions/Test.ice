@@ -16,37 +16,37 @@ module Test
 
 interface Empty
 {
-};
+}
 
 interface Thrower;
 
 exception A
 {
     int aMem;
-};
+}
 
 exception B extends A
 {
     int bMem;
-};
+}
 
 exception C extends B
 {
     int cMem;
-};
+}
 
 exception D
 {
     int dMem;
-};
+}
 
 module Mod
 {
     exception A extends ::Test::A
     {
         int a2Mem;
-    };
-};
+    }
+}
 
 interface Thrower
 {
@@ -76,11 +76,11 @@ interface Thrower
 
     void throwAfterResponse();
     void throwAfterException() throws A;
-};
+}
 
 interface WrongOperation
 {
     void noSuchOperation();
-};
+}
 
-};
+}

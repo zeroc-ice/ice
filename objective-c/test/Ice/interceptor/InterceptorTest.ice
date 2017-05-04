@@ -16,11 +16,11 @@ module Test
 exception InvalidInputException
 {
     string reason;
-};
+}
 
 local exception RetryException
 {
-};
+}
 
 interface MyObject
 {
@@ -48,6 +48,6 @@ interface MyObject
     // Raise system exception
     //
     int badSystemAdd(int x, int y);
-};
+}
 
-};
+}

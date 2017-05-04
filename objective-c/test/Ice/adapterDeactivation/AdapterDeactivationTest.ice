@@ -18,6 +18,6 @@ interface TestIntf
     void transient();
 
     void deactivate();
-};
+}
 
-};
+}

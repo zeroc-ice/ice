@@ -87,7 +87,7 @@ enum ServerState
      *
      **/
     Destroyed
-};
+}
 
 /**
  *
@@ -117,7 +117,7 @@ struct ObjectInfo
      *
      **/
     string type;
-};
+}
 
 /**
  *
@@ -155,7 +155,7 @@ struct AdapterInfo
      *
      **/
     string replicaGroupId;
-};
+}
 
 /**
  *
@@ -212,7 +212,7 @@ struct ServerInfo
      *
      **/
     string sessionId;
-};
+}
 
 /**
  *
@@ -279,7 +279,7 @@ struct NodeInfo
      *
      **/
     string dataDir;
-};
+}
 
 /**
  *
@@ -302,7 +302,7 @@ struct RegistryInfo
      *
      **/
     string hostname;
-};
+}
 
 /**
  *
@@ -326,7 +326,7 @@ struct LoadInfo
 
     /** The load average over the past 15 minutes. */
     float avg15;
-};
+}
 
 /**
  *
@@ -355,7 +355,7 @@ struct ApplicationInfo
 
     /** The application descriptor */
     ApplicationDescriptor descriptor;
-};
+}
 
 /**
  *
@@ -382,7 +382,7 @@ struct ApplicationUpdateInfo
 
     /** The update descriptor. */
     ApplicationUpdateDescriptor descriptor;
-};
+}
 
 /**
  *
@@ -1215,7 +1215,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
-};
+}
 
 /**
  *
@@ -1253,7 +1253,7 @@ interface FileIterator
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -1289,7 +1289,7 @@ struct ServerDynamicInfo
      *
      **/
     bool enabled;
-};
+}
 
 /**
  *
@@ -1318,7 +1318,7 @@ struct AdapterDynamicInfo
      *
      **/
     Object* proxy;
-};
+}
 
 /**
  *
@@ -1354,7 +1354,7 @@ struct NodeDynamicInfo
      *
      **/
     AdapterDynamicInfoSeq adapters;
-};
+}
 
 /**
  *
@@ -1393,7 +1393,7 @@ interface RegistryObserver
      *
      **/
     void registryDown(string name);
-};
+}
 
 /**
  *
@@ -1464,7 +1464,7 @@ interface NodeObserver
      *
      **/
      void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
-};
+}
 
 /**
  *
@@ -1525,7 +1525,7 @@ interface ApplicationObserver
      *
      **/
     void applicationUpdated(int serial, ApplicationUpdateInfo desc);
-};
+}
 
 /**
  *
@@ -1574,7 +1574,7 @@ interface AdapterObserver
      *
      **/
     void adapterRemoved(string id);
-};
+}
 
 /**
  *
@@ -1623,7 +1623,7 @@ interface ObjectObserver
      *
      **/
     void objectRemoved(Ice::Identity id);
-};
+}
 
 /**
  *
@@ -1949,6 +1949,6 @@ interface AdminSession extends Glacier2::Session
     FileIterator * openRegistryStdOut(string name, int count)
         throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 
-};
+}
 
-};
+}

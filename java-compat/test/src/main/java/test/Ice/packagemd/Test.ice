@@ -35,6 +35,6 @@ interface Initial
     void throwTest3E2AsE2() throws Test3::E2;
 
     void shutdown();
-};
+}
 
-};
+}

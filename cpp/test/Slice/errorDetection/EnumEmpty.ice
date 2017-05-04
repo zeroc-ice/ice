@@ -12,6 +12,6 @@
 module Test
 {
 
-enum foo {};
+enum foo {}
 
-};
+}

@@ -18,7 +18,7 @@ exception CallbackException
 {
     double someValue;
     string someString;
-};
+}
 
 interface CallbackReceiver
 {
@@ -32,7 +32,7 @@ interface CallbackReceiver
     void waitCallback();
 
     void callbackWithPayload(Ice::ByteSeq payload);
-};
+}
 
 interface Callback
 {
@@ -48,7 +48,7 @@ interface Callback
     ["amd"] void initiateCallbackWithPayload(CallbackReceiver* proxy);
 
     void shutdown();
-};
+}
 
-};
+}
 

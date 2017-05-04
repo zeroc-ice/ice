@@ -37,7 +37,7 @@ local exception InitializationException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -54,7 +54,7 @@ local exception PluginInitializationException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -65,7 +65,7 @@ local exception PluginInitializationException
 ["cpp:ice_print", "deprecate:this exception isn't used anymore by the Ice runtime"]
 local exception CollocationOptimizationException
 {
-};
+}
 
 /**
  *
@@ -96,7 +96,7 @@ local exception AlreadyRegisteredException
      *
      **/
     string id;
-};
+}
 
 /**
  *
@@ -130,7 +130,7 @@ local exception NotRegisteredException
      *
      **/
     string id;
-};
+}
 
 /**
  *
@@ -151,7 +151,7 @@ local exception TwowayOnlyException
      *
      **/
     string operation;
-};
+}
 
 /**
  *
@@ -167,7 +167,7 @@ local exception TwowayOnlyException
 ["cpp:ice_print"]
 local exception CloneNotImplementedException
 {
-};
+}
 
 /**
  *
@@ -188,7 +188,7 @@ local exception UnknownException
      *
      **/
     string unknown;
-};
+}
 
 /**
  *
@@ -204,7 +204,7 @@ local exception UnknownException
 ["cpp:ice_print"]
 local exception UnknownLocalException extends UnknownException
 {
-};
+}
 
 /**
  *
@@ -224,7 +224,7 @@ local exception UnknownLocalException extends UnknownException
 ["cpp:ice_print"]
 local exception UnknownUserException extends UnknownException
 {
-};
+}
 
 /**
  *
@@ -235,7 +235,7 @@ local exception UnknownUserException extends UnknownException
 ["cpp:ice_print"]
 local exception VersionMismatchException
 {
-};
+}
 
 /**
  *
@@ -247,7 +247,7 @@ local exception VersionMismatchException
 ["cpp:ice_print"]
 local exception CommunicatorDestroyedException
 {
-};
+}
 
 /**
  *
@@ -267,7 +267,7 @@ local exception ObjectAdapterDeactivatedException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -286,7 +286,7 @@ local exception ObjectAdapterIdInUseException
      *
      **/
     string id;
-};
+}
 
 /**
  *
@@ -303,7 +303,7 @@ local exception NoEndpointException
      *
      **/
     string proxy;
-};
+}
 
 /**
  *
@@ -320,7 +320,7 @@ local exception EndpointParseException
      *
      **/
     string str;
-};
+}
 
 /**
  *
@@ -337,7 +337,7 @@ local exception EndpointSelectionTypeParseException
      *
      **/
     string str;
-};
+}
 
 /**
  *
@@ -354,7 +354,7 @@ local exception VersionParseException
      *
      **/
     string str;
-};
+}
 
 /**
  *
@@ -371,7 +371,7 @@ local exception IdentityParseException
      *
      **/
     string str;
-};
+}
 
 /**
  *
@@ -388,7 +388,7 @@ local exception ProxyParseException
      *
      **/
     string str;
-};
+}
 
 /**
  *
@@ -404,7 +404,7 @@ local exception IllegalIdentityException
      *
      **/
     Identity id;
-};
+}
 
 /**
  *
@@ -421,7 +421,7 @@ local exception IllegalServantException
      *
      **/
     string reason;
-};
+}
 
 
 /**
@@ -443,7 +443,7 @@ local exception RequestFailedException
 
     /** The operation name of the request. */
     string operation;
-};
+}
 
 /**
  *
@@ -454,7 +454,7 @@ local exception RequestFailedException
 ["cpp:ice_print"]
 local exception ObjectNotExistException extends RequestFailedException
 {
-};
+}
 
 /**
  *
@@ -465,7 +465,7 @@ local exception ObjectNotExistException extends RequestFailedException
 ["cpp:ice_print"]
 local exception FacetNotExistException extends RequestFailedException
 {
-};
+}
 
 /**
  *
@@ -477,7 +477,7 @@ local exception FacetNotExistException extends RequestFailedException
 ["cpp:ice_print"]
 local exception OperationNotExistException extends RequestFailedException
 {
-};
+}
 
 /**
  *
@@ -500,7 +500,7 @@ local exception SyscallException
      *
      **/
     int error = 0; // Don't use errno, as errno is usually a macro.
-};
+}
 
 /**
  *
@@ -510,7 +510,7 @@ local exception SyscallException
 ["cpp:ice_print"]
 local exception SocketException extends SyscallException
 {
-};
+}
 
 /**
  *
@@ -526,7 +526,7 @@ local exception CFNetworkException extends SocketException
      *
      **/
     string domain;
-};
+}
 
 /**
  *
@@ -538,7 +538,7 @@ local exception FileException extends SyscallException
 {
     /** The path of the file responsible for the error. */
     string path;
-};
+}
 
 /**
  *
@@ -548,7 +548,7 @@ local exception FileException extends SyscallException
 ["cpp:ice_print"]
 local exception ConnectFailedException extends SocketException
 {
-};
+}
 
 /**
  *
@@ -559,7 +559,7 @@ local exception ConnectFailedException extends SocketException
 ["cpp:ice_print"]
 local exception ConnectionRefusedException extends ConnectFailedException
 {
-};
+}
 
 /**
  *
@@ -569,7 +569,7 @@ local exception ConnectionRefusedException extends ConnectFailedException
 ["cpp:ice_print"]
 local exception ConnectionLostException extends SocketException
 {
-};
+}
 
 /**
  *
@@ -596,7 +596,7 @@ local exception DNSException
      *
      **/
     string host;
-};
+}
 
 /**
  *
@@ -606,7 +606,7 @@ local exception DNSException
 ["cpp:ice_print"]
 local exception OperationInterruptedException
 {
-};
+}
 
 /**
  *
@@ -616,7 +616,7 @@ local exception OperationInterruptedException
 ["cpp:ice_print"]
 local exception TimeoutException
 {
-};
+}
 
 /**
  *
@@ -626,7 +626,7 @@ local exception TimeoutException
 ["cpp:ice_print"]
 local exception ConnectTimeoutException extends TimeoutException
 {
-};
+}
 
 /**
  *
@@ -636,7 +636,7 @@ local exception ConnectTimeoutException extends TimeoutException
 ["cpp:ice_print"]
 local exception CloseTimeoutException extends TimeoutException
 {
-};
+}
 
 /**
  *
@@ -647,7 +647,7 @@ local exception CloseTimeoutException extends TimeoutException
 ["cpp:ice_print"]
 local exception ConnectionTimeoutException extends TimeoutException
 {
-};
+}
 
 /**
  *
@@ -658,7 +658,7 @@ local exception ConnectionTimeoutException extends TimeoutException
 ["cpp:ice_print"]
 local exception InvocationTimeoutException extends TimeoutException
 {
-};
+}
 
 /**
  *
@@ -670,7 +670,7 @@ local exception InvocationTimeoutException extends TimeoutException
 ["cpp:ice_print"]
 local exception InvocationCanceledException
 {
-};
+}
 
 /**
  *
@@ -687,7 +687,7 @@ local exception ProtocolException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -704,7 +704,7 @@ local exception BadMagicException extends ProtocolException
      *
      **/
     ByteSeq badMagic;
-};
+}
 
 /**
  *
@@ -727,7 +727,7 @@ local exception UnsupportedProtocolException extends ProtocolException
      *
      **/
     ProtocolVersion supported;
-};
+}
 
 /**
  *
@@ -750,7 +750,7 @@ local exception UnsupportedEncodingException extends ProtocolException
      *
      **/
     EncodingVersion supported;
-};
+}
 
 /**
  *
@@ -760,7 +760,7 @@ local exception UnsupportedEncodingException extends ProtocolException
 ["cpp:ice_print"]
 local exception UnknownMessageException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -771,7 +771,7 @@ local exception UnknownMessageException extends ProtocolException
 ["cpp:ice_print"]
 local exception ConnectionNotValidatedException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -782,7 +782,7 @@ local exception ConnectionNotValidatedException extends ProtocolException
 ["cpp:ice_print"]
 local exception UnknownRequestIdException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -792,7 +792,7 @@ local exception UnknownRequestIdException extends ProtocolException
 ["cpp:ice_print"]
 local exception UnknownReplyStatusException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -809,7 +809,7 @@ local exception UnknownReplyStatusException extends ProtocolException
 ["cpp:ice_print"]
 local exception CloseConnectionException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -824,7 +824,7 @@ local exception ConnectionManuallyClosedException
 {
     /** True if the connection was closed gracefully, false otherwise. **/
     bool graceful;
-};
+}
 
 /**
  *
@@ -835,7 +835,7 @@ local exception ConnectionManuallyClosedException
 ["cpp:ice_print"]
 local exception IllegalMessageSizeException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -845,7 +845,7 @@ local exception IllegalMessageSizeException extends ProtocolException
 ["cpp:ice_print"]
 local exception CompressionException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -858,7 +858,7 @@ local exception CompressionException extends ProtocolException
 ["cpp:ice_print"]
 local exception DatagramLimitException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -868,7 +868,7 @@ local exception DatagramLimitException extends ProtocolException
 ["cpp:ice_print"]
 local exception MarshalException extends ProtocolException
 {
-};
+}
 
 /**
  *
@@ -878,7 +878,7 @@ local exception MarshalException extends ProtocolException
 ["cpp:ice_print"]
 local exception ProxyUnmarshalException extends MarshalException
 {
-};
+}
 
 /**
  *
@@ -888,7 +888,7 @@ local exception ProxyUnmarshalException extends MarshalException
 ["cpp:ice_print"]
 local exception UnmarshalOutOfBoundsException extends MarshalException
 {
-};
+}
 
 /**
  *
@@ -911,7 +911,7 @@ local exception NoValueFactoryException extends MarshalException
      *
      **/
     string type;
-};
+}
 
 /**
  *
@@ -940,7 +940,7 @@ local exception UnexpectedObjectException extends MarshalException
      *
      **/
     string expectedType;
-};
+}
 
 /**
  *
@@ -952,7 +952,7 @@ local exception UnexpectedObjectException extends MarshalException
 ["cpp:ice_print"]
 local exception MemoryLimitException extends MarshalException
 {
-};
+}
 
 /**
  *
@@ -963,7 +963,7 @@ local exception MemoryLimitException extends MarshalException
 ["cpp:ice_print"]
 local exception StringConversionException extends MarshalException
 {
-};
+}
 
 
 /**
@@ -974,7 +974,7 @@ local exception StringConversionException extends MarshalException
 ["cpp:ice_print"]
 local exception EncapsulationException extends MarshalException
 {
-};
+}
 
 /**
  *
@@ -992,7 +992,7 @@ local exception FeatureNotSupportedException
      *
      **/
     string unsupportedFeature;
-};
+}
 
 
 /**
@@ -1010,7 +1010,7 @@ local exception SecurityException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -1021,7 +1021,7 @@ local exception SecurityException
 ["cpp:ice_print"]
 local exception FixedProxyException
 {
-};
+}
 
 /**
  *
@@ -1032,6 +1032,6 @@ local exception FixedProxyException
 ["cpp:ice_print"]
 local exception ResponseSentException
 {
-};
+}
 
-};
+}

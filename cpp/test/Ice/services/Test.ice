@@ -15,6 +15,6 @@ module Test
 interface Clock
 {
     void tick(string time);
-};
+}
 
-};
+}

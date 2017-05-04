@@ -48,6 +48,6 @@ local class ConnectionInfo extends Ice::ConnectionInfo
 
     /** The connection buffer send size. **/
     int sndSize = 0;
-};
+}
 
-};
+}

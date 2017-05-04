@@ -62,7 +62,7 @@ struct LinkInfo
      *
      **/
     int cost;
-};
+}
 
 /**
  *
@@ -94,7 +94,7 @@ exception LinkExists
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -110,7 +110,7 @@ exception NoSuchLink
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -120,7 +120,7 @@ exception NoSuchLink
  **/
 exception AlreadySubscribed
 {
-};
+}
 
 /**
  *
@@ -136,7 +136,7 @@ exception InvalidSubscriber
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -152,7 +152,7 @@ exception BadQoS
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -288,7 +288,7 @@ interface Topic
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -311,7 +311,7 @@ exception TopicExists
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -327,7 +327,7 @@ exception NoSuchTopic
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -383,7 +383,7 @@ interface TopicManager
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
-};
+}
 
 /**
  *
@@ -404,6 +404,6 @@ interface Finder
      *
      **/
     TopicManager* getTopicManager();
-};
+}
 
-};
+}

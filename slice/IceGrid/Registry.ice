@@ -46,7 +46,7 @@ enum LoadSample
      * Sample every fifteen minutes.
      **/
     LoadSample15
-};
+}
 
 /**
  *
@@ -122,7 +122,7 @@ interface Query
      *
      **/
     ["cpp:const"] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
-};
+}
 
 /**
  *
@@ -225,7 +225,7 @@ interface Registry
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
-};
+}
 
 /**
  *
@@ -257,6 +257,6 @@ interface Locator extends Ice::Locator
      *
      **/
     ["cpp:const"] idempotent Query* getLocalQuery();
-};
+}
 
-};
+}

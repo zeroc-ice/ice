@@ -110,7 +110,7 @@ local interface ObjectAdapter
      * requests through its endpoints. Object adapters that have been
      * deactivated must not be reactivated again, and cannot be used
      * otherwise. Attempts to use a deactivated object adapter raise
-     * {@link ObjectAdapterDeactivatedException}; however, attempts to
+     * {@link ObjectAdapterDeactivatedException} however, attempts to
      * {@link #deactivate} an already deactivated object adapter are
      * ignored and do nothing. Once deactivated, it is possible to
      * destroy the adapter to clean up resources and then create and
@@ -684,6 +684,6 @@ local interface ObjectAdapter
      *
      **/
     void setPublishedEndpoints(EndpointSeq newEndpoints);
-};
+}
 
-};
+}

@@ -33,6 +33,6 @@ module IceSSL
  **/
 local class EndpointInfo extends Ice::EndpointInfo
 {
-};
+}
 
-};
+}

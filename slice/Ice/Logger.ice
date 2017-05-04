@@ -87,6 +87,6 @@ local interface Logger
      *
      */
     Logger cloneWithPrefix(string prefix);
-};
+}
 
-};
+}

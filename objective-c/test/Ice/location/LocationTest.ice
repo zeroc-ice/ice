@@ -21,7 +21,7 @@ interface TestLocatorRegistry extends ::Ice::LocatorRegistry
     // Allow remote addition of objects to the locator registry.
     //
     void addObject(Object* obj);
-};
+}
 
 interface TestLocator extends ::Ice::Locator
 {
@@ -29,18 +29,18 @@ interface TestLocator extends ::Ice::Locator
     // Returns the number of request on the locator interface.
     //
     ["cpp:const"] idempotent int getRequestCount();
-};
+}
 
 interface ServerManager
 {
     void startServer();
     void shutdown();
-};
+}
 
 interface Hello
 {
     void sayHello();
-};
+}
 
 interface TestIntf
 {
@@ -51,6 +51,6 @@ interface TestIntf
     Hello* getReplicatedHello();
 
     void migrateHello();
-};
+}
 
-};
+}

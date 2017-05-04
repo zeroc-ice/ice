@@ -17,7 +17,7 @@ module Test
 interface PingReply
 {
     void reply();
-};
+}
 
 sequence<byte> ByteSeq;
 
@@ -27,6 +27,6 @@ interface TestIntf
     void sendByteSeq(ByteSeq seq, PingReply* reply);
     void pingBiDir(Ice::Identity reply);
     void shutdown();
-};
+}
 
-};
+}

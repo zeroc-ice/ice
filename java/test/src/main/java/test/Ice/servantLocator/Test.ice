@@ -15,11 +15,11 @@ module Test
 
 exception TestIntfUserException
 {
-};
+}
 
 exception TestImpossibleException
 {
-};
+}
 
 interface TestIntf
 {
@@ -40,16 +40,16 @@ interface TestIntf
     void asyncException() throws TestIntfUserException, TestImpossibleException;
 
     void shutdown();
-};
+}
 
 interface TestActivation
 {
     void activateServantLocator(bool activate);
-};
+}
 
 local class Cookie
 {
     ["cpp:const"] string message();
-};
+}
 
-};
+}

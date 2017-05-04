@@ -20,22 +20,22 @@ interface Thrower;
 exception A
 {
     int aMem;
-};
+}
 
 exception B extends A
 {
     int bMem;
-};
+}
 
 exception C extends B
 {
     int cMem;
-};
+}
 
 exception D
 {
     int dMem;
-};
+}
 
 ["amd"] interface Thrower
 {
@@ -62,11 +62,11 @@ exception D
 
     void throwAfterResponse();
     void throwAfterException() throws A;
-};
+}
 
 ["amd"] interface WrongOperation
 {
     void noSuchOperation();
-};
+}
 
-};
+}

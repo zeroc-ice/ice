@@ -45,7 +45,7 @@ local enum CompressBatch
      * made on a compressed proxy.
      **/
     BasedOnProxy
-};
+}
 
 /**
  *
@@ -83,7 +83,7 @@ local class ConnectionInfo
      *
      **/
     string connectionId;
-};
+}
 
 local interface Connection;
 
@@ -107,7 +107,7 @@ local interface CloseCallback
      * @param con The connection that closed.
      **/
     void closed(Connection con);
-};
+}
 
 /**
  *
@@ -128,7 +128,7 @@ local interface HeartbeatCallback
      * @param con The connection on which a heartbeat was received.
      **/
     void heartbeat(Connection con);
-};
+}
 
 local enum ACMClose
 {
@@ -137,7 +137,7 @@ local enum ACMClose
     CloseOnInvocation,
     CloseOnInvocationAndIdle,
     CloseOnIdleForceful
-};
+}
 
 local enum ACMHeartbeat
 {
@@ -145,14 +145,14 @@ local enum ACMHeartbeat
     HeartbeatOnInvocation,
     HeartbeatOnIdle,
     HeartbeatAlways
-};
+}
 
 local struct ACM
 {
     int timeout;
     ACMClose close;
     ACMHeartbeat heartbeat;
-};
+}
 
 /**
  * Determines the behavior when manually closing a connection.
@@ -174,7 +174,7 @@ local enum ConnectionClose
      * Wait for all pending invocations to complete before closing the connection.
      **/
     GracefullyWithWait
-};
+}
 
 /**
  *
@@ -379,7 +379,7 @@ local interface Connection
      *
      **/
     ["cpp:const"] void throwException();
-};
+}
 
 /**
  *
@@ -400,7 +400,7 @@ local class IPConnectionInfo extends ConnectionInfo
 
     /** The remote port. */
     int remotePort = -1;
-};
+}
 
 /**
  *
@@ -423,7 +423,7 @@ local class TCPConnectionInfo extends IPConnectionInfo
      *
      **/
     int sndSize = 0;
-};
+}
 
 /**
  *
@@ -460,7 +460,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
      *
      **/
     int sndSize = 0;
-};
+}
 
 dictionary<string, string> HeaderDict;
 
@@ -474,6 +474,6 @@ local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;
-};
+}
 
-};
+}

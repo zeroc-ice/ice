@@ -16,7 +16,7 @@ module Test
 interface TestIntf
 {
     string getAdapterId();
-};
+}
 
 interface Controller
 {
@@ -27,6 +27,6 @@ interface Controller
     void removeObject(string oaName, string id);
 
     void shutdown();
-};
+}
 
-};
+}

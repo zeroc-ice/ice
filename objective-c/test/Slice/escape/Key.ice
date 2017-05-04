@@ -15,39 +15,39 @@ module and
 enum continue
 {
     asm
-};
+}
 
 struct auto
 {
     int default;
-};
+}
 
 ["cpp:class"] struct delete
 {
     string else;
-};
+}
 
 interface break
 {
     void case(int catch, out int try);
-};
+}
 
 interface char
 {
     void explicit();
-};
+}
 
 interface switch
 {
     void foo(char* export, out int volatile);
     void foo2(char* export, ["objc:param:y"] int YES, out ["objc:param:nil2"] int nil);
     void foo3(char* export, out int nil);
-};
+}
 
 class do implements char, break, switch
 {
     int if;
-};
+}
 
 sequence<auto> extern;
 
@@ -56,13 +56,13 @@ dictionary<string,auto> for;
 exception return
 {
     int signed;
-};
+}
 
 exception sizeof extends return
 {
     int static;
     int switch;
-};
+}
 
 local interface friend
 {
@@ -72,7 +72,7 @@ local interface friend
 
     void objc(int bycopy, int byref, int id, int IMP, int in, int inout, int nil, int NO, int oneway,
               int SEL, int super, int YES);
-};
+}
 
 const int template = 0;
 const int this = 0;
@@ -87,4 +87,4 @@ const int virtual = 0;
 const int while = 0;
 const int xor = 0;
 
-};
+}

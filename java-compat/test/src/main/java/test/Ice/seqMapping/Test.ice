@@ -24,7 +24,7 @@ interface MyClass
     SerialSmall opSerialSmallJava(SerialSmall i, out SerialSmall o);
     SerialLarge opSerialLargeJava(SerialLarge i, out SerialLarge o);
     SerialStruct opSerialStructJava(SerialStruct i, out SerialStruct o);
-};
+}
 
 // Remaining type definitions are there to verify that the generated
 // code compiles correctly.
@@ -37,18 +37,18 @@ struct Foo
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 exception Bar
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 class Baz
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
-};
+}

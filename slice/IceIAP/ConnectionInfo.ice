@@ -65,7 +65,7 @@ local class ConnectionInfo extends Ice::ConnectionInfo
      *
      **/
     string protocol;
-};
+}
 
-};
+}
 

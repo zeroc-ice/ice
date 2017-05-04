@@ -18,7 +18,7 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 interface Initial;
 class Base;
@@ -35,7 +35,7 @@ struct Struct1
     string str;
     MyEnum e;
     Initial* p;
-};
+}
 
 sequence<byte> ByteS;
 sequence<int> IntS;
@@ -60,18 +60,18 @@ class Base
     ShortIntD d2;
     StringMyEnumD d3;
     StringBaseD d4;
-};
+}
 
 class Derived extends Base
 {
     Object* p;
-};
+}
 
 exception Ex
 {
     Struct1 s;
     Base b;
-};
+}
 
 interface Initial
 {
@@ -79,6 +79,6 @@ interface Initial
     ByteS getBase();
     ByteS getEx();
     void shutdown();
-};
+}
 
-};
+}

@@ -15,7 +15,7 @@ module Test
 interface Backend
 {
     void shutdown();
-};
+}
 
-};
+}
 

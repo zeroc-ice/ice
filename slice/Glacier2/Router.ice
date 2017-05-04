@@ -42,7 +42,7 @@ module Glacier2
  **/
 exception SessionNotExistException
 {
-};
+}
 
 /**
  *
@@ -176,6 +176,6 @@ interface Router extends Ice::Router
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
-};
+}
 
-};
+}

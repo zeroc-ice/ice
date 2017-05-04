@@ -34,20 +34,20 @@ interface RemoteCommunicator
     void waitForShutdown();
 
     void destroy();
-};
+}
 
 interface RemoteCommunicatorFactory
 {
     RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
 
     void shutdown();
-};
+}
 
 interface TestFacet
 {
     void op();
-};
+}
 
-};
+}
 
 #endif

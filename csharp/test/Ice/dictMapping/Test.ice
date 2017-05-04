@@ -21,7 +21,7 @@ struct TEstNv
 {
     NV d;
     IntSeq s;
-};
+}
 
 sequence<int> AIS;
 ["clr:generic:List"] sequence<int> GIS;
@@ -49,6 +49,6 @@ interface MyClass
 
     NDASS opNDASS(NDASS i, out NDASS o);
     NDGSS opNDGSS(NDGSS i, out NDGSS o);
-};
+}
 
-};
+}

@@ -108,5 +108,5 @@ local interface ImplicitContext
      *
      **/
     string remove(string key);
-};
-};
+}
+}

@@ -25,7 +25,7 @@ module IceGrid
 
 local exception SynchronizationException
 {
-};
+}
 
 class InternalDbEnvDescriptor
 {
@@ -34,7 +34,7 @@ class InternalDbEnvDescriptor
 
     /** The database properties. */
     PropertyDescriptorSeq properties;
-};
+}
 sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
 
 class InternalAdapterDescriptor
@@ -44,7 +44,7 @@ class InternalAdapterDescriptor
 
     /** Specifies if the lifetime of the adapter is the same as the server. */
     bool serverLifetime;
-};
+}
 sequence<InternalAdapterDescriptor> InternalAdapterDescriptorSeq;
 
 class InternalDistributionDescriptor
@@ -54,7 +54,7 @@ class InternalDistributionDescriptor
 
     /** The source directories. */
     ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
-};
+}
 
 dictionary<string, PropertyDescriptorSeq> PropertyDescriptorSeqDict;
 
@@ -122,7 +122,7 @@ class InternalServerDescriptor
 
     /** IceBox service names */
     optional(1) Ice::StringSeq services;
-};
+}
 
 /**
  *
@@ -131,13 +131,13 @@ class InternalServerDescriptor
  **/
 exception AdapterActiveException
 {
-};
+}
 
 exception AdapterNotActiveException
 {
     /** True if the adapter can be activated on demand. */
     bool activatable;
-};
+}
 
 interface Adapter
 {
@@ -180,7 +180,7 @@ interface Adapter
      **/
     void setDirectProxy(Object* proxy)
         throws AdapterActiveException;
-};
+}
 
 /**
  *
@@ -191,7 +191,7 @@ interface Adapter
 exception AdapterExistsException
 {
     string id;
-};
+}
 
 dictionary<string, Adapter*> AdapterPrxDict;
 
@@ -213,7 +213,7 @@ interface FileReader
      **/
     ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
         throws FileNotAvailableException;
-};
+}
 
 interface Server extends FileReader
 {
@@ -306,7 +306,7 @@ interface Server extends FileReader
      *
      **/
     ["amd"] void setProcess(Ice::Process* proc);
-};
+}
 
 interface InternalRegistry;
 sequence<InternalRegistry*> InternalRegistryPrxSeq;
@@ -335,7 +335,7 @@ interface ReplicaObserver
      *
      **/
     void replicaRemoved(InternalRegistry* replica);
-};
+}
 
 interface PatcherFeedback
 {
@@ -352,7 +352,7 @@ interface PatcherFeedback
      *
      **/
     void failed(string reason);
-};
+}
 
 interface Node extends FileReader, ReplicaObserver
 {
@@ -460,7 +460,7 @@ interface Node extends FileReader, ReplicaObserver
      *
      **/
     ["nonmutating", "cpp:const"] idempotent void shutdown();
-};
+}
 
 sequence<Node*> NodePrxSeq;
 
@@ -472,7 +472,7 @@ sequence<Node*> NodePrxSeq;
  **/
 exception NodeActiveException
 {
-};
+}
 
 interface NodeSession
 {
@@ -537,7 +537,7 @@ interface NodeSession
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -547,7 +547,7 @@ interface NodeSession
  **/
 exception ReplicaActiveException
 {
-};
+}
 
 enum TopicName
 {
@@ -556,11 +556,11 @@ enum TopicName
     ApplicationObserverTopicName,
     AdapterObserverTopicName,
     ObjectObserverTopicName
-};
+}
 
 interface DatabaseObserver extends ApplicationObserver, ObjectObserver, AdapterObserver
 {
-};
+}
 
 dictionary<string, long> StringLongDict;
 
@@ -630,7 +630,7 @@ interface ReplicaSession
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -696,7 +696,7 @@ class InternalNodeInfo
      *
      **/
     string dataDir;
-};
+}
 
 /**
  *
@@ -719,7 +719,7 @@ class InternalReplicaInfo
      *
      **/
     string hostname;
-};
+}
 
 interface InternalRegistry extends FileReader
 {
@@ -801,8 +801,8 @@ interface InternalRegistry extends FileReader
      *
      **/
     ["cpp:const"] idempotent void shutdown();
-};
+}
 
 
-};
+}
 

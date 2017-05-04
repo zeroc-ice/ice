@@ -35,7 +35,7 @@ enum ByteEnum
     benum9 = LongConst1,
     benum10,
     benum11 = ByteConst2
-};
+}
 
 enum ShortEnum
 {
@@ -50,7 +50,7 @@ enum ShortEnum
     senum9 = LongConst1,
     senum10,
     senum11 = ShortConst2
-};
+}
 
 enum IntEnum
 {
@@ -66,14 +66,14 @@ enum IntEnum
     ienum10,
     ienum11 = IntConst2,
     ienum12 = LongConst2
-};
+}
 
 enum SimpleEnum
 {
     red,
     green,
     blue
-};
+}
 
 interface TestIntf
 {
@@ -83,6 +83,6 @@ interface TestIntf
     SimpleEnum opSimple(SimpleEnum s1, out SimpleEnum s2);
 
     void shutdown();
-};
+}
 
-};
+}

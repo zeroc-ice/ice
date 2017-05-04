@@ -122,6 +122,6 @@ local interface ServantLocator
      *
      **/
     void deactivate(string category);
-};
+}
 
-};
+}

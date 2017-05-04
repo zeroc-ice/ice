@@ -35,7 +35,7 @@ local interface TopicObserver extends Ice::Instrumentation::Observer
      *
      **/
     void forwarded();
-};
+}
 
 local interface SubscriberObserver extends Ice::Instrumentation::Observer
 {
@@ -59,7 +59,7 @@ local interface SubscriberObserver extends Ice::Instrumentation::Observer
      *
      **/
     void delivered(int count);
-};
+}
 
 /**
  *
@@ -97,7 +97,7 @@ local interface ObserverUpdater
      *
      **/
     void updateSubscriberObservers();
-};
+}
 
 enum SubscriberState
 {
@@ -121,7 +121,7 @@ enum SubscriberState
      *
      **/
     SubscriberStateError
-};
+}
 
 /**
  *
@@ -177,8 +177,8 @@ local interface TopicManagerObserver
      *
      **/
     void setObserverUpdater(ObserverUpdater updater);
-};
+}
 
-};
+}
 
-};
+}

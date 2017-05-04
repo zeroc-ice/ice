@@ -28,13 +28,13 @@ struct dmwpTest10Struct
     dmwpStringStructDict dict;
     dmwpClass c;
     dmwpInterface i;
-};
+}
 
 sequence<dmwpStruct> dmwpTest10StructSeq;
 
 dictionary<dmwpStruct, dmwpBaseClass> dmwpTest10StructClassSeq;
 
-interface dmwpTest10Interface extends dmwpInterface {};
+interface dmwpTest10Interface extends dmwpInterface {}
 
 exception dmwpTest10Exception extends dmwpException
 {
@@ -44,7 +44,7 @@ exception dmwpTest10Exception extends dmwpException
     dmwpStringStructDict dict1;
     dmwpClass c1;
     dmwpInterface i1;
-};
+}
 
 class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
 {
@@ -78,7 +78,7 @@ class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
                   out dmwpInterface o5,
                   out dmwpClass o6)
         throws dmwpException;
-};
+}
 
-};
-};
+}
+}

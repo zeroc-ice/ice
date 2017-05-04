@@ -20,6 +20,6 @@ interface Echo
     void startBatch();
     void flushBatch();
     void shutdown();
-};
+}
 
-};
+}

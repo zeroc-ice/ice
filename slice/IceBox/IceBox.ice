@@ -49,7 +49,7 @@ local exception FailureException
      *
      **/
     string reason;
-};
+}
 
 
 /**
@@ -60,7 +60,7 @@ local exception FailureException
  **/
 exception AlreadyStartedException
 {
-};
+}
 
 /**
  *
@@ -70,7 +70,7 @@ exception AlreadyStartedException
  **/
 exception AlreadyStoppedException
 {
-};
+}
 
 /**
  *
@@ -80,7 +80,7 @@ exception AlreadyStoppedException
  **/
 exception NoSuchServiceException
 {
-};
+}
 
 /**
  *
@@ -118,7 +118,7 @@ local interface Service
      *
      **/
     void stop();
-};
+}
 
 
 /**
@@ -133,7 +133,7 @@ interface ServiceObserver
 {
     void servicesStarted(Ice::StringSeq services);
     void servicesStopped(Ice::StringSeq services);
-};
+}
 
 
 /**
@@ -195,6 +195,6 @@ interface ServiceManager
      *
      **/
     void shutdown();
-};
+}
 
-};
+}

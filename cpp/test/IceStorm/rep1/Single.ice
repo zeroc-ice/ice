@@ -15,6 +15,6 @@ module Test
 interface Single
 {
     void event(int i);
-};
+}
 
-};
+}

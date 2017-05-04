@@ -17,13 +17,13 @@ dictionary<string, string> StringDict;
 class C
 {
     int i;
-};
+}
 
 ["clr:class"]
 struct S1
 {
     string name;
-};
+}
 
 struct S2
 {
@@ -41,6 +41,6 @@ struct S2
     S1 s;
     C cls;
     Object* prx;
-};
+}
 
-};
+}

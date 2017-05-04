@@ -16,15 +16,15 @@ module Test
 class ConcreteClass
 {
     int i;
-};
+}
 
-exception E {};
+exception E {}
 
 interface Initial
 {
     ConcreteClass getConcreteClass();
     void throwException() throws E;
     void shutdown();
-};
+}
 
-};
+}

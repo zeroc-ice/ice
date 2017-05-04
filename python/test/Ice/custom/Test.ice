@@ -27,7 +27,7 @@ module Test
         ["python:seq:tuple"] StringList s2;
         StringTuple s3;
         ["python:seq:default"] StringTuple s4;
-    };
+    }
 
     class C
     {
@@ -39,7 +39,7 @@ module Test
         ["python:seq:tuple"] StringList s2;
         StringTuple s3;
         ["python:seq:default"] StringTuple s4;
-    };
+    }
 
     interface Custom
     {
@@ -63,5 +63,5 @@ module Test
         void sendC(C val);
 
         void shutdown();
-    };
-};
+    }
+}

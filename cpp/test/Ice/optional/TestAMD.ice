@@ -17,32 +17,32 @@ module Test
 class OneOptional
 {
     optional(1) int a;
-};
+}
 
 enum MyEnum
 {
     MyEnumMember
-};
+}
 
 struct SmallStruct
 {
     byte m;
-};
+}
 
 struct FixedStruct
 {
     int m;
-};
+}
 
 struct VarStruct
 {
     string m;
-};
+}
 
 ["cpp:class"] struct ClassVarStruct
 {
     int a;
-};
+}
 
 sequence<byte> ByteSeq;
 sequence<bool> BoolSeq;
@@ -109,7 +109,7 @@ class MultiOptional
     optional(29) BoolSeq bos;
 
     optional(30) Serializable ser;
-};
+}
 
 class A
 {
@@ -117,26 +117,26 @@ class A
     optional(1) int ma;
     optional(50) int mb;
     optional(500) int mc;
-};
+}
 
 ["preserve-slice"]
 class B extends A
 {
     int requiredB = 0;
     optional(10) int md;
-};
+}
 
 class C extends B
 {
     string ss;
     optional(890) string ms;
-};
+}
 
 class WD
 {
     optional(1) int a = 5;
     optional(2) string s = "test";
-};
+}
 
 exception OptionalException
 {
@@ -144,46 +144,46 @@ exception OptionalException
     optional(1) int a = 5;
     optional(2) string b;
     optional(50) OneOptional o;
-};
+}
 
 exception DerivedException extends OptionalException
 {
     optional(600) string ss = "test";
     optional(601) OneOptional o2;
-};
+}
 
 exception RequiredException extends OptionalException
 {
     string ss = "test";
     OneOptional o2;
-};
+}
 
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;
     ["protected"] optional(2) SmallStructList lp;
     optional(3) ClassVarStruct s;
-};
+}
 
 class E
 {
     A ae;
-};
+}
 
 class F extends E
 {
     optional(1) A af;
-};
+}
 
 class G1
 {
     string a;
-};
+}
 
 class G2
 {
     long a;
-};
+}
 
 class G
 {
@@ -191,7 +191,7 @@ class G
     G2 gg2;
     optional(0) G2 gg2Opt;
     G1 gg1;
-};
+}
 
 class Recursive;
 sequence<Recursive> RecursiveSeq;
@@ -199,7 +199,7 @@ sequence<Recursive> RecursiveSeq;
 class Recursive
 {
     optional(0) RecursiveSeq value;
-};
+}
 
 ["amd"]
 interface Initial
@@ -336,6 +336,6 @@ interface Initial
     bool supportsCppStringView();
 
     bool supportsNullOptional();
-};
+}
 
-};
+}

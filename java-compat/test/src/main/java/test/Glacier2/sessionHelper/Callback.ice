@@ -17,7 +17,7 @@ exception CallbackException
 {
     double someValue;
     string someString;
-};
+}
 
 interface CallbackReceiver
 {
@@ -25,7 +25,7 @@ interface CallbackReceiver
 
     void callbackEx()
         throws CallbackException;
-};
+}
 
 interface Callback
 {
@@ -35,7 +35,7 @@ interface Callback
         throws CallbackException;
 
     void shutdown();
-};
+}
 
-};
+}
 

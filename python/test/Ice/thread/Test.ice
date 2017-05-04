@@ -18,7 +18,7 @@ module Test
 interface TestIntf
 {
     void sleep(int ms);
-};
+}
 
 interface RemoteCommunicator
 {
@@ -31,15 +31,15 @@ interface RemoteCommunicator
     int getThreadStopCount();
 
     void destroy();
-};
+}
 
 interface RemoteCommunicatorFactory
 {
     RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
 
     void shutdown();
-};
+}
 
-};
+}
 
 #endif

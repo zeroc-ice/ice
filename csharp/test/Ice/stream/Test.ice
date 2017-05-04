@@ -24,7 +24,7 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 class MyClass;
 interface MyInterface;
@@ -41,7 +41,7 @@ struct SmallStruct
     string str;
     MyEnum e;
     MyClass* p;
-};
+}
 
 class OptionalClass
 {
@@ -49,7 +49,7 @@ class OptionalClass
     byte by;
     optional(1) short sh;
     optional(2) int i;
-};
+}
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
@@ -168,15 +168,15 @@ class MyClass
     MyClassS seq10;
     StringMyClassD d;
     SerialSmall ss;
-};
+}
 
 exception MyException
 {
     MyClass c;
-};
+}
 
 interface MyInterface
 {
-};
+}
 
-};
+}

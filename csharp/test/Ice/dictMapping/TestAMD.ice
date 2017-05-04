@@ -43,6 +43,6 @@ dictionary<string, GSS> NDGSS;
 
     NDASS opNDASS(NDASS i, out NDASS o);
     NDGSS opNDGSS(NDGSS i, out NDGSS o);
-};
+}
 
-};
+}

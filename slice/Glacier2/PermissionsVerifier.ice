@@ -37,7 +37,7 @@ exception PermissionDeniedException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -69,7 +69,7 @@ interface PermissionsVerifier
     ["nonmutating", "cpp:const", "format:sliced"]
     idempotent bool checkPermissions(string userId, string password, out string reason)
         throws PermissionDeniedException;
-};
+}
 
 /**
  *
@@ -101,6 +101,6 @@ interface SSLPermissionsVerifier
     ["nonmutating", "cpp:const", "format:sliced"]
     idempotent bool authorize(SSLInfo info, out string reason)
         throws PermissionDeniedException;
-};
+}
 
-};
+}

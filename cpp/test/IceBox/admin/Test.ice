@@ -18,8 +18,8 @@ module Test
 interface TestFacet
 {
     Ice::PropertyDict getChanges();
-};
+}
 
-};
+}
 
 #endif

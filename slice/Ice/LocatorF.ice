@@ -22,4 +22,4 @@ module Ice
 interface Locator;
 interface LocatorRegistry;
 
-};
+}

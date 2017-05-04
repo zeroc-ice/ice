@@ -17,6 +17,6 @@ class C
     void operation();
     int operation;
     long l;
-};
+}
 
-};
+}

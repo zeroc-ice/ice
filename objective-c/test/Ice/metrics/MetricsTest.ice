@@ -15,7 +15,7 @@ module Test
 
 exception UserEx
 {
-};
+}
 
 sequence<byte> ByteSeq;
 
@@ -39,13 +39,13 @@ interface Metrics
     Object* getAdmin();
 
     void shutdown();
-};
+}
 
 interface Controller
 {
     void hold();
 
     void resume();
-};
+}
 
-};
+}

@@ -28,7 +28,7 @@ module IceGrid
  **/
 exception UserAccountNotFoundException
 {
-};
+}
 
 /**
  *
@@ -57,6 +57,6 @@ interface UserAccountMapper
      **/
     string getUserAccount(string user)
         throws UserAccountNotFoundException;
-};
+}
 
-};
+}

@@ -13,6 +13,6 @@ module Test
 
 class Base
 {
-};
+}
 
-};
+}

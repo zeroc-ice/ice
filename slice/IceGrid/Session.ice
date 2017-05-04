@@ -116,6 +116,6 @@ interface Session extends Glacier2::Session
      *
      **/
     idempotent void setAllocationTimeout(int timeout);
-};
+}
 
-};
+}

@@ -22,6 +22,6 @@ interface TestIntf
     Ice::Context getEndpointInfoAsContext();
 
     Ice::Context getConnectionInfoAsContext();
-};
+}
 
-};
+}

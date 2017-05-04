@@ -17,6 +17,6 @@ module Test
 
 exception DerivedEx extends BaseEx
 {
-};
+}
 
-};
+}

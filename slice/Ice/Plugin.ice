@@ -48,7 +48,7 @@ local interface Plugin
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -116,6 +116,6 @@ local interface PluginManager
      *
      **/
     void destroy();
-};
+}
 
-};
+}

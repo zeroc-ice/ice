@@ -19,21 +19,21 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 interface MyClass;
 
 struct AnotherStruct
 {
     string s;
-};
+}
 
 struct Structure
 {
     MyClass* p;
     MyEnum e;
     AnotherStruct s;
-};
+}
 
 sequence<byte> ByteS;
 sequence<bool> BoolS;
@@ -63,7 +63,7 @@ struct MyStruct
 {
     int i;
     int j;
-};
+}
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
@@ -256,28 +256,28 @@ interface MyClass
 
     ["marshaled-result"] StringStringD opMDict1();
     ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
-};
+}
 
 struct MyStruct1
 {
     string tesT; // Same name as the enclosing module
     MyClass myClass; // Same name as an already defined class
     string myStruct1; // Same name as the enclosing struct
-};
+}
 
 class MyClass1
 {
     string tesT; // Same name as the enclosing module
     MyClass myClass; // Same name as an already defined class
     string myClass1; // Same name as the enclosing class
-};
+}
 
 interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
     MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
-};
+}
 
 //
 // String literals
@@ -347,7 +347,7 @@ const string su0 = "ĨŸÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃";
 const string su1 = "\u0128\u0178\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
-};
+}
 
 module Test2
 {
@@ -360,6 +360,6 @@ module Test2
  **/
 interface MyDerivedClass extends Test::MyClass
 {
-};
+}
 
-};
+}

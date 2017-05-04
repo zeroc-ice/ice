@@ -69,7 +69,7 @@ interface Router
      *
      **/
     idempotent ObjectProxySeq addProxies(ObjectProxySeq proxies);
-};
+}
 
 /**
  *
@@ -91,6 +91,6 @@ interface RouterFinder
      *
      **/
     Router* getRouter();
-};
+}
 
-};
+}

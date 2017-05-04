@@ -25,7 +25,7 @@ const float floatconst = 0.;
 const double doubleconst = 0.;
 const string stringconst = "X\aX\x01000\x100\rX\007\xff\xff\xff\x0ff\xfff\x1X";
 const string stringconst2 = "Hello World!";
-enum color { red, green, blue };
+enum color { red, green, blue }
 const color colorconst = blue;
 const ::Test::color colorconst2 = ::Test::color::green;
 
@@ -88,7 +88,7 @@ const long ic8 = false;         // type mismatch
 
 const long = 0;                 // missing identifier
 
-enum digit { one, two };
+enum digit { one, two }
 const color ic9 = two;          // wrong enumerator type
 const color ic10 = 0;           // wrong initializer type
 
@@ -154,4 +154,4 @@ const string octalRange = "\455";                   // Octal escape sequence out
 const string badHex = "\x";                         // Missing hex digit
 const string surrogatePair = "\uD83C\uDF4C";        // surrogate pair not allow in slice
 
-};
+}

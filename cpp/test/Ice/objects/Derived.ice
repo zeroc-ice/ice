@@ -17,6 +17,6 @@ module Test
 class Derived extends Base
 {
     string b;
-};
+}
 
-};
+}

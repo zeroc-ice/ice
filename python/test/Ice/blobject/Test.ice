@@ -14,7 +14,7 @@ module Test
 
 exception UE
 {
-};
+}
 
 interface Hello
 {
@@ -23,6 +23,6 @@ interface Hello
     void raiseUE()
         throws UE;
     void shutdown();
-};
+}
 
-};
+}

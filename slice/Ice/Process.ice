@@ -53,6 +53,6 @@ interface Process
      *
      **/
     void writeMessage(string message, int fd);
-};
+}
 
-};
+}

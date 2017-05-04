@@ -83,7 +83,7 @@ enum OperationMode
      * recoverable error.
      */
     \Idempotent
-};
+}
 
 /**
  *
@@ -159,6 +159,6 @@ local struct Current
      *
      **/
     Ice::EncodingVersion encoding;
-};
+}
 
-};
+}

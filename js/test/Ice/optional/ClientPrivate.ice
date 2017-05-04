@@ -26,7 +26,7 @@ module Test
 //     string ds;
 //     optional(990) StringSeq seq;
 //     optional(1000) A ao;
-// };
+// }
 
 //
 // This class is a hack that allows us to invoke the opClassAndUnknownOptional operation
@@ -38,6 +38,6 @@ interface Initial2
     void opClassAndUnknownOptional(A p, optional(1) Object o);
 
     void opVoid(optional(1) int a, optional(2) string v);
-};
+}
 
-};
+}

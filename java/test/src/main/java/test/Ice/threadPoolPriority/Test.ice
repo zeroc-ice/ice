@@ -17,6 +17,6 @@ interface Priority
 {
     void shutdown();
     int getPriority();
-};
+}
 
-};
+}

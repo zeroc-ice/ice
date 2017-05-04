@@ -19,12 +19,12 @@ dictionary<string, string> WstringWStringDict;
 struct WstringStruct
 {
     string s;
-};
+}
 
 exception WstringException
 {
     string reason;
-};
+}
 
 interface WstringClass
 {
@@ -34,9 +34,9 @@ interface WstringClass
 
     void throwExcept(string reason)
         throws WstringException;
-};
+}
 
-};
+}
 
 module Test2
 {
@@ -48,12 +48,12 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
 ["cpp:type:wstring"] struct WstringStruct
 {
     string s;
-};
+}
 
 ["cpp:type:wstring"] exception WstringException
 {
     string reason;
-};
+}
 
 ["cpp:type:wstring"] interface WstringClass
 {
@@ -63,7 +63,7 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
 
     void throwExcept(string reason)
         throws WstringException;
-};
+}
 
-};
+}
 

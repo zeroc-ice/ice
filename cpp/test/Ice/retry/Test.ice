@@ -21,6 +21,6 @@ interface Retry
     void opSystemException();
 
     idempotent void shutdown();
-};
+}
 
-};
+}

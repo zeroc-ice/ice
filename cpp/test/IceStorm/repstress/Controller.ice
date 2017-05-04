@@ -15,6 +15,6 @@ module Test
 interface Controller
 {
     void stop();
-};
+}
 
-};
+}

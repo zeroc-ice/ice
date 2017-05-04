@@ -17,6 +17,6 @@ module Test
 interface B
 {
     void shutdown();
-};
+}
 
-};
+}

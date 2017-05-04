@@ -17,9 +17,9 @@ const long C4 = 0x80000001;
 const float C5 = 1.1;
 const long C6 = 2;
 
-enum E { e1, e2, e3 = 4 };
-enum Ebis { e2 };
-enum Eter { e2 };
+enum E { e1, e2, e3 = 4 }
+enum Ebis { e2 }
+enum Eter { e2 }
 
 class C
 {
@@ -39,17 +39,17 @@ class C
     optional(e2) int m14;           // ambiguous
     optional(e3) int m15;           // ok
     optional(4) int m16;            // duplicate tag
-};
+}
 
 class Base
 {
     optional(E::e2) int b1;
-};
+}
 
 class Derived extends Base
 {
     optional(1) int d1;
-};
+}
 
 class Ex
 {
@@ -69,22 +69,22 @@ class Ex
     optional(E::e2) int m14;        // ok
     optional(e3) int m15;           // ok
     optional(4) int m16;            // duplicate tag
-};
+}
 
 class BaseEx
 {
     optional(E::e2) int b1;
-};
+}
 
 class DerivedEx extends BaseEx
 {
     optional(1) int d1;
-};
+}
 
 struct S
 {
     optional(1) int m1;             // not allowed in struct
     optional(2) int m2 = 2;         // not allowed in struct
-};
+}
 
-};
+}

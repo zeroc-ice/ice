@@ -16,6 +16,6 @@ module Test
 interface Interface2
 {
      void method();
-};
+}
 
-};
+}

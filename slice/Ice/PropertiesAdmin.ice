@@ -75,6 +75,6 @@ interface PropertiesAdmin
      *
      **/
     void setProperties(PropertyDict newProperties);
-};
+}
 
-};
+}

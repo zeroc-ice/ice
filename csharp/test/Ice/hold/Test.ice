@@ -19,6 +19,6 @@ interface Hold
     int set(int value, int delay);
     void setOneway(int value, int expected);
     void shutdown();
-};
+}
 
-};
+}

@@ -16,6 +16,6 @@ module Test
 interface TestIntf
 {
     void shutdown();
-};
+}
 
-};
+}

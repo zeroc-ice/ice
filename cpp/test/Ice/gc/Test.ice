@@ -16,7 +16,7 @@ class C
 {
     C left;
     C right;
-};
+}
 sequence<C> CSeq;
 
 dictionary<int, C> CDict;
@@ -24,7 +24,7 @@ dictionary<int, C> CDict;
 struct S
 {
     C theC;
-};
+}
 sequence<S> SSeq;
 
 class C2;
@@ -33,25 +33,25 @@ dictionary<int, C2> C2Dict;
 struct S2
 {
     C2Dict theC2Dict;
-};
+}
 
 sequence<S2> S2Seq;
 
 class C2
 {
     S2Seq theS2Seq;
-};
+}
 
 class Leaf
 {
     int i;
-};
+}
 
 class Node
 {
     Leaf l;
     Node n;
-};
+}
 
 //
 // Remainder of definitions are there to test that the generated code compiles;
@@ -72,14 +72,14 @@ sequence<CSeq> CSeqSeq;                 // Sequence of sequence.
 struct A                                // Struct containing sequence.
 {
     SSeq theSSeq;
-};
+}
 
 // Struct containing dictionary defined above.
 
 struct B                                // Struct containing struct.
 {
     S theS;
-};
+}
 
 // Dictionary of classes defined above.
 
@@ -103,7 +103,7 @@ class CTest
     CSeqDict theCSeqDict;
     SDict theSDict;
     CDictDict theCDictDict;
-};
+}
 
 module AAA
 {
@@ -114,7 +114,7 @@ module AAA
     struct BStruct
     {
         B bMem;
-    };
+    }
 
     class C
     {
@@ -125,8 +125,8 @@ module AAA
         BSeq x;
         BDict y;
         BStruct z;
-    };
-};
+    }
+}
 
 module AAA
 {
@@ -135,7 +135,7 @@ module AAA
     struct CStruct
     {
         C cMem;
-    };
+    }
 
     class B
     {
@@ -146,32 +146,32 @@ module AAA
         CSeq x;
         CDict y;
         CStruct z;
-    };
-};
+    }
+}
 
 module CCC
 {
     class Forward;
     sequence<Forward*> ForwardProxySeq;
-};
+}
 
 module CCC
 {
     class Forward
     {
-    };
-};
+    }
+}
 
 module DDD
 {
     interface I
     {
         void op();
-    };
+    }
 
     class C
     {
-    };
+    }
 
     class C2;
 
@@ -183,11 +183,11 @@ module DDD
         C* myCstar;
         C2 myC2;
         C2* myC2star;
-    };
+    }
 
     class C2
     {
-    };
-};
+    }
+}
 
-};
+}

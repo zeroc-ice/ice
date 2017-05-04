@@ -78,7 +78,7 @@ class Metrics
      *
      **/
     int failures = 0;
-};
+}
 
 /**
  *
@@ -102,7 +102,7 @@ struct MetricsFailures
      *
      **/
     StringIntDict failures;
-};
+}
 
 /**
  *
@@ -136,7 +136,7 @@ dictionary<string, MetricsMap> MetricsView;
  **/
 exception UnknownMetricsView
 {
-};
+}
 
 /**
  *
@@ -243,7 +243,7 @@ interface MetricsAdmin
      **/
     MetricsFailures getMetricsFailures(string view, string map, string id)
         throws UnknownMetricsView;
-};
+}
 
 /**
  *
@@ -278,7 +278,7 @@ class ThreadMetrics extends Metrics
      *
      **/
     int inUseForOther = 0;
-};
+}
 
 /**
  *
@@ -309,7 +309,7 @@ class DispatchMetrics extends Metrics
      *
      **/
     long replySize = 0;
-};
+}
 
 /**
  *
@@ -337,7 +337,7 @@ class ChildInvocationMetrics extends Metrics
      *
      **/
     long replySize = 0;
-};
+}
 
 /**
  *
@@ -347,7 +347,7 @@ class ChildInvocationMetrics extends Metrics
  **/
 class CollocatedMetrics extends ChildInvocationMetrics
 {
-};
+}
 
 /**
  *
@@ -358,7 +358,7 @@ class CollocatedMetrics extends ChildInvocationMetrics
  **/
 class RemoteMetrics extends ChildInvocationMetrics
 {
-};
+}
 
 /**
  *
@@ -399,7 +399,7 @@ class InvocationMetrics extends Metrics
      *
      **/
     MetricsMap collocated;
-};
+}
 
 /**
  *
@@ -422,6 +422,6 @@ class ConnectionMetrics extends Metrics
      *
      **/
     long sentBytes = 0;
-};
+}
 
-};
+}

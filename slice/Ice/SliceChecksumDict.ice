@@ -26,4 +26,4 @@ module Ice
  **/
 dictionary<string, string> SliceChecksumDict;
 
-};
+}

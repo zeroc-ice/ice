@@ -19,7 +19,7 @@ interface Checksum
     ["cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 
     void shutdown();
-};
+}
 
-};
+}
 

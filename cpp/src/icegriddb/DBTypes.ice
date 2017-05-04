@@ -25,6 +25,6 @@ struct AllData
     ObjectInfoSeq objects;
     ObjectInfoSeq internalObjects;
     StringLongDict serials;
-};
+}
 
-};
+}

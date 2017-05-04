@@ -15,8 +15,8 @@ struct Circle
 {
     Point center;
     long radius;
-};
+}
 
-};
+}
 
-};
+}

@@ -16,6 +16,6 @@ module Test
 interface MyObject
 {
     string getName();
-};
+}
 
-};
+}

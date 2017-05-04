@@ -19,7 +19,7 @@ interface TestIntf
     void interruptSleep();
     void startHeartbeatCount();
     void waitForHeartbeatCount(int count);
-};
+}
 
 interface RemoteObjectAdapter
 {
@@ -27,13 +27,13 @@ interface RemoteObjectAdapter
     void activate();
     void hold();
     void deactivate();
-};
+}
 
 interface RemoteCommunicator
 {
     RemoteObjectAdapter* createObjectAdapter(int acmTimeout, int close, int heartbeat);
     void shutdown();
-};
+}
 
-};
+}
 

@@ -14,7 +14,7 @@ module Test
 
 exception MyException
 {
-};
+}
 
 interface MyClass
 {
@@ -25,6 +25,6 @@ interface MyClass
     void opException() throws MyException;
 
     void shutdown();
-};
+}
 
-};
+}

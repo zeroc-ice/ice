@@ -58,7 +58,7 @@ local interface SessionObserver extends Ice::Instrumentation::Observer
      *
      **/
     void routingTableSize(int delta);
-};
+}
 
 /**
  *
@@ -84,7 +84,7 @@ local interface ObserverUpdater
      *
      **/
     void updateSessionObservers();
-};
+}
 
 /**
  *
@@ -123,8 +123,8 @@ local interface RouterObserver
      *
      **/
     void setObserverUpdater(ObserverUpdater updater);
-};
+}
 
-};
+}
 
-};
+}

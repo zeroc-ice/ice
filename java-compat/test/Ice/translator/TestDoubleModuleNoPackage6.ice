@@ -26,13 +26,13 @@ struct dmnpTest6Struct
     dmnpStringStructDict dict;
     dmnpClass c;
     dmnpInterface i;
-};
+}
 
 sequence<dmnpStruct> dmnpTest6StructSeq;
 
 dictionary<dmnpStruct, dmnpBaseClass> dmnpTest6StructClassSeq;
 
-interface dmnpTest6Interface extends dmnpInterface {};
+interface dmnpTest6Interface extends dmnpInterface {}
 
 exception dmnpTest6Exception extends dmnpException
 {
@@ -42,7 +42,7 @@ exception dmnpTest6Exception extends dmnpException
     dmnpStringStructDict dict1;
     dmnpClass c1;
     dmnpInterface i1;
-};
+}
 
 class dmnpTest6Class extends dmnpBaseClass implements dmnpBaseInterface
 {
@@ -76,7 +76,7 @@ class dmnpTest6Class extends dmnpBaseClass implements dmnpBaseInterface
                  out dmnpInterface o5,
                  out dmnpClass o6)
         throws dmnpException;
-};
+}
 
-};
-};
+}
+}

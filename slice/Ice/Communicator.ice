@@ -598,7 +598,7 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
-};
+}
 
 
 /**
@@ -628,6 +628,6 @@ local enum ToStringMode
      * to generate strings compatible with Ice 3.6 and earlier.
      **/
     Compat
-};
+}
 
-};
+}

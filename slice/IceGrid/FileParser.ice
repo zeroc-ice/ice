@@ -31,7 +31,7 @@ exception ParseException
 {
     /** The reason for the failure. */
     string reason;
-};
+}
 
 /**
  *
@@ -60,6 +60,6 @@ interface FileParser
 
     idempotent ApplicationDescriptor parse(string xmlFile, Admin* adminProxy)
         throws ParseException;
-};
+}
 
-};
+}

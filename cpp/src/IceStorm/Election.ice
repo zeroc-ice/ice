@@ -26,7 +26,7 @@ struct TopicContent
     Ice::Identity id;
     /** The topic subscribers. */
     IceStorm::SubscriberRecordSeq records;
-};
+}
 
 /** A sequence of topic content. */
 sequence<TopicContent> TopicContentSeq;
@@ -36,7 +36,7 @@ exception ObserverInconsistencyException
 {
     /** The reason for the inconsistency. */
     string reason;
-};
+}
 
 /** The replica observer. */
 interface ReplicaObserver
@@ -119,7 +119,7 @@ interface ReplicaObserver
      **/
     void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
         throws ObserverInconsistencyException;
-};
+}
 
 /** Interface used to sync topics. */
 interface TopicManagerSync
@@ -133,7 +133,7 @@ interface TopicManagerSync
      *
      **/
     void getContent(out LogUpdate llu, out TopicContentSeq content);
-};
+}
 
 /** The node state. */
 enum NodeState
@@ -146,7 +146,7 @@ enum NodeState
     NodeStateReorganization,
     /** The replica group is active & replicating. */
     NodeStateNormal
-};
+}
 
 /** Forward declaration. */
 interface Node;
@@ -158,7 +158,7 @@ struct NodeInfo
     int id;
     /** The node proxy. */
     Node* n;
-};
+}
 
 /** A sequence of node info. */
 sequence<NodeInfo> NodeInfoSeq;
@@ -170,7 +170,7 @@ struct GroupInfo
     int id;
     /** The last known log update for this node. */
     LogUpdate llu;
-};
+}
 /** A sequence of group info. */
 sequence<GroupInfo> GroupInfoSeq;
 
@@ -196,7 +196,7 @@ struct QueryInfo
 
     /** The highest priority node that this node has seen. */
     int max;
-};
+}
 
 /** A replica node. */
 interface Node
@@ -302,6 +302,6 @@ interface Node
      *
      **/
     ["cpp:const"] idempotent QueryInfo query();
-};
+}
 
-};
+}

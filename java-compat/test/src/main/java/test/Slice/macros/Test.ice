@@ -36,13 +36,13 @@ class Default
 {
     int x DEFAULT(10);
     int y DEFAULT(10);
-};
+}
 
 class NoDefault
 {
     int x NODEFAULT(10);
     int y NODEFAULT(10);
-};
+}
 
 //
 // This class is only defined when compiling with slice2java.
@@ -52,7 +52,7 @@ class JavaOnly
 {
     string lang DEFAULT("java");
     int version DEFAULT(ICE_VERSION);
-};
+}
 #endif
 
-};
+}

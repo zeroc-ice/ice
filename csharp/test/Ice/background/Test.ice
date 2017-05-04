@@ -20,7 +20,7 @@ interface Background
     void opWithPayload(Ice::ByteSeq seq);
 
     void shutdown();
-};
+}
 
 interface BackgroundController
 {
@@ -39,7 +39,7 @@ interface BackgroundController
     void writeException(bool enable);
 
     void buffered(bool enable);
-};
+}
 
-};
+}
 

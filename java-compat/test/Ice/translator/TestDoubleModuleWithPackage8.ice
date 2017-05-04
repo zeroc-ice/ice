@@ -26,13 +26,13 @@ struct dmwpTest8Struct
     ::M1::M2::dmwpStringStructDict dict;
     ::M1::M2::dmwpClass c;
     ::M1::M2::dmwpInterface i;
-};
+}
 
 sequence<::M1::M2::dmwpStruct> dmwpTest8StructSeq;
 
 dictionary<::M1::M2::dmwpStruct, ::M1::M2::dmwpBaseClass> dmwpTest8StructClassSeq;
 
-interface dmwpTest8Interface extends ::M1::M2::dmwpInterface {};
+interface dmwpTest8Interface extends ::M1::M2::dmwpInterface {}
 
 exception dmwpTest8Exception extends ::M1::M2::dmwpException
 {
@@ -42,7 +42,7 @@ exception dmwpTest8Exception extends ::M1::M2::dmwpException
     ::M1::M2::dmwpStringStructDict dict1;
     ::M1::M2::dmwpClass c1;
     ::M1::M2::dmwpInterface i1;
-};
+}
 
 class dmwpTest8Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
 {
@@ -76,7 +76,7 @@ class dmwpTest8Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBa
                  out ::M1::M2::dmwpInterface o5,
                  out ::M1::M2::dmwpClass o6)
         throws ::M1::M2::dmwpException;
-};
+}
 
-};
-};
+}
+}

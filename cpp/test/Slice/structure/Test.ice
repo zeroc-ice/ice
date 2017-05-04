@@ -19,13 +19,13 @@ dictionary<string, string> StringDict;
 class C
 {
     int i;
-};
+}
 
 ["cpp:class"]
 struct S1
 {
     string name;
-};
+}
 
 ["cpp:comparable"]
 struct S2
@@ -44,6 +44,6 @@ struct S2
     S1 s;
     C cls;
     Object* prx;
-};
+}
 
-};
+}

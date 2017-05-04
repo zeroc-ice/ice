@@ -40,7 +40,7 @@ struct FileInfo
 
     /** The executable flag. */
     bool executable;
-};
+}
 
 /**
  *
@@ -68,7 +68,7 @@ struct LargeFileInfo
 
     /** The executable flag. */
     bool executable;
-};
+}
 
 /**
  *
@@ -77,4 +77,4 @@ struct LargeFileInfo
  **/
 sequence<LargeFileInfo> LargeFileInfoSeq;
 
-};
+}

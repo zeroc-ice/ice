@@ -77,6 +77,6 @@ class SessionMetrics extends Metrics
      *
      **/
     int overriddenServer = 0;
-};
+}
 
-};
+}

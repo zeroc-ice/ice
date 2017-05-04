@@ -16,6 +16,6 @@ class C
 {
     int member;
     void member();
-};
+}
 
-};
+}

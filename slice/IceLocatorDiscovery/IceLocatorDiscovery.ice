@@ -44,7 +44,7 @@ interface LookupReply
      *
      **/
     void foundLocator(Ice::Locator* prx);
-};
+}
 
 /**
  *
@@ -74,6 +74,6 @@ interface Lookup
      *
      **/
     idempotent void findLocator(string instanceName, LookupReply* reply);
-};
+}
 
-};
+}

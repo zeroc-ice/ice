@@ -17,19 +17,19 @@ module Test
 
 exception TestIntfException
 {
-};
+}
 
 enum CloseMode
 {
     Forcefully,
     Gracefully,
     GracefullyWithWait
-};
+}
 
 interface PingReply
 {
     void reply();
-};
+}
 
 interface TestIntf
 {
@@ -56,12 +56,12 @@ interface TestIntf
         throws TestIntfException;
 
     void pingBiDir(Ice::Identity id);
-};
+}
 
 interface TestIntfController
 {
     void holdAdapter();
     void resumeAdapter();
-};
+}
 
-};
+}

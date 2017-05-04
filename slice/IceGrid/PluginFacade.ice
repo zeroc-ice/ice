@@ -55,7 +55,7 @@ local interface ReplicaGroupFilter
      *
      **/
     Ice::StringSeq filter(string replicaGroupId, Ice::StringSeq adapterIds, Ice::Connection con, Ice::Context ctx);
-};
+}
 
 /**
  *
@@ -88,7 +88,7 @@ local interface TypeFilter
      *
      **/
     Ice::ObjectProxySeq filter(string type, Ice::ObjectProxySeq proxies, Ice::Connection con, Ice::Context ctx);
-};
+}
 
 
 /**
@@ -318,6 +318,6 @@ local interface RegistryPluginFacade
      *
      **/
     bool removeTypeFilter(string type, TypeFilter filter);
-};
+}
 
-};
+}

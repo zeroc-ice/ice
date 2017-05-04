@@ -49,6 +49,6 @@ struct SSLInfo
 
     /** The certificate chain. */
     Ice::StringSeq certs;
-};
+}
 
-};
+}

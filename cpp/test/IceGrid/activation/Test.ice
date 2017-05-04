@@ -17,6 +17,6 @@ interface TestIntf
     void fail();
 
     void shutdown();
-};
+}
 
-};
+}

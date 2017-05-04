@@ -26,4 +26,4 @@ module Ice
  **/
 local dictionary<string, Object> FacetMap;
 
-};
+}

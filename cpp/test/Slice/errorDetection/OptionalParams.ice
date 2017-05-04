@@ -17,8 +17,8 @@ const long C4 = 0x80000001;
 const float C5 = 1.1;
 const long C6 = 2;
 
-enum E { e1, e2, e3 };
-enum Ebis { e1 };
+enum E { e1, e2, e3 }
+enum Ebis { e1 }
 
 interface I
 {
@@ -68,6 +68,6 @@ interface I
     optional(1) int io4(out optional(2) int p, out optional(2) int o);  // duplicate tag
     optional(2) int io5(out optional(1) int p, out optional(2) int o);  // duplicate tag
     optional(C1) int io6(optional(E::e2) int p, out optional(E::e1) int o);   // duplicate tag
-};
+}
 
-};
+}

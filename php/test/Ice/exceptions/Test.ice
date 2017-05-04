@@ -16,29 +16,29 @@ module Test
 
 interface Empty
 {
-};
+}
 
 interface Thrower;
 
 exception A
 {
     int aMem;
-};
+}
 
 exception B extends A
 {
     int bMem;
-};
+}
 
 exception C extends B
 {
     int cMem;
-};
+}
 
 exception D
 {
     int dMem;
-};
+}
 
 interface Thrower
 {
@@ -60,11 +60,11 @@ interface Thrower
     Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
-};
+}
 
 interface WrongOperation
 {
     void noSuchOperation();
-};
+}
 
-};
+}

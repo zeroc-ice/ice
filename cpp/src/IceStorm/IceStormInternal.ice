@@ -37,11 +37,11 @@ module IceStorm
     Ice::ByteSeq data;
     /** The Ice::Current::Context data from the originating request. */
     Ice::Context context;
-};
+}
 
 local exception SendQueueSizeMaxReached
 {
-};
+}
 
 /** A sequence of EventData. */
 ["cpp:type:std::deque< ::IceStorm::EventDataPtr>"] sequence<EventData> EventDataSeq;
@@ -64,12 +64,12 @@ interface TopicLink
      *
      **/
     void forward(EventDataSeq events);
-};
+}
 
 /** Thrown if the reap call would block. */
 exception ReapWouldBlock
 {
-};
+}
 
 /**
  *
@@ -99,7 +99,7 @@ interface TopicInternal extends Topic
      *
      **/
     void reap(Ice::IdentitySeq id) throws ReapWouldBlock;
-};
+}
 
 /**
  *
@@ -119,7 +119,7 @@ interface TopicManagerInternal extends TopicManager
      *
      **/
     ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
-};
+}
 
-}; // End module IceStorm
+} // End module IceStorm
 
