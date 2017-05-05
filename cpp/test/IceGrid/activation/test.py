@@ -8,4 +8,5 @@
 #
 # **********************************************************************
 
-TestSuite(__file__, [IceGridTestCase()], multihost=False)
+if isinstance(platform, Windows) or os.getuid() != 0:
+    TestSuite(__file__, [IceGridTestCase()], multihost=False)

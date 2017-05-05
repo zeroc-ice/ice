@@ -52,7 +52,8 @@ clientProps10 = lambda process, current: {
 
 icegridregistry = [IceGridRegistryMaster(props=registryProps)]
 
-TestSuite(__file__,
+if isinstance(platform, Windows) or os.getuid() != 0:
+    TestSuite(__file__,
           [ IceGridSessionTestCase("with default encoding", icegridregistry=icegridregistry,
                                    client=IceGridClient(props=clientProps)),
             IceGridSessionTestCase("with 1.0 encoding", icegridregistry=icegridregistry,
