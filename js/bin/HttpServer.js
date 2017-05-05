@@ -231,6 +231,7 @@ function Init()
             }
 
             var filePath = req.url.pathname;
+            var sourceMap;
             if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
             {
                 // We only host JS files in the es5 subdirectory, other files
@@ -238,14 +239,15 @@ function Init()
                 filePath = filePath.replace("es5/", "")
             }
             filePath = path.resolve(path.join(basePath, filePath))
-
+            if(iceLib)
+            {
+                sourceMap = req.url.pathname.replace(".js", ".js.map");
+            }
             //
             // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
             // versions.
             //
-            // NOTE: only used minified versions with ES5 for now, they aren't supported with ES6 yet.
-            //
-            if(process.env.OPTIMIZE == "yes" && filePath.indexOf("es5/") !== -1)
+            if(process.env.OPTIMIZE == "yes")
             {
                 if(iceLib && filePath.substr(-7) !== ".min.js")
                 {
@@ -273,12 +275,12 @@ function Init()
                                 fs.stat(filePath,
                                         function(err, stats)
                                         {
-                                            doRequest(err, stats, filePath);
+                                            doRequest(err, stats, filePath, sourceMap);
                                         });
                             }
                             else
                             {
-                                doRequest(err, stats, filePath + ".gz");
+                                doRequest(err, stats, filePath + ".gz", sourceMap);
                             }
                         });
             }
@@ -287,11 +289,11 @@ function Init()
                 fs.stat(filePath,
                             function(err, stats)
                             {
-                                doRequest(err, stats, filePath);
+                                doRequest(err, stats, filePath, sourceMap);
                             });
             }
 
-            var doRequest = function(err, stats, filePath)
+            var doRequest = function(err, stats, filePath, sourceMap)
             {
                 if(err)
                 {
@@ -344,6 +346,11 @@ function Init()
                             "Content-Length": stats.size,
                             "Etag": hash.digest("hex")
                         };
+
+                        if(sourceMap)
+                        {
+                            headers["X-SourceMap"] = sourceMap;
+                        }
 
                         if(path.extname(filePath).slice(1) == "gz")
                         {

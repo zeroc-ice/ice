@@ -78,7 +78,7 @@ class Exception extends Error
 
     ice_name()
     {
-        return ice_id().substr(2);
+        return this.constructor._id.substr(2);
     }
 
     ice_id()
