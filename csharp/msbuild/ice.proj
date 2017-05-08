@@ -11,6 +11,22 @@
       <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
     </Target>
 
+    <PropertyGroup>
+        <slice2cs Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2cs</slice2cs>
+        <slice2cs Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2cs</slice2cs>
+    </PropertyGroup>
+
+    <Target Name="slice2cs">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
+                Targets="NuGetRestore"
+                BuildInParallel="true"/>
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+                Targets="$(slice2cs)"
+                BuildInParallel="true"
+                Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+    </Target>
+
     <ItemGroup>
         <DistSolution Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
@@ -21,7 +37,7 @@
         </TestSoution>
     </ItemGroup>
 
-    <Target Name="BuildDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="BuildDist" DependsOnTargets="slice2cs" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
@@ -34,7 +50,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist">
+    <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist;slice2cs">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />

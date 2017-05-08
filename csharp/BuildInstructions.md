@@ -34,7 +34,7 @@ To build the Ice assemblies, services and tests, run
 
 Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
 
-If you want to run the test suite without building the entire source base, use this
+If you want to build the test suite without building the entire source base, use this
 command:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
