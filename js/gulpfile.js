@@ -148,7 +148,7 @@ gulp.task("common:slice", [],
 gulp.task("common:slice-babel", ["common:slice"],
     function(cb){
         pump([
-            gulp.src(["test/Common/Controller.js", 
+            gulp.src(["test/Common/Controller.js",
                       "test/Common/ControllerI.js",
                       "test/Common/ControllerWorker.js"]),
             babel({compact: false}),
@@ -157,8 +157,8 @@ gulp.task("common:slice-babel", ["common:slice"],
 
 gulp.task("common:slice:clean", [],
     function(){
-        del(["test/Common/Controller.js", 
-             "test/Common/.depend", 
+        del(["test/Common/Controller.js",
+             "test/Common/.depend",
              "test/es5/Common/Controller.js"]);
     });
 
@@ -383,7 +383,7 @@ libs.forEach(
                     gzip(),
                     gulp.dest("lib")], cb);
             });
-        
+
         gulp.task(minLibTask(lib), [libTask(lib)],
             function(cb){
                 pump([
@@ -446,7 +446,7 @@ gulp.task("dist:libs", ["bower"],
         pump([gulp.src(["bower_components/ice/lib/*", "bower_components/ice/lib/**/*"]), gulp.dest("lib")], cb);
     });
 
-gulp.task("dist", useBinDist ? ["dist:libs"] : 
+gulp.task("dist", useBinDist ? ["dist:libs"] :
     libs.map(libTask).concat(libs.map(minLibTask))
                      .concat(libs.map(babelMinLibTask))
                      .concat(libs.map(babelTask)));
