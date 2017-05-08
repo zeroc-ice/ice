@@ -2478,20 +2478,6 @@ public class SessionKeeper
                             inf.setUseX509Certificate(true);
                         }
 
-                        try
-                        {
-                            inf.save();
-                        }
-                        catch(java.util.prefs.BackingStoreException ex)
-                        {
-                            JOptionPane.showMessageDialog(
-                                    ConnectionWizardDialog.this,
-                                    ex.toString(),
-                                    "Error saving connection",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                        _connectionManagerDialog.load();
-
                         ConnectionWizardDialog.this.dispose();
                         if(_connectNow)
                         {
@@ -5079,6 +5065,28 @@ public class SessionKeeper
     public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout,
                              final int acmTimeout, final AdminSessionPrx session, final ConnectionInfo info)
     {
+        try
+        {
+            if(!info.getStorePassword())
+            {
+                info.setPassword(null);
+            }
+            if(!info.getStoreKeyPassword())
+            {
+                info.setKeyPassword(null);
+            }
+            info.save();
+            _connectionManagerDialog.load();
+        }
+        catch(java.util.prefs.BackingStoreException ex)
+        {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    ex.toString(),
+                    "Error saving connection",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
         assert session != null;
         try
         {
@@ -5126,31 +5134,6 @@ public class SessionKeeper
                     {
                         _connectionManagerDialog.setCursor(oldCursor);
                         _connectionManagerDialog.setVisible(false);
-                        if(!info.getStorePassword())
-                        {
-                            info.setPassword(null);
-                        }
-                        if(!info.getStoreKeyPassword())
-                        {
-                            info.setKeyPassword(null);
-                        }
-
-                        if(info.getStorePassword() || info.getStoreKeyPassword())
-                        {
-                            try
-                            {
-                                info.save();
-                            }
-                            catch(java.util.prefs.BackingStoreException ex)
-                            {
-                                JOptionPane.showMessageDialog(
-                                        _coordinator.getMainFrame(),
-                                        ex.toString(),
-                                        "Error saving connection",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                            _connectionManagerDialog.load();
-                        }
                     });
             }).start();
     }
