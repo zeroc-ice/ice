@@ -134,4 +134,3 @@ IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSel
 {
     _instance->endpointHostResolver()->resolve(host, port, type, endpt, cb);
 }
-

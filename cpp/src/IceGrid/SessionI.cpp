@@ -403,4 +403,3 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
 
     return _factory->createGlacier2Session(userDN, ctl);
 }
-

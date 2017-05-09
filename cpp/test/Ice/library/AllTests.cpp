@@ -41,4 +41,3 @@ void allTests(const Ice::ObjectAdapterPtr& oa)
     Test::MyInterfacePrxPtr proxy = ICE_UNCHECKED_CAST(Test::MyInterfacePrx, oa->addWithUUID(servant));
     consume(servant, proxy);
 }
-

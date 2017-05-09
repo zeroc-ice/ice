@@ -24,4 +24,3 @@
 }
 -(id) initWithCall:(Ice::DispatcherCall*)call;
 @end
-

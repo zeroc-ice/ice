@@ -165,5 +165,3 @@ IceInternal::FactoryTable::removeTypeId(int compactId)
         }
     }
 }
-
-

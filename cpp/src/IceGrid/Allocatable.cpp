@@ -532,4 +532,3 @@ Allocatable::allocateFromChild(const AllocationRequestPtr& request,
     }
     return allocationCount > 0;
 }
-

@@ -56,4 +56,3 @@ hashAdd(Ice::Int& hashCode, const std::map<K, V>& map)
 }
 
 #endif
-

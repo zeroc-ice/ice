@@ -53,4 +53,3 @@ local class Cookie
 }
 
 }
-

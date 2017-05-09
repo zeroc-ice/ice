@@ -1509,4 +1509,3 @@ NodeI::destroyServer(const AMD_Node_destroyServerPtr& amdCB,
         command->execute();
     }
 }
-

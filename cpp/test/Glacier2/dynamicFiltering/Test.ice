@@ -53,4 +53,3 @@ interface TestSession extends Glacier2::Session
 }
 
 }
-

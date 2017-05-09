@@ -386,4 +386,3 @@ secondConstVoidMemFun1(void (T::*p)(A) const)
 }
 
 #endif
-

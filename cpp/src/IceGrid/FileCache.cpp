@@ -215,4 +215,3 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     return is.eof();
 }
-

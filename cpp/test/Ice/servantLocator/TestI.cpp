@@ -115,4 +115,3 @@ CookieI::message() const
 {
     return "blahblah";
 }
-

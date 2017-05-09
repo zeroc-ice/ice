@@ -41,4 +41,3 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     return priority;
 }
-

@@ -11,4 +11,3 @@
 
 #include <Ice/Connection.h>
 #include <Ice/Endpoint.h>
-

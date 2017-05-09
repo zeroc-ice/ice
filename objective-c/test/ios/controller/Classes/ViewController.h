@@ -26,4 +26,3 @@
     id<ICECommunicator> communicator;
 }
 @end
-

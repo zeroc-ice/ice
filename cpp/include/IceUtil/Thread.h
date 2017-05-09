@@ -177,4 +177,3 @@ typedef Handle<Thread> ThreadPtr;
 }
 
 #endif
-

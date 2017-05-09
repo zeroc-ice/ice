@@ -92,4 +92,3 @@ IceInternal::CompactIdInit::~CompactIdInit()
 {
     factoryTable->removeTypeId(_compactId);
 }
-

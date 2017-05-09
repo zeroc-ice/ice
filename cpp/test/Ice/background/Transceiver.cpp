@@ -269,4 +269,3 @@ Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver) :
     _readBufferPos = _readBuffer.b.begin();
     _readBuffer.i = _readBuffer.b.begin();
 }
-

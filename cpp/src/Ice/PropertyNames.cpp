@@ -1341,4 +1341,3 @@ const char* IceInternal::PropertyNames::clPropNames[] =
     "Freeze",
     0
 };
-

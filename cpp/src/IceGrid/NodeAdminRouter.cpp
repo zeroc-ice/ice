@@ -73,4 +73,3 @@ IceGrid::NodeServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePtr&
 
     invokeOnTarget(target, cb, inParams, current);
 }
-

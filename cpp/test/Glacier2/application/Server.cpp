@@ -67,4 +67,3 @@ main(int argc, char* argv[])
     Ice::InitializationData initData = getTestInitData(argc, argv);
     return app.main(argc, argv, initData);
 }
-

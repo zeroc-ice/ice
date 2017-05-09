@@ -58,4 +58,3 @@ interface H extends G
 }
 
 }
-

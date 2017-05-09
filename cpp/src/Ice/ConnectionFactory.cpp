@@ -1845,4 +1845,3 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
         _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS), IceUtil::Time::seconds(1));
     }
 }
-

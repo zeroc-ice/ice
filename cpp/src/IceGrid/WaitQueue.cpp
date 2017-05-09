@@ -178,4 +178,3 @@ WaitQueue::remove(const WaitItemPtr& item)
     }
     return false;
 }
-

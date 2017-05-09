@@ -101,4 +101,3 @@
 -keep,includedescriptorclasses public class * {
     public protected *;
 }
-

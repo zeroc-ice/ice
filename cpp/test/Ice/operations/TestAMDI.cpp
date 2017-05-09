@@ -1900,4 +1900,3 @@ MyDerivedClassI::opMDict2_async(const Test::AMD_MyClass_opMDict2Ptr& cb,
 }
 
 #endif
-

@@ -22,4 +22,3 @@ class TestActivationAMDI(Test.TestActivation):
             locator.deactivate("")
             locator = current.adapter.removeServantLocator("category")
             locator.deactivate("category")
-

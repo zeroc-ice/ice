@@ -35,4 +35,3 @@ Glacier2TestSuite(__name__, routerProps, [
                   ClientServerTestCase(name="client/server with router in buffered mode",
                                        servers=[Glacier2Router(passwords=passwords, props=buffered(True)), Server()],
                                        clients=[Client(), Client(args=["--shutdown"])])])
-

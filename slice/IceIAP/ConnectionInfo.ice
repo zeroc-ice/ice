@@ -68,4 +68,3 @@ local class ConnectionInfo extends Ice::ConnectionInfo
 }
 
 }
-

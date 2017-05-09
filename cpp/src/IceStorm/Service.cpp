@@ -573,4 +573,3 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         }
     }
 }
-

@@ -402,5 +402,3 @@ namespace Ice
             new Dictionary<Thread, Dictionary<string, string> >();
     }
 }
-
-

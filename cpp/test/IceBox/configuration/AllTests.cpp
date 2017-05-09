@@ -88,4 +88,3 @@ allTests(const Ice::CommunicatorPtr& com)
         cout << "ok" << endl;
     }
 }
-

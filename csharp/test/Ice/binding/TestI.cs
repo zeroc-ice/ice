@@ -16,4 +16,3 @@ public class TestI : TestIntfDisp_
         return current.adapter.getName();
     }
 }
-

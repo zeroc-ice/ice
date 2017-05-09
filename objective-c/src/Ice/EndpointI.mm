@@ -233,4 +233,3 @@ registerEndpointInfoClass(Class cl)
 }
 
 @end
-

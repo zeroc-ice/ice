@@ -12,4 +12,3 @@ package test.Ice.metrics;
 class CollocatedObserverI extends ChildInvocationObserverI implements Ice.Instrumentation.CollocatedObserver
 {
 };
-

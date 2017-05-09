@@ -24,4 +24,3 @@ ICE_API @interface ICEMainThreadDispatch : ICEDispatchInterceptor<ICEDispatchInt
 -(id)init:(ICEObject*)servant;
 +(id)mainThreadDispatch:(ICEObject*)servant;
 @end
-

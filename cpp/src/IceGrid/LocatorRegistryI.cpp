@@ -476,4 +476,3 @@ LocatorRegistryI::getTraceLevels() const
 {
     return _database->getTraceLevels();
 }
-

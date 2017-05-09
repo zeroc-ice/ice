@@ -68,4 +68,3 @@ Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd
     }
     target = stringToWstring(s);
 }
-

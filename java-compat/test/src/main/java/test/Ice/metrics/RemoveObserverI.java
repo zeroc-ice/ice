@@ -12,4 +12,3 @@ package test.Ice.metrics;
 class RemoteObserverI extends ChildInvocationObserverI implements Ice.Instrumentation.RemoteObserver
 {
 };
-

@@ -96,4 +96,3 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
     def shutdown(self, current = None):
         current.adapter.getCommunicator().shutdown()
-

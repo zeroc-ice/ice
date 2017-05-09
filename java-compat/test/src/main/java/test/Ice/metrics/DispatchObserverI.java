@@ -37,4 +37,3 @@ class DispatchObserverI extends ObserverI implements Ice.Instrumentation.Dispatc
     int userExceptionCount;
     int replySize;
 };
-

@@ -24,4 +24,3 @@
 -(Ice::EncodingVersion)encodingVersion;
 +(ICEEncodingVersion*)encodingVersionWithEncodingVersion:(const Ice::EncodingVersion&)arg;
 @end
-

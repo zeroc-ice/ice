@@ -155,4 +155,3 @@ main(int argc, char* argv[])
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     return svc.main(argc, argv, initData);
 }
-

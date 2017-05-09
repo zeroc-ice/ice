@@ -151,4 +151,3 @@ main(int argc, char* argv[])
     communicator->destroy();
     return status;
 }
-

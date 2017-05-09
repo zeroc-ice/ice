@@ -73,4 +73,3 @@ class Glacier2TestSuite(TestSuite):
 
     def getRouterProps(self, process, current):
         return self.routerProps(process, current) if callable(self.routerProps) else self.routerProps.copy()
-

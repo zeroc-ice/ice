@@ -34,4 +34,3 @@ setupNullPermissionsVerifier(const Ice::CommunicatorPtr&, const std::string&, co
 }
 
 #endif
-

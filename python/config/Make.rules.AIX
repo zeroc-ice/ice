@@ -9,4 +9,3 @@
 
 # $(call mkshlib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
 mkshlib        = $(or $($7_cxx),$(CXX)) -qmkshrobj -o $1 $2 $6
-

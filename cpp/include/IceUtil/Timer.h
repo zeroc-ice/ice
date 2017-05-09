@@ -143,4 +143,3 @@ Timer::Token::operator<(const Timer::Token& r) const
 }
 
 #endif
-

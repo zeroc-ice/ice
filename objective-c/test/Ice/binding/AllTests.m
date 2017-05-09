@@ -862,4 +862,3 @@ bindingAllTests(id<ICECommunicator> communicator)
 
     [com shutdown];
 }
-

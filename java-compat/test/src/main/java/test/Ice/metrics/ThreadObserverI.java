@@ -28,4 +28,3 @@ class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObs
 
     int states;
 };
-

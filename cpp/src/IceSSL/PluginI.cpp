@@ -135,4 +135,3 @@ ICEregisterIceSSL(bool loadOnInitialize)
 {
     Ice::registerIceSSL(loadOnInitialize);
 }
-

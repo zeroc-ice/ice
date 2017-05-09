@@ -31,4 +31,3 @@ if Mapping.getByPath(__name__).hasSource("Ice/objects", "collocated"):
     testcases += [ CollocatedTestCase() ]
 
 TestSuite(__name__, testcases)
-

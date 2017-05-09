@@ -198,4 +198,3 @@ Configuration::getInstance()
 {
     return _instance;
 }
-

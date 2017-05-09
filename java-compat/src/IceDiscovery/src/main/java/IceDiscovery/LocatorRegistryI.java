@@ -176,4 +176,3 @@ class LocatorRegistryI extends Ice._LocatorRegistryDisp
     final Map<String, Ice.ObjectPrx> _adapters = new HashMap<String, Ice.ObjectPrx>();
     final Map<String, Set<String>> _replicaGroups = new HashMap<String, Set<String>>();
 }
-

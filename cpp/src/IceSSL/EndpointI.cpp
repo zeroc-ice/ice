@@ -375,4 +375,3 @@ IceSSL::EndpointFactoryI::readWithUnderlying(const IceInternal::EndpointIPtr& un
 {
     return ICE_MAKE_SHARED(EndpointI, _instance, underlying);
 }
-

@@ -64,4 +64,3 @@ task signInstallJar(dependsOn: updateInstallManifest) << {
 signInstallJar.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 
 task install(dependsOn: signInstallJar)
-

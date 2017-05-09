@@ -18,4 +18,3 @@ extern std::list<TestBasePtr> allTests;
 void initializeTestSuite();
 
 #endif
-

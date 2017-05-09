@@ -32,4 +32,3 @@
 @interface TestBindingI : TestBindingTestIntf<TestBindingTestIntf>
 -(NSString *) getAdapterName:(ICECurrent *)current;
 @end
-

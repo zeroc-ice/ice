@@ -37,4 +37,3 @@ class ConnectionObserverI extends ObserverI implements Ice.Instrumentation.Conne
     int sent;
     int received;
 };
-

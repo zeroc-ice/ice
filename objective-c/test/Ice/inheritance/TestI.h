@@ -47,4 +47,3 @@
 
 @interface CDI : TestInheritanceMACD<TestInheritanceMACD>
 @end
-

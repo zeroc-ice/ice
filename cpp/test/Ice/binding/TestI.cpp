@@ -94,4 +94,3 @@ TestI::getAdapterName(const Ice::Current& current)
 {
     return current.adapter->getName();
 }
-

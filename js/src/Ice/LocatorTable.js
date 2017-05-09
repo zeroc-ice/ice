@@ -121,4 +121,3 @@ class LocatorTable
 
 Ice.LocatorTable = LocatorTable;
 module.exports.Ice = Ice;
-

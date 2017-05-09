@@ -373,4 +373,3 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
     }
     return 0;
 }
-

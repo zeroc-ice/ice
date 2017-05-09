@@ -428,4 +428,3 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     public InvocationObserverI invocationObserver;
     public DispatchObserverI dispatchObserver;
 };
-

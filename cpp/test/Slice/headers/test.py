@@ -150,5 +150,3 @@ class SliceHeadersTestCase(ClientTestCase):
 
 if not isinstance(platform, Windows):
     TestSuite(__name__, [ SliceHeadersTestCase() ], chdir=True)
-
-

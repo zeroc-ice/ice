@@ -50,4 +50,3 @@ basicConstraints = CA:true
 # PKIX recommendation.
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer:always
-

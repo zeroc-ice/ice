@@ -26,4 +26,3 @@
     NSMutableArray* interfacesIPv6;
 }
 @end
-

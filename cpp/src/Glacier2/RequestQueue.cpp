@@ -570,4 +570,3 @@ Glacier2::RequestQueueThread::run()
         }
     }
 }
-

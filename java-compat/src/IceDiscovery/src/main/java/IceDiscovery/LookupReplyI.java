@@ -32,4 +32,3 @@ class LookupReplyI extends _LookupReplyDisp
 
     private final LookupI _lookup;
 }
-

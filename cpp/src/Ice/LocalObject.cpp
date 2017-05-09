@@ -26,4 +26,3 @@ Ice::LocalObject::operator<(const LocalObject& r) const
 {
     return this < &r;
 }
-

@@ -22,4 +22,3 @@ interface Session extends Glacier2::Session
 }
 
 }
-

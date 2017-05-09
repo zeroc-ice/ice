@@ -81,4 +81,3 @@ public class Collocated extends test.Util.Application
         System.exit(result);
     }
 }
-

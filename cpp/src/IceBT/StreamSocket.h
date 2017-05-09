@@ -56,4 +56,3 @@ typedef IceUtil::Handle<StreamSocket> StreamSocketPtr;
 }
 
 #endif
-

@@ -27,4 +27,3 @@
 }
 -(id) initWithAdapter:(id<ICEObjectAdapter>)adapter;
 @end
-

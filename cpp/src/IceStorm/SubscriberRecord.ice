@@ -66,4 +66,3 @@ struct SubscriberRecord
 sequence<SubscriberRecord> SubscriberRecordSeq;
 
 } // End module IceStorm
-

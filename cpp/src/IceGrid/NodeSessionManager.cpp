@@ -674,4 +674,3 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
         (*p)->waitTryCreateSession(timeout);
     }
 }
-

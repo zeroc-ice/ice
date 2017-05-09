@@ -229,4 +229,3 @@ class FactoryACMMonitor implements ACMMonitor
     private java.util.List<Ice.ConnectionI> _reapedConnections = new java.util.ArrayList<Ice.ConnectionI>();
     private java.util.concurrent.Future<?> _future;
 }
-

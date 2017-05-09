@@ -359,4 +359,3 @@ IceInternal::TcpAcceptor::~TcpAcceptor()
     assert(_acceptFd == INVALID_SOCKET);
 #endif
 }
-

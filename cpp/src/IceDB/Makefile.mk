@@ -15,4 +15,3 @@ IceDB_libs              := lmdb
 IceDB_cppflags          := -DICE_DB_API_EXPORTS
 
 projects += $(project)
-

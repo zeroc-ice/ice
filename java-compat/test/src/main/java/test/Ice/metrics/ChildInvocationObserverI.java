@@ -28,4 +28,3 @@ class ChildInvocationObserverI extends ObserverI implements Ice.Instrumentation.
 
     int replySize;
 };
-

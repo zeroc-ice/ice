@@ -443,4 +443,3 @@ NodeSessionI::removeFeedback(const PatcherFeedbackPtr& feedback, const Ice::Iden
         _feedbacks.erase(feedback);
     }
 }
-

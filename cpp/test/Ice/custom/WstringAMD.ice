@@ -66,4 +66,3 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
 }
 
 }
-

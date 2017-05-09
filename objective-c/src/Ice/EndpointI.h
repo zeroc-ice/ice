@@ -46,4 +46,3 @@ ICE_API void registerEndpointInfoClass(Class cl);
 @interface ICEOpaqueEndpointInfo (ICEInternal)
 -(id) initWithOpaqueEndpointInfo:(Ice::OpaqueEndpointInfo*)opaqueEndpointInfo;
 @end
-

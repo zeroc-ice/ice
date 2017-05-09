@@ -257,6 +257,3 @@ public class Client extends test.Util.Application
         System.exit(status);
     }
 }
-
-
-

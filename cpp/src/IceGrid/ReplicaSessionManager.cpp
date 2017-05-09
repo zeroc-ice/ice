@@ -669,4 +669,3 @@ ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
         _observer = 0;
     }
 }
-

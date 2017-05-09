@@ -372,4 +372,3 @@ allTests(const CommunicatorPtr& communicator)
     }
     return obj;
 }
-

@@ -144,4 +144,3 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     InvocationObserverI invocationObserver;
     DispatchObserverI dispatchObserver;
 };
-

@@ -86,4 +86,3 @@ private:
 };
 
 #endif /* FILTER_MANAGER_H */
-

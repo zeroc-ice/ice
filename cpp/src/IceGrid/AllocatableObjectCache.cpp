@@ -408,4 +408,3 @@ AllocatableObjectEntry::canTryAllocate()
 {
     return _cache.canTryAllocate(this);
 }
-

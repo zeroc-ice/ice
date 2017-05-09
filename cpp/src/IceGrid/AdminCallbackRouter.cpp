@@ -85,4 +85,3 @@ IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& c
                                                            &AdminCallbackRouter::invokeException),
                              cb);
 }
-

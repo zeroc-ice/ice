@@ -229,4 +229,3 @@ class IceStormTestCase(TestCase):
         for s in self.icestorm:
             names.add(s.getInstanceName())
         return list(names)
-

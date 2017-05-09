@@ -18,4 +18,3 @@
 @interface ICEObjectAdapter : ICELocalObject<ICEObjectAdapter>
 -(Ice::ObjectAdapter*) adapter;
 @end
-

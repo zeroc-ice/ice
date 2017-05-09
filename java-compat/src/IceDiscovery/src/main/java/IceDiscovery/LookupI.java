@@ -466,4 +466,3 @@ class LookupI extends _LookupDisp
     private Map<Ice.Identity, ObjectRequest> _objectRequests = new HashMap<Ice.Identity, ObjectRequest>();
     private Map<String, AdapterRequest> _adapterRequests = new HashMap<String, AdapterRequest>();
 }
-

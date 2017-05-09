@@ -22,4 +22,3 @@
 -(void) clear;
 
 @end
-

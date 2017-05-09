@@ -1179,4 +1179,3 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
         // Ignored
     }
 }
-
