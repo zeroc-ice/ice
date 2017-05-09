@@ -1240,8 +1240,7 @@ public class Coordinator
     void
     login(final SessionKeeper sessionKeeper,
           final SessionKeeper.ConnectionInfo info,
-          final JDialog parent,
-          final Cursor oldCursor)
+          final JDialog parent)
     {
         //
         // Keep certificates arround for connection retry
@@ -1266,7 +1265,7 @@ public class Coordinator
             {
                 JOptionPane.showMessageDialog(parent, e.toString(), "Failed to access data directory",
                                               JOptionPane.ERROR_MESSAGE);
-                parent.setCursor(oldCursor);
+                _sessionKeeper.loginFailed();
                 return;
             }
             if(info.getKeyPassword() != null)
@@ -1292,7 +1291,7 @@ public class Coordinator
                                           e.toString(),
                                           "Communicator initialization failed",
                                           JOptionPane.ERROR_MESSAGE);
-            parent.setCursor(oldCursor);
+            _sessionKeeper.loginFailed();
             return;
         }
 
@@ -1654,7 +1653,7 @@ public class Coordinator
                                                      JOptionPane.showMessageDialog(parent, ex.toString(),
                                                                                    "Error creating certificate verifier",
                                                                                    JOptionPane.ERROR_MESSAGE);
-                                                     parent.setCursor(oldCursor);
+                                                     _sessionKeeper.loginFailed();
                                                  });
                     break;
                 }
@@ -1708,18 +1707,17 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, oldCursor, _sessionTimeout, _acmTimeout, _session, info);
+                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, info);
             }
 
             synchronized public void loginFailed()
             {
-                parent.setCursor(oldCursor);
+                _sessionKeeper.loginFailed();
                 _failed = true;
             }
 
             synchronized public void permissionDenied(String msg)
             {
-                parent.setCursor(oldCursor);
                 _failed = true;
                 _sessionKeeper.permissionDenied(parent, info, msg);
             }

@@ -84,6 +84,11 @@ public class Utils
             JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
+    static public void removeEscapeListener(JDialog dialog)
+    {
+        dialog.getRootPane().unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+    }
+
     //
     // Extract Ice version in the form XXYYZZ, e.g.  030201 (for 3.2.1)
     // 0 == empty string
