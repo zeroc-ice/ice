@@ -30,7 +30,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
             output = slice2cpp.getOutput(current)
 
             regex1 = re.compile("\.ice$", re.IGNORECASE)
-            lines1 = output.strip().split("\n")
+            lines1 = output.strip().splitlines()
             lines2 = open(os.path.join(testdir, regex1.sub(".err", file)), "r").readlines()
             if len(lines1) != len(lines2):
                 raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
