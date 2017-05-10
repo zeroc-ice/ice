@@ -3090,7 +3090,6 @@ public class SessionKeeper
         private JLabel _discoveryStatus;
         private JButton _discoveryRefresh;
 
-        private Plugin _discoveryPlugin;
         private JRadioButton _directDiscoveryManualEndpoint;
 
         // Direct Endpoints panel components
@@ -5485,6 +5484,7 @@ public class SessionKeeper
     private static AuthDialog _authDialog;
 
     private final Coordinator _coordinator;
+    private Plugin _discoveryPlugin;
 
     private Session _session;
     private boolean _connectedToMaster = false;

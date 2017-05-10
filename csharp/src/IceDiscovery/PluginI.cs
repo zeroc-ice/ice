@@ -96,7 +96,8 @@ namespace IceDiscovery
                 _locatorAdapter.addWithUUID(locatorRegistry));
 
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-            lookupPrx = lookupPrx.ice_collocationOptimized(false);
+            // No colloc optimization or router for the multicast proxy!
+            lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
             //
             // Add lookup and lookup reply Ice objects
@@ -124,12 +125,21 @@ namespace IceDiscovery
 
         public void destroy()
         {
-            _multicastAdapter.destroy();
-            _replyAdapter.destroy();
-            _locatorAdapter.destroy();
-            // Restore original default locator proxy, if the user didn't change it in the meantime
+            if(_multicastAdapter != null)
+            {
+                _multicastAdapter.destroy();
+            }
+            if(_replyAdapter != null)
+            {
+                _replyAdapter.destroy();
+            }
+            if(_locatorAdapter != null)
+            {
+                _locatorAdapter.destroy();
+            }
             if(_communicator.getDefaultLocator().Equals(_locator))
             {
+                // Restore original default locator proxy, if the user didn't change it in the meantime
                 _communicator.setDefaultLocator(_defaultLocator);
             }
         }

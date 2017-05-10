@@ -86,7 +86,8 @@ public class PluginI implements com.zeroc.Ice.Plugin
             _locatorAdapter.addWithUUID(locatorRegistry));
 
         com.zeroc.Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-        lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+        // No collocation optimization for the multicast proxy!
+        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
         //
         // Add lookup and lookup reply Ice objects
@@ -113,12 +114,21 @@ public class PluginI implements com.zeroc.Ice.Plugin
     @Override
     public void destroy()
     {
-        _multicastAdapter.destroy();
-        _replyAdapter.destroy();
-        _locatorAdapter.destroy();
-        // Restore original default locator proxy, if the user didn't change it in the meantime
+        if(_multicastAdapter != null)
+        {
+            _multicastAdapter.destroy();
+        }
+        if(_replyAdapter != null)
+        {
+            _replyAdapter.destroy();
+        }
+        if(_locatorAdapter != null)
+        {
+            _locatorAdapter.destroy();
+        }
         if(_communicator.getDefaultLocator().equals(_locator))
         {
+            // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
         }
     }

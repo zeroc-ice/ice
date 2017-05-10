@@ -611,7 +611,8 @@ class PluginI implements Plugin
         _locatorAdapter.setLocator(null);
 
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-        lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+        // No collocation optimization or router for the multicast proxy!
+        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
         Ice.LocatorPrx voidLoc = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
@@ -635,11 +636,17 @@ class PluginI implements Plugin
     public void
     destroy()
     {
-        _replyAdapter.destroy();
-        _locatorAdapter.destroy();
-        // Restore original default locator proxy, if the user didn't change it in the meantime
+        if(_replyAdapter != null)
+        {
+            _replyAdapter.destroy();
+        }
+        if(_locatorAdapter != null)
+        {
+            _locatorAdapter.destroy();
+        }
         if(_communicator.getDefaultLocator().equals(_locatorPrx))
         {
+            // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
         }
     }
