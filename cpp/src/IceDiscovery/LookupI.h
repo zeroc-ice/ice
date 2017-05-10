@@ -39,8 +39,8 @@ protected:
 
     LookupIPtr _lookup;
     int _retryCount;
-    int _lookupCount;
-    int _failureCount;
+    size_t _lookupCount;
+    size_t _failureCount;
 };
 ICE_DEFINE_PTR(RequestPtr, Request);
 

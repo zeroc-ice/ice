@@ -125,7 +125,7 @@ private:
 
     IceUtil::Time _nextRetry;
     int _pendingRetryCount;
-    int _failureCount;
+    size_t _failureCount;
     bool _warnOnce;
     vector<RequestPtr> _pendingRequests;
 };
