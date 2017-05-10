@@ -56,7 +56,7 @@ install:
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
 - pip install --user passlib
-- if [ "${CONFIGS}" = "cpp11-shared" ]; then make -C ${WORK_DIR} -j3 CONFIGS=shared icegridnode icegridregistry glacier2router; fi
+- if [ "${CONFIGS}" = "cpp11-shared" ]; then make -C ${WORK_DIR} -j3 CONFIGS=shared srcs; fi
 - make -C ${WORK_DIR} -j3 V=1
 
 script:
