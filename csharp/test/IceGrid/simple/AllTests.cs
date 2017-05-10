@@ -131,6 +131,64 @@ public class AllTests : TestCommon.AllTests
             adapter.deactivate();
 
             com.destroy();
+
+            string multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            //
+            // Test invalid lookup endpoints
+            //
+            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown");
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+                test(false);
+            }
+            catch(Ice.NoEndpointException)
+            {
+            }
+            com.destroy();
+
+            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
+            {
+                string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                if(!intf.Equals(""))
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                string port = app.getTestPort(99).ToString();
+                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+            }
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+            }
+            catch(Ice.NoEndpointException)
+            {
+                test(false);
+            }
+            com.destroy();
         }
         Console.Out.WriteLine("ok");
 

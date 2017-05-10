@@ -82,7 +82,7 @@ class Platform:
 
     def getFilters(self, config):
         if config.buildConfig in ["static", "cpp11-static"]:
-            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple"],
+            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
         return ([], [])
 
@@ -2496,10 +2496,15 @@ class CppMapping(Mapping):
                 return False
 
             # No C++11 tests for IceStorm, IceGrid, etc
-            parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
-            if self.cpp11 and not parent in ["IceUtil", "Slice", "Ice", "IceSSL", "IceDiscovery", "IceBox"]:
-                return False
-
+            if self.cpp11:
+                testId = current.testcase.getTestSuite().getId()
+                parent = re.match(r'^([\w]*).*', testId).group(1)
+                if parent in ["IceStorm"]:
+                    return False
+                elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
+                    return False
+                elif parent in ["Glacier2"] and testId not in ["Glacier2/application"]:
+                    return False
             return True
 
     def getNugetPackage(self, compiler, version):
@@ -2538,7 +2543,8 @@ class CppMapping(Mapping):
         return {
             "IceSSL" : "IceSSLOpenSSL:createIceSSLOpenSSL" if current.config.openssl else "IceSSL:createIceSSL",
             "IceBT" : "IceBT:createIceBT",
-            "IceDiscovery" : "IceDiscovery:createIceDiscovery"
+            "IceDiscovery" : "IceDiscovery:createIceDiscovery",
+            "IceLocatorDiscovery" : "IceLocatorDiscovery:createIceLocatorDiscovery"
         }[plugin]
 
     def getEnv(self, process, current):
@@ -2607,7 +2613,8 @@ class JavaMapping(Mapping):
         return {
             "IceSSL" : "com.zeroc.IceSSL.PluginFactory",
             "IceBT" : "com.zeroc.IceBT.PluginFactory",
-            "IceDiscovery" : "com.zeroc.IceDiscovery.PluginFactory"
+            "IceDiscovery" : "com.zeroc.IceDiscovery.PluginFactory",
+            "IceLocatorDiscovery" : "com.zeroc.IceLocatorDiscovery.PluginFactory"
         }[plugin]
 
     def getEnv(self, process, current):
@@ -2635,7 +2642,8 @@ class JavaCompatMapping(JavaMapping):
         return {
             "IceSSL" : "IceSSL.PluginFactory",
             "IceBT" : "IceBT.PluginFactory",
-            "IceDiscovery" : "IceDiscovery.PluginFactory"
+            "IceDiscovery" : "IceDiscovery.PluginFactory",
+            "IceLocatorDiscovery" : "IceLocatorDiscovery.PluginFactory"
         }[plugin]
 
     def getDefaultExe(self, processType, config=None):
@@ -2675,7 +2683,8 @@ class CSharpMapping(Mapping):
                                      "lib" if current.driver.useIceBinDist(self) else "Assemblies")
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
-            "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory"
+            "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory",
+            "IceLocatorDiscovery" : plugindir + "/IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory"
         }[plugin]
 
     def getEnv(self, process, current):

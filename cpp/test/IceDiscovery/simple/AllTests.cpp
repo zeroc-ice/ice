@@ -197,6 +197,55 @@ allTests(const CommunicatorPtr& communicator, int num)
     }
     cout << "ok" << endl;
 
+    cout << "testing invalid lookup endpoints... " << flush;
+    {
+        string multicast;
+        if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        {
+            multicast = "\"ff15::1\"";
+        }
+        else
+        {
+            multicast = "239.255.0.1";
+        }
+
+        {
+
+            Ice::InitializationData initData;
+            initData.properties = communicator->getProperties()->clone();
+            initData.properties->setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+            Ice::CommunicatorPtr com = Ice::initialize(initData);
+            test(com->getDefaultLocator());
+            try
+            {
+                com->stringToProxy("controller0@control0")->ice_ping();
+                test(false);
+            }
+            catch(const Ice::LocalException&)
+            {
+            }
+            com->destroy();
+        }
+        {
+            Ice::InitializationData initData;
+            initData.properties = communicator->getProperties()->clone();
+            string intf = initData.properties->getProperty("IceDiscovery.Interface");
+            if(!intf.empty())
+            {
+                intf = " --interface \"" + intf + "\"";
+            }
+            string port = initData.properties->getProperty("IceDiscovery.Port");
+            initData.properties->setProperty("IceDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown:" +
+                                             "udp -h " + multicast + " -p " + port + intf);
+            Ice::CommunicatorPtr com = Ice::initialize(initData);
+            test(com->getDefaultLocator());
+            com->stringToProxy("controller0@control0")->ice_ping();
+            com->destroy();
+        }
+    }
+    cout << "ok" << endl;
+
     cout << "shutting down... " << flush;
     for(vector<ControllerPrxPtr>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {

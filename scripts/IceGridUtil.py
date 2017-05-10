@@ -136,8 +136,6 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             pass
 
     def getProps(self, current):
-        # NOTE: we use the loopback interface for multicast with IPv6 to prevent failures
-        # on some machines which don't really have an IPv6 interface configured.
         props = {
             'IceGrid.InstanceName' : 'TestIceGrid',
             'IceGrid.Registry.PermissionsVerifier' : 'TestIceGrid/NullPermissionsVerifier',
@@ -148,6 +146,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             'IceGrid.Registry.Internal.Endpoints' : 'default',
             'IceGrid.Registry.Client.Endpoints' : self.getEndpoints(current),
             'IceGrid.Registry.Discovery.Port' : current.driver.getTestPort(99),
+            "IceGrid.Registry.Discovery.Interface": "::1" if current.config.ipv6 else "127.0.0.1",
             'IceGrid.Registry.SessionManager.Endpoints' : 'default',
             'IceGrid.Registry.AdminSessionManager.Endpoints' : 'default',
             'IceGrid.Registry.SessionTimeout' : 60,

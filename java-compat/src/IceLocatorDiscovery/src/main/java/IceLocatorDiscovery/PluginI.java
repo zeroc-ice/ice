@@ -145,6 +145,7 @@ class PluginI implements Plugin
         LocatorI(String name, LookupPrx lookup, Ice.Properties properties, String instanceName,
                  Ice.LocatorPrx voidLocator)
         {
+            _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
             _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
             _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
@@ -154,21 +155,8 @@ class PluginI implements Plugin
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
             _pendingRetryCount = 0;
-
-            try
-            {
-                lookup.ice_getConnection();
-            }
-            catch(Ice.LocalException ex)
-            {
-                StringBuilder b = new StringBuilder();
-                b.append("IceDiscovery is unable to establish a multicast connection:\n");
-                b.append("proxy = ");
-                b.append(lookup.toString());
-                b.append('\n');
-                b.append(ex.toString());
-                throw new Ice.PluginInitializationException(b.toString());
-            }
+            _failureCount = 0;
+            _warnOnce = true;
 
             //
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
@@ -177,18 +165,10 @@ class PluginI implements Plugin
             Ice.Endpoint[] single = new Ice.Endpoint[1];
             for(Ice.Endpoint endpt : lookup.ice_getEndpoints())
             {
-                try
-                {
-                    single[0] = endpt;
-                    LookupPrx l = (LookupPrx)lookup.ice_endpoints(single);
-                    l.ice_getConnection();
-                    _lookup.put(l, null);
-                }
-                catch(Ice.LocalException ex)
-                {
-                }
+                single[0] = endpt;
+                _lookups.put((LookupPrx)lookup.ice_endpoints(single), null);
             }
-            assert(!_lookup.isEmpty());
+            assert(!_lookups.isEmpty());
         }
 
         public void
@@ -198,7 +178,7 @@ class PluginI implements Plugin
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
             Ice.Endpoint[] single = new Ice.Endpoint[1];
-            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
             {
                 Ice.UDPEndpointInfo info = (Ice.UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
                 if(!info.mcastInterface.isEmpty())
@@ -401,11 +381,26 @@ class PluginI implements Plugin
                 if(_pendingRetryCount == 0) // No request in progress
                 {
                     _pendingRetryCount = _retryCount;
+                    _failureCount = 0;
                     try
                     {
-                        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                         {
-                            entry.getKey().begin_findLocator(_instanceName, entry.getValue()); // Send multicast request
+                            entry.getKey().begin_findLocator(_instanceName, entry.getValue(), new Ice.Callback() {
+                                @Override
+                                public void
+                                completed(Ice.AsyncResult r)
+                                {
+                                    try
+                                    {
+                                        r.throwLocalException();
+                                    }
+                                    catch(Ice.LocalException ex)
+                                    {
+                                        exception(ex);
+                                    }
+                                }
+                            }); // Send multicast request
                         }
                         _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                     }
@@ -422,6 +417,45 @@ class PluginI implements Plugin
             }
         }
 
+        synchronized void
+        exception(Ice.LocalException ex)
+        {
+            if(++_failureCount == _lookups.size() && _pendingRetryCount > 0)
+            {
+                //
+                // All the lookup calls failed, cancel the timer and propagate the error to the requests.
+                //
+                _future.cancel(false);
+                _future = null;
+
+                _pendingRetryCount = 0;
+
+                if(_warnOnce)
+                {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("failed to lookup locator with lookup proxy `");
+                    builder.append(_lookup);
+                    builder.append("':\n");
+                    builder.append(ex);
+                    _lookup.ice_getCommunicator().getLogger().warning(builder.toString());
+                    _warnOnce = false;
+                }
+
+                if(_pendingRequests.isEmpty())
+                {
+                    notify();
+                }
+                else
+                {
+                    for(Request req : _pendingRequests)
+                    {
+                        req.invoke(_voidLocator);
+                    }
+                    _pendingRequests.clear();
+                }
+            }
+        }
+
         private Runnable _retryTask = new Runnable()
         {
             @Override
@@ -433,9 +467,24 @@ class PluginI implements Plugin
                     {
                         try
                         {
-                            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookup.entrySet())
+                            _failureCount = 0;
+                            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                             {
-                                entry.getKey().begin_findLocator(_instanceName, entry.getValue()); // Send multicast request
+                                entry.getKey().begin_findLocator(_instanceName, entry.getValue(), new Ice.Callback() {
+                                    @Override
+                                    public void
+                                    completed(Ice.AsyncResult r)
+                                    {
+                                        try
+                                        {
+                                            r.throwLocalException();
+                                        }
+                                        catch(Ice.LocalException ex)
+                                        {
+                                            exception(ex);
+                                        }
+                                    }
+                                }); // Send multicast request
                             }
                             _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                             return;
@@ -446,18 +495,26 @@ class PluginI implements Plugin
                         _pendingRetryCount = 0;
                     }
 
-                    for(Request req : _pendingRequests)
+                    if(_pendingRequests.isEmpty())
                     {
-                        req.invoke(_voidLocator);
+                        notify();
                     }
-                    _pendingRequests.clear();
+                    else
+                    {
+                        for(Request req : _pendingRequests)
+                        {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.clear();
+                    }
                     _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
                 }
 
             }
         };
 
-        private final java.util.Map<LookupPrx, LookupReplyPrx> _lookup = new java.util.HashMap<>();
+        private final LookupPrx _lookup;
+        private final java.util.Map<LookupPrx, LookupReplyPrx> _lookups = new java.util.HashMap<>();
         private final int _timeout;
         private java.util.concurrent.Future<?> _future;
         private final java.util.concurrent.ScheduledExecutorService _timer;
@@ -471,6 +528,8 @@ class PluginI implements Plugin
         private Map<String, Ice.LocatorPrx> _locators = new java.util.HashMap<>();
 
         private int _pendingRetryCount;
+        private int _failureCount;
+        private boolean _warnOnce;
         private List<Request> _pendingRequests = new ArrayList<Request>();
         private long _nextRetry;
     };

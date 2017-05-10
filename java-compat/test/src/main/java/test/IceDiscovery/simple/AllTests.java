@@ -212,6 +212,56 @@ public class AllTests
         }
         System.out.println("ok");
 
+        System.out.print("testing invalid lookup endpoints... ");
+        System.out.flush();
+        {
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            {
+
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                Ice.Communicator com = Ice.Util.initialize(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("controller0@control0").ice_ping();
+                    test(false);
+                }
+                catch(Ice.LocalException ex)
+                {
+                }
+                com.destroy();
+            }
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                String intf = initData.properties.getProperty("IceDiscovery.Interface");
+                if(!intf.isEmpty())
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                String port = initData.properties.getProperty("IceDiscovery.Port");
+                initData.properties.setProperty("IceDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+                Ice.Communicator com = Ice.Util.initialize(initData);
+                test(com.getDefaultLocator() != null);
+                com.stringToProxy("controller0@control0").ice_ping();
+                com.destroy();
+            }
+        }
+        System.out.println("ok");
+
         System.out.print("shutting down... ");
         System.out.flush();
         for(ControllerPrx prx : proxies)

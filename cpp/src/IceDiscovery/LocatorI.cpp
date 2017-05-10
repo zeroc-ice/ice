@@ -229,20 +229,20 @@ LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& regist
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                               function<void(const shared_ptr<ObjectPrx>&)> response,
-                               function<void(exception_ptr)>,
-                               const Ice::Current&) const
+                              function<void(const shared_ptr<ObjectPrx>&)> response,
+                              function<void(exception_ptr)> ex,
+                              const Ice::Current&) const
 {
-    _lookup->findObject(response, id);
+    _lookup->findObject(make_pair(response, ex), id);
 }
 
 void
 LocatorI::findAdapterByIdAsync(string adapterId,
-                                function<void(const shared_ptr<ObjectPrx>&)> response,
-                                function<void(exception_ptr)>,
-                                const Ice::Current&) const
+                               function<void(const shared_ptr<ObjectPrx>&)> response,
+                               function<void(exception_ptr)> ex,
+                               const Ice::Current&) const
 {
-    _lookup->findAdapter(response, adapterId);
+    _lookup->findAdapter(make_pair(response, ex), adapterId);
 }
 #else
 void

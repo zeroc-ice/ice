@@ -147,6 +147,64 @@ public class AllTests
             adapter.deactivate();
 
             com.destroy();
+
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            //
+            // Test invalid lookup endpoints
+            //
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown");
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+                test(false);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+            }
+            com.destroy();
+
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery.PluginFactory");
+            {
+                String intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                if(!intf.isEmpty())
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                String port = Integer.toString(app.getTestPort(99));
+                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+            }
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+                test(false);
+            }
+            com.destroy();
         }
         out.println("ok");
 

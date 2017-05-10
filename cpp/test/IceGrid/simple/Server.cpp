@@ -28,7 +28,7 @@ Server::run(int argc, char* argv[])
     Ice::stringSeqToArgs(args, argc, argv);
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI();
+    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
     string id = communicator()->getProperties()->getPropertyWithDefault("Identity", "test");
     adapter->add(object, Ice::stringToIdentity(id));
 

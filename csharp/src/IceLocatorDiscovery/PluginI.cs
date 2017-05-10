@@ -142,6 +142,7 @@ namespace IceLocatorDiscovery
         LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName,
                  Ice.LocatorPrx voidLocator)
         {
+            _lookup = lookup;
             _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
             _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
             _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
@@ -151,21 +152,8 @@ namespace IceLocatorDiscovery
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
             _pendingRetryCount = 0;
-
-            try
-            {
-                lookup.ice_getConnection();
-            }
-            catch(Ice.LocalException ex)
-            {
-                StringBuilder b = new StringBuilder();
-                b.Append("IceLocatorDiscovery is unable to establish a multicast connection:\n");
-                b.Append("proxy = ");
-                b.Append(lookup.ToString());
-                b.Append('\n');
-                b.Append(ex.ToString());
-                throw new Ice.PluginInitializationException(b.ToString());
-            }
+            _failureCount = 0;
+            _warnOnce = true;
 
             //
             // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
@@ -174,19 +162,10 @@ namespace IceLocatorDiscovery
             var single = new Ice.Endpoint[1];
             foreach(var endpt in lookup.ice_getEndpoints())
             {
-                try
-                {
-                    single[0] = endpt;
-                    LookupPrx l = (LookupPrx)lookup.ice_endpoints(single);
-                    l.ice_getConnection();
-                    _lookup[(LookupPrx)lookup.ice_endpoints(single)] = null;
-                }
-                catch(Ice.LocalException)
-                {
-                    // Ignore
-                }
+                single[0] = endpt;
+                _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
             }
-            Debug.Assert(_lookup.Count > 0);
+            Debug.Assert(_lookups.Count > 0);
         }
 
         public void
@@ -196,7 +175,7 @@ namespace IceLocatorDiscovery
             // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
             //
             var single = new Ice.Endpoint[1];
-            foreach(var key in new List<LookupPrx>(_lookup.Keys))
+            foreach(var key in new List<LookupPrx>(_lookups.Keys))
             {
                 var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
                 if(info.mcastInterface.Length > 0)
@@ -207,15 +186,15 @@ namespace IceLocatorDiscovery
                         if(r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
                         {
                             single[0] = q;
-                            _lookup[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                            _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
                         }
                     }
                 }
 
-                if(_lookup[key] == null)
+                if(_lookups[key] == null)
                 {
                     // Fallback: just use the given lookup reply proxy if no matching endpoint found.
-                    _lookup[key] = lookupReply;
+                    _lookups[key] = lookupReply;
                 }
             }
         }
@@ -406,11 +385,21 @@ namespace IceLocatorDiscovery
                     if(_pendingRetryCount == 0) // No request in progress
                     {
                         _pendingRetryCount = _retryCount;
+                        _failureCount = 0;
                         try
                         {
-                            foreach(var l in _lookup)
+                            foreach(var l in _lookups)
                             {
-                                l.Key.findLocatorAsync(_instanceName, l.Value); // Send multicast request.
+                                l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t => {
+                                    try
+                                    {
+                                        t.Wait();
+                                    }
+                                    catch(AggregateException ex)
+                                    {
+                                        exception(ex.InnerException);
+                                    }
+                                }); // Send multicast request.
                             }
                             _timer.schedule(this, _timeout);
                         }
@@ -428,8 +417,47 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public void
-        runTimerTask()
+        void exception(Exception ex)
+        {
+            lock(this)
+            {
+                if(++_failureCount == _lookups.Count && _pendingRetryCount > 0)
+                {
+                    //
+                    // All the lookup calls failed, cancel the timer and propagate the error to the requests.
+                    //
+                    _timer.cancel(this);
+
+                    _pendingRetryCount = 0;
+
+                    if(_warnOnce)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("failed to lookup locator with lookup proxy `");
+                        builder.Append(_lookup);
+                        builder.Append("':\n");
+                        builder.Append(ex);
+                        _lookup.ice_getCommunicator().getLogger().warning(builder.ToString());
+                        _warnOnce = false;
+                    }
+
+                    if(_pendingRequests.Count == 0)
+                    {
+                        Monitor.Pulse(this);
+                    }
+                    else
+                    {
+                        foreach(Request req in _pendingRequests)
+                        {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.Clear();
+                    }
+                }
+            }
+        }
+
+        public void runTimerTask()
         {
             lock(this)
             {
@@ -437,7 +465,7 @@ namespace IceLocatorDiscovery
                 {
                     try
                     {
-                        foreach(var l in _lookup)
+                        foreach(var l in _lookups)
                         {
                             l.Key.findLocatorAsync(_instanceName, l.Value); // Send multicast request
                         }
@@ -459,7 +487,8 @@ namespace IceLocatorDiscovery
             }
         }
 
-        private Dictionary<LookupPrx, LookupReplyPrx> _lookup = new Dictionary<LookupPrx, LookupReplyPrx>();
+        private LookupPrx _lookup;
+        private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
         private int _timeout;
         private IceInternal.Timer _timer;
         private int _retryCount;
@@ -472,6 +501,8 @@ namespace IceLocatorDiscovery
         private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
 
         private int _pendingRetryCount;
+        private int _failureCount;
+        private bool _warnOnce = true;
         private List<Request> _pendingRequests = new List<Request>();
         private long _nextRetry;
     };

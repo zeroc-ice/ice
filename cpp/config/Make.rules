@@ -51,7 +51,13 @@ shared_excludes         = IceUtil Slice
 # Build only few components with the static configuration (core and stubs)
 #
 static_components       = $(coreandstub_components)
-static_projects         = test/Common test/Ice/% test/IceSSL/% test/IceDiscovery/simple test/IceGrid/simple
+static_projects         = test/Common \
+			  test/Ice/% \
+			  test/IceSSL/% \
+			  test/IceDiscovery/simple \
+			  test/Glacier2/application \
+			  test/IceGrid/simple
+
 static_excludes         = test/Ice/library test/Ice/plugin
 
 #
@@ -65,7 +71,9 @@ cpp11_projects          = test/Common \
                           test/Ice/% \
                           test/IceSSL/% \
                           test/IceDiscovery/% \
-                          test/IceBox/%
+                          test/IceBox/% \
+                          test/Glacier2/application \
+                          test/IceGrid/simple
 
 cpp11_excludes          = IcePatch2 \
                           test/Ice/gc

@@ -17,11 +17,23 @@ registryProps = {
     "IceGrid.Registry.DynamicRegistration" : 1
 }
 
+clientProps = lambda process, current: {
+    "IceLocatorDiscovery.Timeout": 50,
+    "IceLocatorDiscovery.RetryCount": 5,
+    "IceLocatorDiscovery.Interface": "::1" if current.config.ipv6 else "127.0.0.1",
+    "IceLocatorDiscovery.Port": current.driver.getTestPort(99),
+}
+
+# Filter-out the warning about invalid lookup proxy
+outfilters = [ lambda x: re.sub("-! .* warning: .*failed to lookup locator.*\n", "", x),
+               lambda x: re.sub("^   .*\n", "", x) ]
+
 TestSuite(__name__, [
     IceGridTestCase("without deployment", application=None,
                     icegridregistry=[IceGridRegistryMaster(props=registryProps),
                                      IceGridRegistrySlave(1, props=registryProps),
                                      IceGridRegistrySlave(2, props=registryProps)],
-                    client=ClientServerTestCase(client=IceGridClient(), server=IceGridServer(props=serverProps))),
+                    client=ClientServerTestCase(client=IceGridClient(props=clientProps, outfilters=outfilters),
+                                                server=IceGridServer(props=serverProps))),
     IceGridTestCase("with deployment", client=IceGridClient(args=["--with-deploy"]))
 ], multihost=False)
