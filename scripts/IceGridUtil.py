@@ -146,7 +146,6 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             'IceGrid.Registry.Internal.Endpoints' : 'default',
             'IceGrid.Registry.Client.Endpoints' : self.getEndpoints(current),
             'IceGrid.Registry.Discovery.Port' : current.driver.getTestPort(99),
-            "IceGrid.Registry.Discovery.Interface": "::1" if current.config.ipv6 else "127.0.0.1",
             'IceGrid.Registry.SessionManager.Endpoints' : 'default',
             'IceGrid.Registry.AdminSessionManager.Endpoints' : 'default',
             'IceGrid.Registry.SessionTimeout' : 60,
@@ -161,6 +160,8 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             'IceGrid.Registry.DefaultTemplates' :
                 '"' + os.path.abspath(os.path.join(toplevel, "cpp", "config", "templates.xml")) + '"'
         }
+        if not isinstance(platform, Linux):
+            props["IceGrid.Registry.Discovery.Interface"] = "::1" if current.config.ipv6 else "127.0.0.1"
         return props
 
     def getEndpoints(self, current):
