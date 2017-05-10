@@ -52,11 +52,11 @@ shared_excludes         = IceUtil Slice
 #
 static_components       = $(coreandstub_components)
 static_projects         = test/Common \
-			  test/Ice/% \
-			  test/IceSSL/% \
-			  test/IceDiscovery/simple \
-			  test/Glacier2/application \
-			  test/IceGrid/simple
+                          test/Ice/% \
+                          test/IceSSL/% \
+                          test/IceDiscovery/simple \
+                          test/Glacier2/application \
+                          test/IceGrid/simple
 
 static_excludes         = test/Ice/library test/Ice/plugin
 
