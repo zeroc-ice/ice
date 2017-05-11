@@ -387,11 +387,17 @@ PluginI::getLocators(const string& instanceName, const IceUtil::Time& waitTime) 
 void
 PluginI::destroy()
 {
-    _replyAdapter->destroy();
-    _locatorAdapter->destroy();
-    // Restore original default locator proxy, if the user didn't change it in the meantime
+    if(_replyAdapter)
+    {
+        _replyAdapter->destroy();
+    }
+    if(_locatorAdapter)
+    {
+        _locatorAdapter->destroy();
+    }
     if(_communicator->getDefaultLocator() == _locatorPrx)
     {
+        // Restore original default locator proxy, if the user didn't change it in the meantime
         _communicator->setDefaultLocator(_defaultLocator);
     }
 }
