@@ -31,13 +31,13 @@ class CallbackI : public Callback
 public:
 
     virtual void
-    initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
+    initiateCallback(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
     {
         proxy->callback(current.ctx);
     }
 
     virtual void
-    initiateCallbackEx(const CallbackReceiverPrx& proxy, const Ice::Current& current)
+    initiateCallbackEx(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
     {
         proxy->callbackEx(current.ctx);
     }
@@ -59,7 +59,7 @@ SessionHelperServer::run(int, char**)
 
     communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
-    adapter->add(new CallbackI(), Ice::stringToIdentity("callback"));
+    adapter->add(ICE_MAKE_SHARED(CallbackI), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator()->waitForShutdown();
 

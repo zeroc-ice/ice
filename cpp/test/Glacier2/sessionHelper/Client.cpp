@@ -38,7 +38,11 @@ public:
 
 Notify* instance = 0;
 
-class Dispatcher : public Ice::Dispatcher, public IceUtil::Thread
+class Dispatcher : 
+#ifndef ICE_CPP11_MAPPING
+    public Ice::Dispatcher,
+#endif
+    public IceUtil::Thread
 {
 
 public:
@@ -48,9 +52,13 @@ public:
     {
     }
 
-    virtual void
-    dispatch(const Ice::DispatcherCallPtr& call,
-             const Ice::ConnectionPtr&)
+    virtual void dispatch(
+#ifdef ICE_CPP11_MAPPING
+        std::function<void()> call,
+#else
+        const Ice::DispatcherCallPtr& call,
+#endif
+        const Ice::ConnectionPtr&)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
         if(_queue.empty())
@@ -73,18 +81,31 @@ public:
     {
         while(1)
         {
+#ifdef ICE_CPP11_MAPPING
+            auto item = nextItem();
+            if (!item)
+            {
+                break;
+            }
+            item();
+#else
             Ice::DispatcherCallPtr item = nextItem();
             if(!item)
             {
                 break;
             }
             item->run();
+#endif
         }
     }
 
 private:
 
+#ifdef ICE_CPP11_MAPPING
+    std::function<void()>
+#else
     Ice::DispatcherCallPtr
+#endif
     nextItem()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -92,18 +113,26 @@ private:
         {
             if(_destroyed)
             {
-                return 0;
+                return ICE_NULLPTR;
             }
             _monitor.wait();
         }
+#ifdef ICE_CPP11_MAPPING
+        auto item = _queue.front();
+#else
         Ice::DispatcherCallPtr item = _queue.front();
+#endif
         _queue.pop_front();
         return item;
     }
 
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
+#ifdef ICE_CPP11_MAPPING
+    list<std::function<void()>> _queue;
+#else
     list<Ice::DispatcherCallPtr> _queue;
+#endif
     bool _destroyed;
 };
 typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
@@ -281,9 +310,15 @@ public:
 
         DispatcherPtr dispatcher = new Dispatcher();
         dispatcher->start();
+#ifdef ICE_CPP11_MAPPING
+        _initData.dispatcher = [dispatcher](std::function<void()> call, const std::shared_ptr<Ice::Connection>& conn)
+            {
+                dispatcher->dispatch(call, conn);
+            };
+#else
         _initData.dispatcher = dispatcher;
-
-        _factory = new Glacier2::SessionFactoryHelper(_initData, new FailSessionCallback());
+#endif
+        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, _initData, ICE_MAKE_SHARED(FailSessionCallback));
 
         //
         // Test to create a session with wrong userid/password
@@ -295,7 +330,6 @@ public:
             cout << "testing SessionHelper connect with wrong userid/password... " << flush;
 
             _session = _factory->connect("userid", "xxx");
-
             //
             // Wait for connectFailed callback
             //
@@ -310,7 +344,7 @@ public:
         //
 
         _initData.properties->setProperty("Ice.Default.Router", "");
-        _factory = new Glacier2::SessionFactoryHelper(_initData, new InterruptConnectCallback());
+        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, _initData, ICE_MAKE_SHARED(InterruptConnectCallback));
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -331,7 +365,7 @@ public:
         }
         _factory->destroy();
 
-        _factory = new Glacier2::SessionFactoryHelper(_initData, new SuccessSessionCallback());
+        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, _initData, ICE_MAKE_SHARED(SuccessSessionCallback));
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -371,8 +405,8 @@ public:
 //             }
 
             cout << "testing stringToProxy for server object... " << flush;
-            Ice::ObjectPrx base = _session->communicator()->stringToProxy("callback:" +
-                                                                          getTestEndpoint(_session->communicator(), 0));
+            Ice::ObjectPrxPtr base = 
+                _session->communicator()->stringToProxy("callback:" + getTestEndpoint(_session->communicator(), 0));
             cout << "ok" << endl;
 
             cout << "pinging server after session creation... " << flush;
@@ -380,7 +414,7 @@ public:
             cout << "ok" << endl;
 
             cout << "testing checked cast for server object... " << flush;
-            CallbackPrx twoway = CallbackPrx::checkedCast(base);
+            CallbackPrxPtr twoway = ICE_CHECKED_CAST(CallbackPrx, base);
             test(twoway);
             cout << "ok" << endl;
 
@@ -452,7 +486,7 @@ public:
             communicator()->setDefaultRouter(0);
             cout << "ok" << endl;
 
-            Ice::ObjectPrx processBase;
+            Ice::ObjectPrxPtr processBase;
             {
                 cout << "testing stringToProxy for process object... " << flush;
                 processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
@@ -461,10 +495,10 @@ public:
             }
 
 
-            Ice::ProcessPrx process;
+            Ice::ProcessPrxPtr process;
             {
                 cout << "testing checked cast for admin object... " << flush;
-                process = Ice::ProcessPrx::checkedCast(processBase);
+                process = ICE_CHECKED_CAST(Ice::ProcessPrx, processBase);
                 test(process != 0);
                 cout << "ok" << endl;
             }
@@ -484,7 +518,7 @@ public:
 
         _factory->destroy();
 
-        _factory = new Glacier2::SessionFactoryHelper(_initData, new AfterShutdownSessionCallback());
+        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, _initData, ICE_MAKE_SHARED(AfterShutdownSessionCallback));
 
         //
         // Wait a bit to ensure glaci2router has been shutdown.

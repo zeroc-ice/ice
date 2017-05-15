@@ -877,9 +877,9 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
         IceUtilInternal::CountDownLatch cdl(1);
         Ice::DispatcherCallPtr callWait = new DispatcherCallWait(cdl, call);
 #ifdef ICE_CPP11_MAPPING
-        _initData.dispatcher([call]()
+        _initData.dispatcher([callWait]()
             {
-                call->run();
+                callWait->run();
             },
             conn);
 #else

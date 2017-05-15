@@ -2503,7 +2503,7 @@ class CppMapping(Mapping):
                     return False
                 elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
                     return False
-                elif parent in ["Glacier2"] and testId not in ["Glacier2/application"]:
+                elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
                     return False
             return True
 
