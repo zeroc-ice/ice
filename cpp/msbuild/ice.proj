@@ -23,8 +23,11 @@
     <UWPCompiler>yes</UWPCompiler>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+  <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
+    <OpenSSL>yes</OpenSSL>
+  </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
   <!--
       Restore NuGet packages.
@@ -118,7 +121,7 @@
       </ItemGroup>
 
        <!-- OpenSSL C++ test configurations (C++98 mapping) -->
-      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
         <TestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Debug;Platform=Win32</Properties>
         </TestSolution>
@@ -134,7 +137,7 @@
       </ItemGroup>
 
       <!-- OpenSSL C++ test configurations (C++11 mapping) -->
-      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+      <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and $(OpenSSL) == 'yes' and '$(Cpp11Compiler)' == 'yes'">
         <TestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
         </TestSolution>
@@ -185,11 +188,13 @@
       </ItemGroup>
 
       <!-- OpenSSL test builds -->
-      <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'">
+      <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
         <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
         </OpenSSLTestSolution>
+      </ItemGroup>
 
+      <ItemGroup  Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes' and '$(Cpp11Compiler)' == 'yes'">
         <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-$(Configuration);Platform=$(Platform)</Properties>
         </OpenSSLTestSolution>
@@ -231,11 +236,11 @@
              BuildInParallel="true"
              Properties="%(Properties)" />
 
-    <!-- Build OpenSSL tests only with v140 source distribution builds -->
+    <!-- Build OpenSSL tests only with supported compilers -->
     <MSBuild Projects="@(OpenSSLTestSolution)"
              BuildInParallel="true"
              Properties="%(Properties)"
-             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'" />
+             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'" />
   </Target>
 
   <!-- Clean test solution -->
@@ -245,7 +250,7 @@
              BuildInParallel="true"
              Targets="Clean"
              Properties="%(Properties)"
-             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(DefaultPlatformToolset)' == 'v140'" />
+             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'" />
   </Target>
 
   <!-- Create nuget packages -->

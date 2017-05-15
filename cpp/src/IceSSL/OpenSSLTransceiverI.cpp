@@ -682,7 +682,18 @@ OpenSSL::TransceiverI::startWrite(IceInternal::Buffer& buffer)
         return _delegate->startWrite(buffer);
     }
 
-    assert(!_writeBuffer.b.empty() && _writeBuffer.i != _writeBuffer.b.end());
+    if(_writeBuffer.i == _writeBuffer.b.end())
+    {
+        assert(_sentBytes == 0);
+        int packetSize = std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buffer.b.end() - buffer.i));
+        _sentBytes = SSL_write(_ssl, reinterpret_cast<void*>(&*buffer.i), packetSize);
+
+        assert(BIO_ctrl_pending(_iocpBio));
+        _writeBuffer.b.resize( BIO_ctrl_pending(_iocpBio));
+        _writeBuffer.i = _writeBuffer.b.begin();
+        BIO_read(_iocpBio, _writeBuffer.i, static_cast<int>(_writeBuffer.b.size()));
+    }
+
     return _delegate->startWrite(_writeBuffer) && buffer.i == buffer.b.end();
 }
 
@@ -696,6 +707,11 @@ OpenSSL::TransceiverI::finishWrite(IceInternal::Buffer& buffer)
     }
 
     _delegate->finishWrite(_writeBuffer);
+    if(_sentBytes)
+    {
+        buffer.i += _sentBytes;
+        _sentBytes = 0;
+    }
 }
 
 void
@@ -710,8 +726,6 @@ OpenSSL::TransceiverI::startRead(IceInternal::Buffer& buffer)
     if(_readBuffer.i == _readBuffer.b.end())
     {
         assert(!buffer.b.empty() && buffer.i != buffer.b.end());
-        assert(!BIO_ctrl_get_read_request(_iocpBio));
-
         ERR_clear_error(); // Clear any spurious errors.
 #ifndef NDEBUG
         int ret =
@@ -739,9 +753,8 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
     }
 
     _delegate->finishRead(_readBuffer);
-    if(_iocpBio && _readBuffer.i == _readBuffer.b.end())
+    if(_readBuffer.i == _readBuffer.b.end())
     {
-        assert(_readBuffer.i == _readBuffer.b.end());
         int n = BIO_write(_iocpBio, _readBuffer.b.begin(), static_cast<int>(_readBuffer.b.size()));
         if(n < 0) // Expected if the transceiver was closed.
         {
@@ -749,7 +762,54 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
             ex.reason = "SSL bio write failed";
             throw ex;
         }
+
         assert(n == static_cast<int>(_readBuffer.b.size()));
+        ERR_clear_error(); // Clear any spurious errors.
+        int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buffer.i), static_cast<int>(buffer.b.end() - buffer.i));
+        if(ret <= 0)
+        {
+            switch(SSL_get_error(_ssl, ret))
+            {
+                case SSL_ERROR_NONE:
+                case SSL_ERROR_WANT_WRITE:
+                {
+                    assert(false);
+                    return;
+                }
+                case SSL_ERROR_ZERO_RETURN:
+                {
+                    ConnectionLostException ex(__FILE__, __LINE__);
+                    ex.error = 0;
+                    throw ex;
+                }
+                case SSL_ERROR_WANT_READ:
+                {
+                    return;
+                }
+                case SSL_ERROR_SYSCALL:
+                {
+                    if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
+                    {
+                        ConnectionLostException ex(__FILE__, __LINE__);
+                        ex.error = IceInternal::getSocketErrno();
+                        throw ex;
+                    }
+                    else
+                    {
+                        SocketException ex(__FILE__, __LINE__);
+                        ex.error = IceInternal::getSocketErrno();
+                        throw ex;
+                    }
+                }
+                case SSL_ERROR_SSL:
+                {
+                    ProtocolException ex(__FILE__, __LINE__);
+                    ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
+                    throw ex;
+                }
+            }
+        }
+        buffer.i += ret;
     }
 }
 #endif
