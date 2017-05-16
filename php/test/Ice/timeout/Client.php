@@ -159,7 +159,7 @@ function allTests($communicator)
         }
 
         $timeout->ice_ping();
-        $to = $timeout->ice_invocationTimeout(500)->ice_checkedCast("::Test::Timeout");
+        $to = $timeout->ice_invocationTimeout(1000)->ice_checkedCast("::Test::Timeout");
         test($connection == $to->ice_getConnection());
         try
         {
@@ -167,6 +167,7 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
+            echo($ex);
             test(false);
         }
         test($connection == $to->ice_getConnection());
