@@ -559,7 +559,7 @@ class Mapping:
             parent = re.match(r'^([\w]*).*', testcase.getTestSuite().getId()).group(1)
             if isinstance(testcase, ClientServerTestCase) and parent in ["Ice", "IceBox"]:
                 options = current.driver.filterOptions(testcase, self.coreOptions)
-            elif parent in ["IceGrid", "Glacier2", "IceStorm", "IceDiscovery"]:
+            elif parent in ["IceGrid", "Glacier2", "IceStorm", "IceDiscovery", "IceBridge"]:
                 options = current.driver.filterOptions(testcase, self.serviceOptions)
 
             return [c for c in gen(options)]

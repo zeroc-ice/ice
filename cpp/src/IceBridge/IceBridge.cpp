@@ -20,7 +20,7 @@ namespace
 {
 
 //
-// Represents a pending twoway invocation.
+// Represents a pending invocation.
 //
 class Invocation : public IceUtil::Shared
 {
@@ -41,44 +41,16 @@ public:
         _cb->ice_exception(ex);
     }
 
+    void sent(bool)
+    {
+        _cb->ice_response(true, vector<Byte>()); // For oneway invocations
+    }
+
 private:
 
-    AMD_Object_ice_invokePtr _cb;
+    const AMD_Object_ice_invokePtr _cb;
 };
 typedef IceUtil::Handle<Invocation> InvocationPtr;
-
-//
-// Represents a pending oneway invocation.
-//
-class OnewayInvocation : public IceUtil::Shared
-{
-public:
-
-    OnewayInvocation(const AMD_Object_ice_invokePtr& cb) :
-        _cb(cb)
-    {
-    }
-
-    void success(bool, const pair<const Byte*, const Byte*>&)
-    {
-        assert(false);
-    }
-
-    void exception(const Exception& ex)
-    {
-        _cb->ice_exception(ex);
-    }
-
-    void sent(bool sentSynchronously)
-    {
-        _cb->ice_response(true, vector<Byte>());
-    }
-
-private:
-
-    AMD_Object_ice_invokePtr _cb;
-};
-typedef IceUtil::Handle<OnewayInvocation> OnewayInvocationPtr;
 
 //
 // Holds information about an incoming invocation that's been queued until an outgoing connection has
@@ -86,26 +58,20 @@ typedef IceUtil::Handle<OnewayInvocation> OnewayInvocationPtr;
 //
 struct QueuedInvocation : public IceUtil::Shared
 {
+    //
+    // The pointers in paramData refer to the Ice marshaling buffer and won't remain valid after
+    // ice_invoke_async completes, so we have to make a copy of the parameter data.
+    //
     QueuedInvocation(const AMD_Object_ice_invokePtr& c, const pair<const Byte*, const Byte*>& p, const Current& curr) :
-        cb(c), current(curr)
+        cb(c), paramData(p.first, p.second), current(curr)
     {
-        if(p.first)
-        {
-            //
-            // The pointers in paramData refer to the Ice marshaling buffer and won't remain valid after
-            // ice_invoke_async completes, so we have to make a copy of the parameter data.
-            //
-            vector<Byte> tmp(p.first, p.second);
-            paramData.swap(tmp);
-        }
     }
 
     const AMD_Object_ice_invokePtr cb;
-    vector<Byte> paramData;
+    const vector<Byte> paramData;
     const Current current;
 };
 typedef IceUtil::Handle<QueuedInvocation> QueuedInvocationPtr;
-typedef vector<QueuedInvocationPtr> InvocationList;
 
 //
 // Relays heartbeat messages.
@@ -114,339 +80,47 @@ class HeartbeatCallbackI : public HeartbeatCallback
 {
 public:
 
-    HeartbeatCallbackI(const ConnectionPtr& con) :
-        _connection(con)
-    {
-    }
+    HeartbeatCallbackI(const ConnectionPtr&);
 
-    virtual void heartbeat(const ConnectionPtr&)
-    {
-        //
-        // When a connection receives a heartbeat message, we send one over its corresponding connection.
-        //
-        try
-        {
-            _connection->begin_heartbeat();
-        }
-        catch(...)
-        {
-        }
-    }
+    virtual void heartbeat(const ConnectionPtr&);
 
 private:
 
     const ConnectionPtr _connection;
 };
 
-//
-// Represents a pair of bridged connections.
-//
-class BridgeConnection : public IceUtil::Shared
+class BridgeI;
+typedef IceUtil::Handle<BridgeI> BridgeIPtr;
+
+class BridgeConnection;
+typedef IceUtil::Handle<BridgeConnection> BridgeConnectionPtr;
+
+class CloseCallbackI : public CloseCallback
 {
 public:
 
-    BridgeConnection(const ObjectAdapterPtr& adapter, const ObjectPrx& target, const ConnectionPtr& incoming) :
-        _adapter(adapter), _target(target), _incoming(incoming), _state(Queuing)
-    {
-    }
+    CloseCallbackI(const BridgeIPtr&);
 
-    void outgoingSuccess(const ConnectionPtr& outgoing)
-    {
-        assert(outgoing);
-
-        InvocationList queuedInvocations;
-
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            assert(!_outgoing);
-
-            if(_state == Closed)
-            {
-                //
-                // The incoming connection is already closed. There's no point in leaving the outgoing
-                // connection open.
-                //
-                outgoing->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
-            }
-            else
-            {
-                _outgoing = outgoing;
-                if(_state == Queuing)
-                {
-                    _state = Active;
-                }
-
-                //
-                // Save the queued invocations.
-                //
-                queuedInvocations.swap(_queue);
-
-                //
-                // Register hearbeat callbacks on both connections.
-                //
-                _incoming->setHeartbeatCallback(new HeartbeatCallbackI(_outgoing));
-                _outgoing->setHeartbeatCallback(new HeartbeatCallbackI(_incoming));
-
-                //
-                // Configure the outgoing connection for bidirectional requests.
-                //
-                _outgoing->setAdapter(_adapter);
-            }
-        }
-
-        //
-        // Flush any queued invocations.
-        //
-        flush(outgoing, queuedInvocations);
-    }
-
-    void outgoingException(const Exception& ex)
-    {
-        InvocationList queuedInvocations;
-
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            //
-            // Prevent any more incoming invocations from being queued.
-            //
-            _state = Closing;
-
-            //
-            // The outgoing connection failed so we close the incoming connection. closed() will eventually
-            // be called for it when the connection's dispatch count reaches zero.
-            //
-            if(_incoming)
-            {
-                _incoming->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
-            }
-
-            //
-            // Save the queued invocations.
-            //
-            queuedInvocations.swap(_queue);
-        }
-
-        //
-        // Complete the queued incoming invocations, otherwise the incoming connection will never
-        // complete its graceful closure. This is only necessary on the server side.
-        //
-        // The client will receive an UnknownLocalException whose reason member contains information
-        // about the failure.
-        //
-        for(InvocationList::iterator p = queuedInvocations.begin(); p != queuedInvocations.end(); ++p)
-        {
-            (*p)->cb->ice_exception(ex);
-        }
-    }
-
-    void closed(const ConnectionPtr& con)
-    {
-        InvocationList queuedInvocations;
-        ConnectionPtr toBeClosed;
-
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            if(con == _incoming)
-            {
-                //
-                // The incoming connection was closed.
-                //
-                toBeClosed = _outgoing;
-                queuedInvocations.swap(_queue);
-                _state = Closed;
-                _incoming = 0;
-            }
-            else
-            {
-                assert(con == _outgoing);
-
-                //
-                // An outgoing connection was closed.
-                //
-                toBeClosed = _incoming;
-                _outgoing = 0;
-            }
-        }
-
-        //
-        // Close the corresponding connection.
-        //
-        if(toBeClosed)
-        {
-            //
-            // Examine the exception that caused the connection to be closed. A CloseConnectionException
-            // indicates the connection was closed gracefully and we do the same. We also look for
-            // ConnectionManuallyClosedException, which indicates the connection was closed locally.
-            // We close forcefully for any other exception.
-            //
-            try
-            {
-                con->throwException();
-            }
-            catch(const Ice::CloseConnectionException&)
-            {
-                toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
-            }
-            catch(const Ice::ConnectionManuallyClosedException& ex)
-            {
-                //
-                // Connection was manually closed by the bridge.
-                //
-                toBeClosed->close(ex.graceful ? ICE_SCOPED_ENUM(ConnectionClose, Gracefully) :
-                                  ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
-            }
-            catch(...)
-            {
-                toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
-            }
-        }
-
-        //
-        // Even though the connection is already closed, we still need to "complete" the pending invocations so
-        // that the connection's dispatch count is updated correctly.
-        //
-        for(InvocationList::iterator p = queuedInvocations.begin(); p != queuedInvocations.end(); ++p)
-        {
-            (*p)->cb->ice_exception(ConnectionLostException(__FILE__, __LINE__));
-        }
-    }
-
-    void dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const Byte*, const Byte*>& paramData,
-                  const Current& current)
-    {
-        //
-        // We've received an invocation, either from the client via the incoming connection, or from
-        // the server via the outgoing (bidirectional) connection. The current.con member tells us
-        // the connection over which the request arrived.
-        //
-
-        ConnectionPtr dest;
-
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            if(_state == Closing || _state == Closed)
-            {
-                //
-                // If the incoming connection is closing or closed, we're done.
-                //
-                cb->ice_exception(ConnectionLostException(__FILE__, __LINE__));
-            }
-            else if(_state == Queuing)
-            {
-                //
-                // Queue the invocation until the outgoing connection is established.
-                //
-                assert(!_outgoing);
-                _queue.push_back(new QueuedInvocation(cb, paramData, current));
-            }
-            else if(current.con == _incoming)
-            {
-                //
-                // Forward to the outgoing connection.
-                //
-                dest = _outgoing;
-            }
-            else
-            {
-                //
-                // Forward to the incoming connection.
-                //
-                assert(current.con == _outgoing);
-                dest = _incoming;
-            }
-        }
-
-        if(dest)
-        {
-            send(dest, cb, paramData, current);
-        }
-    }
+    virtual void closed(const ConnectionPtr&);
 
 private:
 
-    void flush(const ConnectionPtr& outgoing, const InvocationList& invocations)
-    {
-        for(InvocationList::const_iterator p = invocations.begin(); p != invocations.end(); ++p)
-        {
-            QueuedInvocationPtr i = *p;
-
-            pair<const Byte*, const Byte*> paramData;
-            if(i->paramData.empty())
-            {
-                paramData.first = paramData.second = 0;
-            }
-            else
-            {
-                paramData.first = &i->paramData[0];
-                paramData.second = paramData.first + i->paramData.size();
-            }
-
-            send(outgoing, i->cb, paramData, i->current);
-        }
-    }
-
-    void send(const ConnectionPtr& dest, const AMD_Object_ice_invokePtr& cb,
-              const pair<const Byte*, const Byte*>& paramData, const Current& current)
-    {
-        try
-        {
-            //
-            // Create a proxy having the same identity as the request.
-            //
-            ObjectPrx prx = dest->createProxy(current.id);
-
-            //
-            // Examine the proxy and the request to determine whether it should be forwarded as a oneway or a twoway.
-            //
-            if(!prx->ice_isTwoway() || !current.requestId)
-            {
-                if(prx->ice_isTwoway())
-                {
-                    prx = prx->ice_oneway();
-                }
-                OnewayInvocationPtr i = new OnewayInvocation(cb);
-                Callback_Object_ice_invokePtr d =
-                    newCallback_Object_ice_invoke(i, &OnewayInvocation::success, &OnewayInvocation::exception,
-                                                  &OnewayInvocation::sent);
-                prx->begin_ice_invoke(current.operation, current.mode, paramData, current.ctx, d);
-            }
-            else
-            {
-                InvocationPtr i = new Invocation(cb);
-                Callback_Object_ice_invokePtr d =
-                    newCallback_Object_ice_invoke(i, &Invocation::success, &Invocation::exception);
-                prx->begin_ice_invoke(current.operation, current.mode, paramData, current.ctx, d);
-            }
-        }
-        catch(const std::exception& ex)
-        {
-            cb->ice_exception(ex);
-        }
-    }
-
-    const ObjectAdapterPtr _adapter;
-    const ObjectPrx _target;
-    ConnectionPtr _incoming;
-
-    IceUtil::Mutex _lock;
-
-    enum State { Queuing, Active, Closing, Closed };
-    State _state;
-    ConnectionPtr _outgoing;
-
-    //
-    // We maintain our own queue for invocations that arrive on the incoming connection before the outgoing
-    // connection has been established. We don't want to forward these to proxies and let the proxies handle
-    // the queuing because then the invocations could be sent out of order (e.g., when invocations are split
-    // among twoway/oneway/datagram proxies).
-    //
-    InvocationList _queue;
+    const BridgeIPtr _bridge;
 };
-typedef IceUtil::Handle<BridgeConnection> BridgeConnectionPtr;
+
+class GetConnectionCallback : public IceUtil::Shared
+{
+public:
+
+    GetConnectionCallback(const BridgeIPtr&, const BridgeConnectionPtr&);
+    void success(const ConnectionPtr&);
+    void exception(const Exception&);
+
+private:
+
+    const BridgeIPtr _bridge;
+    const BridgeConnectionPtr _bc;
+};
 
 //
 // Allows the bridge to be used as an Ice router.
@@ -491,43 +165,44 @@ private:
     const RouterPrx _router;
 };
 
-class BridgeI;
-typedef IceUtil::Handle<BridgeI> BridgeIPtr;
-
-class CloseCallbackI : public CloseCallback
+//
+// Represents a pair of bridged connections.
+//
+class BridgeConnection : public IceUtil::Shared
 {
 public:
 
-    CloseCallbackI(const BridgeIPtr& bridge) :
-        _bridge(bridge)
-    {
-    }
+    BridgeConnection(const ObjectAdapterPtr&, const ObjectPrx&, const ConnectionPtr&);
 
-    virtual void closed(const ConnectionPtr&);
+    void outgoingSuccess(const ConnectionPtr&);
+    void outgoingException(const Exception&);
 
-private:
-
-    const BridgeIPtr _bridge;
-};
-
-class GetConnectionCallback : public IceUtil::Shared
-{
-public:
-
-    GetConnectionCallback(const BridgeIPtr& bridge, const BridgeConnectionPtr& bc) :
-        _bridge(bridge), _bc(bc)
-    {
-    }
-
-    void success(const ConnectionPtr&);
-    void exception(const Exception&);
+    void closed(const ConnectionPtr&);
+    void dispatch(const AMD_Object_ice_invokePtr&, const pair<const Byte*, const Byte*>&, const Current&);
 
 private:
 
-    const BridgeIPtr _bridge;
-    const BridgeConnectionPtr _bc;
+    void send(const ConnectionPtr&,
+              const AMD_Object_ice_invokePtr&,
+              const pair<const Byte*, const Byte*>&,
+              const Current&);
+
+    const ObjectAdapterPtr _adapter;
+    const ObjectPrx _target;
+    const ConnectionPtr _incoming;
+
+    IceUtil::Mutex _lock;
+    ConnectionPtr _outgoing;
+    IceInternal::UniquePtr<Exception> _exception;
+
+    //
+    // We maintain our own queue for invocations that arrive on the incoming connection before the outgoing
+    // connection has been established. We don't want to forward these to proxies and let the proxies handle
+    // the queuing because then the invocations could be sent out of order (e.g., when invocations are split
+    // among twoway/oneway/datagram proxies).
+    //
+    vector<QueuedInvocationPtr> _queue;
 };
-typedef IceUtil::Handle<GetConnectionCallback> GetConnectionCallbackPtr;
 
 //
 // The main bridge servant.
@@ -536,126 +211,15 @@ class BridgeI : public Ice::BlobjectArrayAsync
 {
 public:
 
-    BridgeI(const ObjectAdapterPtr& adapter, const ObjectPrx& target) :
-        _adapter(adapter), _target(target)
-    {
-    }
+    BridgeI(const ObjectAdapterPtr& adapter, const ObjectPrx& target);
 
-    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                  const std::pair<const Byte*, const Byte*>& paramData,
-                                  const Current& current)
-    {
-        BridgeConnectionPtr bc;
+    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&,
+                                  const std::pair<const Byte*, const Byte*>&,
+                                  const Current&);
 
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            ConnectionMap::iterator p = _connections.find(current.con);
-            if(p == _connections.end())
-            {
-                //
-                // The connection is unknown to us, it must be a new incoming connection.
-                //
-
-                EndpointInfoPtr info = current.con->getEndpoint()->getInfo();
-
-                //
-                // Create a target proxy that matches the configuration of the incoming connection.
-                //
-                ObjectPrx target;
-                if(info->datagram())
-                {
-                    target = _target->ice_datagram();
-                }
-                else if(info->secure())
-                {
-                    target = _target->ice_secure(true);
-                }
-                else
-                {
-                    target = _target;
-                }
-
-                //
-                // Force the proxy to establish a new connection by using a unique connection ID.
-                //
-                target = target->ice_connectionId(Ice::generateUUID());
-
-                bc = new BridgeConnection(_adapter, target, current.con);
-                _connections.insert(make_pair(current.con, bc));
-                current.con->setCloseCallback(new CloseCallbackI(this));
-
-                //
-                // Try to establish the outgoing connection.
-                //
-                try
-                {
-                    //
-                    // Begin the connection establishment process asynchronously. This can take a while to complete,
-                    // especially when using Bluetooth.
-                    //
-                    GetConnectionCallbackPtr gc = new GetConnectionCallback(this, bc);
-                    Callback_Object_ice_getConnectionPtr d =
-                        newCallback_Object_ice_getConnection(gc, &GetConnectionCallback::success,
-                                                             &GetConnectionCallback::exception);
-                    target->begin_ice_getConnection(d);
-                }
-                catch(const Exception& ex)
-                {
-                    cb->ice_exception(ex);
-                    return;
-                }
-            }
-            else
-            {
-                bc = p->second;
-            }
-        }
-
-        //
-        // Delegate the invocation to the BridgeConnection object.
-        //
-        bc->dispatch(cb, paramData, current);
-    }
-
-    void closed(const ConnectionPtr& con)
-    {
-        //
-        // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
-        //
-
-        BridgeConnectionPtr bc;
-
-        {
-            IceUtil::Mutex::Lock lock(_lock);
-
-            ConnectionMap::iterator p = _connections.find(con);
-            assert(p != _connections.end());
-            bc = p->second;
-            _connections.erase(p);
-        }
-
-        bc->closed(con);
-    }
-
-    void outgoingSuccess(const BridgeConnectionPtr& bc, const ConnectionPtr& outgoing)
-    {
-        //
-        // An outgoing connection was established. Notify the BridgeConnection object.
-        //
-        IceUtil::Mutex::Lock lock(_lock);
-        _connections.insert(make_pair(outgoing, bc));
-        outgoing->setCloseCallback(new CloseCallbackI(this));
-        bc->outgoingSuccess(outgoing);
-    }
-
-    void outgoingException(const BridgeConnectionPtr& bc, const Exception& ex)
-    {
-        //
-        // An outgoing connection attempt failed. Notify the BridgeConnection object.
-        //
-        bc->outgoingException(ex);
-    }
+    void closed(const ConnectionPtr&);
+    void outgoingSuccess(const BridgeConnectionPtr&, const ConnectionPtr&);
+    void outgoingException(const BridgeConnectionPtr&, const Exception&);
 
 private:
 
@@ -663,28 +227,8 @@ private:
     const ObjectPrx _target;
 
     IceUtil::Mutex _lock;
-
-    typedef map<ConnectionPtr, BridgeConnectionPtr> ConnectionMap;
-    ConnectionMap _connections;
+    map<ConnectionPtr, BridgeConnectionPtr> _connections;
 };
-
-void
-CloseCallbackI::closed(const ConnectionPtr& con)
-{
-    _bridge->closed(con);
-}
-
-void
-GetConnectionCallback::success(const ConnectionPtr& outgoing)
-{
-    _bridge->outgoingSuccess(_bc, outgoing);
-}
-
-void
-GetConnectionCallback::exception(const Exception& ex)
-{
-    _bridge->outgoingException(_bc, ex);
-}
 
 class BridgeService : public Service
 {
@@ -703,6 +247,359 @@ private:
     void usage(const std::string&);
 };
 
+}
+
+HeartbeatCallbackI::HeartbeatCallbackI(const ConnectionPtr& con) :
+    _connection(con)
+{
+}
+
+void
+HeartbeatCallbackI::heartbeat(const ConnectionPtr&)
+{
+    //
+    // When a connection receives a heartbeat message, we send one over its corresponding connection.
+    //
+    try
+    {
+        _connection->begin_heartbeat();
+    }
+    catch(...)
+    {
+    }
+}
+
+CloseCallbackI::CloseCallbackI(const BridgeIPtr& bridge) :
+    _bridge(bridge)
+{
+}
+
+void
+CloseCallbackI::closed(const ConnectionPtr& con)
+{
+    _bridge->closed(con);
+}
+
+GetConnectionCallback::GetConnectionCallback(const BridgeIPtr& bridge, const BridgeConnectionPtr& bc) :
+    _bridge(bridge), _bc(bc)
+{
+}
+
+void
+GetConnectionCallback::success(const ConnectionPtr& outgoing)
+{
+    _bridge->outgoingSuccess(_bc, outgoing);
+}
+
+void
+GetConnectionCallback::exception(const Exception& ex)
+{
+    _bridge->outgoingException(_bc, ex);
+}
+
+BridgeConnection::BridgeConnection(const ObjectAdapterPtr& adapter, const ObjectPrx& target, const ConnectionPtr& inc) :
+    _adapter(adapter), _target(target), _incoming(inc)
+{
+}
+
+void
+BridgeConnection::outgoingSuccess(const ConnectionPtr& outgoing)
+{
+    IceUtil::Mutex::Lock lock(_lock);
+    assert(!_outgoing && outgoing);
+    if(_exception)
+    {
+        //
+        // The incoming connection is already closed. There's no point in leaving the outgoing
+        // connection open.
+        //
+        outgoing->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        return;
+    }
+
+    _outgoing = outgoing;
+
+    //
+    // Register hearbeat callbacks on both connections.
+    //
+    _incoming->setHeartbeatCallback(new HeartbeatCallbackI(_outgoing));
+    _outgoing->setHeartbeatCallback(new HeartbeatCallbackI(_incoming));
+
+    //
+    // Configure the outgoing connection for bidirectional requests.
+    //
+    _outgoing->setAdapter(_adapter);
+
+    //
+    // Flush any queued invocations.
+    //
+    for(vector<QueuedInvocationPtr>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
+    {
+        pair<const Byte*, const Byte*> paramData(&(*p)->paramData[0], &(*p)->paramData[0] + (*p)->paramData.size());
+        send(outgoing, (*p)->cb, paramData, (*p)->current);
+    }
+    _queue.clear();
+}
+
+void
+BridgeConnection::outgoingException(const Exception& ex)
+{
+    IceUtil::Mutex::Lock lock(_lock);
+    if(_exception)
+    {
+        return;
+    }
+    _exception.reset(ex.ice_clone());
+
+    //
+    // The outgoing connection failed so we close the incoming connection. closed() will eventually
+    // be called for it when the connection's dispatch count reaches zero.
+    //
+    _incoming->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+
+    //
+    // Complete the queued incoming invocations, otherwise the incoming connection will never
+    // complete its graceful closure. This is only necessary on the server side.
+    //
+    // The client will receive an UnknownLocalException whose reason member contains information
+    // about the failure.
+    //
+    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
+    {
+        (*p)->cb->ice_exception(ex);
+    }
+    _queue.clear();
+}
+
+void
+BridgeConnection::dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const Byte*, const Byte*>& paramData,
+                           const Current& current)
+{
+    //
+    // We've received an invocation, either from the client via the incoming connection, or from
+    // the server via the outgoing (bidirectional) connection. The current.con member tells us
+    // the connection over which the request arrived.
+    //
+    IceUtil::Mutex::Lock lock(_lock);
+    if(_exception)
+    {
+        cb->ice_exception(*_exception.get());
+    }
+    else if(!_outgoing)
+    {
+        //
+        // Queue the invocation until the outgoing connection is established.
+        //
+        assert(current.con == _incoming);
+        _queue.push_back(new QueuedInvocation(cb, paramData, current));
+    }
+    else
+    {
+        send(current.con == _incoming ? _outgoing : _incoming, cb, paramData, current);
+    }
+}
+
+void
+BridgeConnection::send(const ConnectionPtr& dest,
+                       const AMD_Object_ice_invokePtr& cb,
+                       const pair<const Byte*, const Byte*>& paramData,
+                       const Current& current)
+{
+    try
+    {
+        //
+        // Create a proxy having the same identity as the request.
+        //
+        ObjectPrx prx = dest->createProxy(current.id);
+
+        //
+        // Examine the request to determine whether it should be forwarded as a oneway or a twoway.
+        //
+        Callback_Object_ice_invokePtr d;
+        if(!current.requestId)
+        {
+            if(prx->ice_isTwoway())
+            {
+                prx = prx->ice_oneway();
+            }
+            d = newCallback_Object_ice_invoke(new Invocation(cb), &Invocation::exception, &Invocation::sent);
+        }
+        else
+        {
+            d = newCallback_Object_ice_invoke(new Invocation(cb), &Invocation::success, &Invocation::exception);
+        }
+        prx->begin_ice_invoke(current.operation, current.mode, paramData, current.ctx, d);
+    }
+    catch(const std::exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+BridgeI::BridgeI(const ObjectAdapterPtr& adapter, const ObjectPrx& target) :
+    _adapter(adapter), _target(target)
+{
+}
+
+void
+BridgeI::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
+                          const std::pair<const Byte*, const Byte*>& paramData,
+                          const Current& current)
+{
+    BridgeConnectionPtr bc;
+
+    {
+        IceUtil::Mutex::Lock lock(_lock);
+
+        map<ConnectionPtr, BridgeConnectionPtr>::iterator p = _connections.find(current.con);
+        if(p == _connections.end())
+        {
+            //
+            // The connection is unknown to us, it must be a new incoming connection.
+            //
+
+            EndpointInfoPtr info = current.con->getEndpoint()->getInfo();
+
+            //
+            // Create a target proxy that matches the configuration of the incoming connection.
+            //
+            ObjectPrx target;
+            if(info->datagram())
+            {
+                target = _target->ice_datagram();
+            }
+            else if(info->secure())
+            {
+                target = _target->ice_secure(true);
+            }
+            else
+            {
+                target = _target;
+            }
+
+            //
+            // Force the proxy to establish a new connection by using a unique connection ID.
+            //
+            target = target->ice_connectionId(Ice::generateUUID());
+
+            bc = new BridgeConnection(_adapter, target, current.con);
+            _connections.insert(make_pair(current.con, bc));
+            current.con->setCloseCallback(new CloseCallbackI(this));
+
+            //
+            // Try to establish the outgoing connection.
+            //
+            try
+            {
+                //
+                // Begin the connection establishment process asynchronously. This can take a while to complete,
+                // especially when using Bluetooth.
+                //
+                Callback_Object_ice_getConnectionPtr d =
+                    newCallback_Object_ice_getConnection(new GetConnectionCallback(this, bc),
+                                                         &GetConnectionCallback::success,
+                                                         &GetConnectionCallback::exception);
+                target->begin_ice_getConnection(d);
+            }
+            catch(const Exception& ex)
+            {
+                cb->ice_exception(ex);
+                return;
+            }
+        }
+        else
+        {
+            bc = p->second;
+        }
+    }
+
+    //
+    // Delegate the invocation to the BridgeConnection object.
+    //
+    bc->dispatch(cb, paramData, current);
+}
+
+void
+BridgeI::closed(const ConnectionPtr& con)
+{
+    //
+    // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
+    //
+    BridgeConnectionPtr bc;
+    {
+        IceUtil::Mutex::Lock lock(_lock);
+        map<ConnectionPtr, BridgeConnectionPtr>::iterator p = _connections.find(con);
+        assert(p != _connections.end());
+        bc = p->second;
+        _connections.erase(p);
+    }
+    assert(bc && con);
+    bc->closed(con);
+}
+
+void
+BridgeConnection::closed(const ConnectionPtr& con)
+{
+    IceUtil::Mutex::Lock lock(_lock);
+    if(_exception)
+    {
+        return; // Nothing to do if the exception is already set, both connections have been closed already.
+    }
+
+    ConnectionPtr toBeClosed = con == _incoming ? _outgoing : _incoming;
+    try
+    {
+        con->throwException();
+    }
+    catch(const Ice::CloseConnectionException& ex)
+    {
+        _exception.reset(ex.ice_clone());
+        if(toBeClosed)
+        {
+            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        _exception.reset(ex.ice_clone());
+        if(toBeClosed)
+        {
+            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        }
+    }
+
+    //
+    // Even though the connection is already closed, we still need to "complete" the pending invocations so
+    // that the connection's dispatch count is updated correctly.
+    //
+    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
+    {
+        (*p)->cb->ice_exception(*_exception.get());
+    }
+    _queue.clear();
+}
+
+void
+BridgeI::outgoingSuccess(const BridgeConnectionPtr& bc, const ConnectionPtr& outgoing)
+{
+    //
+    // An outgoing connection was established. Notify the BridgeConnection object.
+    //
+    {
+        IceUtil::Mutex::Lock lock(_lock);
+        _connections.insert(make_pair(outgoing, bc));
+        outgoing->setCloseCallback(new CloseCallbackI(this));
+    }
+    bc->outgoingSuccess(outgoing);
+}
+
+void
+BridgeI::outgoingException(const BridgeConnectionPtr& bc, const Exception& ex)
+{
+    //
+    // An outgoing connection attempt failed. Notify the BridgeConnection object.
+    //
+    bc->outgoingException(ex);
 }
 
 BridgeService::BridgeService()
@@ -774,10 +671,10 @@ BridgeService::start(int argc, char* argv[], int& status)
     //
     // Initialize the object adapter.
     //
-    const string endpointsProperty = "IceBridge.Source.Endpoints";
-    if(properties->getProperty(endpointsProperty).empty())
+    const string sourceProperty = "IceBridge.Source.Endpoints";
+    if(properties->getProperty(sourceProperty).empty())
     {
-        error("property '" + endpointsProperty + "' is not set");
+        error("property '" + sourceProperty + "' is not set");
         return false;
     }
 
