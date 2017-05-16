@@ -159,7 +159,7 @@ int
 MyClassI::getConnectionCount(const Ice::Current& c)
 {
     checkConnection(c.con);
-    return _connections.size();
+    return static_cast<int>(_connections.size());
 }
 
 string

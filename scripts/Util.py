@@ -2499,7 +2499,7 @@ class CppMapping(Mapping):
             if self.cpp11:
                 testId = current.testcase.getTestSuite().getId()
                 parent = re.match(r'^([\w]*).*', testId).group(1)
-                if parent in ["IceStorm"]:
+                if parent in ["IceStorm", "IceBridge"]:
                     return False
                 elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
                     return False
