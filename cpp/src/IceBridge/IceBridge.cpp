@@ -682,11 +682,9 @@ BridgeService::start(int argc, char* argv[], int& status)
 
     adapter->addDefaultServant(new BridgeI(adapter, target), "");
 
-    if(properties->getPropertyAsIntWithDefault("IceBridge.Router", 0) > 0)
-    {
-        RouterPrx router = RouterPrx::uncheckedCast(adapter->add(new RouterI, stringToIdentity("IceBridge/router")));
-        adapter->add(new FinderI(router), stringToIdentity("Ice/RouterFinder"));
-    }
+    string instanceName = properties->getPropertyWithDefault("IceBridge.InstanceName", "IceBridge");
+    RouterPrx router = RouterPrx::uncheckedCast(adapter->add(new RouterI, stringToIdentity(instanceName + "/router")));
+    adapter->add(new FinderI(router), stringToIdentity("Ice/RouterFinder"));
 
     try
     {

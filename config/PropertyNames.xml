@@ -459,6 +459,12 @@ generated from the section label.
         <property name="ServiceManager.Proxy" class="proxy"/>
     </section>
 
+    <section name="IceBridge">
+        <property name="Source" class="objectadapter" />
+        <property name="Target.Endpoints" />
+        <property name="InstanceName" />
+    </section>
+
     <section name="IceGridAdmin">
         <property name="AuthenticateUsingSSL" />
         <property name="MetricsConfig" />

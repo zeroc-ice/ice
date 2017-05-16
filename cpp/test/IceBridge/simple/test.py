@@ -17,7 +17,6 @@ class IceBridge(ProcessFromBinDir, Server):
         props = Server.getProps(self, current);
         props.update({
             'Ice.Warn.Dispatch' : 0,
-            'IceBridge.Router' : 1,
             'IceBridge.Target.Endpoints' : current.getTestEndpoint(0) + ":" + current.getTestEndpoint(0, "udp"),
             'IceBridge.Source.Endpoints' : current.getTestEndpoint(1) + ":" + current.getTestEndpoint(1, "udp"),
             'Ice.Admin.Endpoints' : current.getTestEndpoint(2, "tcp"),
