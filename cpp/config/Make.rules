@@ -73,6 +73,7 @@ cpp11_projects          = test/Common \
                           test/IceDiscovery/% \
                           test/IceBox/% \
                           test/Glacier2/application \
+                          test/Glacier2/sessionHelper \
                           test/IceGrid/simple
 
 cpp11_excludes          = IcePatch2 \
