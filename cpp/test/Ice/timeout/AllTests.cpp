@@ -394,6 +394,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         timeout->op(); // Ensure adapter is active.
         to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(250));
+        int nRetry = 5;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                to->ice_getConnection(); // Establish connection
+                break;
+            }
+            catch(const Ice::ConnectTimeoutException&)
+            {
+                // Can sporadically occur with slow machines
+            }
+        }
         to->ice_getConnection(); // Establish connection
         timeout->holdAdapter(750);
         try

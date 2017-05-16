@@ -230,6 +230,14 @@ def allTests(communicator):
     #
     timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
+    nRetry = 5
+    while --nRetry > 0:
+        try:
+            to.ice_getConnection();
+            break
+        except Ice.ConnectTimeoutException:
+            # Can sporadically occur with slow machines
+            pass
     to.ice_getConnection(); # Establish connection
     timeout.holdAdapter(750)
     try:

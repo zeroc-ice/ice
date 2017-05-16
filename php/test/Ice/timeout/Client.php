@@ -333,6 +333,24 @@ function allTests($communicator)
         //
         $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
+        $nRetry = 5;
+        while(--$nRetry > 0)
+        {
+            try
+            {
+                $to->ice_getConnection(); // Establish connection.
+                break;
+            }
+            catch(Exception $ex)
+            {
+                if($ex instanceof $ConnectTimeoutException)
+                {
+                    // Can sporadically occur with slow machines
+                }
+                echo($ex);
+                test(false);
+            }
+        }
         $to->ice_getConnection(); // Establish connection.
         $timeout->holdAdapter(750);
         try
