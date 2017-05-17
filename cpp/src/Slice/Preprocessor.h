@@ -40,6 +40,7 @@ public:
                                    const std::vector<std::string>&, const std::string& = "cpp",
                                    const std::string& = "");
 
+    std::string getFileName();
     std::string getBaseName();
 
     static std::string addQuotes(const std::string&);

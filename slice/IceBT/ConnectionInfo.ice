@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "objc:header-dir:objc", "python:pkgdir:IceBT"]]
 
 #include <Ice/Connection.ice>
 

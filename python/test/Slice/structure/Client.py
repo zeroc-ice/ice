@@ -12,7 +12,7 @@ import os, sys, traceback
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
+    if os.path.exists(os.path.join(toplevel, "python", "Ice", "__init__.py")):
         break
 else:
     raise RuntimeError("can't find toplevel directory!")

@@ -36,7 +36,7 @@ can open one of:
 - VS2015 x64 Native Tools Command Prompt
 
 Using the first Command Prompt produces `Win32` binaries by default, while
-the second Command Promt produces `x64` binaries by default.
+the second Command Prompt produces `x64` binaries by default.
 
 In the Command Prompt, change to the `python` subdirectory:
 

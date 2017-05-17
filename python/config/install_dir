@@ -33,4 +33,4 @@ except distutils.errors.DistutilsError:
   pass
 
 # Place the source files and the extension in a subdirectory of the installation directory.
-print(os.path.join(e.install_dir, "zeroc-ice"))
+print(e.install_dir)

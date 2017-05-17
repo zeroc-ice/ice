@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build"]]
+[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Glacier2/SSLInfo.ice>

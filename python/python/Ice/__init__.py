@@ -80,7 +80,7 @@ def Python35():
     return sys.version_info[:2] >= (3, 5)
 
 if Python35():
-    from IceFuture import FutureBase, wrap_future
+    from Ice.IceFuture import FutureBase, wrap_future
 else:
     FutureBase = object
 
@@ -572,31 +572,32 @@ def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
 
     #
-    # Detect setup.py installation in site-packages. The slice
-    # files live along side Ice.py
-    #
-    dir = os.path.join(os.path.dirname(__file__), "slice")
-    if os.path.isdir(dir):
-        return dir
-
-    #
-    # Get the parent of the directory containing this file (Ice.py).
+    # Get the parent of the directory containing this file (__init__.py).
     #
     pyHome = os.path.join(os.path.dirname(__file__), "..")
+
+    #
+    # Detect setup.py installation in site-packages. The slice
+    # files live one level above this file.
+    #
+    dir = os.path.join(pyHome, "slice")
+    if os.path.isdir(dir):
+        return dir
 
     #
     # For an installation from a source distribution, a binary tarball, or a
     # Windows installer, the "slice" directory is a sibling of the "python"
     # directory.
     #
-    dir = os.path.join(pyHome, "slice")
+    dir = os.path.join(pyHome, "..", "slice")
     if os.path.exists(dir):
         return os.path.normpath(dir)
 
     #
-    # In a source distribution, the "slice" directory is one level higher.
+    # In a source distribution, the "slice" directory is an extra level higher.
+    # directory.
     #
-    dir = os.path.join(pyHome, "..", "slice")
+    dir = os.path.join(pyHome, "..", "..", "slice")
     if os.path.exists(dir):
         return os.path.normpath(dir)
 
@@ -711,28 +712,28 @@ sliceChecksums = {}
 #
 # Import generated Ice modules.
 #
-import Ice_BuiltinSequences_ice
-import Ice_Current_ice
-import Ice_Communicator_ice
-import Ice_ImplicitContext_ice
-import Ice_Endpoint_ice
-import Ice_EndpointTypes_ice
-import Ice_Identity_ice
-import Ice_LocalException_ice
-import Ice_Locator_ice
-import Ice_Logger_ice
-import Ice_ObjectAdapter_ice
-import Ice_ObjectFactory_ice
-import Ice_ValueFactory_ice
-import Ice_Process_ice
-import Ice_Properties_ice
-import Ice_RemoteLogger_ice
-import Ice_Router_ice
-import Ice_ServantLocator_ice
-import Ice_Connection_ice
-import Ice_Version_ice
-import Ice_Instrumentation_ice
-import Ice_Metrics_ice
+import Ice.BuiltinSequences_ice
+import Ice.Current_ice
+import Ice.Communicator_ice
+import Ice.ImplicitContext_ice
+import Ice.Endpoint_ice
+import Ice.EndpointTypes_ice
+import Ice.Identity_ice
+import Ice.LocalException_ice
+import Ice.Locator_ice
+import Ice.Logger_ice
+import Ice.ObjectAdapter_ice
+import Ice.ObjectFactory_ice
+import Ice.ValueFactory_ice
+import Ice.Process_ice
+import Ice.Properties_ice
+import Ice.RemoteLogger_ice
+import Ice.Router_ice
+import Ice.ServantLocator_ice
+import Ice.Connection_ice
+import Ice.Version_ice
+import Ice.Instrumentation_ice
+import Ice.Metrics_ice
 
 #
 # Replace EndpointInfo with our implementation.

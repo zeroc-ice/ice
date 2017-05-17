@@ -20,16 +20,6 @@ $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2py))
 
 .NOTPARALLEL:
 
-install:: | $(DESTDIR)$(install_pythondir)
-	$(E) "Installing generated code"
-	$(Q)$(INSTALL) *.py $(DESTDIR)$(install_pythondir)
-
-ifneq ($(usr_dir_install),)
-install:: | $(DESTDIR)$(install_pythondir)
-	$(E) "Installing .pth file"
-	$(Q)$(INSTALL) ../config/zeroc-ice.pth $(DESTDIR)$(install_pythondir)/..
-endif
-
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Ice,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,Glacier2,--no-package))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceBox))
@@ -38,7 +28,15 @@ $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceGrid))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IcePatch2))
 $(eval $(call make-python-package,$(slicedir),$(lang_srcdir)/python,IceStorm))
 
-# Generate this two files individually without the --no-package option to ensure the
+# Generate these two files individually without the --no-package option to ensure the
 # IceMX package is updated.
 $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Ice,Metrics))
 $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Glacier2,Metrics))
+
+install:: | $(DESTDIR)$(install_pythondir)/Ice
+	$(E) "Installing generated code"
+	$(Q)$(INSTALL) Ice/__init__.py $(DESTDIR)$(install_pythondir)/Ice
+	$(Q)$(INSTALL) Ice/IceFuture.py $(DESTDIR)$(install_pythondir)/Ice
+
+install:: | $(DESTDIR)$(install_pythondir)/Glacier2
+	$(Q)$(INSTALL) Glacier2/__init__.py $(DESTDIR)$(install_pythondir)/Glacier2

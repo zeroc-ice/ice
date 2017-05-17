@@ -73,6 +73,100 @@ interruptedCallback(int /*signal*/)
     interrupted = true;
 }
 
+void
+createDirectory(const string& dir)
+{
+    IceUtilInternal::structstat st;
+    if(!IceUtilInternal::stat(dir, &st))
+    {
+        if(!(st.st_mode & S_IFDIR))
+        {
+            ostringstream os;
+            os << "failed to create directory '" << dir
+               << "': file already exists and is not a directory";
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
+        return;
+    }
+
+    if(IceUtilInternal::mkdir(dir, 0777) != 0)
+    {
+        ostringstream os;
+        os << "cannot create directory '" << dir << "': " << strerror(errno);
+        throw FileException(__FILE__, __LINE__, os.str());
+    }
+}
+
+//
+// Starting in the directory given by output (can be empty for the CWD), create all necessary subdirectories
+// in the path given by pkgdir.
+//
+void
+createPackageDirectory(const string& output, const string& pkgdir)
+{
+    assert(output.empty() || IceUtilInternal::directoryExists(output));
+    assert(!pkgdir.empty());
+
+    vector<string> elements;
+    if(!IceUtilInternal::splitString(pkgdir, "/", elements))
+    {
+        throw FileException(__FILE__, __LINE__, "invalid path in '" + pkgdir + "'");
+    }
+
+    assert(!elements.empty());
+
+    //
+    // Create all necessary subdirectories.
+    //
+    string path = output;
+    for(vector<string>::iterator p = elements.begin(); p != elements.end(); ++p)
+    {
+        if(!path.empty())
+        {
+            path += "/";
+        }
+        path += *p;
+        IceUtilInternal::structstat st;
+        if(IceUtilInternal::stat(path, &st) < 0)
+        {
+            if(IceUtilInternal::mkdir(path, 0777) != 0)
+            {
+                ostringstream os;
+                os << "cannot create directory '" << path << "': " << strerror(errno);
+                throw FileException(__FILE__, __LINE__, os.str());
+            }
+            FileTracker::instance()->addDirectory(path);
+        }
+        else if(!(st.st_mode & S_IFDIR))
+        {
+            ostringstream os;
+            os << "failed to create directory '" << path << "': file already exists and is not a directory";
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
+
+        //
+        // It's possible that the pkgdir metadata specified a directory that won't be visited by our
+        // PackageVisitor. We need every intermediate subdirectory to have an __init__.py file, which
+        // can be empty.
+        //
+        const string init = path + "/__init__.py";
+        if(!IceUtilInternal::fileExists(init))
+        {
+            //
+            // Create an empty file.
+            //
+            IceUtilInternal::Output out;
+            out.open(init.c_str());
+            if(!out)
+            {
+                ostringstream os;
+                os << "cannot open '" << init << "': " << strerror(errno);
+                throw FileException(__FILE__, __LINE__, os.str());
+            }
+            FileTracker::instance()->addFile(init);
+        }
+    }
+}
 
 //
 // For each Slice file Foo.ice we generate Foo_ice.py containing the Python
@@ -113,8 +207,6 @@ private:
 
     static const char* _moduleTag;
     static const char* _submoduleTag;
-
-    static void createDirectory(const string&);
 
     static void addModule(const string&, const string&, const string&);
     static void addSubmodule(const string&, const string&, const string&);
@@ -187,32 +279,6 @@ PackageVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 void
-PackageVisitor::createDirectory(const string& dir)
-{
-    IceUtilInternal::structstat st;
-    if(!IceUtilInternal::stat(dir, &st))
-    {
-        if(!(st.st_mode & S_IFDIR))
-        {
-            ostringstream os;
-            os << "failed to create package directory `" << dir
-               << "': file already exists and is not a directory";
-            throw FileException(__FILE__, __LINE__, os.str());
-        }
-        return;
-    }
-
-    if(IceUtilInternal::mkdir(dir, 0777) != 0)
-    {
-        ostringstream os;
-        os << "cannot create directory `" << dir << "': " << strerror(errno);
-        throw FileException(__FILE__, __LINE__, os.str());
-    }
-
-    FileTracker::instance()->addDirectory(dir);
-}
-
-void
 PackageVisitor::addModule(const string& dir, const string& module, const string& name)
 {
     //
@@ -256,7 +322,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
         if(!in)
         {
             ostringstream os;
-            os << "cannot open file `" << initPath << "': " << strerror(errno);
+            os << "cannot open file '" << initPath << "': " << strerror(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
 
@@ -291,7 +357,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
                 if(s.size() < 8)
                 {
                     ostringstream os;
-                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    os << "invalid line '" << s << "' in '" << initPath << "'";
                     throw os.str();
                 }
 
@@ -323,14 +389,14 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
                 if(state != InSubmodules)
                 {
                     ostringstream os;
-                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    os << "invalid line '" << s << "' in '" << initPath << "'";
                     throw os.str();
                 }
 
                 if(s.size() < 15)
                 {
                     ostringstream os;
-                    os << "invalid line `" << s << "' in `" << initPath << "'";
+                    os << "invalid line '" << s << "' in '" << initPath << "'";
                     throw os.str();
                 }
 
@@ -338,10 +404,10 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
             }
         }
 
-        if(state != InSubmodules)
+        if(state == InModules)
         {
             ostringstream os;
-            os << "invalid format in `" << initPath << "'" << endl;
+            os << "invalid format in '" << initPath << "'" << endl;
             throw os.str();
         }
     }
@@ -357,7 +423,7 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
     if(!os)
     {
         ostringstream os;
-        os << "cannot open file `" << initPath << "': " << strerror(errno);
+        os << "cannot open file '" << initPath << "': " << strerror(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(initPath);
@@ -521,6 +587,12 @@ Slice::Python::compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
+    if(!output.empty() && !IceUtilInternal::directoryExists(output))
+    {
+        consoleErr << argv[0] << ": error: argument for --output-dir does not exist or is not a directory" << endl;
+        return EXIT_FAILURE;
+    }
+
     int status = EXIT_SUCCESS;
 
     IceUtil::CtrlCHandler ctrlCHandler;
@@ -627,32 +699,70 @@ Slice::Python::compile(const vector<string>& argv)
                         }
 
                         //
+                        // Check if the file contains the python:pkgdir global metadata.
+                        //
+                        const string pkgdir = getPackageDirectory(icecpp->getFileName(), u);
+
+                        //
                         // If --build-package is specified, we don't generate any code and simply
                         // update the __init__.py files.
                         //
                         if(!buildPackage)
                         {
+                            string path;
+                            if(!output.empty())
+                            {
+                                path = output + '/'; // The output directory must already exist.
+                            }
+
+                            if(!pkgdir.empty())
+                            {
+                                //
+                                // The metadata is present. It should have the form
+                                //
+                                // python:pkgdir:A/B/C
+                                //
+                                // We open the output file in the specified directory, prefixed by the
+                                // output directory (if any).
+                                //
+                                createPackageDirectory(output, pkgdir);
+                                path += pkgdir;
+                                if(path[path.size() - 1] != '/')
+                                {
+                                    path += "/"; // Append a separator if necessary.
+                                }
+                            }
+                            else
+                            {
+                                //
+                                // The file doesn't contain the python:pkgdir metadata, so we use the
+                                // value of the --prefix option (if any).
+                                //
+                                path += prefix;
+                            }
+
+                            //
+                            // Add the file name (without the .ice extension).
+                            //
+                            path += base;
+
                             //
                             // Append the suffix "_ice" to the filename in order to avoid any conflicts
-                            // with Slice module names. For example, if the file Test.ice defines a
+                            // with Slice module or type names. For example, if the file Test.ice defines a
                             // Slice module named "Test", then we couldn't create a Python package named
                             // "Test" and also call the generated file "Test.py".
                             //
-                            string file = prefix + base + "_ice.py";
-                            if(!output.empty())
-                            {
-                                file = output + '/' + file;
-                            }
+                            path += "_ice.py";
 
                             IceUtilInternal::Output out;
-                            out.open(file.c_str());
+                            out.open(path.c_str());
                             if(!out)
                             {
                                 ostringstream os;
-                                os << "cannot open`" << file << "': " << strerror(errno);
+                                os << "cannot open '" << path << "': " << strerror(errno);
                                 throw FileException(__FILE__, __LINE__, os.str());
                             }
-                            FileTracker::instance()->addFile(file);
+                            FileTracker::instance()->addFile(path);
 
                             //
                             // Emit a Python magic comment to set the file encoding.
@@ -675,7 +785,16 @@ Slice::Python::compile(const vector<string>& argv)
                         //
                         if(!noPackage)
                         {
-                            PackageVisitor::createModules(u, prefix + base + "_ice", output);
+                            string name;
+                            if(!pkgdir.empty())
+                            {
+                                name = getImportFileName(icecpp->getFileName(), u, vector<string>());
+                            }
+                            else
+                            {
+                                name = prefix + base + "_ice";
+                            }
+                            PackageVisitor::createModules(u, name, output);
                         }
                     }
                     catch(const Slice::FileException& ex)

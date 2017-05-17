@@ -75,11 +75,11 @@ distclean clean::
 	$(E) "Cleaning package $3"
 	$(Q)$(RM) -r $2/$3/.depend
 	$(Q)$(if $(findstring --no-package,$4),,$(RM) $2/$3/__init__.py)
-	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
+	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice))
 
-generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
+generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice))
 
-$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
 
 # If we also generate a package directory with an __init__.py, install it.
 ifeq ($(findstring --no-package,$4),)
@@ -93,9 +93,9 @@ endef
 #
 define make-python-slice
 
-$2/$3_$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(slice2py_path)
+$2/$3/$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(slice2py_path)
 	$(E) "Compiling $$<"
 	$(Q)$(slice2py_path) -I$1 --output-dir $2 $5 --depend $$< > $2/$3/.depend/$(or $4,$$(*F)).ice.d
-	$(Q)$(slice2py_path) -I$1 --output-dir $2 --prefix $3_ --checksum $5 $$<
+	$(Q)$(slice2py_path) -I$1 --output-dir $2 --checksum $5 $$<
 
 endef

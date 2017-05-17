@@ -68,6 +68,12 @@ Slice::Preprocessor::~Preprocessor()
 }
 
 string
+Slice::Preprocessor::getFileName()
+{
+    return _fileName;
+}
+
+string
 Slice::Preprocessor::getBaseName()
 {
     string base(_fileName);
