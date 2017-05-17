@@ -142,7 +142,7 @@ local enum ACMClose
 local enum ACMHeartbeat
 {
     HeartbeatOff,
-    HeartbeatOnInvocation,
+    HeartbeatOnDispatch,
     HeartbeatOnIdle,
     HeartbeatAlways
 }

@@ -14,7 +14,7 @@ public final class ACMConfig implements java.lang.Cloneable
     ACMConfig(boolean server)
     {
         timeout = 60 * 1000;
-        heartbeat = Ice.ACMHeartbeat.HeartbeatOnInvocation;
+        heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
         close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
     }
 

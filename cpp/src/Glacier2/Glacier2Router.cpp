@@ -363,7 +363,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // Glacier2 router Ice object.
     //
     Identity routerId;
-    routerId.category = _instance->properties()->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
+    routerId.category = instanceName;
     routerId.name = "router";
     Glacier2::RouterPrx routerPrx = Glacier2::RouterPrx::uncheckedCast(clientAdapter->add(_sessionRouter, routerId));
 

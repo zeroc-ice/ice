@@ -17,7 +17,7 @@ namespace IceInternal
         internal ACMConfig(bool server)
         {
             timeout = 60 * 1000;
-            heartbeat = Ice.ACMHeartbeat.HeartbeatOnInvocation;
+            heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
             close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
         }
 

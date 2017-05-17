@@ -327,7 +327,7 @@ class ConnectionI
            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() &&
            now >= (this._acmLastActivity + acm.timeout / 4)))
         {
-            if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnInvocation || this._dispatchCount > 0)
+            if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnDispatch || this._dispatchCount > 0)
             {
                 this.sendHeartbeatNow(); // Send heartbeat if idle in the last timeout / 2 period.
             }

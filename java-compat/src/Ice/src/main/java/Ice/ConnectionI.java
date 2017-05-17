@@ -315,7 +315,7 @@ public final class ConnectionI extends IceInternal.EventHandler
            (acm.heartbeat != ACMHeartbeat.HeartbeatOff && _writeStream.isEmpty() &&
             now >= (_acmLastActivity + acm.timeout / 4)))
         {
-            if(acm.heartbeat != ACMHeartbeat.HeartbeatOnInvocation || _dispatchCount > 0)
+            if(acm.heartbeat != ACMHeartbeat.HeartbeatOnDispatch || _dispatchCount > 0)
             {
                 sendHeartbeatNow();
             }

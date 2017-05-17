@@ -25,7 +25,7 @@ IceUtil::Shared* IceInternal::upCast(FactoryACMMonitor* p) { return p; }
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
     timeout(IceUtil::Time::seconds(60)),
-    heartbeat(ICE_ENUM(ACMHeartbeat, HeartbeatOnInvocation)),
+    heartbeat(ICE_ENUM(ACMHeartbeat, HeartbeatOnDispatch)),
     close(server ? ICE_ENUM(ACMClose, CloseOnInvocation) : ICE_ENUM(ACMClose, CloseOnInvocationAndIdle))
 {
 }

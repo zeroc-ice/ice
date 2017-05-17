@@ -19,7 +19,7 @@ class ACMConfig
         if(p === undefined)
         {
             this.timeout = 60 * 1000;
-            this.heartbeat = Ice.ACMHeartbeat.HeartbeatOnInvocation;
+            this.heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
             this.close = Ice.ACMClose.CloseOnInvocationAndIdle;
             return;
         }
