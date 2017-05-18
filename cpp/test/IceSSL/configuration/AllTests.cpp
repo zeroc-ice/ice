@@ -2897,8 +2897,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);

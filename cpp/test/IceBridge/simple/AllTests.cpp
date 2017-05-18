@@ -114,6 +114,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
             Ice::checkedCast<Test::MyClassPrx>(cl->ice_getConnection()->createProxy(cl->ice_getIdentity()));
         clc->ice_ping();
         clc->closeConnection(false);
+        int nRetry = 20;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                clc->ice_ping();
+                test(false);
+            }
+            catch(const Ice::CloseConnectionException&)
+            {
+                // Wait for the CloseConnectionException before continuing
+                break;
+            }
+            catch(const Ice::UnknownLocalException& ex)
+            {
+                // The bridge forwards the CloseConnectionException from the server as an
+                // UnknownLocalException. It eventually closes the connection when notified
+                // of the connection close.
+                test(ex.unknown.find("CloseConnectionException") >= 0);
+            }
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+        }
         try
         {
             clc->ice_ping();
@@ -121,11 +143,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const Ice::CloseConnectionException&)
         {
-            // This can occur depend on the timing of the close connection message.
-        }
-        catch(const Ice::UnknownLocalException& ex)
-        {
-            test(ex.unknown.find("CloseConnectionException") >= 0);
         }
     }
     cout << "ok" << endl;

@@ -372,6 +372,48 @@ BridgeConnection::outgoingException(const Exception& ex)
 }
 
 void
+BridgeConnection::closed(const ConnectionPtr& con)
+{
+    IceUtil::Mutex::Lock lock(_lock);
+    if(_exception)
+    {
+        return; // Nothing to do if the exception is already set, both connections have been closed already.
+    }
+
+    ConnectionPtr toBeClosed = con == _incoming ? _outgoing : _incoming;
+    try
+    {
+        con->throwException();
+    }
+    catch(const Ice::CloseConnectionException& ex)
+    {
+        _exception.reset(ex.ice_clone());
+        if(toBeClosed)
+        {
+            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        _exception.reset(ex.ice_clone());
+        if(toBeClosed)
+        {
+            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+        }
+    }
+
+    //
+    // Even though the connection is already closed, we still need to "complete" the pending invocations so
+    // that the connection's dispatch count is updated correctly.
+    //
+    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
+    {
+        (*p)->cb->ice_exception(*_exception.get());
+    }
+    _queue.clear();
+}
+
+void
 BridgeConnection::dispatch(const AMD_Object_ice_invokePtr& cb, const pair<const Byte*, const Byte*>& paramData,
                            const Current& current)
 {
@@ -535,48 +577,6 @@ BridgeI::closed(const ConnectionPtr& con)
     }
     assert(bc && con);
     bc->closed(con);
-}
-
-void
-BridgeConnection::closed(const ConnectionPtr& con)
-{
-    IceUtil::Mutex::Lock lock(_lock);
-    if(_exception)
-    {
-        return; // Nothing to do if the exception is already set, both connections have been closed already.
-    }
-
-    ConnectionPtr toBeClosed = con == _incoming ? _outgoing : _incoming;
-    try
-    {
-        con->throwException();
-    }
-    catch(const Ice::CloseConnectionException& ex)
-    {
-        _exception.reset(ex.ice_clone());
-        if(toBeClosed)
-        {
-            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
-        }
-    }
-    catch(const Ice::Exception& ex)
-    {
-        _exception.reset(ex.ice_clone());
-        if(toBeClosed)
-        {
-            toBeClosed->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
-        }
-    }
-
-    //
-    // Even though the connection is already closed, we still need to "complete" the pending invocations so
-    // that the connection's dispatch count is updated correctly.
-    //
-    for(vector<QueuedInvocationPtr>::iterator p = _queue.begin(); p != _queue.end(); ++p)
-    {
-        (*p)->cb->ice_exception(*_exception.get());
-    }
-    _queue.clear();
 }
 
 void
