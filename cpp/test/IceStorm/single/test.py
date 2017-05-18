@@ -9,21 +9,18 @@
 # **********************************************************************
 
 #
-# Make sure IceStorm and the subscriber use the same buffer size for
-# sending/receiving datagrams. This ensures the test works with bogus
+# Make sure the subscriber uses a larger size receive buffer size then
+# the IceStorm send buffer size. This ensures the test works with bogus
 # OS configurations where the reicever buffer size is smaller than the
-# send buffer size (causing the received messages to be
-# truncated). See also bug #6070.
+# send buffer size (causing the received messages to be truncated). See
+# bug #6070 and #7558.
 #
-# We also reduce the chances of loosing datagrams by configuring a send
-# buffer size inferior to the receive buffer size (bug #7558).
-#
-props = { "Ice.UDP.SndSize" : 2048, "Ice.Warn.Dispatch" : 0 }
+props = { "Ice.UDP.SndSize" : 2048 * 1024, "Ice.Warn.Dispatch" : 0 }
 persistent = IceStorm(props = props)
 transient = IceStorm(props = props, transient=True)
 replicated = [ IceStorm(replica=i, nreplicas=3, props = props) for i in range(0,3) ]
 
-sub = Subscriber(args=["{testcase.parent.name}"], props = { "Ice.UDP.RcvSize" : 4096 }, readyCount=2)
+sub = Subscriber(args=["{testcase.parent.name}"], props = { "Ice.UDP.RcvSize" : 4096 * 1024 }, readyCount=3)
 pub = Publisher(args=["{testcase.parent.name}"])
 
 class IceStormSingleTestCase(IceStormTestCase):
