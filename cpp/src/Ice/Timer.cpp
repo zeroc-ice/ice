@@ -82,7 +82,7 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
     bool inserted = _tasks.insert(make_pair(task, time)).second;
     if(!inserted)
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
+        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
     }
     _tokens.insert(Token(time, IceUtil::Time(), task));
 
@@ -111,7 +111,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
     bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
     if(!inserted)
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
+        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
     }
     _tokens.insert(token);
 
