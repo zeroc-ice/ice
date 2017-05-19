@@ -64,7 +64,7 @@ Follow these steps to import the Ice for Android project into Android Studio:
 
 1. Start Android Studio
 2. Select Open Project
-3. Navigate to the android subdirectory
+3. Navigate to the android-compat subdirectory
 4. If presented with an "Import Project from Gradle" dialog, select
    "Use default gradle wrapper" and press OK
 

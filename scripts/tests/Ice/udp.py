@@ -10,15 +10,24 @@
 from Util import *
 
 #
-# Start 5 servers
-#
-servers=range(0, 5)
-
-#
 # With UWP, we can't run the UDP tests with the C++ servers (used when SSL is enabled).
 #
 options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else {}
 
-TestSuite(__name__, [
-    ClientServerTestCase(client=Client(args=[5]), servers=[Server(args=[i], ready="McastTestAdapter") for i in servers])
-], multihost=False, options=options)
+class IceUdpTestSuite(TestSuite):
+
+    def setup(self, current):
+        TestSuite.setup(self, current)
+
+        n = 1 if (isinstance(self.getMapping(), AndroidMapping) or
+                  isinstance(self.getMapping(), AndroidCompatMapping)) else 5
+        #
+        # Start n servers
+        #
+        servers=range(0, n)
+
+        self.testcases = {} # Clear default test cases
+        self.addTestCase(ClientServerTestCase(client=Client(args=[n]),
+                                              servers=[Server(args=[i], ready="McastTestAdapter") for i in servers]))
+
+IceUdpTestSuite(__name__, multihost=False, options=options)

@@ -10,13 +10,18 @@
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
 tests.each {
-    include ":test_Ice_${it}"
-    project(":test_Ice_${it}").projectDir = new File("test/src/test_Ice_${it}")
+    def name = it.replace('/', '_')
+    include ":test_${name}"
+    project(":test_${name}").projectDir = new File("test/src/test_${name}")
 }
 
 // Main source
 include ':ice-compat'
 project(':ice-compat').projectDir = new File('src/Ice')
+include ':icediscovery-compat'
+project(':icediscovery-compat').projectDir = new File('src/IceDiscovery')
+include ':icelocatordiscovery-compat'
+project(':icelocatordiscovery-compat').projectDir = new File('src/IceLocatorDiscovery')
 include ':icebox-compat'
 project(':icebox-compat').projectDir = new File('src/IceBox')
 include ':glacier2-compat'
@@ -28,8 +33,7 @@ project(':icestorm-compat').projectDir = new File('src/IceStorm')
 include ':icegrid-compat'
 project(':icegrid-compat').projectDir = new File('src/IceGrid')
 
-include ':test', ':testPlugins', ':testApp'
+include ':test', ':testController'
 
 project(':test').projectDir = new File('test')
-project(':testPlugins').projectDir = new File('test/plugins')
-project(':testApp').projectDir = new File('test/android')
+project(':testController').projectDir = new File('test/controller')

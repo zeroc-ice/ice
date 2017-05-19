@@ -38,10 +38,9 @@ dependencies {
 }
 
 tests.each {
-
-    def name = it
-    def dirName = name.replace('_', '/')
-    project(":test_Ice_${name}") {
+    def dirName = it
+    def name = it.replace('/', '_')
+    project(":test_${name}") {
         apply plugin: 'java'
         apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
         slice.compat = true
@@ -53,15 +52,15 @@ tests.each {
             main {
                 java {
                     srcDir "$rootProject.projectDir/../java-compat/test/src/main/java"
-                    include "test/Ice/${dirName}/**"
-                    exclude 'test/Ice/**/lambda'
+                    include "test/${dirName}/**"
+                    exclude "test/${dirName}/lambda"
                     srcDir "$rootProject.projectDir/test/build/generated-src/"
-                    include "test/Ice/${dirName}/**"
+                    include "test/${dirName}/**"
                 }
             }
         }
 
-        def dexName = "IceTest_${name}.dex"
+        def dexName = "test_${name}.dex"
         task dexClasses {
             inputs.dir "${buildDir}/classes/main"
             outputs.file "${buildDir}/classes/main/${dexName}"

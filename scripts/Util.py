@@ -492,6 +492,10 @@ class Mapping:
             self.uwp = False
             self.openssl = False
 
+            self.device = ""
+            self.avd = ""
+            self.androidemulator = False
+
         def __str__(self):
             s = []
             for o in self.parsedOptions:
@@ -720,10 +724,11 @@ class Mapping:
                 for f in excludes:
                     if f.search(self.name + "/" + testId):
                         return True
-
         return False
 
     def loadTestSuites(self, tests, config, filters=[], rfilters=[]):
+        global currentMapping
+        currentMapping = self
         for test in tests or [""]:
             for root, dirs, files in os.walk(os.path.join(self.getTestsPath(), test.replace('/', os.sep))):
 
@@ -764,6 +769,7 @@ class Mapping:
                 testcases = self.computeTestCases(testId, files)
                 if testcases:
                     TestSuite(root, testcases)
+        currentMapping = None
 
     def getTestSuites(self, ids=[]):
         if not ids:
@@ -1593,9 +1599,10 @@ class Result:
 class TestSuite:
 
     def __init__(self, path, testcases=None, options=None, libDirs=None, runOnMainThread=False, chdir=False,
-                 multihost=True):
+                 multihost=True, mapping=None):
+        global currentMapping
         self.path = os.path.dirname(path) if os.path.basename(path) == "test.py" else path
-        self.mapping = Mapping.getByPath(self.path)
+        self.mapping = currentMapping or Mapping.getByPath(self.path)
         self.id = self.mapping.addTestSuite(self)
         self.options = options or {}
         self.libDirs = libDirs or []
@@ -1923,6 +1930,120 @@ class RemoteProcessController(ProcessController):
             self.controllerApps = []
         if self.adapter:
             self.adapter.destroy()
+
+class AndroidProcessController(RemoteProcessController):
+
+    def __init__(self, current):
+        run("adb kill-server")
+        RemoteProcessController.__init__(self, current,
+            "tcp -h 127.0.0.1 -p 15001" if current.config.androidemulator else None)
+        self.device = current.config.device
+        self.avd = current.config.avd
+        self.androidemulator = current.config.androidemulator
+
+    def __str__(self):
+        return "Android"
+
+    def getControllerIdentity(self, current):
+        return "Android/ProcessController"
+
+    def adb(self):
+        return "adb -s {}".format(self.device) if self.device else "adb"
+
+    def emulator(self):
+        #
+        # We need to use emulator fullpath, otherwise fails to start with
+        # :Qt library not found at ..\emulator\lib64\qt\lib
+        #
+        emu = "emulator.exe" if sys.platform == "win32" else "emulator"
+        for d in os.environ.get("PATH").split(os.pathsep):
+            if os.path.isfile(os.path.join(d, emu)):
+                return os.path.join(d, emu)
+
+    def startEmulator(self, config):
+        #
+        # First check if the AVD image is available
+        #
+        out = run("{} -list-avds".format(self.emulator()))
+        if config.avd not in out:
+            raise RuntimeError("couldn't find AVD `{}'".format(config.avd))
+
+        #
+        # Find and unused port to run android emulator, between 5554 and 5584
+        #
+        port = -1
+        out = run("adb devices -l")
+        for p in range(5554, 5586, 2):
+            if not "emulator-{}".format(p) in out:
+                port = p
+
+        if port == -1:
+            raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
+
+        self.device = "emulator-{}".format(port)
+        cmd = "{0} -avd {1} -port {2} -wipe-data".format(self.emulator(), config.avd, port)
+        self.emulator = subprocess.Popen(cmd, shell=True)
+
+        if self.emulator.poll():
+            raise RuntimeError("failed to start Android emulator with AVD {} on port {}".format(config.avd, port))
+
+        self.avd = config.avd
+
+        #
+        # Wait for the device to be ready
+        #
+        t = time.time()
+        while True:
+            try:
+                lines = run("{} shell getprop sys.boot_completed".format(self.adb()))
+                if len(lines) > 0 and lines[0].strip() == "1":
+                    break
+            except RuntimeError:
+                pass # expected if device is offline
+            #
+            # If the emulator doesn't complete boot in 60 seconds give up
+            #
+            if (time.time() - t) > 60:
+                raise RuntimeError("couldn't start Android emulator with avd {}".format(config.avd))
+            time.sleep(2)
+        print(" ok")
+
+    def startControllerApp(self, current, ident):
+        if current.config.avd:
+            self.startEmulator(current.config)
+        run("{} install -r test/controller/build/outputs/apk/testController-debug.apk".format(self.adb()))
+        run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
+
+    def stopControllerApp(self, ident):
+        try:
+            run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
+        except:
+            pass
+
+        if self.avd:
+            try:
+                run("{} emu kill".format(self.adb()))
+            except:
+                pass
+
+            try:
+                run("adm kill-server")
+            except:
+                pass
+        #
+        # Wait for the emulator to shutdown
+        #
+        if self.emulator:
+            sys.stdout.write("Wainting for emulator to shutdown..")
+            sys.stdout.flush()
+            while True:
+                if self.emulator.poll() != None:
+                    print(" ok")
+                    break
+                sys.stdout.write(".")
+                sys.stdout.flush()
+                time.sleep(0.5)
+
 
 class iOSSimulatorProcessController(RemoteProcessController):
 
@@ -2439,6 +2560,9 @@ class Driver:
                 processController = UWPProcessController
         elif process and isinstance(process.getMapping(current), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
+        elif process and (isinstance(process.getMapping(current), AndroidMapping) or
+                          isinstance(process.getMapping(current), AndroidCompatMapping)):
+            processController = AndroidProcessController
         else:
             processController = LocalProcessController
 
@@ -2655,6 +2779,74 @@ class JavaCompatMapping(JavaMapping):
             "icebox": "IceBox.Server",
             "iceboxadmin" : "IceBox.Admin",
         }[processType]
+
+class Android:
+
+    @classmethod
+    def getUnsuportedTests(self, protocol):
+        tests = [
+            "Ice/hash",
+            "Ice/faultTolerance",
+            "Ice/metrics",
+            "Ice/networkProxy",
+            "Ice/throughput",
+            "Ice/plugin",
+            "Ice/properties"]
+        if protocol in ["ssl", "wss"]:
+            tests += [
+                "Ice/binding",
+                "Ice/timeout",
+                "Ice/udp"]
+        return tests
+
+class AndroidMapping(JavaMapping):
+
+    def getTestsPath(self):
+        return os.path.join(self.path, "../java/test/src/main/java/test")
+
+    def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
+        if not testId.startswith("Ice/"):
+            return True
+        return JavaMapping.filterTestSuite(self, testId, config, filters, rfilters)
+
+class AndroidCompatMapping(JavaCompatMapping):
+
+    class Config(Mapping.Config):
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["device=", "avd=", "androidemulator"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Android Mapping options:")
+            print("--device=<device-id>      Id of the emulator or device used to run the tests.")
+            print("--androidemulator         Run tests in emulator as opposed to a real device.")
+            print("--avd                     Start emulator image")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
+            parseOptions(self, options, { "device" : "device", "avd" : "avd" })
+            self.androidemulator = self.androidemulator or self.avd
+
+    def getSSLProps(self, process, current):
+        props = JavaCompatMapping.getSSLProps(self, process, current)
+        props.update({
+            "IceSSL.KeystoreType" : "BKS",
+            "IceSSL.TruststoreType" : "BKS",
+            "Ice.InitPlugins" : "0",
+            "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"})
+        return props
+
+    def getTestsPath(self):
+        return os.path.join(self.path, "../java-compat/test/src/main/java/test")
+
+    def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
+        if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
+            return True
+        return JavaCompatMapping.filterTestSuite(self, testId, config, filters, rfilters)
 
 class CSharpMapping(Mapping):
 
@@ -3004,6 +3196,10 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(
         Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
+    elif m == "android-compat":
+        Mapping.add(m, AndroidCompatMapping())
+    elif m == "android":
+        Mapping.add(m, AndroidMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])
