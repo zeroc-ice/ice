@@ -26,7 +26,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 ## General Changes
 
 - Renamed ACM heartbeat enumeration value `HeartbeatOnInvocation` to
-  `HeartbeatOnDispatch`. The heartbeats are sent only when dispatch are in 
+  `HeartbeatOnDispatch`. The heartbeats are sent only when dispatch are in
   progress and the connection is idle.
 
 - Semicolons are now optional after braces in Slice definitions. For example

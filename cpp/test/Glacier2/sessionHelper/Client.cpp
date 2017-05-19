@@ -38,7 +38,7 @@ public:
 
 Notify* instance = 0;
 
-class Dispatcher : 
+class Dispatcher :
 #ifndef ICE_CPP11_MAPPING
     public Ice::Dispatcher,
 #endif
@@ -405,7 +405,7 @@ public:
 //             }
 
             cout << "testing stringToProxy for server object... " << flush;
-            Ice::ObjectPrxPtr base = 
+            Ice::ObjectPrxPtr base =
                 _session->communicator()->stringToProxy("callback:" + getTestEndpoint(_session->communicator(), 0));
             cout << "ok" << endl;
 
