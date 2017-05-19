@@ -63,7 +63,7 @@ public class Ex
     }
 
     //
-    // A small utility to get the strack trace of the exception (which also includes toString()).
+    // A small utility to get the stack trace of the exception (which also includes toString()).
     //
     public static String toString(java.lang.Throwable ex)
     {
