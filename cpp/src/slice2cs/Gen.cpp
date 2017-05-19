@@ -3392,8 +3392,11 @@ Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out)
 {
 }
 
+namespace
+{
+
 bool
-Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
+hasResultType(const ModulePtr& p)
 {
     ClassList classes = p->classes();
     for(ClassList::const_iterator i = classes.begin(); i != classes.end(); ++i)
@@ -3409,12 +3412,34 @@ Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
                 TypePtr ret = op->returnType();
                 if(outParams.size() > 1 || (ret && outParams.size() > 0))
                 {
-                    _out << sp << nl << "namespace " << fixId(p->name());
-                    _out << sb;
                     return true;
                 }
             }
         }
+    }
+
+    ModuleList modules = p->modules();
+    for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); ++i)
+    {
+        if(hasResultType(*i))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+}
+
+bool
+Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(hasResultType(p))
+    {
+        _out << sp << nl << "namespace " << fixId(p->name());
+        _out << sb;
+        return true;
     }
     return false;
 }
