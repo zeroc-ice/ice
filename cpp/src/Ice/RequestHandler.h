@@ -24,7 +24,7 @@ namespace Ice
 
 class LocalException;
 
-};
+}
 
 namespace IceInternal
 {
