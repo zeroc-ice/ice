@@ -97,7 +97,7 @@ typedef IceUtil::Handle<Operation> OperationPtr;
 //
 // The base class for client-side invocations.
 //
-class Invocation : virtual public IceUtil::Shared
+class Invocation : public virtual IceUtil::Shared
 {
 public:
 

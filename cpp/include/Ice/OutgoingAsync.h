@@ -57,7 +57,7 @@ protected:
 // responsible for the handling of the output stream and the child
 // invocation observer.
 //
-class ICE_API OutgoingAsyncBase : virtual public OutgoingAsyncCompletionCallback,
+class ICE_API OutgoingAsyncBase : public virtual OutgoingAsyncCompletionCallback,
 #ifdef ICE_CPP11_MAPPING
                                   public std::enable_shared_from_this<OutgoingAsyncBase>
 #else
@@ -311,7 +311,7 @@ namespace IceInternal
 
 #ifdef ICE_CPP11_MAPPING
 
-class ICE_API LambdaInvoke : virtual public OutgoingAsyncCompletionCallback
+class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
@@ -336,7 +336,7 @@ protected:
 };
 
 template<typename Promise>
-class PromiseInvoke : virtual public OutgoingAsyncCompletionCallback
+class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
@@ -721,7 +721,7 @@ private:
     Callback _sent;
 };
 
-class CallbackCompletion : virtual public OutgoingAsyncCompletionCallback
+class CallbackCompletion : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 

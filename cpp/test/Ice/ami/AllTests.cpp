@@ -773,7 +773,7 @@ private:
 };
 typedef IceUtil::Handle<FlushExCallback> FlushExCallbackPtr;
 
-class CloseCallback : virtual public CallbackBase, virtual public Ice::CloseCallback
+class CloseCallback : public virtual CallbackBase, public virtual Ice::CloseCallback
 {
 public:
 

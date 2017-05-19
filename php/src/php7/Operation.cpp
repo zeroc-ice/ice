@@ -96,7 +96,7 @@ typedef IceUtil::Handle<OperationI> OperationIPtr;
 //
 // The base class for client-side invocations.
 //
-class Invocation : virtual public IceUtil::Shared
+class Invocation : public virtual IceUtil::Shared
 {
 public:
 
@@ -115,7 +115,7 @@ typedef IceUtil::Handle<Invocation> InvocationPtr;
 // TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal
 // parameters and exceptions.
 //
-class TypedInvocation : virtual public Invocation
+class TypedInvocation : public virtual Invocation
 {
 public:
 
@@ -135,7 +135,7 @@ protected:
 //
 // A synchronous typed invocation.
 //
-class SyncTypedInvocation : virtual public TypedInvocation
+class SyncTypedInvocation : public virtual TypedInvocation
 {
 public:
 

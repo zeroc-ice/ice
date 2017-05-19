@@ -21,7 +21,7 @@
 namespace IceObjC
 {
 
-class ServantWrapper : virtual public Ice::Object
+class ServantWrapper : public virtual Ice::Object
 {
 public:
 
