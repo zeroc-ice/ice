@@ -73,9 +73,6 @@ javadoc {
     failOnError = false
     options.header = project.displayName
     classpath =project.sourceSets.main.compileClasspath
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
 }.onlyIf{gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives")}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

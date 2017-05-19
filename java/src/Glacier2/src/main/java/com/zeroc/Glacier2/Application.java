@@ -57,7 +57,7 @@ public abstract class Application extends com.zeroc.Ice.Application
     }
 
     /**
-     * Initializes an instance that calls {@link Ice.Communicator#shutdown}
+     * Initializes an instance that calls {@link com.zeroc.Ice.Communicator#shutdown}
      * if a signal is received.
      **/
     public Application()
@@ -70,7 +70,7 @@ public abstract class Application extends com.zeroc.Ice.Application
      *
      * @param signalPolicy Determines how to respond to signals.
      *
-     * @see Ice.SignalPolicy
+     * @see com.zeroc.Ice.SignalPolicy
      **/
     public Application(com.zeroc.Ice.SignalPolicy signalPolicy)
     {
