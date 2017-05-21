@@ -3175,6 +3175,16 @@ from IceStormUtil import *
 from LocalDriver import *
 
 #
+# Check if the Android SDK is installed by looking for adb
+#
+hasAndroidSDK=False
+try:
+    run("adb version")
+    hasAndroidSDK=True
+except:
+    pass
+
+#
 # Supported mappings
 #
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(toplevel)):
@@ -3196,9 +3206,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(
         Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
-    elif m == "android-compat":
+    elif hasAndroidSDK and m == "android-compat":
         Mapping.add(m, AndroidCompatMapping())
-    elif m == "android":
+    elif hasAndroidSDK and m == "android":
         Mapping.add(m, AndroidMapping())
 
 def runTestsWithPath(path):
