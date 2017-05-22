@@ -878,6 +878,7 @@ mkshlibnametarget       ?= $(if $3,$(mksoname),$(mkshlibfilename))
 dirname         = $(patsubst %/,%,$(if $(findstring /,$1),$(dir $1)))
 currentdir      = $(call dirname,$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))
 unique          = $(strip $(if $1,$(firstword $1) $(call unique,$(filter-out $(firstword $1),$1))))
+runique         = $(strip $(if $1,$(lastword $1) $(call runique,$(filter-out $(lastword $1),$1))))
 files-to-dirs   = $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$2),%),$1)))
 
 empty           :=
@@ -942,7 +943,7 @@ var-with-default = $(if $(filter undefined,$(origin $1)),$2,$($1))
 #
 # Get direct and transitive dependencies of the given component
 #
-get-all-deps = $(call unique,$($1_dependencies) $(foreach d,$($1_dependencies),$d $(call get-all-deps,$d)),$1)
+get-all-deps = $(call runique,$($1_dependencies) $(foreach d,$($1_dependencies),$d $(call get-all-deps,$d)),$1)
 
 #
 # Helpers to compute cppflags/ldflags for dependencies, libraries and system libraries
@@ -1045,7 +1046,7 @@ config_dependency       = $6
 # Static configuration for static builds
 static_targetrule       = $(if $(filter-out program,$($1_target)),static)
 static_cppflags         += $(strip $(call make-lib-cppflags,$4)) -DICE_STATIC_LIBS
-static_ldflags          += $$(call unique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
+static_ldflags          += $$(call runique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
                            $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-lib-ldflags,$$d)))\
                            $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-system-lib-ldflags,$$d)))
 
