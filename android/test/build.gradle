@@ -39,10 +39,10 @@ jar {
 }
 
 tests.each {
+    def dirName = it
+    def name = it.replace('/', '_')
 
-    def name = it
-    def dirName = name.replace('_', '/')
-    project(":test_Ice_${name}") {
+    project(":test_${name}") {
         apply plugin: 'java'
         apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
 
@@ -53,9 +53,9 @@ tests.each {
             main {
                 java {
                     srcDir "$rootProject.projectDir/../java/test/src/main/java"
-                    include "test/Ice/${dirName}/**"
+                    include "test/${dirName}/**"
                     srcDir "$rootProject.projectDir/test/build/generated-src/"
-                    include "test/Ice/${dirName}/**"
+                    include "test/${dirName}/**"
                 }
             }
         }

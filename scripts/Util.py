@@ -2011,7 +2011,7 @@ class AndroidProcessController(RemoteProcessController):
     def startControllerApp(self, current, ident):
         if current.config.avd:
             self.startEmulator(current.config)
-        run("{} install -r test/controller/build/outputs/apk/testController-debug.apk".format(self.adb()))
+        run("{} install -t -r {}".format(self.adb(), current.config.apk))
         run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
 
     def stopControllerApp(self, ident):
@@ -2535,7 +2535,7 @@ class Driver:
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
         #initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        #initData.properties.setProperty("Ice.Trace.Network", "2")
+        #initData.properties.setProperty("Ice.Trace.Network", "3")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
         self.communicator = Ice.initialize(initData)
@@ -2801,11 +2801,41 @@ class Android:
 
 class AndroidMapping(JavaMapping):
 
+    class Config(Mapping.Config):
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["device=", "avd=", "androidemulator"])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("Android Mapping options:")
+            print("--device=<device-id>      Id of the emulator or device used to run the tests.")
+            print("--androidemulator         Run tests in emulator as opposed to a real device.")
+            print("--avd                     Start emulator image")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+
+            parseOptions(self, options, { "device" : "device", "avd" : "avd" })
+            self.androidemulator = self.androidemulator or self.avd
+            self.apk = "controller/build/outputs/apk/debug/testController-debug.apk"
+
+    def getSSLProps(self, process, current):
+        props = JavaMapping.getSSLProps(self, process, current)
+        props.update({
+            "IceSSL.KeystoreType" : "BKS",
+            "IceSSL.TruststoreType" : "BKS",
+            "Ice.InitPlugins" : "0",
+            "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"})
+        return props
+
     def getTestsPath(self):
         return os.path.join(self.path, "../java/test/src/main/java/test")
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
-        if not testId.startswith("Ice/"):
+        if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
             return True
         return JavaMapping.filterTestSuite(self, testId, config, filters, rfilters)
 
@@ -2830,6 +2860,7 @@ class AndroidCompatMapping(JavaCompatMapping):
 
             parseOptions(self, options, { "device" : "device", "avd" : "avd" })
             self.androidemulator = self.androidemulator or self.avd
+            self.apk = "test/controller/build/outputs/apk/testController-debug.apk"
 
     def getSSLProps(self, process, current):
         props = JavaCompatMapping.getSSLProps(self, process, current)

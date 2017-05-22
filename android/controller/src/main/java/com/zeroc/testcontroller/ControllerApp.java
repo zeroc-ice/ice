@@ -10,9 +10,12 @@
 package com.zeroc.testcontroller;
 
 import java.io.*;
+import java.util.Optional;
+import java.util.OptionalInt;
 
-import Ice.Logger;
-import Ice.Communicator;
+import com.zeroc.Ice.Logger;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.IceInternal.Time;
 
 import dalvik.system.DexClassLoader;
 
@@ -21,10 +24,8 @@ import android.os.Build;
 import android.util.Log;
 import android.app.Application;
 
-import Test.Common.ProcessControllerRegistryPrxHelper;
 import Test.Common.ProcessControllerRegistryPrx;
 import Test.Common.ProcessControllerPrx;
-import Test.Common.ProcessControllerPrxHelper;
 import test.Util.Application.CommunicatorListener;
 
 public class ControllerApp extends Application
@@ -105,7 +106,7 @@ public class ControllerApp extends Application
         private Class<? extends test.Util.Application> _class;
     }
 
-    class AndroidLogger implements Ice.Logger
+    class AndroidLogger implements Logger
     {
         private final String _prefix;
 
@@ -155,7 +156,7 @@ public class ControllerApp extends Application
     public void onCreate()
     {
         super.onCreate();
-        Ice.Util.setProcessLogger(new AndroidLogger(""));
+        com.zeroc.Ice.Util.setProcessLogger(new AndroidLogger(""));
     }
 
     public synchronized void startController(ControllerActivity controller)
@@ -202,103 +203,90 @@ public class ControllerApp extends Application
     {
         public ControllerHelper()
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+            initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
+            initData.properties.setProperty("Ice.Trace.Network", "3");
+            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             if(!isEmulator())
             {
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
-            _communicator = Ice.Util.initialize(initData);
-            Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("ControllerAdapter");
-            ProcessControllerPrx processController = ProcessControllerPrxHelper.uncheckedCast(
+            _communicator = com.zeroc.Ice.Util.initialize(initData);
+            com.zeroc.Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("ControllerAdapter");
+            ProcessControllerPrx processController = ProcessControllerPrx.uncheckedCast(
                     adapter.add(new ProcessControllerI("localhost"),
-                                Ice.Util.stringToIdentity("Android/ProcessController")));
+                                com.zeroc.Ice.Util.stringToIdentity("Android/ProcessController")));
             adapter.activate();
             if(isEmulator())
             {
-                ProcessControllerRegistryPrx registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
-                        _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001"));
+                ProcessControllerRegistryPrx registry = ProcessControllerRegistryPrx.uncheckedCast(
+                        _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001").ice_invocationTimeout(300));
                 registerProcessController(adapter, registry, processController);
             }
             println("Android/ProcessController");
         }
 
         public void
-        registerProcessController(final Ice.ObjectAdapter adapter,
+        registerProcessController(final com.zeroc.Ice.ObjectAdapter adapter,
                                   final ProcessControllerRegistryPrx registry,
                                   final ProcessControllerPrx processController)
         {
-            registry.begin_ice_ping(
-                new Ice.Callback()
+            registry.ice_pingAsync().whenCompleteAsync(
+                (r1, e1) ->
                 {
-                    public void completed(Ice.AsyncResult r)
+                    if(e1 != null)
                     {
-                        try
-                        {
-                            registry.end_ice_ping(r);
-                            Ice.Connection connection = registry.ice_getCachedConnection();
-                            connection.setAdapter(adapter);
-                            connection.setACM(new Ice.IntOptional(5),
-                                              new Ice.Optional<Ice.ACMClose>(Ice.ACMClose.CloseOff),
-                                              new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
-
-                            connection.setCloseCallback(new Ice.CloseCallback()
+                        handleException(e1, adapter, registry, processController);
+                    }
+                    else
+                    {
+                        com.zeroc.Ice.Connection connection = registry.ice_getConnection();
+                        connection.setAdapter(adapter);
+                        connection.setACM(OptionalInt.of(5),
+                                Optional.of(com.zeroc.Ice.ACMClose.CloseOff),
+                                Optional.of(com.zeroc.Ice.ACMHeartbeat.HeartbeatAlways));
+                        connection.setCloseCallback(
+                                con ->
                                 {
-                                    @Override
-                                    public void closed(Ice.Connection con)
-                                    {
-                                        println("connection with process controller registry closed");
-                                        while(true)
-                                        {
-                                            try
-                                            {
-                                                Thread.sleep(500);
-                                                break;
-                                            }
-                                            catch (InterruptedException e)
-                                            {
-                                            }
-                                        }
-                                        registerProcessController(adapter, registry, processController);
-                                    }
-                                });
-
-                            registry.begin_setProcessController(processController,
-                                new Ice.Callback()
-                                {
-                                    public void completed(Ice.AsyncResult r)
-                                    {
+                                    println("connection with process controller registry closed");
+                                    while (true) {
                                         try
                                         {
-                                            registry.end_setProcessController(r);
+                                            Thread.sleep(500);
+                                            break;
                                         }
-                                        catch(Ice.Exception ex)
+                                        catch(InterruptedException e)
                                         {
-                                            handleException(ex, adapter, registry, processController);
                                         }
                                     }
+                                    registerProcessController(adapter, registry, processController);
                                 });
-                        }
-                        catch(Ice.Exception ex)
-                        {
-                            handleException(ex, adapter, registry, processController);
-                        }
+
+                        registry.setProcessControllerAsync(processController).whenCompleteAsync(
+                                (r2, e2) ->
+                                {
+                                    if(e2 != null)
+                                    {
+                                        handleException(e2, adapter, registry, processController);
+                                    }
+                                });
                     }
                 });
         }
 
         public void handleException(Throwable ex,
-                                    final Ice.ObjectAdapter adapter,
+                                    final com.zeroc.Ice.ObjectAdapter adapter,
                                     final ProcessControllerRegistryPrx registry,
                                     final ProcessControllerPrx processController)
         {
-            if(ex instanceof Ice.ConnectFailedException || ex instanceof  Ice.TimeoutException)
+            if(ex instanceof com.zeroc.Ice.ConnectFailedException || ex instanceof com.zeroc.Ice.TimeoutException)
             {
-                while (true)
+                while(true)
                 {
                     try
                     {
@@ -323,7 +311,7 @@ public class ControllerApp extends Application
         }
 
         private ProcessControllerRegistryPrx _registry;
-        private Ice.Communicator _communicator;
+        private com.zeroc.Ice.Communicator _communicator;
     }
 
     class MainHelperI extends Thread implements test.Util.Application.ServerReadyListener
@@ -344,9 +332,9 @@ public class ControllerApp extends Application
                 {
                     public void communicatorInitialized(Communicator communicator)
                     {
-                        if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("IceSSL.PluginFactory"))
+                        if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("com.zeroc.IceSSL.PluginFactory"))
                         {
-                            IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+                            com.zeroc.IceSSL.Plugin plugin = (com.zeroc.IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
                             String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
                             communicator.getProperties().setProperty("IceSSL.Keystore", "");
                             java.io.InputStream certs = getResources().openRawResource(
@@ -427,13 +415,13 @@ public class ControllerApp extends Application
         synchronized private void waitReady(int timeout)
             throws Test.Common.ProcessFailedException
         {
-            long now = IceInternal.Time.currentMonotonicTimeMillis();
+            long now = Time.currentMonotonicTimeMillis();
             while(!_ready && !_completed)
             {
                 try
                 {
                     wait(timeout * 1000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000)
+                    if(Time.currentMonotonicTimeMillis() - now > timeout * 1000)
                     {
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
@@ -452,13 +440,13 @@ public class ControllerApp extends Application
         synchronized private int waitSuccess(int timeout)
             throws Test.Common.ProcessFailedException
         {
-            long now = IceInternal.Time.currentMonotonicTimeMillis();
+            long now = Time.currentMonotonicTimeMillis();
             while(!_completed)
             {
                 try
                 {
                     wait(timeout * 1000);
-                    if(IceInternal.Time.currentMonotonicTimeMillis() - now > timeout * 1000)
+                    if(Time.currentMonotonicTimeMillis() - now > timeout * 1000)
                     {
                         throw new Test.Common.ProcessFailedException("timed out waiting for the process to be ready");
                     }
@@ -480,14 +468,15 @@ public class ControllerApp extends Application
         private final StringBuffer _out = new StringBuffer();
     }
 
-    class ProcessControllerI extends Test.Common._ProcessControllerDisp
+    class ProcessControllerI implements Test.Common.ProcessController
     {
         public ProcessControllerI(String hostname)
         {
             _hostname = hostname;
         }
 
-        public Test.Common.ProcessPrx start(final String testsuite, final String exe, String[] args, Ice.Current current)
+        public Test.Common.ProcessPrx start(final String testsuite, final String exe, String[] args,
+                                            com.zeroc.Ice.Current current)
             throws Test.Common.ProcessFailedException
         {
             println("starting " + testsuite + " " + exe + "... ");
@@ -498,7 +487,7 @@ public class ControllerApp extends Application
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getDEXClassLoader(dexFile, null));
                 MainHelperI mainHelper = new MainHelperI(bundle, args, exe);
                 mainHelper.start();
-                return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
+                return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             }
             catch(IOException ex)
             {
@@ -507,7 +496,8 @@ public class ControllerApp extends Application
             }
         }
 
-        public String getHost(String protocol, boolean ipv6, Ice.Current current)
+        public String getHost(String protocol, boolean ipv6,
+                              com.zeroc.Ice.Current current)
         {
             return _hostname;
         }
@@ -515,26 +505,26 @@ public class ControllerApp extends Application
         private String _hostname;
     }
 
-    class ProcessI extends Test.Common._ProcessDisp
+    class ProcessI implements Test.Common.Process
     {
         public ProcessI(MainHelperI helper)
         {
             _helper = helper;
         }
 
-        public void waitReady(int timeout, Ice.Current current)
+        public void waitReady(int timeout, com.zeroc.Ice.Current current)
             throws Test.Common.ProcessFailedException
         {
             _helper.waitReady(timeout);
         }
 
-        public int waitSuccess(int timeout, Ice.Current current)
+        public int waitSuccess(int timeout, com.zeroc.Ice.Current current)
             throws Test.Common.ProcessFailedException
         {
             return _helper.waitSuccess(timeout);
         }
 
-        public String terminate(Ice.Current current)
+        public String terminate(com.zeroc.Ice.Current current)
         {
             _helper.shutdown();
             current.adapter.remove(current.id);

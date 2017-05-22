@@ -14,10 +14,13 @@ include ':ice'
 project(':ice').projectDir = new File('src/Ice')
 include ':icessl'
 project(':icessl').projectDir = new File('src/IceSSL')
-include ':test', ':testApp'
+include ':icediscovery'
+project(':icediscovery').projectDir = new File('src/IceDiscovery')
+include ':test', ':testController'
 project(':test').projectDir = new File('test')
-project(':testApp').projectDir = new File('app')
+project(':testController').projectDir = new File('controller')
 tests.each {
-    include ":test_Ice_${it}"
-    project(":test_Ice_${it}").projectDir = new File("test/src/test_Ice_${it}")
+    def name = it.replace("/", "_")
+    include ":test_${name}"
+    project(":test_${name}").projectDir = new File("test/src/test_${name}")
 }
