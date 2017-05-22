@@ -80,6 +80,10 @@ class TestIntfI(Test.TestIntf):
     def pingBiDir(self, id, current = None):
         Test.PingReplyPrx.uncheckedCast(current.con.createProxy(id)).reply()
 
+class TestIntfII(Test.Outer.Inner.TestIntf):
+    def op(self, i, current):
+        return (i, i)
+
 class TestIntfControllerI(Test.TestIntfController):
     def __init__(self, adapter):
         self._adapter = adapter

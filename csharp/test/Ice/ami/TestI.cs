@@ -186,6 +186,16 @@ public class TestI : TestIntfDisp_
     private List<TaskCompletionSource<object>> _pending = new List<TaskCompletionSource<object>>();
 }
 
+public class TestII : Test.Outer.Inner.TestIntfDisp_
+{
+    override public int
+    op(int i, out int j, Ice.Current current)
+    {
+        j = i;
+        return i;
+    }
+}
+
 public class TestControllerI : TestIntfControllerDisp_
 {
     override public void

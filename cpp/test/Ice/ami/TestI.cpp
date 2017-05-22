@@ -194,3 +194,10 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
 TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }
+
+Ice::Int
+TestIntfII::op(Ice::Int i, Ice::Int& j, const Ice::Current&)
+{
+    j = i;
+    return i;
+}

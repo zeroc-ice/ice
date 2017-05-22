@@ -64,4 +64,19 @@ interface TestIntfController
     void resumeAdapter();
 }
 
+module Outer
+{
+
+module Inner
+{
+
+interface TestIntf
+{
+    int op(int i, out int j);
+}
+
+}
+
+}
+
 }

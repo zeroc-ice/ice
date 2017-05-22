@@ -993,5 +993,22 @@ public class AMI
             }
         }
         out.println("ok");
+
+        out.print("testing result struct... ");
+        out.flush();
+        {
+            test.Ice.ami.Test.Outer.Inner.TestIntfPrx q =
+                test.Ice.ami.Test.Outer.Inner.TestIntfPrx.uncheckedCast(
+                    communicator.stringToProxy("test2:" + app.getTestEndpoint(0)));
+
+            q.opAsync(1).whenComplete(
+                (result, ex) ->
+                {
+                    test(result.returnValue == 1);
+                    test(result.j == 1);
+                    test(ex == null);
+                });
+        }
+        out.println("ok");
     }
 }

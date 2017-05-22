@@ -18,6 +18,7 @@ public class Server extends test.Util.Application
         com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
         adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+        adapter.add(new TestII(), com.zeroc.Ice.Util.stringToIdentity("test2"));
         adapter.activate();
         adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
         adapter2.activate();

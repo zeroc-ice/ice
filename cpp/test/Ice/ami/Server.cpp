@@ -28,6 +28,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
 
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfII), Ice::stringToIdentity("test2"));
     adapter->activate();
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));

@@ -3820,6 +3820,20 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
+        Write("testing result struct... ");
+        Flush();
+        {
+            var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
+                communicator.stringToProxy("test2:" + app.getTestEndpoint(0)));
+            q.opAsync(1).ContinueWith(t =>
+                {
+                    var r = t.Result;
+                    test(r.returnValue == 1);
+                    test(r.j == 1);
+                }).Wait();
+        }
+        WriteLine("ok");
+
         p.shutdown();
     }
 }

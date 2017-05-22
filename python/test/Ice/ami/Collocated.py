@@ -30,6 +30,7 @@ def run(args, communicator):
     testController = TestI.TestIntfControllerI(adapter)
 
     adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
     #adapter.activate() # Collocated test doesn't need to active the OA
 
     adapter2.add(testController, Ice.stringToIdentity("testController"))

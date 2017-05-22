@@ -1298,7 +1298,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             {
             }
         }
-
     }
     cout << "ok" << endl;
 
@@ -2384,6 +2383,32 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             }
             cout << "ok" << endl;
         }
+    }
+
+    {
+        cout << "testing result struct... " << flush;
+
+        auto q = Ice::uncheckedCast<Test::Outer::Inner::TestIntfPrx>(
+            communicator->stringToProxy("test2:" + getTestEndpoint(communicator, 0)));
+
+        promise<void> promise;
+        q->opAsync(1,
+            [&promise](int i, int j)
+                {
+                    test(i == j);
+                    promise.set_value();
+                },
+                [](const exception_ptr& ex)
+                {
+                    test(false);
+                });
+        promise.get_future().get();
+
+        auto f = q->opAsync(1);
+        auto r = f.get();
+        test(r.returnValue == r.j);
+        test(r.returnValue == 1);
+        cout << "ok" << endl;
     }
 
     p->shutdown();

@@ -72,4 +72,11 @@ private:
     Ice::ObjectAdapterPtr _adapter;
 };
 
+class TestIntfII : public virtual Test::Outer::Inner::TestIntf
+{
+public:
+
+    Ice::Int op(Ice::Int, Ice::Int&, const Ice::Current&);
+};
+
 #endif

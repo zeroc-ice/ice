@@ -29,6 +29,7 @@ def run(args, communicator):
     testController = TestI.TestIntfControllerI(adapter)
 
     adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
     adapter.activate()
 
     adapter2.add(testController, Ice.stringToIdentity("testController"))
