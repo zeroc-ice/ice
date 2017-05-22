@@ -105,6 +105,7 @@ public class Client extends test.Util.Application
                 }
                 else
                 {
+                    System.err.println(ex);
                     test(false);
                 }
             }
