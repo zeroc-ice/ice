@@ -10,7 +10,7 @@
 #
 # $(call project,[$1])
 #
-# Returns the project name, $(top_srcdir) is removed from the beginning
+# Returns the project name, $(top_srcdir) is removed from the begining
 # of the path so for example ./src/Ice is transformed to src/Ice.
 #
 project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
