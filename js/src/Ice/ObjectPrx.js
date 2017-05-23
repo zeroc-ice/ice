@@ -570,7 +570,7 @@ class ObjectPrx
     {
         if(!this.ice_isTwoway())
         {
-            throw new Error("`" + name + "' can only be called with a twoway proxy");
+            throw new Ice.TwowayOnlyException(name);
         }
     }
 

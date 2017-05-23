@@ -47,7 +47,7 @@ class Oneways
                 p.opByte((byte)0xff, (byte)0x0f);
                 test(false);
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }

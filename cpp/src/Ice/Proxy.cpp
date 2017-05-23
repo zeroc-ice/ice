@@ -239,9 +239,7 @@ Ice::ObjectPrx::_checkTwowayOnly(const string& name) const
     //
     if(!ice_isTwoway())
     {
-        throw IceUtil::IllegalArgumentException(__FILE__,
-                                                __LINE__,
-                                                "`" + name + "' can only be called with a twoway proxy");
+        throw Ice::TwowayOnlyException(__FILE__, __LINE__, name);
     }
 }
 
@@ -852,7 +850,11 @@ ICE_OBJECT_PRX::ice_locatorCacheTimeout(Int newTimeout) const
     {
         ostringstream s;
         s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument(s.str());
+#else
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+#endif
     }
     if(newTimeout == _reference->getLocatorCacheTimeout())
     {
@@ -1059,7 +1061,11 @@ ICE_OBJECT_PRX::ice_invocationTimeout(Int newTimeout) const
     {
         ostringstream s;
         s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument(s.str());
+#else
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+#endif
     }
     if(newTimeout == _reference->getInvocationTimeout())
     {
@@ -1201,7 +1207,11 @@ ICE_OBJECT_PRX::ice_timeout(int t) const
     {
         ostringstream s;
         s << "invalid value passed to ice_timeout: " << t;
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument(s.str());
+#else
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s.str());
+#endif
     }
     ReferencePtr ref = _reference->changeTimeout(t);
     if(ref == _reference)

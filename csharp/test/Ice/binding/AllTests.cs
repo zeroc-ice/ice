@@ -742,7 +742,7 @@ public class AllTests : TestCommon.AllTests
             {
                 testUDP.getAdapterName();
             }
-            catch(System.ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }

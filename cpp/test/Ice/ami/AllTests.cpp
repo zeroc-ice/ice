@@ -1408,7 +1408,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                     });
                 test(false);
             }
-            catch(const IceUtil::IllegalArgumentException&)
+            catch(const Ice::TwowayOnlyException&)
             {
             }
         }
@@ -1466,7 +1466,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             p->ice_oneway()->opWithResultAsync().get();
             test(false);
         }
-        catch(const IceUtil::IllegalArgumentException&)
+        catch(const Ice::TwowayOnlyException&)
         {
         }
 
