@@ -70,7 +70,7 @@ Follow these steps to import the Ice for Android project into Android Studio:
 
 The Android Studio project contains a `testController` application for the Ice test
 suite. To run the application, select it in the configuration pull down and run
-it. 
+it.
 
 ## Running the Test Suite
 
@@ -120,4 +120,3 @@ the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
 [1]: https://zeroc.com/download.html
-

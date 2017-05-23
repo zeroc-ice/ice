@@ -279,7 +279,7 @@ class Windows(Platform):
             except:
                 pass
         return self.compiler
-    
+
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
 
