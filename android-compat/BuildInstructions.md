@@ -68,16 +68,33 @@ Follow these steps to import the Ice for Android project into Android Studio:
 4. If presented with an "Import Project from Gradle" dialog, select
    "Use default gradle wrapper" and press OK
 
-The Android Studio project contains a `testApp` application for the Ice test
+The Android Studio project contains a `testController` application for the Ice test
 suite. To run the application, select it in the configuration pull down and run
 it. 
 
 ## Running the Test Suite
 
+To run the test suite you need to add `tools` and `platform-tools` directories
+of Android SDK to the PATH.
+
+  On macOS you can use the following command:
+
+    export PATH=~/Library/Android/sdk/tools:~/Library/Android/sdk/platform-tools:$PATH
+
+  On Windows you can use the following command:
+
+    set PATH=%LOCALAPPDATA%\Android\sdk\tools;%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+
+The Instant Run feature of Android Studio cause some problems with the test suite
+application and you need to disable it in order to run the test controller application
+from the Android Studio, check the following page for instructions about disabling it.
+
+    https://developer.android.com/studio/run/index.html#disable-ir
+
 First start the `testController` application. Once it has started you can run
 the testsuite by using the `allTests.py` script from the build machine:
 
-    cd android-compat
+    cd android
     python allTests.py
 
 This will try to run the testsuite on the connected device. If there are multiple
@@ -103,3 +120,4 @@ the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
 [1]: https://zeroc.com/download.html
+
