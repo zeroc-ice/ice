@@ -242,9 +242,9 @@ class Windows(Platform):
                      "Ice/properties",          # Property files are not supported with UWP
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
-        elif self.getCompiler() in ["v100"]:
+        elif self.getCompiler() in ["VC100"]:
             return (["cpp/Ice/.*", "cpp/IceSSL/.*", "cpp/IceBox/.*", "cpp/IceDiscovery/.*", "cpp/IceUtil/.*", "cpp/Slice/.*"], [])
-        elif self.getCompiler() not in ["v140"]:
+        elif self.getCompiler() not in ["VC140"]:
             return ([], ["python", "php", "ruby"])
         else:
             return ([], ["ruby"])
@@ -267,18 +267,21 @@ class Windows(Platform):
             try:
                 out = run("cl")
                 if out.find("Version 16.") != -1:
-                    self.compiler = "v100"
+                    self.compiler = "VC100"
                 elif out.find("Version 17.") != -1:
-                    self.compiler = "v110"
+                    self.compiler = "VC110"
                 elif out.find("Version 18.") != -1:
-                    self.compiler = "v120"
+                    self.compiler = "VC120"
                 elif out.find("Version 19.00.") != -1:
-                    self.compiler = "v140"
+                    self.compiler = "VC140"
                 elif out.find("Version 19.10.") != -1:
-                    self.compiler = "v141"
+                    self.compiler = "VC141"
             except:
                 pass
         return self.compiler
+    
+    def getPlatformToolset(self):
+        return self.getCompiler().replace("VC", "v")
 
     def getBinSubDir(self, mapping, process, current):
         #
@@ -290,11 +293,11 @@ class Windows(Platform):
 
         if current.driver.useIceBinDist(mapping):
             compiler = self.getCompiler()
-            v140 = compiler == "v140"
+            vc140 = compiler == "VC140"
             cpp = isinstance(mapping, CppMapping)
             csharp = isinstance(mapping, CSharpMapping)
 
-            if ((cpp and v140 and platform == "x64" and buildConfig == "Release") or
+            if ((cpp and vc140 and platform == "x64" and buildConfig == "Release") or
                 (not csharp and not cpp) or
                 (not compiler)):
                 return "bin"
@@ -338,10 +341,10 @@ class Windows(Platform):
 
         with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
             version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        comp = self.getCompiler() if isinstance(mapping, CppMapping) else "net"
 
+        packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
         compiler = self.getCompiler()
-        v140 = compiler == "v140"
+        vc140 = compiler == "VC140"
         cpp = isinstance(mapping, CppMapping)
         csharp = isinstance(mapping, CSharpMapping)
 
@@ -349,7 +352,7 @@ class Windows(Platform):
         # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
         # for another mapping than C++ or C#.
         #
-        if ((cpp and v140 and platform == "x64" and current.config.buildConfig == "Release") or
+        if ((cpp and vc140 and platform == "x64" and current.config.buildConfig == "Release") or
             (not csharp and not cpp) or
             (not compiler)):
             return os.environ.get("ICE_HOME")
@@ -357,7 +360,7 @@ class Windows(Platform):
         #
         # Otherwise, use the appropriate nuget package
         #
-        return os.path.join(mapping.path, "msbuild", "packages", "{0}".format(mapping.getNugetPackage(comp, version)))
+        return os.path.join(mapping.path, "msbuild", "packages", "{0}".format(mapping.getNugetPackage(packageSuffix, version)))
 
     def canRun(self, mapping, current):
         #
@@ -2916,7 +2919,7 @@ class CSharpMapping(Mapping):
             assembliesDir = os.path.join(platform.getIceInstallDir(self, current), "lib")
         else:
             bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
-                                 "bzip2.{0}.1.0.6.7".format(platform.getCompiler()),
+                                 "bzip2.{0}.1.0.6.7".format(platform.getPlatformToolset()),
                                  "build", "native", "bin", "x64", "Release")
             assembliesDir = os.path.join(current.driver.getIceDir(self, current), "Assemblies")
         return { "DEVPATH" : assembliesDir, "PATH" : bzip2 };
