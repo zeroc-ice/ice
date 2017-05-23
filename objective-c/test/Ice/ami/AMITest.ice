@@ -61,4 +61,20 @@ interface TestIntfController
     void resumeAdapter();
 }
 
+module Outer
+{
+
+["objc:prefix:TestAMITestOuterInner"]
+module Inner
+{
+
+interface TestIntf
+{
+    int op(int i, out int j);
+}
+
+}
+
+}
+
 }

@@ -21,6 +21,14 @@
 }
 @end
 
+//
+// Servant implementation
+//
+@interface TestAMITestOuterInnerTestIntfI : TestAMITestOuterInnerTestIntf<TestAMITestOuterInnerTestIntf>
+{
+}
+@end
+
 @interface TestAMITestIntfControllerI : TestAMITestIntfController<TestAMITestIntfController>
 {
     id<ICEObjectAdapter> _adapter;

@@ -144,6 +144,14 @@
 }
 @end
 
+@implementation TestAMITestOuterInnerTestIntfI
+-(int) op:(ICEInt)i j:(ICEInt*)j current:(ICECurrent*)current
+{
+    *j = i;
+    return i;
+}
+@end
+
 @implementation TestAMITestIntfControllerI
 -(id) initWithAdapter:(id<ICEObjectAdapter>)adapter
 {
