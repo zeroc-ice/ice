@@ -201,6 +201,12 @@ getSecBufferWithType(const SecBufferDesc& desc, ULONG bufferType)
     return 0;
 }
 
+string
+secStatusToString(SECURITY_STATUS status)
+{
+    return IceUtilInternal::errorToString(status);
+}
+
 }
 
 IceInternal::NativeInfoPtr
@@ -245,8 +251,7 @@ SChannel::TransceiverI::sslHandshake()
                                             &_ssl, &outBufferDesc, &ctxFlags, 0);
             if(err != SEC_E_OK && err != SEC_I_CONTINUE_NEEDED)
             {
-                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" +
-                                        IceUtilInternal::lastErrorToString());
+                throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + secStatusToString(err));
             }
             _sslInitialized = true;
 
@@ -316,8 +321,7 @@ SChannel::TransceiverI::sslHandshake()
             }
             else if(err != SEC_I_CONTINUE_NEEDED && err != SEC_E_OK)
             {
-                throw SecurityException(__FILE__, __LINE__, "SSL handshake failure:\n" +
-                                        IceUtilInternal::lastErrorToString());
+                throw SecurityException(__FILE__, __LINE__, "SSL handshake failure:\n" + secStatusToString(err));
             }
 
             //
@@ -453,7 +457,7 @@ SChannel::TransceiverI::sslHandshake()
     if(err != SEC_E_OK)
     {
         throw SecurityException(__FILE__, __LINE__, "IceSSL: failure to query stream sizes attributes:\n" +
-                                IceUtilInternal::lastErrorToString());
+                                secStatusToString(err));
     }
 
     size_t pos = _readBuffer.i - _readBuffer.b.begin();
@@ -536,7 +540,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         else if(err != SEC_E_OK)
         {
             throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error during read:\n" +
-                                    IceUtilInternal::lastErrorToString());
+                                    secStatusToString(err));
         }
 
         SecBuffer* dataBuffer = getSecBufferWithType(inBufferDesc, SECBUFFER_DATA);
@@ -609,7 +613,7 @@ SChannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
     if(err != SEC_E_OK)
     {
         throw ProtocolException(__FILE__, __LINE__, "IceSSL: protocol error encrypting message:\n" +
-                                IceUtilInternal::lastErrorToString());
+                                secStatusToString(err));
     }
 
     // EncryptMessage resizes the buffers, so resize the write buffer as well to reflect this.
@@ -646,7 +650,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     if(err && err != SEC_E_NO_CREDENTIALS)
     {
         throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate verification failure:\n" +
-                                IceUtilInternal::lastErrorToString());
+                                secStatusToString(err));
     }
 
     if(!cert && ((!_incoming && _engine->getVerifyPeer() > 0) || (_incoming && _engine->getVerifyPeer() == 2)))
@@ -655,8 +659,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         // Clients require server certificate if VerifyPeer > 0 and servers require client
         // certificate if VerifyPeer == 2
         //
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required:\n" +
-                                IceUtilInternal::lastErrorToString());
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: certificate required");
     }
     else if(cert) // Verify the remote certificate
     {
@@ -736,14 +739,14 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
 
     SecPkgContext_ConnectionInfo connInfo;
-    if(QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo) == SEC_E_OK)
+    err = QueryContextAttributes(&_ssl, SECPKG_ATTR_CONNECTION_INFO, &connInfo);
+    if(err == SEC_E_OK)
     {
         _cipher = _engine->getCipherName(connInfo.aiCipher);
     }
     else
     {
-        throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" +
-                                IceUtilInternal::lastErrorToString());
+        throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" + secStatusToString(err));
     }
 
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
