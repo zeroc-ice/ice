@@ -17,6 +17,7 @@ particular aspect of Ice.
   - [Objective-C Changes](#objective-c-changes)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
+  - [Ruby Changes](#ruby-changes)
 
 # Changes in Ice 3.7.0
 
@@ -545,3 +546,5 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Ice for Ruby is no longer supported on Windows.
 
 - Fix Application Ctrl-C handling to be compatible with Ruby 2.x signal handler restrictions.
+
+- Fixed a bug that prevented the data members of IceSSL::ConnectionInfo from being defined correctly.
