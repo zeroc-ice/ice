@@ -8,7 +8,9 @@
     <ItemGroup>
         <Libraries Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
                    Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
-                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll"/>
+                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll;
+                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll;
+                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\libeay32.dll"/>
 
         <ImportLibraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
