@@ -74,32 +74,32 @@ it.
 
 ## Running the Test Suite
 
-First start the `testController` application once it has started you can run
-the testsuite by using allTest.py script from the build machine.
+First start the `testController` application. Once it has started you can run
+the testsuite by using the `allTests.py` script from the build machine:
 
-    cd android-compat
+    cd android
     python allTests.py
 
-This will try to run the testsuite in the connected device, if there are multiple
-devices connected to this machine you muset use the `--device` argument to choose
-what device must be used
+This will try to run the testsuite on the connected device. If there are multiple
+devices connected to this machine you must use the `--device` argument to select
+a device:
 
-    python allTest.py --device=ZX1C2234XF
+    python allTests.py --device=ZX1C2234XF
 
-You can get the list of connected devices with `adb` command:
+You can see the list of connected devices with the `adb` command:
 
     adb devices -l
 
-If you are running the application on an emulator pass the `--androidemulator`:
+If you are running the application on an emulator, pass the `--androidemulator` option:
 
     python allTests.py --androidemulator --device=emulator-5554
 
-You can also start the emulator images from `allTest.py` scripts:
+You can also start an emulator image from the `allTests.py` script:
 
     python allTests.py --androidemulator --avd=Nexus_6P_API_25 --controller-app
 
-Where `--avd` is set to the Android emulator image you want to use, you can list
-the available images names in your host by using `emulator -list-avds`. Images
+Where `--avd` is set to the Android emulator image you want to use. You can list
+the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
 [1]: https://zeroc.com/download.html
