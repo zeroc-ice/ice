@@ -61,6 +61,10 @@
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\msbuild\ice.test.props" />
   <Import Project="$(IceBuilderCppProps)" Condition="Exists('$(IceBuilderCppProps)')" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0\build\native\zeroc.ice.v120.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.0\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0\build\native\zeroc.ice.v141.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.0\build\native\zeroc.ice.v100.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.0\build\native\zeroc.ice.v100.targets') and '$(ICE_BIN_DIST)' == 'all'" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
