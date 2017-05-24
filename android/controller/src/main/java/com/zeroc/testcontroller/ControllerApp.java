@@ -33,57 +33,14 @@ public class ControllerApp extends Application
     private final String TAG = "ControllerApp";
     private ControllerHelper _helper;
     private ControllerActivity _controller;
-    private java.util.Map<String, ClassLoader> _classLoaders = new java.util.HashMap<String, ClassLoader>();
-
-    private ClassLoader getDEXClassLoader(String classDir, ClassLoader parent) throws IOException
-    {
-        ClassLoader classLoader = _classLoaders.get(classDir);
-        if(classLoader == null)
-        {
-            if(parent == null)
-            {
-                parent = getClassLoader();
-            }
-
-            File dexInternalStoragePath = new java.io.File(getDir("dex", Context.MODE_PRIVATE), classDir);
-            BufferedInputStream bis = new BufferedInputStream(getAssets().open(classDir));
-            OutputStream dexWriter = new BufferedOutputStream(new FileOutputStream(dexInternalStoragePath));
-            final int sz = 8 * 1024;
-            byte[] buf = new byte[sz];
-            int len;
-            while((len = bis.read(buf, 0, sz)) > 0)
-            {
-                dexWriter.write(buf, 0, len);
-            }
-            dexWriter.close();
-            bis.close();
-
-            // Internal storage where the DexClassLoader writes the optimized dex file to
-            final File optimizedDexOutputPath = getDir("outdex", Context.MODE_PRIVATE);
-
-            classLoader = new DexClassLoader(
-                    dexInternalStoragePath.getAbsolutePath(),
-                    optimizedDexOutputPath.getAbsolutePath(),
-                    null,
-                    parent);
-            _classLoaders.put(classDir, classLoader);
-        }
-        return classLoader;
-    }
 
     static private class TestSuiteBundle
     {
         @SuppressWarnings("unchecked")
-        TestSuiteBundle(String name, ClassLoader loader)
+        TestSuiteBundle(String name, ClassLoader loader) throws ClassNotFoundException
         {
             _loader = loader;
-            try
-            {
-                _class = (Class<? extends test.Util.Application>)_loader.loadClass(name);
-            }
-            catch(ClassNotFoundException e)
-            {
-            }
+            _class = (Class<? extends test.Util.Application>)_loader.loadClass(name);
         }
 
         test.Util.Application newInstance()
@@ -484,12 +441,12 @@ public class ControllerApp extends Application
             String dexFile = "test_" + testsuite.replace("/", "_") + ".dex";
             try
             {
-                TestSuiteBundle bundle = new TestSuiteBundle(className, getDEXClassLoader(dexFile, null));
+                TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
                 MainHelperI mainHelper = new MainHelperI(bundle, args, exe);
                 mainHelper.start();
                 return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             }
-            catch(IOException ex)
+            catch(ClassNotFoundException ex)
             {
                 throw new Test.Common.ProcessFailedException(
                     "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex.toString());
