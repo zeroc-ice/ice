@@ -503,7 +503,7 @@ public class ControllerApp extends Application
             catch(IOException ex)
             {
                 throw new Test.Common.ProcessFailedException(
-                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed", ex);
+                    "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex.toString());
             }
         }
 

@@ -1041,7 +1041,11 @@ Glacier2::SessionFactoryHelper::setProtocol(const string& protocol)
        protocol != "ws" &&
        protocol != "wss")
     {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("Unknown protocol `" + protocol + "'");
+#else
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Unknown protocol `" + protocol + "'");
+#endif
     }
     _protocol = protocol;
 }

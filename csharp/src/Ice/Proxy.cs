@@ -2486,7 +2486,7 @@ namespace Ice
 
             if(!ice_isTwoway())
             {
-                throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
+                throw new TwowayOnlyException(name);
             }
         }
 

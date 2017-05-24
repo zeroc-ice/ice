@@ -113,7 +113,7 @@ public class OnewaysAMI
                 p.ice_isAAsync("::Test::MyClass");
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -124,7 +124,7 @@ public class OnewaysAMI
                 p.begin_ice_isA("::Test::MyClass");
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -135,7 +135,7 @@ public class OnewaysAMI
                 p.ice_idAsync();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -146,7 +146,7 @@ public class OnewaysAMI
                 p.begin_ice_id();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -157,7 +157,7 @@ public class OnewaysAMI
                 p.begin_ice_ids();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -261,7 +261,7 @@ public class OnewaysAMI
                 p.opByteAsync(0xff, 0x0f);
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -272,7 +272,7 @@ public class OnewaysAMI
                 p.begin_opByte(0xff, 0x0f);
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }

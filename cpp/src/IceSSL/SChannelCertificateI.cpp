@@ -312,7 +312,11 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
 {
     if(!_cert)
     {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("Invalid certificate reference");
+#else
         throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Invalid certificate reference");
+#endif
     }
 
     try

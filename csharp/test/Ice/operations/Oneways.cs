@@ -45,7 +45,7 @@ class Oneways
                 p.opByte((byte)0xff, (byte)0x0f, out b);
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }

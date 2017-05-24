@@ -755,7 +755,7 @@ public class AllTests
             {
                 testUDP.getAdapterName();
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }

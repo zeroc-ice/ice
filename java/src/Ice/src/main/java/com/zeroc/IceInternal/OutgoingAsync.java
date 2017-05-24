@@ -58,8 +58,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
 
         if(twowayOnly && !_proxy.ice_isTwoway())
         {
-            throw new java.lang.IllegalArgumentException("`" + _operation +
-                                                         "' can only be called with a twoway proxy");
+            throw new com.zeroc.Ice.TwowayOnlyException(_operation);
         }
 
         if(format == null)

@@ -68,38 +68,55 @@ Follow these steps to import the Ice for Android project into Android Studio:
 4. If presented with an "Import Project from Gradle" dialog, select
    "Use default gradle wrapper" and press OK
 
-The Android Studio project contains a `testApp` application for the Ice test
-suite. To run the application, select it in the configuration pull down and run
-it. 
+The Android Studio project contains a `testController` application for the Ice
+test suite. To run the application, select it in the configuration pull down and
+run it.
 
 ## Running the Test Suite
 
-First start the `testController` application once it has started you can run
-the testsuite by using allTest.py script from the build machine.
+To run the test suite you need to add the `tools` and `platform-tools`
+directories from the Android SDK to your PATH.
+
+  On macOS you can use the following command:
+
+    export PATH=~/Library/Android/sdk/tools:~/Library/Android/sdk/platform-tools:$PATH
+
+  On Windows you can use the following command:
+
+    set PATH=%LOCALAPPDATA%\Android\sdk\tools;%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+
+The Instant Run feature from Android Studio causes some problems with the test
+suite application. You need to disable it in order to run the test controller
+application, check the following page for instructions on how to disable it:
+
+    https://developer.android.com/studio/run/index.html#disable-ir
+
+Start the `testController` application from Android Studio and once it has
+started, run the testsuite by using the `allTests.py` script:
 
     cd android-compat
     python allTests.py
 
-This will try to run the testsuite in the connected device, if there are multiple
-devices connected to this machine you muset use the `--device` argument to choose
-what device must be used
+This will try to run the testsuite on the connected device. If multiple devices
+are connected, you can use the `--device` argument to select a device:
 
-    python allTest.py --device=ZX1C2234XF
+    python allTests.py --device=ZX1C2234XF
 
-You can get the list of connected devices with `adb` command:
+You can see the list of connected devices with the `adb` command:
 
     adb devices -l
 
-If you are running the application on an emulator pass the `--androidemulator`:
+If you are running the application on an emulator, you need to pass the
+`--androidemulator` command line option:
 
     python allTests.py --androidemulator --device=emulator-5554
 
-You can also start the emulator images from `allTest.py` scripts:
+You can also start the emulator from the `allTests.py` script:
 
     python allTests.py --androidemulator --avd=Nexus_6P_API_25 --controller-app
 
-Where `--avd` is set to the Android emulator image you want to use, you can list
-the available images names in your host by using `emulator -list-avds`. Images
+Where `--avd` is set to the Android emulator image you want to use. You can list
+the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
 [1]: https://zeroc.com/download.html

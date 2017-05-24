@@ -508,7 +508,7 @@ IceRuby::initConnection(VALUE iceModule)
     //
     // Instance members.
     //
-    rb_define_attr(_wsConnectionInfoClass, "cipher", 1, 0);
-    rb_define_attr(_wsConnectionInfoClass, "certs", 1, 0);
-    rb_define_attr(_wsConnectionInfoClass, "verified", 1, 0);
+    rb_define_attr(_sslConnectionInfoClass, "cipher", 1, 0);
+    rb_define_attr(_sslConnectionInfoClass, "certs", 1, 0);
+    rb_define_attr(_sslConnectionInfoClass, "verified", 1, 0);
 }

@@ -246,7 +246,7 @@ class RemoteTestCaseRunner(TestCaseRunner):
                 return current.serverTestCase.startServerSide(self.getConfig(current))
             except Test.Common.TestCaseFailedException as ex:
                 current.result.writeln(ex.output)
-                raise RuntimeError("test failed")
+                raise RuntimeError("test failed:\n" + str(ex))
         except:
             current.serverTestCase.destroy()
             current.serverTestCase = None

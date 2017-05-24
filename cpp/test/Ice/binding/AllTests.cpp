@@ -842,9 +842,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::TwowayOnlyException&)
         {
         }
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
     }
     cout << "ok" << endl;
 

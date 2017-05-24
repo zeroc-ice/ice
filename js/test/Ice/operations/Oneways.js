@@ -46,6 +46,7 @@
                 catch(ex)
                 {
                     // Expected: twoway proxy required
+                    test(ex instanceof Ice.TwowayOnlyException);
                 }
 
                 try
@@ -56,6 +57,7 @@
                 catch(ex)
                 {
                     // Expected: twoway proxy required
+                    test(ex instanceof Ice.TwowayOnlyException);
                 }
 
                 try
@@ -66,6 +68,7 @@
                 catch(ex)
                 {
                     // Expected: twoway proxy required
+                    test(ex instanceof Ice.TwowayOnlyException);
                 }
 
                 return prx.opVoid();
@@ -82,6 +85,7 @@
                 catch(ex)
                 {
                     // Expected: twoway proxy required
+                    test(ex instanceof Ice.TwowayOnlyException);
                 }
             }
         ).then(p.resolve, p.reject);

@@ -874,8 +874,9 @@ CallbackClient::run(int argc, char* argv[])
         {
             router->destroySession();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         cout << "ok" << endl;

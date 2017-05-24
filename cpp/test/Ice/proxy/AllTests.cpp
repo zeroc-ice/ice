@@ -600,7 +600,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_timeout(0);
         test(false);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
     }
 
@@ -608,7 +612,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         base->ice_timeout(-1);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
         test(false);
     }
@@ -618,7 +626,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_timeout(-2);
         test(false);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
     }
 
@@ -627,7 +639,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_invocationTimeout(0);
         test(false);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
     }
 
@@ -636,7 +652,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_invocationTimeout(-1);
         base->ice_invocationTimeout(-2);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
         test(false);
     }
@@ -646,7 +666,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_invocationTimeout(-3);
         test(false);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
     }
 
@@ -654,7 +678,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         base->ice_locatorCacheTimeout(0);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
         test(false);
     }
@@ -663,7 +691,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         base->ice_locatorCacheTimeout(-1);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
         test(false);
     }
@@ -673,7 +705,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         base->ice_locatorCacheTimeout(-2);
         test(false);
     }
+#ifdef ICE_CPP11_MAPPING
+    catch(const invalid_argument&)
+#else
     catch(const IceUtil::IllegalArgumentException&)
+#endif
     {
     }
 

@@ -1,0 +1,77 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+apply plugin: 'com.android.application'
+apply from: "$rootProject.projectDir/../java/gradle/ice.gradle"
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
+
+slice {
+    java {
+        files = fileTree(dir: "$rootProject.projectDir/../scripts/", includes: ['*.ice'])
+    }
+}
+
+android {
+    compileSdkVersion ice_compileSdkVersion.toInteger()
+    buildToolsVersion ice_buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.zeroc.testcontroller"
+        minSdkVersion ice_minSdkVersion.toInteger()
+        targetSdkVersion ice_targetSdkVersion.toInteger()
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+    }
+
+    buildTypes {
+        debug {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+
+        release {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+task copyBksTask(type: Copy) {
+    from "${rootProject.projectDir}/../certs/client.bks"
+    from "${rootProject.projectDir}/../certs/server.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+    delete("src/main/res/raw/server.bks")
+}
+
+dependencies {
+    compile localDependency('ice')
+    compile localDependency('icessl')
+    compile project(':test')
+    tests.each {
+        def name = it.replace('/', '_')
+        compile project(":test_${name}")
+    }
+}
