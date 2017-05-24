@@ -2565,6 +2565,19 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     //
 #ifndef ICE_OS_UWP
     cout << "testing ciphers... " << flush;
+    {
+        InitializationData initData;
+        initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
+        initData.properties->setProperty("IceSSL.Ciphers", "UNKNOWN");
+        try
+        {
+            initialize(initData);
+            test(false);
+        }
+        catch(const Ice::PluginInitializationException&)
+        {
+        }
+    }
 #  ifndef ICE_USE_SCHANNEL
     {
         //

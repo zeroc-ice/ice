@@ -1182,10 +1182,11 @@ SChannel::SSLEngine::parseCiphers(const std::string& ciphers)
     for(vector<string>::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
     {
         ALG_ID id = algorithmId(*i);
-        if(id)
+        if(id == 0)
         {
-            _ciphers.push_back(id);
+            throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: no such cipher " + *i);
         }
+        _ciphers.push_back(id);
     }
 }
 

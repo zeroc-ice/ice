@@ -981,8 +981,7 @@ public class AMI
 
             if(!collocated)
             {
-                communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "tcp");
-                com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+                com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
                 PingReplyI replyI = new PingReplyI();
                 PingReplyPrx reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
                 adapter.activate();
@@ -990,6 +989,7 @@ public class AMI
                 p.ice_getConnection().setAdapter(adapter);
                 p.pingBiDir(reply.ice_getIdentity());
                 replyI.waitReply(1, 100);
+                adapter.destroy();
             }
         }
         out.println("ok");

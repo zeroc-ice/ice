@@ -3807,8 +3807,7 @@ public class AllTests : TestCommon.AllTests
 
             if(!collocated)
             {
-                communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "tcp");
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
                 PingReplyI replyI = new PingReplyI();
                 Test.PingReplyPrx reply = Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
                 adapter.activate();
@@ -3816,6 +3815,7 @@ public class AllTests : TestCommon.AllTests
                 p.ice_getConnection().setAdapter(adapter);
                 p.pingBiDir(reply.ice_getIdentity());
                 replyI.waitReply(1, 100);
+                adapter.destroy();
             }
         }
         WriteLine("ok");
