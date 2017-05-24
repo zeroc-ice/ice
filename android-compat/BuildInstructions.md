@@ -68,14 +68,14 @@ Follow these steps to import the Ice for Android project into Android Studio:
 4. If presented with an "Import Project from Gradle" dialog, select
    "Use default gradle wrapper" and press OK
 
-The Android Studio project contains a `testController` application for the Ice test
-suite. To run the application, select it in the configuration pull down and run
-it.
+The Android Studio project contains a `testController` application for the Ice
+test suite. To run the application, select it in the configuration pull down and
+run it.
 
 ## Running the Test Suite
 
-To run the test suite you need to add `tools` and `platform-tools` directories
-of Android SDK to the PATH.
+To run the test suite you need to add the `tools` and `platform-tools`
+directories from the Android SDK to your PATH.
 
   On macOS you can use the following command:
 
@@ -85,21 +85,20 @@ of Android SDK to the PATH.
 
     set PATH=%LOCALAPPDATA%\Android\sdk\tools;%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 
-The Instant Run feature of Android Studio cause some problems with the test suite
-application and you need to disable it in order to run the test controller application
-from the Android Studio, check the following page for instructions about disabling it.
+The Instant Run feature from Android Studio causes some problems with the test
+suite application. You need to disable it in order to run the test controller
+application, check the following page for instructions on how to disable it:
 
     https://developer.android.com/studio/run/index.html#disable-ir
 
-First start the `testController` application. Once it has started you can run
-the testsuite by using the `allTests.py` script from the build machine:
+Start the `testController` application from Android Studio and once it has
+started, run the testsuite by using the `allTests.py` script:
 
-    cd android
+    cd android-compat
     python allTests.py
 
-This will try to run the testsuite on the connected device. If there are multiple
-devices connected to this machine you must use the `--device` argument to select
-a device:
+This will try to run the testsuite on the connected device. If multiple devices
+are connected, you can use the `--device` argument to select a device:
 
     python allTests.py --device=ZX1C2234XF
 
@@ -107,11 +106,12 @@ You can see the list of connected devices with the `adb` command:
 
     adb devices -l
 
-If you are running the application on an emulator, pass the `--androidemulator` option:
+If you are running the application on an emulator, you need to pass the
+`--androidemulator` command line option:
 
     python allTests.py --androidemulator --device=emulator-5554
 
-You can also start an emulator image from the `allTests.py` script:
+You can also start the emulator from the `allTests.py` script:
 
     python allTests.py --androidemulator --avd=Nexus_6P_API_25 --controller-app
 

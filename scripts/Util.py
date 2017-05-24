@@ -2075,12 +2075,13 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 return "iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller"
             else:
                 return "iPhoneSimulator/com.zeroc.ObjC-Test-Controller"
-        else:
-            assert(isinstance(current.testcase.getMapping(), CppMapping))
+        elif isinstance(current.testcase.getMapping(), CppMapping):
             if current.config.cpp11:
                 return "iPhoneSimulator/com.zeroc.Cpp11-Test-Controller"
             else:
                 return "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller"
+        else:
+            raise RuntimeError("can't run tests from the `{0}' mapping on iOS".format(current.testcase.getMapping()))
 
     def startControllerApp(self, current, ident):
         mapping = current.testcase.getMapping()
