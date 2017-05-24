@@ -17,7 +17,7 @@ include pre-compiled JAR files.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 2.4 preview
+- Android Studio 3.0 preview
 - Android SDK 25
 - Android Build Tools 26.0.0 rc1
 

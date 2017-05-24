@@ -10,16 +10,12 @@
 package com.zeroc.testcontroller;
 
 import java.io.*;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.IceInternal.Time;
 
-import dalvik.system.DexClassLoader;
-
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.app.Application;
@@ -33,6 +29,8 @@ public class ControllerApp extends Application
     private final String TAG = "ControllerApp";
     private ControllerHelper _helper;
     private ControllerActivity _controller;
+    private String _ipv4Address;
+    private String _ipv6Address;
 
     static private class TestSuiteBundle
     {
@@ -116,6 +114,44 @@ public class ControllerApp extends Application
         com.zeroc.Ice.Util.setProcessLogger(new AndroidLogger(""));
     }
 
+    synchronized public void setIpv4Address(String address)
+    {
+        _ipv4Address = address;
+    }
+
+    synchronized public void setIpv6Address(String address)
+    {
+        int i = address.indexOf("%");
+        _ipv6Address = i == -1 ? address : address.substring(i);
+    }
+
+    public List<String> getAddresses(boolean ipv6)
+    {
+        List<String> addresses = new java.util.ArrayList<String>();
+        try
+        {
+            java.util.Enumeration<java.net.NetworkInterface> ifaces = java.net.NetworkInterface.getNetworkInterfaces();
+            while(ifaces.hasMoreElements())
+            {
+                java.net.NetworkInterface iface = ifaces.nextElement();
+                java.util.Enumeration<java.net.InetAddress> addrs = iface.getInetAddresses();
+                while (addrs.hasMoreElements())
+                {
+                    java.net.InetAddress addr = addrs.nextElement();
+                    if((ipv6 && addr instanceof java.net.Inet6Address) ||
+                       (!ipv6 && !(addr instanceof java.net.Inet6Address)))
+                    {
+                        addresses.add(addr.getHostAddress());
+                    }
+                }
+            }
+        }
+        catch(java.net.SocketException ex)
+        {
+        }
+        return addresses;
+    }
+
     public synchronized void startController(ControllerActivity controller)
     {
         if(_helper == null)
@@ -166,8 +202,8 @@ public class ControllerApp extends Application
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             initData.properties.setProperty("Ice.Trace.Network", "3");
             initData.properties.setProperty("Ice.Trace.Protocol", "1");
-
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
+            initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
             {
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery.PluginFactory");
@@ -176,13 +212,13 @@ public class ControllerApp extends Application
             _communicator = com.zeroc.Ice.Util.initialize(initData);
             com.zeroc.Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("ControllerAdapter");
             ProcessControllerPrx processController = ProcessControllerPrx.uncheckedCast(
-                    adapter.add(new ProcessControllerI("localhost"),
+                    adapter.add(new ProcessControllerI(),
                                 com.zeroc.Ice.Util.stringToIdentity("Android/ProcessController")));
             adapter.activate();
             if(isEmulator())
             {
                 ProcessControllerRegistryPrx registry = ProcessControllerRegistryPrx.uncheckedCast(
-                        _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001").ice_invocationTimeout(300));
+                        _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001"));
                 registerProcessController(adapter, registry, processController);
             }
             println("Android/ProcessController");
@@ -427,11 +463,6 @@ public class ControllerApp extends Application
 
     class ProcessControllerI implements Test.Common.ProcessController
     {
-        public ProcessControllerI(String hostname)
-        {
-            _hostname = hostname;
-        }
-
         public Test.Common.ProcessPrx start(final String testsuite, final String exe, String[] args,
                                             com.zeroc.Ice.Current current)
             throws Test.Common.ProcessFailedException
@@ -453,13 +484,20 @@ public class ControllerApp extends Application
             }
         }
 
-        public String getHost(String protocol, boolean ipv6,
-                              com.zeroc.Ice.Current current)
+        public String getHost(String protocol, boolean ipv6, com.zeroc.Ice.Current current)
         {
-            return _hostname;
+            if(isEmulator())
+            {
+                return  "127.0.0.1";
+            }
+            else
+            {
+                synchronized(ControllerApp.this)
+                {
+                    return ipv6 ? _ipv6Address : _ipv4Address;
+                }
+            }
         }
-
-        private String _hostname;
     }
 
     class ProcessI implements Test.Common.Process
