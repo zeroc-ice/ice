@@ -96,6 +96,16 @@ def allTests(communicator)
     print "testing close timeout... "
     STDOUT.flush
     to = Test::TimeoutPrx.checkedCast(obj.ice_timeout(250))
+    nRetry = 5
+    while nRetry > 0 do
+        nRetry -=1
+        begin
+            to.ice_getConnection() # Establish connection.
+            break
+        rescue Ice::ConnectTimeoutException
+            # Can sporadically occur with slow machines
+        end
+    end
     connection = to.ice_getConnection()
     timeout.holdAdapter(600)
     connection.close(Ice::ConnectionClose::GracefullyWithWait)

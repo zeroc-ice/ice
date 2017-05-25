@@ -208,6 +208,24 @@ function allTests($communicator)
     flush();
     {
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
+        $nRetry = 5;
+        while(--$nRetry > 0)
+        {
+            try
+            {
+                $to->ice_getConnection(); // Establish connection.
+                break;
+            }
+            catch(Exception $ex)
+            {
+                if($ex instanceof $ConnectTimeoutException)
+                {
+                    // Can sporadically occur with slow machines
+                }
+                echo($ex);
+                test(false);
+            }
+        }
         $connection = $to->ice_getConnection();
         $timeout->holdAdapter(600);
         $connection->close($CloseGracefullyAndWait);

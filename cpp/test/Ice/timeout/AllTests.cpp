@@ -291,6 +291,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing close timeout... " << flush;
     {
         TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        int nRetry = 5;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                to->ice_getConnection(); // Establish connection
+                break;
+            }
+            catch(const Ice::ConnectTimeoutException&)
+            {
+                // Can sporadically occur with slow machines
+            }
+        }
         Ice::ConnectionPtr connection = to->ice_getConnection();
         timeout->holdAdapter(600);
         connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));

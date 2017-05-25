@@ -259,6 +259,19 @@ public class AllTests
         out.flush();
         {
             TimeoutPrx to = TimeoutPrx.checkedCast(obj.ice_timeout(250 * mult));
+            int nRetry = 5;
+            while(--nRetry > 0)
+            {
+                try
+                {
+                    to.ice_getConnection();
+                    break;
+                }
+                catch(com.zeroc.Ice.ConnectTimeoutException ex)
+                {
+                    // Can sporadically occur with slow machines
+                }
+            }
             com.zeroc.Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(600);
             connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);

@@ -244,9 +244,22 @@ public class AllTests : TestCommon.AllTests
         Write("testing close timeout... ");
         Flush();
         {
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(100));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            int nRetry = 5;
+            while(--nRetry > 0)
+            {
+                try
+                {
+                    to.ice_getConnection();
+                    break;
+                }
+                catch(Ice.ConnectTimeoutException)
+                {
+                    // Can sporadically occur with slow machines
+                }
+            }
             Ice.Connection connection = to.ice_getConnection();
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
             try
             {
@@ -256,7 +269,7 @@ public class AllTests : TestCommon.AllTests
             {
                 test(false);
             }
-            Thread.Sleep(500);
+            Thread.Sleep(650);
             try
             {
                 connection.getInfo();

@@ -153,6 +153,14 @@ def allTests(communicator):
     sys.stdout.write("testing close timeout... ")
     sys.stdout.flush()
     to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(250))
+    nRetry = 5
+    while --nRetry > 0:
+        try:
+            to.ice_getConnection();
+            break
+        except Ice.ConnectTimeoutException:
+            # Can sporadically occur with slow machines
+            pass
     connection = to.ice_getConnection()
     timeout.holdAdapter(600)
     connection.close(Ice.ConnectionClose.GracefullyWithWait)

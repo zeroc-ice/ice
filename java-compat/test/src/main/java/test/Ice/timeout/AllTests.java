@@ -326,6 +326,19 @@ public class AllTests
         out.flush();
         {
             TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(250 * mult));
+            int nRetry = 5;
+            while(--nRetry > 0)
+            {
+                try
+                {
+                    to.ice_getConnection();
+                    break;
+                }
+                catch(Ice.ConnectTimeoutException ex)
+                {
+                    // Can sporadically occur with slow machines
+                }
+            }
             Ice.Connection connection = to.ice_getConnection();
             timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
