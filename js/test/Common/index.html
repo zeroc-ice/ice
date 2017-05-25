@@ -6,15 +6,9 @@
     <title>Test Suite | Ice for JavaScript</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico"/>
     <link rel="stylesheet" type="text/css" href="/assets/common.css"/>
-
-    <script src="/assets/common.js"></script>
-    {{#scripts}}
-    <script src="{{.}}"></script>
-    {{/scripts}}
-    <script type="text/javascript">
-      var current = "{{current}}";
-      var TestSuites = {{{TestSuites}}};
-    </script>
+    {{#cssDeps}}
+    <link rel="stylesheet" type="text/css" href="{{.}}"/>
+    {{/cssDeps}}
   </head>
   <body>
     <div id="header">
@@ -129,5 +123,17 @@
             <h6>Copyright &copy; 2003-2017 ZeroC, Inc. All rights reserved.</h6>
         </div>
     </div>
+    <!-- JavaScript dependencies and test files-->
+    {{#jsDeps}}
+    <script src="{{.}}"></script>
+    {{/jsDeps}}
+    <script src="/assets/common.js"></script>
+    {{#scripts}}
+    <script src="{{.}}"></script>
+    {{/scripts}}
+    <script type="text/javascript">
+      var current = "{{current}}";
+      var TestSuites = {{{TestSuites}}};
+    </script>
   </body>
 </html>

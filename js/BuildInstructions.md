@@ -20,8 +20,8 @@ Change to the Ice for JavaScript source subdirectory:
 
 Run these commands to build the libraries and tests:
 
-    > npm install
-    > npm run gulp:build
+    > yarn install
+    > yarn run build
 
 ## Running the JavaScript Tests
 
@@ -33,14 +33,14 @@ with the command:
 
 To start the tests simply run:
 
-    > npm run gulp:test:run-with-node
+    > yarn run test:node
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 To start the browser tests run:
 
-    > npm run gulp:test:run-with-browser
+    > yarn run test:browser
 
 This requires that you build the Java test controller from the Java subdirectory
 and test servers from C++, C# or Java. Follow the instructions from the
@@ -123,14 +123,14 @@ Next go to _Settings -> Security -> Install from storage_, and choose
 
 ## Installing a Source Build
 
-After a successful build, you can generate an npm package by running the
+After a successful build, you can generate a package by running the
 following command:
 
-    > npm pack
+    > yarn pack
 
 This will generate the file `ice-3.7.0.tgz`, which can be installed by running:
 
-    > npm install <path_to_file>/ice-3.7.0.tgz
+    > yarn install <path_to_file>/ice-3.7.0.tgz
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.

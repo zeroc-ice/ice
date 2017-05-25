@@ -2,9 +2,11 @@
 Ice is a comprehensive RPC framework with support for C++, .NET, Java, Python, JavaScript and more.
 
 ## Install
+Using either npm or yarn:
 
 ```bash
 $ npm install ice --save
+$ yarn add ice
 ```
 
 ## Usage

@@ -7,27 +7,26 @@
 #
 # **********************************************************************
 
-ifeq ($(NPM),)
-NPM = npm
+ifeq ($(YARN),)
+YARN = yarn
 endif
 
 all: npminstall
-	$(NPM) run gulp:build
+	$(YARN) run build
 
 dist: npminstall
-	$(NPM) run gulp:dist
+	$(YARN) run dist
 
 install:
 
-
 distclean clean: npminstall
-	$(NPM) run gulp:clean
+	$(YARN) run clean
 
 lint: npminstall
-	$(NPM) run gulp:lint
+	$(YARN) run lint
 
 test:
 	@python ./allTests.py
 
 npminstall:
-	$(NPM) install
+	$(YARN) install

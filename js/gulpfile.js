@@ -8,7 +8,6 @@
 // **********************************************************************
 
 var babel       = require("gulp-babel"),
-    bower       = require("bower"),
     bundle      = require("./gulp/bundle"),
     concat      = require('gulp-concat'),
     del         = require("del"),
@@ -115,28 +114,6 @@ var tests = [
     "test/Slice/macros"
 ];
 
-var common = {
-    "scripts": [
-        "bower_components/foundation/js/vendor/modernizr.js",
-        "bower_components/foundation/js/vendor/jquery.js",
-        "bower_components/foundation/js/foundation.min.js",
-        "bower_components/nouislider/distribute/jquery.nouislider.all.js",
-        "bower_components/animo.js/animo.js",
-        "bower_components/spin.js/spin.js",
-        "bower_components/spin.js/jquery.spin.js",
-        "bower_components/URIjs/src/URI.js",
-        "bower_components/highlightjs/highlight.pack.js",
-        "assets/icejs.js"
-    ],
-    "styles": [
-        "bower_components/foundation/css/foundation.css",
-        "bower_components/animo.js/animate+animo.css",
-        "bower_components/highlightjs/styles/vs.css",
-        "bower_components/nouislider/distribute/jquery.nouislider.min.css",
-        "assets/icejs.css"
-    ]
-};
-
 gulp.task("common:slice", [],
     function(cb){
         pump([
@@ -160,37 +137,6 @@ gulp.task("common:slice:clean", [],
         del(["test/Common/Controller.js",
              "test/Common/.depend",
              "test/es5/Common/Controller.js"]);
-    });
-
-gulp.task("common:js", ["bower"],
-    function(cb){
-        pump([
-            gulp.src(common.scripts),
-            newer("assets/common.js"),
-            concat("common.js"),
-            gulp.dest("assets"),
-            gzip(),
-            gulp.dest("assets")], cb);
-    });
-
-gulp.task("common:css", ["bower"],
-    function(cb){
-        pump([
-            gulp.src(common.styles),
-            newer("assets/common.css"),
-            concat("common.css"),
-            cleancss(),
-            gulp.dest("assets"),
-            gzip(),
-            gulp.dest("assets")], cb);
-    });
-
-gulp.task("common:js-babel", [],
-    function(cb){
-        pump([
-            gulp.src("test/Common/Common.js"),
-            babel({compact: false}),
-            gulp.dest("test/es5/Common/")], cb);
     });
 
 gulp.task("common:clean", [],
@@ -272,7 +218,7 @@ tests.forEach(
     });
 
 gulp.task("test", tests.map(testBabelTask).concat(
-    ["common:slice-babel", "common:js", "common:js-babel", "common:css", "import:bundle"]));
+    ["common:slice-babel", "import:bundle"]));
 
 gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:slice:clean", "import:clean"]));
 
@@ -436,16 +382,6 @@ libs.forEach(
         gulp.task(libCleanTask(lib), [], function(){ del(libGeneratedFiles(lib, sources)); });
     });
 
-gulp.task("bower", [],
-    function(cb){
-        bower.commands.install().on("end", function(){ cb(); });
-    });
-
-gulp.task("dist:libs", ["bower"],
-    function(cb){
-        pump([gulp.src(["bower_components/ice/lib/*", "bower_components/ice/lib/**/*"]), gulp.dest("lib")], cb);
-    });
-
 gulp.task("dist", useBinDist ? ["dist:libs"] :
     libs.map(libTask).concat(libs.map(minLibTask))
                      .concat(libs.map(babelMinLibTask))
@@ -498,17 +434,17 @@ function runTestsWithBrowser(url)
     return gulp.src("").pipe(open({uri: url}));
 }
 
-gulp.task("test:run-with-browser", useBinDist ? ["test"] : ["build"],
+gulp.task("test:browser", useBinDist ? ["test"] : ["build"],
     function(url){
         return runTestsWithBrowser("http://127.0.0.1:8080/test/Ice/acm/index.html");
     });
 
-gulp.task("test:run-with-browser-es5", useBinDist ? ["test"] : ["build"],
+gulp.task("test:browser-es5", useBinDist ? ["test"] : ["build"],
     function(url){
         return runTestsWithBrowser("http://127.0.0.1:8080/test/es5/Ice/acm/index.html");
     });
 
-gulp.task("test:run-with-node", (useBinDist ? ["test"] : ["build"]),
+gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
     function(){
         var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
         p.on("error", function(err)
@@ -538,7 +474,6 @@ gulp.task("lint:html", ["build"],
     function(cb){
         pump([
             gulp.src(["**/*.html",
-                      "!bower_components/**/*.html",
                       "!node_modules/**/*.html",
                       "!test/**/index.html"]),
             jshint.extract("auto"),
