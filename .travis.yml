@@ -39,6 +39,7 @@ cache:
   - $HOME/.gradle
   - $HOME/python-deps
   - $TRAVIS_BUILD_DIR/js/node_modules
+  yarn: true
 
 before_install:
 - git clone https://github.com/zeroc-ice/mcpp.git mcpp
@@ -46,6 +47,8 @@ before_install:
 - tar xvf LMDB_${LMDB_REVISION}.tar.gz
 - nvm install node
 - nvm use node
+- curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.24.6
+- export PATH=$HOME/.yarn/bin:$PATH
 
 install:
 - make -C ${MCPP_HOME} -j3
