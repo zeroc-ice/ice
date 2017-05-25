@@ -446,8 +446,19 @@ gulp.task("test:browser-es5", useBinDist ? ["test"] : ["build"],
 
 gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
     function(){
-        var p  = require("child_process").spawn("python", ["allTests.py", "--all"], {stdio: "inherit"});
-        p.on("error", function(err)
+        var args = ["allTests.py", "--all"];
+        if(platform)
+        {
+            args = args.concat(["--cpp-platform", platform]);
+        }
+        if(configuration)
+        {
+            args = args.concat(["--cpp-config", configuration]);
+        }
+
+        var p = require("child_process").spawn("python", args, {stdio: "inherit"});
+        p.on("error", 
+            function(err)
             {
                 if(err.message == "spawn python ENOENT")
                 {
@@ -459,6 +470,7 @@ gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
                     throw err;
                 }
             });
+
         process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
             function()
             {

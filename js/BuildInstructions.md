@@ -23,6 +23,19 @@ Run these commands to build the libraries and tests:
     > yarn install
     > yarn run build
 
+On Windows you need to set the platform and configuration in order to locate
+slice2js, for example if you have build C++ x64 Release mode you can use
+the following command to build
+
+    > yarn run build -- --cppPlatform x64 --cppConfiguration Release
+
+alternativelly you can use the CPP_PLATFORM and CPP_CONFIGURATION enviroment
+variables:
+
+    > set CPP_PLATFORM=x64
+    > set CPP_CONFIGURATION=Debug
+    > yarn run build
+
 ## Running the JavaScript Tests
 
 Python is required to run the test suite with Node.js. Additionally, the
