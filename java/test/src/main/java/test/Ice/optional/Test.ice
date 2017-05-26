@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.optional"]]
+[["java:package:test.Ice.optional", "suppress-warning:deprecated"]]
 module Test
 {
 

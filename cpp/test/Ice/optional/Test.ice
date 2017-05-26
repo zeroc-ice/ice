@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h"]]
+[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h", "suppress-warning:deprecated"]]
 
 module Test
 {

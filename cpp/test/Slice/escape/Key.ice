@@ -8,6 +8,7 @@
 // **********************************************************************
 
 [["underscore"]]
+[["suppress-warning:deprecated"]]
 
 module and
 {

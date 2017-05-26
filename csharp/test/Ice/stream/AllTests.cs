@@ -274,7 +274,7 @@ public class AllTests : TestCommon.AllTests
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = communicator.stringToProxy("test:default");
+            s.p = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
             SmallStruct.ice_write(outS, s);
             var data = outS.finished();
             var s2 = SmallStruct.ice_read(new Ice.InputStream(communicator, data));
@@ -523,7 +523,7 @@ public class AllTests : TestCommon.AllTests
             smallStructArray[i].d = 6.0;
             smallStructArray[i].str = "7";
             smallStructArray[i].e = MyEnum.enum2;
-            smallStructArray[i].p = communicator.stringToProxy("test:default");
+            smallStructArray[i].p = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
         }
 
         var myClassArray = new MyClass[4];

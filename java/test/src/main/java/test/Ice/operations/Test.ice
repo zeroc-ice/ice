@@ -11,7 +11,7 @@
 
 #include <Ice/Current.ice>
 
-[["java:package:test.Ice.operations"]]
+[["java:package:test.Ice.operations", "suppress-warning:deprecated"]]
 module Test
 {
 

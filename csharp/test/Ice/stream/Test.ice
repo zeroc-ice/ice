@@ -40,7 +40,7 @@ struct SmallStruct
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
+    MyInterface* p;
 }
 
 class OptionalClass

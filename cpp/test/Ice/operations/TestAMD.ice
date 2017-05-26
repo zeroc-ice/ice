@@ -9,6 +9,8 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]]
+
 #include <Ice/Current.ice>
 
 module Test

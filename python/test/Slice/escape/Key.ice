@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+[["suppress-warning:deprecated"]]
+
 module and
 {
     enum assert

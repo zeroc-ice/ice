@@ -269,7 +269,7 @@ public class Client extends test.Util.Application
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = MyClassPrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
+            s.p = MyInterfacePrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
             SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
