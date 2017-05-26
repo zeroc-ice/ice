@@ -9,14 +9,6 @@
     {{#cssDeps}}
     <link rel="stylesheet" type="text/css" href="{{.}}"/>
     {{/cssDeps}}
-    <script>
-        $(document).foundation();
-        $(document).ready(function() {
-            $("#clientConsole").height(300);
-            $("#serverConsole").height(100);
-            runController($("#clientConsole"), $("#serverConsole"), "{{{scripts}}}".split(","));
-        });
-    </script>
   </head>
   <body>
     <div id="header">
@@ -51,5 +43,13 @@
     {{#scripts}}
     <script src="{{.}}"></script>
     {{/scripts}}
+    <script>
+        $(document).foundation();
+        $(document).ready(function() {
+            $("#clientConsole").height(300);
+            $("#serverConsole").height(100);
+            runController($("#clientConsole"), $("#serverConsole"), "{{{scripts}}}".split(","));
+        });
+    </script>
   </body>
 </html>
