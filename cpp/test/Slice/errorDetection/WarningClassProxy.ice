@@ -28,4 +28,7 @@ exception E
     C1* proxy; // Deprecated
 }
 
+sequence<C1*> Seq; // Deprecated
+dictionary<string, C1*> Dict; // Deprecated
+
 }

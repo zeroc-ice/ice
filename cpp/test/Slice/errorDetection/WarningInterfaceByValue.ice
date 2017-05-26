@@ -35,4 +35,7 @@ local interface LIntf2
     Intf1 op2(); // Deprecated
 }
 
+sequence<Intf1> Seq; // Deprecated
+dictionary<string, Intf1> Dict; // Deprecated
+
 }
