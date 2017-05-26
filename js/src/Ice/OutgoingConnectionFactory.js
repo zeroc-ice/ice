@@ -556,7 +556,7 @@ class OutgoingConnectionFactory
     handleConnectionException(ex, hasMore)
     {
         const traceLevels = this._instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             const s = [];
             s.push("connection to endpoint failed");
@@ -576,14 +576,14 @@ class OutgoingConnectionFactory
                 }
             }
             s.push(ex.toString());
-            this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
     }
 
     handleException(ex, hasMore)
     {
         const traceLevels = this._instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             const s = [];
             s.push("couldn't resolve endpoint host");
@@ -603,7 +603,7 @@ class OutgoingConnectionFactory
                 }
             }
             s.push(ex.toString());
-            this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
     }
 

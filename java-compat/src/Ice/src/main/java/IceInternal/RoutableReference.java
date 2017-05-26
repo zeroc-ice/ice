@@ -605,7 +605,7 @@ public class RoutableReference extends Reference
                                     if(traceLvls.retry >= 2)
                                     {
                                         String s = "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" + ex;
+                                            "removing endpoints from cache and trying again\n" + ex;
                                         getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
                                     }
                                     getConnectionNoRouterInfo(callback); // Retry.

@@ -1334,7 +1334,7 @@ namespace IceInternal
                         if(traceLevels.retry >= 2)
                         {
                             String s = "connection to cached endpoints failed\n" +
-                                       "removing endpoints from cache and trying one more time\n" + ex;
+                                       "removing endpoints from cache and trying again\n" + ex;
                             _ir.getInstance().initializationData().logger.trace(traceLevels.retryCat, s);
                         }
                         _ir.getConnectionNoRouterInfo(_cb); // Retry.

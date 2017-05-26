@@ -809,9 +809,9 @@ void
 IceInternal::OutgoingConnectionFactory::handleException(const LocalException& ex, bool hasMore)
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
-    if(traceLevels->retry >= 2)
+    if(traceLevels->network >= 2)
     {
-        Trace out(_instance->initializationData().logger, traceLevels->retryCat);
+        Trace out(_instance->initializationData().logger, traceLevels->networkCat);
 
         out << "couldn't resolve endpoint host";
         if(dynamic_cast<const CommunicatorDestroyedException*>(&ex))
@@ -837,9 +837,9 @@ void
 IceInternal::OutgoingConnectionFactory::handleConnectionException(const LocalException& ex, bool hasMore)
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
-    if(traceLevels->retry >= 2)
+    if(traceLevels->network >= 2)
     {
-        Trace out(_instance->initializationData().logger, traceLevels->retryCat);
+        Trace out(_instance->initializationData().logger, traceLevels->networkCat);
 
         out << "connection to endpoint failed";
         if(dynamic_cast<const CommunicatorDestroyedException*>(&ex))
