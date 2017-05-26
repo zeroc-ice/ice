@@ -36,6 +36,29 @@ function test($b)
     }
 }
 
+function connect($prx)
+{
+    $nRetry = 5;
+    while(--$nRetry > 0)
+    {
+        try
+        {
+            $prx->ice_getConnection(); // Establish connection.
+            break;
+        }
+        catch(Exception $ex)
+        {
+            if($ex instanceof $ConnectTimeoutException)
+            {
+                // Can sporadically occur with slow machines
+            }
+            echo($ex);
+            test(false);
+        }
+    }
+    return $prx->ice_getConnection(); // Establish connection.
+}
+
 function allTests($communicator)
 {
     global $NS;
@@ -208,25 +231,7 @@ function allTests($communicator)
     flush();
     {
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $nRetry = 5;
-        while(--$nRetry > 0)
-        {
-            try
-            {
-                $to->ice_getConnection(); // Establish connection.
-                break;
-            }
-            catch(Exception $ex)
-            {
-                if($ex instanceof $ConnectTimeoutException)
-                {
-                    // Can sporadically occur with slow machines
-                }
-                echo($ex);
-                test(false);
-            }
-        }
-        $connection = $to->ice_getConnection();
+        $connection = connect($to);
         $timeout->holdAdapter(600);
         $connection->close($CloseGracefullyAndWait);
         try
@@ -264,6 +269,7 @@ function allTests($communicator)
         $initData->properties->setProperty("Ice.Override.Timeout", "150");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_checkedCast("::Test::Timeout");
+        connect($to);
         $timeout->holdAdapter(800);
         try
         {
@@ -284,6 +290,7 @@ function allTests($communicator)
         //
         $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(1000)->ice_checkedCast("::Test::Timeout");
+        connect($to);
         $timeout->holdAdapter(800);
         try
         {
@@ -351,25 +358,7 @@ function allTests($communicator)
         //
         $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $nRetry = 5;
-        while(--$nRetry > 0)
-        {
-            try
-            {
-                $to->ice_getConnection(); // Establish connection.
-                break;
-            }
-            catch(Exception $ex)
-            {
-                if($ex instanceof $ConnectTimeoutException)
-                {
-                    // Can sporadically occur with slow machines
-                }
-                echo($ex);
-                test(false);
-            }
-        }
-        $to->ice_getConnection(); // Establish connection.
+        connect($to);
         $timeout->holdAdapter(750);
         try
         {

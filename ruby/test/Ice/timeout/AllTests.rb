@@ -7,6 +7,20 @@
 #
 # **********************************************************************
 
+def connect(prx)
+    nRetry = 5
+    while nRetry > 0 do
+        nRetry -=1
+        begin
+            prx.ice_getConnection() # Establish connection.
+            break
+        rescue Ice::ConnectTimeoutException
+            # Can sporadically occur with slow machines
+        end
+    end
+    return prx.ice_getConnection()
+end
+
 def allTests(communicator)
     sref = "timeout:default -p 12010"
     obj = communicator.stringToProxy(sref)
@@ -96,17 +110,7 @@ def allTests(communicator)
     print "testing close timeout... "
     STDOUT.flush
     to = Test::TimeoutPrx.checkedCast(obj.ice_timeout(250))
-    nRetry = 5
-    while nRetry > 0 do
-        nRetry -=1
-        begin
-            to.ice_getConnection() # Establish connection.
-            break
-        rescue Ice::ConnectTimeoutException
-            # Can sporadically occur with slow machines
-        end
-    end
-    connection = to.ice_getConnection()
+    connection = connect(to);
     timeout.holdAdapter(600)
     connection.close(Ice::ConnectionClose::GracefullyWithWait)
     begin
@@ -136,6 +140,7 @@ def allTests(communicator)
     initData.properties.setProperty("Ice.Override.Timeout", "100")
     comm = Ice.initialize(initData)
     to = Test::TimeoutPrx::checkedCast(comm.stringToProxy(sref))
+    connect(to)
     timeout.holdAdapter(500)
     begin
         to.sendData(seq)
@@ -148,6 +153,7 @@ def allTests(communicator)
     #
     timeout.op() # Ensure adapter is active.
     to = Test::TimeoutPrx::checkedCast(to.ice_timeout(1000))
+    connect(to)
     timeout.holdAdapter(500)
     begin
         to.sendData(seq)
@@ -191,17 +197,7 @@ def allTests(communicator)
     #
     timeout.op() # Ensure adapter is active.
     to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(250))
-    nRetry = 5
-    while nRetry > 0 do
-        nRetry -=1
-        begin
-            to.ice_getConnection() # Establish connection.
-            break
-        rescue Ice::ConnectTimeoutException
-            # Can sporadically occur with slow machines
-        end
-    end
-    to.ice_getConnection() # Establish connection.
+    connect(to)
     timeout.holdAdapter(750)
     begin
         to.sendData(seq)

@@ -45,6 +45,24 @@ public class AllTests : TestCommon.AllTests
         private bool _called;
     }
 
+    private static Ice.Connection connect(Ice.ObjectPrx prx)
+    {
+        int nRetry = 5;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                prx.ice_getConnection();
+                break;
+            }
+            catch(Ice.ConnectTimeoutException)
+            {
+                // Can sporadically occur with slow machines
+            }
+        }
+        return prx.ice_getConnection();
+    }
+
     public static Test.TimeoutPrx allTests(TestCommon.Application app)
     {
         Ice.Communicator communicator = app.communicator();
@@ -245,20 +263,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         {
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
-            int nRetry = 5;
-            while(--nRetry > 0)
-            {
-                try
-                {
-                    to.ice_getConnection();
-                    break;
-                }
-                catch(Ice.ConnectTimeoutException)
-                {
-                    // Can sporadically occur with slow machines
-                }
-            }
-            Ice.Connection connection = to.ice_getConnection();
+            Ice.Connection connection = connect(to);
             timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
             try
@@ -297,6 +302,7 @@ public class AllTests : TestCommon.AllTests
             initData.properties.setProperty("Ice.Override.Timeout", "250");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
+            connect(to);
             timeout.holdAdapter(700);
             try
             {
@@ -312,6 +318,7 @@ public class AllTests : TestCommon.AllTests
             //
             timeout.op(); // Ensure adapter is active.
             to = Test.TimeoutPrxHelper.checkedCast(to.ice_timeout(1000));
+            connect(to);
             timeout.holdAdapter(500);
             try
             {
@@ -364,20 +371,7 @@ public class AllTests : TestCommon.AllTests
             //
             timeout.op(); // Ensure adapter is active.
             to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
-            int nRetry = 5;
-            while(--nRetry > 0)
-            {
-                try
-                {
-                    to.ice_getConnection();
-                    break;
-                }
-                catch(Ice.ConnectTimeoutException)
-                {
-                    // Can sporadically occur with slow machines
-                }
-            }
-            to.ice_getConnection(); // Establish connection.
+            connect(to);
             timeout.holdAdapter(750);
             try
             {
