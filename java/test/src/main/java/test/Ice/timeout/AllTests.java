@@ -276,7 +276,7 @@ public class AllTests
         out.print("testing close timeout... ");
         out.flush();
         {
-            TimeoutPrx to = TimeoutPrx.checkedCast(obj.ice_timeout(250 * mult));
+            TimeoutPrx to = TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
             com.zeroc.Ice.Connection connection = connect(to);
             timeout.holdAdapter(600);
             connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -318,11 +318,11 @@ public class AllTests
             //
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.Timeout", "250");
+            initData.properties.setProperty("Ice.Override.Timeout", "100");
             com.zeroc.Ice.Communicator comm = app.initialize(initData);
-            TimeoutPrx to = TimeoutPrx.checkedCast(comm.stringToProxy(sref));
+            TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             connect(to);
-            timeout.holdAdapter(700 * mult);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);
@@ -336,7 +336,7 @@ public class AllTests
             // Calling ice_timeout() should have no effect.
             //
             timeout.op(); // Ensure adapter is active.
-            to = TimeoutPrx.checkedCast(to.ice_timeout(1000 * mult));
+            to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
             connect(to);
             timeout.holdAdapter(500 * mult);
             try
@@ -396,9 +396,9 @@ public class AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = to.ice_timeout(250);
+            to = to.ice_timeout(100);
             connect(to);
-            timeout.holdAdapter(750 * mult);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);

@@ -320,7 +320,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing close timeout... " << flush;
     {
-        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
         Ice::ConnectionPtr connection = connect(to);
         timeout->holdAdapter(600);
         connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
@@ -355,11 +355,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        initData.properties->setProperty("Ice.Override.Timeout", "250");
+        initData.properties->setProperty("Ice.Override.Timeout", "100");
         Ice::CommunicatorHolder ich(initData);
-        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
         connect(to);
-        timeout->holdAdapter(700);
+        timeout->holdAdapter(500);
         try
         {
             to->sendData(seq);
@@ -374,7 +374,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Calling ice_timeout() should have no effect.
         //
         timeout->op(); // Ensure adapter is active.
-        to = ICE_CHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
+        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
         connect(to);
         timeout->holdAdapter(500);
         try
@@ -425,9 +425,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         timeout->op(); // Ensure adapter is active.
-        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(250));
+        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(100));
         connect(to);
-        timeout->holdAdapter(750);
+        timeout->holdAdapter(500);
         try
         {
             to->sendData(seq);

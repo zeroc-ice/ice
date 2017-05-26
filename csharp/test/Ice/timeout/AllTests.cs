@@ -262,7 +262,7 @@ public class AllTests : TestCommon.AllTests
         Write("testing close timeout... ");
         Flush();
         {
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
             Ice.Connection connection = connect(to);
             timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
@@ -299,11 +299,11 @@ public class AllTests : TestCommon.AllTests
             string[] args = new string[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
-            initData.properties.setProperty("Ice.Override.Timeout", "250");
+            initData.properties.setProperty("Ice.Override.Timeout", "100");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
             connect(to);
-            timeout.holdAdapter(700);
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(seq);
@@ -317,7 +317,7 @@ public class AllTests : TestCommon.AllTests
             // Calling ice_timeout() should have no effect.
             //
             timeout.op(); // Ensure adapter is active.
-            to = Test.TimeoutPrxHelper.checkedCast(to.ice_timeout(1000));
+            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(1000));
             connect(to);
             timeout.holdAdapter(500);
             try
@@ -370,9 +370,9 @@ public class AllTests : TestCommon.AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
+            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
             connect(to);
-            timeout.holdAdapter(750);
+            timeout.holdAdapter(500);
             try
             {
                 to.sendData(seq);

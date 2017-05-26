@@ -266,11 +266,11 @@ function allTests($communicator)
         //
         $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
         $initData->properties = $communicator->getProperties()->clone();
-        $initData->properties->setProperty("Ice.Override.Timeout", "150");
+        $initData->properties->setProperty("Ice.Override.Timeout", "100");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
-        $to = $comm->stringToProxy($sref)->ice_checkedCast("::Test::Timeout");
+        $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(800);
+        $timeout->holdAdapter(500);
         try
         {
             $to->sendData($seq);
@@ -289,7 +289,7 @@ function allTests($communicator)
         // Calling ice_timeout() should have no effect.
         //
         $timeout->op(); // Ensure adapter is active.
-        $to = $to->ice_timeout(1000)->ice_checkedCast("::Test::Timeout");
+        $to = $to->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
         $timeout->holdAdapter(800);
         try
@@ -357,9 +357,9 @@ function allTests($communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         $timeout->op(); // Ensure adapter is active.
-        $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
+        $to = $to->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(750);
+        $timeout->holdAdapter(500);
         try
         {
             $to->sendData($seq);

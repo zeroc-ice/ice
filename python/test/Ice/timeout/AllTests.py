@@ -168,7 +168,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing close timeout... ")
     sys.stdout.flush()
-    to = Test.TimeoutPrx.checkedCast(obj.ice_timeout(250))
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
     connection = connect(to)
     timeout.holdAdapter(600)
     connection.close(Ice.ConnectionClose.GracefullyWithWait)
@@ -195,11 +195,11 @@ def allTests(communicator):
     #
     initData = Ice.InitializationData()
     initData.properties = communicator.getProperties().clone()
-    initData.properties.setProperty("Ice.Override.Timeout", "250")
+    initData.properties.setProperty("Ice.Override.Timeout", "100")
     comm = Ice.initialize(initData)
-    to = Test.TimeoutPrx.checkedCast(comm.stringToProxy(sref))
+    to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
     connect(to)
-    timeout.holdAdapter(700)
+    timeout.holdAdapter(500)
     try:
         to.sendData(seq)
         test(False)
@@ -209,7 +209,7 @@ def allTests(communicator):
     # Calling ice_timeout() should have no effect.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.checkedCast(to.ice_timeout(1000))
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000))
     connect(to)
     timeout.holdAdapter(500)
     try:
@@ -247,9 +247,9 @@ def allTests(communicator):
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(100))
     connect(to)
-    timeout.holdAdapter(750)
+    timeout.holdAdapter(500)
     try:
         to.sendData(seq)
         test(False)
