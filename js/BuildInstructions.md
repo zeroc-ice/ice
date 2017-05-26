@@ -23,13 +23,13 @@ Run these commands to build the libraries and tests:
     > yarn install
     > yarn run build
 
-On Windows you need to set the platform and configuration in order to locate
-slice2js, for example if you have build C++ x64 Release mode you can use
-the following command to build
+On Windows, you need to set the platform and configuration in order to locate
+slice2js. For example, if you have built C++ with the x64 Release configuration,
+you can use the following command to build JavaScript:
 
     > yarn run build -- --cppPlatform x64 --cppConfiguration Release
 
-alternativelly you can use the CPP_PLATFORM and CPP_CONFIGURATION enviroment
+Alternatively you can use the CPP_PLATFORM and CPP_CONFIGURATION environment
 variables:
 
     > set CPP_PLATFORM=x64
