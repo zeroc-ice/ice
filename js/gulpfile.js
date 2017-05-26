@@ -132,16 +132,11 @@ gulp.task("common:slice-babel", ["common:slice"],
             gulp.dest("test/es5/Common")], cb);
     });
 
-gulp.task("common:slice:clean", [],
+gulp.task("common:clean", [],
     function(){
         del(["test/Common/Controller.js",
              "test/Common/.depend",
              "test/es5/Common/Controller.js"]);
-    });
-
-gulp.task("common:clean", [],
-    function(){
-        del(["assets/common.css", "assets/common.js"]);
     });
 
 gulp.task("import:slice2js", [],
@@ -220,7 +215,7 @@ tests.forEach(
 gulp.task("test", tests.map(testBabelTask).concat(
     ["common:slice-babel", "import:bundle"]));
 
-gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:slice:clean", "import:clean"]));
+gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:clean", "import:clean"]));
 
 //
 // Tasks to build IceJS Distribution
