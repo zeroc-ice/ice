@@ -51,8 +51,10 @@ ext.projectPom = {
 
 task writeNewPom {
     outputs.file file(pomName)
-} << {
-    projectPom().writeTo(pomName)
+
+    doLast {
+        projectPom().writeTo(pomName)
+    }
 }
 
 jar.dependsOn(writeNewPom)

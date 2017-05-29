@@ -78,5 +78,5 @@ dist.dependsOn(project(":icestorm-compat").assemble)
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.14"
+    gradleVersion = "3.2"
 }
