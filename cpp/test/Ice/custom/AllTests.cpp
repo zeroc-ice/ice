@@ -19,18 +19,6 @@
 
 using namespace std;
 
-#ifdef ICE_CPP11_MAPPING
-//
-// Slice class C is mapped to ObjectPrx
-//
-namespace Test
-{
-typedef shared_ptr<Ice::ObjectPrx> CPrxPtr;
-typedef Ice::ObjectPrx CPrx;
-}
-#endif
-
-
 namespace
 {
 
@@ -359,17 +347,17 @@ public:
         called();
     }
 
-    void opCPrxSeq(const deque<Test::CPrxPtr>& ret, const deque<Test::CPrxPtr>& out, const InParamPtr& cookie)
+    void opDPrxSeq(const deque<Test::DPrxPtr>& ret, const deque<Test::DPrxPtr>& out, const InParamPtr& cookie)
     {
-        const deque<Test::CPrxPtr>& in = getIn<deque<Test::CPrxPtr> >(cookie);
+        const deque<Test::DPrxPtr>& in = getIn<deque<Test::DPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
     }
 
-    void opCPrxList(const list<Test::CPrxPtr>& ret, const list<Test::CPrxPtr>& out, const InParamPtr& cookie)
+    void opDPrxList(const list<Test::DPrxPtr>& ret, const list<Test::DPrxPtr>& out, const InParamPtr& cookie)
     {
-        const list<Test::CPrxPtr>& in = getIn<list<Test::CPrxPtr> >(cookie);
+        const list<Test::DPrxPtr>& in = getIn<list<Test::DPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1045,15 +1033,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        deque<Test::CPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<Test::DPrxPtr> in(5);
+        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
-        deque<Test::CPrxPtr> out;
-        deque<Test::CPrxPtr> ret = t->opCPrxSeq(in, out);
+        deque<Test::DPrxPtr> out;
+        deque<Test::DPrxPtr> ret = t->opDPrxSeq(in, out);
 
 #ifdef ICE_CPP11_MAPPING
         auto op = out.begin();
@@ -1071,15 +1059,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        list<Test::CPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<Test::DPrxPtr> in;
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
-        list<Test::CPrxPtr> out;
-        list<Test::CPrxPtr> ret = t->opCPrxList(in, out);
+        list<Test::DPrxPtr> out;
+        list<Test::DPrxPtr> ret = t->opDPrxList(in, out);
 #ifdef ICE_CPP11_MAPPING
         auto op = out.begin();
         auto rp = ret.begin();
@@ -1837,15 +1825,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            deque<Test::CPrxPtr> in(5);
-            in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-            in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-            in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-            in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-            in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+            deque<Test::DPrxPtr> in(5);
+            in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+            in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+            in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+            in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+            in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opCPrxSeqAsync(in).get();
+            auto r = t->opDPrxSeqAsync(in).get();
 
             test(r.outSeq.size() == in.size());
             test(r.returnValue.size() == in.size());
@@ -1859,24 +1847,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(Ice::targetEqualTo(*rp++, i));
             }
 #else
-            deque<Test::CPrx> out;
-            Ice::AsyncResultPtr r = t->begin_opCPrxSeq(in);
-            deque<Test::CPrx> ret = t->end_opCPrxSeq(out, r);
+            deque<Test::DPrx> out;
+            Ice::AsyncResultPtr r = t->begin_opDPrxSeq(in);
+            deque<Test::DPrx> ret = t->end_opDPrxSeq(out, r);
             test(out == in);
             test(ret == in);
 #endif
         }
 
         {
-            list<Test::CPrxPtr> in;
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+            list<Test::DPrxPtr> in;
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opCPrxListAsync(in).get();
+            auto r = t->opDPrxListAsync(in).get();
 
             test(r.outSeq.size() == in.size());
             test(r.returnValue.size() == in.size());
@@ -1890,9 +1878,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(Ice::targetEqualTo(*rp++, i));
             }
 #else
-            list<Test::CPrx> out;
-            Ice::AsyncResultPtr r = t->begin_opCPrxList(in);
-            list<Test::CPrx> ret = t->end_opCPrxList(out, r);
+            list<Test::DPrx> out;
+            Ice::AsyncResultPtr r = t->begin_opDPrxList(in);
+            list<Test::DPrx> ret = t->end_opDPrxList(out, r);
             test(out == in);
             test(ret == in);
 #endif
@@ -2934,19 +2922,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        deque<Test::CPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<Test::DPrxPtr> in(5);
+        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opCPrxSeqAsync(in,
-                          [&](deque<shared_ptr<Test::CPrx>> ret, deque<shared_ptr<Test::CPrx>> out)
+        t->opDPrxSeqAsync(in,
+                          [&](deque<shared_ptr<Test::DPrx>> ret, deque<shared_ptr<Test::DPrx>> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
@@ -2966,27 +2954,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(done.get_future().get());
 #else
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxSeqPtr callback =
-            Test::newCallback_TestIntf_opCPrxSeq(cb, &Callback::opCPrxSeq, &Callback::noEx);
-        t->begin_opCPrxSeq(in, callback, newInParam(in));
+        Test::Callback_TestIntf_opDPrxSeqPtr callback =
+            Test::newCallback_TestIntf_opDPrxSeq(cb, &Callback::opDPrxSeq, &Callback::noEx);
+        t->begin_opDPrxSeq(in, callback, newInParam(in));
         cb->check();
 #endif
     }
 
     {
-        list<Test::CPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<Test::DPrxPtr> in;
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opCPrxListAsync(in,
-                           [&](list<shared_ptr<Test::CPrx>> ret, list<shared_ptr<Test::CPrx>> out)
+        t->opDPrxListAsync(in,
+                           [&](list<shared_ptr<Test::DPrx>> ret, list<shared_ptr<Test::DPrx>> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();
@@ -3006,9 +2994,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(done.get_future().get());
 #else
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxListPtr callback =
-            Test::newCallback_TestIntf_opCPrxList(cb, &Callback::opCPrxList, &Callback::noEx);
-        t->begin_opCPrxList(in, callback, newInParam(in));
+        Test::Callback_TestIntf_opDPrxListPtr callback =
+            Test::newCallback_TestIntf_opDPrxList(cb, &Callback::opDPrxList, &Callback::noEx);
+        t->begin_opDPrxList(in, callback, newInParam(in));
         cb->check();
 #endif
     }

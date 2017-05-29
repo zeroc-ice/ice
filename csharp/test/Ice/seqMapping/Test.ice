@@ -111,12 +111,13 @@ class CV
 sequence<CV> ACVS;
 ["clr:generic:List"] sequence<CV> LCVS;
 
-sequence<CV*> ACVPrxS;
-["clr:generic:List"] sequence<CV*> LCVPrxS;
-["clr:generic:LinkedList"] sequence<CV*> KCVPrxS;
-["clr:generic:Queue"] sequence<CV*> QCVPrxS;
-["clr:generic:Stack"] sequence<CV*> SCVPrxS;
-["clr:generic:Custom"] sequence<CV*> CCVPrxS;
+interface I {}
+sequence<I*> AIPrxS;
+["clr:generic:List"] sequence<I*> LIPrxS;
+["clr:generic:LinkedList"] sequence<I*> KIPrxS;
+["clr:generic:Queue"] sequence<I*> QIPrxS;
+["clr:generic:Stack"] sequence<I*> SIPrxS;
+["clr:generic:Custom"] sequence<I*> CIPrxS;
 
 class CR
 {
@@ -231,11 +232,11 @@ interface MyClass
     QEnS opQEnS(QEnS i, out QEnS o);
     SEnS opSEnS(SEnS i, out SEnS o);
 
-    ACVPrxS opACVPrxS(ACVPrxS i, out ACVPrxS o);
-    LCVPrxS opLCVPrxS(LCVPrxS i, out LCVPrxS o);
-    KCVPrxS opKCVPrxS(KCVPrxS i, out KCVPrxS o);
-    QCVPrxS opQCVPrxS(QCVPrxS i, out QCVPrxS o);
-    SCVPrxS opSCVPrxS(SCVPrxS i, out SCVPrxS o);
+    AIPrxS opAIPrxS(AIPrxS i, out AIPrxS o);
+    LIPrxS opLIPrxS(LIPrxS i, out LIPrxS o);
+    KIPrxS opKIPrxS(KIPrxS i, out KIPrxS o);
+    QIPrxS opQIPrxS(QIPrxS i, out QIPrxS o);
+    SIPrxS opSIPrxS(SIPrxS i, out SIPrxS o);
 
     CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
     CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
