@@ -9,8 +9,6 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
-
 #include <Ice/Current.ice>
 
 module Test
@@ -267,14 +265,14 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 struct MyStruct1
 {
     string tesT; // Same name as the enclosing module
-    MyClass myClass; // Same name as an already defined class
+    MyClass* myClass; // Same name as an already defined class
     string myStruct1; // Same name as the enclosing struct
 }
 
 class MyClass1
 {
     string tesT; // Same name as the enclosing module
-    MyClass myClass; // Same name as an already defined class
+    MyClass* myClass; // Same name as an already defined class
     string myClass1; // Same name as the enclosing class
 }
 
