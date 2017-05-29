@@ -286,10 +286,6 @@ Glacier2::SessionPrxPtr
 SessionHelperI::session() const
 {
     IceUtil::Mutex::Lock sync(_mutex);
-    if(!_session)
-    {
-        throw new Glacier2::SessionNotExistException();
-    }
     return _session;
 }
 

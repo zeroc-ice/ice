@@ -143,10 +143,6 @@ public class SessionHelper
     {
         lock(this)
         {
-            if(_session == null)
-            {
-                throw new SessionNotExistException();
-            }
             return _session;
         }
     }
