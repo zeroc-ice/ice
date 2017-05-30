@@ -20,12 +20,11 @@
     }
     registry_ = registry;
     initData_ = initData;
+    nextPort_ = 1;
 
-    [initData_.properties setProperty:@"TestAdapter.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter.AdapterId" value:@"TestAdapter"];
     [initData_.properties setProperty:@"TestAdapter.ReplicaGroupId" value:@"ReplicatedAdapter"];
 
-    [initData_.properties setProperty:@"TestAdapter2.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter2.AdapterId" value:@"TestAdapter2"];
 
     [initData_.properties setProperty:@"Ice.PrintAdapterReady" value:@"0"];
@@ -40,6 +39,10 @@
 }
 #endif
 
+-(NSString*) getTestEndpoint:(int)port
+{
+    return [NSString stringWithFormat:@"default -p %d", 12010 + port];
+}
 -(void) startServer:(ICECurrent*)current
 {
     for(id<ICECommunicator> c in communicators_)
@@ -61,6 +64,9 @@
 
     id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
     [communicators_ addObject:serverCommunicator];
+
+    [[serverCommunicator getProperties] setProperty:@"TestAdapter.Endpoints" value:[self getTestEndpoint:nextPort_++]];
+    [[serverCommunicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:[self getTestEndpoint:nextPort_++]];
 
     id<ICEObjectAdapter> adapter = [serverCommunicator createObjectAdapter:@"TestAdapter"];
     id<ICEObjectAdapter> adapter2 = [serverCommunicator createObjectAdapter:@"TestAdapter2"];
