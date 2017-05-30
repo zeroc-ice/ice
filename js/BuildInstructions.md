@@ -20,21 +20,21 @@ Change to the Ice for JavaScript source subdirectory:
 
 Run these commands to build the libraries and tests:
 
-    > yarn install
-    > yarn run build
+    > npm install
+    > npm run build
 
 On Windows, you need to set the platform and configuration in order to locate
 slice2js. For example, if you have built C++ with the x64 Release configuration,
 you can use the following command to build JavaScript:
 
-    > yarn run build -- --cppPlatform x64 --cppConfiguration Release
+    > npm run build -- --cppPlatform x64 --cppConfiguration Release
 
 Alternatively you can use the CPP_PLATFORM and CPP_CONFIGURATION environment
 variables:
 
     > set CPP_PLATFORM=x64
     > set CPP_CONFIGURATION=Debug
-    > yarn run build
+    > npm run build
 
 ## Running the JavaScript Tests
 
@@ -46,14 +46,14 @@ with the command:
 
 To start the tests simply run:
 
-    > yarn run test:node
+    > npm run test:node
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 To start the browser tests run:
 
-    > yarn run test:browser
+    > npm run test:browser
 
 This requires that you build the Java test controller from the Java subdirectory
 and test servers from C++, C# or Java. Follow the instructions from the
@@ -139,11 +139,11 @@ Next go to _Settings -> Security -> Install from storage_, and choose
 After a successful build, you can generate a package by running the
 following command:
 
-    > yarn pack
+    > npm pack
 
 This will generate the file `ice-3.7.0.tgz`, which can be installed by running:
 
-    > yarn install <path_to_file>/ice-3.7.0.tgz
+    > npm install <path_to_file>/ice-3.7.0.tgz
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.

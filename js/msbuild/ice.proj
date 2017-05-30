@@ -2,28 +2,28 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <YARN Condition="'$(YARN)' == ''">yarn</YARN>
+    <NPM Condition="'$(NPM)' == ''">npm</NPM>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
   </PropertyGroup>
 
   <Target Name="Build">
-    <Exec Command="$(YARN) install"
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
-    <Exec Command="$(YARN) run build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
+    <Exec Command="$(NPM) run build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
   </Target>
 
   <Target Name="Clean">
-    <Exec Command="$(YARN) install"
+    <Exec Command="$(NPM) install"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
-    <Exec Command="$(YARN) run clean -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
+    <Exec Command="$(NPM) run clean -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />

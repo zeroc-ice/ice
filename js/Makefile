@@ -7,26 +7,26 @@
 #
 # **********************************************************************
 
-ifeq ($(YARN),)
-YARN = yarn
+ifeq ($(NPM),)
+NPM = npm
 endif
 
 all: npminstall
-	$(YARN) run build
+	$(NPM) run build
 
 dist: npminstall
-	$(YARN) run dist
+	$(NPM) run dist
 
 install:
 
 distclean clean: npminstall
-	$(YARN) run clean
+	$(NPM) run clean
 
 lint: npminstall
-	$(YARN) run lint
+	$(NPM) run lint
 
 test:
 	@python ./allTests.py
 
 npminstall:
-	$(YARN) install
+	$(NPM) install
