@@ -377,7 +377,7 @@ libs.forEach(
         gulp.task(libCleanTask(lib), [], function(){ del(libGeneratedFiles(lib, sources)); });
     });
 
-gulp.task("dist", useBinDist ? ["dist:libs"] :
+gulp.task("dist", useBinDist ? [] :
     libs.map(libTask).concat(libs.map(minLibTask))
                      .concat(libs.map(babelMinLibTask))
                      .concat(libs.map(babelTask)));
@@ -452,7 +452,7 @@ gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
         }
 
         var p = require("child_process").spawn("python", args, {stdio: "inherit"});
-        p.on("error", 
+        p.on("error",
             function(err)
             {
                 if(err.message == "spawn python ENOENT")
