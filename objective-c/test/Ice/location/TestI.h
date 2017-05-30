@@ -15,9 +15,9 @@
     NSMutableArray* communicators_;
     ServerLocatorRegistry* registry_;
     ICEInitializationData* initData_;
+    int nextPort_;
 }
 -(id)init:(ServerLocatorRegistry*)registry initData:(ICEInitializationData*)d;
-
 -(void)terminate;
 @end
 

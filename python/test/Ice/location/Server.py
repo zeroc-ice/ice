@@ -82,10 +82,9 @@ class ServerManagerI(Test.ServerManager):
         self._registry = registry
         self._communicators = []
         self._initData = initData
-        self._initData.properties.setProperty("TestAdapter.Endpoints", "default")
+        self._nextPort = 1
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
-        self._initData.properties.setProperty("TestAdapter2.Endpoints", "default")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
     def startServer(self, current=None):
@@ -100,8 +99,15 @@ class ServerManagerI(Test.ServerManager):
         #
         serverCommunicator = Ice.initialize(data=initData)
         self._communicators.append(serverCommunicator)
-        adapter = serverCommunicator.createObjectAdapter("TestAdapter")
 
+        def getTestEndpoint():
+            self._nextPort += 1
+            return "default -p {}".format(12010 + self._nextPort)
+
+        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint())
+        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint())
+
+        adapter = serverCommunicator.createObjectAdapter("TestAdapter")
         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
         locator = serverCommunicator.stringToProxy("locator:default -p 12010")
