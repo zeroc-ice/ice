@@ -14,7 +14,7 @@ is-bin-program          = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $(
 ifneq ($(OECORE_SDK_VERSION),)
 
 build-platform                  = $(if $(filter x86_64,$(shell uname -m)),x64,x86)
-target-platform                 = $(shell echo $(CXX) | sed -r 's/^([a-z0-9]+)-.*/\1/')
+target-platform                 = $(shell echo $(CXX) | sed -r 's/^([a-z0-9_]+)-.*/\1/')
 supported-platforms             = $(target-platform) $(build-platform)
 linux_id                        = yocto
 
