@@ -1977,11 +1977,12 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-        Write("testing unexpected exceptions from callback... ");
+        Write("testing unexpected exceptions... ");
         Flush();
         {
             Test.TestIntfPrx q = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            ThrowType[] throwEx = new ThrowType[]{ ThrowType.LocalException, ThrowType.UserException,
+            ThrowType[] throwEx = new ThrowType[]{ ThrowType.LocalException,
+                                                   ThrowType.UserException,
                                                    ThrowType.OtherException };
 
             for(int i = 0; i < 3; ++i)
@@ -1994,34 +1995,28 @@ public class AllTests : TestCommon.AllTests
                 p.begin_op().whenCompleted(cb.op, null);
                 cb.check();
 
-                q.begin_op().whenCompleted(cb.op, cb.ex);
-                cb.check();
-
-                p.begin_op().whenCompleted(cb.noOp, cb.ex).whenSent(cb.sent);
-                cb.check();
-
-                q.begin_op().whenCompleted(cb.ex);
-                cb.check();
-            }
-        }
-        WriteLine("ok");
-
-        Write("testing unexpected exceptions from callback with lambda... ");
-        Flush();
-        {
-            Test.TestIntfPrx q = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            ThrowType[] throwEx = new ThrowType[]{ ThrowType.LocalException, ThrowType.UserException,
-                                                   ThrowType.OtherException };
-
-            for(int i = 0; i < 3; ++i)
-            {
-                Thrower cb = new Thrower(throwEx[i]);
-
                 p.begin_op().whenCompleted(
                     () =>
                     {
                         cb.op();
                     }, null);
+                cb.check();
+
+                try
+                {
+                    p.opAsync().ContinueWith(
+                        (t) =>
+                        {
+                            cb.op();
+                        }).Wait();
+                    test(false);
+                }
+                catch(AggregateException)
+                {
+                }
+                cb.check();
+
+                q.begin_op().whenCompleted(cb.op, cb.ex);
                 cb.check();
 
                 q.begin_op().whenCompleted(
@@ -2033,6 +2028,41 @@ public class AllTests : TestCommon.AllTests
                     {
                         cb.ex(ex);
                     });
+                cb.check();
+
+                q.begin_op().whenCompleted(cb.ex);
+                cb.check();
+
+                q.begin_op().whenCompleted(
+                    (Ice.Exception ex) =>
+                    {
+                        cb.ex(ex);
+                    });
+                cb.check();
+
+                try
+                {
+                    q.opAsync().ContinueWith(
+                        (t) =>
+                        {
+                            try
+                            {
+                                t.Wait();
+                                test(false);
+                            }
+                            catch(AggregateException ex)
+                            {
+                                cb.ex((Ice.Exception)ex.InnerException);
+                            }
+                        }).Wait();
+                    test(false);
+                }
+                catch(AggregateException)
+                {
+                }
+                cb.check();
+
+                p.begin_op().whenCompleted(cb.noOp, cb.ex).whenSent(cb.sent);
                 cb.check();
 
                 p.begin_op().whenCompleted(
@@ -2051,11 +2081,10 @@ public class AllTests : TestCommon.AllTests
                     });
                 cb.check();
 
-                q.begin_op().whenCompleted(
-                    (Ice.Exception ex) =>
+                p.opAsync(progress: new Progress(sentSynchronously =>
                     {
-                        cb.ex(ex);
-                    });
+                        cb.sent(sentSynchronously);
+                    })).Wait();
                 cb.check();
             }
         }
