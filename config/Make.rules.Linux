@@ -21,7 +21,7 @@ $(build-platform)_cxx           := g++
 $(build-platform)_ld            := g++
 $(build-platform)_ar            := ar
 $(build-platform)_ldflags       := $($(build-platform)_cppflags)
-$(build-platform)_targetdir     = $(if $(or $(filter %/build,$5),$(filter-out $($1_target),program)),/$(build-platform))
+$(build-platform)_targetdir     = /$(build-platform)
 $(build-platform)_installdir    = /$(build-platform)
 
 $(target-platform)_cc           = $(CC)
