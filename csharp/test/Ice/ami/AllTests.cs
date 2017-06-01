@@ -1291,7 +1291,7 @@ public class AllTests : TestCommon.AllTests
                 r = ((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
                 test(false);
             }
-            catch(Ice.TwowayOnlyException)
+            catch(System.ArgumentException)
             {
             }
 

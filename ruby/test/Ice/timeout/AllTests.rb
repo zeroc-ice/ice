@@ -63,7 +63,7 @@ def allTests(communicator)
     #
     seq = "\0" * 10000000 # 10,000,000 entries
     to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(700)
     begin
         to.sendData(seq)
         test(false)
@@ -141,7 +141,7 @@ def allTests(communicator)
     comm = Ice.initialize(initData)
     to = Test::TimeoutPrx::uncheckedCast(comm.stringToProxy(sref))
     connect(to)
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(700)
     begin
         to.sendData(seq)
         test(false)
@@ -198,7 +198,7 @@ def allTests(communicator)
     timeout.op() # Ensure adapter is active.
     to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(100))
     connect(to)
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(700)
     begin
         to.sendData(seq)
         test(false)

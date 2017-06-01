@@ -9,9 +9,9 @@
 
 $(test)_client_sources  = $(test-client-sources) \
                           Twoways.m \
-                          TwowaysNewAMI.m \
+                          TwowaysAMI.m \
                           Oneways.m \
-                          OnewaysNewAMI.m \
+                          OnewaysAMI.m \
                           BatchOneways.m \
                           BatchOnewaysAMI.m
 

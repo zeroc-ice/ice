@@ -909,6 +909,7 @@ namespace Ice
         iceI_ice_isAAsync(string id, OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
                           bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_isA_name);
             var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
             iceI_ice_isA(id, context, completed, synchronous);
             return completed.Task;
@@ -968,6 +969,7 @@ namespace Ice
         iceI_begin_ice_isA(string id, Dictionary<string, string> context, AsyncCallback callback, object cookie,
                            bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_isA_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_isA, bool>(
                 (Callback_Object_ice_isA cb, bool result) =>
                 {
@@ -1143,6 +1145,7 @@ namespace Ice
         private Task<string[]> iceI_ice_idsAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
                                                  bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_ids_name);
             var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
             iceI_ice_ids(context, completed, false);
             return completed.Task;
@@ -1183,6 +1186,7 @@ namespace Ice
         private AsyncResult<Callback_Object_ice_ids>
         iceI_begin_ice_ids(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_ids_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ids, string[]>(
                 (Callback_Object_ice_ids cb, string[] result) =>
                 {
@@ -1252,6 +1256,7 @@ namespace Ice
         private Task<string>
         iceI_ice_idAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_id_name);
             var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
             iceI_ice_id(context, completed, synchronous);
             return completed.Task;
@@ -1297,6 +1302,7 @@ namespace Ice
         private AsyncResult<Callback_Object_ice_id>
         iceI_begin_ice_id(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_id_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_id, string>(
                 (Callback_Object_ice_id cb, string result) =>
                 {
@@ -1324,7 +1330,6 @@ namespace Ice
                                  OutgoingAsyncCompletionCallback completed,
                                  bool synchronous)
         {
-            iceCheckAsyncTwowayOnly(_ice_id_name);
             getOutgoingAsync<string>(completed).invoke(_ice_id_name,
                                                        OperationMode.Nonmutating,
                                                        FormatType.DefaultFormat,
@@ -2477,7 +2482,7 @@ namespace Ice
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public void iceCheckAsyncTwowayOnly(string name)
+        public void iceCheckTwowayOnly(string name)
         {
             //
             // No mutex lock necessary, there is nothing mutable in this
@@ -2487,6 +2492,20 @@ namespace Ice
             if(!ice_isTwoway())
             {
                 throw new TwowayOnlyException(name);
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceCheckAsyncTwowayOnly(string name)
+        {
+            //
+            // No mutex lock necessary, there is nothing mutable in this
+            // operation.
+            //
+
+            if(!ice_isTwoway())
+            {
+                throw new ArgumentException("`" + name + "' can only be called with a twoway proxy");
             }
         }
 

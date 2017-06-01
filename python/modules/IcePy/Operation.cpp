@@ -222,8 +222,6 @@ protected:
 
 private:
 
-    void checkAsyncTwowayOnly(const Ice::ObjectPrx&) const;
-
     OperationPtr _op;
 };
 
@@ -2719,13 +2717,12 @@ IcePy::NewAsyncInvocation::invoke(PyObject* args, PyObject* kwds)
         setPythonException(ex);
         return 0;
     }
-    catch(const IceUtil::IllegalArgumentException& ex)
+    catch(const Ice::TwowayOnlyException& ex)
     {
         //
-        // IllegalArgumentException can propagate directly.
-        // (Raised by checkAsyncTwowayOnly)
+        // TwowayOnlyException can propagate directly.
         //
-        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        setPythonException(ex);
         return 0;
     }
     catch(const Ice::Exception&)
@@ -2979,7 +2976,7 @@ IcePy::NewAsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
         return 0;
     }
 
-    checkAsyncTwowayOnly(_prx);
+    checkTwowayOnly(_op, _prx);
 
     NewAsyncInvocationPtr self = this;
     Ice::Callback_Object_ice_invokePtr cb =
@@ -3079,16 +3076,6 @@ IcePy::NewAsyncTypedInvocation::handleResponse(PyObject* future, bool ok,
     catch(const AbortMarshaling&)
     {
         assert(PyErr_Occurred());
-    }
-}
-
-void
-IcePy::NewAsyncTypedInvocation::checkAsyncTwowayOnly(const Ice::ObjectPrx& proxy) const
-{
-    if((_op->returnType != 0 || !_op->outParams.empty() || !_op->exceptions.empty()) && !proxy->ice_isTwoway())
-    {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__,
-                                                "`" + _op->name + "' can only be called with a twoway proxy");
     }
 }
 

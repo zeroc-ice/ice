@@ -4158,6 +4158,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
              << "bool synchronous" << epar;
         _out << sb;
 
+        string flatName = "_" + opName + "_name";
+        if(op->returnsData())
+        {
+            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
+        }
         if(returnTypeS.empty())
         {
             _out << nl << "var completed = "
@@ -4175,7 +4180,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out << eb;
 
-        string flatName = "_" + opName + "_name";
         _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
 
         //
@@ -4187,11 +4191,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
              << "bool synchronous"
              << "IceInternal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
-
-        if(op->returnsData())
-        {
-            _out << nl << "iceCheckAsyncTwowayOnly(" << flatName << ");";
-        }
 
         if(returnTypeS.empty())
         {
@@ -4434,6 +4433,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 << epar;
         _out << sb;
 
+        if(op->returnsData())
+        {
+            _out << nl << "iceCheckAsyncTwowayOnly(" << flatName << ");";
+        }
         _out << nl << "var completed = new IceInternal.OperationAsyncResultCompletionCallback<" << delType;
         _out << ", " << (returnTypeS.empty() ? "object" : returnTypeS);
         _out << ">(";
