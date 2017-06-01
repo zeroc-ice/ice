@@ -7,10 +7,7 @@
 #
 # **********************************************************************
 
-ifneq ($(wildcard $(/etc/os-release)),)
-    linux_id                    = $(shell . /etc/os-release && echo $${ID})
-endif
-
+linux_id                        = $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID}),)
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(OECORE_SDK_VERSION),)
