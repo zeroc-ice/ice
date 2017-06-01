@@ -223,12 +223,18 @@ class InvocationFuture(Future):
         return Future.cancel(self)
 
     def add_done_callback_async(self, fn):
+        def callback(future):
+            try:
+                callback(future)
+            except:
+                logging.getLogger("Ice.Future").exception('callback raised exception')
+
         with self._condition:
             if self._state == Future.StateRunning:
                 self._doneCallbacks.append(fn)
                 return
         if self._asyncResult:
-            self._asyncResult.callLater(lambda: fn(self))
+            self._asyncResult.callLater(callback)
         else:
             fn(self)
 

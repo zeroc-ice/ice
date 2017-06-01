@@ -51,16 +51,16 @@ public:
 
     virtual const std::string& getOperation() const = 0;
 
-    virtual bool waitForResponse() = 0;
-    virtual Ice::InputStream* startReadParams() = 0;
-    virtual void endReadParams() = 0;
-    virtual void readEmptyParams() = 0;
-    virtual void readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&) = 0;
-    virtual void throwUserException() = 0;
+    virtual bool _waitForResponse() = 0;
+    virtual Ice::InputStream* _startReadParams() = 0;
+    virtual void _endReadParams() = 0;
+    virtual void _readEmptyParams() = 0;
+    virtual void _readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&) = 0;
+    virtual void _throwUserException() = 0;
 
-    static void check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
-    static void check(const AsyncResultPtr&, const Connection*, const ::std::string&);
-    static void check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
+    static void _check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
+    static void _check(const AsyncResultPtr&, const Connection*, const ::std::string&);
+    static void _check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
     class Callback : public IceUtil::Shared
     {
@@ -70,7 +70,7 @@ public:
     };
     typedef IceUtil::Handle<Callback> CallbackPtr;
 
-    virtual void scheduleCallback(const CallbackPtr&) = 0;
+    virtual void _scheduleCallback(const CallbackPtr&) = 0;
 
 protected:
 

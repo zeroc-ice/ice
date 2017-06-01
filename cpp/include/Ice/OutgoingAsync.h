@@ -101,14 +101,14 @@ public:
 
     virtual void throwLocalException() const;
 
-    virtual bool waitForResponse();
-    virtual Ice::InputStream* startReadParams();
-    virtual void endReadParams();
-    virtual void readEmptyParams();
-    virtual void readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
-    virtual void throwUserException();
+    virtual bool _waitForResponse();
+    virtual Ice::InputStream* _startReadParams();
+    virtual void _endReadParams();
+    virtual void _readEmptyParams();
+    virtual void _readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
+    virtual void _throwUserException();
 
-    virtual void scheduleCallback(const CallbackPtr&);
+    virtual void _scheduleCallback(const CallbackPtr&);
 #endif
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)

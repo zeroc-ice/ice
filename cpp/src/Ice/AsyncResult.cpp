@@ -24,7 +24,7 @@ AsyncResult::~AsyncResult()
 }
 
 void
-AsyncResult::check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, const string& operation)
+AsyncResult::_check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, const string& operation)
 {
     check(r, operation);
     if(r->getProxy().get() != prx)
@@ -36,7 +36,7 @@ AsyncResult::check(const AsyncResultPtr& r, const IceProxy::Ice::Object* prx, co
 }
 
 void
-AsyncResult::check(const AsyncResultPtr& r, const Ice::Communicator* com, const string& operation)
+AsyncResult::_check(const AsyncResultPtr& r, const Ice::Communicator* com, const string& operation)
 {
     check(r, operation);
     if(r->getCommunicator().get() != com)
@@ -48,7 +48,7 @@ AsyncResult::check(const AsyncResultPtr& r, const Ice::Communicator* com, const 
 }
 
 void
-AsyncResult::check(const AsyncResultPtr& r, const Ice::Connection* con, const string& operation)
+AsyncResult::_check(const AsyncResultPtr& r, const Ice::Connection* con, const string& operation)
 {
     check(r, operation);
     if(r->getConnection().get() != con)

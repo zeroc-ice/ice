@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, sys, threading, random
+import Ice, Test, sys, threading, random, logging
 
 def test(b):
     if not b:
@@ -373,6 +373,11 @@ class Thrower(CallbackBase):
         throwEx(self._t)
 
 def allTests(communicator, collocated):
+    # Ice.Future uses the Python logging facility, this tests throws exceptions from Ice.Future callbacks
+    # so we disable errors to prevent them to show up on the console.
+    logging.basicConfig()
+    logging.disable(logging.ERROR)
+
     sref = "test:default -p 12010"
     obj = communicator.stringToProxy(sref)
     test(obj)
@@ -708,17 +713,59 @@ def allTests(communicator, collocated):
         p.begin_op(cb.op, cb.noEx)
         cb.check()
 
+        def thrower(future):
+            try:
+                future.result()
+            except:
+                test(false)
+            throwEx(t)
+        f = p.opAsync()
+        f.add_done_callback(thrower)
+        f.add_done_callback_async(thrower)
+        f.result()
+
         p.begin_op(lambda: cb.opWC(cookie), lambda ex: cb.noExWC(ex, cookie))
         cb.check()
 
         q.begin_op(cb.op, cb.ex)
         cb.check()
 
+        f = q.opAsync()
+        def throwerEx(future):
+            try:
+                future.result()
+                test(false)
+            except:
+                throwEx(t)
+        try:
+            f.add_done_callback(throwerEx)
+        except Exception as ex:
+            try:
+                throwEx(t)
+            except Exception as ex2:
+                test(type(ex) == type(ex2))
+        f.add_done_callback_async(throwerEx)
+        try:
+            f.result()
+        except:
+            pass
+
         q.begin_op(lambda: cb.opWC(cookie), lambda ex: cb.exWC(ex, cookie))
         cb.check()
 
         p.begin_op(cb.noOp, cb.ex, cb.sent)
         cb.check()
+
+        f = p.opAsync()
+        try:
+            f.add_sent_callback(lambda f, s: throwEx(t))
+        except Exception as ex:
+            try:
+                throwEx(t)
+            except Exception as ex2:
+                test(type(ex) == type(ex2))
+        #f.add_sent_callback_async(throwerSent)
+        f.result()
 
         p.begin_op(lambda: cb.noOpWC(cookie), lambda ex: cb.exWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
         cb.check()

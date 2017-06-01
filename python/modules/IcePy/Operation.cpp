@@ -1134,7 +1134,7 @@ asyncResultCallLater(AsyncResultObject* self, PyObject* args)
 
     try
     {
-        (*self->result)->scheduleCallback(new CallbackI(callback));
+        (*self->result)->_scheduleCallback(new CallbackI(callback));
     }
     catch(const Ice::CommunicatorDestroyedException& ex)
     {
