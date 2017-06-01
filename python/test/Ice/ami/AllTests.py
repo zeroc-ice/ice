@@ -538,7 +538,7 @@ def allTests(communicator, collocated):
     try:
         p.ice_oneway().begin_opWithResult()
         test(False)
-    except Ice.TwowayOnlyException:
+    except RuntimeError:
         pass
 
     #
