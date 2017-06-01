@@ -50,17 +50,8 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
                     }
                 };
 
-                try
-                {
-                    _lastStatus = _servant.ice_dispatch(request, cb);
-                    test(_lastStatus);
-                }
-                catch(RetryException ex)
-                {
-                    //
-                    // Expected, retry
-                    //
-                }
+                _lastStatus = _servant.ice_dispatch(request, cb);
+                test(!_lastStatus);
             }
 
             request.getCurrent().ctx.put("retry", "no");

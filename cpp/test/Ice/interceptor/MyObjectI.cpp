@@ -258,7 +258,7 @@ MyObjectI::amdAddWithRetry_async(const Test::AMD_MyObject_amdAddWithRetryPtr& cb
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        cb->ice_exception(Test::RetryException(__FILE__, __LINE__));
     }
 }
 
