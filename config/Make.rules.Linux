@@ -27,7 +27,7 @@ $(build-platform)_installdir    = /$(build-platform)
 $(target-platform)_cc           = $(CC)
 $(target-platform)_cxx          = $(CXX)
 $(target-platform)_libtool      = $(AR)
-$(target-platform)_targetdir    = /$(target-platform)
+$(target-platform)_targetdir    = $(if $(filter %/build,$5),/$(target-platform))
 $(target-platform)_objdir       = /$(target-platform)
 
 cppflags                        := $(if $(filter yes,$(OPTIMIZE)),-O2)
@@ -117,7 +117,7 @@ ifeq ($(OPTIMIZE),yes)
 endif
 
 
-build-platform                  = $(shell uname -m)
+build-platform                  = $(if $(filter arm%,$(shell uname -m)),arm,$(shell uname -m))
 supported-platforms             = $(build-platform)
 lib-suffix                      = $(if $(filter x86_64,$(build-platform)),64,)
 
