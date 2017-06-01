@@ -124,7 +124,14 @@ MyObjectI::amdAddWithRetryAsync(int x,
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        try
+        {
+            throw Test::RetryException(__FILE__, __LINE__);
+        }
+        catch(...)
+        {
+            exception(current_exception());
+        }
     }
 }
 

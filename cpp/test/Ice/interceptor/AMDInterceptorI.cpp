@@ -69,7 +69,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         for(int i = 0; i < 10; ++i)
         {
 #ifdef ICE_CPP11_MAPPING
-            _lastStatus =  _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
+            _lastStatus = _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
                 try
                 {
                     rethrow_exception(ex);
