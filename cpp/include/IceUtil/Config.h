@@ -244,6 +244,7 @@
 #ifndef _WIN32
 #   include <pthread.h>
 #   include <errno.h>
+#   include <unistd.h>
 #endif
 
 #ifdef __APPLE__
