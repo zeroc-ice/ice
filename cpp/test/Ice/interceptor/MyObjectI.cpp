@@ -103,7 +103,7 @@ void
 MyObjectI::amdAddWithRetryAsync(int x,
                                 int y,
                                 function<void(int)> response,
-                                function<void(exception_ptr)>,
+                                function<void(exception_ptr)> error,
                                 const Ice::Current& current)
 {
     thread t(
@@ -130,7 +130,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
         }
         catch(...)
         {
-            exception(current_exception());
+            error(std::current_exception());
         }
     }
 }
@@ -152,7 +152,7 @@ MyObjectI::amdBadAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -175,7 +175,7 @@ MyObjectI::amdNotExistAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -198,7 +198,7 @@ MyObjectI::amdBadSystemAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
