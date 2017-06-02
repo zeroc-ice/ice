@@ -28,6 +28,7 @@ $(target-platform)_cc           = $(CC)
 $(target-platform)_cxx          = $(CXX)
 $(target-platform)_libtool      = $(AR)
 $(target-platform)_targetdir    = $(if $(filter %/build,$5),/$(target-platform))
+$(target-platform)_installdir   =
 $(target-platform)_objdir       = /$(target-platform)
 
 cppflags                        := $(if $(filter yes,$(OPTIMIZE)),-O2)
