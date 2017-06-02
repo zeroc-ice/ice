@@ -437,9 +437,11 @@ class LocalDriver(Driver):
         success = False
         try:
             try:
+                current.result.started("setup")
                 current.testsuite.setup(current)
+                current.result.succeeded("setup")
             except Exception as ex:
-                current.result.writeln(traceback.format_exc())
+                current.result.failed("setup", traceback.format_exc())
                 raise
 
             for testcase in current.testsuite.getTestCases():
@@ -457,9 +459,11 @@ class LocalDriver(Driver):
             success = True
         finally:
             try:
+                current.result.started("teardown")
                 current.testsuite.teardown(current, success)
+                current.result.succeeded("teardown")
             except Exception as ex:
-                current.result.writeln(traceback.format_exc())
+                current.result.failed("teardown", traceback.format_exc())
                 raise
 
     def runClientServerTestCase(self, current):
