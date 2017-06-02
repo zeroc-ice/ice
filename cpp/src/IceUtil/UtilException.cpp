@@ -372,64 +372,10 @@ getStackTrace(const vector<void*>& stackFrames)
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-        //
-        // Compute Search path (best effort)
-        // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
-        //
-        basic_string<TCHAR> searchPath;
-        const TCHAR pathSeparator = _T('\\');
-        const TCHAR searchPathSeparator = _T(';');
-
-        TCHAR cwd[MAX_PATH];
-        if(GetCurrentDirectory(MAX_PATH, cwd) != 0)
-        {
-            searchPath = cwd;
-        }
-
-        HMODULE myModule = 0;
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                           "startHook",
-                           &myModule);
-        //
-        // If GetModuleHandleEx fails, myModule is ICE_NULLPTR, i.e. we'll locate the current exe's directory.
-        //
-
-        TCHAR myFilename[MAX_PATH];
-        DWORD len = GetModuleFileName(myModule, myFilename, MAX_PATH);
-        if(len != 0 && len < MAX_PATH)
-        {
-            assert(myFilename[len] == 0);
-
-            basic_string<TCHAR> myPath = myFilename;
-            size_t pos = myPath.find_last_of(pathSeparator);
-            if(pos != basic_string<TCHAR>::npos)
-            {
-                myPath = myPath.substr(0, pos);
-
-                if(!searchPath.empty())
-                {
-                    searchPath += searchPathSeparator;
-                }
-                searchPath += myPath;
-            }
-        }
-
-        const DWORD size = 1024;
-        TCHAR symbolPath[size];
-        len = GetEnvironmentVariable(_T("_NT_SYMBOL_PATH"), symbolPath, size);
-        if(len > 0 && len < size)
-        {
-            if(!searchPath.empty())
-            {
-                searchPath += searchPathSeparator;
-            }
-            searchPath += symbolPath;
-        }
-
         process = GetCurrentProcess();
 
-        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
-        if(SymInitialize(process, searchPath.c_str(), TRUE) == 0)
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME | SYMOPT_DEBUG);
+        if(SymInitialize(process, 0, TRUE) == 0)
         {
             process = 0;
             return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
