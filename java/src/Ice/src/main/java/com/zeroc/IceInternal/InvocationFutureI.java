@@ -133,13 +133,30 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             // calling thread if the request was sent synchronously. Calling complete() or
             // completeExceptionally() on _sentFuture invokes the action from this thread.
             //
-            if(_exception != null)
+            if(_sentSynchronously)
             {
-                _sentFuture.completeExceptionally(_exception);
+                if(_exception != null)
+                {
+                    _sentFuture.completeExceptionally(_exception);
+                }
+                else
+                {
+                    _sentFuture.complete(_sentSynchronously);
+                }
             }
             else
             {
-                _sentFuture.complete(_sentSynchronously);
+                if(_exception != null)
+                {
+                    dispatch(() ->
+                        {
+                            _sentFuture.completeExceptionally(_exception);
+                        });
+                }
+                else
+                {
+                    invokeSentAsync();
+                }
             }
         }
         return r;
