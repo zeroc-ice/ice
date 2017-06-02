@@ -225,7 +225,7 @@ class InvocationFuture(Future):
     def add_done_callback_async(self, fn):
         def callback(future):
             try:
-                callback(future)
+                fn(future)
             except:
                 logging.getLogger("Ice.Future").exception('callback raised exception')
 
