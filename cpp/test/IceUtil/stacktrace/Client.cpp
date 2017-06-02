@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-#if defined(_WIN32) && defined(NDEBUG)
+#ifndef __APPLE__
         bool match = true;
 #endif
         ifstream ifs(filename.c_str());
@@ -281,40 +281,49 @@ int main(int argc, char* argv[])
             break;
 #else
             vector<string> actual = splitLines(stack);
-            test(expected.size() <= actual.size());
             for(size_t i = 0; i < expected.size(); ++i)
             {
                 if(actual[i].find(expected[i]) == string::npos)
                 {
-#if defined(_WIN32) && defined(NDEBUG)
                     match = false;
                     //
-                    // With windows optimized builds retry with the alternate
-                    // expect file.
+                    // With windows and Linux optimized builds retry with the alternate
+                    // files.
                     //
-                    if(filename != "StackTrace.release.Win32")
+                    if(filename == "StackTrace.release-vc110.Win32" ||
+                       filename == "StackTrace.release-vc130.Win32" ||
+                       filename == "StackTrace.release-vc140.Win32" ||
+                       filename == "StackTrace.release.Linux")
                     {
                         break;
                     }
-                    else
-                    {
-                        test(false);
-                    }
-#else
+
+
                     cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
                     cerr << "Full stack is:\n" << stack << endl;
                     test(false);
-#endif
                 }
             }
 
-#if defined(_WIN32) && defined(NDEBUG)
-            if(!match && filename != "StackTrace.release.Win32")
+
+            if(!match)
             {
-                filename = "StackTrace.release.Win32";
-                continue;
+                if(filename == "StackTrace.release-vc110.Win32" ||
+                   filename == "StackTrace.release-vc130.Win32" ||
+                   filename == "StackTrace.release-vc140.Win32")
+                {
+                    // Retry with alternate Win32 stack
+                    filename = "StackTrace.release.Win32";
+                    continue;
+                }
+                else if(filename == "StackTrace.release.Linux")
+                {
+                    // Retry with the debug Linux stack
+                    filename = "StackTrace.debug.Linux";
+                    continue;
+                }
             }
-#endif
+            test(actual.size() >= expected.size());
             break;
 #endif
         }
