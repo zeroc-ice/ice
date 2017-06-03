@@ -720,7 +720,13 @@ def allTests(communicator, collocated):
                 test(false)
             throwEx(t)
         f = p.opAsync()
-        f.add_done_callback(thrower)
+        try:
+            f.add_done_callback(thrower)
+        except Exception as ex:
+            try:
+                throwEx(t)
+            except Exception as ex2:
+                test(type(ex) == type(ex2))
         f.add_done_callback_async(thrower)
         f.result()
 
@@ -764,7 +770,7 @@ def allTests(communicator, collocated):
                 throwEx(t)
             except Exception as ex2:
                 test(type(ex) == type(ex2))
-        #f.add_sent_callback_async(throwerSent)
+        f.add_sent_callback_async(throwerEx)
         f.result()
 
         p.begin_op(lambda: cb.noOpWC(cookie), lambda ex: cb.exWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))

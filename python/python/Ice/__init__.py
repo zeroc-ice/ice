@@ -223,9 +223,9 @@ class InvocationFuture(Future):
         return Future.cancel(self)
 
     def add_done_callback_async(self, fn):
-        def callback(future):
+        def callback():
             try:
-                fn(future)
+                fn(self)
             except:
                 logging.getLogger("Ice.Future").exception('callback raised exception')
 
@@ -251,10 +251,23 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
-        if self._sentSynchronously or not self._asyncResult:
-            fn(self, self._sentSynchronously)
+        fn(self, self._sentSynchronously)
+
+    def add_sent_callback_async(self, fn):
+        def callback():
+            try:
+                fn(self, self._sentSynchronously)
+            except:
+                logging.getLogger("Ice.Future").exception('callback raised exception')
+
+        with self._condition:
+            if not self._sent:
+                self._sentCallbacks.append(fn)
+                return
+        if self._asyncResult:
+            self._asyncResult.callLater(callback)
         else:
-            self._asyncResult.callLater(lambda: fn(self, self._sentSynchronously))
+            fn(self, self._sentSynchronously)
 
     def sent(self, timeout=None):
         with self._condition:
