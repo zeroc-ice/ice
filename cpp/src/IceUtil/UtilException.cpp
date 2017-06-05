@@ -374,7 +374,7 @@ getStackTrace(const vector<void*>& stackFrames)
     {
         process = GetCurrentProcess();
 
-        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME | SYMOPT_DEBUG);
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
         if(SymInitialize(process, 0, TRUE) == 0)
         {
             process = 0;
