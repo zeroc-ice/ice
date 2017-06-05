@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Custom task to download files -->
-
     <!-- Nuget executable -->
     <PropertyGroup>
       <NugetExe>$(MSBuildThisFileDirectory)NuGet.exe</NugetExe>
@@ -10,7 +9,6 @@
 
     <!-- Download nuget.exe if not present -->
     <Target Name="GetNuget" Condition="!Exists('$(NugetExe)')">
-
       <Exec Command="powershell -ExecutionPolicy ByPass -Command &quot;(New-Object Net.WebClient).DownloadFile('$(NugetURL)', '$(NugetExe)')&quot;"/>
     </Target>
 </Project>
