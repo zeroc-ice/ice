@@ -81,6 +81,9 @@ protected:
 //
 // Base class for all Ice system exceptions
 //
+// System exceptions are currently Ice internal, non-documented
+// exceptions.
+//
 class ICE_API SystemException : public IceUtil::Exception
 {
 public:
