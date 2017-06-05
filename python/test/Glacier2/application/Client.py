@@ -68,7 +68,7 @@ class Application(Glacier2.Application):
         print("ok")
 
         sys.stdout.write("testing server shutdown... ")
-        callback.shutdown();
+        callback.shutdown()
         print("ok")
 
         return 0
