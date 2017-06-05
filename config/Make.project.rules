@@ -800,7 +800,7 @@ projects := $$(tmp_projects)
 endef
 
 #
-# $(call make-translator-project,$1=project)
+# $(call create-translator-project,$1=project)
 #
 # Defines a project for the given translator
 #
