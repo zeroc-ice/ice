@@ -478,7 +478,9 @@ public class AllTests
                 final SentCallback cb = new SentCallback();
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = p.ice_batchOneway();
-                b1.opBatch();
+                CompletableFuture<Void> bf = b1.opBatchAsync();
+                test(bf.isDone());
+                test(!Util.getInvocationFuture(bf).isSent());
                 b1.opBatch();
                 CompletableFuture<Void> r = b1.ice_flushBatchRequestsAsync();
                 Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
@@ -488,6 +490,7 @@ public class AllTests
                     });
                 cb.check();
                 test(Util.getInvocationFuture(r).isSent());
+                Util.getInvocationFuture(r).waitForCompleted();
                 test(r.isDone());
                 test(p.waitForBatch(2));
             }
@@ -535,6 +538,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent());
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.waitForBatch(2));
                 }
@@ -558,7 +562,8 @@ public class AllTests
                         });
                     cb.check();
                     test(!Util.getInvocationFuture(r).isSent());
-                    test(r.isDone());
+                    Util.getInvocationFuture(r).waitForCompleted();
+                    test(r.isDone() && r.isCompletedExceptionally());
                     test(p.opBatchCount() == 0);
                 }
             }
@@ -585,6 +590,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent());
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.waitForBatch(2));
                 }
@@ -607,6 +613,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.opBatchCount() == 0);
                 }
@@ -634,6 +641,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.waitForBatch(4));
                 }
@@ -663,6 +671,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.waitForBatch(1));
                 }
@@ -692,6 +701,7 @@ public class AllTests
                         });
                     cb.check();
                     test(Util.getInvocationFuture(r).isSent()); // Exceptions are ignored!
+                    Util.getInvocationFuture(r).waitForCompleted();
                     test(r.isDone());
                     test(p.opBatchCount() == 0);
                 }
