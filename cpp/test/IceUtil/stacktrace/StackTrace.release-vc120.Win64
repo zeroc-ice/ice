@@ -1,5 +1,4 @@
-  0 IceUtil::Exception::Exception
-  1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper
-  2 IceUtil::NullHandleException::NullHandleException
-  3 `anonymous namespace'::Thrower::fifth
-  4 main
+  0 IceUtil::Exception::Exception at
+  1 IceUtil::NullHandleException::NullHandleException at
+  2 `anonymous namespace'::Thrower::fifth at
+  3 main at

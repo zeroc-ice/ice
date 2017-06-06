@@ -144,6 +144,8 @@ int main(int argc, char* argv[])
         filename += "-vc120";
 #   elif(_MSC_VER == 1900)
         filename += "-vc140";
+#    elif(_MSC_VER >= 1910)
+        filename += "-vc141";
 #   endif
 #endif
     }
