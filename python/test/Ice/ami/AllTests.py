@@ -291,8 +291,10 @@ class FutureSentCallback(CallbackBase):
         self._thread = threading.currentThread()
 
     def sent(self, f, sentSynchronously):
-        test((sentSynchronously and self._thread == threading.currentThread()) or \
-             (not sentSynchronously and self._thread != threading.currentThread()))
+        self.called()
+
+    def sentAsync(self, f, sentSynchronously):
+        test(self._thread != threading.currentThread())
         self.called()
 
 class FutureFlushCallback(CallbackBase):
@@ -1498,6 +1500,21 @@ def allTestsFuture(communicator, collocated):
     cb.check()
 
     p.opAsync().add_sent_callback(cb.sent)
+    cb.check()
+
+    p.ice_isAAsync("").add_sent_callback_async(cb.sentAsync)
+    cb.check()
+
+    p.ice_pingAsync().add_sent_callback_async(cb.sentAsync)
+    cb.check()
+
+    p.ice_idAsync().add_sent_callback_async(cb.sentAsync)
+    cb.check()
+
+    p.ice_idsAsync().add_sent_callback_async(cb.sentAsync)
+    cb.check()
+
+    p.opAsync().add_sent_callback_async(cb.sentAsync)
     cb.check()
 
     cbs = []

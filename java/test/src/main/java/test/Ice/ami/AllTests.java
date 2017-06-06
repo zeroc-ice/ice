@@ -507,6 +507,7 @@ public class AllTests
                     });
                 cb.check();
                 test(Util.getInvocationFuture(r).isSent());
+                Util.getInvocationFuture(r).waitForCompleted();
                 test(r.isDone());
                 test(p.waitForBatch(1));
             }

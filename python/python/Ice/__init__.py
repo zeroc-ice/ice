@@ -264,6 +264,7 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
+
         if self._asyncResult:
             self._asyncResult.callLater(callback)
         else:
