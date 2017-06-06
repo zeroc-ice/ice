@@ -202,7 +202,7 @@ function Init()
             var testSuite = TestSuites[m];
             if(testSuite)
             {
-                scripts = scripts.concat(TestSuites[m].files.map(function(f) {
+                TestData.scripts = scripts.concat(TestSuites[m].files.map(function(f) {
                     if(f.indexOf("/") === -1)
                     {
                         return "/test/" + matchController[1] + "/" + f;
@@ -219,10 +219,10 @@ function Init()
             }
             else
             {
-                scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
+                TestData.scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
             }
             res.writeHead(200, {"Content-Type": "text/html"});
-            res.end(controller.render({ "scripts" : scripts }))
+            res.end(controller.render(TestData))
             console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
         }
         else
