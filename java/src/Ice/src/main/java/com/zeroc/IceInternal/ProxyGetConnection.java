@@ -20,22 +20,13 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
     @Override
     protected boolean needCallback()
     {
-        return true;
+        return !_synchronous;
     }
 
     @Override
     protected void markCompleted()
     {
-        super.markCompleted();
-
-        if(_exception != null)
-        {
-            completeExceptionally(_exception);
-        }
-        else
-        {
-            complete(_cachedConnection);
-        }
+        complete(_cachedConnection);
     }
 
     @Override

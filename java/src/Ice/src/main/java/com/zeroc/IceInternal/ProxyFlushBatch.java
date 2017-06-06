@@ -20,6 +20,12 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     }
 
     @Override
+    protected boolean needCallback()
+    {
+        return !_synchronous;
+    }
+
+    @Override
     public boolean completed(com.zeroc.Ice.InputStream is)
     {
         assert(false);
@@ -27,28 +33,9 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     }
 
     @Override
-    protected synchronized void markSent()
-    {
-        super.markSent();
-
-        assert((_state & StateOK) != 0);
-        complete(null);
-    }
-
-    @Override
-    protected boolean needCallback()
-    {
-        return true;
-    }
-
-    @Override
     protected void markCompleted()
     {
-        super.markCompleted();
-        if(_exception != null)
-        {
-            completeExceptionally(_exception);
-        }
+        complete(null);
     }
 
     @Override

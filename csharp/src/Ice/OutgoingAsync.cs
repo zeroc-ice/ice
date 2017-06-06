@@ -18,7 +18,7 @@ namespace IceInternal
     {
         void init(OutgoingAsyncBase og);
 
-        bool handleSent(bool done, bool alreadySent);
+        bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og);
         bool handleException(Ice.Exception ex, OutgoingAsyncBase og);
         bool handleResponse(bool userThread, bool ok, OutgoingAsyncBase og);
 
@@ -276,7 +276,7 @@ namespace IceInternal
                     cacheMessageBuffers();
                 }
 
-                bool invoke = _completionCallback.handleSent(done, _alreadySent);
+                bool invoke = _completionCallback.handleSent(done, _alreadySent, this);
                 if(!invoke && _doneInSent && observer_ != null)
                 {
                     observer_.detach();
@@ -1435,8 +1435,14 @@ namespace IceInternal
             }
         }
 
-        public bool handleSent(bool done, bool alreadySent)
+        public bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og)
         {
+            if(done && og.isSynchronous())
+            {
+                Debug.Assert(progress_ == null);
+                handleInvokeSent(false, done, alreadySent, og);
+                return false;
+            }
             return done || progress_ != null && !alreadySent; // Invoke the sent callback only if not already invoked.
         }
 
@@ -1479,13 +1485,13 @@ namespace IceInternal
 
         public virtual void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent, OutgoingAsyncBase og)
         {
-            if(done)
-            {
-                SetResult(default(T));
-            }
             if(progress_ != null && !alreadySent)
             {
                progress_.Report(sentSynchronously);
+            }
+            if(done)
+            {
+                SetResult(default(T));
             }
         }
 
@@ -1541,7 +1547,7 @@ namespace IceInternal
             outgoing_ = outgoing;
         }
 
-        public bool handleSent(bool done, bool alreadySent)
+        public bool handleSent(bool done, bool alreadySent, OutgoingAsyncBase og)
         {
             lock(this)
             {

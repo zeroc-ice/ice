@@ -102,20 +102,6 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
     }
 
     @Override
-    protected void markSent()
-    {
-        super.markSent();
-
-        if(!_proxy.ice_isTwoway())
-        {
-            //
-            // For a non-twoway proxy, the invocation is completed after it is sent.
-            //
-            complete(new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]));
-        }
-    }
-
-    @Override
     public boolean sent()
     {
         return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
@@ -160,11 +146,12 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
     @Override
     protected void markCompleted()
     {
-        super.markCompleted();
-
-        if(_exception != null)
+        if(!_proxy.ice_isTwoway())
         {
-            completeExceptionally(_exception);
+            //
+            // For a non-twoway proxy, the invocation is completed after it is sent.
+            //
+            complete(new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]));
         }
         else
         {

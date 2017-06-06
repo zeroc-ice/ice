@@ -28,11 +28,8 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
     }
 
     @Override
-    protected void markSent()
+    protected void markCompleted()
     {
-        super.markSent();
-
-        assert((_state & StateOK) != 0);
         complete(null);
     }
 
@@ -45,12 +42,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 super(CommunicatorFlushBatch.this.getCommunicator(),
                       CommunicatorFlushBatch.this._instance,
                       CommunicatorFlushBatch.this.getOperation());
-            }
-
-            @Override
-            protected void markSent()
-            {
-                assert(false);
             }
 
             @Override

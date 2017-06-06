@@ -2717,13 +2717,13 @@ namespace Ice
             public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
                                                   OutgoingAsyncBase og)
             {
-                if(done)
-                {
-                    SetResult(new Object_Ice_invokeResult(true, null));
-                }
                 if(progress_ != null && !alreadySent)
                 {
                     progress_.Report(sentSynchronously);
+                }
+                if(done)
+                {
+                    SetResult(new Object_Ice_invokeResult(true, null));
                 }
             }
 

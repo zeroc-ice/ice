@@ -117,24 +117,10 @@ public class AllTests
 
     static class SentCallback extends Callback
     {
-        SentCallback()
-        {
-            _thread = Thread.currentThread().getId();
-        }
-
         public void sent(boolean ss)
         {
-            //
-            // The documented semantics for the sent callback states that the callback will be
-            // invoked by the calling thread if the request was sent synchronously, otherwise
-            // it will be invoked by a thread pool thread.
-            //
-            test(ss && _thread == Thread.currentThread().getId() ||
-                 !ss && _thread != Thread.currentThread().getId());
             called();
         }
-
-        long _thread;
     }
 
     static class SentAsyncCallback extends Callback
