@@ -13,7 +13,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface OnewayNewAMICallback : NSObject
+@interface OnewayAMICallback : NSObject
 {
     BOOL called;
     NSCondition* cond;
@@ -22,7 +22,7 @@
 -(void) called;
 @end
 
-@implementation OnewayNewAMICallback
+@implementation OnewayAMICallback
 -(id) init
 {
     self = [super init];
@@ -36,7 +36,7 @@
 
 +(id) create
 {
-    return ICE_AUTORELEASE([[OnewayNewAMICallback alloc] init]);
+    return ICE_AUTORELEASE([[OnewayAMICallback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -97,17 +97,17 @@
 @end
 
 void
-onewaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
+onewaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
 {
     id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:[proxy ice_oneway]];
 
     {
-        OnewayNewAMICallback* cb = [OnewayNewAMICallback create];
+        OnewayAMICallback* cb = [OnewayAMICallback create];
         [p begin_opVoid:^() { [cb opVoidResponse]; } exception:^(ICEException* ex) { [cb opVoidException:ex]; }];
     }
 
     {
-        OnewayNewAMICallback* cb = [OnewayNewAMICallback create];
+        OnewayAMICallback* cb = [OnewayAMICallback create];
         @try
         {
             [p begin_opByte:0 p2:0 response:^(ICEByte r, ICEByte p3) { [cb opByteExResponse]; } exception:^(ICEException* ex) { [cb opByteExException:ex]; }];

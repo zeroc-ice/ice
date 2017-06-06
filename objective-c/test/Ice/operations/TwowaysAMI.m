@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface TestNewAMIOperationsCallback : NSObject
+@interface TestAMIOperationsCallback : NSObject
 {
     BOOL called;
     NSCondition* cond;
@@ -24,7 +24,7 @@
 -(void) called;
 @end
 
-@implementation TestNewAMIOperationsCallback
+@implementation TestAMIOperationsCallback
 -(id) init
 {
     self = [super init];
@@ -38,7 +38,7 @@
 
 +(id) create
 {
-    return ICE_AUTORELEASE([[TestNewAMIOperationsCallback alloc] init]);
+    return ICE_AUTORELEASE([[TestAMIOperationsCallback alloc] init]);
 }
 
 #if defined(__clang__) && !__has_feature(objc_arc)
@@ -1066,46 +1066,46 @@
 @end
 
 void
-twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
+twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 {
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByte:(ICEByte)0xff p2:(ICEByte)0x0f response:^(ICEByte ret, ICEByte p3) { [cb opByteResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opByteException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opBool:YES p2:NO response:^(BOOL ret, BOOL p3) { [cb opBoolResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opBoolException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opShortIntLong:10 p2:11 p3:12 response:^(ICELong ret, ICEShort p4, ICEInt p5, ICELong p6) { [cb opShortIntLongResponse:ret p4:p4 p5:p5 p6:p6]; } exception:^(ICEException* ex) { [cb opShortIntLongException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opFloatDouble:3.14f p2:1.1E10 response:^(ICEDouble ret, ICEFloat p3, ICEDouble p4) { [cb opFloatDoubleResponse:ret p3:p3 p4:p4]; } exception:^(ICEException* ex) { [cb opFloatDoubleException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opString:@"hello" p2:@"world" response:^(NSMutableString* ret, NSMutableString* p3) { [cb opStringResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyEnum:TestOperationsenum2 response:^(TestOperationsMyEnum ret, TestOperationsMyEnum p2) { [cb opMyEnumResponse:ret p2:p2]; } exception:^(ICEException* ex) { [cb opMyEnumException:ex]; }];
         test([cb check]);
     }
 
     {
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyClass:p response:^(id<TestOperationsMyClassPrx> ret, id<TestOperationsMyClassPrx>p2, id<TestOperationsMyClassPrx> p3) { [cb opMyClassResponse:ret p2:p2 p3:p3]; } exception:^(ICEException* ex) { [cb opMyClassException:ex]; }];
         test([cb check]);
     }
@@ -1122,7 +1122,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         si2.s = [TestOperationsAnotherStruct anotherStruct];
         si2.s.s = @"def";
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStruct:si1 p2:si2 response:^(TestOperationsStructure* ret, TestOperationsStructure* p3) { [cb opStructResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStructException:ex]; }];
         test([cb check]);
     }
@@ -1137,7 +1137,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [bsi1 appendBytes:buf1 length:sizeof(buf1)];
         [bsi2 appendBytes:buf2 length:sizeof(buf2)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByteS:bsi1 p2:bsi2 response:^(TestOperationsMutableByteS* ret, TestOperationsMutableByteS* p3) { [cb opByteSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opByteSException:ex]; }];
         test([cb check]);
     }
@@ -1152,7 +1152,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [bsi1 appendBytes:buf1 length:sizeof(buf1)];
         [bsi2 appendBytes:buf2 length:sizeof(buf2)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opBoolS:bsi1 p2:bsi2 response:^(TestOperationsMutableBoolS* ret, TestOperationsMutableBoolS* p3) { [cb opBoolSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opBoolSException:ex]; }];
         test([cb check]);
     }
@@ -1170,7 +1170,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [isi appendBytes:buf2 length:sizeof(buf2)];
         [lsi appendBytes:buf3 length:sizeof(buf3)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opShortIntLongS:ssi p2:isi p3:lsi response:^(TestOperationsMutableLongS* ret, TestOperationsMutableShortS* p4, TestOperationsMutableIntS* p5, TestOperationsMutableLongS* p6) { [cb opShortIntLongSResponse:ret p4:p4 p5:p5 p6:p6]; } exception:^(ICEException* ex) { [cb opShortIntLongSException:ex]; }];
         test([cb check]);
     }
@@ -1185,7 +1185,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [fsi appendBytes:buf1 length:sizeof(buf1)];
         [dsi appendBytes:buf2 length:sizeof(buf2)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opFloatDoubleS:fsi p2:dsi response:^(TestOperationsMutableDoubleS* ret, TestOperationsMutableFloatS* p3, TestOperationsMutableDoubleS* p4) { [cb opFloatDoubleSResponse:ret p3:p3 p4:p4]; } exception:^(ICEException* ex) { [cb opFloatDoubleSException:ex]; }];
         test([cb check]);
     }
@@ -1201,7 +1201,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [ssi2 addObject:@"xyz"];
 
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringS:ssi1 p2:ssi2 response:^(TestOperationsMutableStringS* ret, TestOperationsMutableStringS* p3) { [cb opStringSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringSException:ex]; }];
         test([cb check]);
     }
@@ -1238,7 +1238,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [tmp appendBytes:&b length:sizeof(b)];
         [bsi2 addObject:tmp];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByteSS:bsi1 p2:bsi2 response:^(TestOperationsMutableByteSS* ret, TestOperationsMutableByteSS* p3) { [cb opByteSSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opByteSSException:ex]; }];
         test([cb check]);
     }
@@ -1273,7 +1273,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dtmp appendBytes:&d length:sizeof(d)];
         [dsi addObject:dtmp];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opFloatDoubleSS:fsi p2:dsi response:^(TestOperationsMutableDoubleSS* ret, TestOperationsMutableFloatSS* p3, TestOperationsMutableDoubleSS* p4) { [cb opFloatDoubleSSResponse:ret p3:p3 p4:p4]; } exception:^(ICEException* ex) { [cb opFloatDoubleSSException:ex]; }];
         test([cb check]);
     }
@@ -1298,7 +1298,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [tmp addObject:@"xyz"];
         [ssi2 addObject:tmp];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringSS:ssi1 p2:ssi2 response:^(TestOperationsMutableStringSS* ret, TestOperationsMutableStringSS* p3) { [cb opStringSSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringSSException:ex]; }];
         test([cb check]);
     }
@@ -1342,7 +1342,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         tmpss = [TestOperationsMutableStringSS array];
         [sssi2 addObject:tmpss];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringSSS:sssi1 p2:sssi2 response:^(TestOperationsMutableStringSS* ret, TestOperationsMutableStringSS* p3) { [cb opStringSSSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringSSSException:ex]; }];
         test([cb check]);
     }
@@ -1356,7 +1356,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:[NSNumber numberWithBool:NO] forKey:[NSNumber numberWithUnsignedChar:11]];
         [di2 setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithUnsignedChar:101]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByteBoolD:di1 p2:di2 response:^(TestOperationsMutableByteBoolD* ret, TestOperationsMutableByteBoolD* p3) { [cb opByteBoolDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opByteBoolDException:ex]; }];
         test([cb check]);
     }
@@ -1370,7 +1370,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:[NSNumber numberWithInt:-100] forKey:[NSNumber numberWithShort:111]];
         [di2 setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithShort:1101]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opShortIntD:di1 p2:di2 response:^(TestOperationsMutableShortIntD* ret, TestOperationsMutableShortIntD* p3) { [cb opShortIntDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opShortIntDException:ex]; }];
         test([cb check]);
     }
@@ -1384,7 +1384,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:[NSNumber numberWithFloat:-100.4f] forKey:[NSNumber numberWithLong:999999120]];
         [di2 setObject:[NSNumber numberWithFloat:0.5f] forKey:[NSNumber numberWithLong:999999130]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opLongFloatD:di1 p2:di2 response:^(TestOperationsMutableLongFloatD* ret, TestOperationsMutableLongFloatD* p3) { [cb opLongFloatDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opLongFloatDException:ex]; }];
         test([cb check]);
     }
@@ -1399,7 +1399,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:@"abc 0.5" forKey:@"BAR"];
 
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringStringD:di1 p2:di2 response:^(TestOperationsMutableStringStringD* ret, TestOperationsMutableStringStringD* p3) { [cb opStringStringDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringStringDException:ex]; }];
         test([cb check]);
     }
@@ -1413,7 +1413,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:[NSNumber numberWithInt:TestOperationsenum3] forKey:@"querty"];
         [di2 setObject:[NSNumber numberWithInt:TestOperationsenum2] forKey:@"Hello!!"];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringMyEnumD:di1 p2:di2 response:^(TestOperationsMutableStringMyEnumD* ret, TestOperationsMutableStringMyEnumD* p3) { [cb opStringMyEnumDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringMyEnumDException:ex]; }];
         test([cb check]);
     }
@@ -1425,7 +1425,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:@"Hello!!" forKey:@(TestOperationsenum2)];
         [di2 setObject:@"querty" forKey:@(TestOperationsenum3)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyEnumStringD:di1
                               p2:di2
                         response:^(TestOperationsMutableMyEnumStringD* ret,
@@ -1449,7 +1449,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:@(TestOperationsenum3) forKey:s22];
         [di2 setObject:@(TestOperationsenum2) forKey:s23];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyStructMyEnumD:di1
                                 p2:di2
                           response:^(TestOperationsMutableMyStructMyEnumD* ret,
@@ -1482,7 +1482,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByteBoolDS:dsi1
                            p2:dsi2
                      response:^(TestOperationsMutableByteBoolDS* ret,
@@ -1510,7 +1510,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opShortIntDS:dsi1
                            p2:dsi2
                      response:^(TestOperationsMutableShortIntDS* ret,
@@ -1538,7 +1538,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opLongFloatDS:dsi1
                            p2:dsi2
                      response:^(TestOperationsMutableLongFloatDS* ret,
@@ -1566,7 +1566,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringStringDS:dsi1
                                p2:dsi2
                          response:^(TestOperationsMutableStringStringDS* ret,
@@ -1594,7 +1594,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringMyEnumDS:dsi1
                            p2:dsi2
                      response:^(TestOperationsMutableStringMyEnumDS* ret,
@@ -1620,7 +1620,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyEnumStringDS:dsi1
                            p2:dsi2
                      response:^(TestOperationsMutableMyEnumStringDS* ret,
@@ -1654,7 +1654,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [dsi1 addObject:di2];
         [dsi2 addObject:di3];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyStructMyEnumDS:dsi1
                                  p2:dsi2
                            response:^(TestOperationsMutableMyStructMyEnumDS* ret,
@@ -1688,7 +1688,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]];
         [sdi2 setObject:si3 forKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opByteByteSD:sdi1
                            p2:sdi2
                      response:^(TestOperationsMutableByteByteSD* ret,
@@ -1715,7 +1715,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:[NSNumber numberWithBool:YES]];
         [sdi2 setObject:si1 forKey:[NSNumber numberWithBool:NO]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opBoolBoolSD:sdi1
                            p2:sdi2
                      response:^(TestOperationsMutableBoolBoolSD* ret,
@@ -1745,7 +1745,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:[NSNumber numberWithShort:2]];
         [sdi2 setObject:si3 forKey:[NSNumber numberWithShort:4]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opShortShortSD:sdi1
                            p2:sdi2
                      response:^(TestOperationsMutableShortShortSD* ret,
@@ -1775,7 +1775,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:[NSNumber numberWithInt:200]];
         [sdi2 setObject:si3 forKey:[NSNumber numberWithInt:400]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opIntIntSD:sdi1
                            p2:sdi2
                      response:^(TestOperationsMutableIntIntSD* ret,
@@ -1805,7 +1805,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:[NSNumber numberWithLong:999999991]];
         [sdi2 setObject:si3 forKey:[NSNumber numberWithLong:999999992]];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opLongLongSD:sdi1
                            p2:sdi2
                      response:^(TestOperationsMutableLongLongSD* ret,
@@ -1835,7 +1835,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:@"ABC"];
         [sdi2 setObject:si3 forKey:@"aBc"];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringFloatSD:sdi1
                               p2:sdi2
                         response:^(TestOperationsMutableStringFloatSD* ret,
@@ -1865,7 +1865,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:@"Goodbye"];
         [sdi2 setObject:si3 forKey:@""];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringDoubleSD:sdi1
                                p2:sdi2
                          response:^(TestOperationsMutableStringDoubleSD* ret,
@@ -1895,7 +1895,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:@"def"];
         [sdi2 setObject:si3 forKey:@"ghi"];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringStringSD:sdi1
                                p2:sdi2
                          response:^(TestOperationsMutableStringStringSD* ret,
@@ -1926,7 +1926,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [sdi1 setObject:si2 forKey:@(TestOperationsenum2)];
         [sdi2 setObject:si3 forKey:@(TestOperationsenum1)];
 
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opMyEnumMyEnumSD:sdi1
                                p2:sdi2
                          response:^(TestOperationsMutableMyEnumMyEnumSD* ret,
@@ -1950,7 +1950,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
                 *ip++ = i;
             }
 
-            TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+            TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
             [p begin_opIntS:s response:^(TestOperationsMutableIntS* ret) { [cb opIntSResponse:ret]; } exception:^(ICEException* ex) { [cb opIntSException:ex]; }];
             test([cb check]);
         }
@@ -1962,24 +1962,24 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [ctx setObject:@"TWO" forKey:@"two"];
         [ctx setObject:@"THREE" forKey:@"three"];
         {
-                TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+                TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
                 [p begin_opContext:^(ICEMutableContext* ctx) { [cb opEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
                 test([cb check]);
         }
         {
-            TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+            TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
             [p begin_opContext:ctx response:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
         }
         {
             id<TestOperationsMyClassPrx> p2 = [TestOperationsMyClassPrx checkedCast:[p ice_context:ctx]];
             test([[p2 ice_getContext] isEqual:ctx]);
-            TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+            TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
             [p2 begin_opContext:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
 
 
-            cb = [TestNewAMIOperationsCallback create];
+            cb = [TestAMIOperationsCallback create];
             [p2 begin_opContext:ctx response:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
         }
@@ -2066,7 +2066,7 @@ twowaysNewAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         {
             *pb++ = d;
         }
-        TestNewAMIOperationsCallback* cb = [TestNewAMIOperationsCallback create];
+        TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opDoubleMarshaling:d p2:ds response:^() { [cb opDoubleMarshalingResponse]; } exception:^(ICEException* ex) { [cb opDoubleMarshalingException:ex]; }];
         test([cb check]);
     }

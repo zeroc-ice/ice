@@ -171,6 +171,8 @@
 		145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE31E36061900A855C7 /* TestIntfI.m */; };
 		146148791EE15DFE000ECDB3 /* OnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148771EE15DFE000ECDB3 /* OnewaysAMI.m */; };
 		1461487A1EE15DFE000ECDB3 /* TwowaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148781EE15DFE000ECDB3 /* TwowaysAMI.m */; };
+		14863D8D1EE7682500D3AA9B /* OnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148771EE15DFE000ECDB3 /* OnewaysAMI.m */; };
+		14863D8E1EE7682500D3AA9B /* TwowaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148781EE15DFE000ECDB3 /* TwowaysAMI.m */; };
 		148ABA1A1DFB12C800594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA1B1DFB12C800594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
 		14905C561DF98FD8002AE61B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
@@ -1452,6 +1454,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14863D8D1EE7682500D3AA9B /* OnewaysAMI.m in Sources */,
+				14863D8E1EE7682500D3AA9B /* TwowaysAMI.m in Sources */,
 				145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */,
 				145C4BE91E36064B00A855C7 /* ObjectsDerived.ice in Sources */,
 				145C4BEA1E36064B00A855C7 /* ObjectsDerivedEx.ice in Sources */,
