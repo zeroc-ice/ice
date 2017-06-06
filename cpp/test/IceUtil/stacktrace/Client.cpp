@@ -67,40 +67,6 @@ private:
 };
 typedef IceUtil::Handle<Thrower> ThrowerPtr;
 
-#ifdef _WIN32
-string
-getIceHome()
-{
-    vector<wchar_t> buf(256);
-    DWORD ret = GetEnvironmentVariableW(L"ICE_HOME", &buf[0], static_cast<DWORD>(buf.size()));
-    string iceHome = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    if(!iceHome.empty())
-    {
-        return iceHome;
-    }
-    else
-    {
-        HKEY hKey;
-
-        string key = string("SOFTWARE\\ZeroC\\Ice ") + ICE_STRING_VERSION;
-        const wstring keyName = stringToWstring(key);
-
-        if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-        {
-            return "";
-        }
-
-        WCHAR buf[512];
-        DWORD bufSize = sizeof(buf);
-        if(RegQueryValueExW(hKey, L"InstallDir", 0, ICE_NULLPTR, (LPBYTE)buf, &bufSize) != ERROR_SUCCESS)
-        {
-            return "";
-        }
-        return wstringToString(wstring(buf));
-    }
-}
-#endif
-
 #if defined(__APPLE__)
 void
 standardizeVersion(string& str)
@@ -138,41 +104,13 @@ int main(int argc, char* argv[])
 {
     if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
     {
-        cout << "This IceUtil build cannot capture stack traces" << endl;
+        cout << "This Ice build cannot capture stack traces" << endl;
         return EXIT_SUCCESS;
     }
 
     bool optimized = false;
 #ifdef NDEBUG
     optimized = true;
-#endif
-
-#if defined(_WIN32)
-    bool binDist = false;
-    vector<wchar_t> buf(256);
-    DWORD ret = GetEnvironmentVariableW(L"ICE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
-    string valstr = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    binDist = (valstr.find("all") != std::string::npos) || (valstr.find("cpp") != std::string::npos);
-
-    if(binDist)
-    {
-        //
-        // For Windows we only run the test against bindist if PDBs were installed
-        //
-        string pdb = getIceHome() + "\\bin\\icebox.pdb";
-        if(!ifstream(pdb))
-        {
-            cout << "Test requires PDBs to be installed" << endl;
-            return EXIT_SUCCESS;
-        }
-    }
-    else if(optimized)
-    {
-        //
-        // Only support debug srcdist Windows builds
-        //
-        return EXIT_SUCCESS;
-    }
 #endif
 
     cout << "checking stacktrace... ";
@@ -214,7 +152,9 @@ int main(int argc, char* argv[])
         filename += "debug";
     }
 
-#if defined(_WIN32)
+#if defined(_WIN64)
+     filename += ".Win64";
+#elif defined(_WIN32)
     filename += ".Win32";
 #elif defined(__APPLE__)
     filename += ".OSX";
@@ -290,9 +230,7 @@ int main(int argc, char* argv[])
                     // With windows and Linux optimized builds retry with the alternate
                     // files.
                     //
-                    if(filename == "StackTrace.release-vc110.Win32" ||
-                       filename == "StackTrace.release-vc130.Win32" ||
-                       filename == "StackTrace.release-vc140.Win32" ||
+                    if(filename.find("StackTrace.release-vc") == 0 ||
                        filename == "StackTrace.release.Linux")
                     {
                         break;
@@ -308,12 +246,15 @@ int main(int argc, char* argv[])
 
             if(!match)
             {
-                if(filename == "StackTrace.release-vc110.Win32" ||
-                   filename == "StackTrace.release-vc130.Win32" ||
-                   filename == "StackTrace.release-vc140.Win32")
+                if(filename.find("StackTrace.release-vc") == 0)
                 {
-                    // Retry with alternate Win32 stack
-                    filename = "StackTrace.release.Win32";
+                    // Retry with alternate stack
+                    filename = "StackTrace.release";
+#if defined(_WIN64)
+                    filename += ".Win64";
+#elif defined(_WIN32)
+                    filename += ".Win32";
+#endif
                     continue;
                 }
                 else if(filename == "StackTrace.release.Linux")
