@@ -115,7 +115,7 @@ if(macosx)
                         shortversion: "${project.version}",
                         applicationCategory: "public.app-category.utilities",
                         mainclassname: "com.zeroc.IceGridGUI/MainProxy",
-                        copyright: "Copyright © 2005-2016 ZeroC, Inc. All rights reserved.") {
+                        copyright: "Copyright © 2005-2017 ZeroC, Inc. All rights reserved.") {
                 classpath(file: "${libDir}/${jarName}") {
                 }
                 option(value: "-Dapple.laf.useScreenMenuBar=true") {

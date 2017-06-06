@@ -26,4 +26,4 @@ slice {
     }
 }
 
-apply from: "$rootProject.projectDir/gradle/library.gradle"
+apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

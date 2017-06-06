@@ -8,6 +8,8 @@
 // **********************************************************************
 
 subprojects {
+    project.ext.topSrcDir = "$rootProject.projectDir/.."
+
     project.version = iceVersion
     project.group = "com.zeroc"
 

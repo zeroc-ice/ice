@@ -7,20 +7,17 @@
 //
 // **********************************************************************
 
+apply plugin: 'java'
+apply from: "$project.ext.topSrcDir/java/gradle/ice.gradle"
+apply from: "$project.ext.topSrcDir/java/src/IceDiscovery/build.gradle"
+
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
-project.ext.displayName = "IceLocatorDiscovery"
-project.ext.description = "Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast"
-
-slice {
-    java {
-        files = fileTree(dir: "$sliceDir/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+sourceSets {
+    main {
+        java {
+            srcDir "$project.ext.topSrcDir/java/src/IceDiscovery/src/main/java"
+        }
     }
 }
-
-dependencies {
-    compile project(':ice')
-}
-
-apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

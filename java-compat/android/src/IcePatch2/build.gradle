@@ -7,20 +7,18 @@
 //
 // **********************************************************************
 
+apply plugin: 'java'
+apply from: "$project.ext.topSrcDir/java/gradle/ice.gradle"
+slice.compat = true
+apply from: "$project.ext.topSrcDir/java-compat/src/IcePatch2/build.gradle"
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-project.ext.displayName = "IceDiscovery Compat"
-project.ext.description = "Allow Ice applications to discover objects and object adapters"
-
-slice {
-    java {
-        files = fileTree(dir: "$sliceDir/IceDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+sourceSets {
+    main {
+        java {
+            srcDir "$project.ext.topSrcDir/java-compat/src/IcePatch2/src/main/java"
+        }
     }
 }
-
-dependencies {
-    compile project(':ice-compat')
-}
-
-apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
