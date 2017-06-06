@@ -9,6 +9,7 @@
                         $(Ice_SrcRootDir)..\cpp\bin\x64\Release\slice2html.exe;
                         $(Ice_SrcRootDir)bin\iceboxnet.exe" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll" />
+        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.pdb" />
         <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml" />
         <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
