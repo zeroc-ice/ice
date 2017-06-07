@@ -26,6 +26,10 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
+- Minor change to the network and retry tracing. Connection establishment
+  attempts on endpoints are no longer traced with Ice.Trace.Retry. They are
+  now traced when Ice.Trace.Network is set to 2.
+
 - Renamed ACM heartbeat enumeration value `HeartbeatOnInvocation` to
   `HeartbeatOnDispatch`. The heartbeats are sent only when dispatch are in
   progress and the connection is idle.

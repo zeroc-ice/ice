@@ -55,7 +55,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\IceSSL.rc">
+    <ResourceCompile Include="..\..\IceSSLOpenSSL.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

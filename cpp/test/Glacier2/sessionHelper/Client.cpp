@@ -446,28 +446,9 @@ public:
             }
             cout << "ok" << endl;
 
-//             cout << "testing SessionHelper session after destroy... " << flush;
-//             try
-//             {
-//                 Glacier2::SessionPrx session = _session->session();
-//                 test(false);
-//             }
-//             catch(const Glacier2::SessionNotExistException&)
-//             {
-//                 cout << "ok" << endl;
-//             }
-//             catch(const std::exception& ex)
-//             {
-//                 cout << ex.what() << endl;
-//             }
-//             catch(const std::string& msg)
-//             {
-//                 cout << msg << endl;
-//             }
-//             catch(...)
-//             {
-//                 test(false);
-//             }
+            cout << "testing SessionHelper session after destroy... " << flush;
+            test(_session->session() == ICE_NULLPTR);
+            cout << "ok" << endl;
 
             cout << "testing SessionHelper communicator after destroy... " << flush;
             try

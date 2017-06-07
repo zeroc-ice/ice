@@ -45,7 +45,7 @@ interface MyObject
     int notExistAdd(int x, int y);
 
     //
-    // Raise system exception
+    // Raise Ice local exception
     //
     int badSystemAdd(int x, int y);
 }

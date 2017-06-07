@@ -36,6 +36,28 @@ function test($b)
     }
 }
 
+function connect($prx)
+{
+    $nRetry = 5;
+    while(--$nRetry > 0)
+    {
+        try
+        {
+            $prx->ice_getConnection(); // Establish connection.
+            break;
+        }
+        catch(Exception $ex)
+        {
+            if(!($ex instanceof $ConnectTimeoutException))
+            {
+                // Can sporadically occur with slow machines
+                throw $ex;
+            }
+        }
+    }
+    return $prx->ice_getConnection(); // Establish connection.
+}
+
 function allTests($communicator)
 {
     global $NS;
@@ -95,7 +117,7 @@ function allTests($communicator)
     echo("ok\n");
 
     // The sequence needs to be large enough to fill the write/recv buffers
-    $seq = array_fill(0, 2000000, 0x01);
+    $seq = array_fill(0, 1000000, 0x01);
     echo("testing connection timeout... ");
     flush();
     {
@@ -103,7 +125,7 @@ function allTests($communicator)
         // Expect TimeoutException.
         //
         $to = $timeout->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
-        $timeout->holdAdapter(500);
+        $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
         {
             $to->sendData($seq);
@@ -208,7 +230,7 @@ function allTests($communicator)
     flush();
     {
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $connection = $to->ice_getConnection();
+        $connection = connect($to);
         $timeout->holdAdapter(600);
         $connection->close($CloseGracefullyAndWait);
         try
@@ -243,10 +265,11 @@ function allTests($communicator)
         //
         $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
         $initData->properties = $communicator->getProperties()->clone();
-        $initData->properties->setProperty("Ice.Override.Timeout", "150");
+        $initData->properties->setProperty("Ice.Override.Timeout", "100");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
-        $to = $comm->stringToProxy($sref)->ice_checkedCast("::Test::Timeout");
-        $timeout->holdAdapter(800);
+        $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
+        connect($to);
+        $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
         {
             $to->sendData($seq);
@@ -265,7 +288,8 @@ function allTests($communicator)
         // Calling ice_timeout() should have no effect.
         //
         $timeout->op(); // Ensure adapter is active.
-        $to = $to->ice_timeout(1000)->ice_checkedCast("::Test::Timeout");
+        $to = $to->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
+        connect($to);
         $timeout->holdAdapter(800);
         try
         {
@@ -332,27 +356,9 @@ function allTests($communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         $timeout->op(); // Ensure adapter is active.
-        $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $nRetry = 5;
-        while(--$nRetry > 0)
-        {
-            try
-            {
-                $to->ice_getConnection(); // Establish connection.
-                break;
-            }
-            catch(Exception $ex)
-            {
-                if($ex instanceof $ConnectTimeoutException)
-                {
-                    // Can sporadically occur with slow machines
-                }
-                echo($ex);
-                test(false);
-            }
-        }
-        $to->ice_getConnection(); // Establish connection.
-        $timeout->holdAdapter(750);
+        $to = $to->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
+        connect($to);
+        $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
         {
             $to->sendData($seq);

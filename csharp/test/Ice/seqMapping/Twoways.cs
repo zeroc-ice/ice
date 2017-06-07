@@ -1061,75 +1061,75 @@ class Twoways
         }
 
         {
-            Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
+            Test.IPrx[] i = new Test.IPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
-                i[c] = communicator.stringToProxy(c.ToString());
+                i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
             }
-            Ice.ObjectPrx[] o;
-            Ice.ObjectPrx[] r;
+            Test.IPrx[] o;
+            Test.IPrx[] r;
 
-            r = p.opACVPrxS(i, out o);
+            r = p.opAIPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
-            List<Ice.ObjectPrx> i = new List<Ice.ObjectPrx>(_length);
+            List<Test.IPrx> i = new List<Test.IPrx>(_length);
             for(int c = 0; c < _length; ++c)
             {
-                i.Add(communicator.stringToProxy(c.ToString()));
+                i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            List<Ice.ObjectPrx> o;
-            List<Ice.ObjectPrx> r;
+            List<Test.IPrx> o;
+            List<Test.IPrx> r;
 
-            r = p.opLCVPrxS(i, out o);
+            r = p.opLIPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
-            LinkedList<Ice.ObjectPrx> i = new LinkedList<Ice.ObjectPrx>();
+            LinkedList<Test.IPrx> i = new LinkedList<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.AddLast(communicator.stringToProxy(c.ToString()));
+                i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            LinkedList<Ice.ObjectPrx> o;
-            LinkedList<Ice.ObjectPrx> r;
+            LinkedList<Test.IPrx> o;
+            LinkedList<Test.IPrx> r;
 
-            r = p.opKCVPrxS(i, out o);
+            r = p.opKIPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
-            Queue<Ice.ObjectPrx> i = new Queue<Ice.ObjectPrx>();
+            Queue<Test.IPrx> i = new Queue<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Enqueue(communicator.stringToProxy(c.ToString()));
+                i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            Queue<Ice.ObjectPrx> o;
-            Queue<Ice.ObjectPrx> r;
+            Queue<Test.IPrx> o;
+            Queue<Test.IPrx> r;
 
-            r = p.opQCVPrxS(i, out o);
+            r = p.opQIPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
-            Stack<Ice.ObjectPrx> i = new Stack<Ice.ObjectPrx>();
+            Stack<Test.IPrx> i = new Stack<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Push(communicator.stringToProxy(c.ToString()));
+                i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
-            Stack<Ice.ObjectPrx> o;
-            Stack<Ice.ObjectPrx> r;
+            Stack<Test.IPrx> o;
+            Stack<Test.IPrx> r;
 
-            r = p.opSCVPrxS(i, out o);
+            r = p.opSIPrxS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));

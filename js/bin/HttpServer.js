@@ -26,7 +26,21 @@ function Init()
         json: "application/json",
     };
 
-    var TestData = {};
+    var TestData = {
+        cssDeps: [
+            "https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.3/css/foundation.min.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/animo.js/1.0.3/animate-animo.min.css"
+        ],
+        jsDeps: [
+            "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/foundation/5.3.3/js/foundation.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.10/URI.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/animo.js/1.0.3/animo.min.js",
+            "http://spin.js.org/jquery.spin.js"
+        ]
+    };
 
     var languages = [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
     if(process.platform == "win32")
@@ -188,7 +202,7 @@ function Init()
             var testSuite = TestSuites[m];
             if(testSuite)
             {
-                scripts = scripts.concat(TestSuites[m].files.map(function(f) {
+                TestData.scripts = scripts.concat(TestSuites[m].files.map(function(f) {
                     if(f.indexOf("/") === -1)
                     {
                         return "/test/" + matchController[1] + "/" + f;
@@ -205,10 +219,10 @@ function Init()
             }
             else
             {
-                scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
+                TestData.scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
             }
             res.writeHead(200, {"Content-Type": "text/html"});
-            res.end(controller.render({ "scripts" : scripts }))
+            res.end(controller.render(TestData))
             console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
         }
         else

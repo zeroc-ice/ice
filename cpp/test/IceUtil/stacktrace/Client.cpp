@@ -67,40 +67,6 @@ private:
 };
 typedef IceUtil::Handle<Thrower> ThrowerPtr;
 
-#ifdef _WIN32
-string
-getIceHome()
-{
-    vector<wchar_t> buf(256);
-    DWORD ret = GetEnvironmentVariableW(L"ICE_HOME", &buf[0], static_cast<DWORD>(buf.size()));
-    string iceHome = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    if(!iceHome.empty())
-    {
-        return iceHome;
-    }
-    else
-    {
-        HKEY hKey;
-
-        string key = string("SOFTWARE\\ZeroC\\Ice ") + ICE_STRING_VERSION;
-        const wstring keyName = stringToWstring(key);
-
-        if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
-        {
-            return "";
-        }
-
-        WCHAR buf[512];
-        DWORD bufSize = sizeof(buf);
-        if(RegQueryValueExW(hKey, L"InstallDir", 0, ICE_NULLPTR, (LPBYTE)buf, &bufSize) != ERROR_SUCCESS)
-        {
-            return "";
-        }
-        return wstringToString(wstring(buf));
-    }
-}
-#endif
-
 #if defined(__APPLE__)
 void
 standardizeVersion(string& str)
@@ -138,41 +104,13 @@ int main(int argc, char* argv[])
 {
     if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
     {
-        cout << "This IceUtil build cannot capture stack traces" << endl;
+        cout << "This Ice build cannot capture stack traces" << endl;
         return EXIT_SUCCESS;
     }
 
     bool optimized = false;
 #ifdef NDEBUG
     optimized = true;
-#endif
-
-#if defined(_WIN32)
-    bool binDist = false;
-    vector<wchar_t> buf(256);
-    DWORD ret = GetEnvironmentVariableW(L"ICE_BIN_DIST", &buf[0], static_cast<DWORD>(buf.size()));
-    string valstr = (ret > 0 && ret < buf.size()) ? wstringToString(&buf[0]) : string("");
-    binDist = (valstr.find("all") != std::string::npos) || (valstr.find("cpp") != std::string::npos);
-
-    if(binDist)
-    {
-        //
-        // For Windows we only run the test against bindist if PDBs were installed
-        //
-        string pdb = getIceHome() + "\\bin\\icebox.pdb";
-        if(!ifstream(pdb))
-        {
-            cout << "Test requires PDBs to be installed" << endl;
-            return EXIT_SUCCESS;
-        }
-    }
-    else if(optimized)
-    {
-        //
-        // Only support debug srcdist Windows builds
-        //
-        return EXIT_SUCCESS;
-    }
 #endif
 
     cout << "checking stacktrace... ";
@@ -206,6 +144,8 @@ int main(int argc, char* argv[])
         filename += "-vc120";
 #   elif(_MSC_VER == 1900)
         filename += "-vc140";
+#    elif(_MSC_VER >= 1910)
+        filename += "-vc141";
 #   endif
 #endif
     }
@@ -214,7 +154,9 @@ int main(int argc, char* argv[])
         filename += "debug";
     }
 
-#if defined(_WIN32)
+#if defined(_WIN64)
+     filename += ".Win64";
+#elif defined(_WIN32)
     filename += ".Win32";
 #elif defined(__APPLE__)
     filename += ".OSX";
@@ -235,7 +177,7 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-#if defined(_WIN32) && defined(NDEBUG)
+#ifndef __APPLE__
         bool match = true;
 #endif
         ifstream ifs(filename.c_str());
@@ -281,40 +223,50 @@ int main(int argc, char* argv[])
             break;
 #else
             vector<string> actual = splitLines(stack);
-            test(expected.size() <= actual.size());
             for(size_t i = 0; i < expected.size(); ++i)
             {
                 if(actual[i].find(expected[i]) == string::npos)
                 {
-#if defined(_WIN32) && defined(NDEBUG)
                     match = false;
                     //
-                    // With windows optimized builds retry with the alternate
-                    // expect file.
+                    // With windows and Linux optimized builds retry with the alternate
+                    // files.
                     //
-                    if(filename != "StackTrace.release.Win32")
+                    if(filename.find("StackTrace.release-vc") == 0 ||
+                       filename == "StackTrace.release.Linux")
                     {
                         break;
                     }
-                    else
-                    {
-                        test(false);
-                    }
-#else
+
+
                     cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
                     cerr << "Full stack is:\n" << stack << endl;
                     test(false);
-#endif
                 }
             }
 
-#if defined(_WIN32) && defined(NDEBUG)
-            if(!match && filename != "StackTrace.release.Win32")
+
+            if(!match)
             {
-                filename = "StackTrace.release.Win32";
-                continue;
-            }
+                if(filename.find("StackTrace.release-vc") == 0)
+                {
+                    // Retry with alternate stack
+                    filename = "StackTrace.release";
+#if defined(_WIN64)
+                    filename += ".Win64";
+#elif defined(_WIN32)
+                    filename += ".Win32";
 #endif
+                    continue;
+                }
+                else if(filename == "StackTrace.release.Linux")
+                {
+                    // Retry with the debug Linux stack
+                    filename = "StackTrace.debug.Linux";
+                    continue;
+                }
+            }
+            test(actual.size() >= expected.size());
             break;
 #endif
         }

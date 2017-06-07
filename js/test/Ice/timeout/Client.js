@@ -17,6 +17,18 @@
     var Ice = require("ice").Ice;
     var Test = require("Test").Test;
 
+    var connect = function(prx)
+    {
+        var nRetry = 5;
+        var next = function next() {
+            if(--nRetry > 0) {
+                return prx.ice_getConnection().then(c => c, ex => next());
+            }
+            return null;
+        };
+        return next();
+    }
+
     var allTests = function(out, communicator)
     {
         var failCB = function() { test(false); };
@@ -139,7 +151,7 @@
                 out.writeLine("ok");
                 out.write("testing close timeout... ");
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500));
-                return to.ice_getConnection();
+                return connect(to);
             }
         ).then(con =>
             {
@@ -190,11 +202,11 @@
                     initData.properties.setProperty("Ice.Override.Timeout", "2000");
                 }
                 comm = Ice.initialize(initData);
-                return Test.TimeoutPrx.checkedCast(comm.stringToProxy(ref));
+                to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
+                return connect(to);
             }
-        ).then(obj =>
+        ).then(c =>
             {
-                to = obj;
                 return timeout.holdAdapter(750 * 2 * mult);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException.
@@ -205,10 +217,13 @@
                 test(ex instanceof Ice.TimeoutException);
                 return timeout.op(); // Ensure adapter is active.
             }
-        ).then(() => Test.TimeoutPrx.checkedCast(to.ice_timeout(1000 * mult)) // Calling ice_timeout() should have no effect.
-        ).then(obj =>
+        ).then(() =>
             {
-                to = obj;
+                to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult)) // Calling ice_timeout() should have no effect.
+                return connect(to);
+            }
+        ).then(c =>
+            {
                 return timeout.holdAdapter(750 * 2 * mult);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException.
@@ -264,7 +279,7 @@
         ).then(() =>
             {
                 to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(100 * mult));
-                return to.ice_getConnection(); // Force connection.
+                return connect(to); // Force connection.
             }
         ).then(obj => timeout.holdAdapter(750 * mult)
         ).then(() => to.sendData(seq)

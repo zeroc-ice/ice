@@ -113,6 +113,22 @@ isMutableAfterReturnType(const TypePtr& type)
     return false;
 }
 
+void
+checkDeprecatedType(const UnitPtr& unit, const TypePtr& type)
+{
+    ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
+    if(decl && !decl->isLocal() && decl->isInterface())
+    {
+        unit->warning(Deprecated, "interface by value is deprecated");
+    }
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    if(proxy && !proxy->_class()->isInterface())
+    {
+        unit->warning(Deprecated, "proxy for a class is deprecated");
+    }
+}
+
 }
 
 namespace Slice
@@ -1041,6 +1057,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         _unit->error(msg);
     }
 
+    checkDeprecatedType(_unit, type);
+
     SequencePtr p = new Sequence(this, name, type, metaData, local);
     _contents.push_back(p);
     return p;
@@ -1114,6 +1132,8 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
             _unit->error(msg);
         }
     }
+
+    checkDeprecatedType(_unit, valueType);
 
     DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData, local);
     _contents.push_back(p);
@@ -3631,6 +3651,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
         }
     }
 
+    checkDeprecatedType(_unit, type);
+
     _hasDataMembers = true;
     DataMemberPtr member = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(member);
@@ -4165,6 +4187,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
         }
     }
 
+    checkDeprecatedType(_unit, type);
+
     DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
     return p;
@@ -4486,6 +4510,8 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
             }
         }
     }
+
+    checkDeprecatedType(_unit, type);
 
     DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
@@ -5320,6 +5346,11 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error(msg);
     }
 
+    //
+    // Issue a warning for a deprecated parameter type.
+    //
+    checkDeprecatedType(_unit, type);
+
     if(optional)
     {
         //
@@ -5734,6 +5765,10 @@ Slice::Operation::Operation(const ContainerPtr& container,
     _returnTag(returnTag),
     _mode(mode)
 {
+    if(returnType)
+    {
+        checkDeprecatedType(_unit, returnType);
+    }
 }
 
 // ----------------------------------------------------------------------

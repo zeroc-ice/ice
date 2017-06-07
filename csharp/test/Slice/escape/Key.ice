@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]]
 module abstract
 {
 

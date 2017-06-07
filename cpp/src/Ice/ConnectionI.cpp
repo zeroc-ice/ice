@@ -890,8 +890,8 @@ Ice::ConnectionI::_iceI_begin_flushBatchRequests(CompressBatch compress,
 void
 Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
 {
-    AsyncResult::check(r, this, flushBatchRequests_name);
-    r->waitForResponse();
+    AsyncResult::_check(r, this, flushBatchRequests_name);
+    r->_waitForResponse();
 }
 #endif
 
@@ -1058,8 +1058,8 @@ Ice::ConnectionI::_iceI_begin_heartbeat(const CallbackBasePtr& cb, const LocalOb
 void
 Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
 {
-    AsyncResult::check(r, this, __heartbeat_name);
-    r->waitForResponse();
+    AsyncResult::_check(r, this, __heartbeat_name);
+    r->_waitForResponse();
 }
 #endif
 

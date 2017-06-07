@@ -12,17 +12,6 @@
 
 #include <Test.h>
 
-#ifdef ICE_CPP11_MAPPING
-//
-// Slice class C is mapped to ObjectPrx
-//
-namespace Test
-{
-typedef std::shared_ptr<Ice::ObjectPrx> CPrxPtr;
-}
-
-#endif
-
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
@@ -169,12 +158,12 @@ public:
                                           std::list< ::Test::E>&,
                                           const Ice::Current&);
 
-    virtual std::deque< ::Test::CPrxPtr> opCPrxSeq(ICE_IN(std::deque< ::Test::CPrxPtr>),
-                                                std::deque< ::Test::CPrxPtr>&,
+    virtual std::deque< ::Test::DPrxPtr> opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>),
+                                                std::deque< ::Test::DPrxPtr>&,
                                                 const Ice::Current&);
 
-    virtual std::list< ::Test::CPrxPtr> opCPrxList(ICE_IN(std::list< ::Test::CPrxPtr>),
-                                                std::list< ::Test::CPrxPtr>&,
+    virtual std::list< ::Test::DPrxPtr> opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>),
+                                                std::list< ::Test::DPrxPtr>&,
                                                 const Ice::Current&);
 
     virtual std::deque< ::Test::CPtr> opCSeq(ICE_IN(std::deque< ::Test::CPtr>),

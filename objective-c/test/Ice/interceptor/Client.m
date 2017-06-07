@@ -76,7 +76,7 @@ run(id<ICECommunicator> communicator)
     }
     test([[interceptor getLastOperation] isEqualToString:@"notExistAdd"]);
     tprintf("ok\n");
-    tprintf("testing system exception... ");
+    tprintf("testing unknown local exception... ");
     [interceptor clear];
     @try
     {

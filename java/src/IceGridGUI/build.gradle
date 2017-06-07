@@ -86,12 +86,14 @@ if(icegridguiProguard.toBoolean()){
     apply from: "plain-jar.gradle"
 }
 
-task signjar(dependsOn: updateManifest) << {
-    if(keystore != null && keystore.length() > 0) {
-        ant.signjar(jar: "${libDir}/${jarName}",
-                    alias: 'zeroc.com',
-                    keystore:"${keystore}",
-                    storepass:"${keystore_password}")
+task signjar(dependsOn: updateManifest) {
+    doLast {
+        if(keystore != null && keystore.length() > 0) {
+            ant.signjar(jar: "${libDir}/${jarName}",
+                        alias: 'zeroc.com',
+                        keystore:"${keystore}",
+                        storepass:"${keystore_password}")
+        }
     }
 }
 assemble.dependsOn(signjar)
@@ -99,31 +101,33 @@ assemble.dependsOn(signjar)
 if(macosx)
 {
     def appName = "IceGrid GUI"
-    task bundleapp(dependsOn: updateManifest) << {
-        ant.taskdef(name: 'bundleapp',
-                    classname: 'com.oracle.appbundler.AppBundlerTask',
-                    classpath: configurations.bundleapp.asPath)
+    task bundleapp(dependsOn: updateManifest) {
+        doLast {
+            ant.taskdef(name: 'bundleapp',
+                        classname: 'com.oracle.appbundler.AppBundlerTask',
+                        classpath: configurations.bundleapp.asPath)
 
-        ant.bundleapp(outputdirectory: "${libDir}",
-                      name: appName,
-                      displayname: appName,
-                      identifier: "com.zeroc.IceGridGUI",
-                      icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
-                      shortversion: "${project.version}",
-                      applicationCategory: "public.app-category.utilities",
-                      mainclassname: "com.zeroc.IceGridGUI/MainProxy",
-                      copyright: "Copyright © 2005-2016 ZeroC, Inc. All rights reserved.") {
-            classpath(file: "${libDir}/${jarName}") {
-            }
-            option(value: "-Dapple.laf.useScreenMenuBar=true") {
-            }
-            option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {
-            }
-            option(value: "-Dcom.apple.macos.useScreenMenuBar=true") {
-            }
-            option(value: "-Xdock:name=IceGrid GUI") {
-            }
-            option(value: "-Dcom.apple.mrj.application.apple.menu.about.name=${appName}") {
+            ant.bundleapp(outputdirectory: "${libDir}",
+                        name: appName,
+                        displayname: appName,
+                        identifier: "com.zeroc.IceGridGUI",
+                        icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
+                        shortversion: "${project.version}",
+                        applicationCategory: "public.app-category.utilities",
+                        mainclassname: "com.zeroc.IceGridGUI/MainProxy",
+                        copyright: "Copyright © 2005-2017 ZeroC, Inc. All rights reserved.") {
+                classpath(file: "${libDir}/${jarName}") {
+                }
+                option(value: "-Dapple.laf.useScreenMenuBar=true") {
+                }
+                option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {
+                }
+                option(value: "-Dcom.apple.macos.useScreenMenuBar=true") {
+                }
+                option(value: "-Xdock:name=IceGrid GUI") {
+                }
+                option(value: "-Dcom.apple.mrj.application.apple.menu.about.name=${appName}") {
+                }
             }
         }
     }

@@ -150,11 +150,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing multiple connections... " << flush;
     {
         test(cl->getConnectionInfo() == cl->getConnectionInfo());
+        int nRetry = 20;
+        while(cl->getConnectionCount() != 2 && --nRetry > 0)
+        {
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+        }
         test(cl->getConnectionCount() == 2);
         test(cl->ice_connectionId("other")->getConnectionInfo() != cl->getConnectionInfo());
         test(cl->getConnectionCount() == 3);
         cl->ice_connectionId("other")->ice_getConnection()->close(Ice::ConnectionCloseGracefully);
-        int nRetry = 20;
+        nRetry = 20;
         while(cl->getConnectionCount() != 2 && --nRetry > 0)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));

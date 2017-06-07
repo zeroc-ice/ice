@@ -2106,7 +2106,7 @@ class RoutableReference extends Reference
                                         this.getInstance().initializationData().logger.trace(
                                             traceLevels.retryCat,
                                             "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" +
+                                            "removing endpoints from cache and trying again\n" +
                                             ex.toString());
                                     }
                                     this.getConnectionNoRouterInfo(p); // Retry.

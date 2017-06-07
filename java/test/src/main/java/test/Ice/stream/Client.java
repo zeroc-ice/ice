@@ -234,7 +234,7 @@ public class Client extends test.Util.Application
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = comm.stringToProxy("test:default");
+            s.p = MyInterfacePrx.uncheckedCast(comm.stringToProxy("test:default"));
             SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new InputStream(comm, data);

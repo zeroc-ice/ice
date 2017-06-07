@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:include:list"]]
+[["cpp:include:list", "suppress-warning:deprecated"]]
 
 ["objc:prefix:TestOptional"]
 module Test

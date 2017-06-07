@@ -43,15 +43,21 @@ public class Server extends test.Util.Application
         {
             endpoint.append("udp -h \"ff15::1:1\" -p ");
             endpoint.append(getTestPort(properties, 10));
-            if(System.getProperty("os.name").contains("OS X"))
+            if(System.getProperty("os.name").contains("OS X") ||
+               System.getProperty("os.name").startsWith("Windows"))
             {
-                endpoint.append(" --interface \"::1\"");
+                endpoint.append(" --interface \"::1\""); // Use loopback to prevent other machines to answer.
             }
         }
         else
         {
             endpoint.append("udp -h 239.255.1.1 -p ");
             endpoint.append(getTestPort(properties, 10));
+            if(System.getProperty("os.name").contains("OS X") ||
+               System.getProperty("os.name").startsWith("Windows"))
+            {
+                endpoint.append(" --interface 127.0.0.1"); // Use loopback to prevent other machines to answer.
+            }
         }
         properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 

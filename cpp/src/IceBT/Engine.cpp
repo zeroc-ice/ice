@@ -1276,8 +1276,10 @@ public:
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
 
             vector<IceUtil::ThreadPtr>::iterator p = find(_connectThreads.begin(), _connectThreads.end(), thread);
-            assert(p != _connectThreads.end());
-            _connectThreads.erase(p);
+            if(p != _connectThreads.end()) // May be missing if destroy() was called.
+            {
+                _connectThreads.erase(p);
+            }
         }
     }
 

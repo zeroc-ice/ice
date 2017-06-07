@@ -33,14 +33,20 @@ struct ValStruct
     MyEnum e;
 }
 
-sequence<MyClass*> ProxySeq;
+interface MyInterface
+{
+    void op();
+}
+
+sequence<MyInterface*> ProxySeq;
 
 ["clr:property"]
 struct RefStruct
 {
     string s;
     string sp;
-    MyClass* p;
+    MyClass c;
+    MyInterface* p;
     ProxySeq seq;
 }
 
@@ -56,7 +62,7 @@ sequence<ValStruct> ValStructQueue;
 
 dictionary<int, string> IntStringD;
 dictionary<int, ValStruct> IntValStructD;
-dictionary<int, MyClass*> IntProxyD;
+dictionary<int, MyInterface*> IntProxyD;
 ["clr:generic:SortedDictionary"]
 dictionary<int, string> IntStringSD;
 
@@ -86,7 +92,8 @@ exception MyException
     long l;
     ValStruct vs;
     RefStruct rs;
-    MyClass* c;
+    MyClass c;
+    MyInterface* p;
 
     ValStructS vss;
     ValStructList vsl;
@@ -104,7 +111,8 @@ exception MyException
     optional(3) ValStruct optValStruct;
     optional(4) RefStruct optRefStruct;
     optional(5) MyEnum optEnum;
-    optional(6) MyClass* optProxy;
+    optional(6) MyClass optClass;
+    optional(7) MyInterface* optProxy;
 }
 
 }

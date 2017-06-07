@@ -12,7 +12,7 @@
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
-    <Exec Command="$(NPM) run gulp:build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
+    <Exec Command="$(NPM) run build -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
@@ -23,7 +23,7 @@
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />
-    <Exec Command="$(NPM) run gulp:clean -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
+    <Exec Command="$(NPM) run clean -- --cppPlatform=$(Platform) --cppConfiguration=$(Configuration)"
           WorkingDirectory="$(MSBuildThisFileDirectory).."
           StdOutEncoding="utf-8"
           StdErrEncoding="utf-8" />

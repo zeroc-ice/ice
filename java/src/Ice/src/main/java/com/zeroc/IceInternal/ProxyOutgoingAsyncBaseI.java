@@ -295,7 +295,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
     @Override
     protected boolean needCallback()
     {
-        return !isBatch();
+        return !_synchronous && !isBatch(); // No callbacks for synchronous or batch invocations
     }
 
     protected void invokeImpl(boolean userThread)

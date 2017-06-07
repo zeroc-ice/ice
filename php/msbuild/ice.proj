@@ -26,7 +26,7 @@
 
   <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
     <!-- Restore NuGet packages to build Ice for PHP distribution -->
-    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(UseBinDist)' != 'yes'"/>
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
   </Target>
 
   <ItemGroup>
@@ -46,13 +46,13 @@
              Properties="Platform=$(Platform);Configuration=$(CppConfiguration)" />
   </Target>
 
-  <Target Name="BuildDist" DependsOnTargets="NuGetRestore;BuildCppDist" Condition="'$(UseBinDist)' != 'yes'">
+  <Target Name="BuildDist" DependsOnTargets="NuGetRestore;BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(DistProjects)"
              BuildInParallel="true"
              Properties="%(Properties)" />
   </Target>
 
-  <Target Name="CleanDist" Condition="'$(UseBinDist)' != 'yes'">
+  <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="@(DistProjects)"
              BuildInParallel="true"
              Properties="%(Properties)"

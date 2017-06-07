@@ -2055,7 +2055,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->returnsData())
     {
-        C << nl << "::Ice::AsyncResult::check(result, this, " << flatName << ");";
+        C << nl << "::Ice::AsyncResult::_check(result, this, " << flatName << ");";
 
         //
         // COMPILERFIX: It's necessary to generate the allocate code here before
@@ -2064,11 +2064,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // and Windows 64 bits when compiled with optimization (see bug 4400).
         //
         writeAllocateCode(C, ParamDeclList(), p, true, _useWstring | TypeContextAMIEnd);
-        C << nl << "if(!result->waitForResponse())";
+        C << nl << "if(!result->_waitForResponse())";
         C << sb;
         C << nl << "try";
         C << sb;
-        C << nl << "result->throwUserException();";
+        C << nl << "result->_throwUserException();";
         C << eb;
         //
         // Generate a catch block for each legal user exception.
@@ -2096,17 +2096,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         if(ret || !outParams.empty())
         {
-            C << nl << "::Ice::InputStream* istr = result->startReadParams();";
+            C << nl << "::Ice::InputStream* istr = result->_startReadParams();";
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIEnd);
             if(p->returnsClasses(false))
             {
                 C << nl << "istr->readPendingValues();";
             }
-            C << nl << "result->endReadParams();";
+            C << nl << "result->_endReadParams();";
         }
         else
         {
-            C << nl << "result->readEmptyParams();";
+            C << nl << "result->_readEmptyParams();";
         }
         if(ret)
         {
@@ -2126,12 +2126,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sp << nl << "void IceProxy" << scope << "_iceI_end_" << name << spar << outParamsDeclEndAMI
           << "const ::Ice::AsyncResultPtr& result" << epar;
         C << sb;
-        C << nl << "::Ice::AsyncResult::check(result, this, " << flatName << ");";
-        C << nl << "if(!result->waitForResponse())";
+        C << nl << "::Ice::AsyncResult::_check(result, this, " << flatName << ");";
+        C << nl << "if(!result->_waitForResponse())";
         C << sb;
         C << nl << "try";
         C << sb;
-        C << nl << "result->throwUserException();";
+        C << nl << "result->_throwUserException();";
         C << eb;
         //
         // Generate a catch block for each legal user exception.
@@ -2160,17 +2160,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if(ret || !outParams.empty())
         {
-            C << nl << "::Ice::InputStream* istr = result->startReadParams();";
+            C << nl << "::Ice::InputStream* istr = result->_startReadParams();";
             writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextAMIPrivateEnd);
             if(p->returnsClasses(false))
             {
                 C << nl << "istr->readPendingValues();";
             }
-            C << nl << "result->endReadParams();";
+            C << nl << "result->_endReadParams();";
         }
         else
         {
-            C << nl << "result->readEmptyParams();";
+            C << nl << "result->_readEmptyParams();";
         }
         C << eb;
     }

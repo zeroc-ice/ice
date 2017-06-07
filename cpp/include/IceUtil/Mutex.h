@@ -158,7 +158,13 @@ inline void
 Mutex::lock() const
 {
     EnterCriticalSection(&_mutex);
-    assert(_mutex.RecursionCount == 1);
+#ifndef NDEBUG
+    if(_mutex.RecursionCount > 1)
+    {
+        LeaveCriticalSection(&_mutex);
+        throw ThreadLockedException(__FILE__, __LINE__);
+    }
+#endif
 }
 
 inline bool

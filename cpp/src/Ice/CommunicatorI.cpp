@@ -465,8 +465,8 @@ Ice::CommunicatorI::_iceI_begin_flushBatchRequests(CompressBatch compress,
 void
 Ice::CommunicatorI::end_flushBatchRequests(const AsyncResultPtr& r)
 {
-    AsyncResult::check(r, this, flushBatchRequests_name);
-    r->waitForResponse();
+    AsyncResult::_check(r, this, flushBatchRequests_name);
+    r->_waitForResponse();
 }
 #endif
 

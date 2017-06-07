@@ -2,47 +2,41 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!--
      This property file is included by Ice Builder when building
-     CSharp projects
+     CSharp projects using the source distribution
     -->
 
     <!--
-      Guess the configuration to use with this build
+     Guess the platform and configuration used with this build
     -->
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <Ice_Configuration>Debug</Ice_Configuration>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\$(Platform)\$(Configuration)\slice2cs.exe')">
+        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <Ice_Configuration>Release</Ice_Configuration>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\x64\$(Configuration)\slice2cs.exe') And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\x64\$(Configuration)</IceToolsPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Ice_Configuration)' == ''">
-        <Ice_Configuration>Debug</Ice_Configuration>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\Win32\$(Configuration)\slice2cs.exe')  And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\Win32\$(Configuration)</IceToolsPath>
     </PropertyGroup>
 
-    <!--
-     Guess the platform to use with this build
-    -->
-    <PropertyGroup Condition="'$(Platform)' == 'Win32'">
-        <Ice_Platform>Win32</Ice_Platform>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\x64\Release\slice2cs.exe')  And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\x64\Release</IceToolsPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Platform)' == 'x64'">
-        <Ice_Platform>x64</Ice_Platform>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\x64\Debug\slice2cs.exe')  And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\x64\Debug</IceToolsPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Ice_Platform)' == '' And Exists('$(IceHome)\cpp\bin\Win32\$(Ice_Configuration)\slice2cs.exe')">
-        <Ice_Platform>Win32</Ice_Platform>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\Win32\Release\slice2cs.exe')  And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\Win32\Release</IceToolsPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Ice_Platform)' == '' And Exists('$(IceHome)\cpp\bin\x64\$(Ice_Configuration)\slice2cs.exe')">
-        <Ice_Platform>x64</Ice_Platform>
+    <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\Win32\Debug\slice2cs.exe')  And '$(IceToolsPath)' == ''">
+        <IceToolsPath>$(IceHome)\cpp\bin\Win32\Debug</IceToolsPath>
     </PropertyGroup>
 
     <PropertyGroup>
-        <!-- IceToolsPath must point to the location of slice2cs Slice CSharp compiler -->
-        <IceToolsPath>$(IceHome)\cpp\bin\$(Ice_Platform)\$(Ice_Configuration)</IceToolsPath>
-
         <IceAssembliesDir>$(IceHome)\csharp\Assemblies</IceAssembliesDir>
     </PropertyGroup>
 </Project>

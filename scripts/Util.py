@@ -397,12 +397,15 @@ def parseOptions(obj, options, mapped={}):
     for (o, a) in options:
         if o.startswith("--"): o = o[2:]
         if o.startswith("-"): o = o[1:]
+        if not a and o.startswith("no-"):
+            a = "false"
+            o = o[3:]
         if o in mapped:
             o = mapped[o]
 
         if hasattr(obj, o):
             if isinstance(getattr(obj, o), bool):
-                setattr(obj, o, a.lower() in ("yes", "true", "1") if a else True)
+                setattr(obj, o, True if not a else (a.lower() in ["yes", "true", "1"]))
             elif isinstance(getattr(obj, o), list):
                 l = getattr(obj, o)
                 l.append(a)
@@ -443,7 +446,7 @@ class Mapping:
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "serialize", "mx",
+            return ("", ["config=", "platform=", "protocol=", "compress", "ipv6", "no-ipv6", "serialize", "mx",
                          "cprops=", "sprops="])
 
         @classmethod
@@ -546,7 +549,8 @@ class Mapping:
                         v = next(v)
                         if v:
                             if type(v) == bool:
-                                options.append(("--{0}".format(k), None))
+                                if v:
+                                    options.append(("--{0}".format(k), None))
                             else:
                                 options.append(("--{0}".format(k), v))
 
@@ -554,7 +558,8 @@ class Mapping:
                     for o in self.parsedOptions:
                         v = getattr(self, o)
                         if type(v) == bool:
-                            options.append(("--{0}".format(o), None))
+                            if v:
+                                options.append(("--{0}".format(o), None))
                         elif type(v) == list:
                             options += [("--{0}".format(o), e) for e in v]
                         else:

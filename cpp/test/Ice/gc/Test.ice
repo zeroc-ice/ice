@@ -9,6 +9,8 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]]
+
 module Test
 {
 

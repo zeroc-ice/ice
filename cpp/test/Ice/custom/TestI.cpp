@@ -331,18 +331,18 @@ TestIntfI::opEList(ICE_IN(std::list< ::Test::E>) inSeq,
     return inSeq;
 }
 
-std::deque< ::Test::CPrxPtr>
-TestIntfI::opCPrxSeq(ICE_IN(std::deque< ::Test::CPrxPtr>) inSeq,
-                           std::deque< ::Test::CPrxPtr>& outSeq,
+std::deque< ::Test::DPrxPtr>
+TestIntfI::opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>) inSeq,
+                           std::deque< ::Test::DPrxPtr>& outSeq,
                            const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::CPrxPtr>
-TestIntfI::opCPrxList(ICE_IN(std::list< ::Test::CPrxPtr>) inSeq,
-                            std::list< ::Test::CPrxPtr>& outSeq,
+std::list< ::Test::DPrxPtr>
+TestIntfI::opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>) inSeq,
+                            std::list< ::Test::DPrxPtr>& outSeq,
                             const Ice::Current&)
 {
     outSeq = inSeq;

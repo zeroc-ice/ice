@@ -47,8 +47,8 @@ ifeq ($(filter Darwin,$(os)),)
 install-slice:: $(DESTDIR)$(prefix)/share/slice
 
 $(DESTDIR)$(prefix)/share/slice:
-	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/share
-	$(Q)ln -s ice/slice $(DESTDIR)$(prefix)/share/slice
+	$(foreach dir,$(notdir $(wildcard slice/*)), \
+		$(shell $(MKDIR) -p $(DESTDIR)$(prefix)/share/slice && cd $(DESTDIR)$(prefix)/share/slice && ln -sf ../ice/slice/$(dir) .))
 endif
 endif
 

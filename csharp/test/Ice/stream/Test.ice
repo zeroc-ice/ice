@@ -12,7 +12,7 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata"]]
+[["suppress-warning:invalid-metadata, deprecated"]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -40,7 +40,7 @@ struct SmallStruct
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
+    MyInterface* p;
 }
 
 class OptionalClass

@@ -146,14 +146,14 @@ public:
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opCPrxSeqAsync(std::deque<std::shared_ptr<Ice::ObjectPrx>>,
-                        std::function<void(const std::deque<std::shared_ptr<Ice::ObjectPrx>>&,
-                                            const std::deque<std::shared_ptr<Ice::ObjectPrx>>&)>,
+    void opDPrxSeqAsync(std::deque<std::shared_ptr<::Test::DPrx>>,
+                        std::function<void(const std::deque<std::shared_ptr<::Test::DPrx>>&,
+                                            const std::deque<std::shared_ptr<::Test::DPrx>>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
-    void opCPrxListAsync(::Test::CPrxList,
-                         std::function<void(const ::Test::CPrxList&, const ::Test::CPrxList&)>,
+    void opDPrxListAsync(::Test::DPrxList,
+                         std::function<void(const ::Test::DPrxList&, const ::Test::DPrxList&)>,
                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
 
@@ -324,12 +324,12 @@ public:
                                const Test::EList&,
                                const Ice::Current&);
 
-    virtual void opCPrxSeq_async(const Test::AMD_TestIntf_opCPrxSeqPtr&,
-                                 const std::deque<Test::CPrx>&,
+    virtual void opDPrxSeq_async(const Test::AMD_TestIntf_opDPrxSeqPtr&,
+                                 const std::deque<Test::DPrx>&,
                                  const Ice::Current&);
 
-    virtual void opCPrxList_async(const Test::AMD_TestIntf_opCPrxListPtr&,
-                                  const Test::CPrxList&,
+    virtual void opDPrxList_async(const Test::AMD_TestIntf_opDPrxListPtr&,
+                                  const Test::DPrxList&,
                                   const Ice::Current&);
 
     virtual void opCSeq_async(const Test::AMD_TestIntf_opCSeqPtr&,

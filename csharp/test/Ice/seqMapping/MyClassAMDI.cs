@@ -373,34 +373,34 @@ public sealed class MyClassI : MyClassDisp_
         return Task.FromResult<MyClass_OpLCVSResult>(new MyClass_OpLCVSResult(i, i));
     }
 
-    public override Task<MyClass_OpACVPrxSResult>
-    opACVPrxSAsync(Ice.ObjectPrx[] i, Ice.Current current)
+    public override Task<MyClass_OpAIPrxSResult>
+    opAIPrxSAsync(Test.IPrx[] i, Ice.Current current)
     {
-        return Task.FromResult<MyClass_OpACVPrxSResult>(new MyClass_OpACVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpAIPrxSResult>(new MyClass_OpAIPrxSResult(i, i));
     }
 
-    public override Task<MyClass_OpLCVPrxSResult>
-    opLCVPrxSAsync(List<Ice.ObjectPrx> i, Ice.Current current)
+    public override Task<MyClass_OpLIPrxSResult>
+    opLIPrxSAsync(List<Test.IPrx> i, Ice.Current current)
     {
-        return Task.FromResult<MyClass_OpLCVPrxSResult>(new MyClass_OpLCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpLIPrxSResult>(new MyClass_OpLIPrxSResult(i, i));
     }
 
-    public override Task<MyClass_OpKCVPrxSResult>
-    opKCVPrxSAsync(LinkedList<Ice.ObjectPrx> i, Ice.Current current)
+    public override Task<MyClass_OpKIPrxSResult>
+    opKIPrxSAsync(LinkedList<Test.IPrx> i, Ice.Current current)
     {
-        return Task.FromResult<MyClass_OpKCVPrxSResult>(new MyClass_OpKCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpKIPrxSResult>(new MyClass_OpKIPrxSResult(i, i));
     }
 
-    public override Task<MyClass_OpQCVPrxSResult>
-    opQCVPrxSAsync(Queue<Ice.ObjectPrx> i, Ice.Current current)
+    public override Task<MyClass_OpQIPrxSResult>
+    opQIPrxSAsync(Queue<Test.IPrx> i, Ice.Current current)
     {
-        return Task.FromResult<MyClass_OpQCVPrxSResult>(new MyClass_OpQCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpQIPrxSResult>(new MyClass_OpQIPrxSResult(i, i));
     }
 
-    public override Task<MyClass_OpSCVPrxSResult>
-    opSCVPrxSAsync(Stack<Ice.ObjectPrx> i, Ice.Current current)
+    public override Task<MyClass_OpSIPrxSResult>
+    opSIPrxSAsync(Stack<Test.IPrx> i, Ice.Current current)
     {
-        return Task.FromResult<MyClass_OpSCVPrxSResult>(new MyClass_OpSCVPrxSResult(i, i));
+        return Task.FromResult<MyClass_OpSIPrxSResult>(new MyClass_OpSIPrxSResult(i, i));
     }
 
     public override Task<MyClass_OpACRSResult>

@@ -34,7 +34,7 @@ def wrap_future(future, *, loop=None):
     if loop is None:
         loop = asyncio.get_event_loop()
 
-    af = loop.create_future()
+    af = asyncio.Future()
 
     def callback():
         if future.cancelled():

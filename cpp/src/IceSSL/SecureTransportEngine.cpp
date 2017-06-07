@@ -1229,26 +1229,15 @@ IceSSL::SecureTransport::SSLEngine::parseCiphers(const string& ciphers)
         {
             for(vector<SSLCipherSuite>::iterator j = enabled.begin(); j != enabled.end();)
             {
-                SSLCipherSuite cipher = *j;
-                string name = CiphersHelper::cipherName(cipher);
-
-                if(ce.cipher.empty())
+                string name = CiphersHelper::cipherName(*j);
+                if((ce.cipher.empty() && ce.re->match(name)) || ce.cipher == name)
                 {
-                    if(ce.re->match(name))
-                    {
-                        j = enabled.erase(j);
-                        continue;
-                    }
+                    j = enabled.erase(j);
                 }
                 else
                 {
-                    if(ce.cipher == name)
-                    {
-                        j = enabled.erase(j);
-                        continue;
-                    }
+                    ++j;
                 }
-                j++;
             }
         }
         else

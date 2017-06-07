@@ -21,7 +21,20 @@ Change to the Ice for JavaScript source subdirectory:
 Run these commands to build the libraries and tests:
 
     > npm install
-    > npm run gulp:build
+    > npm run build
+
+On Windows, you need to set the platform and configuration in order to locate
+slice2js. For example, if you have built C++ with the x64 Release configuration,
+you can use the following command to build JavaScript:
+
+    > npm run build -- --cppPlatform x64 --cppConfiguration Release
+
+Alternatively you can use the CPP_PLATFORM and CPP_CONFIGURATION environment
+variables:
+
+    > set CPP_PLATFORM=x64
+    > set CPP_CONFIGURATION=Debug
+    > npm run build
 
 ## Running the JavaScript Tests
 
@@ -33,14 +46,14 @@ with the command:
 
 To start the tests simply run:
 
-    > npm run gulp:test:run-with-node
+    > npm run test:node
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 To start the browser tests run:
 
-    > npm run gulp:test:run-with-browser
+    > npm run test:browser
 
 This requires that you build the Java test controller from the Java subdirectory
 and test servers from C++, C# or Java. Follow the instructions from the
@@ -123,7 +136,7 @@ Next go to _Settings -> Security -> Install from storage_, and choose
 
 ## Installing a Source Build
 
-After a successful build, you can generate an npm package by running the
+After a successful build, you can generate a package by running the
 following command:
 
     > npm pack

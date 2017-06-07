@@ -27,7 +27,6 @@
 #      include <process.h>
 #   else
 #      include <sys/types.h>
-#      include <unistd.h>
 #      include <cstddef>
 #   endif
 #endif

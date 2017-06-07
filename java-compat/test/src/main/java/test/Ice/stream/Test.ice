@@ -23,6 +23,7 @@ enum MyEnum
 }
 
 class MyClass;
+interface MyInterface;
 
 ["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
 
@@ -37,7 +38,8 @@ struct SmallStruct
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
+    MyClass c;
+    MyInterface* p;
     SerialSmall ss;
 }
 
@@ -95,7 +97,7 @@ class Bar;
 class MyClass
 {
     MyClass c;
-    MyClass* prx;
+    MyInterface* prx;
     Object o;
     SmallStruct s;
     Ice::BoolSeq seq1;

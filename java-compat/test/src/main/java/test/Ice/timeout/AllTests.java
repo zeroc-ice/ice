@@ -132,6 +132,25 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
+    public static Ice.Connection
+    connect(Ice.ObjectPrx prx)
+    {
+        int nRetry = 5;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                prx.ice_getConnection();
+                break;
+            }
+            catch(Ice.ConnectTimeoutException ex)
+            {
+                // Can sporadically occur with slow machines
+            }
+        }
+        return prx.ice_getConnection(); // Establish connection
+    }
+
     public static TimeoutPrx
     allTests(test.Util.Application app)
     {
@@ -325,8 +344,8 @@ public class AllTests
         out.print("testing close timeout... ");
         out.flush();
         {
-            TimeoutPrx to = TimeoutPrxHelper.checkedCast(obj.ice_timeout(250 * mult));
-            Ice.Connection connection = to.ice_getConnection();
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250 * mult));
+            Ice.Connection connection = connect(to);
             timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
             try
@@ -367,10 +386,11 @@ public class AllTests
             //
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.Timeout", "250");
+            initData.properties.setProperty("Ice.Override.Timeout", "100");
             Ice.Communicator comm = app.initialize(initData);
-            TimeoutPrx to = TimeoutPrxHelper.checkedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(700 * mult);
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));
+            connect(to);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);
@@ -384,7 +404,8 @@ public class AllTests
             // Calling ice_timeout() should have no effect.
             //
             timeout.op(); // Ensure adapter is active.
-            to = TimeoutPrxHelper.checkedCast(to.ice_timeout(1000 * mult));
+            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(1000 * mult));
+            connect(to);
             timeout.holdAdapter(500 * mult);
             try
             {
@@ -443,22 +464,9 @@ public class AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
-            int nRetry = 5;
-            while(--nRetry > 0)
-            {
-                try
-                {
-                    to.ice_getConnection();
-                    break;
-                }
-                catch(Ice.ConnectTimeoutException ex)
-                {
-                    // Can sporadically occur with slow machines
-                }
-            }
-            to.ice_getConnection(); // Establish connection
-            timeout.holdAdapter(750 * mult);
+            to = TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
+            connect(to);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);

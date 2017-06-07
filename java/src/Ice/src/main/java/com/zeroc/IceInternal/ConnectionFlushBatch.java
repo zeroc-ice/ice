@@ -27,22 +27,9 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
     }
 
     @Override
-    protected void markSent()
-    {
-        super.markSent();
-
-        assert((_state & StateOK) != 0);
-        complete(null);
-    }
-
-    @Override
     protected void markCompleted()
     {
-        if(_exception != null)
-        {
-            completeExceptionally(_exception);
-        }
-        super.markCompleted();
+        complete(null);
     }
 
     public void invoke(com.zeroc.Ice.CompressBatch compressBatch)

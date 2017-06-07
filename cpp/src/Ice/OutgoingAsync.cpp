@@ -471,7 +471,7 @@ OutgoingAsyncBase::throwLocalException() const
 }
 
 bool
-OutgoingAsyncBase::waitForResponse()
+OutgoingAsyncBase::_waitForResponse()
 {
     Lock sync(_m);
     if(_state & EndCalled)
@@ -492,32 +492,32 @@ OutgoingAsyncBase::waitForResponse()
 }
 
 Ice::InputStream*
-OutgoingAsyncBase::startReadParams()
+OutgoingAsyncBase::_startReadParams()
 {
     _is.startEncapsulation();
     return &_is;
 }
 
 void
-OutgoingAsyncBase::endReadParams()
+OutgoingAsyncBase::_endReadParams()
 {
     _is.endEncapsulation();
 }
 
 void
-OutgoingAsyncBase::readEmptyParams()
+OutgoingAsyncBase::_readEmptyParams()
 {
     _is.skipEmptyEncapsulation();
 }
 
 void
-OutgoingAsyncBase::readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
+OutgoingAsyncBase::_readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
 {
     _is.readEncapsulation(encaps, sz);
 }
 
 void
-OutgoingAsyncBase::throwUserException()
+OutgoingAsyncBase::_throwUserException()
 {
     try
     {
@@ -532,23 +532,25 @@ OutgoingAsyncBase::throwUserException()
 }
 
 void
-OutgoingAsyncBase::scheduleCallback(const CallbackPtr& cb)
+OutgoingAsyncBase::_scheduleCallback(const CallbackPtr& cb)
 {
+    //
+    // NOTE: for internal use only. This should only be called when the invocation has
+    // completed. Accessing _cachedConnection is not safe otherwise.
+    //
+
     class WorkItem : public DispatchWorkItem
     {
     public:
 
-        WorkItem(const CallbackPtr& cb) : _cb(cb) {}
+        WorkItem(const ConnectionPtr& connection, const CallbackPtr& cb) :
+            DispatchWorkItem(connection), _cb(cb)
+        {
+        }
 
         virtual void run()
         {
-            try
-            {
-                _cb->run();
-            }
-            catch(...)
-            {
-            }
+            _cb->run();
         }
 
     private:
@@ -559,7 +561,7 @@ OutgoingAsyncBase::scheduleCallback(const CallbackPtr& cb)
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(new WorkItem(cb));
+    _instance->clientThreadPool()->dispatch(new WorkItem(_cachedConnection, cb));
 }
 
 #endif

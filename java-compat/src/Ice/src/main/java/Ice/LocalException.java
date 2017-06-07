@@ -11,6 +11,8 @@ package Ice;
 
 /**
  * Base class for all Ice run-time exceptions.
+ * System exceptions are currently Ice internal, non-documented
+ * exceptions.
  **/
 public abstract class LocalException extends Exception
 {

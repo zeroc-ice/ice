@@ -154,15 +154,21 @@ public class AllTests
             {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(app.getTestPort(communicator.getProperties(), 10));
-                if(System.getProperty("os.name").contains("OS X"))
+                if(System.getProperty("os.name").contains("OS X") ||
+                   System.getProperty("os.name").startsWith("Windows"))
                 {
-                    endpoint.append(" --interface \"::1\"");
+                    endpoint.append(" --interface \"::1\""); // Use loopback to prevent other machines to answer.
                 }
             }
             else
             {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(app.getTestPort(communicator.getProperties(), 10));
+                if(System.getProperty("os.name").contains("OS X") ||
+                   System.getProperty("os.name").startsWith("Windows"))
+                {
+                    endpoint.append(" --interface 127.0.0.1"); // Use loopback to prevent other machines to answer.
+                }
             }
             base = communicator.stringToProxy("test -d:" + endpoint.toString());
             TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);

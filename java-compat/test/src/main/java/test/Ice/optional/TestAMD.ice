@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.optional.AMD"]]
+[["java:package:test.Ice.optional.AMD", "suppress-warning:deprecated"]]
 module Test
 {
 

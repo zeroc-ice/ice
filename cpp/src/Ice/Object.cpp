@@ -192,8 +192,9 @@ Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallba
 #endif
         try
         {
-            return _iceDispatch(in, in.getCurrent());
+            bool sync = _iceDispatch(in, in.getCurrent());
             in.pop();
+            return sync;
         }
         catch(...)
         {

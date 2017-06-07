@@ -127,45 +127,47 @@ class ProcessControllerI extends Test.Common.ProcessController
         if(this._useWorker)
         {
             let scripts = this._scripts;
-            promise = new Promise((resolve, reject) => {
-                let worker;
-                if(document.location.pathname.indexOf("/es5/") !== -1)
+            promise = new Promise((resolve, reject) => 
                 {
-                    worker = new Worker("/test/es5/Common/ControllerWorker.js");
-                }
-                else
-                {
-                    worker = new Worker("/test/Common/ControllerWorker.js");
-                }
-                this._worker = worker;
-                worker.onmessage = function(e) {
-                    if(e.data.type == "write")
+                    let worker;
+                    if(document.location.pathname.indexOf("/es5/") !== -1)
                     {
-                        out.write(e.data.message);
+                        worker = new Worker("/test/es5/Common/ControllerWorker.js");
                     }
-                    else if(e.data.type == "writeLine")
+                    else
                     {
-                        out.writeLine(e.data.message);
+                        worker = new Worker("/test/Common/ControllerWorker.js");
                     }
-                    else if(e.data.type == "ready" && (exe === "Server" || exe === "ServerAMD"))
+                    this._worker = worker;
+                    worker.onmessage = function(e) 
                     {
-                        ready.resolve();
-                    }
-                    else if(e.data.type == "finished")
-                    {
-                        if(e.data.exception)
+                        if(e.data.type == "write")
                         {
-                            reject(e.data.exception);
+                            out.write(e.data.message);
                         }
-                        else
+                        else if(e.data.type == "writeLine")
                         {
-                            resolve();
+                            out.writeLine(e.data.message);
                         }
-                        worker.terminate();
-                    }
-                };
-                worker.postMessage({ scripts:scripts, exe:exe, args:args });
-            });
+                        else if(e.data.type == "ready" && (exe === "Server" || exe === "ServerAMD"))
+                        {
+                            ready.resolve();
+                        }
+                        else if(e.data.type == "finished")
+                        {
+                            if(e.data.exception)
+                            {
+                                reject(e.data.exception);
+                            }
+                            else
+                            {
+                                resolve();
+                            }
+                            worker.terminate();
+                        }
+                    };
+                    worker.postMessage({ scripts:scripts, exe:exe, args:args });
+                });
         }
         else
         {
@@ -235,45 +237,54 @@ function runController(clientOutput, serverOutput, scripts)
     };
 
     let uri = new URI(document.location.href);
-    let initData = new Ice.InitializationData();
     let protocol = uri.protocol() === "http" ? "ws" : "wss";
     let query = uri.search(true);
     let port = query.port || 15002;
     let worker = query.worker === "True";
+
+    let initData = new Ice.InitializationData();
     initData.logger = new Logger(out);
+    initData.properties = Ice.createProperties();
+    initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
 
     let registerProcessController = function(adapter, registry, processController) {
-        registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController)).then(
-        () => {
-            let connection = registry.ice_getCachedConnection();
-            connection.setAdapter(adapter);
-            connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
-            connection.setCloseCallback(connection => {
-                out.writeLine("connection with process controller registry closed");
+        registry.ice_ping().then(
+            () =>
+            {
+                let connection = registry.ice_getCachedConnection();
+                connection.setAdapter(adapter);
+                connection.setACM(5, Ice.ACMClose.CloseOff, Ice.ACMHeartbeat.HeartbeatAlways);
+                connection.setCloseCallback(
+                    connection => out.writeLine("connection with process controller registry closed"));
+                return registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController));
+            }).catch(
+            ex => 
+            {
+                if(ex instanceof Ice.ConnectFailedException)
+                {
+                    setTimeout(() => registerProcessController(adapter, registry, processController), 2000);
+                }
+                else
+                {
+                    out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString());
+                }
             });
-        },
-        ex => {
-            if(ex instanceof Ice.ConnectFailedException)
-            {
-                setTimeout(() => registerProcessController(adapter, registry, processController), 2000);
-            }
-            else
-            {
-                out.writeLine("unexpected exception while connecting to process controller registry:\n" + ex.toString());
-            }
-        });
     };
 
-    let comm = Ice.initialize();
+    let comm = Ice.initialize(initData);
     let str = "Util/ProcessControllerRegistry:" + protocol + " -h 127.0.0.1 -p " + port;
     let registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
-    comm.createObjectAdapter("").then(adapter => {
-        let ident = new Ice.Identity("ProcessController", "Browser");
-        let processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
-        adapter.activate();
-        registerProcessController(adapter, registry, processController);
-    }).catch(ex => {
-        out.writeLine("unexpected exception while creating controller:\n" + ex.toString());
-        comm.destroy();
-    });
+    comm.createObjectAdapter("").then(
+        adapter => 
+        {
+            let ident = new Ice.Identity("ProcessController", "Browser");
+            let processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
+            adapter.activate();
+            registerProcessController(adapter, registry, processController);
+        }).catch(
+        ex => 
+        {
+            out.writeLine("unexpected exception while creating controller:\n" + ex.toString());
+            comm.destroy();
+        });
 }

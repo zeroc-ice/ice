@@ -42,7 +42,8 @@ public class Server extends test.Util.Application
         {
             endpoint.append("udp -h \"ff15::1:1\" -p ");
             endpoint.append(getTestPort(properties, 10));
-            if(System.getProperty("os.name").contains("OS X"))
+            if(System.getProperty("os.name").contains("OS X") ||
+               System.getProperty("os.name").startsWith("Windows"))
             {
                 endpoint.append(" --interface \"::1\"");
             }
@@ -51,6 +52,11 @@ public class Server extends test.Util.Application
         {
             endpoint.append("udp -h 239.255.1.1 -p ");
             endpoint.append(getTestPort(properties, 10));
+            if(System.getProperty("os.name").contains("OS X") ||
+               System.getProperty("os.name").startsWith("Windows"))
+            {
+                endpoint.append(" --interface 127.0.0.1");
+            }
         }
         properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
         Ice.ObjectAdapter mcastAdapter = communicator().createObjectAdapter("McastTestAdapter");

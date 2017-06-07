@@ -759,7 +759,7 @@ public final class OutgoingConnectionFactory
     handleConnectionException(Ice.LocalException ex, boolean hasMore)
     {
         TraceLevels traceLevels = _instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             StringBuilder s = new StringBuilder(128);
             s.append("connection to endpoint failed");
@@ -779,7 +779,7 @@ public final class OutgoingConnectionFactory
                 }
             }
             s.append(ex.toString());
-            _instance.initializationData().logger.trace(traceLevels.retryCat, s.toString());
+            _instance.initializationData().logger.trace(traceLevels.networkCat, s.toString());
         }
     }
 
@@ -787,7 +787,7 @@ public final class OutgoingConnectionFactory
     handleException(Ice.LocalException ex, boolean hasMore)
     {
         TraceLevels traceLevels = _instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             StringBuilder s = new StringBuilder(128);
             s.append("couldn't resolve endpoint host");
@@ -807,7 +807,7 @@ public final class OutgoingConnectionFactory
                 }
             }
             s.append(ex.toString());
-            _instance.initializationData().logger.trace(traceLevels.retryCat, s.toString());
+            _instance.initializationData().logger.trace(traceLevels.networkCat, s.toString());
         }
     }
 

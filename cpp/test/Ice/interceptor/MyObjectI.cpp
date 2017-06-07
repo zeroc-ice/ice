@@ -103,7 +103,7 @@ void
 MyObjectI::amdAddWithRetryAsync(int x,
                                 int y,
                                 function<void(int)> response,
-                                function<void(exception_ptr)>,
+                                function<void(exception_ptr)> error,
                                 const Ice::Current& current)
 {
     thread t(
@@ -124,7 +124,14 @@ MyObjectI::amdAddWithRetryAsync(int x,
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        try
+        {
+            throw Test::RetryException(__FILE__, __LINE__);
+        }
+        catch(...)
+        {
+            error(std::current_exception());
+        }
     }
 }
 
@@ -145,7 +152,7 @@ MyObjectI::amdBadAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -168,7 +175,7 @@ MyObjectI::amdNotExistAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -191,7 +198,7 @@ MyObjectI::amdBadSystemAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -258,7 +265,7 @@ MyObjectI::amdAddWithRetry_async(const Test::AMD_MyObject_amdAddWithRetryPtr& cb
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        cb->ice_exception(Test::RetryException(__FILE__, __LINE__));
     }
 }
 

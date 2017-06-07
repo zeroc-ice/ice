@@ -588,8 +588,9 @@ initializeTests(const ConfigurationPtr& configuration,
     {
         background->op();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
@@ -724,8 +725,9 @@ initializeTests(const ConfigurationPtr& configuration,
         background->op();
         ctl->initializeSocketOperation(IceInternal::SocketOperationNone);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+        cerr << ex << endl;
         test(false);
     }
     background->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
@@ -758,8 +760,9 @@ initializeTests(const ConfigurationPtr& configuration,
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
 
@@ -778,8 +781,9 @@ initializeTests(const ConfigurationPtr& configuration,
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
 
@@ -803,8 +807,9 @@ initializeTests(const ConfigurationPtr& configuration,
         {
             background->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
 

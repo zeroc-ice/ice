@@ -57,6 +57,24 @@ public class AllTests
         private boolean _called;
     }
 
+    public static com.zeroc.Ice.Connection connect(com.zeroc.Ice.ObjectPrx prx)
+    {
+        int nRetry = 5;
+        while(--nRetry > 0)
+        {
+            try
+            {
+                prx.ice_getConnection();
+                break;
+            }
+            catch(com.zeroc.Ice.ConnectTimeoutException ex)
+            {
+                // Can sporadically occur with slow machines
+            }
+        }
+        return prx.ice_getConnection(); // Establish connection
+    }
+
     public static TimeoutPrx allTests(test.Util.Application app)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
@@ -258,8 +276,8 @@ public class AllTests
         out.print("testing close timeout... ");
         out.flush();
         {
-            TimeoutPrx to = TimeoutPrx.checkedCast(obj.ice_timeout(250 * mult));
-            com.zeroc.Ice.Connection connection = to.ice_getConnection();
+            TimeoutPrx to = TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+            com.zeroc.Ice.Connection connection = connect(to);
             timeout.holdAdapter(600);
             connection.close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             try
@@ -300,10 +318,11 @@ public class AllTests
             //
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.Timeout", "250");
+            initData.properties.setProperty("Ice.Override.Timeout", "100");
             com.zeroc.Ice.Communicator comm = app.initialize(initData);
-            TimeoutPrx to = TimeoutPrx.checkedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(700 * mult);
+            TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
+            connect(to);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);
@@ -317,7 +336,8 @@ public class AllTests
             // Calling ice_timeout() should have no effect.
             //
             timeout.op(); // Ensure adapter is active.
-            to = TimeoutPrx.checkedCast(to.ice_timeout(1000 * mult));
+            to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
+            connect(to);
             timeout.holdAdapter(500 * mult);
             try
             {
@@ -376,22 +396,9 @@ public class AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = to.ice_timeout(250);
-            int nRetry = 5;
-            while(--nRetry > 0)
-            {
-                try
-                {
-                    to.ice_getConnection();
-                    break;
-                }
-                catch(com.zeroc.Ice.ConnectTimeoutException ex)
-                {
-                    // Can sporadically occur with slow machines
-                }
-            }
-            to.ice_getConnection(); // Establish connection
-            timeout.holdAdapter(750 * mult);
+            to = to.ice_timeout(100);
+            connect(to);
+            timeout.holdAdapter(500 * mult);
             try
             {
                 to.sendData(seq);

@@ -3,12 +3,18 @@
       <Configuration>Release</Configuration>
     </PropertyGroup>
 
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
 
     <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
       <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    </Target>
+
+    <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
+        <MakeDir Directories="$(TEMP)\SymbolCache" />
+        <Exec Command="symchk /r $(MSBuildThisFileDirectory)packages\zeroc.ice.net.$(IceJSONVersion)\lib\* /s SRV*$(TEMP)\SymbolCache*https://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.net.store/" />
     </Target>
 
     <PropertyGroup>

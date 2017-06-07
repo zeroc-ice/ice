@@ -378,8 +378,6 @@ PriorityInversionTest::run()
             ThreadPtr t = new MediumPriorityThread(collector, highThread, timeout);
             threads.push_back(t->start(128, medium));
         }
-        test(lowThread->isAlive());
-        test(highThread->isAlive());
         //
         // Join with all the threads.
         //
@@ -430,8 +428,6 @@ PriorityInversionTest::run()
             ThreadPtr t = new MediumPriorityThread(collector, highThread, timeout);
             threads.push_back(t->start(128, medium));
         }
-        test(lowThread->isAlive());
-        test(highThread->isAlive());
 
         //
         // Join with all the threads.

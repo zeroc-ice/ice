@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-[["underscore"]]
+[["underscore", "suppress-warning:deprecated"]]
 
 module and
 {

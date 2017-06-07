@@ -230,17 +230,17 @@ TestIntfI::opEListAsync(Test::EList in,
 }
 
 void
-TestIntfI::opCPrxSeqAsync(std::deque<std::shared_ptr<Ice::ObjectPrx>> in,
-                          std::function<void(const std::deque<std::shared_ptr<Ice::ObjectPrx>>&,
-                                              const std::deque<std::shared_ptr<Ice::ObjectPrx>>&)> response,
+TestIntfI::opDPrxSeqAsync(std::deque<std::shared_ptr<Test::DPrx>> in,
+                          std::function<void(const std::deque<std::shared_ptr<Test::DPrx>>&,
+                                             const std::deque<std::shared_ptr<Test::DPrx>>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opCPrxListAsync(Test::CPrxList in,
-                           std::function<void(const Test::CPrxList&, const Test::CPrxList&)> response,
+TestIntfI::opDPrxListAsync(Test::DPrxList in,
+                           std::function<void(const Test::DPrxList&, const Test::DPrxList&)> response,
                            std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -585,21 +585,21 @@ TestIntfI::opEList_async(const Test::AMD_TestIntf_opEListPtr& opEListCB,
 }
 
 void
-TestIntfI::opCPrxSeq_async(const Test::AMD_TestIntf_opCPrxSeqPtr& opCPrxSeqCB,
-                           const std::deque<Test::CPrx>& inSeq,
+TestIntfI::opDPrxSeq_async(const Test::AMD_TestIntf_opDPrxSeqPtr& opDPrxSeqCB,
+                           const std::deque<Test::DPrx>& inSeq,
                            const Ice::Current&)
 {
-    std::deque<Test::CPrx> outSeq(inSeq);
-    opCPrxSeqCB->ice_response(outSeq, outSeq);
+    std::deque<Test::DPrx> outSeq(inSeq);
+    opDPrxSeqCB->ice_response(outSeq, outSeq);
 }
 
 void
-TestIntfI::opCPrxList_async(const Test::AMD_TestIntf_opCPrxListPtr& opCPrxListCB,
-                            const Test::CPrxList& inSeq,
+TestIntfI::opDPrxList_async(const Test::AMD_TestIntf_opDPrxListPtr& opDPrxListCB,
+                            const Test::DPrxList& inSeq,
                             const Ice::Current&)
 {
-    Test::CPrxList outSeq(inSeq);
-    opCPrxListCB->ice_response(outSeq, outSeq);
+    Test::DPrxList outSeq(inSeq);
+    opDPrxListCB->ice_response(outSeq, outSeq);
 }
 
 void

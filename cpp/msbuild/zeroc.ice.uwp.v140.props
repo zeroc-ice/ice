@@ -9,6 +9,5 @@
         <IceNugetPackageVersion>3.7.0</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-        <Path>$(IceBinPath);$(IceToolsPath);%(Path)</Path>
     </PropertyGroup>
 </Project>

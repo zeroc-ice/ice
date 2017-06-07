@@ -125,13 +125,7 @@ public class SessionHelper
      * @throws SessionNotExistException No session exists.
      */
     synchronized public SessionPrx session()
-        throws SessionNotExistException
     {
-        if(_session == null)
-        {
-            throw new SessionNotExistException();
-        }
-
         return _session;
     }
 

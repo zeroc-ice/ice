@@ -406,14 +406,7 @@ public class Client extends test.Util.Application
             out.println("ok");
 
             out.print("testing SessionHelper session after destroy... ");
-            try
-            {
-                _session.session();
-                test(false);
-            }
-            catch(Glacier2.SessionNotExistException ex)
-            {
-            }
+            test(_session.session() == null);
             out.println("ok");
 
             out.print("testing SessionHelper communicator after destroy... ");
