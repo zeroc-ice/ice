@@ -32,7 +32,6 @@ namespace
 //
 template<size_t wcharSize> struct WstringHelper;
 
-
 template<>
 struct WstringHelper<2>
 {

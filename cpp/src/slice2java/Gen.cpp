@@ -113,7 +113,6 @@ bool isValue(const TypePtr& type)
     return (b && b->usesClasses()) || cl;
 }
 
-
 // Returns java.util.OptionalXXX.ofYYY depending on the type
 string ofFactory(const TypePtr& type)
 {
@@ -4305,7 +4304,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, false);
     out << nl << "return v;";
     out << eb;
-
 
     static const char* builtinTable[] = { "Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String" };
 

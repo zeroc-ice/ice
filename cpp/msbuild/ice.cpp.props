@@ -240,7 +240,6 @@
     </Otherwise>
   </Choose>
 
-
   <!--
       Workaround to avoid annoying warnings from Nuget restore.
   -->

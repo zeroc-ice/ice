@@ -503,7 +503,6 @@ gulp.task("lint:js", ["build"],
             jshint.reporter("default")], cb);
     });
 
-
 var buildDepends = ["dist", "test"];
 var cleanDepends = ["test:clean", "common:clean"];
 

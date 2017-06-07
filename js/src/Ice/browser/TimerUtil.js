@@ -13,7 +13,6 @@
 
 /* global WorkerGlobalScope */
 
-
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //

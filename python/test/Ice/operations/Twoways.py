@@ -1308,7 +1308,6 @@ def twoways(communicator, p):
         for j in range(len(r)):
             test(r[j] == -j)
 
-
     #
     # opContext
     #

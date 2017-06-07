@@ -136,9 +136,7 @@ private:
     R _ref;
 };
 
-
 #endif
-
 
 class CryptPermissionsVerifierI : public PermissionsVerifier
 {
@@ -167,7 +165,6 @@ private:
 
     CommunicatorPtr _communicator;
 };
-
 
 map<string, string>
 retrievePasswordMap(const string& file)
@@ -507,7 +504,6 @@ CryptPermissionsVerifierI::checkPermissions(const string& userId, const string& 
 
 #endif
 }
-
 
 CryptPermissionsVerifierPlugin::CryptPermissionsVerifierPlugin(const CommunicatorPtr& communicator) :
     _communicator(communicator)

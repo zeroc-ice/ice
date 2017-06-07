@@ -49,7 +49,6 @@ function testSetACM($communicator, $com)
     $testCommunicator = $NS ? eval("return Ice\\initialize(\$initData);") :
                               eval("return Ice_initialize(\$initData);");
 
-
     $proxy = $testCommunicator->stringToProxy($adapter->getTestIntf()->ice_toString())->ice_uncheckedCast(
         "::Test::TestIntf");
     $proxy->ice_getConnection();

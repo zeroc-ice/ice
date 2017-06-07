@@ -66,7 +66,6 @@ public:
     using IceUtil::Monitor<IceUtil::Mutex>::unlock;
 #endif
 
-
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
              const RegistryInfo&, bool);
 

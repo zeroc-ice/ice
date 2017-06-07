@@ -28,7 +28,6 @@ using namespace IceSSL;
 using namespace IceSSL::SecureTransport;
 using namespace std;
 
-
 namespace
 {
 

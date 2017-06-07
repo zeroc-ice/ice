@@ -1296,7 +1296,6 @@ public final class PropertyNames
         null
     };
 
-
     public static final Property[] validProps[] =
     {
         IceProps,

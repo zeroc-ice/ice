@@ -145,7 +145,6 @@ public class ApplicationActions
                 }
             };
 
-
         _array[TreeNode.NEW_SERVICE] = new AbstractAction(popup ? "New Service" : "Service")
             {
                 @Override
@@ -195,7 +194,6 @@ public class ApplicationActions
                     }
                 }
             };
-
 
         _array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(popup ? "New Service Template" : "Service Template")
             {

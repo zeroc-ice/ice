@@ -980,7 +980,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
         });
 #endif
 
-
 #ifdef ICE_USE_IOCP
     //
     // On Windows when using IOCP, we must make sure that the socket is connected without

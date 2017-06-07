@@ -1441,7 +1441,6 @@ Parser::signalServer(const list<string>& args)
     }
 }
 
-
 void
 Parser::writeMessage(const list<string>& args, int fd)
 {
@@ -1935,7 +1934,6 @@ Parser::listServices(const list<string>& args)
         exception(ex);
     }
 }
-
 
 void
 Parser::endpointsAdapter(const list<string>& args)

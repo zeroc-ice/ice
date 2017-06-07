@@ -159,7 +159,6 @@ public abstract class IPEndpointI extends EndpointI
                                                                                     _instance.preferIPv6(),
                                                                                     true);
 
-
         java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<>();
         if(addresses.size() == 1)
         {

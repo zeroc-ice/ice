@@ -90,7 +90,6 @@ public final class HoldI extends _HoldDisp
         }, 0);
     }
 
-
     @Override
     public int
     set(int value, int delay, Ice.Current current)

@@ -431,7 +431,6 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
     destroyServer(amdCB, serverId, uuid, revision, replicaName, false, current);
 }
 
-
 void
 NodeI::destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr& amdCB,
                                          const string& serverId,
@@ -492,7 +491,6 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
         }
         _patchInProgress.insert(application);
     }
-
 
     set<ServerIPtr> servers;
     bool patchApplication = !appDistrib->icepatch.empty();
@@ -1344,8 +1342,6 @@ NodeI::getApplicationServers(const string& application) const
     }
     return servers;
 }
-
-
 
 string
 NodeI::getFilePath(const string& filename) const

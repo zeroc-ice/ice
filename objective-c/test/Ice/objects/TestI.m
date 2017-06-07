@@ -161,7 +161,6 @@
     return _b2;
 }
 
-
 -(TestObjectsC*) getC:(ICECurrent*)current
 {
     _b1.preMarshalInvoked = NO;
@@ -169,7 +168,6 @@
     _c.preMarshalInvoked = NO;
     return _c;
 }
-
 
 -(TestObjectsD*) getD:(ICECurrent*)current
 {
@@ -180,12 +178,10 @@
     return _d;
 }
 
-
 -(TestObjectsE*) getE:(ICECurrent*)current
 {
     return _e;
 }
-
 
 -(TestObjectsF*) getF:(ICECurrent*)current
 {

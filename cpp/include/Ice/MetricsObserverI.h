@@ -170,7 +170,6 @@ protected:
             Y (Helper::*_memberFn)() const;
         };
 
-
         template<typename I, typename O, typename Y> class MemberResolver : public Resolver
         {
         public:

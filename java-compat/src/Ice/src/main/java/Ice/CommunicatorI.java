@@ -301,7 +301,6 @@ public final class CommunicatorI implements Communicator
         ri.waitForResponseOrUserEx();
     }
 
-
     @Override
     public ObjectPrx
     createAdmin(ObjectAdapter adminAdapter, Identity adminId)

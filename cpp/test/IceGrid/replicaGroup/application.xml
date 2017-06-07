@@ -115,7 +115,6 @@
       <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">
         <service-instance template="Service" name="Service" replicaGroup="${replicaGroup}"/>
 
-
         <!-- Dummy service with server lifetime adapter to ensure all
              the services are started when the server is marked as
              Active -->

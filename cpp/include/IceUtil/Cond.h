@@ -40,7 +40,6 @@ private:
 }
 #endif
 
-
 namespace IceUtil
 {
 

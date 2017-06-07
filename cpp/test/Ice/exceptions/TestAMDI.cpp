@@ -531,7 +531,6 @@ ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& /*cb*/,
     throw ex;
 }
 
-
 void
 ThrowerI::throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr& cb,
                                  Ice::Int a, const Ice::Current&)
@@ -590,7 +589,6 @@ ThrowerI::throwMemoryLimitException_async(const AMD_Thrower_throwMemoryLimitExce
 {
     cb->ice_response(Ice::ByteSeq(1024 * 20)); // 20 KB.
 }
-
 
 void
 ThrowerI::throwLocalExceptionIdempotent_async(const AMD_Thrower_throwLocalExceptionIdempotentPtr& cb,

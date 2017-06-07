@@ -9,7 +9,6 @@
 
 require './TestI.rb'
 
-
 class II < ::Ice::InterfaceByValue
     def initialize()
         super("::Test::I")
@@ -21,7 +20,6 @@ class JI < ::Ice::InterfaceByValue
         super("::Test::J")
     end
 end
-
 
 #
 # Ice for Ruby behaves differently than Ice for C++, because

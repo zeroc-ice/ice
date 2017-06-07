@@ -771,7 +771,6 @@ namespace Ice
         [EditorBrowsable(EditorBrowsableState.Never)]
         void iceWrite(OutputStream os);
 
-
         /// <summary>
         /// Returns an scheduler object that use the Ice thread pool.
         /// </summary>
@@ -2943,7 +2942,6 @@ namespace Ice
             }
             return d;
         }
-
 
         /// <summary>
         /// Returns the Slice type id of the interface or class associated

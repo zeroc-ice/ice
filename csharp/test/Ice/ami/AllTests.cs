@@ -1285,7 +1285,6 @@ public class AllTests : TestCommon.AllTests
             {
             }
 
-
             try
             {
                 r = ((Test.TestIntfPrx)p.ice_oneway()).begin_opWithResult();
@@ -3573,7 +3572,6 @@ public class AllTests : TestCommon.AllTests
                     test(!r1.isSent() && r1.isCompleted_());
                     test(!r2.isSent() && r2.isCompleted_());
                 }
-
 
                 testController.holdAdapter();
                 try

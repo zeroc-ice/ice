@@ -76,8 +76,6 @@
                 test(new Ice.Long(-Math.pow(2, 52)).toNumber() === -Math.pow(2, 52));               // -(2^52)
                 test(new Ice.Long(-Math.pow(2, 52) - 1).toNumber() === -Math.pow(2, 52) - 1);       // -(2^52 - 1)
 
-
-
                 out.writeLine("ok");
             });
     };

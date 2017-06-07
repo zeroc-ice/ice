@@ -85,7 +85,6 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
         test([TestOperationss0  isEqualToString:[literals objectAtIndex: 0]]);
 
-
         test([TestOperationss0 isEqualToString:@"\\"] &&
              [TestOperationss0 isEqualToString:TestOperationssw0] &&
              [TestOperationss0 isEqualToString:[literals objectAtIndex:0]] &&
@@ -1592,7 +1591,6 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     {
         TestOperationsMutableMyEnumMyEnumSD *sdi1 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
         TestOperationsMutableMyEnumMyEnumSD *sdi2 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
-
 
         TestOperationsMyEnum buf1[] = { TestOperationsenum1, TestOperationsenum1, TestOperationsenum2 };
         TestOperationsMyEnum buf2[] = { TestOperationsenum1, TestOperationsenum2 };

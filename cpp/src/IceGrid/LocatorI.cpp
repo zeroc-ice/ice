@@ -291,7 +291,6 @@ public:
             }
         }
 
-
         for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
         {
             if(_locator->getDirectProxy(*p, this))
@@ -810,7 +809,6 @@ private:
 };
 
 };
-
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
                    const DatabasePtr& database,

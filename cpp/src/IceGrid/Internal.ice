@@ -803,5 +803,4 @@ interface InternalRegistry extends FileReader
     ["cpp:const"] idempotent void shutdown();
 }
 
-
 }

@@ -15,7 +15,6 @@
 namespace Slice
 {
 
-
 class CsVisitor : public CsGenerator, public ParserVisitor
 {
 public:

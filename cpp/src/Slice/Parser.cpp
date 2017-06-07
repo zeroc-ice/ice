@@ -1538,7 +1538,6 @@ Slice::Container::unit() const
     return SyntaxTreeBase::unit();
 }
 
-
 ModuleList
 Slice::Container::modules() const
 {
@@ -6766,7 +6765,6 @@ Slice::cICompare(const std::string& s1, const std::string& s2)
     return c(s1, s2);
 }
 #endif
-
 
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare

@@ -371,7 +371,6 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
         r->opVoid();
     }
 
-
     {
         Test::Structure si1;
         si1.p = p;

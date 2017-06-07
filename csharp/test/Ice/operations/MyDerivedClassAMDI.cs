@@ -859,7 +859,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return Task.FromResult<MyStruct1>(value);
     }
 
-
     public override Task<string[]>
     opStringLiteralsAsync(Ice.Current current)
     {

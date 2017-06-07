@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Test;
 
-
 class LoggerI : Ice.Logger
 {
     public void start()

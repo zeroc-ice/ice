@@ -64,7 +64,6 @@ class Node
 
 // Sequence of structs defined above.
 
-
 sequence<C2Dict> C2DictSeq;             // Sequence of dictionary.
 
 sequence<CSeq> CSeqSeq;                 // Sequence of sequence.

@@ -18,8 +18,6 @@
 #   include <deque>
 #endif
 
-
-
 namespace IceGrid
 {
 
@@ -85,7 +83,6 @@ private:
 #endif
 
 };
-
 
 };
 

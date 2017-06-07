@@ -1941,7 +1941,6 @@ TOCGenerator::symbols() const
     return _symbols;
 }
 
-
 void
 TOCGenerator::writeEntry(const ContainedPtr& c)
 {

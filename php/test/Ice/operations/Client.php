@@ -42,7 +42,6 @@ function twoways($communicator, $p)
     $myDerivedClassPrxHelper = $NS ? "Test\\MyDerivedClassPrxHelper" : "Test_MyDerivedClassPrxHelper";
     $objectPrxHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
 
-
     $s0 = $NS ? constant("Test\\s0") : constant("Test_s0");
     $s1 = $NS ? constant("Test\\s1") : constant("Test_s1");
     $s2 = $NS ? constant("Test\\s2") : constant("Test_s2");

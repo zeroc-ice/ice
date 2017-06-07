@@ -85,7 +85,6 @@ public class LiveActions
             };
         _array[TreeNode.STOP].putValue(Action.SHORT_DESCRIPTION, "Stop this server or service");
 
-
         _array[TreeNode.ENABLE] = new AbstractAction("Enable", Utils.getIcon("/icons/16x16/enable.png"))
             {
                 @Override
@@ -124,7 +123,6 @@ public class LiveActions
             };
         _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, "Write message to stdout or stderr");
 
-
         _array[TreeNode.RETRIEVE_ICE_LOG] = new AbstractAction("Retrieve Ice log")
         {
             @Override
@@ -134,7 +132,6 @@ public class LiveActions
             }
         };
         _array[TreeNode.RETRIEVE_ICE_LOG].putValue(Action.SHORT_DESCRIPTION, "Attach RemoteLogger to Ice logger");
-
 
         _array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
             {

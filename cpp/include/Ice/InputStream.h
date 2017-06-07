@@ -942,7 +942,6 @@ private:
         Encaps* previous;
     };
 
-
     //
     // Optimization. The instance may not be deleted while a
     // stack-allocated stream still holds it.

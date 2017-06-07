@@ -19,7 +19,6 @@ using OneOptionalPrxPtr = std::shared_ptr<Ice::ObjectPrx>;
 }
 #endif
 
-
 class InitialI : public Test::Initial
 {
 public:

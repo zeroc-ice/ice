@@ -20,7 +20,6 @@ namespace
 const bool printException = false;
 }
 
-
 class EmptyI : public virtual Empty
 {
 };

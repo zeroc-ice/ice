@@ -546,7 +546,6 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     }
 }
 
-
 void
 IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
                                        const ReferencePtr& wellKnownRef,

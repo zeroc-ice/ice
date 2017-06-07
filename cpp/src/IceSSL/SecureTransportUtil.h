@@ -39,7 +39,6 @@ SecCertificateRef loadCertificate(const std::string&);
 CFArrayRef loadCACertificates(const std::string&);
 CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
 
-
 } // SecureTransport namespace end
 
 } // IceSSL namespace end

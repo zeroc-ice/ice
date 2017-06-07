@@ -70,7 +70,6 @@ public:
         long owner;
     };
 
-
     //
     // Each thread maintains a SlotVector. Each PerThreadImplicitContext instance
     // is assigned a slot in this vector.
@@ -104,8 +103,6 @@ private:
 }
 
 extern "C" void iceImplicitContextThreadDestructor(void*);
-
-
 
 ImplicitContextIPtr
 ImplicitContextI::create(const std::string& kind)
@@ -148,7 +145,6 @@ ImplicitContextI::cleanupThread()
 }
 #endif
 
-
 //
 // SharedImplicitContext implementation
 //
@@ -186,7 +182,6 @@ SharedImplicitContext::get(const string& k) const
     }
     return p->second;
 }
-
 
 string
 SharedImplicitContext::put(const string& k, const string& v)
@@ -478,7 +473,6 @@ PerThreadImplicitContext::clearThreadContext() const
         }
     }
 }
-
 
 Context
 PerThreadImplicitContext::getContext() const

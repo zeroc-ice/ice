@@ -13,7 +13,6 @@
 module Test
 {
 
-
 exception BaseException
 {
 }
@@ -35,7 +34,6 @@ exception OtherException
     int z;
     bool b;
 }
-
 
 struct PointF
 {

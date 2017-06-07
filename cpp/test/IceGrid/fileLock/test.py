@@ -19,5 +19,4 @@ class IceGridAdminTestCase(IceGridTestCase):
         registry.stop(current, False)
         print("ok")
 
-
 TestSuite(__file__, [ IceGridAdminTestCase(application=None) ], runOnMainThread=True, multihost=False)

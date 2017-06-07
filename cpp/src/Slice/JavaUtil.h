@@ -97,7 +97,6 @@ protected:
                                   const std::string& = std::string(),
                                   const std::string& = std::string()) const;
 
-
     //
     // Returns the package prefix for a give Slice file.
     //
@@ -263,7 +262,6 @@ protected:
     std::string convertScopedName(const std::string&,
                                   const std::string& = std::string(),
                                   const std::string& = std::string()) const;
-
 
     //
     // Returns the package prefix for a give Slice file.

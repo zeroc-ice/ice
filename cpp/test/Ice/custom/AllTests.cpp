@@ -565,7 +565,6 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 
 #endif
 
-
 Test::TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -1234,7 +1233,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(rs == rs2);
     }
     cout << "ok" << endl;
-
 
     cout << "testing alternate strings with AMI... " << flush;
     {
@@ -1947,7 +1945,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
         }
 
-
         {
             Test::ByteSeq in;
             in.push_back('1');
@@ -2080,7 +2077,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cb->check();
 #endif
     }
-
 
     {
         Test::BoolSeq in(5);
@@ -2237,7 +2233,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cb->check();
 #endif
     }
-
 
     {
         Test::ByteList in;
@@ -2852,7 +2847,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     }
 
-
     {
         deque<Test::E> in(5);
         in[0] = Test:: ICE_ENUM(E, E1);
@@ -3102,7 +3096,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     }
 
-
     {
         Test::ByteSeq in;
         in.push_back('1');
@@ -3349,10 +3342,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-
-
 #ifndef ICE_CPP11_MAPPING
-
 
     cout << "testing class mapped structs ... " << flush;
     Test::ClassStructPtr cs = new Test::ClassStruct();

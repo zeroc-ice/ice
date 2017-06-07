@@ -257,7 +257,6 @@ private:
     int _expected;
 };
 
-
 class ControllerEventI: public EventI
 {
 public:

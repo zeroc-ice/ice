@@ -956,7 +956,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             test(promise.get_future().get());
         }
 
-
         {
             p->ice_pingAsync(nullptr);
         }
@@ -1459,7 +1458,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         catch(const Ice::NoEndpointException&)
         {
         }
-
 
         try
         {
@@ -2677,7 +2675,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         catch(const Ice::NoEndpointException&)
         {
         }
-
 
         try
         {

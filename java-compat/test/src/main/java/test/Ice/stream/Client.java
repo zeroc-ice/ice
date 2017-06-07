@@ -789,7 +789,6 @@ public class Client extends test.Util.Application
             test(dict2.equals(dict));
         }
 
-
         {
             java.util.Map<Long, Float> dict = new java.util.HashMap<Long, Float>();
             dict.put((long)123809828, 0.51f);

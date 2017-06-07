@@ -587,7 +587,6 @@ public final class StringUtil
         }
     }
 
-
     //
     // Join a list of strings using the given delimiter.
     //

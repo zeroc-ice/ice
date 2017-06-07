@@ -192,7 +192,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         // Ignore
     }
 
-
     for(deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         if((*p)->exception(ex))

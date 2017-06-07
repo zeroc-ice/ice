@@ -3218,7 +3218,6 @@ Slice::JavaCompatGenerator::sequenceHasHolder(const SequencePtr& p) const
     return true;
 }
 
-
 JavaOutput*
 Slice::JavaCompatGenerator::createOutput()
 {

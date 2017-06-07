@@ -19,7 +19,6 @@
 #  pragma error_messages(off,hidef)
 #endif
 
-
 namespace IceStorm
 {
 class Instance;

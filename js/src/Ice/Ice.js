@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
 module.exports.Ice = _ModuleRegistry.require(module,

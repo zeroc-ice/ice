@@ -1317,7 +1317,6 @@ class ImplicitContextI(ImplicitContext):
     def remove(self, key):
         return self._impl.remove(key)
 
-
 #
 # Its not possible to block in a python signal handler since this
 # blocks the main thread from doing further work. As such we queue the

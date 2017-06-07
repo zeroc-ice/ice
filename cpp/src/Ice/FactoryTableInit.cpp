@@ -80,7 +80,6 @@ IceInternal::FactoryTableInit::~FactoryTableInit()
     }
 }
 
-
 IceInternal::CompactIdInit::CompactIdInit(const char* typeId, int compactId) :
     _compactId(compactId)
 {

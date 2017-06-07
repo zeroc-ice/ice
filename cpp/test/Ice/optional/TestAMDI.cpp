@@ -58,7 +58,6 @@ InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::str
     ex(make_exception_ptr(DerivedException(false, a, b, o, b, o)));
 }
 
-
 void
 InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
                                    ::std::function<void()>,
@@ -320,7 +319,6 @@ InitialI::opIntIntDictAsync(Ice::optional<::Test::IntIntDict> p1,
     response(p1, p1);
 }
 
-
 void
 InitialI::opStringIntDictAsync(Ice::optional<::Test::StringIntDict> p1,
                                ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)> response,
@@ -557,7 +555,6 @@ InitialI::supportsNullOptionalAsync(::std::function<void(bool)> response,
     response(true);
 }
 
-
 #else // C++98 mapping
 
 void
@@ -635,7 +632,6 @@ InitialI::opByte_async(const ::Test::AMD_Initial_opBytePtr& cb,
 {
     cb->ice_response(p1, p1);
 }
-
 
 void
 InitialI::opBool_async(const ::Test::AMD_Initial_opBoolPtr& cb,

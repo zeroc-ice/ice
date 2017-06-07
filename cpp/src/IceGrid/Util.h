@@ -29,7 +29,6 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
     }
 };
 
-
 template<typename T> std::insert_iterator<T>
 inline set_inserter(T& container)
 {

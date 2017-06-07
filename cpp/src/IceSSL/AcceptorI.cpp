@@ -28,7 +28,6 @@ IceSSL::AcceptorI::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 IceInternal::AsyncInfo*
 IceSSL::AcceptorI::getAsyncInfo(IceInternal::SocketOperation status)

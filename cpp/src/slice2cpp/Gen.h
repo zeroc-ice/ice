@@ -45,7 +45,6 @@ private:
 
     void writeExtraHeaders(::IceUtilInternal::Output&);
 
-
     //
     // Returns the header extension defined in the global metadata for a given file,
     // or an empty string if no global metadata was found.
@@ -433,7 +432,6 @@ private:
         std::list<int> _useWstringHist;
     };
 
-
     class Cpp11ObjectVisitor : public ParserVisitor
     {
     public:
@@ -523,7 +521,6 @@ private:
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
-
 
     class Cpp11CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {

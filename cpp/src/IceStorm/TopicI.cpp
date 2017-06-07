@@ -1017,7 +1017,6 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         generation = unlock.generation();
     }
 
-
     // Tell the master to reap this set of subscribers. This is an
     // AMI invocation so it shouldn't block the caller (in the
     // typical case) we do it outside of the mutex lock for
@@ -1117,7 +1116,6 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
     }
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
-
 
     // First remove from the database.
     try

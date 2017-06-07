@@ -15,7 +15,6 @@
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/FilterI.h>
 
-
 using namespace std;
 using namespace Ice;
 

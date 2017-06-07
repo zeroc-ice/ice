@@ -22,7 +22,6 @@ AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
 {
 }
 
-
 bool
 AMDInterceptorI::dispatch(Ice::Request& request)
 {
@@ -147,7 +146,6 @@ DispatchInterceptorAsyncCallbackI::response()
 {
     return true;
 }
-
 
 bool
 DispatchInterceptorAsyncCallbackI::exception(const std::exception& ex)

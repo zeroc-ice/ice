@@ -220,7 +220,6 @@ private:
 
 #endif
 
-
 class SecureTransportCertificateI : public IceSSL::SecureTransport::Certificate,
                                     public IceSSL::CertificateI
 {

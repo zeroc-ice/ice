@@ -91,7 +91,6 @@
 
 ------------------------------------------------------------------------ */
 
-
 namespace IceUtilInternal
 {
 
@@ -108,7 +107,6 @@ enum ConversionResult
         targetExhausted,        /* insuff. room in target for conversion */
         sourceIllegal           /* source sequence is illegal/malformed */
 };
-
 
 /* ---------------------------------------------------------------------
     The following 4 definitions are compiler-specific.
@@ -129,7 +127,6 @@ typedef bool            Boolean; /* 0 or 1 */
 #define UNI_MAX_UTF16 static_cast<UTF32>(0x0010FFFF)
 #define UNI_MAX_UTF32 static_cast<UTF32>(0x7FFFFFFF)
 #define UNI_MAX_LEGAL_UTF32 static_cast<UTF32>(0x0010FFFF)
-
 
 ConversionResult ConvertUTF8toUTF16(
     const UTF8** sourceStart, const UTF8* sourceEnd,

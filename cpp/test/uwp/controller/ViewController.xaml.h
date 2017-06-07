@@ -33,7 +33,6 @@ public:
     ViewController();
     virtual ~ViewController();
 
-
 protected:
 
     virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;

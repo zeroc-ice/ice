@@ -45,7 +45,6 @@ jar {
             ant,
             'javafx:com.sun.javafx.tools.ant')
 
-
     ant.taskdef(
             resource: 'com/sun/javafx/tools/ant/antlib.xml',
             uri: 'javafx:com.sun.javafx.tools.ant',

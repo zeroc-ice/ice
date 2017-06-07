@@ -364,7 +364,6 @@ public:
         called();
     }
 
-
     void
     exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
     {

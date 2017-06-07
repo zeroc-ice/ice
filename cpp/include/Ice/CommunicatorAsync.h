@@ -49,7 +49,6 @@ public:
     }
 };
 
-
 template<class T> Callback_Communicator_flushBatchRequestsPtr
 newCallback_Communicator_flushBatchRequests(const IceUtil::Handle<T>& instance,
                                             void (T::*excb)(const ::Ice::Exception&),

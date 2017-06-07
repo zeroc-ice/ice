@@ -1142,7 +1142,6 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif

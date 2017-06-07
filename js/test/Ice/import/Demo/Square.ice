@@ -19,7 +19,6 @@ struct Square
     Point p4;
 }
 
-
 }
 
 }

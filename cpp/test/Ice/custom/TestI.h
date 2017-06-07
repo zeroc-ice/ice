@@ -42,7 +42,6 @@ public:
     virtual Test::VariableList
     opVariableRange(Test::VariableList, Test::VariableList&, const Ice::Current&);
 
-
     virtual Test::ByteList opByteRangeType(Test::ByteList, Test::ByteList&, const Ice::Current&);
 
     virtual Test::VariableList
@@ -61,7 +60,6 @@ public:
     opVariableRange(const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>&,
                     Test::VariableList&,
                     const Ice::Current&);
-
 
     virtual Test::ByteList opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
                                            Test::ByteList&,
@@ -116,7 +114,6 @@ public:
     virtual std::string opString(ICE_IN(Util::string_view),
                                  std::string&,
                                  const Ice::Current&);
-
 
     virtual std::deque< ::std::string> opStringSeq(ICE_IN(std::deque< ::std::string>),
                                                    std::deque< ::std::string>&,
@@ -188,11 +185,9 @@ public:
                                                  const Ice::Current&);
 #endif
 
-
     virtual void opOutArrayByteSeq(ICE_IN(Test::ByteSeq), Test::ByteSeq&, const Ice::Current&);
 
     virtual void opOutRangeByteSeq(ICE_IN(Test::ByteSeq), Test::ByteSeq&, const Ice::Current&);
-
 
     virtual Test::IntStringDict opIntStringDict(ICE_IN(Test::IntStringDict), Test::IntStringDict&,
                                                 const Ice::Current&);
@@ -200,7 +195,6 @@ public:
     virtual Test::CustomMap<Ice::Long, Ice::Long> opVarDict(ICE_IN(Test::CustomMap<std::string, Ice::Int>),
                                                             Test::CustomMap<std::string, Ice::Int>&,
                                                             const Ice::Current&);
-
 
     virtual Test::CustomMap<Ice::Int, std::string> opCustomIntStringDict(
         ICE_IN(std::map<Ice::Int, Util::string_view>), Test::CustomMap<Ice::Int, std::string>&, const Ice::Current&);

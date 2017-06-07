@@ -27,7 +27,6 @@ public class TestI implements test.Ice.interrupt.Test.TestIntf
         throw new com.zeroc.Ice.UnknownException();
     }
 
-
     @Override
     public void sleep(int to, com.zeroc.Ice.Current current)
         throws test.Ice.interrupt.Test.InterruptedException

@@ -56,7 +56,6 @@ Ice::loggerInsert(Ice::LoggerOutputBase& out, const IceUtil::Exception& ex)
     return out;
 }
 
-
 Ice::Trace::Trace(const LoggerPtr& logger, const string& category) :
     _logger(logger),
     _category(category)
@@ -78,7 +77,6 @@ Ice::Trace::flush()
     }
     _stream().str("");
 }
-
 
 Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)
 {

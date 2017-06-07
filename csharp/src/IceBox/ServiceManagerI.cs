@@ -703,7 +703,6 @@ class ServiceManagerI : ServiceManagerDisp_
                     throw e;
                 }
 
-
                 try
                 {
                     info.service.start(service, communicator, info.args);

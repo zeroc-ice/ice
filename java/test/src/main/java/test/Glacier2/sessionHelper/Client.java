@@ -403,7 +403,6 @@ public class Client extends test.Util.Application
             }
             out.println("ok");
 
-
             out.print("uninstalling router with communicator... ");
             out.flush();
             communicator().setDefaultRouter(null);

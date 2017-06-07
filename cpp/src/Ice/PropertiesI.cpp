@@ -118,7 +118,6 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
     }
 }
 
-
 PropertyDict
 Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
 {

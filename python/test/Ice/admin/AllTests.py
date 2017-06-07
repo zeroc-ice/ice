@@ -71,7 +71,6 @@ def testFacets(com, builtInFacets = True):
     except Ice.NotRegisteredException:
         pass # Expected
 
-
 def allTests(communicator):
     sys.stdout.write("testing communicator operations... ")
     sys.stdout.flush()

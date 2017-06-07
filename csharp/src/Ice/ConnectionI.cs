@@ -792,7 +792,6 @@ namespace Ice
                     return; // The request has already been or will be shortly notified of the failure.
                 }
 
-
                 OutgoingMessage o = _sendStreams.FirstOrDefault(m => m.outAsync == outAsync);
                 if(o != null)
                 {

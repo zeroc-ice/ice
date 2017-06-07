@@ -650,7 +650,6 @@ class ShowIceLogDialog extends JDialog
             _remoteLoggerPrx = RemoteLoggerPrx.uncheckedCast(
                 _parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
 
-
             final String prefix = "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
             final String errorTitle = "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;
             _parent.getRoot().getCoordinator().getStatusBar().setText(prefix);

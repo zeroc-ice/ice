@@ -136,7 +136,6 @@ MyDerivedClassI::opBoolAsync(bool p1,
     response(p2, p1);
 }
 
-
 void
 MyDerivedClassI::opShortIntLongAsync(short p1,
                                      int p2,
@@ -147,7 +146,6 @@ MyDerivedClassI::opShortIntLongAsync(short p1,
 {
     response(p3, p1, p2, p3);
 }
-
 
 void
 MyDerivedClassI::opFloatDoubleAsync(float p1,
@@ -168,7 +166,6 @@ MyDerivedClassI::opStringAsync(string p1,
 {
     response(p1 + " " + p2, p2 + " " + p1);
 }
-
 
 void
 MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,

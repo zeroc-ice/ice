@@ -15,7 +15,6 @@
 using namespace IceUtil;
 using namespace std;
 
-
 namespace IceUtilInternal
 {
 extern bool ICE_API printStackTraces;
@@ -238,13 +237,11 @@ int main(int argc, char* argv[])
                         break;
                     }
 
-
                     cerr << "could not find `" << expected[i] << "` in " << actual[i] << endl;
                     cerr << "Full stack is:\n" << stack << endl;
                     test(false);
                 }
             }
-
 
             if(!match)
             {

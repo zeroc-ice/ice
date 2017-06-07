@@ -82,7 +82,6 @@ interface Initial
     MA::IC* icop();
 }
 
-
 module MC
 {
 

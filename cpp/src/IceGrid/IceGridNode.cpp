@@ -55,7 +55,6 @@ private:
     ProcessPtr _origProcess;
 };
 
-
 class NodeService : public Service
 {
 public:
@@ -97,7 +96,6 @@ private:
     ActivatorPtr _activator;
 };
 
-
 #ifdef _WIN32
 void
 setNoIndexingAttribute(const string& pa)
@@ -122,7 +120,6 @@ setNoIndexingAttribute(const string& pa)
 #endif
 
 }
-
 
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
                                        const ActivatorPtr& activator,
@@ -203,7 +200,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string initFromReplica;
     string desc;
     vector<string> targets;
-
 
     for(int i = 1; i < argc; ++i)
     {

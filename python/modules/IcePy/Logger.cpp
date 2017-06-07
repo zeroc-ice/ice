@@ -101,7 +101,6 @@ IcePy::LoggerWrapper::getPrefix()
     return getString(tmp.get());
 }
 
-
 Ice::LoggerPtr
 IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
 {
@@ -306,7 +305,6 @@ loggerGetPrefix(LoggerObject* self)
 
     return createString(prefix);
 }
-
 
 #ifdef WIN32
 extern "C"

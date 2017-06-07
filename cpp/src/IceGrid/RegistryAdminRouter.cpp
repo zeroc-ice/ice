@@ -98,7 +98,6 @@ IceGrid::RegistryServerAdminRouter::ice_invoke_async(const AMD_Object_ice_invoke
     invokeOnTarget(target, cb, inParams, current);
 }
 
-
 IceGrid::RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const DatabasePtr& database) :
     AdminRouter(database->getTraceLevels()),
     _collocNodeName(collocNodeName),
@@ -147,8 +146,6 @@ IceGrid::RegistryNodeAdminRouter::ice_invoke_async(const AMD_Object_ice_invokePt
 
     invokeOnTarget(target, cb, inParams, current);
 }
-
-
 
 IceGrid::RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name,
                                                                 const DatabasePtr& database) :

@@ -74,7 +74,6 @@ TestIntfI::opVariableRange(Test::VariableList inSeq, Test::VariableList& outSeq,
     return outSeq;
 }
 
-
 Test::ByteList
 TestIntfI::opByteRangeType(Test::ByteList inSeq, Test::ByteList& outSeq, const Ice::Current&)
 {
@@ -118,7 +117,6 @@ TestIntfI::opVariableRange(
     Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
-
 
 Test::ByteList
 TestIntfI::opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
@@ -238,8 +236,6 @@ TestIntfI::opString(ICE_IN(Util::string_view) inString,
     outString = inString.to_string();
     return outString;
 }
-
-
 
 std::deque< ::std::string>
 TestIntfI::opStringSeq(ICE_IN(std::deque< ::std::string>) inSeq,
@@ -443,8 +439,6 @@ TestIntfI::opCustomIntStringDict(
 
     return copy;
 }
-
-
 
 Test::ShortBuffer
 TestIntfI::opShortBuffer(ICE_IN(Test::ShortBuffer) inS, Test::ShortBuffer& outS, const Ice::Current&)

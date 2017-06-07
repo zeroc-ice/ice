@@ -14,7 +14,6 @@
 module Test
 {
 
-
 ["amd"] interface MyClass
 {
     void shutdown();

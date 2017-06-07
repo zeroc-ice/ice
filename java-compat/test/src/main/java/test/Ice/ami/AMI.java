@@ -1192,7 +1192,6 @@ public class AMI
             {
             }
 
-
             try
             {
                 r = ((TestIntfPrx)p.ice_oneway()).begin_opWithResult();

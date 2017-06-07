@@ -39,7 +39,6 @@ class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
         return connectionEstablishmentObserver;
     }
 
-
     @Override
     synchronized public Ice.Instrumentation.Observer
     getEndpointLookupObserver(Ice.Endpoint e)

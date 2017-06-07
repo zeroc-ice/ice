@@ -7,5 +7,4 @@ Service1.ArgProp=1
 OverrideMe=2
 UnsetMe=
 
-
 Ice.PrintAdapterReady=0

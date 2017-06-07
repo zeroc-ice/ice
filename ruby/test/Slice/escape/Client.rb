@@ -32,7 +32,6 @@ def test(b)
     end
 end
 
-
 def run(args, communicator)
     print "testing type names... "
     STDOUT.flush

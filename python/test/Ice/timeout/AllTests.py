@@ -272,5 +272,4 @@ def allTests(communicator):
 
     print("ok")
 
-
     return timeout

@@ -861,5 +861,4 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
     }
 }
 
-
 @end

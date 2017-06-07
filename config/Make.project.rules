@@ -201,7 +201,6 @@ $1/%.cpp: $1/%.l
 	@$(RM) $$@.tail
 endef
 
-
 #
 # $(call make-static-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
 #                            $8=platform,$9=config)

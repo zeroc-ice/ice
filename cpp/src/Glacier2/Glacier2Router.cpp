@@ -46,7 +46,6 @@ private:
     SessionRouterIPtr _sessionRouter;
 };
 
-
 class FinderI : public Ice::RouterFinder
 {
 public:

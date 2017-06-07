@@ -116,7 +116,6 @@
 #   error "you need a C++11 capable compiler to use the C++11 mapping"
 #endif
 
-
 #if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
@@ -124,7 +123,6 @@
 #   define ICE_NOEXCEPT throw()
 #   define ICE_NOEXCEPT_FALSE /**/
 #endif
-
 
 //
 // Does the C++ compiler library provide std::codecvt_utf8 and
@@ -334,7 +332,6 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
-
 
 typedef unsigned char Byte;
 

@@ -69,7 +69,6 @@ public class Client
                     Ice.ObjectPrx obj = communicator.stringToProxy(sw.ToString());
                     List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>(obj.ice_getEndpoints());
 
-
                     if(seenProxy.ContainsKey(obj.GetHashCode()))
                     {
                         if(obj.Equals(seenProxy[obj.GetHashCode()]))

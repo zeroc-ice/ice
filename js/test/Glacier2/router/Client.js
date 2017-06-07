@@ -33,7 +33,6 @@
             this._p = new Ice.Promise();
         }
 
-
         callback(current)
         {
             test(!this._callback);

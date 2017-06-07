@@ -408,7 +408,6 @@ def parseOptions(obj, options, mapped={}):
             remaining.append((o, a))
     options[:] = remaining
 
-
 class Mapping:
 
     mappings = OrderedDict()
@@ -1867,7 +1866,6 @@ class RemoteProcessController(ProcessController):
                     return self.processControllerProxies[ident]
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
-
     def setProcessController(self, proxy):
         with self.cond:
             self.processControllerProxies[proxy.ice_getIdentity()] = proxy
@@ -2040,7 +2038,6 @@ class AndroidProcessController(RemoteProcessController):
                 sys.stdout.write(".")
                 sys.stdout.flush()
                 time.sleep(0.5)
-
 
 class iOSSimulatorProcessController(RemoteProcessController):
 
@@ -2585,7 +2582,6 @@ class Driver:
         if self.communicator:
             self.communicator.destroy()
             self.ctrlCHandler.destroy()
-
 
 class CppMapping(Mapping):
 

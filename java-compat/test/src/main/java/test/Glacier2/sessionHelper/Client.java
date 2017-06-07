@@ -422,7 +422,6 @@ public class Client extends test.Util.Application
             }
             out.println("ok");
 
-
             out.print("uninstalling router with communicator... ");
             out.flush();
             communicator().setDefaultRouter(null);
@@ -434,7 +433,6 @@ public class Client extends test.Util.Application
                 processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
                 out.println("ok");
             }
-
 
             Ice.ProcessPrx process;
             {

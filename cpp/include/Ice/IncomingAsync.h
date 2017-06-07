@@ -23,7 +23,6 @@ public:
 
     virtual ~AMDCallback();
 
-
     virtual void ice_exception(const ::std::exception&) = 0;
     virtual void ice_exception() = 0;
 };

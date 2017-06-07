@@ -376,7 +376,6 @@ public class Client : TestCommon.Application
             }
             Console.Out.WriteLine("ok");
 
-
             Console.Out.Write("uninstalling router with communicator... ");
             Console.Out.Flush();
             communicator().setDefaultRouter(null);
@@ -388,7 +387,6 @@ public class Client : TestCommon.Application
                 processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
                 Console.Out.WriteLine("ok");
             }
-
 
             Ice.ProcessPrx process;
             {

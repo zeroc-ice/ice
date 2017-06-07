@@ -73,7 +73,6 @@ public:
     {
     }
 
-
     virtual
     void run()
     {
@@ -303,12 +302,10 @@ SessionHelperI::objectAdapter()
     return internalObjectAdapter();
 }
 
-
 Glacier2::SessionHelper::~SessionHelper()
 {
     // Out of line to avoid weak vtable
 }
-
 
 #ifndef ICE_CPP11_MAPPING
 bool
@@ -343,7 +340,6 @@ Glacier2::SessionCallback::~SessionCallback()
 {
     // Out of line to avoid weak vtable
 }
-
 
 namespace
 {
@@ -620,7 +616,6 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const string _finder;
 };
-
 
 class DispatchCallThread : public IceUtil::Thread
 {

@@ -1019,7 +1019,6 @@ IceSSL::SecureTransport::SSLEngine::createTransceiver(const InstancePtr& instanc
     return new IceSSL::SecureTransport::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
 }
 
-
 SSLContextRef
 IceSSL::SecureTransport::SSLEngine::newContext(bool incoming)
 {

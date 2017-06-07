@@ -20,7 +20,6 @@
 -(void) reset:(const Ice::BatchRequest*)call;
 @end
 
-
 namespace
 {
 

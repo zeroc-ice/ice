@@ -10,7 +10,6 @@
 #ifndef INSTANCE_H
 #define INSTANCE_H
 
-
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/PropertiesF.h>
@@ -122,7 +121,6 @@ private:
     IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;
     IceStorm::Instrumentation::TopicManagerObserverPtr _observer;
-
 
 };
 typedef IceUtil::Handle<Instance> InstancePtr;

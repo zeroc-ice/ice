@@ -131,7 +131,6 @@ namespace Ice
             }
         }
 
-
         public Dictionary<string, string> getPropertiesForPrefix(string prefix)
         {
             lock(this)

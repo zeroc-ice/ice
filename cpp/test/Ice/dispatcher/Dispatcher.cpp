@@ -88,7 +88,6 @@ Dispatcher::run()
             }
         }
 
-
         if(call)
         {
             try

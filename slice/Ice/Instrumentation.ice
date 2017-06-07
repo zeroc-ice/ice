@@ -175,7 +175,6 @@ local enum ConnectionState
     ConnectionStateClosed
 }
 
-
 /**
  *
  * The connection observer interface to instrument Ice connections.
@@ -243,7 +242,6 @@ local interface ChildInvocationObserver extends Observer
      **/
     void reply(int size);
 }
-
 
 /**
  *

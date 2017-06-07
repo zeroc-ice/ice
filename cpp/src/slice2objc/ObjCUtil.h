@@ -112,7 +112,6 @@ private:
         static const std::string _msg; // "ignoring invalid metadata"
     };
 
-
     //
     // Map of module scoped name to ModulePtr. Used to verify that objc:prefix metadata directives are consistent.
     //

@@ -107,7 +107,6 @@ public abstract class Application extends com.zeroc.Ice.Application
     public abstract int runWithSession(String[] args)
         throws RestartSessionException;
 
-
     /**
      * Called when the session refresh thread detects that the session has been
      * destroyed. A subclass can override this method to take action after the

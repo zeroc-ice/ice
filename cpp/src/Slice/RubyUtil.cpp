@@ -19,7 +19,6 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-
 namespace
 {
 
@@ -237,7 +236,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     bool isInterface = p->isInterface();
     bool isLocal = p->isLocal();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
-
 
     //
     // Do not generate any code for local interfaces.
@@ -466,7 +464,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
 
-
     _out << sp << nl << "T_" << name << ".defineClass("
          << (isInterface ? "::Ice::Value" : name) << ", "
          << p->compactId() << ", "
@@ -515,7 +512,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl;
     }
     _out << "])";
-
 
     //
     // Define each operation. The arguments to __defineOperation are:

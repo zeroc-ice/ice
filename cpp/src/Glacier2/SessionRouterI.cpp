@@ -232,7 +232,6 @@ public:
     {
     }
 
-
     void
     checkPermissionsResponse(bool ok, const string& reason)
     {

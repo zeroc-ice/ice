@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const _ModuleRegistry = Ice._ModuleRegistry;
 _ModuleRegistry.require(module,

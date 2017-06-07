@@ -161,7 +161,6 @@
 
                 out.writeLine("ok");
 
-
                 out.write("testing default constructor... ");
 
                 var v2 = new Test.StructNoDefaults();

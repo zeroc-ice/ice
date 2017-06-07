@@ -49,7 +49,6 @@ public final class ObjectAdapterFactory
         }
     }
 
-
     public void
     waitForShutdown()
     {

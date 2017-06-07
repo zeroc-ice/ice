@@ -575,7 +575,6 @@ bindingAllTests(id<ICECommunicator> communicator)
 
         [com deactivateObjectAdapter:[adapters objectAtIndex:2]];
 
-
         test([[test getAdapterName] isEqualToString:@"Adapter52"]);
 
         deactivate(com, adapters);

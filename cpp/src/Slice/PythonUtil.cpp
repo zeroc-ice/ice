@@ -897,7 +897,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "return _M_" << prxAbs << ".ice_uncheckedCast(proxy, facet)";
         _out.dec();
 
-
         //
         // ice_staticId
         //
@@ -1040,7 +1039,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << "))";
         _out << nl << className << "._ice_type = _M_" << classType;
-
 
          //
         // Define each operation. The arguments to the IcePy.Operation constructor are:

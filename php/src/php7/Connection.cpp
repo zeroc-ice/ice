@@ -644,7 +644,6 @@ IcePHP::connectionInit(void)
     zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
                                ZEND_ACC_PUBLIC);
 
-
     return true;
 }
 

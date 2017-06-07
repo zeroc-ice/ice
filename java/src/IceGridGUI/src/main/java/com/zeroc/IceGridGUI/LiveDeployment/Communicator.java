@@ -145,7 +145,6 @@ abstract public class Communicator extends TreeNode
         return true;
     }
 
-
     //
     // TreeNode overrides
     //
@@ -295,7 +294,6 @@ abstract public class Communicator extends TreeNode
         return getDisplayName();
     }
     protected abstract String getDefaultFileName();
-
 
     private boolean provideAdmin(final String prefix, final java.util.function.Consumer<com.zeroc.Ice.ObjectPrx> consumer)
     {

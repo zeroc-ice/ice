@@ -76,7 +76,6 @@ outfilters = [ lambda x: re.sub("-! .* warning: deprecated property: IceSSL.KeyF
 #
 options=lambda current: { "protocol": ["ssl", "wss"] } if current.config.uwp else {}
 
-
 TestSuite(__name__, [
    ConfigurationTestCase(client=IceSSLConfigurationClient(outfilters=outfilters, args=['"{testdir}"']),
                          server=IceSSLConfigurationServer(outfilters=outfilters, args=['"{testdir}"']))

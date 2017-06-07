@@ -53,7 +53,6 @@ public:
     //
     bool tryLock() const;
 
-
     void unlock() const;
 
     //

@@ -435,7 +435,6 @@ namespace IceInternal
             return check(r, operation);
         }
 
-
         public static AsyncResultI check(Ice.AsyncResult r, string operation)
         {
             if(r == null)

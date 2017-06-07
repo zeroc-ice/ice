@@ -47,7 +47,6 @@ public class AllTests : TestCommon.AllTests
         private bool _called;
     }
 
-
     public static ThrowerPrx allTests(TestCommon.Application app)
     {
         Ice.Communicator communicator = app.communicator();

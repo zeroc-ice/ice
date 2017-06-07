@@ -415,7 +415,6 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-
         Write("testing custom facet... ");
         Flush();
         {

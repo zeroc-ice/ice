@@ -128,7 +128,6 @@ RegistryService::start(int argc, char* argv[], int& status)
         out << "you should set individual adapter thread pools instead.";
     }
 
-
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
 
     _registry = new RegistryI(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
@@ -167,7 +166,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
-
     // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and
     // IceGrid.Registry.[Admin]CryptPasswords is set, load the
     // Glacier2CryptPermissionsVerifier plug-in
@@ -195,7 +193,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
         }
     }
 
-
     //
     // Never create Admin object in Ice.Admin adapter
     //
@@ -218,7 +215,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     // Close idle connections
     //
     initData.properties->setProperty("Ice.ACM.Close", "3");
-
 
     return Service::initializeCommunicator(argc, argv, initData, version);
 }

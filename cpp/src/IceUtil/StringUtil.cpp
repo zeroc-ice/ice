@@ -33,7 +33,6 @@ toHexDigit(Byte b)
     }
 }
 
-
 unsigned int
 addContinuationByte(string::iterator& p, string::iterator end, unsigned int codePoint)
 {

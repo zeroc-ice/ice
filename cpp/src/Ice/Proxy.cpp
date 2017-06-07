@@ -243,7 +243,6 @@ Ice::ObjectPrx::_checkTwowayOnly(const string& name) const
     }
 }
 
-
 shared_ptr<ObjectPrx>
 Ice::ObjectPrx::_newInstance() const
 {

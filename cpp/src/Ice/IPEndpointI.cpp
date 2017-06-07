@@ -86,7 +86,6 @@ IceInternal::IPEndpointI::getInfo() const
     return info;
 }
 
-
 Ice::Short
 IceInternal::IPEndpointI::type() const
 {
@@ -742,7 +741,6 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
     _instance(instance)
 {
 }
-
 
 void
 IceInternal::EndpointHostResolver::resolve(const string& host,

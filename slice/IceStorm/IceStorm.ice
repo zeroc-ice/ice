@@ -200,7 +200,6 @@ interface Topic
      **/
     ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
-
     /**
      *
      * Subscribe with the given <tt>qos</tt> to this topic.  A

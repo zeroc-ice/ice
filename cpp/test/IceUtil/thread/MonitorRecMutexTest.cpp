@@ -106,7 +106,6 @@ MonitorRecMutexTest::run()
     ThreadControl control;
     ThreadControl control2;
 
-
     {
         Monitor<RecMutex>::Lock lock(monitor);
 

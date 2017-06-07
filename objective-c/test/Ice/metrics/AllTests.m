@@ -201,7 +201,6 @@ NSCondition* cond;
 }
 @end
 
-
 @interface InvokeOp : Operation
 -(id) init:(ICEObjectPrx*)proxy_;
 +(id) invokeOp:(ICEObjectPrx*)proxy_;
@@ -1129,7 +1128,6 @@ metricsAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing metrics view enable/disable...");
-
 
     [props setObject:@"none" forKey:@"IceMX.Metrics.View.GroupBy"];
     [props setObject:@"0" forKey:@"IceMX.Metrics.View.Disabled"];

@@ -1147,7 +1147,6 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     return Py_None;
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -1174,7 +1173,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
     PyObjectHandle plainObject = objectType->tp_alloc(objectType, 0);
-
 
     for(Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
@@ -1203,8 +1201,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     return result.release();
 }
-
-
 
 #ifdef WIN32
 extern "C"
@@ -1433,7 +1429,6 @@ communicatorGetImplicitContext(CommunicatorObject* self)
 
     return createImplicitContext(implicitContext);
 }
-
 
 #ifdef WIN32
 extern "C"

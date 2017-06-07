@@ -620,7 +620,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
 
-
         session1->destroy();
         session2->destroy();
 
@@ -1877,7 +1876,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         session->finishUpdate();
         appObs1->waitForUpdate(__FILE__, __LINE__);
 
-
         session->startUpdate();
         admin->startServer("Server");
         session->finishUpdate();
@@ -1964,7 +1962,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         cout << "ok" << endl;
     }
-
 
     {
         cout << "testing observer with direct proxy... " << flush;

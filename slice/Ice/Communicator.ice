@@ -600,7 +600,6 @@ local interface Communicator
     FacetMap findAllAdminFacets();
 }
 
-
 /**
  * The output mode for xxxToString method such as identityToString and proxyToString.
  * The actual encoding format for the string is the same for all modes: you

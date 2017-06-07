@@ -7,7 +7,6 @@
 #
 # **********************************************************************
 
-
 testcases = [
     ClientServerTestCase("client/server with compact format"),
     ClientServerTestCase("client/server with sliced format", props={ "Ice.Default.SlicedFormat" : True }),

@@ -47,7 +47,6 @@ struct Color
     int a;
 }
 
-
 dictionary<int, Color> StringColorMap;
 
 struct ColorPalette

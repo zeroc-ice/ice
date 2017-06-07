@@ -106,7 +106,6 @@ Glacier2::Application::restart()
     throw RestartSessionException();
 }
 
-
 Glacier2::RouterPrxPtr
 Glacier2::Application::router()
 {

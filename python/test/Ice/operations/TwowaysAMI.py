@@ -1177,7 +1177,6 @@ def twowaysAMI(communicator, p):
     derived.begin_opDerived(cb.opDerived, cb.exCB)
     cb.check()
 
-
     r = p.begin_opByte1(0xFF)
     test(p.end_opByte1(r) == 0xFF)
 

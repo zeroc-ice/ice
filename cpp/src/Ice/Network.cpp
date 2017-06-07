@@ -72,7 +72,6 @@ extern "C"
 }
 #endif
 
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -2246,7 +2245,6 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 }
 #endif
 
-
 #ifdef ICE_OS_UWP
 namespace
 {
@@ -2747,7 +2745,6 @@ repeatAccept:
     return ret;
 }
 
-
 void
 IceInternal::createPipe(SOCKET fds[2])
 {
@@ -3080,7 +3077,6 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     }
 }
 #endif
-
 
 bool
 IceInternal::isIpAddress(const string& name)

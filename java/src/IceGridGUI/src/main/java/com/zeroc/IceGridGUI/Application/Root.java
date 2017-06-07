@@ -42,7 +42,6 @@ public class Root extends ListTreeNode
         _file = file;
         _live = live;
 
-
         init();
     }
 

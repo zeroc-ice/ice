@@ -99,7 +99,6 @@ private:
 
 }
 
-
 //
 // This custom version of the StreamReader allows us to customize the
 // reading of ReplicaGroupDescriptor
@@ -124,7 +123,6 @@ struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
     }
 };
 }
-
 
 class Client : public Ice::Application
 {

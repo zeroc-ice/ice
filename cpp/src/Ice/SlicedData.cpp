@@ -30,7 +30,6 @@ Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
 {
 }
 
-
 #ifndef ICE_CPP11_MAPPING
 void
 Ice::SlicedData::_iceGcVisitMembers(IceInternal::GCVisitor& visitor)

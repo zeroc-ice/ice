@@ -17,7 +17,6 @@
 module IceStorm
 {
 
-
 /**
  *
  * The key for persistent subscribers, or topics.

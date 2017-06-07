@@ -33,7 +33,6 @@ private:
     TestControllerIPtr _controller;
 };
 
-
 class SessionI : public Test::TestSession
 {
 public:

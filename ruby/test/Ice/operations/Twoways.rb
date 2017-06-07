@@ -8,7 +8,6 @@
 #
 # **********************************************************************
 
-
 def twoways(communicator, p)
 
     literals = p.opStringLiterals();

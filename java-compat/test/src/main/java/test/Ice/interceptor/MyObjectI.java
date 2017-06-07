@@ -62,7 +62,6 @@ class MyObjectI extends _MyObjectDisp
         throw new MySystemException();
     }
 
-
     //
     // AMD
     //

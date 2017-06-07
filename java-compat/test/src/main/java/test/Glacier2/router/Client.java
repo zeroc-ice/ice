@@ -17,7 +17,6 @@ import test.Glacier2.router.Test.CallbackPrxHelper;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
 import test.Glacier2.router.Test.CallbackReceiverPrxHelper;
 
-
 public class Client extends test.Util.Application
 {
     private static void

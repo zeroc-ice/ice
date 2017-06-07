@@ -359,7 +359,6 @@ def allTests(communicator, collocated):
     sys.stdout.write("testing proxy methods... ")
     sys.stdout.flush()
 
-
     test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) \
          == "other")
 

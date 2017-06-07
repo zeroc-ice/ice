@@ -58,7 +58,6 @@ class SelectorTimeoutException
 {
 };
 
-
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 
 class Selector

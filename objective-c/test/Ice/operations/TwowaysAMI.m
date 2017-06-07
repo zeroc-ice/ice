@@ -1200,7 +1200,6 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
         [ssi2 addObject:@"xyz"];
 
-
         TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringS:ssi1 p2:ssi2 response:^(TestOperationsMutableStringS* ret, TestOperationsMutableStringS* p3) { [cb opStringSResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringSException:ex]; }];
         test([cb check]);
@@ -1397,7 +1396,6 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [di2 setObject:@"abc -1.1" forKey:@"foo"];
         [di2 setObject:@"abc -100.4" forKey:@"FOO"];
         [di2 setObject:@"abc 0.5" forKey:@"BAR"];
-
 
         TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
         [p begin_opStringStringD:di1 p2:di2 response:^(TestOperationsMutableStringStringD* ret, TestOperationsMutableStringStringD* p3) { [cb opStringStringDResponse:ret p3:p3]; } exception:^(ICEException* ex) { [cb opStringStringDException:ex]; }];
@@ -1909,7 +1907,6 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableMyEnumMyEnumSD *sdi1 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
         TestOperationsMutableMyEnumMyEnumSD *sdi2 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
 
-
         TestOperationsMyEnum buf1[] = { TestOperationsenum1, TestOperationsenum1, TestOperationsenum2 };
         TestOperationsMyEnum buf2[] = { TestOperationsenum1, TestOperationsenum2 };
         TestOperationsMyEnum buf3[] = { TestOperationsenum3, TestOperationsenum3 };
@@ -1977,7 +1974,6 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
             [p2 begin_opContext:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
-
 
             cb = [TestAMIOperationsCallback create];
             [p2 begin_opContext:ctx response:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
@@ -2054,8 +2050,6 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             [ic destroy];
         }
     }
-
-
 
     {
         ICEDouble d = 1278312346.0 / 13.0;

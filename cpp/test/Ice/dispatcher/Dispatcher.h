@@ -55,7 +55,6 @@ public:
     virtual void dispatch(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
 #endif
 
-
     void run();
 
     static void terminate();

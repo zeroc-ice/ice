@@ -294,7 +294,6 @@ Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserve
     }
 }
 
-
 void
 Ice::ConnectionI::OutgoingMessage::adopt(OutputStream* str)
 {
@@ -2082,7 +2081,6 @@ Ice::ConnectionI::finish(bool close)
             }
 #endif
         }
-
 
         for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
         {

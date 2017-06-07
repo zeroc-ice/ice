@@ -13,7 +13,6 @@
     var Test = require("Test").Test;
     var AMDInitialI = require("AMDInitialI").AMDInitialI;
 
-
     var run = function(out, id, ready)
     {
         var communicator = Ice.initialize(id);

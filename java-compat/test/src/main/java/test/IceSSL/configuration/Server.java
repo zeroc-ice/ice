@@ -9,7 +9,6 @@
 
 package test.IceSSL.configuration;
 
-
 public class Server extends test.Util.Application
 {
     @Override

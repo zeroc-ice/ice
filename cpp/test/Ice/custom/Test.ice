@@ -162,8 +162,6 @@ interface TestIntf
     opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq,
                         out ["cpp:range:std::deque< ::Test::Variable>"] VariableList outSeq);
 
-
-
     ["cpp:type:std::deque<bool>"] BoolSeq
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
@@ -184,11 +182,9 @@ interface TestIntf
     ["cpp:type:MyByteSeq"] ByteSeq
     opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
 
-
     ["cpp:view-type:Util::string_view"] string
     opString(["cpp:view-type:Util::string_view"] string inString,
              out ["cpp:view-type:Util::string_view"] string outString);
-
 
     ["cpp:type:std::deque<std::string>"] StringSeq
     opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
@@ -243,12 +239,10 @@ interface TestIntf
     opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
 
-
     ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict
     opCustomIntStringDict(
         ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
         out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
-
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

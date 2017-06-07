@@ -161,7 +161,6 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         return logMessages.ToArray();
     }
 
-
     internal LoggerAdminI(Ice.Properties props, LoggerAdminLoggerI logger)
     {
         _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
@@ -430,7 +429,6 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
         }
         return Ice.Util.initialize(initData);
     }
-
 
     private readonly LinkedList<Ice.LogMessage> _queue = new LinkedList<Ice.LogMessage>();
     private int _logCount = 0; // non-trace messages

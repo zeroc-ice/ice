@@ -57,7 +57,6 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
     test(facetMap.find("Facet2") != facetMap.end());
     test(facetMap.find("Facet3") != facetMap.end());
 
-
     try
     {
         com->addAdminFacet(f1, "Facet1");

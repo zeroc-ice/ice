@@ -126,7 +126,6 @@ public:
 #endif
     };
 
-
 #ifdef ICE_CPP11_MAPPING
     class StartCallback
     {
@@ -174,7 +173,6 @@ public:
     IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
     IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
-
 
 #ifdef ICE_CPP11_MAPPING
     virtual std::function<void()>

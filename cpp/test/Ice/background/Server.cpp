@@ -124,7 +124,6 @@ private:
     BackgroundControllerIPtr _controller;
 };
 
-
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {

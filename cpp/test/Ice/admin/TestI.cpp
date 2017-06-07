@@ -55,8 +55,6 @@ public:
 
 }
 
-
-
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
 #ifdef ICE_CPP11_MAPPING

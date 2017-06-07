@@ -137,7 +137,6 @@ inline CommunicatorPtr initialize(int& argc, char* argv[], const InitializationD
     return initialize(argc, const_cast<const char**>(argv), initData, version);
 }
 
-
 ICE_API CommunicatorPtr initialize(int&, const char*[], ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
 inline CommunicatorPtr initialize(int& argc, char* argv[], ICE_CONFIG_FILE_STRING configFile,
                                   int version = ICE_INT_VERSION)
@@ -171,7 +170,6 @@ ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationDat
                                    int = ICE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(ICE_CONFIG_FILE_STRING, int = ICE_INT_VERSION);
-
 
 ICE_API LoggerPtr getProcessLogger();
 ICE_API void setProcessLogger(const LoggerPtr&);

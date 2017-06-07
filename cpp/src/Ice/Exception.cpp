@@ -350,7 +350,6 @@ Ice::IllegalServantException::ice_print(ostream& out) const
     out << ":\nillegal servant: `" << reason << "'";
 }
 
-
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
@@ -475,7 +474,6 @@ Ice::OperationInterruptedException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\noperation interrupted";
 }
-
 
 void
 Ice::TimeoutException::ice_print(ostream& out) const

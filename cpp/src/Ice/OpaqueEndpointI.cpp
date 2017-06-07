@@ -211,7 +211,6 @@ IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
     return false;
 }
 
-
 Int
 IceInternal::OpaqueEndpointI::hash() const
 {

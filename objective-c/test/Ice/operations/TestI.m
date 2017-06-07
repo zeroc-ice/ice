@@ -682,7 +682,6 @@
     return p;
 }
 
-
 -(ICEFloat) opFloat1:(ICEFloat)p current:(ICECurrent*)current
 {
     return p;

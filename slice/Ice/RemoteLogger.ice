@@ -58,14 +58,12 @@ enum LogMessageType
     ErrorMessage
 }
 
-
 /**
  *
  * A sequence of {@link LogMessageType}
  *
  **/
 sequence<LogMessageType> LogMessageTypeSeq;
-
 
 /**
  *
@@ -105,7 +103,6 @@ struct LogMessage
     string message;
 }
 
-
 /**
  *
  * A sequence of {@link LogMessage}.
@@ -113,7 +110,6 @@ struct LogMessage
  **/
 ["cpp:type:std::list<LogMessage>"]
 sequence<LogMessage> LogMessageSeq;
-
 
 /**
  *
@@ -139,7 +135,6 @@ interface RemoteLogger
      **/
     void init(string prefix, LogMessageSeq logMessages);
 
-
     /**
      *
      * Log a {@link LogMessage}. Note that log may be called by {@link LoggerAdmin}
@@ -152,7 +147,6 @@ interface RemoteLogger
      **/
     void log(LogMessage message);
 }
-
 
 /**
  *

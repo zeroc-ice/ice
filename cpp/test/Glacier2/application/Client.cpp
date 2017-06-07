@@ -103,14 +103,12 @@ public:
         _destroyed = true;
     }
 
-
     int _restart;
     bool _destroyed;
     CallbackReceiverIPtr _receiver;
 };
 
 } // anonymous namespace end
-
 
 int
 main(int argc, char* argv[])

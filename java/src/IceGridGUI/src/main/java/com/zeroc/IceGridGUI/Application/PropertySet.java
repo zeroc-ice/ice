@@ -203,7 +203,6 @@ class PropertySet extends TreeNode
         rebuild(descriptor);
     }
 
-
     PropertySet(TreeNode parent, String id, PropertySetDescriptor descriptor)
     {
         super(parent, id);

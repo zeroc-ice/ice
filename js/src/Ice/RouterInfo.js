@@ -91,7 +91,6 @@ class RouterInfo
         return promise;
     }
 
-
     getServerEndpoints()
     {
         if(this._serverEndpoints !== null) // Lazy initialization.

@@ -31,7 +31,6 @@ private:
     const DatabasePtr _database;
 };
 
-
 class RegistryNodeAdminRouter : public AdminRouter
 {
 public:
@@ -63,7 +62,6 @@ private:
     const std::string _name;
     const DatabasePtr _database;
 };
-
 
 }
 #endif

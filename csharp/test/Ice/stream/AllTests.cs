@@ -554,7 +554,6 @@ public class AllTests : TestCommon.AllTests
             myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
         }
 
-
         {
             outS = new Ice.OutputStream(communicator);
             MyClassSHelper.write(outS, myClassArray);

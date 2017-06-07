@@ -72,7 +72,6 @@ class MyObjectI : Test.MyObjectDisp_
         throw new MySystemException();
     }
 
-
     //
     // AMD
     //

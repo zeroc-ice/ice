@@ -148,7 +148,6 @@
     test(NO);
 }
 
-
 -(void) shutdown:(ICECurrent*)current
 {
     [[current.adapter getCommunicator] shutdown];

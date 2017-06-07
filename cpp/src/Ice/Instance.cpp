@@ -188,7 +188,6 @@ private:
     const InstancePtr _instance;
 };
 
-
 //
 // Timer specialization which supports the thread observer
 //
@@ -1103,7 +1102,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
-
         if(!_initData.logger)
         {
             string logfile = _initData.properties->getProperty("Ice.LogFile");
@@ -1222,7 +1220,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         {
             throw InitializationException(__FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
-
 
         //
         // Client ACM enabled by default. Server ACM disabled by default.
@@ -1789,7 +1786,6 @@ IceInternal::Instance::updateThreadObservers()
     {
     }
 }
-
 
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)

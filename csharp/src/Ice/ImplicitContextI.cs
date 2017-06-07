@@ -48,7 +48,6 @@ namespace Ice
         abstract internal Dictionary<string, string> combine(Dictionary<string, string> prxContext);
     }
 
-
     internal class SharedImplicitContext : ImplicitContextI
     {
         public override Dictionary<string, string> getContext()
@@ -104,7 +103,6 @@ namespace Ice
                 return val;
             }
         }
-
 
         public override string put(string key, string value)
         {
@@ -328,7 +326,6 @@ namespace Ice
                     return "";
                 }
             }
-
 
             string val = null;
             if(!threadContext.TryGetValue(key, out val))

@@ -106,7 +106,6 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
     return TRUE;
 }
 
-
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);

@@ -70,7 +70,6 @@ module Mod
     }
 }
 
-
 ["amd"] interface Thrower
 {
     void shutdown();

@@ -75,7 +75,6 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
-
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
     virtual std::string getAdapterId() const = 0;
     virtual LocatorInfoPtr getLocatorInfo() const { return 0; }

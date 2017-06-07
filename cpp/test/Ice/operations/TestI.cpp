@@ -14,7 +14,6 @@
 #include <functional>
 #include <iterator>
 
-
 using namespace Ice;
 using namespace Test;
 using namespace std;
@@ -839,7 +838,6 @@ MyDerivedClassI::opMStruct1(const Ice::Current& current)
     s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
     return OpMStruct1MarshaledResult(s, current);
 }
-
 
 MyDerivedClassI::OpMStruct2MarshaledResult
 MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, const Ice::Current& current)

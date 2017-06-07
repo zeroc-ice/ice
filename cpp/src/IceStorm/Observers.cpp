@@ -155,7 +155,6 @@ Observers::destroyTopic(const LogUpdate& llu, const string& id)
     wait("destroyTopic");
 }
 
-
 void
 Observers::addSubscriber(const LogUpdate& llu, const string& name, const SubscriberRecord& rec)
 {

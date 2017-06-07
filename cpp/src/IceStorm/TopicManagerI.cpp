@@ -268,7 +268,6 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
             LogUpdate empty = {0, 0};
             _instance->lluMap().put(txn, lluDbKey, empty);
 
-
             // Recreate each of the topics.
             SubscriberRecordKey k;
             SubscriberRecord v;

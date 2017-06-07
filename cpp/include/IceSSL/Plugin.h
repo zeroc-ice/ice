@@ -372,7 +372,6 @@ public:
     static CertificatePtr decode(const std::string&);
 };
 
-
 #ifndef ICE_CPP11_MAPPING // C++98 mapping
 //
 // An application can customize the certificate verification process

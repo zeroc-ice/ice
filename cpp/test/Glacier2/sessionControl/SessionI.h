@@ -19,7 +19,6 @@ public:
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
 };
 
-
 class SessionI : public Test::Session
 {
 public:

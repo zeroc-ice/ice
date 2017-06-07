@@ -10,7 +10,6 @@
 #import <objc/Ice.h>
 #import <ServantLocatorTest.h>
 
-
 @interface TestServantLocatorTestIntfI : TestServantLocatorTestIntf<TestServantLocatorTestIntf>
 @end
 

@@ -145,7 +145,6 @@ public:
     }
 };
 
-
 class MyApplication : public Ice::Application
 {
 public:

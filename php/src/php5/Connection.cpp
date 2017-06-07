@@ -747,7 +747,6 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p TSRMLS_DC
         add_property_string(zv, STRCAST("cipher"), const_cast<char*>(info->cipher.c_str()), 1);
         add_property_bool(zv, STRCAST("verified"), info->verified ? 1 : 0);
 
-
         zval* zarr;
         MAKE_STD_ZVAL(zarr);
         AutoDestroy listDestroyer(zarr);

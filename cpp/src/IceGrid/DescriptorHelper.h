@@ -184,7 +184,6 @@ protected:
                                                          const std::map<std::string, std::string>&) const;
 };
 
-
 class ServiceInstanceHelper : public InstanceHelper
 {
 public:
@@ -205,7 +204,6 @@ private:
     ServiceInstanceDescriptor _def;
     mutable ServiceHelper _service;
 };
-
 
 class IceBoxHelper : public ServerHelper
 {

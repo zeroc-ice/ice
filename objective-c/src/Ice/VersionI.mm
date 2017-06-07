@@ -69,7 +69,6 @@ ICE_API ICEEncodingVersion* ICECurrentEncoding;
 }
 @end
 
-
 ICEProtocolVersion* ICEProtocol_1_0;
 ICEProtocolVersion* ICECurrentProtocol;
 ICEEncodingVersion* ICECurrentProtocolEncoding;

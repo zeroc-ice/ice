@@ -24,7 +24,6 @@ IceRuby_extra_sources   := $(filter-out %Util.cpp %Python.cpp,\
                            $(top_srcdir)/cpp/src/Slice/RubyUtil.cpp \
                            $(top_srcdir)/cpp/src/Slice/StringLiteralUtil.cpp
 
-
 #
 # On the default platform, always write the module in the ruby directory.
 #
