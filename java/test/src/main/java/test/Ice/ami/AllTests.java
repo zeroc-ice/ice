@@ -313,27 +313,27 @@ public class AllTests
         }
         out.println("ok");
 
+        //
+        // Create an executor to use for dispatching completed futures.
+        //
+        java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+
+        //
+        // Determine the id of the executor's thread.
+        //
+        long executorThread = 0;
+        try
+        {
+            executorThread = executor.submit(() -> { return Thread.currentThread().getId(); }).get();
+        }
+        catch(Exception ex)
+        {
+            test(false);
+        }
+
         out.print("testing sent async callback... ");
         out.flush();
         {
-            //
-            // Create an executor to use for dispatching completed futures.
-            //
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
-
-            //
-            // Determine the id of the executor's thread.
-            //
-            long executorThread = 0;
-            try
-            {
-                executorThread = executor.submit(() -> { return Thread.currentThread().getId(); }).get();
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
-
             final SentAsyncCallback cb = new SentAsyncCallback(executorThread);
 
             {
@@ -375,8 +375,6 @@ public class AllTests
                     }, executor);
                 cb.check();
             }
-
-            executor.shutdown();
         }
         out.println("ok");
 
@@ -476,6 +474,7 @@ public class AllTests
 
             {
                 final SentCallback cb = new SentCallback();
+                final SentAsyncCallback cbAsync = new SentAsyncCallback(executorThread);
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = p.ice_batchOneway();
                 CompletableFuture<Void> bf = b1.opBatchAsync();
@@ -488,7 +487,13 @@ public class AllTests
                         test(ex == null);
                         cb.sent(sentSynchronously);
                     });
+                Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
+                    {
+                        test(ex == null);
+                        cbAsync.sent(sentSynchronously);
+                    }, executor);
                 cb.check();
+                cbAsync.check();
                 test(Util.getInvocationFuture(r).isSent());
                 Util.getInvocationFuture(r).waitForCompleted();
                 test(r.isDone());
@@ -1128,6 +1133,8 @@ public class AllTests
                 });
         }
         out.println("ok");
+
+        executor.shutdown();
 
         p.shutdown();
     }
