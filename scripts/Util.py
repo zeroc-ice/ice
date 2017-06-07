@@ -228,6 +228,7 @@ class Windows(Platform):
     def __init__(self):
         Platform.__init__(self)
         self.compiler = ""
+        self.nugetPackageVersion = None
 
     def getFilters(self, config):
         if config.uwp:
@@ -280,6 +281,12 @@ class Windows(Platform):
                 pass
         return self.compiler
 
+    def getNugetPackageVersion(self):
+        if not self.nugetPackageVersion:
+            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        return self.nugetPackageVersion
+
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
 
@@ -292,18 +299,16 @@ class Windows(Platform):
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
-
-            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+            version = self.getNugetPackageVersion()
             packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
             package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
                 mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
             nuget = package and os.path.exists(package)
 
-            if (not nuget):
+            if not nuget:
                 return "bin"
-            elif csharp or isinstance(process, SliceTranslator):
+            elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
             else:
 
@@ -340,10 +345,7 @@ class Windows(Platform):
 
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
-
-        with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-            version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-
+        version = self.getNugetPackageVersion()
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
         package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
             mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
