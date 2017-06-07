@@ -40,14 +40,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(properties, 10);
 #if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface \"::1\"";
+        endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer.
 #endif
     }
     else
     {
         endpoint << "udp -h 239.255.1.1 -p " << getTestPort(properties, 10);
 #if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface 127.0.0.1";
+        endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
 #endif
     }
     properties->setProperty("McastTestAdapter.Endpoints", endpoint.str());

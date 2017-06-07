@@ -159,11 +159,11 @@ public class AllTests
         StringBuilder endpoint = new StringBuilder();
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            endpoint.Append("udp -h \"ff15::1:1\" -p ");
+            endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p "); // Use loopback to prevent other machines to answer.
         }
         else
         {
-            endpoint.Append("udp -h 239.255.1.1 -p ");
+            endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p "); // Use loopback to prevent other machines to answer.
         }
         endpoint.Append(app.getTestPort(10));
         @base = communicator.stringToProxy("test -d:" + endpoint.ToString());

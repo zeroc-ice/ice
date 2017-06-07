@@ -138,13 +138,16 @@ allTests(const CommunicatorPtr& communicator)
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(communicator->getProperties(), 10);
-#ifdef __APPLE__
-        endpoint << " --interface \"::1\"";
+#if defined(__APPLE__) || defined(_WIN32)
+        endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer. the multicast requests.
 #endif
     }
     else
     {
         endpoint << "udp -h 239.255.1.1 -p " << getTestPort(communicator->getProperties(), 10);
+#if defined(__APPLE__) || defined(_WIN32)
+        endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
+#endif
     }
     base = communicator->stringToProxy("test -d:" + endpoint.str());
     TestIntfPrxPtr objMcast = ICE_UNCHECKED_CAST(TestIntfPrx, base);
