@@ -674,9 +674,11 @@ class Mapping:
     @classmethod
     def getByPath(self, path):
         path = os.path.abspath(path)
+        mapping = None
         for m in self.mappings.values():
-            if path.startswith(m.getPath() + os.sep):
-                return m
+            if path.startswith(m.getPath() + os.sep) and (not mapping or len(mapping.getPath()) < len(m.getPath())):
+                mapping=m
+        return mapping
 
     @classmethod
     def add(self, name, mapping):
@@ -2826,7 +2828,7 @@ class AndroidMapping(JavaMapping):
         return props
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../java/test/src/main/java/test")
+        return os.path.join(self.path, "../test/src/main/java/test")
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
@@ -2866,7 +2868,7 @@ class AndroidCompatMapping(JavaCompatMapping):
         return props
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../java-compat/test/src/main/java/test")
+        return os.path.join(self.path, "../test/src/main/java/test")
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
@@ -3231,10 +3233,10 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(
         Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
-    elif hasAndroidSDK and m == "android-compat":
-        Mapping.add(m, AndroidCompatMapping())
-    elif hasAndroidSDK and m == "android":
-        Mapping.add(m, AndroidMapping())
+
+if hasAndroidSDK:
+    Mapping.add("java-compat/android", AndroidCompatMapping())
+    Mapping.add("java/android", AndroidMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])
