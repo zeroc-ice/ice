@@ -292,14 +292,16 @@ class Windows(Platform):
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
-            compiler = self.getCompiler()
-            vc140 = compiler == "VC140"
-            cpp = isinstance(mapping, CppMapping)
-            csharp = isinstance(mapping, CSharpMapping)
 
-            if ((cpp and vc140 and platform == "x64" and buildConfig == "Release") or
-                (not csharp and not cpp) or
-                (not compiler)):
+            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+                version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+            packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
+            package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
+                mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
+
+            nuget = package and os.path.exists(package)
+
+            if (not nuget):
                 return "bin"
             elif csharp or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
@@ -343,24 +345,9 @@ class Windows(Platform):
             version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
 
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-        compiler = self.getCompiler()
-        vc140 = compiler == "VC140"
-        cpp = isinstance(mapping, CppMapping)
-        csharp = isinstance(mapping, CSharpMapping)
-
-        #
-        # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
-        # for another mapping than C++ or C#.
-        #
-        if ((cpp and vc140 and platform == "x64" and current.config.buildConfig == "Release") or
-            (not csharp and not cpp) or
-            (not compiler)):
-            return os.environ.get("ICE_HOME")
-
-        #
-        # Otherwise, use the appropriate nuget package
-        #
-        return os.path.join(mapping.path, "msbuild", "packages", "{0}".format(mapping.getNugetPackage(packageSuffix, version)))
+        package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
+            mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
+        return package if package and os.path.exists(package) else os.environ.get("ICE_HOME")
 
     def canRun(self, mapping, current):
         #
