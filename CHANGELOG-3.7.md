@@ -62,7 +62,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
   published endpoints programmatically.
 
-- The server runtime will now bind to all the addresses associated with a DNS
+- The server run time will now bind to all the addresses associated with a DNS
   name specified in an endpoint of the object adapter (with the endpoint -h
   option). You must make sure the DNS name resolves to local addresses only.
 
@@ -101,7 +101,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   connection when `Connection::close` is called.
 
 - Added new operation metadata, `marshaled-result`, in C++11, C++98, C#, Java,
-  and Java Compat. When this metadata is specified, the generated code for
+  Java Compat, and Python. When this metadata is specified, the generated code for
   the servant dispatch returns a generated struct that contains the marshaled
   values for the return and out parameters. See the Ice Manual for additional
   details on this metadata.
@@ -329,7 +329,7 @@ These are the changes since the Ice 3.6 release or snapshot described in
   certificate verification.
 
 - Added `getOpenSSLVersion` function to `IceSSL::OpenSSL::Plugin` to retrieve
-  the OpenSSL version used by the Ice runtime.
+  the OpenSSL version used by the Ice run time.
 
 - Added `getAuthorityKeyIdentifier` and `getSubjectKeyIdentifier` functions to
   `IceSSL::Certificate`. These functions are not supported on iOS or UWP.
@@ -362,6 +362,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   a server.
 
 ## C# Changes
+
+- Added the proxy method `ice_scheduler`, which returns an instance of
+  `System.Threading.Tasks.TaskScheduler` that you can pass to `Task` methods
+  such as `ContinueWith` in order to force a continuation to be executed by
+  an Ice thread pool thread.
 
 - The `batchRequestInterceptor` data member of `Ice.InitializationData` is now
   defined as a `System.Action<Ice.BatchRequest, int, int>` delegate. You will
@@ -410,6 +415,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## Java Changes
 
+- Added the proxy method `ice_executor`, which returns an instance of
+  `java.util.concurrent.Executor` that you can pass to `CompletableFuture` methods
+  such as `whenCompleteAsync` in order to force an action to be executed by
+  an Ice thread pool thread.
+
 - Added a new Java mapping that takes advantage of Java 8 language features. The new
   mapping is significantly different than prior releases in many ways, including the
   package name (com.zeroc) as well as APIs such as AMI, AMD, out parameters and optional
@@ -434,8 +444,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - The `Ice.Promise` class is now extending the standard JavaScript `Promise`
   class.
 
-- The `Ice.Class` helper function used to create classes has been removed, the
-  Ice runtime and the generated code now use the JavaScript `class` keyword to
+- The `Ice.Class` helper function used to create classes has been removed. The
+  Ice run time and the generated code now use the JavaScript `class` keyword to
   define the classes.
 
 - `Ice.HashMap` usage is now limited to dictionaries with mutable keys, for all
@@ -502,6 +512,10 @@ These are the changes since the Ice 3.6 release or snapshot described in
   but since `unset` is a PHP keyword, we could not use `Ice\Unset`.
 
 ## Python Changes
+
+- Revised the Ice for Python packaging layout. Using the new Slice metadata
+  directive `python:pkgdir`, all generated files are now placed in their
+  respective package directories.
 
 - Added support for the Dispatcher facility. The `dispatcher` member of
   `InitializationData` can be set to a callable that Ice invokes when it
