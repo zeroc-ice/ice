@@ -33,10 +33,6 @@ using namespace Windows::Security::Cryptography;
 using namespace Windows::Security::Cryptography::Certificates;
 #endif
 
-#ifdef _WIN32
-#   include <VersionHelpers.h>
-#endif
-
 #ifdef ICE_CPP11_MAPPING
 #   define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
 #else
