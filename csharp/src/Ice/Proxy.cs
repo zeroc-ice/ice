@@ -772,7 +772,7 @@ namespace Ice
         void iceWrite(OutputStream os);
 
         /// <summary>
-        /// Returns an scheduler object that use the Ice thread pool.
+        /// Returns a scheduler object that uses the Ice thread pool.
         /// </summary>
         /// <returns>The task scheduler object.</returns>
         System.Threading.Tasks.TaskScheduler ice_scheduler();

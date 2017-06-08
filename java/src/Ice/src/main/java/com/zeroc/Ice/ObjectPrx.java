@@ -630,7 +630,7 @@ public interface ObjectPrx
     Connection ice_getConnection();
 
     /**
-     * Returns an executor object that use the Ice thread pool.
+     * Returns an executor object that uses the Ice thread pool.
      *
      * @return The Executor object.
      **/
