@@ -840,8 +840,6 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
     }
     catch(const Ice::Exception& ex)
@@ -924,8 +922,6 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(callback)
         {
             result = (*self->communicator)->begin_flushBatchRequests(cb, callback);

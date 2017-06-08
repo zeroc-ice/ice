@@ -2102,7 +2102,9 @@ public class AllTests : TestCommon.AllTests
                 //
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                b1.opBatch();
+                bf = b1.opBatchAsync();
+                test(bf.done())
+                test(!bf.is_sent())
                 b1.opBatch();
                 FlushCallback cb = new FlushCallback(cookie);
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(cb.completedAsync, cookie);

@@ -211,6 +211,7 @@ class Future(FutureBase):
 class InvocationFuture(Future):
     def __init__(self, operation, asyncResult):
         Future.__init__(self)
+        assert(asyncResult)
         self._operation = operation
         self._asyncResult = asyncResult # May be None for a batch invocation.
         self._sent = False
@@ -218,8 +219,7 @@ class InvocationFuture(Future):
         self._sentCallbacks = []
 
     def cancel(self):
-        if self._asyncResult:
-            self._asyncResult.cancel()
+        self._asyncResult.cancel()
         return Future.cancel(self)
 
     def add_done_callback_async(self, fn):
@@ -233,10 +233,7 @@ class InvocationFuture(Future):
             if self._state == Future.StateRunning:
                 self._doneCallbacks.append(fn)
                 return
-        if self._asyncResult:
-            self._asyncResult.callLater(callback)
-        else:
-            fn(self)
+        self._asyncResult.callLater(callback)
 
     def is_sent(self):
         with self._condition:
@@ -264,11 +261,7 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
-
-        if self._asyncResult:
-            self._asyncResult.callLater(callback)
-        else:
-            fn(self, self._sentSynchronously)
+        self._asyncResult.callLater(callback)
 
     def sent(self, timeout=None):
         with self._condition:
@@ -303,13 +296,13 @@ class InvocationFuture(Future):
         return self._operation
 
     def proxy(self):
-        return None if not self._asyncResult else self._asyncResult.getProxy()
+        return self._asyncResult.getProxy()
 
     def connection(self):
-        return None if not self._asyncResult else self._asyncResult.getConnection()
+        return self._asyncResult.getConnection()
 
     def communicator(self):
-        return None if not self._asyncResult else self._asyncResult.getCommunicator()
+        return self._asyncResult.getCommunicator()
 
 #
 # This value is used as the default value for struct types in the constructors

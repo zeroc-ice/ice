@@ -529,8 +529,6 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args, PyObje
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         result = (*self->connection)->begin_flushBatchRequests(cb, callback);
     }
     catch(const Ice::Exception& ex)
@@ -615,8 +613,6 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(callback)
         {
             result = (*self->connection)->begin_flushBatchRequests(cb, callback);
@@ -798,8 +794,6 @@ connectionBeginHeartbeat(ConnectionObject* self, PyObject* args, PyObject* kwds)
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(cb)
         {
             result = (*self->connection)->begin_heartbeat(cb);
@@ -907,7 +901,6 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
         (*self->connection)->setACM(timeout, close, heartbeat);
     }
     catch(const Ice::Exception& ex)
@@ -935,7 +928,6 @@ connectionGetACM(ConnectionObject* self)
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
         acm = (*self->connection)->getACM();
     }
     catch(const Ice::Exception& ex)
