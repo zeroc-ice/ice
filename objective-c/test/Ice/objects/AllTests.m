@@ -618,6 +618,5 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         // cross-test server does not implement this object
     }
 
-
     return initial;
 }

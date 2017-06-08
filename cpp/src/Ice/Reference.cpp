@@ -1635,7 +1635,6 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
             const bool _cached;
         };
 
-
         virtual void
         setEndpoints(const vector<EndpointIPtr>& endpoints, bool cached)
         {

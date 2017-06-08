@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 
 public class AllTests : TestCommon.AllTests
 {
@@ -275,7 +273,6 @@ public class AllTests : TestCommon.AllTests
             {
                 test(false);
             }
-
 
             Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();

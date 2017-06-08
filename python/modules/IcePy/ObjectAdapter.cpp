@@ -1513,7 +1513,6 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
     return Py_None;
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -1675,7 +1674,6 @@ adapterSetPublishedEndpoints(ObjectAdapterObject* self, PyObject* args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-
 
 static PyMethodDef AdapterMethods[] =
 {

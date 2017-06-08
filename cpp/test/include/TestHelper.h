@@ -18,7 +18,6 @@
 namespace Test
 {
 
-
 class MainHelper : public std::streambuf
 {
 public:

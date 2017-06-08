@@ -17,7 +17,6 @@ IceUtil::Shared* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointI_connectors* p) { return p; }
 #endif
 
-
 IceInternal::EndpointI_connectors::~EndpointI_connectors()
 {
     // Out of line to avoid weak vtable

@@ -21,7 +21,6 @@
 #include <Ice/StringConverter.h>
 #include <IceUtil/Time.h>
 
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

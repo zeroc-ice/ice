@@ -39,7 +39,6 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     }
 }
 
-
 Byte*
 Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
 {

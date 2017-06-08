@@ -161,7 +161,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-
     @Override
     public void
     deactivate()

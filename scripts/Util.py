@@ -228,6 +228,7 @@ class Windows(Platform):
     def __init__(self):
         Platform.__init__(self)
         self.compiler = ""
+        self.nugetPackageVersion = None
 
     def getFilters(self, config):
         if config.uwp:
@@ -280,6 +281,12 @@ class Windows(Platform):
                 pass
         return self.compiler
 
+    def getNugetPackageVersion(self):
+        if not self.nugetPackageVersion:
+            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        return self.nugetPackageVersion
+
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
 
@@ -292,16 +299,16 @@ class Windows(Platform):
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
         if current.driver.useIceBinDist(mapping):
-            compiler = self.getCompiler()
-            vc140 = compiler == "VC140"
-            cpp = isinstance(mapping, CppMapping)
-            csharp = isinstance(mapping, CSharpMapping)
+            version = self.getNugetPackageVersion()
+            packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
+            package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
+                mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
-            if ((cpp and vc140 and platform == "x64" and buildConfig == "Release") or
-                (not csharp and not cpp) or
-                (not compiler)):
+            nuget = package and os.path.exists(package)
+
+            if not nuget:
                 return "bin"
-            elif csharp or isinstance(process, SliceTranslator):
+            elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
                 return os.path.join("tools")
             else:
 
@@ -338,29 +345,11 @@ class Windows(Platform):
 
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
-
-        with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-            version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-
+        version = self.getNugetPackageVersion()
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-        compiler = self.getCompiler()
-        vc140 = compiler == "VC140"
-        cpp = isinstance(mapping, CppMapping)
-        csharp = isinstance(mapping, CSharpMapping)
-
-        #
-        # Use binary distribution from ICE_HOME if building for C++/VC140/x64/Release or
-        # for another mapping than C++ or C#.
-        #
-        if ((cpp and vc140 and platform == "x64" and current.config.buildConfig == "Release") or
-            (not csharp and not cpp) or
-            (not compiler)):
-            return os.environ.get("ICE_HOME")
-
-        #
-        # Otherwise, use the appropriate nuget package
-        #
-        return os.path.join(mapping.path, "msbuild", "packages", "{0}".format(mapping.getNugetPackage(packageSuffix, version)))
+        package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
+            mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
+        return package if package and os.path.exists(package) else os.environ.get("ICE_HOME")
 
     def canRun(self, mapping, current):
         #
@@ -418,7 +407,6 @@ def parseOptions(obj, options, mapped={}):
         else:
             remaining.append((o, a))
     options[:] = remaining
-
 
 class Mapping:
 
@@ -686,9 +674,11 @@ class Mapping:
     @classmethod
     def getByPath(self, path):
         path = os.path.abspath(path)
+        mapping = None
         for m in self.mappings.values():
-            if path.startswith(m.getPath() + os.sep):
-                return m
+            if path.startswith(m.getPath() + os.sep) and (not mapping or len(mapping.getPath()) < len(m.getPath())):
+                mapping=m
+        return mapping
 
     @classmethod
     def add(self, name, mapping):
@@ -1878,7 +1868,6 @@ class RemoteProcessController(ProcessController):
                     return self.processControllerProxies[ident]
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
-
     def setProcessController(self, proxy):
         with self.cond:
             self.processControllerProxies[proxy.ice_getIdentity()] = proxy
@@ -2051,7 +2040,6 @@ class AndroidProcessController(RemoteProcessController):
                 sys.stdout.write(".")
                 sys.stdout.flush()
                 time.sleep(0.5)
-
 
 class iOSSimulatorProcessController(RemoteProcessController):
 
@@ -2597,7 +2585,6 @@ class Driver:
             self.communicator.destroy()
             self.ctrlCHandler.destroy()
 
-
 class CppMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -2841,7 +2828,7 @@ class AndroidMapping(JavaMapping):
         return props
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../java/test/src/main/java/test")
+        return os.path.join(self.path, "../test/src/main/java/test")
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
@@ -2881,7 +2868,7 @@ class AndroidCompatMapping(JavaCompatMapping):
         return props
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../java-compat/test/src/main/java/test")
+        return os.path.join(self.path, "../test/src/main/java/test")
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
@@ -3246,10 +3233,10 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(
         Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
-    elif hasAndroidSDK and m == "android-compat":
-        Mapping.add(m, AndroidCompatMapping())
-    elif hasAndroidSDK and m == "android":
-        Mapping.add(m, AndroidMapping())
+
+if hasAndroidSDK:
+    Mapping.add("java-compat/android", AndroidCompatMapping())
+    Mapping.add("java/android", AndroidMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])

@@ -94,7 +94,6 @@ public class AllTests : TestCommon.AllTests
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 #pragma warning restore 612, 618
 
-
         Write("testing stringToProxy... ");
         Flush();
         String @ref = "initial:" + app.getTestEndpoint(0);

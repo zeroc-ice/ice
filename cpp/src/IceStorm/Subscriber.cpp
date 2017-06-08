@@ -931,7 +931,6 @@ Subscriber::completed(const Ice::AsyncResultPtr& result)
     }
 }
 
-
 void
 Subscriber::shutdown()
 {

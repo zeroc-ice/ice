@@ -237,7 +237,6 @@ def allTests(communicator):
     except Ice.IllegalServantException:
         pass
 
-
     adapter.remove(Ice.stringToIdentity("x"))
     try:
         adapter.remove(Ice.stringToIdentity("x"))
@@ -463,7 +462,6 @@ def allTests(communicator):
             test(False)
 
         print("ok")
-
 
     if thrower.ice_getConnection():
         sys.stdout.write("testing memory limit marshal exception...");

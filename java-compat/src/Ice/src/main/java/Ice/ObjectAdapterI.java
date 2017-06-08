@@ -160,7 +160,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-
     @Override
     public void
     deactivate()
@@ -704,7 +703,6 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
         }
     }
-
 
     public boolean
     isLocal(ObjectPrx proxy)

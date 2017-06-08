@@ -504,7 +504,6 @@ exceptionsAllTests(id<ICECommunicator> communicator)
         test(false);
     }
 
-
     tprintf("ok\n");
 
     tprintf("catching unknown non-Ice exception... ");

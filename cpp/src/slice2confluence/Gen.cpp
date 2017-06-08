@@ -94,7 +94,6 @@ generate(const UnitPtr& unit, const string& dir, const string& header, const str
 
 }
 
-
 string Slice::GeneratorBase::_dir = ".";
 string Slice::GeneratorBase::_header1;
 string Slice::GeneratorBase::_header2;
@@ -199,7 +198,6 @@ Slice::GeneratorBase::setSymbols(const ContainedList& symbols)
 {
     _symbols = symbols;
 }
-
 
 void
 Slice::GeneratorBase::setSortOrder(const vector<string>& sortOrder)
@@ -430,7 +428,6 @@ Slice::GeneratorBase::trim(string str)
     out = out.erase(0 , out.find_first_not_of(" \n\r\t"));
     return out;
 }
-
 
 string
 Slice::GeneratorBase::getUpper(const std::string& str)
@@ -814,7 +811,6 @@ compareContained(const ContainedPtr& p1, const ContainedPtr& p2)
         //XXX --- END HACK
     }
 
-
     if (!c1 && !c2)
     {
         // Both are top-level containers, compare cnames
@@ -849,7 +845,6 @@ compareContained(const ContainedPtr& p1, const ContainedPtr& p2)
     {
         if ("Instrumentation" == p1->name() || "Instrumentation" == p2->name()) {
         }
-
 
         if (p1->name() == c2->name())
         {
@@ -1528,7 +1523,6 @@ Slice::GeneratorBase::isTagged(const string& tag, string& comment)
     return false;
 }
 
-
 string
 Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container, bool shortName)
 {
@@ -1546,7 +1540,6 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
     {
         return s.substr(2);
     }
-
 
 //    do
 //    {
@@ -2073,7 +2066,6 @@ TOCGenerator::symbols() const
 {
     return _symbols;
 }
-
 
 void
 TOCGenerator::writeEntry(const ContainedPtr& c)
@@ -3253,7 +3245,6 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         end();
         _out << "\n{ztop}\n";
     }
-
 
     closeDoc();
 

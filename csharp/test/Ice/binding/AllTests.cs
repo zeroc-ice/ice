@@ -555,7 +555,6 @@ public class AllTests : TestCommon.AllTests
 
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
 
-
             test(obj.getAdapterName().Equals("Adapter52"));
 
             deactivate(com, adapters);
@@ -592,7 +591,6 @@ public class AllTests : TestCommon.AllTests
             }
 
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-
 
             test(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
 

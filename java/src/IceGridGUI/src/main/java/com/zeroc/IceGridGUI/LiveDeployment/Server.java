@@ -1001,7 +1001,6 @@ public class Server extends Communicator
                                   serverInstancePSDescriptor));
     }
 
-
     //
     // Implement Communicator abstract methods
     //

@@ -96,7 +96,6 @@ private:
 };
 typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
 
-
 class RequestQueueThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:

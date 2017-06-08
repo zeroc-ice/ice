@@ -31,7 +31,6 @@ std::vector<std::string> argvToArgs(int argc, wchar_t* argv[]);
 std::vector<std::string> argvToArgs(int argc, char* argv[]);
 #endif
 
-
 enum EscapeMode { UCN, Octal, ShortUCN, EC6UCN };
 
 // Parameters:
@@ -46,7 +45,6 @@ enum EscapeMode { UCN, Octal, ShortUCN, EC6UCN };
 //                       octal escape sequences, regardless of escapeMode.
 std::string
 toStringLiteral(const std::string&, const std::string&, const std::string&, EscapeMode, unsigned char);
-
 
 void
 writeDependencies(const std::string&, const std::string&);

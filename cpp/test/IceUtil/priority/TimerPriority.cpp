@@ -15,7 +15,6 @@
 using namespace std;
 using namespace IceUtil;
 
-
 static const string priorityTestName("timer priority");
 
 TimerPriorityTest::TimerPriorityTest() :

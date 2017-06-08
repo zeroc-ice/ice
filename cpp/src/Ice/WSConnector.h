@@ -32,7 +32,6 @@ public:
     virtual bool operator==(const Connector&) const;
     virtual bool operator<(const Connector&) const;
 
-
     WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
     virtual ~WSConnector();
 

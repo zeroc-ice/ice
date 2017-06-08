@@ -393,7 +393,6 @@ Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool 
     PluginManagerI::registerPluginFactory(name, factory, loadOnInitialize);
 }
 
-
 //
 // CommunicatorHolder
 //

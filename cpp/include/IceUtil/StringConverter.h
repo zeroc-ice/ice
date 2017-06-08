@@ -106,7 +106,6 @@ ICE_API WstringConverterPtr getProcessWstringConverter();
 //
 ICE_API void setProcessWstringConverter(const WstringConverterPtr&);
 
-
 //
 // Converts the given wide string to a narrow string
 //
@@ -132,7 +131,6 @@ ICE_API std::wstring
 stringToWstring(const std::string&,
                 const StringConverterPtr& = 0,
                 const WstringConverterPtr& = 0);
-
 
 //
 // Converts the given string from the native narrow string encoding to

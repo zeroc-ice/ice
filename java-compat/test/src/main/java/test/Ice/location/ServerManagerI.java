@@ -12,7 +12,6 @@ package test.Ice.location;
 
 import test.Ice.location.Test._ServerManagerDisp;
 
-
 public class ServerManagerI extends _ServerManagerDisp
 {
     ServerManagerI(ServerLocatorRegistry registry, Ice.InitializationData initData, test.Util.Application app)

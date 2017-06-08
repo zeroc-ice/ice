@@ -127,7 +127,6 @@ protected:
     BasePluginPtr _other;
 };
 
-
 class PluginOne : public BasePlugin
 {
 
@@ -245,7 +244,6 @@ protected:
     BasePluginFailPtr _two;
     BasePluginFailPtr _three;
 };
-
 
 class PluginOneFail : public BasePluginFail
 {

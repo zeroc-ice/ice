@@ -171,7 +171,6 @@ Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
     return true;
 }
 
-
 bool
 #ifdef ICE_CPP11_MAPPING
 Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::function<bool(std::exception_ptr)> e)

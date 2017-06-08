@@ -396,7 +396,6 @@ function allTests($communicator)
     $communicator->destroy();
 }
 
-
 $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
 
 $initData->properties = eval($NS ? "return Ice\\createProperties(\$argv);" : "return Ice_createProperties(\$argv);");

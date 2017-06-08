@@ -18,12 +18,10 @@
 [ ca ]
 default_ca = ice
 
-
 [ ice ]
 default_days     = 365     # How long certs are valid.
 default_md       = md5     # The Message Digest type.
 preserve         = no      # Keep passed DN ordering?
-
 
 [ req ]
 default_bits        = 2048
@@ -33,7 +31,6 @@ prompt              = no
 distinguished_name  = root_ca_distinguished_name
 x509_extensions     = root_ca_extensions
 
-
 [ root_ca_distinguished_name ]
 countryName            = US
 stateOrProvinceName    = Some State
@@ -42,7 +39,6 @@ organizationName       = Your Company
 organizationalUnitName = Development
 commonName             = Your Certificate Authority
 emailAddress           = you@some.net
-
 
 [ root_ca_extensions ]
 basicConstraints = CA:true

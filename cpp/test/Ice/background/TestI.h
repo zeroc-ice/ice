@@ -38,7 +38,6 @@ class BackgroundControllerI : public Test::BackgroundController, IceUtil::Monito
 {
 public:
 
-
     virtual void pauseCall(ICE_IN(std::string), const Ice::Current&);
     virtual void resumeCall(ICE_IN(std::string), const Ice::Current&);
     virtual void checkCallPause(const Ice::Current&);

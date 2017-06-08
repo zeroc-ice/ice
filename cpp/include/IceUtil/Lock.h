@@ -21,7 +21,6 @@ namespace IceUtil
 //
 class Cond;
 
-
 // LockT and TryLockT are the preferred construct to lock/tryLock/unlock
 // simple and recursive mutexes. You typically allocate them on the
 // stack to hold a lock on a mutex.
@@ -67,7 +66,6 @@ public:
         _mutex.lock();
         _acquired = true;
     }
-
 
     bool tryAcquire() const
     {

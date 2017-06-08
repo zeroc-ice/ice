@@ -320,7 +320,6 @@
                     }
                 }
 
-
                 //
                 // Test for bug ICE-5543: escaped escapes in stringToIdentity
                 //
@@ -663,7 +662,6 @@
                 catch(ex)
                 {
                 }
-
 
                 out.writeLine("ok");
 

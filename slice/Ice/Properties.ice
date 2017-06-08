@@ -95,7 +95,6 @@ local interface Properties
      **/
     int getPropertyAsIntWithDefault(string key, int \value);
 
-
      /**
      *
      * Get a property as a list of strings. The strings must be

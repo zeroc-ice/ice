@@ -1028,7 +1028,6 @@ public class SessionKeeper
         private boolean _isDefault;
     }
 
-
     //
     // FocusListener implementation that unselect the text
     // of a text component after focus gained.
@@ -1233,7 +1232,6 @@ public class SessionKeeper
                                 }
                             }
                         });
-
 
                 _directDiscoveryLocatorList.addListSelectionListener(new ListSelectionListener()
                 {
@@ -4741,7 +4739,6 @@ public class SessionKeeper
 
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-
 
             FormLayout layout = new FormLayout("pref:grow", "");
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);

@@ -14,7 +14,6 @@
 #include <Test.h>
 #include <Configuration.h>
 
-
 class EndpointI;
 ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
 

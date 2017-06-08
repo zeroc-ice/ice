@@ -2409,7 +2409,6 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-
     private class TestValueReader : Ice.ValueReader
     {
         public override void read(Ice.InputStream @in)

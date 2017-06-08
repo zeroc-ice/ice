@@ -28,7 +28,6 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-
 int
 main(int argc, char* argv[])
 {

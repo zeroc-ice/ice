@@ -47,7 +47,6 @@ private:
     IceInternal::UniquePtr<Ice::LocalException> _ex;
 };
 
-
 class CancellationHandler
 #ifndef ICE_CPP11_MAPPING
     : public virtual IceUtil::Shared

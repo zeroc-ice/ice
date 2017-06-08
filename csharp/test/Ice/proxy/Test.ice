@@ -14,7 +14,6 @@
 module Test
 {
 
-
 interface MyClass
 {
     void shutdown();

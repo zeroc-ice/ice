@@ -10,7 +10,6 @@
 package test.Ice.timeout;
 import test.Ice.timeout.Test._TimeoutDisp;
 
-
 class TimeoutI extends _TimeoutDisp
 {
     static class ActivateAdapterThread extends Thread

@@ -24,7 +24,6 @@ DEFINE_TEST("client")
 #   include <signal.h>
 #endif
 
-
 using namespace std;
 
 #if defined(__APPLE__) || defined(ICE_OS_UWP)
@@ -184,7 +183,6 @@ ClientApp::run(int, char*[])
 
     return rs;
 }
-
 
 int
 ClientApp::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)

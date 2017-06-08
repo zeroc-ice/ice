@@ -22,7 +22,6 @@
     return self;
 }
 
-
 -(id<TestBindingRemoteObjectAdapterPrx>) createObjectAdapter:(NSMutableString*)name endpoints:(NSMutableString*)endpts
                                               current:(ICECurrent*)current
 {

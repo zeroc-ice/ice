@@ -127,7 +127,7 @@ class ProcessControllerI extends Test.Common.ProcessController
         if(this._useWorker)
         {
             let scripts = this._scripts;
-            promise = new Promise((resolve, reject) => 
+            promise = new Promise((resolve, reject) =>
                 {
                     let worker;
                     if(document.location.pathname.indexOf("/es5/") !== -1)
@@ -139,7 +139,7 @@ class ProcessControllerI extends Test.Common.ProcessController
                         worker = new Worker("/test/Common/ControllerWorker.js");
                     }
                     this._worker = worker;
-                    worker.onmessage = function(e) 
+                    worker.onmessage = function(e)
                     {
                         if(e.data.type == "write")
                         {
@@ -258,7 +258,7 @@ function runController(clientOutput, serverOutput, scripts)
                     connection => out.writeLine("connection with process controller registry closed"));
                 return registry.setProcessController(Test.Common.ProcessControllerPrx.uncheckedCast(processController));
             }).catch(
-            ex => 
+            ex =>
             {
                 if(ex instanceof Ice.ConnectFailedException)
                 {
@@ -275,14 +275,14 @@ function runController(clientOutput, serverOutput, scripts)
     let str = "Util/ProcessControllerRegistry:" + protocol + " -h 127.0.0.1 -p " + port;
     let registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
     comm.createObjectAdapter("").then(
-        adapter => 
+        adapter =>
         {
             let ident = new Ice.Identity("ProcessController", "Browser");
             let processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
             adapter.activate();
             registerProcessController(adapter, registry, processController);
         }).catch(
-        ex => 
+        ex =>
         {
             out.writeLine("unexpected exception while creating controller:\n" + ex.toString());
             comm.destroy();

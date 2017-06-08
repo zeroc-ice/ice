@@ -11,7 +11,6 @@ package test.IceBox.configuration;
 
 import test.IceBox.configuration.Test._TestIntfDisp;
 
-
 public class TestI extends _TestIntfDisp
 {
     public

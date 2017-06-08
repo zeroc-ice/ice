@@ -239,7 +239,6 @@ public class Service extends Communicator
         return _popup;
     }
 
-
     //
     // Implement Communicator abstract methods
     //

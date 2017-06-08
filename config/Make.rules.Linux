@@ -117,7 +117,6 @@ ifeq ($(OPTIMIZE),yes)
     endif
 endif
 
-
 build-platform                  = $(if $(filter arm%,$(shell uname -m)),arm,$(shell uname -m))
 supported-platforms             = $(build-platform)
 lib-suffix                      = $(if $(filter x86_64,$(build-platform)),64,)
@@ -166,7 +165,6 @@ mkshlibname     = lib$(1).so
 
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
-
 
 #
 # With GCC < 6.1, libbacktrace crash with a SEGV for -pie exes linked with debug-stripped libs

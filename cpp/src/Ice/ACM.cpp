@@ -210,7 +210,6 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         }
     }
 
-
     //
     // Monitor connections outside the thread synchronization, so
     // that connections can be added or removed during monitoring.

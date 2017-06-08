@@ -80,7 +80,6 @@ class CommunicatorEditor extends Editor
         _refreshButton.setEnabled(true);
     }
 
-
     void setRuntimeProperties(java.util.SortedMap<String, String> map, Communicator communicator)
     {
         if(communicator == _target)

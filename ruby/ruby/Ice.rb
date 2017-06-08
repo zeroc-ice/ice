@@ -143,7 +143,6 @@ module Ice
 
     T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
 
-
     class InterfaceByValue < Value
         def initialize(id)
             @id = id
@@ -355,7 +354,6 @@ module Ice
                 return @callback
             }
         end
-
 
         @@_self = nil
     end

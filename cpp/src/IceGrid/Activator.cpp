@@ -329,7 +329,6 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
     fcntl(_fdIntrRead, F_SETFL, flags);
 #endif
 
-
 }
 
 Activator::~Activator()
@@ -685,7 +684,6 @@ Activator::activate(const string& name,
         throw ex;
     }
 
-
     //
     // Convert to standard argc/argv.
     //
@@ -957,7 +955,6 @@ Activator::kill(const string& name)
 {
     sendSignal(name, SIGKILL);
 }
-
 
 void
 Activator::sendSignal(const string& name, const string& signal)

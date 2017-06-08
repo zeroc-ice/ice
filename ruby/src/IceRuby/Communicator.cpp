@@ -302,7 +302,6 @@ IceRuby_identityToString(int argc, VALUE* argv, VALUE self)
 
         Ice::Identity ident = getIdentity(argv[0]);
 
-
         Ice::ToStringMode toStringMode = Ice::Unicode;
         if(argc == 2)
         {
@@ -540,7 +539,6 @@ IceRuby_Communicator_getImplicitContext(VALUE self)
     ICE_RUBY_CATCH
     return Qnil;
 }
-
 
 extern "C"
 VALUE

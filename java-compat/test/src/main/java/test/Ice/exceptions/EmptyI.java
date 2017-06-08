@@ -11,7 +11,6 @@ package test.Ice.exceptions;
 
 import test.Ice.exceptions.Test._EmptyDisp;
 
-
 public final class EmptyI extends _EmptyDisp
 {
 }

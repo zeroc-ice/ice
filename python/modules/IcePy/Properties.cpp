@@ -406,8 +406,6 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
     return list;
 }
 
-
-
 #ifdef WIN32
 extern "C"
 #endif

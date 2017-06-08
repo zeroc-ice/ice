@@ -144,8 +144,6 @@ class StartPageGenerator : private GeneratorBase
 {
 public:
 
-
-
     StartPageGenerator(const Files&);
     ~StartPageGenerator();
     void generate(const ModulePtr&);
@@ -154,7 +152,6 @@ private:
 
     using GeneratorBase::printHeaderFooter;
     void printHeaderFooter();
-
 
     typedef ::std::vector<StringPair> ModuleDescriptions;
     ModuleDescriptions _modules;

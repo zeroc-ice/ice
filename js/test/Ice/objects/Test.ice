@@ -107,7 +107,6 @@ class CompactExt(CompactExtId) extends Compact
 {
 }
 
-
 class A1
 {
     string name;

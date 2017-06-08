@@ -10,7 +10,6 @@
 import os, sys, traceback, time
 import Ice, Test, TestI
 
-
 class TestActivationI(Test.TestActivation):
 
     def activateServantLocator(self, activate, current=None):

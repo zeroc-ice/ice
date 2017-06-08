@@ -1345,7 +1345,6 @@ const IceInternal::PropertyArray
     IceInternal::PropertyNames::FreezeProps(FreezePropsData,
                                                 sizeof(FreezePropsData)/sizeof(FreezePropsData[0]));
 
-
 const IceInternal::PropertyArray IceInternal::PropertyNames::validProps[] =
 {
     IceProps,
@@ -1367,7 +1366,6 @@ const IceInternal::PropertyArray IceInternal::PropertyNames::validProps[] =
     FreezeProps,
     IceInternal::PropertyArray(0,0)
 };
-
 
 const char* IceInternal::PropertyNames::clPropNames[] =
 {

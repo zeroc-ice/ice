@@ -49,7 +49,6 @@ struct FileInfo
  **/
 sequence<FileInfo> FileInfoSeq;
 
-
 /**
  *
  * Basic information about a single file.

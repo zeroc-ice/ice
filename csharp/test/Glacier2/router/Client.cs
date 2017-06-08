@@ -39,7 +39,6 @@ public class Client : TestCommon.Application
             Console.Out.WriteLine("ok");
         }
 
-
         {
             Console.Out.Write("testing router finder... ");
             Console.Out.Flush();
@@ -90,7 +89,6 @@ public class Client : TestCommon.Application
                 test(false);
             }
         }
-
 
         {
             Console.Out.Write("trying to create session with wrong password... ");

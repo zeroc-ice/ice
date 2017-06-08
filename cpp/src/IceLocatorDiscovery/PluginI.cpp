@@ -30,7 +30,6 @@ typedef std::pair<function<void(bool, const pair<const Ice::Byte*, const Ice::By
 typedef Ice::AMD_Object_ice_invokePtr AMDCallback;
 #endif
 
-
 class Request :
 #ifdef ICE_CPP11_MAPPING
         public std::enable_shared_from_this<Request>
@@ -473,7 +472,6 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
     }
 #endif
 }
-
 
 void
 Request::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)

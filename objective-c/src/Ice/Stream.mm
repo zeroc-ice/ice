@@ -1387,7 +1387,6 @@ private:
     }
 }
 
-
 -(void) skip:(ICEInt)sz
 {
     NSException* nsex = nil;
@@ -1915,7 +1914,6 @@ private:
         @throw nsex;
     }
 }
-
 
 -(void) writeProxy:(id<ICEObjectPrx>)v
 {

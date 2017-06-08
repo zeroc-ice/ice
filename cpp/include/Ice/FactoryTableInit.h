@@ -28,7 +28,6 @@ static FactoryTableInit factoryTableInitializer;    // Dummy variable to force i
 
 extern ICE_API FactoryTable* factoryTable;
 
-
 class ICE_API CompactIdInit
 {
 public:

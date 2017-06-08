@@ -118,7 +118,6 @@ private:
     set<IncomingConnectionFactoryPtr> _factories;
 };
 
-
 }
 
 static Observer* observer = new Observer();

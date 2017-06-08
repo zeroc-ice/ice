@@ -297,7 +297,6 @@ handlePcInfoError(void* data, const char* msg, int errnum)
     frameInfo.setByErrorCb = true;
 }
 
-
 int
 addFrame(void* sf, uintptr_t pc)
 {
@@ -352,7 +351,6 @@ getStackFrames()
 
     return stackFrames;
 }
-
 
 string
 getStackTrace(const vector<void*>& stackFrames)
@@ -626,7 +624,6 @@ IceUtil::NullHandleException::ice_clone() const
 }
 #endif
 
-
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
     ExceptionHelper<IllegalArgumentException>(file, line)
 {
@@ -720,8 +717,6 @@ IceUtil::IllegalConversionException::reason() const
     return _reason;
 }
 
-
-
 IceUtil::SyscallException::SyscallException(const char* file, int line, int err ):
     ExceptionHelper<SyscallException>(file, line),
     _error(err)
@@ -763,7 +758,6 @@ IceUtil::SyscallException::error() const
 {
     return _error;
 }
-
 
 IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path):
     ExceptionHelper<FileLockException>(file, line),

@@ -3758,7 +3758,6 @@ handleExceptionInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-
 static bool
 createExceptionInfo(zval* zv, const ExceptionInfoPtr& p)
 {

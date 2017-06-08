@@ -1775,7 +1775,6 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
     return min_element(objectsWithLoad.begin(), objectsWithLoad.end(), ObjectLoadCI())->first;
 }
 
-
 Ice::ObjectProxySeq
 Database::getObjectsByType(const string& type, const Ice::ConnectionPtr& con, const Ice::Context& ctx)
 {

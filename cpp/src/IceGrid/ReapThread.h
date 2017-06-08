@@ -115,7 +115,6 @@ public:
     }
 };
 
-
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:

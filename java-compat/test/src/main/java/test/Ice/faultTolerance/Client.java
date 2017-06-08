@@ -11,7 +11,6 @@ package test.Ice.faultTolerance;
 
 import java.io.PrintWriter;
 
-
 public class Client extends test.Util.Application
 {
     private static void

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -66,7 +65,6 @@ public class AllTests : TestCommon.AllTests
             test(Dispatcher.isDispatcherThread());
             called();
         }
-
 
         public void payload()
         {

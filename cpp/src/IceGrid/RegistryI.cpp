@@ -1462,7 +1462,6 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             out << "creating replica `" << replicaName << "' session";
         }
 
-
         try
         {
             replica->end_registerWithReplica(*p);

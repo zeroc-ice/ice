@@ -1142,7 +1142,6 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -1822,8 +1821,6 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         result = (*self->proxy)->begin_ice_getConnection(cb);
     }
     catch(const Ice::Exception& ex)
@@ -1898,8 +1895,6 @@ proxyBeginIceGetConnection(ProxyObject* self, PyObject* args, PyObject* kwds)
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(cb)
         {
             result = (*self->proxy)->begin_ice_getConnection(cb);
@@ -2027,8 +2022,6 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         result = (*self->proxy)->begin_ice_flushBatchRequests(cb);
     }
     catch(const Ice::Exception& ex)
@@ -2101,8 +2094,6 @@ proxyBeginIceFlushBatchRequests(ProxyObject* self, PyObject* args, PyObject* kwd
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(cb)
         {
             result = (*self->proxy)->begin_ice_flushBatchRequests(cb);

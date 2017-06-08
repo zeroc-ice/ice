@@ -54,7 +54,6 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         return remoteObserver;
     }
 
-
     @Override
     public synchronized Ice.Instrumentation.CollocatedObserver
     getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)

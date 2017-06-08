@@ -307,7 +307,6 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
-
     public Ice.Instrumentation.Observer
     getEndpointLookupObserver(Ice.Endpoint e)
     {
@@ -383,7 +382,6 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             return dispatchObserver;
         }
     }
-
 
     /*
     void

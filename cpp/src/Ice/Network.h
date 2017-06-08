@@ -193,7 +193,6 @@ public:
 
     virtual ~ReadyCallback();
 
-
     virtual void ready(SocketOperation, bool) = 0;
 };
 typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;

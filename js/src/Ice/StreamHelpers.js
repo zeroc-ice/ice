@@ -152,8 +152,6 @@ class SequenceHelper
     }
 }
 
-
-
 // Speacialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
 byteSeqHelper.write = function(os, v) { return os.writeByteSeq(v); };

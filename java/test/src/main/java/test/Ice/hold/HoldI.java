@@ -87,7 +87,6 @@ public final class HoldI implements Hold
         }, 0);
     }
 
-
     @Override
     public int set(int value, int delay, com.zeroc.Ice.Current current)
     {

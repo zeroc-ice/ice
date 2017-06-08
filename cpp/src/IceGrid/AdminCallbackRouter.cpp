@@ -54,7 +54,6 @@ IceGrid::AdminCallbackRouter::removeMapping(const string& category)
     assert(one == 1);
 }
 
-
 void
 IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
                                                const pair<const Byte*, const Byte*>& inParams,
@@ -72,9 +71,7 @@ IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& c
         con = p->second;
     }
 
-
     ObjectPrx target = con->createProxy(current.id)->ice_facet(current.facet);
-
 
     //
     // Call with AMI

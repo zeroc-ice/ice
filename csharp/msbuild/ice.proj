@@ -22,7 +22,7 @@
         <slice2cs Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2cs</slice2cs>
     </PropertyGroup>
 
-    <Target Name="slice2cs">
+    <Target Name="slice2cs" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
                 Targets="NuGetRestore"
                 BuildInParallel="true"/>

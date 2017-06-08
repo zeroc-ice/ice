@@ -558,7 +558,6 @@ IceInternal::IncomingBase::handleException(const string& msg, bool amd)
     _responseHandler = 0;
 }
 
-
 IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
                                 const ObjectAdapterPtr& adapter, bool response, Byte compress, Int requestId) :
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),

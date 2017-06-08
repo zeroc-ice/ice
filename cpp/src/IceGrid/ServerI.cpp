@@ -2662,7 +2662,6 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
             throw "node has insufficient privileges to load server under user account `" + user + "'";
         }
 
-
         if(pw->pw_uid == 0 &&
            _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") <= 0)
         {

@@ -126,7 +126,6 @@ private:
         return item;
     }
 
-
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 #ifdef ICE_CPP11_MAPPING
     list<std::function<void()>> _queue;
@@ -462,7 +461,6 @@ public:
             }
             cout << "ok" << endl;
 
-
             cout << "uninstalling router with communicator... " << flush;
             communicator()->setDefaultRouter(0);
             cout << "ok" << endl;
@@ -474,7 +472,6 @@ public:
                                                             getTestEndpoint(communicator(), 11));
                 cout << "ok" << endl;
             }
-
 
             Ice::ProcessPrxPtr process;
             {
@@ -505,7 +502,6 @@ public:
         // Wait a bit to ensure glaci2router has been shutdown.
         //
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -568,7 +564,6 @@ private:
 };
 
 } // Anonymous namespace end
-
 
 int
 main(int argc, char* argv[])

@@ -945,7 +945,6 @@ These are changes since Ice 3.3.1.
 
 - 64-bit integers are now supported in buffer types.
 
-
 ## Ruby Changes
 
 - Fixed a compilation error when using Ruby 1.8.7 (patch level >=

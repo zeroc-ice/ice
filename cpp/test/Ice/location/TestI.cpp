@@ -81,7 +81,6 @@ ServerManagerI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
              const Ice::ObjectAdapterPtr& adapter2,
              const ServerLocatorRegistryPtr& registry) :

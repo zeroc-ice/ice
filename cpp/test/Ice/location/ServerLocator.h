@@ -20,7 +20,6 @@ public:
 
     ServerLocatorRegistry();
 
-
 #ifdef ICE_CPP11_MAPPING
     virtual void setAdapterDirectProxyAsync(std::string, std::shared_ptr<::Ice::ObjectPrx>,
                                             std::function<void()>,

@@ -143,7 +143,6 @@ function allTests($communicator)
 
     test($mo1->bos == array(false, true, false));
 
-
     //
     // Test generated struct and classes compare with $none
     //
@@ -346,7 +345,6 @@ function allTests($communicator)
     test($oo != $none);
     $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
     test($oo == $none);
-
 
     $gcls = $NS ? "Test\\G" : "Test_G";
     $g1cls = $NS ? "Test\\G1" : "Test_G1";

@@ -9,7 +9,6 @@
 
 package test.Ice.exceptions;
 
-
 public final class ServantLocatorI implements Ice.ServantLocator
 {
     @Override

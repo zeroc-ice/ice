@@ -114,7 +114,6 @@ private:
 };
 ICE_DEFINE_PTR(TestTaskPtr, TestTask);
 
-
 class DestroyTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:

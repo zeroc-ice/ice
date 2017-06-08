@@ -842,7 +842,6 @@ class SSLEngine
             }
         }
 
-
         if(incoming)
         {
             if(_verifyPeer == 0)

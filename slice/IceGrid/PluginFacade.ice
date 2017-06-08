@@ -90,7 +90,6 @@ local interface TypeFilter
     Ice::ObjectProxySeq filter(string type, Ice::ObjectProxySeq proxies, Ice::Connection con, Ice::Context ctx);
 }
 
-
 /**
  *
  * The RegistryPluginFacade is implemented by IceGrid and can be used

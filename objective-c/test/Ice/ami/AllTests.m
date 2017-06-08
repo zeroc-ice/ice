@@ -617,7 +617,6 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         }
         tprintf("ok\n");
 
-
         tprintf("testing batch requests with communicator... ");
         {
             {
@@ -684,7 +683,6 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
                 test(r1 == r1);
                 test(r1 != r2);
-
 
                 if([p ice_getConnection])
                 {

@@ -727,7 +727,6 @@ CommunicatorDescriptorBuilder::addDbEnv(const XmlAttributesHelper& attrs)
     DbEnvDescriptor desc;
     desc.name = attrs("name");
 
-
     DbEnvDescriptorSeq::iterator p;
     for(p = _descriptor->dbEnvs.begin(); p != _descriptor->dbEnvs.end(); ++p)
     {

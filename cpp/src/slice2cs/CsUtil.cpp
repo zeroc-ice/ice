@@ -2463,7 +2463,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             s.replace(0, clrPrefix.size(), csPrefix);
         }
 
-
         if(s.find(csPrefix) == 0)
         {
             SequencePtr seq = SequencePtr::dynamicCast(cont);

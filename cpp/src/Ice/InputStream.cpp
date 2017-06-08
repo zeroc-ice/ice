@@ -36,7 +36,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-
 Ice::InputStream::InputStream()
 {
     initialize(currentEncoding);
@@ -1059,7 +1058,6 @@ Ice::InputStream::read(vector<Double>& v)
         v.clear();
     }
 }
-
 
 #ifdef ICE_CPP11_MAPPING
 void

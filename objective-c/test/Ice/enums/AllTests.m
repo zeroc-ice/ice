@@ -11,7 +11,6 @@
 #import <TestCommon.h>
 #import <EnumTest.h>
 
-
 TestEnumTestIntfPrx*
 enumAllTests(id<ICECommunicator> communicator)
 {
@@ -378,8 +377,6 @@ enumAllTests(id<ICECommunicator> communicator)
         {
         }
     }
-
-
 
     tprintf("ok\n");
 

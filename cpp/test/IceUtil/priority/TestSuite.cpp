@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 #include <IceUtil/MutexProtocol.h>
 
 #include <TestSuite.h>

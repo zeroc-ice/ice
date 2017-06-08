@@ -1347,7 +1347,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
-
     slave1Admin->shutdownNode("Node1");
     removeServer(admin, "Node1");
 

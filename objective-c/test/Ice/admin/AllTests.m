@@ -55,7 +55,6 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     test([facetMap objectForKey:@"Facet2"] != nil);
     test([facetMap objectForKey:@"Facet3"] != nil);
 
-
     @try
     {
         [com addAdminFacet:f1 facet:@"Facet1"];
@@ -410,7 +409,6 @@ adminAllTests(id<ICECommunicator> communicator)
         [com print:@"print2"];
         [com trace:@"testCat" message:@"trace2"];
         [com warning:@"warning2"];
-
 
         ICELogMessageTypeSeq* messageTypes;
 

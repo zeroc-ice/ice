@@ -383,7 +383,6 @@ namespace IceInternal
                     throw new Ice.EndpointParseException("no argument provided for -v option in endpoint " + endpoint);
                 }
 
-
                 try
                 {
                     _rawBytes = System.Convert.FromBase64String(argument);

@@ -280,7 +280,6 @@ public:
         return connectionEstablishmentObserver;
     }
 
-
     virtual Ice::Instrumentation::ObserverPtr
     getEndpointLookupObserver(const Ice::EndpointPtr&)
     {

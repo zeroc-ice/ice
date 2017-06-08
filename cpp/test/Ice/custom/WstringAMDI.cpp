@@ -62,7 +62,6 @@ Test2::WstringClassI::throwExceptAsync(std::wstring in,
     error(std::make_exception_ptr(ex));
 }
 
-
 #else
 
 void

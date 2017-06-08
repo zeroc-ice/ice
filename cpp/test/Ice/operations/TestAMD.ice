@@ -144,7 +144,6 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
 
-
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
 
@@ -276,14 +275,12 @@ class MyClass1
     string myClass1; // Same name as the enclosing class
 }
 
-
 ["amd"] interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
     MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
 }
-
 
 //
 // String literals

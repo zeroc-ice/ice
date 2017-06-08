@@ -85,7 +85,6 @@ private:
 };
 typedef IceUtil::Handle<PingThread> PingThreadPtr;
 
-
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -375,7 +374,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-
     cout << "testing server enable... " << flush;
     try
     {
@@ -482,7 +480,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
-
 
         try
         {
@@ -601,7 +598,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(false);
     }
     cout << "ok" << endl;
-
 
     cout << "testing temporary disable on failure... " << flush;
     try

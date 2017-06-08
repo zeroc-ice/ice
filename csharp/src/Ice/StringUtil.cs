@@ -301,7 +301,6 @@ namespace IceUtilInternal
             return c;
         }
 
-
         //
         // Decode the character or escape sequence starting at start and appends it to result;
         // returns the index of the first character following the decoded character

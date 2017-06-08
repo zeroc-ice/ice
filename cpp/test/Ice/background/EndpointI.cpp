@@ -285,7 +285,6 @@ EndpointI::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
-
     return *p->_endpoint == *_endpoint;
 }
 

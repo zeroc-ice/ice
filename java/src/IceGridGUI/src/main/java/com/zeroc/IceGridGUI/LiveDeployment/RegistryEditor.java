@@ -159,7 +159,6 @@ class RegistryEditor extends CommunicatorEditor
                 }
             });
 
-
         Action deleteObject = new AbstractAction("Remove selected object")
             {
                 @Override

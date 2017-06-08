@@ -840,8 +840,6 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
 
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
     }
     catch(const Ice::Exception& ex)
@@ -924,8 +922,6 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
         if(callback)
         {
             result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
@@ -1147,7 +1143,6 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     return Py_None;
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -1174,7 +1169,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
     PyObjectHandle plainObject = objectType->tp_alloc(objectType, 0);
-
 
     for(Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
@@ -1203,8 +1197,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     return result.release();
 }
-
-
 
 #ifdef WIN32
 extern "C"
@@ -1433,7 +1425,6 @@ communicatorGetImplicitContext(CommunicatorObject* self)
 
     return createImplicitContext(implicitContext);
 }
-
 
 #ifdef WIN32
 extern "C"

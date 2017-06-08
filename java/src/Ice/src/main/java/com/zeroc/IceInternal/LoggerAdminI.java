@@ -428,7 +428,6 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         return com.zeroc.Ice.Util.initialize(initData);
     }
 
-
     private final java.util.List<LogMessage> _queue = new java.util.LinkedList<>();
     private int _logCount = 0; // non-trace messages
     private final int _maxLogCount;

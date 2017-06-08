@@ -218,7 +218,6 @@ private:
     const EndpointIPtr _endpoint;
 };
 
-
 }
 
 #endif

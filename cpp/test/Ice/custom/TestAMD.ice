@@ -172,7 +172,6 @@ struct BufferStruct
     ["cpp:type:MyByteSeq"] ByteSeq
     opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
 
-
     ["cpp:view-type:Util::string_view"] string
     opString(["cpp:view-type:Util::string_view"] string inString,
              out ["cpp:view-type:Util::string_view"] string outString);
@@ -234,7 +233,6 @@ struct BufferStruct
     opCustomIntStringDict(
         ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
         out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
-
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

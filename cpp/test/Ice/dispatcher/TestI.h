@@ -34,7 +34,6 @@ class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<Ic
 {
 public:
 
-
     virtual void holdAdapter(const Ice::Current&);
     virtual void resumeAdapter(const Ice::Current&);
 

@@ -128,5 +128,4 @@ except Exception as ex:
     print("warning: couldn't generate JKS certificates for Java applications:\n" + str(ex))
     print("Please fix this issue if you want to run the Java tests.")
 
-
 factory.destroy()

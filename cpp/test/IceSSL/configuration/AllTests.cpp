@@ -731,7 +731,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
     string sep = ":";
 #endif
 
-
 #ifdef ICE_USE_OPENSSL
     Ice::Long openSSLVersion;
     {
@@ -947,7 +946,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
 #  endif
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 #endif
-
 
             //
             // Validate that we can get the connection info. Validate

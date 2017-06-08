@@ -1151,7 +1151,6 @@ public class ServiceManagerI implements ServiceManager
         }
     }
 
-
     private com.zeroc.Ice.Communicator _communicator;
     private boolean _adminEnabled = false;
     private java.util.Set<String> _adminFacetFilter;

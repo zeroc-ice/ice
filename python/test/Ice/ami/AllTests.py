@@ -304,8 +304,10 @@ class FutureFlushCallback(CallbackBase):
         self._cookie = cookie
 
     def sent(self, f, sentSynchronously):
-        test((sentSynchronously and self._thread == threading.currentThread()) or \
-             (not sentSynchronously and self._thread != threading.currentThread()))
+        self.called()
+
+    def sentAsync(self, f, sentSynchronously):
+        test(self._thread != threading.currentThread())
         self.called()
 
 class FutureFlushExCallback(CallbackBase):
@@ -1553,6 +1555,7 @@ def allTestsFuture(communicator, collocated):
     cb = FutureFlushCallback()
     f = b1.ice_flushBatchRequestsAsync()
     f.add_sent_callback(cb.sent)
+    f.add_sent_callback_async(cb.sentAsync)
     cb.check()
     test(f.is_sent())
     test(f.done())

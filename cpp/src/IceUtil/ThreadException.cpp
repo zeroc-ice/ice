@@ -49,7 +49,6 @@ IceUtil::ThreadLockedException::ice_clone() const
 }
 #endif
 
-
 IceUtil::ThreadStartedException::ThreadStartedException(const char* file, int line) :
     ExceptionHelper<ThreadStartedException>(file, line)
 {
@@ -80,7 +79,6 @@ IceUtil::ThreadNotStartedException::ice_id() const
     return "::IceUtil::ThreadNotStartedException";
 }
 
-
 #ifndef ICE_CPP11_MAPPING
 IceUtil::ThreadNotStartedException*
 IceUtil::ThreadNotStartedException::ice_clone() const
@@ -88,7 +86,6 @@ IceUtil::ThreadNotStartedException::ice_clone() const
     return new ThreadNotStartedException(*this);
 }
 #endif
-
 
 IceUtil::BadThreadControlException::BadThreadControlException(const char* file, int line) :
     ExceptionHelper<BadThreadControlException>(file, line)

@@ -9,7 +9,6 @@
 #
 # **********************************************************************
 
-
 require 'Ice'
 
 def test(b)
@@ -32,7 +31,6 @@ class Client < Ice::Application
     end
 end
 
-
 print "testing load properties from UTF-8 path... "
 properties = Ice.createProperties(ARGV)
 properties.load("./config/中国_client.config")
@@ -51,7 +49,6 @@ test(properties.getProperty("Config1") == "Config1");
 test(properties.getProperty("Config2") == "Config2");
 test(properties.getProperty("Config3") == "Config3");
 puts "ok"
-
 
 print "testing configuration file escapes... "
 properties = Ice.createProperties(["--Ice.Config=config/escapes.cfg"])
@@ -82,6 +79,5 @@ props.each do |key, value|
    test(properties.getProperty(key) == value)
 end
 puts "ok"
-
 
 exit(0)

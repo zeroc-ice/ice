@@ -15,7 +15,6 @@
 namespace Slice
 {
 
-
 class ObjCVisitor : public ObjCGenerator, public ParserVisitor
 {
 public:

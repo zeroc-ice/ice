@@ -1787,7 +1787,6 @@ Slice::Gen::TypesVisitor::writeMemberSignature(const DataMemberList& dataMembers
             typeString = inTypeToString(type, (*q)->optional());
         }
 
-
         if(q != dataMembers.begin() || ct == LocalException)
         {
             _H << " " << getParamId(*q);
@@ -2620,7 +2619,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _M << eb;
     _M << nl << "@end";
 }
-
 
 bool
 Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)

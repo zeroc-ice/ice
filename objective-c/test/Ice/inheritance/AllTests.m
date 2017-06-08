@@ -11,7 +11,6 @@
 #import <TestCommon.h>
 #import <InheritanceTest.h>
 
-
 id<TestInheritanceInitialPrx>
 inheritanceAllTests(id<ICECommunicator> communicator)
 {

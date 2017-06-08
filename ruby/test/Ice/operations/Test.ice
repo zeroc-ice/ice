@@ -143,7 +143,6 @@ interface MyClass
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
 
-
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
 

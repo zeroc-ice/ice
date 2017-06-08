@@ -1393,7 +1393,6 @@ class Twoways
             StringStringSDHolder _do = new StringStringSDHolder();
             java.util.Map<String, String[]> ro = p.opStringStringSD(sdi1, sdi2, _do);
 
-
             test(_do.value.size() == 1);
             test(_do.value.get("ghi").length== 2);
             test(_do.value.get("ghi")[0].equals("and"));
@@ -1583,7 +1582,6 @@ class Twoways
         test(p.opByteBoolD1(null).size() == 0);
         test(p.opStringS2(null).length == 0);
         test(p.opByteBoolD2(null).size() == 0);
-
 
         MyDerivedClassPrx d = MyDerivedClassPrxHelper.uncheckedCast(p);
         MyStruct1 s = new MyStruct1();

@@ -136,10 +136,8 @@ class Twoways
 
         p.ice_ping();
 
-
         test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClassDisp_.ice_staticId()));
         test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
-
 
         test(p.ice_isA(Test.MyClassDisp_.ice_staticId()));
         test(p.ice_id().Equals(Test.MyDerivedClassDisp_.ice_staticId()));
@@ -1525,7 +1523,6 @@ class Twoways
             test(p.opByteBoolD1(null).Count == 0);
             test(p.opStringS2(null).Length == 0);
             test(p.opByteBoolD2(null).Count == 0);
-
 
             Test.MyDerivedClassPrx d = Test.MyDerivedClassPrxHelper.uncheckedCast(p);
             Test.MyStruct1 s = new Test.MyStruct1();

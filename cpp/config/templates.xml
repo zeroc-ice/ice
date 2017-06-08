@@ -32,7 +32,6 @@
 
     </server-template>
 
-
     <server-template id="Glacier2">
 
       <parameter name="instance-name" default="${application}.Glacier2"/>
@@ -50,7 +49,6 @@
       </server>
 
     </server-template>
-
 
     <service-template id="IceStorm">
 
@@ -78,7 +76,6 @@
 
     </service-template>
 
-
     <server-template id="IceStorm">
 
       <parameter name="instance-name" default="${application}.IceStorm"/>
@@ -95,7 +92,6 @@
       </icebox>
 
     </server-template>
-
 
     <service-template id="IceStorm-HA">
 
@@ -131,7 +127,6 @@
       </service>
 
     </service-template>
-
 
     <server-template id="IceStorm-HA">
 

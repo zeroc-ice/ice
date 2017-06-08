@@ -31,7 +31,6 @@
 
 const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 
-
 //
 // COMPILERFIX SCH_USE_STRONG_CRYPTO not defined with VC90
 //
@@ -306,7 +305,6 @@ findCertificates(const string& location, const string& name, const string& value
     }
     return certs;
 }
-
 
 #if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER <= 1500))
 //

@@ -33,7 +33,6 @@
 #    endif
 #endif
 
-
 //
 // GCC
 //
@@ -47,6 +46,5 @@
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
-
 
 #endif

@@ -423,7 +423,6 @@ class LookupI implements Lookup
         _objectRequests.remove(request.getId());
     }
 
-
     synchronized void objectRequestException(ObjectRequest request, Throwable ex)
     {
         ObjectRequest r = _objectRequests.get(request.getId());

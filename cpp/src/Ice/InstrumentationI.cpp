@@ -468,7 +468,6 @@ public:
         return _proxy;
     }
 
-
     string
     getIdentity() const
     {

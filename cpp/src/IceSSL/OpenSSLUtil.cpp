@@ -30,7 +30,6 @@ namespace
 // Hellman parameters.
 //
 
-
 static DH*
 convertDH(const unsigned char* buf, int len)
 {

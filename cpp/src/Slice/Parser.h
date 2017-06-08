@@ -20,7 +20,6 @@
 #include <set>
 #include <stdio.h>
 
-
 namespace Slice
 {
 
@@ -991,7 +990,6 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
-
 
 protected:
 

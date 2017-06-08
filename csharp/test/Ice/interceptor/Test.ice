@@ -79,5 +79,4 @@ interface MyObject
 
 }
 
-
 }

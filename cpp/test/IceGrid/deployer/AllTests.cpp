@@ -375,7 +375,6 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
     cout << "ok" << endl;
 }
 
-
 void
 allTests(const Ice::CommunicatorPtr& comm)
 {

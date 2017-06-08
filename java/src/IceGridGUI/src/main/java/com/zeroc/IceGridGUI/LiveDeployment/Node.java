@@ -209,7 +209,6 @@ class Node extends Communicator
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-
     //
     // Implement Communicator abstract methods
     //

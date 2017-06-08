@@ -167,7 +167,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             com->destroy();
 
-
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
             initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",

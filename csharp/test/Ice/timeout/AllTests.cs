@@ -467,7 +467,6 @@ public class AllTests : TestCommon.AllTests
             {
             }
 
-
             adapter.destroy();
         }
         WriteLine("ok");

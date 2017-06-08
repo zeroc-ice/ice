@@ -29,7 +29,6 @@ public class TestI extends test.Ice.interrupt.Test._TestIntfDisp
         throw new Ice.UnknownException();
     }
 
-
     @Override
     public void
     sleep(int to, Ice.Current current)

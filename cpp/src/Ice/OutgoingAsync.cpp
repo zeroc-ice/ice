@@ -1323,5 +1323,4 @@ GenericCallbackBase::~GenericCallbackBase()
     // Out of line to avoid weak vtable
 }
 
-
 #endif

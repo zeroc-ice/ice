@@ -307,7 +307,6 @@ private:
     FPtr _f;
 };
 
-
 class FactoryI
 #ifndef ICE_CPP11_MAPPING
                : public Ice::ValueFactory
@@ -540,7 +539,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(string("test1") > IceUtil::Optional<string>() && IceUtil::Optional<string>() < string("test1"));
 
     cout << "ok" << endl;
-
 
     cout << "testing marshalling... " << flush;
     OneOptionalPtr oo4 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(ICE_MAKE_SHARED(OneOptional)));

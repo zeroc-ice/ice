@@ -123,7 +123,6 @@
     return 0;
 }
 
-
 -(void) setOneway:(ICEInt)value expected:(ICEInt)expected current:(ICECurrent*)current
 {
     @synchronized(self)

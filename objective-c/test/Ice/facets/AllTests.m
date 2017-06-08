@@ -11,7 +11,6 @@
 #import <TestCommon.h>
 #import <FacetsTest.h>
 
-
 @interface FacetsEmptyI : TestFacetsEmpty
 @end
 

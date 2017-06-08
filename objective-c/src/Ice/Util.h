@@ -44,7 +44,6 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
                              ICEObjectPrx* = nil);
 void endCppCall(void (^fn)(const Ice::AsyncResultPtr&), ICEAsyncResult*);
 
-
 NSException* toObjCException(const std::exception&);
 void rethrowCxxException(id, bool = false);
 

@@ -25,7 +25,6 @@ public class Client extends test.Util.Application
         return initData;
     }
 
-
     public static void
     main(String[] args)
     {

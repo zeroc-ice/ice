@@ -272,7 +272,6 @@ main(int argc, char* argv[])
 
 #endif
 
-
     {
         cout << "testing error handling... ";
 

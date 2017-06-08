@@ -13,5 +13,4 @@ interface Registry
     UserInfo getUserInfo(string id) throws Core::ArgumentException;
 }
 
-
 }

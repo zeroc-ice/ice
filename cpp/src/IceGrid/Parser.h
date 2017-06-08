@@ -160,7 +160,6 @@ private:
     void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
     void showLog(const std::string&, const std::string&, bool, bool, int);
 
-
     std::string _commands;
     Ice::CommunicatorPtr _communicator;
     AdminSessionPrx _session;

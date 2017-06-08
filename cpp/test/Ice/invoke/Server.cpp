@@ -79,7 +79,6 @@ private:
     Ice::ObjectPtr _blobject;
 };
 
-
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {

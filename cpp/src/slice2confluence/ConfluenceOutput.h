@@ -13,7 +13,6 @@
 #include <IceUtil/OutputUtil.h>
 #include <list>
 
-
 namespace Confluence
 {
 

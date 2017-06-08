@@ -56,7 +56,6 @@ self.onmessage = function(e)
             self.importScripts(f);
         }
 
-
         runTest(test.name, test.language, test.defaultHost, test.protocol, test.testcases, Output).then(
             function(r)
             {

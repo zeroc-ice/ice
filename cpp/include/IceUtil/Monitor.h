@@ -215,7 +215,6 @@ IceUtil::Monitor<T>::notifyAll()
     _nnotify = -1;
 }
 
-
 template <class T> inline void
 IceUtil::Monitor<T>::notifyImpl(int nnotify) const
 {

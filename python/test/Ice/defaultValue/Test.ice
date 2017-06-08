@@ -23,7 +23,6 @@ enum Color { red, green, blue }
 
 }
 
-
 struct Struct1
 {
     bool boolFalse = false;

@@ -22,7 +22,6 @@ using namespace IceGrid;
 namespace
 {
 
-
 class SubscriberForwarderI : public Ice::BlobjectArrayAsync
 {
     class CallbackI: public IceUtil::Shared

@@ -1162,7 +1162,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
     }
 
-
     private Ice.Communicator _communicator;
     private boolean _adminEnabled = false;
     private java.util.Set<String> _adminFacetFilter;

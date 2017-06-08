@@ -37,7 +37,6 @@ class AbstractBase extends Base
     void op();
 }
 
-
 class B;
 class C;
 

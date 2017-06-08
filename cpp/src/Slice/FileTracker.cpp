@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 #include <Slice/FileTracker.h>
 #include <IceUtil/ConsoleUtil.h>
 #include <IceUtil/FileUtil.h>
@@ -59,7 +58,6 @@ Slice::FileException::reason() const
 {
     return _reason;
 }
-
 
 static Slice::FileTrackerPtr Instance;
 

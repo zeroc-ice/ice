@@ -259,7 +259,6 @@ public:
 
 Init init;
 
-
 const WstringConverterPtr&
 getUnicodeWstringConverter()
 {
@@ -458,7 +457,6 @@ typedef char32_t Char32T;
 
 #endif
 
-
 vector<unsigned short>
 IceUtilInternal::toUTF16(const vector<Byte>& source)
 {
@@ -525,7 +523,6 @@ IceUtilInternal::toUTF32(const vector<Byte>& source)
     }
     return result;
 }
-
 
 vector<Byte>
 IceUtilInternal::fromUTF32(const vector<unsigned int>& source)

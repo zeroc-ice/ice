@@ -55,7 +55,6 @@ public:
     //
     Timer();
 
-
     //
     // Construct a timer and starts its execution thread with the priority.
     //

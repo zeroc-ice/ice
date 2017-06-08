@@ -124,7 +124,6 @@ private:
     static const char* _name;
 };
 
-
 //
 // Codec reads and writes T to/from MDB_val
 //
@@ -493,7 +492,6 @@ public:
         CursorBase::renew(txn);
     }
 };
-
 
 //
 // Partial specialization of Codec for Ice encoding

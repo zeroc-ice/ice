@@ -67,7 +67,6 @@ toOptional(const string& s, int typeCtx)
     return result;
 }
 
-
 string
 stringTypeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
 {
@@ -348,7 +347,6 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
-
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
     {
         if(cpp11)
@@ -512,7 +510,6 @@ Slice::ToIfdef::operator()(char c)
         return c;
     }
 }
-
 
 void
 Slice::printHeader(Output& out)
@@ -1780,7 +1777,6 @@ Slice::inWstringModule(const SequencePtr& seq)
     }
     return false;
 }
-
 
 string
 Slice::getDataMemberRef(const DataMemberPtr& p)

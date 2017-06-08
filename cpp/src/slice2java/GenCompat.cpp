@@ -102,7 +102,6 @@ getEscapedParamName(const DataMemberList& params, const string& name)
     return name;
 }
 
-
 string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
@@ -4348,7 +4347,6 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
     assert(contained);
     string name = contained->name();
     string absolute = getAbsolute(contained, "", "", "Holder");
-
 
     string file;
     if(p->definitionContext())

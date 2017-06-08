@@ -268,7 +268,6 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #    pragma warning (default : 4996)
 #  endif
 
-
     DWORD major = osInfo.dwMajorVersion;
     DWORD minor = osInfo.dwMinorVersion;
     DWORD build = osInfo.dwBuildNumber;

@@ -503,7 +503,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         in.endEncapsulation();
     }
 
-
     {
         promise<bool> completed;
         promise<void> sent;

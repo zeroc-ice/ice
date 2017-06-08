@@ -63,5 +63,4 @@ typedef IceUtil::Handle<PluginManagerI> PluginManagerIPtr;
 
 }
 
-
 #endif

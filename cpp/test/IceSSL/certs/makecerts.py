@@ -175,7 +175,6 @@ if clean or not os.path.exists("dh_params512.der"):
 if clean or not os.path.exists("dh_params1024.der"):
     ca1.run("openssl", "dhparam", 1024, outform="DER", out="dh_params1024.der")
 
-
 #
 # Create certificate with custom extensions
 #

@@ -139,12 +139,10 @@ sequence<string> StringQueue;
 ["clr:generic:Queue"]
 sequence<SmallStruct> SmallStructQueue;
 
-
 ["clr:generic:List"]
 sequence<Ice::StringSeq> StringSList;
 ["clr:generic:Stack"]
 sequence<Ice::StringSeq> StringSStack;
-
 
 ["clr:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;

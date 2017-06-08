@@ -111,7 +111,6 @@
 
                 test(mo4.ser === undefined);
 
-
                 mo1 = new Test.MultiOptional();
                 mo1.a = 15;
                 mo1.b = true;

@@ -70,10 +70,11 @@ def batchOneways(p):
         batch1.ice_getConnection()
         batch2.ice_getConnection()
 
+        batch1.ice_pingAsync()
         batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
-        test(not batch1.ice_pingAsync().done())
-        test(not batch2.ice_pingAsync().done())
+        test(batch1.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
+        test(batch2.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
 
     identity = Ice.Identity()
     identity.name = "invalid";

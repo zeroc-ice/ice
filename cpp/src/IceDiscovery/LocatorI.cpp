@@ -25,7 +25,6 @@ LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
 {
 }
 
-
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,

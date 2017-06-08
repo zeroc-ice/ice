@@ -9,7 +9,6 @@
 
 package test.Ice.interceptor;
 
-
 public class MySystemException extends Ice.SystemException
 {
     public MySystemException()

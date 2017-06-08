@@ -50,7 +50,6 @@ module Mod
     }
 }
 
-
 interface Thrower
 {
     void shutdown();

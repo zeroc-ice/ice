@@ -236,7 +236,6 @@ exception ServerUnreachableException
     string reason;
 }
 
-
 /**
  *
  * This exception is raised if a registry could not be reached.
@@ -387,6 +386,5 @@ exception FileNotAvailableException
      **/
     string reason;
 }
-
 
 }

@@ -1695,7 +1695,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                               "Metrics Name", "Metrics Id", "Metrics Field", "Scale",
                                                               "Last", "Average", "Minimum", "Maximum", "Color"};
 
-
     //
     // The metrics view being graph
     //

@@ -838,7 +838,6 @@ public sealed class MyDerivedClassTieI : MyDerivedClassOperations_
         return Task.FromResult<MyStruct1>(value);
     }
 
-
     public Task<string[]>
     opStringLiteralsAsync(Ice.Current current)
     {

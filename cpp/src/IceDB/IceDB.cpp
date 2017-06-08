@@ -144,7 +144,6 @@ BadEnvException::ice_throw() const
     throw *this;
 }
 
-
 Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxReaders)
 {
     int rc = mdb_env_create(&_menv);
@@ -485,7 +484,6 @@ CursorBase::renew(const ReadOnlyTxn& txn)
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 }
-
 
 //
 // On Windows, we use a default LMDB map size of 10MB, whereas on other platforms

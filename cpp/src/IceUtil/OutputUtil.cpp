@@ -71,7 +71,6 @@ IceUtilInternal::OutputBase::OutputBase(ostream& os) :
 {
 }
 
-
 IceUtilInternal::OutputBase::OutputBase(const string& s) :
     _out(_fout),
     _pos(0),

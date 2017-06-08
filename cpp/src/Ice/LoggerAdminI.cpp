@@ -124,7 +124,6 @@ private:
 };
 ICE_DEFINE_PTR(LoggerAdminIPtr, LoggerAdminI);
 
-
 class Job : public IceUtil::Shared
 {
 public:
@@ -139,7 +138,6 @@ public:
     const LogMessage logMessage;
 };
 typedef IceUtil::Handle<Job> JobPtr;
-
 
 class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger
 #ifdef ICE_CPP11_MAPPING
@@ -187,7 +185,6 @@ private:
 };
 ICE_DEFINE_PTR(LoggerAdminLoggerIPtr, LoggerAdminLoggerI);
 
-
 class SendLogThread : public IceUtil::Thread
 {
 public:
@@ -200,7 +197,6 @@ private:
 
     LoggerAdminLoggerIPtr _logger;
 };
-
 
 //
 // Helper functions

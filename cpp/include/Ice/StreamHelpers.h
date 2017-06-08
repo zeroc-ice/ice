@@ -305,7 +305,6 @@ struct StreamableTraits< ::std::vector<bool> >
     static const bool fixedLength = false;
 };
 
-
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
 struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type>
@@ -349,7 +348,6 @@ struct StreamableTraits< ::IceInternal::Handle<T> >
 // Base StreamHelper template; it must be specialized for each type
 template<typename T, StreamHelperCategory st>
 struct StreamHelper;
-
 
 // Helper for builtins, delegates read/write to the stream.
 template<typename T>
@@ -555,7 +553,6 @@ struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const
 };
 #endif
 
-
 // Helper for dictionaries
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryDictionary>
@@ -633,7 +630,6 @@ struct StreamHelper<T, StreamHelperCategoryClass>
     }
 };
 
-
 //
 // Helpers to read/write optional attributes or members.
 //
@@ -688,7 +684,6 @@ struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, Size);
 };
-
 
 // Base helper: simply read/write the data
 template<typename T, StreamHelperCategory st, bool fixedLength>
@@ -770,7 +765,6 @@ template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryProxy, false> : StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
 {
 };
-
 
 //
 // Helpers to read/write optional sequences or dictionaries
@@ -855,7 +849,6 @@ struct StreamOptionalContainerHelper<T, true, 1>
         stream->read(v);
     }
 };
-
 
 //
 // Helper to write sequences, delegates to the optional container

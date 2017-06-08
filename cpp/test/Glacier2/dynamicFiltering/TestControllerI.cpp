@@ -73,7 +73,6 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
             TestConfiguration& config = _configurations[currentState.config];
             assert(!config.description.empty());
 
-
             bool found = false;
             SessionTuple session;
             for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)

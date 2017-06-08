@@ -51,7 +51,6 @@ local exception FailureException
     string reason;
 }
 
-
 /**
  *
  * This exception is thrown if an attempt is made to start an
@@ -120,7 +119,6 @@ local interface Service
     void stop();
 }
 
-
 /**
  *
  * An Observer interface implemented by admin clients
@@ -134,7 +132,6 @@ interface ServiceObserver
     void servicesStarted(Ice::StringSeq services);
     void servicesStopped(Ice::StringSeq services);
 }
-
 
 /**
  *
@@ -177,7 +174,6 @@ interface ServiceManager
      **/
     void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
-
 
     /**
      *

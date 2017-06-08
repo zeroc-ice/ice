@@ -13,7 +13,6 @@ import test.Ice.location.Test.HelloPrx;
 import test.Ice.location.Test.HelloPrxHelper;
 import test.Ice.location.Test._TestIntfDisp;
 
-
 public class TestI extends _TestIntfDisp
 {
     TestI(Ice.ObjectAdapter adapter1, Ice.ObjectAdapter adapter2, ServerLocatorRegistry registry)

@@ -172,6 +172,5 @@ public class Client : TestCommon.Application
         return app.runmain(args);
     }
 
-
     private Ice.InitializationData _initData;
 }

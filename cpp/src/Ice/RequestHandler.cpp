@@ -18,7 +18,6 @@ IceUtil::Shared* IceInternal::upCast(RequestHandler* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(CancellationHandler* p) { return p; }
 #endif
 
-
 RetryException::RetryException(const Ice::LocalException& ex)
 {
     ICE_SET_EXCEPTION_FROM_CLONE(_ex, ex.ice_clone());

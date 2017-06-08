@@ -41,7 +41,6 @@
 #   include <IceUtil/Mutex.h>
 #endif
 
-
 namespace IceUtilInternal
 {
 
@@ -62,7 +61,6 @@ typedef unsigned int ATOMIC_T;
 #else
 typedef int ATOMIC_T;
 #endif
-
 
 //
 // This is temporary and very partial placeholder for std::atomic,

@@ -10,7 +10,6 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 
-
 using namespace std;
 
 namespace

@@ -235,7 +235,6 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
 
-
             if(!udp)
             {
                 try
@@ -725,7 +724,6 @@ namespace IceInternal
                 }
                 return addresses;
             }
-
 
             int retry = 5;
 

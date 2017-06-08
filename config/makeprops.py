@@ -481,7 +481,6 @@ class JavaCompatPropertyHandler(JavaPropertyHandler):
             os.remove(os.path.join(dest, self.className + ".java"))
         shutil.move(self.className + "-compat.java", os.path.join(dest, self.className + ".java"))
 
-
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
         PropertyHandler.__init__(self, inputfile, c)

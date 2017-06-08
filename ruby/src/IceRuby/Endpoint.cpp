@@ -115,7 +115,6 @@ IceRuby_Endpoint_equals(VALUE self, VALUE other)
     return IceRuby_Endpoint_cmp(self, other) == INT2NUM(0) ? Qtrue : Qfalse;
 }
 
-
 // **********************************************************************
 // EndpointInfo
 // **********************************************************************

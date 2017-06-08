@@ -166,7 +166,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         return logMessages.toArray(new Ice.LogMessage[0]);
     }
 
-
     LoggerAdminI(Ice.Properties props, LoggerAdminLoggerI logger)
     {
         _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
@@ -419,7 +418,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         }
         return Ice.Util.initialize(initData);
     }
-
 
     private final java.util.List<Ice.LogMessage> _queue = new java.util.LinkedList<Ice.LogMessage>();
     private int _logCount = 0; // non-trace messages

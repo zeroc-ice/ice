@@ -79,7 +79,6 @@ isConstexprType(const TypePtr& type)
     }
 }
 
-
 string
 getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
 {
@@ -571,7 +570,6 @@ Slice::Gen::generate(const UnitPtr& p)
     printGeneratedHeader(H, _base + ".ice");
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
-
 
     string s = _base + "." + _headerExtension;;
     if(_include.size())
@@ -1878,7 +1876,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     ParamDeclList inParams;
     ParamDeclList outParams;
-
 
     vector<string> outEndArgs;
 
@@ -4858,7 +4855,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     return newMetaData;
 }
 
-
 void
 Slice::Gen::normalizeMetaData(const UnitPtr& u, bool cpp11)
 {
@@ -4972,7 +4968,6 @@ Slice::Gen::NormalizeMetaDataVisitor::visitConst(const ConstPtr& p)
 {
     p->setMetaData(normalize(p->getMetaData()));
 }
-
 
 StringList
 Slice::Gen::NormalizeMetaDataVisitor::normalize(const StringList& metaData)
@@ -5521,7 +5516,6 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << sp;
     H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
 
-
     C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
     //
@@ -5998,7 +5992,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << "context" << epar << ";";
     H << eb;
-
 
     //
     // Lambda based asynchronous operation
@@ -6676,7 +6669,6 @@ Slice::Gen::Cpp11LocalObjectVisitor::visitOperation(const OperationPtr& p)
     string noExcept = p->hasMetaData("cpp:noexcept") ? " noexcept" : "";
 
     string deprecateSymbol = getDeprecateSymbol(p, cl);
-
 
     if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
     {
@@ -7680,7 +7672,6 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
         H << eb << ";" << nl;
     }
 }
-
 
 Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output&, const string& dllExport) :
     H(h),

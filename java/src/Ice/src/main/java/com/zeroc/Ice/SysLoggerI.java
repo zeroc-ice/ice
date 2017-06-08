@@ -163,7 +163,6 @@ public final class SysLoggerI implements Logger
         log(LOG_ERR, message);
     }
 
-
     @Override
     public String
     getPrefix()

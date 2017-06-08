@@ -2842,7 +2842,6 @@ public class Coordinator
         _saveToRegistry.setEnabled(false);
         _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry (servers may restart)");
 
-
         _saveToRegistryWithoutRestart = new AbstractAction("Save to Registry (No server restart)")
             {
                 @Override

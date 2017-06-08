@@ -318,7 +318,6 @@ function bundle(args)
                 var moduleEpilogue =
                     "    }());\n";
 
-
                 var sb = new StringBuffer();
 
                 sb.write(preamble);

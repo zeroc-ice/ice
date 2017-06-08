@@ -30,7 +30,6 @@ bool
 convertUTFWstringToUTF8(const wchar_t*& sourceStart, const wchar_t* sourceEnd,
                         IceUtil::Byte*& targetStart, IceUtil::Byte* targetEnd);
 
-
 void
 convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* sourceEnd,
                         std::wstring& target);

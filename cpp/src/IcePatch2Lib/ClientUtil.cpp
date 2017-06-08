@@ -20,7 +20,6 @@ using namespace IceUtil;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
-
 IcePatch2::Patcher::~Patcher()
 {
     // Out of line to avoid weak vtable
@@ -198,7 +197,6 @@ Decompressor::run()
         }
     }
 }
-
 
 PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),

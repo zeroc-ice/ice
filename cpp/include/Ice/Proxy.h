@@ -24,7 +24,7 @@
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/AsyncResult.h>
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
-//#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
+//#include <Ice/LocatorF.h> // Can't include LocatorF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/OutgoingAsync.h>
@@ -418,7 +418,6 @@ public:
         return ::Ice::Object::ice_staticId();
     }
 
-
     //
     // ice_invoke with default vector mapping for byte-sequence parameters
     //
@@ -465,7 +464,6 @@ public:
         outAsync->invoke(operation, mode, ::IceInternal::makePair(inP), context);
         return [outAsync]() { outAsync->cancel(); };
     }
-
 
     //
     // ice_invoke with cpp:array mapping for byte sequence parameters
@@ -525,7 +523,6 @@ public:
         outAsync->invoke(operation, mode, inP, context);
         return [outAsync]() { outAsync->cancel(); };
     }
-
 
     ::Ice::Identity ice_getIdentity() const;
     ::std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity&) const;
@@ -1087,7 +1084,6 @@ public:
         return _iceI_begin_ice_ping(context, del, cookie);
     }
 
-
     ::Ice::AsyncResultPtr begin_ice_ping(const ::Ice::Callback_Object_ice_pingPtr& del,
                                          const ::Ice::LocalObjectPtr& cookie = 0)
     {
@@ -1182,7 +1178,6 @@ public:
     {
         return ::Ice::Object::ice_staticId();
     }
-
 
     // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string&,
@@ -1722,7 +1717,6 @@ inline bool operator>=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 {
     return !(lhs < rhs);
 }
-
 
 //
 // checkedCast and uncheckedCast functions without facet:
@@ -2522,7 +2516,6 @@ public:
         ::IceInternal::CallbackNC<T>(instance, excb, sentcb), _response(cb)
     {
     }
-
 
     virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {

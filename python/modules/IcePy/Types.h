@@ -30,7 +30,6 @@ class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
 typedef std::vector<ClassInfoPtr> ClassInfoList;
 
-
 class ValueInfo;
 typedef IceUtil::Handle<ValueInfo> ValueInfoPtr;
 

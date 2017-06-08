@@ -673,7 +673,6 @@ public class AllTests : TestCommon.AllTests
         {
         }
 
-
         WriteLine("ok");
 
         Write("testing proxy comparison... ");

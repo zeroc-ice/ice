@@ -663,7 +663,6 @@ startHook(void* arg)
 }
 }
 
-
 IceUtil::ThreadControl
 IceUtil::Thread::start(size_t stackSize)
 {

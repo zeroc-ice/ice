@@ -255,7 +255,6 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
         }
     }
 
-
     Ice::ObjectProxySeq proxies;
     proxies.push_back(proxy);
     AddProxyCookiePtr cookie = new AddProxyCookie(callback, proxy);
@@ -342,7 +341,6 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool
     }
     return _clientEndpoints;
 }
-
 
 vector<EndpointIPtr>
 IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrxPtr& /*serverProxy*/)

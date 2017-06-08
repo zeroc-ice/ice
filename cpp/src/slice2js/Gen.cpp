@@ -359,7 +359,6 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
 
-
     printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
 }
@@ -695,7 +694,6 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
         _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
 
         seenModules.push_back("Ice");
-
 
         for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
@@ -1149,7 +1147,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             _out << nl << proxyType << " = class extends " << baseProxy;
             _out << sb;
-
 
             if(!bases.empty())
             {

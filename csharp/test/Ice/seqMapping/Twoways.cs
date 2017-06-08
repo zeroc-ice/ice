@@ -814,7 +814,6 @@ class Twoways
             Stack<S> o;
             Stack<S> r;
 
-
             r = p.opSStructS(i, out o);
 
             test(Ice.CollectionComparer.Equals(i, o));
@@ -889,7 +888,6 @@ class Twoways
             }
             Stack<SD> o;
             Stack<SD> r;
-
 
             r = p.opSStructSD(i, out o);
 

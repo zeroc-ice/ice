@@ -74,7 +74,6 @@ public:
     virtual ObjectPtr findByProxy(const ObjectPrxPtr&) const;
     virtual ObjectPtr findDefaultServant(const std::string&) const;
 
-
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
     virtual ServantLocatorPtr removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&) const;

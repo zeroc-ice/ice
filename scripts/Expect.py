@@ -541,7 +541,6 @@ class Expect (object):
     def terminate(self):
         """Terminate the process."""
 
-
         if self.p is None:
             return
 

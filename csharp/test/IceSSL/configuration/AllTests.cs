@@ -123,7 +123,6 @@ public class AllTests
         X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
         X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
 
-
         test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
         test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
 
@@ -525,7 +524,6 @@ public class AllTests
                 }
                 fact.destroyServer(server);
                 comm.destroy();
-
 
                 //
                 // Verify that IceSSL.CheckCertName has no effect in a server.

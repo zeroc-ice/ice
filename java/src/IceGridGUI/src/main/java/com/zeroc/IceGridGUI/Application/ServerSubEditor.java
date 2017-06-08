@@ -96,7 +96,6 @@ class ServerSubEditor extends CommunicatorSubEditor
                              + "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
 
-
         Action appDistrib = new AbstractAction("Depends on the application distribution")
             {
                 @Override

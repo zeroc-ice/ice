@@ -423,7 +423,6 @@ local exception IllegalServantException
     string reason;
 }
 
-
 /**
  *
  * This exception is raised if a request failed. This exception, and
@@ -964,7 +963,6 @@ local exception StringConversionException extends MarshalException
 {
 }
 
-
 /**
  *
  * This exception indicates a malformed data encapsulation.
@@ -992,7 +990,6 @@ local exception FeatureNotSupportedException
      **/
     string unsupportedFeature;
 }
-
 
 /**
  *

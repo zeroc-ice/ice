@@ -160,7 +160,6 @@ InitialI::opCustomString(ICE_IN(Optional<Util::string_view>) p1, Optional<string
     return p3;
 }
 
-
 Optional<MyEnum>
 InitialI::opMyEnum(ICE_IN(Optional<MyEnum>) p1, Optional<MyEnum>& p3, const Current&)
 {
@@ -412,7 +411,6 @@ InitialI::opCustomIntStringDict(ICE_IN(Optional<std::map<int, Util::string_view>
     }
     return p3;
 }
-
 
 void
 InitialI::opClassAndUnknownOptional(ICE_IN(APtr), const Ice::Current&)

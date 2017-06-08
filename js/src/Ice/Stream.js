@@ -2686,7 +2686,6 @@ class EncapsEncoder11 extends EncapsEncoder
                         this._current.indirectionMap = new Map(); // Map<Ice.Value, int>
                     }
 
-
                     info.instances.forEach(instance => this._current.indirectionTable.push(instance));
                 }
 

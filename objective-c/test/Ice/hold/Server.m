@@ -21,7 +21,6 @@ run(id<ICECommunicator> communicator)
     [[communicator getProperties] setProperty:@"TestAdapter1.ThreadPool.Serialize" value:@"0"];
     id<ICEObjectAdapter> adapter1 = [communicator createObjectAdapter:@"TestAdapter1"];
 
-
     [[communicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:@"default -p 12011 -t 10000:udp"];
     [[communicator getProperties] setProperty:@"TestAdapter2.ThreadPool.Size" value:@"5"];
     [[communicator getProperties] setProperty:@"TestAdapter2.ThreadPool.SizeMax" value:@"5"];

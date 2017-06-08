@@ -82,5 +82,4 @@ icegridregistry_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 icegridadmin_dependencies       := IcePatch2 IceBox IceXML IceLocatorDiscovery
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
 
-
 projects += $(project)

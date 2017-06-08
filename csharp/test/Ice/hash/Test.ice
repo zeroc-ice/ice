@@ -12,7 +12,6 @@
 module Test
 {
 
-
 exception BaseException
 {
 }
@@ -34,7 +33,6 @@ exception OtherException
     int z;
     bool b;
 }
-
 
 struct PointF
 {
@@ -70,15 +68,12 @@ struct Color
     int a;
 }
 
-
 dictionary<int, Color> StringColorMap;
 
 struct ColorPalette
 {
     StringColorMap colors;
 }
-
-
 
 class Pen
 {

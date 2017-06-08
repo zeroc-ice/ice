@@ -16,7 +16,6 @@ using namespace IceGrid;
 using namespace Ice;
 using namespace std;
 
-
 IceGrid::NodeServerAdminRouter::NodeServerAdminRouter(const NodeIPtr& node) :
     AdminRouter(node->getTraceLevels()),
     _node(node)

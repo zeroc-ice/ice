@@ -251,7 +251,6 @@ public:
 
     private:
 
-
         IceMX::MetricsFailures
         getFailures() const
         {
@@ -385,7 +384,6 @@ public:
         }
         return IceMX::MetricsFailures();
     }
-
 
     std::pair<MetricsMapIPtr, SubMapMember>
     createSubMap(const std::string& subMapName)

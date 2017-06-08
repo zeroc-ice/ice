@@ -37,7 +37,6 @@ private:
     const ConfigurationPtr _configuration;
 };
 
-
 //
 // Plugin factory function.
 //

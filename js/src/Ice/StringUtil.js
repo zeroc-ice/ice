@@ -268,7 +268,6 @@ Ice.StringUtil = class
 };
 module.exports.Ice = Ice;
 
-
 function encodeChar(c, sb, special, toStringMode)
 {
     switch(c)

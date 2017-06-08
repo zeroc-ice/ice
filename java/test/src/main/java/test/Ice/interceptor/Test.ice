@@ -80,5 +80,4 @@ interface MyObject
 
 }
 
-
 }

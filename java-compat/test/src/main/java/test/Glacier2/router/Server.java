@@ -29,7 +29,6 @@ public class Server extends test.Util.Application
         return 0;
     }
 
-
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = super.getInitData(argsH);

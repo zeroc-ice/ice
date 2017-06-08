@@ -77,7 +77,6 @@ TestIntfI::opVariableRangeAsync(Test::VariableList in,
     response(in, in);
 }
 
-
 void
 TestIntfI::opByteRangeTypeAsync(Test::ByteList in,
                                 std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
@@ -102,7 +101,6 @@ TestIntfI::opBoolSeqAsync(std::deque<bool> in,
 {
     response(in, in);
 }
-
 
 void
 TestIntfI::opBoolListAsync(Test::BoolList in,
@@ -176,7 +174,6 @@ TestIntfI::opFixedListAsync(Test::FixedList in,
 {
     response(in, in);
 }
-
 
 void
 TestIntfI::opVariableSeqAsync(std::deque<Test::Variable> in,
@@ -327,7 +324,6 @@ TestIntfI::opShortBufferAsync(Test::ShortBuffer in,
     response(in, in);
 }
 
-
 void
 TestIntfI::opBoolBufferAsync(Test::CustomBuffer<bool> in,
                              std::function<void(const Test::CustomBuffer<bool>&,
@@ -344,7 +340,6 @@ TestIntfI::opBufferStructAsync(Test::BufferStruct in,
 {
     response(in);
 }
-
 
 void
 TestIntfI::shutdownAsync(std::function<void()> response,
@@ -628,7 +623,6 @@ TestIntfI::opClassStruct_async(const Test::AMD_TestIntf_opClassStructPtr& cb,
 {
     cb->ice_response(inS, inS, inSeq);
 }
-
 
 void
 TestIntfI::opOutArrayByteSeq_async(const Test::AMD_TestIntf_opOutArrayByteSeqPtr& cb,

@@ -1424,7 +1424,6 @@ Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, 
     }
 }
 
-
 void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecateReason, const string& extraParam)
 {
@@ -1712,7 +1711,6 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(const OperationPtr& p, const strin
     {
         _out << nl << "/// " << extraParam3;
     }
-
 
     _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
 

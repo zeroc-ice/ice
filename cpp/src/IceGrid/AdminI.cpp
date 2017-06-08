@@ -23,7 +23,6 @@
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/NodeSessionI.h>
 
-
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
@@ -139,7 +138,6 @@ private:
     const AmdCB _cb;
 };
 
-
 template<typename AmdCB> PatcherFeedbackAggregatorPtr
 static newPatcherFeedback(const AmdCB& cb,
                           Ice::Identity id,
@@ -164,7 +162,6 @@ AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const 
 AdminI::~AdminI()
 {
 }
-
 
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
@@ -451,7 +448,6 @@ private:
 
 }
 
-
 void
 AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& id, const Current&)
 {
@@ -683,7 +679,6 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
         throw DeploymentException("proxy is null");
     }
 
-
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
@@ -877,7 +872,6 @@ AdminI::getNodeHostname(const string& name, const Current&) const
         return ""; // Keep the compiler happy.
     }
 }
-
 
 StringSeq
 AdminI::getAllNodeNames(const Current&) const

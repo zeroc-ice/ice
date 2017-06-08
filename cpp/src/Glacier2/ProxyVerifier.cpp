@@ -434,7 +434,6 @@ public:
     }
 };
 
-
 //
 // AddressMatcher factories abstract away the logic of which matching
 // objects need to be created depending on the state of the filter

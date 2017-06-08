@@ -59,7 +59,6 @@ private:
 
 ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
 
-
 #ifdef ICE_CPP11_MAPPING
 
 template<typename E, typename B = Exception>
@@ -109,7 +108,6 @@ public:
 };
 
 #endif
-
 
 class ICE_API NullHandleException : public ExceptionHelper<NullHandleException>
 {
@@ -176,7 +174,6 @@ private:
     const std::string _reason;
 };
 
-
 class ICE_API SyscallException : public ExceptionHelper<SyscallException>
 {
 public:
@@ -200,7 +197,6 @@ private:
 
     const int _error;
 };
-
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -226,7 +222,6 @@ public:
 };
 
 #endif
-
 
 class ICE_API FileLockException : public ExceptionHelper<FileLockException>
 {

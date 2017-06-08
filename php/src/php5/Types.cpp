@@ -3768,7 +3768,6 @@ ZEND_FUNCTION(IcePHP_defineProxy)
     zval* base;
     zval* interfaces;
 
-
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) ==
        FAILURE)
     {
@@ -3892,7 +3891,6 @@ handleExceptionInfoFreeStorage(void* p TSRMLS_DC)
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
 }
-
 
 static bool
 createExceptionInfo(zval* zv, const ExceptionInfoPtr& p TSRMLS_DC)
