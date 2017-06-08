@@ -2102,12 +2102,12 @@ public class AllTests : TestCommon.AllTests
                 //
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
-                bf = b1.opBatchAsync();
-                test(bf.done())
-                test(!bf.is_sent())
+                Ice.AsyncResult r = b1.begin_opBatch();
+                test(r.IsCompleted);
+                test(!r.isSent());
                 b1.opBatch();
                 FlushCallback cb = new FlushCallback(cookie);
-                Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(cb.completedAsync, cookie);
+                r = b1.begin_ice_flushBatchRequests(cb.completedAsync, cookie);
                 r.whenSent(cb.sentAsync);
                 cb.check();
                 test(r.isSent());
@@ -2190,7 +2190,8 @@ public class AllTests : TestCommon.AllTests
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
-                b1.opBatch();
+                var bf = b1.opBatchAsync();
+                test(bf.IsCompleted);
                 FlushCallback cb = new FlushCallback();
                 System.Threading.Tasks.Task t = b1.ice_flushBatchRequestsAsync(
                     progress: new Progress(sentSynchronously =>
