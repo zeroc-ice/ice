@@ -332,7 +332,7 @@ OutgoingAsyncBase::exceptionImpl(const Exception& ex)
 }
 
 bool
-OutgoingAsyncBase::responseImpl(bool ok)
+OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 {
     Lock sync(_m);
     if(ok)
@@ -347,10 +347,9 @@ OutgoingAsyncBase::responseImpl(bool ok)
     _m.notifyAll();
 #endif
 
-    bool invoke;
     try
     {
-        invoke = handleResponse(ok);
+        invoke &= handleResponse(ok);
     }
     catch(const Ice::Exception& ex)
     {
@@ -830,13 +829,13 @@ ProxyOutgoingAsyncBase::exceptionImpl(const Exception& ex)
 }
 
 bool
-ProxyOutgoingAsyncBase::responseImpl(bool ok)
+ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 {
     if(_proxy->_getReference()->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
     }
-    return OutgoingAsyncBase::responseImpl(ok);
+    return OutgoingAsyncBase::responseImpl(ok, invoke);
 }
 
 void
@@ -1084,7 +1083,7 @@ OutgoingAsync::response()
             }
         }
 
-        return responseImpl(replyStatus == replyOK);
+        return responseImpl(replyStatus == replyOK, true);
     }
     catch(const Exception& ex)
     {
@@ -1130,8 +1129,8 @@ OutgoingAsync::invoke(const string& operation)
     {
         _sentSynchronously = true;
         _proxy->_getBatchRequestQueue()->finishBatchRequest(&_os, _proxy, operation);
-        responseImpl(true);
-        return; // Don't call sent/completed callback for batch AMI requests
+        responseImpl(true, false); // Don't call sent/completed callback for batch AMI requests
+        return;
     }
 
     //

@@ -20,12 +20,6 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
     }
 
     @Override
-    protected boolean needCallback()
-    {
-        return !_synchronous;
-    }
-
-    @Override
     public boolean completed(com.zeroc.Ice.InputStream is)
     {
         assert(false);

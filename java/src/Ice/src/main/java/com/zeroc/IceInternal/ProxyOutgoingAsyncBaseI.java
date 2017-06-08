@@ -171,7 +171,7 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
             }
             }
 
-            return finished(replyStatus == ReplyStatus.replyOK);
+            return finished(replyStatus == ReplyStatus.replyOK, true);
         }
         catch(com.zeroc.Ice.Exception ex)
         {
@@ -290,12 +290,6 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
         _cnt = 0;
         _sent = false;
         _proxyMode = _proxy._getReference().getMode();
-    }
-
-    @Override
-    protected boolean needCallback()
-    {
-        return !_synchronous && !isBatch(); // No callbacks for synchronous or batch invocations
     }
 
     protected void invokeImpl(boolean userThread)
@@ -417,14 +411,14 @@ public abstract class ProxyOutgoingAsyncBaseI<T> extends OutgoingAsyncBaseI<T> i
     }
 
     @Override
-    protected boolean finished(boolean ok)
+    protected boolean finished(boolean ok, boolean invoke)
     {
         if(_timerFuture != null)
         {
             _timerFuture.cancel(false);
             _timerFuture = null;
         }
-        return super.finished(ok);
+        return super.finished(ok, invoke);
     }
 
     protected int handleException(com.zeroc.Ice.Exception exc)

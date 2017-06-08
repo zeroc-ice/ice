@@ -223,11 +223,6 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         }
     }
 
-    protected boolean needCallback()
-    {
-        return !_synchronous; // No callbacks for synchronous or batch invocations
-    }
-
     abstract protected void markCompleted();
 
     public final void invokeCompleted()
@@ -342,14 +337,14 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 cacheMessageBuffers();
             }
 
-            boolean invoke = !alreadySent && (_sentFuture != null || done && needCallback());
+            boolean invoke = (!alreadySent && _sentFuture != null || done) && !_synchronous;
             if(!invoke && done && _observer != null)
             {
                 _observer.detach();
                 _observer = null;
             };
 
-            if(done && !needCallback())
+            if(!invoke && done)
             {
                 markCompleted();
                 return false;
@@ -362,7 +357,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
         }
     }
 
-    protected boolean finished(boolean ok)
+    protected boolean finished(boolean ok, boolean invoke)
     {
         synchronized(this)
         {
@@ -373,7 +368,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
             }
             _cancellationHandler = null;
 
-            boolean invoke = needCallback();
+            invoke &= !_synchronous;
             if(!invoke && _observer != null)
             {
                 _observer.detach();
@@ -412,7 +407,7 @@ public abstract class InvocationFutureI<T> extends com.zeroc.Ice.InvocationFutur
                 _observer.failed(ex.ice_id());
             }
 
-            boolean invoke = needCallback();
+            boolean invoke = !_synchronous;
             if(!invoke && _observer != null)
             {
                 _observer.detach();

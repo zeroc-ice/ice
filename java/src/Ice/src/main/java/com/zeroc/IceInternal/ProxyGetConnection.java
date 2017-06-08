@@ -18,12 +18,6 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
     }
 
     @Override
-    protected boolean needCallback()
-    {
-        return !_synchronous;
-    }
-
-    @Override
     protected void markCompleted()
     {
         complete(_cachedConnection);
@@ -41,7 +35,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
         throws RetryException
     {
         _cachedConnection = connection;
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }
@@ -51,7 +45,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }

@@ -291,14 +291,14 @@ public abstract class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
     }
 
     @Override
-    protected boolean finished(boolean ok)
+    protected boolean finished(boolean ok, boolean invoke)
     {
         if(_future != null)
         {
             _future.cancel(false);
             _future = null;
         }
-        return super.finished(ok);
+        return super.finished(ok, invoke);
     }
 
     protected int handleException(Ice.Exception exc)

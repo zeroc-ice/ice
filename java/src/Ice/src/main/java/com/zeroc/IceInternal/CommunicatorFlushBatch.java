@@ -45,12 +45,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
             }
 
             @Override
-            protected boolean needCallback()
-            {
-                return false;
-            }
-
-            @Override
             protected void markCompleted()
             {
                 assert(false);
@@ -68,7 +62,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 return false;
             }
 
-            // TODO: MJN: This is missing a test.
             @Override
             public boolean completed(com.zeroc.Ice.Exception ex)
             {

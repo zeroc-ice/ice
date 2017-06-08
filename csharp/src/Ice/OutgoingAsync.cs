@@ -312,7 +312,7 @@ namespace IceInternal
                 return invoke;
             }
         }
-        protected virtual bool responseImpl(bool userThread, bool ok)
+        protected virtual bool responseImpl(bool userThread, bool ok, bool invoke)
         {
             lock(this)
             {
@@ -323,10 +323,9 @@ namespace IceInternal
 
                 _cancellationHandler = null;
 
-                bool invoke;
                 try
                 {
-                    invoke = _completionCallback.handleResponse(userThread, ok, this);
+                    invoke &= _completionCallback.handleResponse(userThread, ok, this);
                 }
                 catch(Ice.Exception ex)
                 {
@@ -632,13 +631,13 @@ namespace IceInternal
             return base.exceptionImpl(ex);
         }
 
-        protected override bool responseImpl(bool userThread, bool ok)
+        protected override bool responseImpl(bool userThread, bool ok, bool invoke)
         {
             if(proxy_.iceReference().getInvocationTimeout() != -1)
             {
                 instance_.timer().cancel(this);
             }
-            return base.responseImpl(userThread, ok);
+            return base.responseImpl(userThread, ok, invoke);
         }
 
         public void runTimerTask()
@@ -894,7 +893,7 @@ namespace IceInternal
                     }
                 }
 
-                return responseImpl(false, replyStatus == ReplyStatus.replyOK);
+                return responseImpl(false, replyStatus == ReplyStatus.replyOK, true);
             }
             catch(Ice.Exception ex)
             {
@@ -943,8 +942,8 @@ namespace IceInternal
             {
                 sentSynchronously_ = true;
                 proxy_.iceGetBatchRequestQueue().finishBatchRequest(os_, proxy_, operation);
-                responseImpl(true, true);
-                return; // Don't call sent/completed callback for batch AMI requests
+                responseImpl(true, true, false); // Don't call sent/completed callback for batch AMI requests
+                return;
             }
 
             //
@@ -1169,7 +1168,7 @@ namespace IceInternal
         public override int invokeRemote(Ice.ConnectionI connection, bool compress, bool response)
         {
             cachedConnection_ = connection;
-            if(responseImpl(false, true))
+            if(responseImpl(false, true, true))
             {
                 invokeResponseAsync();
             }
@@ -1178,7 +1177,7 @@ namespace IceInternal
 
         public override int invokeCollocated(CollocatedRequestHandler handler)
         {
-            if(responseImpl(false, true))
+            if(responseImpl(false, true, true))
             {
                 invokeResponseAsync();
             }

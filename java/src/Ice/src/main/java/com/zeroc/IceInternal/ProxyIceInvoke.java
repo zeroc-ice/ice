@@ -43,7 +43,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
                 //
                 _sentSynchronously = true;
                 _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
-                finished(true);
+                finished(true, false);
             }
             else
             {

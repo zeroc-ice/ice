@@ -35,7 +35,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
         throws RetryException
     {
         _cachedConnection = connection;
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }
@@ -45,7 +45,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }

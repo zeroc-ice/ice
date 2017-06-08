@@ -328,7 +328,7 @@ public class AsyncResultI implements AsyncResult
         }
     }
 
-    protected boolean finished(boolean ok)
+    protected boolean finished(boolean ok, boolean invoke)
     {
         synchronized(this)
         {
@@ -338,7 +338,8 @@ public class AsyncResultI implements AsyncResult
                 _state |= StateOK;
             }
             _cancellationHandler = null;
-            if(_callback == null)
+            invoke &= _callback != null;
+            if(!invoke)
             {
                 if(_observer != null)
                 {
@@ -347,7 +348,7 @@ public class AsyncResultI implements AsyncResult
                 }
             }
             this.notifyAll();
-            return _callback != null;
+            return invoke;
         }
     }
 

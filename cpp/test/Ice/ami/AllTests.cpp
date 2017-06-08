@@ -1838,7 +1838,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         {
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
-            b1->opBatch();
+            b1->opBatchAsync().get();
             b1->opBatch();
             auto id = this_thread::get_id();
             promise<void> promise;

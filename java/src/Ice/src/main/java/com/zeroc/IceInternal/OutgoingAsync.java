@@ -87,7 +87,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
                 //
                 _sentSynchronously = true;
                 _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
-                finished(true);
+                finished(true, false);
             }
             else
             {

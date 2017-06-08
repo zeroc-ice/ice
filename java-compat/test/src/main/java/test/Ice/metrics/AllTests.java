@@ -1196,13 +1196,15 @@ public class AllTests
         MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
         metricsBatchOneway.op();
         metricsBatchOneway.end_op(metricsBatchOneway.begin_op());
-        //metricsBatchOneway.begin_op(cb).waitForSent();
+        metricsBatchOneway.begin_op(cb);
 
         map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
         test(map.size() == 1);
 
         im1 = (IceMX.InvocationMetrics)map.get("op");
-        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        out.print(im1.current);
+        out.print(im1.total);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.length == 0);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",

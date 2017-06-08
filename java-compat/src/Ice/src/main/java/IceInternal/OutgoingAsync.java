@@ -170,7 +170,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             //
             _sentSynchronously = true;
             _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, getOperation());
-            finished(true);
+            finished(true, false);
         }
         else
         {
@@ -333,7 +333,7 @@ public class OutgoingAsync extends ProxyOutgoingAsyncBase
             }
             }
 
-            return finished(replyStatus == ReplyStatus.replyOK);
+            return finished(replyStatus == ReplyStatus.replyOK, true);
         }
         catch(Ice.Exception ex)
         {

@@ -1161,14 +1161,14 @@ public class AllTests
 
         MetricsPrx metricsBatchOneway = metrics.ice_batchOneway();
         metricsBatchOneway.op();
-        metricsBatchOneway.opAsync();
-        //metricsBatchOneway.opAsync().waitForSent();
+        metricsBatchOneway.opAsync().join();
+        metricsBatchOneway.opAsync().whenComplete((response, ex) -> {});
 
         map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Invocation"));
         test(map.size() == 1);
 
         im1 = (InvocationMetrics)map.get("op");
-        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.length == 0);
 
         testAttribute(clientMetrics, clientProps, "Invocation", "mode", "batch-oneway",

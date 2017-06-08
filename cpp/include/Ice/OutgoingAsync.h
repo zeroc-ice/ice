@@ -139,7 +139,7 @@ protected:
 
     bool sentImpl(bool);
     bool exceptionImpl(const Ice::Exception&);
-    bool responseImpl(bool);
+    bool responseImpl(bool, bool);
 
     void cancel(const Ice::LocalException&);
     void checkCanceled();
@@ -229,7 +229,7 @@ protected:
     void invokeImpl(bool);
     bool sentImpl(bool);
     bool exceptionImpl(const Ice::Exception&);
-    bool responseImpl(bool);
+    bool responseImpl(bool, bool);
 
     virtual void runTimerTask();
 

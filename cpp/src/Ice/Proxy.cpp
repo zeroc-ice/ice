@@ -124,7 +124,7 @@ AsyncStatus
 ProxyGetConnection::invokeRemote(const ConnectionIPtr& connection, bool, bool)
 {
     _cachedConnection = connection;
-    if(responseImpl(true))
+    if(responseImpl(true, true))
     {
         invokeResponseAsync();
     }
@@ -134,7 +134,7 @@ ProxyGetConnection::invokeRemote(const ConnectionIPtr& connection, bool, bool)
 AsyncStatus
 ProxyGetConnection::invokeCollocated(CollocatedRequestHandler*)
 {
-    if(responseImpl(true))
+    if(responseImpl(true, true))
     {
         invokeResponseAsync();
     }
