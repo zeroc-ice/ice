@@ -228,7 +228,7 @@ local interface Connection
      * automatically removed from the connection.
      *
      * @see #createProxy
-     * @see #setAdapter
+     * @see #getAdapter
      *
      **/
     void setAdapter(ObjectAdapter adapter);
