@@ -547,7 +547,9 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             test([p opBatchCount] == 0);
             id<TestAMITestIntfPrx> b1 = [p ice_batchOneway];
-            [b1 opBatch];
+            id<ICEAsyncResult> br = [b1 begin_opBatch];
+            test([br isCompleted]);
+            test(![br isSent]);
             [b1 opBatch];
             TestAMICallback* cb = [TestAMICallback create];
             id<ICEAsyncResult> r = [b1 begin_ice_flushBatchRequests:^(ICEException* ex) { test(NO); }

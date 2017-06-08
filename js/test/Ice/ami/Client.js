@@ -71,7 +71,9 @@
                     {
                         test(count === 0);
                         b1 = p.ice_batchOneway();
-                        test(b1.opBatch());
+                        bf = b1.opBatch();
+                        test(bf.isCompleted());
+                        test(!bf.isSent());
                         test(b1.opBatch());
                         return b1.ice_flushBatchRequests();
                     }
