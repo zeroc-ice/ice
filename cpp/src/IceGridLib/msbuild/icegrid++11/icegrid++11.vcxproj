@@ -67,7 +67,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceGrid\</IceBuilderHeaderOutputDir>
+    <IceBuilderHeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceGrid\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceGrid</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

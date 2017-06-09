@@ -1,17 +1,17 @@
 <Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
     <!-- For CSharp we use Slice compiler from x64 Release builds -->
     <ItemGroup>
-        <Tools Include="$(Ice_SrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
-                        $(Ice_SrcRootDir)..\cpp\bin\x64\Release\slice2html.exe;
-                        $(Ice_SrcRootDir)bin\iceboxnet.exe" />
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.dll" />
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.pdb" />
-        <Assemblies Include="$(Ice_SrcRootDir)Assemblies\*.xml" />
-        <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
+        <Tools Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
+                        $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe;
+                        $(IceSrcRootDir)bin\iceboxnet.exe" />
+        <Assemblies Include="$(IceSrcRootDir)Assemblies\*.dll" />
+        <Assemblies Include="$(IceSrcRootDir)Assemblies\*.pdb" />
+        <Assemblies Include="$(IceSrcRootDir)Assemblies\*.xml" />
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->

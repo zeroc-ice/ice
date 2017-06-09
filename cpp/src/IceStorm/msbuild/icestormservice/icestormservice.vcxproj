@@ -73,7 +73,7 @@
   <PropertyGroup Label="IceBuilder">
     <IceBuilderHeaderOutputDir>$(Platform)\$(Configuration)\IceStorm\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceStorm</IceBuilderBaseDirectoryForGeneratedInclude>
-    <IceBuilderIncludeDirectories>$(Ice_SrcRootDir)\src;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
+    <IceBuilderIncludeDirectories>$(IceSrcRootDir)\src;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

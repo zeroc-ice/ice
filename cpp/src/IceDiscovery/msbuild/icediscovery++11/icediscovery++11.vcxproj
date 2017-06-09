@@ -67,7 +67,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceDiscovery\</IceBuilderHeaderOutputDir>
+    <IceBuilderHeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceDiscovery\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceDiscovery</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

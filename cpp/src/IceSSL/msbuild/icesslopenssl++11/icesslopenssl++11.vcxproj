@@ -65,7 +65,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</IceBuilderHeaderOutputDir>
+    <IceBuilderHeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp11\$(Platform)\$(Configuration)\IceSSL\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceSSL</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

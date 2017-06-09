@@ -9,11 +9,11 @@
       Guess the Configuration for C++ builds
   -->
   <PropertyGroup Condition="'$(UseDebugLibraries)' == 'true'">
-    <Ice_Configuration>Debug</Ice_Configuration>
+    <IceConfiguration>Debug</IceConfiguration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(UseDebugLibraries)' != 'true'">
-    <Ice_Configuration>Release</Ice_Configuration>
+    <IceConfiguration>Release</IceConfiguration>
   </PropertyGroup>
 
   <!--
@@ -37,8 +37,8 @@
   <!--
       C++98 is the default mapping
   -->
-  <PropertyGroup Condition="'$(Ice_CppMapping)' == ''">
-    <Ice_CppMapping>cpp98</Ice_CppMapping>
+  <PropertyGroup Condition="'$(IceCppMapping)' == ''">
+    <IceCppMapping>cpp98</IceCppMapping>
   </PropertyGroup>
 
   <!--
@@ -64,10 +64,10 @@
         by the current build.
   -->
   <PropertyGroup>
-    <IceBinPath>$(IceHome)\cpp\bin\$(Platform)\$(Ice_Configuration)</IceBinPath>
-    <IceLibraryPath>$(IceHome)\cpp\lib\$(Platform)\$(Ice_Configuration)</IceLibraryPath>
-    <IceIncludePath>$(IceHome)\cpp\include;$(IceHome)\cpp\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration)</IceIncludePath>
-    <IceToolsPath>$(IceHome)\cpp\bin\$(Ice_Platform)\$(Ice_Configuration)</IceToolsPath>
+    <IceBinPath>$(IceHome)\cpp\bin\$(Platform)\$(IceConfiguration)</IceBinPath>
+    <IceLibraryPath>$(IceHome)\cpp\lib\$(Platform)\$(IceConfiguration)</IceLibraryPath>
+    <IceIncludePath>$(IceHome)\cpp\include;$(IceHome)\cpp\include\generated\$(IceCppMapping)\$(Platform)\$(IceConfiguration)</IceIncludePath>
+    <IceToolsPath>$(IceHome)\cpp\bin\$(Ice_Platform)\$(IceConfiguration)</IceToolsPath>
     <Path>$(IceBinPath);$(Path)</Path>
   </PropertyGroup>
 

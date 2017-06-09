@@ -1,21 +1,21 @@
 <Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Slice compiler from x64 Release builds -->
-        <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2cpp.exe;
-                        $(Ice_SrcRootDir)bin\x64\Release\slice2html.exe" />
+        <Tools Include="$(IceSrcRootDir)bin\x64\Release\slice2cpp.exe;
+                        $(IceSrcRootDir)bin\x64\Release\slice2html.exe" />
 
         <!-- public header files and sources -->
-        <Headers Include="$(Ice_SrcRootDir)include\**\*.h"
-                 Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
-                          $(Ice_SrcRootDir)include\IceBT\*.h"/>
-        <Headers Include="$(Ice_SrcRootDir)include\generated\uwp\Win32\Release\**\*.h" />
+        <Headers Include="$(IceSrcRootDir)include\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\**\*.h;
+                          $(IceSrcRootDir)include\IceBT\*.h"/>
+        <Headers Include="$(IceSrcRootDir)include\generated\uwp\Win32\Release\**\*.h" />
 
-        <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->

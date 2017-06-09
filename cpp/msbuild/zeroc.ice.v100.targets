@@ -11,14 +11,14 @@
 
     <!-- Use bin and lib directories that match the used platform toolset -->
     <PropertyGroup Condition="'$(PlatformToolset)' == 'v100'">
-        <Ice_Configuration Condition="'$(UseDebugLibraries)' == 'true'">Debug</Ice_Configuration>
-        <Ice_Configuration Condition="'$(UseDebugLibraries)' != 'true'">Release</Ice_Configuration>
-        <LocalDebuggerEnvironment>PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(Ice_Configuration);$(IceToolsPath);$(Path)</LocalDebuggerEnvironment>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
+        <LocalDebuggerEnvironment>PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration);$(IceToolsPath);$(Path)</LocalDebuggerEnvironment>
     </PropertyGroup>
 
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v100'">
         <Link>
-            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(Ice_Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(IceConfiguration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
         </Link>
     </ItemDefinitionGroup>
 

@@ -94,7 +94,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderIncludeDirectories>$(Ice_SrcRootDir)\src\;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
+    <IceBuilderIncludeDirectories>$(IceSrcRootDir)\src\;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
     <IceBuilderHeaderOutputDir>$(Platform)\$(Configuration)\IceGrid\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceGrid</IceBuilderBaseDirectoryForGeneratedInclude>
     <IceBuilderAdditionalOptions>-DICE_BUILDING_ICEGRIDDB</IceBuilderAdditionalOptions>

@@ -4,7 +4,7 @@
       If we are building Ice source distribution or if ICE_BIN_DIST was not set to
       yes, set IceHome to point to this source distribution.
   -->
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(Ice_BuildingSrc)' == yes">
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
@@ -23,7 +23,7 @@
       Common properties
   -->
   <PropertyGroup>
-    <Ice_SrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</Ice_SrcRootDir>
+    <IceSrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</IceSrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <IceBuilderOutputDir Condition="'$(IceBuilderOutputDir)' == ''">$(Platform)\$(Configuration)</IceBuilderOutputDir>
     <LinkIncremental>false</LinkIncremental>
@@ -32,30 +32,30 @@
   <Choose>
     <When Condition="'$(ConfigurationType)' == 'StaticLibrary'">
       <PropertyGroup>
-        <OutDir>$(Ice_SrcRootDir)\lib\$(Platform)\$(Configuration)\</OutDir>
+        <OutDir>$(IceSrcRootDir)\lib\$(Platform)\$(Configuration)\</OutDir>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
-        <OutDir>$(Ice_SrcRootDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+        <OutDir>$(IceSrcRootDir)\bin\$(Platform)\$(Configuration)\</OutDir>
       </PropertyGroup>
     </Otherwise>
   </Choose>
 
   <!--
-      Ice_Configuration to use for C++ builds, we map all configurations that use
+      IceConfiguration to use for C++ builds, we map all configurations that use
       debug libraries to Debug configuration, this allow us to define common
       settings for the different debug configurations "Debug" and "Cpp11-Debug"
   -->
   <Choose>
     <When Condition="'$(UseDebugLibraries)' == 'true'">
       <PropertyGroup>
-        <Ice_Configuration>Debug</Ice_Configuration>
+        <IceConfiguration>Debug</IceConfiguration>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
-        <Ice_Configuration>Release</Ice_Configuration>
+        <IceConfiguration>Release</IceConfiguration>
       </PropertyGroup>
     </Otherwise>
   </Choose>
@@ -76,7 +76,7 @@
       <PrecompiledHeaderOutputFile />
       <OmitFramePointers>false</OmitFramePointers>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IceSrcRootDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- PDB settings -->
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
@@ -91,7 +91,7 @@
   <!--
       Common properties set for all debug builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_Configuration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -137,7 +137,7 @@
   <!--
       Common properties set for all release builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Release'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -149,7 +149,7 @@
       Definitions required when building the C++11 mapping, note that UWP also use
       the C++11 mapping.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_CppMapping)' == 'cpp11' or '$(Ice_CppMapping)' == 'uwp'">
+  <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11' or '$(IceCppMapping)' == 'uwp'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -162,27 +162,27 @@
   <!--
       Definitions that are only required when build Ice C++ source distribution as opposed to test suite.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_BuildingSrc)' == 'yes'">
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration);
-                                    $(Ice_SrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Ice_LanguageMapping)' == 'cpp'">ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IceSrcRootDir)\include\generated\$(IceCppMapping)\$(Platform)\$(IceConfiguration);
+                                    $(IceSrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(IceLanguageMapping)' == 'cpp'">ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(IceSrcRootDir)\lib\$(Platform)\$(IceConfiguration)</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IceSrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(Ice_BuildingSrc)' == 'DynamicLibrary|yes'">
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'DynamicLibrary|yes'">
     <Link>
-      <ImportLibrary>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(IceSrcRootDir)\lib\$(Platform)\$(IceConfiguration)\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(Ice_BuildingSrc)' == 'Application|yes'">
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'Application|yes'">
     <Link>
       <AdditionalDependencies>wsetargv.obj</AdditionalDependencies>
     </Link>
@@ -195,12 +195,12 @@
     <!--
         C++11 mapping target names.
     -->
-    <When Condition="'$(Ice_CppMapping)' == 'cpp11'">
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+    <When Condition="'$(IceCppMapping)' == 'cpp11'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
       </PropertyGroup>
     </When>
@@ -208,12 +208,12 @@
     <!--
         UWP mapping target names.
     -->
-    <When Condition="'$(Ice_CppMapping)' == 'uwp'">
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+    <When Condition="'$(IceCppMapping)' == 'uwp'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11d"))</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11"))</TargetName>
       </PropertyGroup>
     </When>
@@ -222,19 +222,19 @@
         C++98 mapping target names.
     -->
     <Otherwise>
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
         <TargetName>$(ProjectName)d</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
         <TargetName>$(ProjectName)</TargetName>
       </PropertyGroup>
     </Otherwise>

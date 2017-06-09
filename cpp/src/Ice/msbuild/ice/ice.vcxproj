@@ -74,7 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\</IceBuilderHeaderOutputDir>
+    <IceBuilderHeaderOutputDir>$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>Ice</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -180,22 +180,22 @@
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mc -r $(Platform)\$(Configuration)\ ..\..\EventLoggerMsg.mc &amp;&amp; move EventLoggerMsg.h $(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Ice_SrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IceSrcRootDir)\include\generated\cpp98\$(Platform)\$(Configuration)\Ice\EventLoggerMsg.h;$(Platform)\$(Configuration)\EventLoggerMsg.rc</Outputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

@@ -1,53 +1,53 @@
 <Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-        <Ice_SrcRootDir>$(MSBuildThisFileDirectory)..\</Ice_SrcRootDir>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
-        <Libraries Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
-                   Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
-                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll;
-                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll;
-                            $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\libeay32.dll"/>
+        <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
+                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*d.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icesslopenssl*.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ssleay32.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libeay32.dll"/>
 
-        <ImportLibraries Include="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
-                                  $(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
-                                  $(Ice_SrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
+        <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
     </ItemGroup>
 
     <!-- Win32 Release binaries -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Executables Include="$(Ice_SrcRootDir)bin\Win32\Release\*.exe"
-                     Exclude="$(Ice_SrcRootDir)bin\Win32\Release\slice2*.exe" />
+        <Executables Include="$(IceSrcRootDir)bin\Win32\Release\*.exe"
+                     Exclude="$(IceSrcRootDir)bin\Win32\Release\slice2*.exe" />
     </ItemGroup>
 
     <!-- x64 Release binaries -->
     <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'x64|Release'">
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
-        <Tools Include="$(Ice_SrcRootDir)bin\x64\Release\slice2*.exe" />
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
+                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
+        <Tools Include="$(IceSrcRootDir)bin\x64\Release\slice2*.exe" />
     </ItemGroup>
 
     <!-- Win32/x64 Debug binaries -->
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-        <Executables Include="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe;
-                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
-                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
-                              $(Ice_SrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe"/>
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
+                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe"/>
     </ItemGroup>
 
     <!-- public C++ header and Slice files -->
     <ItemGroup>
-        <Headers Include="$(Ice_SrcRootDir)include\**\*.h"
-                 Exclude="$(Ice_SrcRootDir)include\generated\**\*.h;
-                          $(Ice_SrcRootDir)include\IceBT\*.h"/>
-        <Headers Include="$(Ice_SrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h" />
+        <Headers Include="$(IceSrcRootDir)include\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\**\*.h;
+                          $(IceSrcRootDir)include\IceBT\*.h"/>
+        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h" />
 
-        <Slices Include="$(Ice_SrcRootDir)..\slice\**\*.ice" />
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->

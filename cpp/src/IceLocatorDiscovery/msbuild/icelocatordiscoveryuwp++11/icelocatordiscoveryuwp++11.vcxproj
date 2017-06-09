@@ -99,7 +99,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderHeaderOutputDir>$(Ice_SrcRootDir)\include\generated\uwp\$(Platform)\$(Configuration)\IceLocatorDiscovery\</IceBuilderHeaderOutputDir>
+    <IceBuilderHeaderOutputDir>$(IceSrcRootDir)\include\generated\uwp\$(Platform)\$(Configuration)\IceLocatorDiscovery\</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceLocatorDiscovery</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-      <Ice_CppMapping>uwp</Ice_CppMapping>
+      <IceCppMapping>uwp</IceCppMapping>
       <IceSoVersion>37</IceSoVersion>
     </PropertyGroup>
 
@@ -16,10 +16,10 @@
     <ItemDefinitionGroup>
         <ClCompile>
             <PreprocessorDefinitions>WINAPI_FAMILY=2;_UNICODE;UNICODE;ICE_CPP11_MAPPING;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
-            <AdditionalIncludeDirectories>$(Platform)\$(Configuration)\;$(Ice_SrcRootDir)\test\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <AdditionalIncludeDirectories>$(Platform)\$(Configuration)\;$(IceSrcRootDir)\test\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
         </ClCompile>
         <Link>
-            <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\test\Common\msbuild\uwp\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>$(IceSrcRootDir)\test\Common\msbuild\uwp\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
             <AdditionalDependencies>Windowsapp.lib</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>

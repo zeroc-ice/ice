@@ -85,7 +85,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderIncludeDirectories>$(Ice_SrcRootDir)\src\;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
+    <IceBuilderIncludeDirectories>$(IceSrcRootDir)\src\;$(IceBuilderIncludeDirectories)</IceBuilderIncludeDirectories>
     <IceBuilderHeaderOutputDir>$(Platform)\$(Configuration)\IceStorm</IceBuilderHeaderOutputDir>
     <IceBuilderBaseDirectoryForGeneratedInclude>IceStorm</IceBuilderBaseDirectoryForGeneratedInclude>
   </PropertyGroup>
