@@ -237,7 +237,7 @@ public:
                 // check might be invoked before IceStorm got a chance to process the close connection
                 // message from this subscriber, retry if the ice_ping still succeeds.
                 //
-                int nRetry = 5;
+                int nRetry = 10;
                 while(--nRetry > 0)
                 {
                     subscription.publisher->ice_ping();

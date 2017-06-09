@@ -956,7 +956,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         anyboth->setProperty("Ice.IPv4", "1");
         anyboth->setProperty("Ice.IPv6", "1");
         anyboth->setProperty("Adapter.Endpoints", endpoint);
-        anyboth->setProperty("Adapter.PublishedEndpoints", endpoint + " -p 12012:" + endpoint + " -p 12012");
+        anyboth->setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1:" + endpoint + " -h \"::1\"");
 
         Ice::PropertiesPtr localipv4 = ipv4->clone();
         localipv4->setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
