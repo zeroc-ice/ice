@@ -1099,16 +1099,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
             // The server closed the acceptor, wait one second and retry after freeing a FD.
             //
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
-            try
+            int nRetry = 10;
+            bool success = false;
+            while(--nRetry > 0)
             {
-                ostringstream os;
-                os << i;
-                test->ice_connectionId(os.str())->ice_ping();
+                try
+                {
+                    ostringstream os;
+                    os << i;
+                    test->ice_connectionId(os.str())->ice_ping();
+                    success = true;
+                    break;
+                }
+                catch(const Ice::LocalException&)
+                {
+                }
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
             }
-            catch(const Ice::LocalException&)
-            {
-                test(false);
-            }
+            test(success);
         }
         catch(const Ice::LocalException&)
         {

@@ -1007,14 +1007,28 @@ public class AllTests
                 {
                 }
 
-                try
+                int nRetry = 10;
+                boolean success = false;
+                while(--nRetry > 0)
                 {
-                    test.ice_connectionId(Integer.toString(i)).ice_ping();
+                    try
+                    {
+                        test.ice_connectionId(Integer.toString(i)).ice_ping();
+                        success = true;
+                        break;
+                    }
+                    catch(com.zeroc.Ice.LocalException ex1)
+                    {
+                    }
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch(InterruptedException ex1)
+                    {
+                    }
                 }
-                catch(com.zeroc.Ice.LocalException ex1)
-                {
-                    test(false);
-                }
+                test(success);
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
