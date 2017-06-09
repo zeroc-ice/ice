@@ -14,11 +14,12 @@
 extern "C"
 {
 
+Ice::Plugin* createStringConverter(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 Ice::Plugin* createIceUDP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 Ice::Plugin* createIceTCP(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 Ice::Plugin* createIceWS(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 
-};
+}
 
 IceInternal::RegisterPluginsInit::RegisterPluginsInit()
 {
@@ -30,5 +31,12 @@ IceInternal::RegisterPluginsInit::RegisterPluginsInit()
 #if !defined(ICE_STATIC_LIBS) || defined(ICE_GEM) || defined(ICE_PYPI)
     Ice::registerPluginFactory("IceUDP", createIceUDP, true);
     Ice::registerPluginFactory("IceWS", createIceWS, true);
+#endif
+
+    //
+    // Also include IceStringConverter in Gem/PyPI builds.
+    //
+#if defined(ICE_GEM) || defined(ICE_PYPI)
+    Ice::registerPluginFactory("IceStringConverter", createStringConverter, false);
 #endif
 }
