@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, string, imp, os, threading, warnings, datetime, logging, time, inspect
+import sys, string, imp, os, threading, warnings, datetime, logging, time, inspect, traceback
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -202,7 +202,10 @@ class Future(FutureBase):
             try:
                 callback(self)
             except:
-                logging.getLogger("Ice.Future").exception('callback raised exception')
+                self._warn('done callback raised exception')
+
+    def _warn(self, msg):
+        logging.getLogger("Ice.Future").exception(msg)
 
     StateRunning = 'running'
     StateCancelled = 'cancelled'
@@ -227,7 +230,7 @@ class InvocationFuture(Future):
             try:
                 fn(self)
             except:
-                logging.getLogger("Ice.Future").exception('callback raised exception')
+                self._warn('done callback raised exception')
 
         with self._condition:
             if self._state == Future.StateRunning:
@@ -255,7 +258,7 @@ class InvocationFuture(Future):
             try:
                 fn(self, self._sentSynchronously)
             except:
-                logging.getLogger("Ice.Future").exception('callback raised exception')
+                self._warn('sent callback raised exception')
 
         with self._condition:
             if not self._sent:
@@ -290,7 +293,7 @@ class InvocationFuture(Future):
             try:
                 callback(self, sentSynchronously)
             except Exception:
-                logging.getLogger("Ice.Future").exception('callback raised exception')
+                self._warn('sent callback raised exception')
 
     def operation(self):
         return self._operation
@@ -303,6 +306,14 @@ class InvocationFuture(Future):
 
     def communicator(self):
         return self._asyncResult.getCommunicator()
+
+    def _warn(self, msg):
+        communicator = self.communicator()
+        if communicator:
+            if communicator.getProperties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0:
+                communicator.getLogger().warning("Ice.Future: " + msg + ":\n" + traceback.format_exc())
+        else:
+            logging.getLogger("Ice.Future").exception(msg)
 
 #
 # This value is used as the default value for struct types in the constructors
@@ -1449,7 +1460,7 @@ class _ApplicationLoggerI(Logger):
 #
 # Application class.
 #
-import signal, traceback
+import signal
 class Application(object):
     '''Convenience class that initializes a communicator and reacts
 gracefully to signals. An application must define a subclass

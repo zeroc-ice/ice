@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, sys, threading, random, logging
+import Ice, Test, sys, threading, random
 
 def test(b):
     if not b:
@@ -377,11 +377,6 @@ class Thrower(CallbackBase):
         throwEx(self._t)
 
 def allTests(communicator, collocated):
-    # Ice.Future uses the Python logging facility, this tests throws exceptions from Ice.Future callbacks
-    # so we disable errors to prevent them to show up on the console.
-    logging.basicConfig()
-    logging.disable(logging.ERROR)
-
     sref = "test:default -p 12010"
     obj = communicator.stringToProxy(sref)
     test(obj)
@@ -774,7 +769,7 @@ def allTests(communicator, collocated):
                 throwEx(t)
             except Exception as ex2:
                 test(type(ex) == type(ex2))
-        f.add_sent_callback_async(throwerEx)
+        f.add_sent_callback_async(lambda f, s: throwEx(f))
         f.result()
 
         p.begin_op(lambda: cb.noOpWC(cookie), lambda ex: cb.exWC(ex, cookie), lambda ss: cb.sentWC(ss, cookie))
