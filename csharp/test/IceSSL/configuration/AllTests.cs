@@ -691,6 +691,10 @@ public class AllTests
                     //
 
                     //
+                    // Disabled for compatibility with older Windows
+                    // versions.
+                    //
+                    /* //
                     // Target host matches the certificate IP altName
                     //
                     {
@@ -738,7 +742,7 @@ public class AllTests
                         }
                         fact.destroyServer(server);
                         comm.destroy();
-                    }
+                    }*/
                     //
                     // Target host is an IP addres that matches the CN and the certificate doesn't
                     // include an IP altName.
