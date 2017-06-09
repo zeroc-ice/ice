@@ -35,6 +35,12 @@ if (project.ext.hasJavaFx) {
     }
 }
 
+// Disable deprecation warnings caused by JGoodies
+tasks.withType(JavaCompile) {
+    options.deprecation = false
+}
+
+
 configurations {
     bundleapp
 }
