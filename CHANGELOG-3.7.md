@@ -26,13 +26,18 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
-- Minor change to the network and retry tracing. Connection establishment
-  attempts on endpoints are no longer traced with Ice.Trace.Retry. They are
-  now traced when Ice.Trace.Network is set to 2.
+- Defining operations on non-local classes is now deprecated: operations should
+  be defined only on interfaces and local classes. Likewise, having a class
+  implement an interface, passing a class by proxy and passing an interface by
+  value are now deprecated.
 
-- Renamed ACM heartbeat enumeration value `HeartbeatOnInvocation` to
-  `HeartbeatOnDispatch`. The heartbeats are sent only when dispatch are in
-  progress and the connection is idle.
+- Added Slice keyword `Value`. All Slice classes implicitly derive from the
+  `Value` class, and a parameter of type `Value` can represent any class
+  instance. In prior release, the base class for Slice classes was `Object`,
+  and for non-local definitions, `Object` remains a synonym for `Value`.
+  (However, `Value*` is invalid--it cannot be used as a synonym for `Object*`).
+  For local definitions, `Object` designates a servant while `Value`
+  designates a class instance.
 
 - Semicolons are now optional after braces in Slice definitions. For example
   ```
@@ -59,9 +64,6 @@ These are the changes since the Ice 3.6 release or snapshot described in
   };
   ```
 
-- Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
-  published endpoints programmatically.
-
 - The server run time will now bind to all the addresses associated with a DNS
   name specified in an endpoint of the object adapter (with the endpoint -h
   option). You must make sure the DNS name resolves to local addresses only.
@@ -74,6 +76,79 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Added the IceBridge service, which acts as a bridge between a client and
   server to relay requests and replies in both directions.
+
+- Added new operation metadata, `marshaled-result`, in C++11, C++98, C#, Java,
+  Java Compat, and Python. When this metadata is specified, the generated code
+  for the servant dispatch returns a generated struct that contains the
+  marshaled values for the return and out parameters. See the Ice Manual for
+  additional details on this metadata.
+
+- A Slice enumeration (enum) now creates a new namespace scope for its
+  enumerators. In previous releases, the enumerators were in the same
+  namespace scope as the enumeration. For example:
+  ```
+     enum Fruit { Apple, Orange, Pear };
+     enum ComputerBrands { Apple, Dell, HP }; // Ok as of Ice 3.7, error in
+                                              // prior releases
+  ```
+  The mapping of enum to C++, C#, Java etc. is not affected by this
+  change. Slice constants and data member default values that reference
+  enumerators should be updated to use only the enumerator's name when the
+  enclosing enum is in a different module. For example:
+  ```
+  module M1
+  {
+      enum Fruit { Apple, Orange, Pear }
+      enum ComputerBrands { Apple, Dell, HP }
+
+      const Fruit a = Apple; // Recommended syntax for all Ice releases
+  }
+
+  module M2
+  {
+      const M1::Fruit a1 = Apple;             // The recommended syntax as of
+                                              // Ice 3.7
+      const M1::Fruit a2 = M1::Fruit::Apple;  // Ok as well
+      const M1::Fruit a3 = M1::Apple;         // Supported for backwards
+                                              // compatibility with earlier
+                                              // Ice releases
+  }
+
+  ```
+
+- Added Bluetooth transport plug-in for C++ and Android. The C++ plug-in
+  requires BlueZ 5.40 or later.
+
+- Added support for iAP transport to allow iOS clients to communicate with
+  connected accessories.
+
+- Added new overloads to `Ice::initialize` in C++11, C++98, C#, Java,
+  Java Compat, Python and Ruby. They accept a `configFile` string parameter as
+  an alternative to the `InitializationData` parameter of several existing
+  `Ice::initialize` overloads.
+
+- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
+  overflows in case a sender sends a very large graph.
+
+  The unmarshaling or destruction of a graph of Slice class instances is a
+  recursive operation. This property limits the amount of stack size required to
+  perform these operations. This property is supported with all the language
+  mappings except Java and JavaScript where it's not needed (the run time
+  environment allows graceful handling of stack overflows).
+
+  The default maximum class graph depth is 100. If you increase this value, you
+  must ensure the thread pool stack size is large enough to allow reading graphs
+  without causing a stack overflow.
+
+- Minor change to the network and retry tracing. Connection establishment
+  attempts on endpoints are no longer traced with Ice.Trace.Retry. They are
+  now traced when Ice.Trace.Network is set to 2.
+
+- Renamed ACM heartbeat enumerator `HeartbeatOnInvocation` to
+  `HeartbeatOnDispatch`.
+
+- Added `Ice::ObjectAdapter::setPublishedEndpoints` to allow updating the
+  published endpoints programmatically.
 
 - Added new `ice_id` method or member function to all Ice exceptions; `ice_id`
   returns the Slice type ID of the exception. It replaces the now deprecated
@@ -100,80 +175,28 @@ These are the changes since the Ice 3.6 release or snapshot described in
   with `Ice::ConnectionManuallyClosedException`. This exception is set on the
   connection when `Connection::close` is called.
 
-- Added new operation metadata, `marshaled-result`, in C++11, C++98, C#, Java,
-  Java Compat, and Python. When this metadata is specified, the generated code for
-  the servant dispatch returns a generated struct that contains the marshaled
-  values for the return and out parameters. See the Ice Manual for additional
-  details on this metadata.
-
-- Added new overloads to `Ice::initialize` in C++11, C++98, C#, Java, Java Compat,
-  Python and Ruby. They accept a `configFile` string parameter as an alternative
-  to the `InitializationData` parameter of several existing `Ice::initialize`
-  overloads.
-
-- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
-  overflows in case a sender sends a very large graph.
-
-  The unmarshaling or destruction of a graph of Slice class instances is a
-  recursive operation. This property limits the amount of stack size required to
-  perform these operations. This property is supported with all the language
-  mappings except Java and JavaScript where it's not needed (the run time
-  environment allows graceful handling of stack overflows).
-
-  The default maximum class graph depth is 100. If you increase this value, you
-  must ensure the thread pool stack size is large enough to allow reading graphs
-  without causing a stack overflow.
-
 - Added support for IceStorm subscriber `locatorCacheTimeout` and
   `connectionCached` QoS settings. These settings match the proxy settings and
   allow configuring per-request load balancing on the subscriber proxy.
 
 - Implementations of the `Ice::Router` interface can now indicate whether or not
-  they support a routing table through the optional out parameter `hasRoutingTable`
-  of the `getClientProxy` operation. The Ice run time won't call the `addProxies`
-  operation if the router implementation indicates that it doesn't manage a routing
-  table.
+  they support a routing table through the optional out parameter
+  `hasRoutingTable` of the `getClientProxy` operation. The Ice run time won't
+  call the `addProxies` operation if the router implementation indicates that it
+  doesn't manage a routing table.
 
-- The `findObjectByType`, `findAllObjectsByType`, `findObjectByTypeOnLeastLoadedNode`
-  operations from the `IceGrid::Query` interface and the `allocateObjectByType`
-  operation from the `IceGrid::Session` interfaces now only return proxies for
-  Ice objects from enabled servers. If a server is disabled, its well-known or
-  allocatable Ice objects won't be returned anymore to clients.
-
-- A Slice enumeration (enum) now creates a new namespace scope for its
-  enumerators. In previous releases, the enumerators were in the same
-  namespace scope as the enumeration. For example:
-  ```
-     enum Fruit { Apple, Orange, Pear };
-     enum ComputerBrands { Apple, Dell, HP }; // Ok as of Ice 3.7, error in prior releases
-  ```
-  The mapping of enum to C++, C#, Java etc. is not affected by this
-  change. Slice constants and data member default values that reference
-  enumerators should be updated to use only the enumerator's name when the
-  enclosing enum is in a different module. For example:
-  ```
-  module M1
-  {
-      enum Fruit { Apple, Orange, Pear };
-      enum ComputerBrands { Apple, Dell, HP };
-
-      const Fruit a = Apple; // Recommended syntax for all Ice releases
-  };
-
-  module M2
-  {
-      const M1::Fruit a1 = Apple;             // The recommended syntax as of Ice 3.7
-      const M1::Fruit a2 = M1::Fruit::Apple;  // Ok as well
-      const M1::Fruit a3 = M1::Apple;         // Supported for backwards compatibility
-                                              // with earlier Ice releases
-  };
-
-  ```
+- The `findObjectByType`, `findAllObjectsByType`,
+  `findObjectByTypeOnLeastLoadedNode` operations from the `IceGrid::Query`
+  interface and the `allocateObjectByType` operation from the `IceGrid::Session`
+  interfaces now only return proxies for Ice objects from enabled servers. If a
+  server is disabled, its well-known or allocatable Ice objects won't be
+  returned anymore to clients.
 
 - The Communicator and Connection `flushBatchRequests` operations now require
   an argument to specify whether or not the batch requests to flush should be
   compressed. See the documentation of the `Ice::CompressBatch` enumeration
-  for the different options available to specify when the batch should be compressed.
+  for the different options available to specify when the batch should be
+  compressed.
 
 - The UDP server endpoint now supports specifying `--interface *` to join the
   multicast group using all the local interfaces. It's also now the default
@@ -184,14 +207,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   connections and temporarily stops accepting new connections. An error message
   is also sent to the Ice logger.
 
-- Added Bluetooth transport plug-in for C++ and Android. The C++ plug-in
-  requires BlueZ 5.40 or later.
-
 - Dispatch interceptors and `ice_dispatch` can now catch user exceptions. User
   exceptions raised by a servant dispatch are propagated to `ice_dispatch` and
   may be raised by the implementation of `Ice::DispatchInterceptor::dispatch`.
   As a result, the `Ice::DispatchStatus` enumeration has been removed. See the
-  Ice manual for details on the new dispatch interceptor API.
+  Ice Manual for details on the new dispatch interceptor API.
 
 - The `ice_getConnection` operation now correctly returns a connection if
   connection caching is disabled (it previously returned a null connection).
@@ -204,9 +224,6 @@ These are the changes since the Ice 3.6 release or snapshot described in
     on the `IceSSL::Certificate` class.
 
   - only PKCS12 certificates are supported (no support for PEM).
-
-- Added support for iAP transport to allow iOS clients to communicate with
-  connected accessories.
 
 - The `Ice::ConnectionInfo` `sndSize` and `rcvSize` data members have been moved
   to the TCP and UDP connection info classes. The `Ice::WSEndpointInfo` and
@@ -245,19 +262,19 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Renamed local interface metadata `async` to `async-oneway`.
 
-- Replaced `ConnectionCallback` by delegates `CloseCallback` and `HeartbeatCallback`.
-  Also replaced `setCallback` by `setCloseCallback` and `setHeartbeatCallback` on
-  the `Connection` interface.
+- Replaced `ConnectionCallback` by delegates `CloseCallback` and
+ `HeartbeatCallback`.  Also replaced `setCallback` by `setCloseCallback` and
+  `setHeartbeatCallback` on the `Connection` interface.
 
 - Updating Windows build system to use MSBuild instead of nmake.
 
 - Changed the parsing of hex escape sequences (\x....) in Slice string literals:
-  the parsing now stops after 2 hex digits. For example, \x0ab is now read as '\x0a'
-  followed by 'b'. Previously all the hex digits where read like in C++.
+  the parsing now stops after 2 hex digits. For example, `\x0ab` is now read as
+  `\x0a` followed by `b`. Previously all the hex digits were read like in C++.
 
 - Stringified identities and proxies now support non-ASCII characters
-  and universal character names (\unnnn and \Unnnnnnnn). See the property
-  Ice.ToStringMode and the static function/method identityToString.
+  and universal character names (`\unnnn` and `\Unnnnnnnn`). See the property
+  `Ice.ToStringMode` and the static function/method `identityToString`.
 
 - Fixed proxies stringification: `Communicator::proxyToString` and equivalent
   "to string" methods on fixed proxies no longer raise a `FixedProxyException`;
@@ -273,14 +290,14 @@ These are the changes since the Ice 3.6 release or snapshot described in
   use the native checks of the platform's SSL implementation.
 
 - Removed `IceSSL::NativeConnectionInfo`. `IceSSL::ConnectionInfo`'s `certs` data
-  member is now mapped to the native certificate type in C++, Java and C#. In other
-  languages, it remains mapped to a string sequence containing the PEM encoded
-  certificates.
+  member is now mapped to the native certificate type in C++, Java and C#. In
+  other languages, it remains mapped to a string sequence containing the PEM
+  encoded certificates.
 
-- Freeze has been moved to its own source repository, https://github.com/zeroc-ice/freeze.
-  Freeze is no longer included with Ice binary distributions.
+- Freeze has been moved to its own source repository,
+  https://github.com/zeroc-ice/freeze.
 
-- Added support for suppressing Slice warnings using the` [["suppress-warning"]]`
+- Added support for suppressing Slice warnings using the `[["suppress-warning"]]`
   global metadata directive. If one or more categories are specified (for
   example `"suppress-warning:invalid-metadata"` or
   `"suppress-warning:deprecated, invalid-metadata"`) only warnings matching these
@@ -288,36 +305,36 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## C++ Changes
 
-- The UDP and WS transports are no longer enabled by default with static builds
-  of the Ice library. You will need to explicitly register them with the
-  Ice::registerIceUDP() or Ice::registerIceWS() function if you want to use
-  these transports with your statically linked application.
-
-  NOTE: this affects UWP and iOS applications which are linked statically with
-  Ice libraries.
-
 - Added a new C++11 mapping that takes advantage of C++11 language features. This
   new mapping is very different from the Slice-to-C++ mapping provided in prior
-  releases. The old mapping, now known as the C++98 mapping, is still supported so
-  that existing applications can be migrated to Ice 3.7 without much change.
+  releases. The old mapping, now known as the C++98 mapping, is still supported
+  so that existing applications can be migrated to Ice 3.7 without much change.
 
 - Added support for Visual Studio 2010 (C++98 only)
 
 - The `Ice::Communicator` and `Ice::ObjectAdapter` `destroy` functions are now
   declared as `noexcept` (C++11) or `throw()` (C++98).
 
-- Added new class `Ice::CommunicatorHolder`. `CommunicatorHolder` creates a `Communicator`
-  in its constructor and destroys it in its destructor.
+- Added new helper class `Ice::CommunicatorHolder`. `CommunicatorHolder`
+  creates a `Communicator` in its constructor and destroys it in its destructor.
 
-- The `--dll-export` option of `slice2cpp` is now deprecated, and replaced by the global
-  Slice metadata `cpp:dll-export:SYMBOL`.
+- The `--dll-export` option of `slice2cpp` is now deprecated, and replaced by
+  the global Slice metadata `cpp:dll-export:SYMBOL`.
+
+- The UDP and WS transports are no longer enabled by default with static builds
+  of the Ice library. You need to register them explicitly with the
+  `Ice::registerIceUDP` or `Ice::registerIceWS` function to use these transports
+   with your statically linked application.
+
+  NOTE: this affects UWP and iOS applications which are linked statically with
+  Ice libraries.
 
 - Added `cpp:scoped` metadata for enums in the C++98 mapping. The generated C++
   enumerators for a "scoped enum" are prefixed with the enumeration's name. For
   example:
   ```
      // Slice
-     ["cpp:scoped"] enum Fruit { Apple, Orange, Pear };
+     ["cpp:scoped"] enum Fruit { Apple, Orange, Pear }
   ```
   corresponds to:
   ```
@@ -325,8 +342,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
      enum Fruit { FruitApple, FruitOrange, FruitPear };
   ```
 
-- Upgrade the UWP IceSSL implementation to support client side certificates and custom
-  certificate verification.
+- Upgrade the UWP IceSSL implementation to support client side certificates and
+  custom certificate verification.
 
 - Added `getOpenSSLVersion` function to `IceSSL::OpenSSL::Plugin` to retrieve
   the OpenSSL version used by the Ice run time.
@@ -351,19 +368,24 @@ These are the changes since the Ice 3.6 release or snapshot described in
   which instructs SChannel to disable weak cryptographic algorithms. The default
   values for this property is 0 for increased interoperability.
 
-- Improve Linux stack traces by using libbacktrace when available.
+- Improve Linux stack traces generated by `Exception::ice_stackTrace`, by using
+  libbacktrace when available.
 
-- Fixed IceGrid PlatformInfo to report the correct Windows release and version
-  versions greater than Windows 8 were reported as Windows 8.
+- Fixed IceGrid PlatformInfo to report the correct release and version number
+  for recent versions of Windows.
 
 - IceSSL has been updated to support OpenSSL 1.1.0 version.
 
-- Add IceBridge Ice service that acts as a bridge between one or more clients and
-  a server.
-
 ## C# Changes
 
-- Added the proxy method `ice_scheduler`, which returns an instance of
+- Added a new C# AMI mapping based on TAP (Task-based Asynchronous Pattern).
+  With this mapping, you can use the C# async/away keywords with
+  asynchronous invocations and dispatches (AMI and AMD).
+
+- Updated the AMD mapping to be Task-based. Chaining AMD and AMI calls is now
+  straightforward.
+
+- Added the proxy method `ice_scheduler`. It returns an instance of
   `System.Threading.Tasks.TaskScheduler` that you can pass to `Task` methods
   such as `ContinueWith` in order to force a continuation to be executed by
   an Ice thread pool thread.
@@ -377,10 +399,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   `System.Action<Dictionary<string, string>>` delegate instead to receive
   property updates.
 
-- The `threadHook` member of `InitializationData` is now deprecated. We have
-  added `threadStart` and `threadStop` members for consistency with the C++11
-  and Java mappings. A program should set these members to a `System.Action`
-  delegate.
+- The `threadHook` member of `InitializationData` is now deprecated. Instead,
+  set `threadStart` and `threadStop`.
 
 - The `Ice.ClassResolver` delegate has been replaced with the
   `System.Func<string, Type>` delegate. The `Ice.CompactIdResolver` delegate
@@ -388,50 +408,41 @@ These are the changes since the Ice 3.6 release or snapshot described in
   `Ice.Dispatcher` delegate has been replaced with the
   `System.Action<System.Action, Ice.Connection>` delegate.
 
-- Added new interface/class metadata `cs:tie`. Use this metadata to generate a tie
-  class for a given interface or class.
+- Added new interface/class metadata `cs:tie`. Use this metadata to generate a
+  tie class for a given interface or class.
 
 - `cs:` and `clr:` are now interchangeable in metadata directives.
 
 - Add support to preload referenced assemblies. The property
-  `Ice.PreloadAssemblies`   controls this behavior. If set to a value greater than
-  0 the Ice run-time will try   to load all the assemblies referenced by the
-  process during communicator initialization,   otherwise the referenced
-  assemblies will be initialized when the Ice run-time needs   to lookup a C#
+  `Ice.PreloadAssemblies` controls this behavior. If set to a value greater than
+  0 the Ice run-time will try to load all the assemblies referenced by the
+  process during communicator initialization, otherwise the referenced
+  assemblies will be initialized when the Ice run-time needs to lookup a C#
   class. The default value is 0.
 
-- Added a new C# AMI mapping based on TAP (Task-based Asynchronous Pattern) using this
-  mapping allow applications to take advantage of C# async/away keywords.
-
-- Update the AMD mapping to be Task-based, this greatly improved the interoperability
-  of AMI and AMD making straightforward to chain AMD and AMI calls.
-
-- Added support for thread safe marshalling annotating operations with ["marshaled-result"]
-  metadata will change the servant operation signature to return a marshalled result avoiding
-  thread safety issues derived from returning references to mutable objects. Refer to the
-  "Parameter Passing in C-Sharp" section of the manual for more details about this feature.
-
-- Update C# proxy implementation to implement ISerializable.
+- Update C# proxy implementation to implement `ISerializable`.
 
 ## Java Changes
 
-- Added the proxy method `ice_executor`, which returns an instance of
-  `java.util.concurrent.Executor` that you can pass to `CompletableFuture` methods
-  such as `whenCompleteAsync` in order to force an action to be executed by
-  an Ice thread pool thread.
+- Added a new Java mapping that takes advantage of Java 8 language features. The
+  new mapping is significantly different than prior releases in many ways,
+  including the package name (com.zeroc) as well as APIs such as AMI, AMD, out
+  parameters and optional values. The prior mapping, now known as Java Compat,
+  is still supported so that existing applications can be migrated to Ice 3.7
+  without much change.
 
-- Added a new Java mapping that takes advantage of Java 8 language features. The new
-  mapping is significantly different than prior releases in many ways, including the
-  package name (com.zeroc) as well as APIs such as AMI, AMD, out parameters and optional
-  values. The prior mapping, now known as Java Compat, is still supported so that
-  existing applications can be migrated to Ice 3.7 without much change.
-
-- The Ice Communicator interface now implements `java.lang.AutoCloseable`. This enables
-  the code to initialize the communicator within a `try-with-resources` statement.
-  The communicator will be destroyed automatically at the end of this statement.
+- The Ice Communicator interface now implements `java.lang.AutoCloseable`.
+  This enables the code to initialize the communicator within a
+  `try-with-resources` statement. The communicator will be destroyed
+   automatically at the end of this statement.
 
 - Fixed a bug where unmarshaling Ice objects was very slow when using
   compact type IDs.
+
+- (Jaava) Added the proxy method `ice_executor`, which returns an instance of
+  `java.util.concurrent.Executor` that you can pass to `CompletableFuture`
+  methods such as `whenCompleteAsync` in order to force an action to be
+  executed by an Ice thread pool thread.
 
 - (Java Compat) Added new interface/class metadata `java:tie`. Use this metadata
   to generate a tie class for a given interface or class.
@@ -441,8 +452,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Improved the `Ice.Long` class to allow creating `Ice.Long` instance from
   JavaScript `Numbers`.
 
-- The `Ice.Promise` class is now extending the standard JavaScript `Promise`
-  class.
+- Updated the `Ice.Promise` class. It now extends the standard JavaScript
+  `Promise` class.
 
 - The `Ice.Class` helper function used to create classes has been removed. The
   Ice run time and the generated code now use the JavaScript `class` keyword to
@@ -469,9 +480,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
 ## Objective-C Changes
 
 - The UDP and WS transports are no longer enabled by default with static builds
-  of the IceObjC library. You will need to explicitly register them with the
-  ICEregisterIceUDP() or ICEregisterIceWS() function if you want to use these
-  transports with your statically linked application.
+  of the IceObjC library. You need to register them explicitly with the
+  `ICEregisterIceUDP` or `ICEregisterIceWS` function to use these transports
+   with your statically linked application.
 
   NOTE: this affects iOS applications which are linked statically with Ice
   libraries.
@@ -479,8 +490,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Fixed a bug where optional object dictionary parameters would
   trigger an assert on marshaling.
 
-- The `--dll-export` option of `slice2objc` is now deprecated, and replaced by the
-  global Slice metadata `objc:dll-export:SYMBOL`.
+- The `--dll-export` option of `slice2objc` is now deprecated, and replaced by
+  the global Slice metadata `objc:dll-export:SYMBOL`.
 
 - Added `objc:scoped` metadata for enums. The generated Objective-C enumerators
   for a "scoped enum" are prefixed with the enumeration's name. For example:
@@ -488,8 +499,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   // Slice
   module M
   {
-     ["objc:scoped"] enum Fruit { Apple, Orange, Pear };
-  };
+     ["objc:scoped"] enum Fruit { Apple, Orange, Pear }
+  }
 
   ```
   corresponds to:
@@ -505,17 +516,43 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## PHP Changes
 
+- Ice for PHP now uses namespace by default.
+
 - Added support for PHP 7.0 and PHP 7.1.
 
 - The symbol used to indicate an unset optional value for the PHP namespace
-  mapping is `Ice\None`. The symbol for the flattened mapping remains `Ice_Unset`,
-  but since `unset` is a PHP keyword, we could not use `Ice\Unset`.
+  mapping is `Ice\None`. The symbol for the flattened mapping remains
+ `Ice_Unset`,  but since `unset` is a PHP keyword, we could not use `Ice\Unset`.
 
 ## Python Changes
+
+- Added a new AMI mapping that returns `Ice.Future`. The Future class provides
+  an API that is compatible with `concurrent.futures.Future`, with some
+  additional Ice-specific methods. Programs can use the new mapping by adding the
+  suffix `Async` to operation names, such as `sayHelloAsync`. The existing
+  `begin_/end_` mapping is still supported.
+
+- Changed the AMD mapping. AMD servant methods must no longer append the `_async`
+  suffix to their names. Additionally, an AMD callback is no longer passed to a
+  servant method.
+  Now a servant method always uses the mapped name, and it can either return the
+  results (for a synchronous implementation) or return an `Ice.Future` (for an
+  asynchronous implementation).
+
+  With Python 3, a servant method can also be implemented as a coroutine. Ice
+  will start the coroutine, and coroutines can `await` on `Ice.Future` objects.
+  Note that because Ice is multithreaded, users who also want to use the asyncio
+  package must make sure it's done in a thread-safe manner. To assist with this,
+  the `Ice.wrap_future` function accepts an `Ice.Future` and returns an
+  `asyncio.Future`.
 
 - Revised the Ice for Python packaging layout. Using the new Slice metadata
   directive `python:pkgdir`, all generated files are now placed in their
   respective package directories.
+
+- The Ice Communicator now implements the context manager protocol. This enables
+  the code to initialize the communicator within a `with` statement.
+  The communicator is destroyed automatically at the end of the `with` statement.
 
 - Added support for the Dispatcher facility. The `dispatcher` member of
   `InitializationData` can be set to a callable that Ice invokes when it
@@ -529,40 +566,21 @@ These are the changes since the Ice 3.6 release or snapshot described in
   a lambda function.
 
 - The `batchRequestInterceptor` member of `InitializationData` can now be set
-  to a callable. For backward compatibility, a program can also continue to supply
-  an instance of the deprecated class `Ice.BatchRequestInterceptor`.
+  to a callable. For backward compatibility, a program can also continue to
+  supply an instance of the deprecated class `Ice.BatchRequestInterceptor`.
 
-- The Ice Communicator now implements the context manager protocol. This enables
-  the code to initialize the communicator within a `with` statement. The communicator
-  is destroyed automatically at the end of the `with` statement.
+- Renamed optional invocation context parameter to `context` for consistency
+  with other language mappings (was `_ctx` in previous versions).
 
-- Added a new AMI mapping that returns `Ice.Future`. The Future class provides an API
-  that is compatible with `concurrent.futures.Future`, with some additional Ice-specific
-  methods. Programs can use the new mapping by adding the suffix `Async` to operation
-  names, such as `sayHelloAsync`. The existing `begin_/end_` mapping is still supported.
-
-- Changed the AMD mapping. AMD servant methods must no longer append the `_async` suffix to
-  their names. Additionally, an AMD callback is no longer passed to a servant method.
-  Now a servant method always uses the mapped name, and it can either return the results
-  (for a synchronous implementation) or return an `Ice.Future` (for an asynchronous
-  implementation).
-
-  With Python 3, a servant method can also be implemented as a coroutine. Ice will start
-  the coroutine, and coroutines can `await` on `Ice.Future` objects. Note that because Ice
-  is multithreaded, users who also want to use the asyncio package must make sure it's
-  done in a thread-safe manner. To assist with this, the `Ice.wrap_future` function accepts
-  an `Ice.Future` and returns an `asyncio.Future`.
-
-- Renamed optional invocation context parameter to `context` for consistency with other
-  language mappings (was `_ctx` in previous versions).
-
-- Fixed a bug where Ice.Application Ctrl-C handler was installed even if Ice.Application.NoSignalHandling
-  was set.
+- Fixed a bug where `Ice.Application` Ctrl-C handler was installed even if
+  `Ice.Application.NoSignalHandling` was set.
 
 ## Ruby Changes
 
 - Ice for Ruby is no longer supported on Windows.
 
-- Fix Application Ctrl-C handling to be compatible with Ruby 2.x signal handler restrictions.
+- Fix `Application` Ctrl-C handling to be compatible with Ruby 2.x signal
+   handler restrictions.
 
-- Fixed a bug that prevented the data members of IceSSL::ConnectionInfo from being defined correctly.
+- Fixed a bug that prevented the data members of `IceSSL::ConnectionInfo` from
+  being defined correctly.
