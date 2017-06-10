@@ -236,7 +236,12 @@ public class AllTests : TestCommon.AllTests
                     }, p.ice_scheduler()).Wait();
             }
 
+            //
+            // Hold adapter to ensure the invocations don't complete synchronously
+            // Also disable collocation optimization on p
+            //
             testController.holdAdapter();
+            var p2 = Test.TestIntfPrxHelper.uncheckedCast(p.ice_collocationOptimized(false));
             System.Action<Task> continuation2 = (Task previous) =>
             {
                 test(Dispatcher.isDispatcherThread());
@@ -256,8 +261,9 @@ public class AllTests : TestCommon.AllTests
             do
             {
                 sentSynchronously = new Progress();
-                t = p.opWithPayloadAsync(seq, progress: sentSynchronously).ContinueWith(continuation2,
-                                                                 TaskContinuationOptions.ExecuteSynchronously);
+                t = p2.opWithPayloadAsync(seq, progress: sentSynchronously).ContinueWith(
+                    continuation2,
+                    TaskContinuationOptions.ExecuteSynchronously);
             }
             while(sentSynchronously.getResult());
             testController.resumeAdapter();
