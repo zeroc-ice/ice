@@ -40,7 +40,6 @@ tasks.withType(JavaCompile) {
     options.deprecation = false
 }
 
-
 configurations {
     bundleapp
 }
