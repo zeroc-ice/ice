@@ -31,11 +31,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   implement an interface, passing a class by proxy and passing an interface by
   value are now deprecated.
 
-- Added Slice keyword `Value`. All Slice classes implicitly derive from the
+- Added new Slice keyword `Value`. All Slice classes implicitly derive from the
   `Value` class, and a parameter of type `Value` can represent any class
   instance. In prior release, the base class for Slice classes was `Object`,
   and for non-local definitions, `Object` remains a synonym for `Value`.
-  (However, `Value*` is invalid--it cannot be used as a synonym for `Object*`).
+  (However, `Value*` is invalid: it cannot be used as a synonym for `Object*`).
   For local definitions, `Object` designates a servant while `Value`
   designates a class instance.
 
@@ -87,8 +87,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   enumerators. In previous releases, the enumerators were in the same
   namespace scope as the enumeration. For example:
   ```
-     enum Fruit { Apple, Orange, Pear };
-     enum ComputerBrands { Apple, Dell, HP }; // Ok as of Ice 3.7, error in
+     enum Fruit { Apple, Orange, Pear }
+     enum ComputerBrands { Apple, Dell, HP } // Ok as of Ice 3.7, error in
                                               // prior releases
   ```
   The mapping of enum to C++, C#, Java etc. is not affected by this
