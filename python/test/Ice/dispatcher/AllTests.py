@@ -88,6 +88,9 @@ def allTests(communicator, collocated):
     to.sleepAsync(500).add_done_callback_async(cb.exceptionEx)
     cb.check()
 
+    #
+    # Hold adapter to make sure invocations don't _complete_ synchronously
+    #
     testController.holdAdapter()
 
     if sys.version_info[0] == 2:
@@ -100,7 +103,7 @@ def allTests(communicator, collocated):
     f = None
     while True:
         f = p.opWithPayloadAsync(seq)
-        f.add_done_callback_async(cb.payload)
+        f.add_done_callback(cb.payload)
         if not f.is_sent_synchronously():
             break
     testController.resumeAdapter()

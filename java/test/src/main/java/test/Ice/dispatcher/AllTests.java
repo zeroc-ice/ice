@@ -218,14 +218,18 @@ public class AllTests
                 cb.check();
             }
 
+            // Hold adapter to make sure the invocations don't complete synchronously
+            // Also disable collocation optimization on p
+            //
             testController.holdAdapter();
+            p = p.ice_collocationOptimized(false);
             byte[] seq = new byte[10 * 1024];
             new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
             CompletableFuture<Void> r = null;
             while(true)
             {
                 r = p.opWithPayloadAsync(seq);
-                r.whenCompleteAsync((result, ex) ->
+                r.whenComplete((result, ex) ->
                     {
                         if(ex != null)
                         {
@@ -235,7 +239,7 @@ public class AllTests
                         {
                             test(dispatcher.isDispatcherThread());
                         }
-                    }, dispatcher);
+                    });
                 InvocationFuture<Void> f = com.zeroc.Ice.Util.getInvocationFuture(r);
                 f.whenSentAsync((sentSynchronously, ex) ->
                     {
