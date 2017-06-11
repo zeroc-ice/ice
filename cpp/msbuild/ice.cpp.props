@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-      If we are building Ice source distribution or if ICE_BIN_DIST was not set to
-      yes, set IceHome to point to this source distribution.
+      If we are building a source distribution, set IceHome to this
+      source distribution.
   -->
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <!--
-      Import version settings required for library targets
+      Import version settings required for library targets.
   -->
   <Import Project="$(IceHome)\config\icebuilder.props"
           Condition="Exists('$(IceHome)\config\icebuilder.props')" />
@@ -43,9 +43,8 @@
   </Choose>
 
   <!--
-      IceConfiguration to use for C++ builds, we map all configurations that use
-      debug libraries to Debug configuration, this allow us to define common
-      settings for the different debug configurations "Debug" and "Cpp11-Debug"
+      Define IceConfiguration for C++ builds. This allows us to define common
+      settings for different debug configurations such as "Debug" and "Cpp11-Debug".
   -->
   <Choose>
     <When Condition="'$(UseDebugLibraries)' == 'true'">
@@ -61,7 +60,7 @@
   </Choose>
 
   <!--
-      Common properties set for all builds, configurations and platforms
+      Common properties set for all builds, configurations and platforms.
   -->
   <ItemDefinitionGroup>
     <ClCompile>
@@ -126,7 +125,7 @@
   </ItemDefinitionGroup>
 
   <!--
-      Common properties set for all static libraries.
+      Common properties for all static libraries.
   -->
   <ItemDefinitionGroup Condition="'$(ConfigurationType)'=='StaticLibrary'">
     <ClCompile>
@@ -135,7 +134,7 @@
   </ItemDefinitionGroup>
 
   <!--
-      Common properties set for all release builds and platforms.
+      Common properties for all release builds and platforms.
   -->
   <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Release'">
     <ClCompile>
@@ -143,11 +142,14 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
+    <Link>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
   </ItemDefinitionGroup>
 
   <!--
-      Definitions required when building the C++11 mapping, note that UWP also use
-      the C++11 mapping.
+      ICE_CPP11_MAPPING is required with the cpp11 mapping (the only mapping with uwp)
   -->
   <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11' or '$(IceCppMapping)' == 'uwp'">
     <ClCompile>
@@ -160,7 +162,7 @@
   </ItemDefinitionGroup>
 
   <!--
-      Definitions that are only required when build Ice C++ source distribution as opposed to test suite.
+      Definitions when building the Ice C++ sources (as opposed to the test suite).
   -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <ClCompile>
@@ -241,7 +243,7 @@
   </Choose>
 
   <!--
-      Workaround to avoid annoying warnings from Nuget restore.
+      Workaround to avoid annoying warnings from NuGet restore.
   -->
   <Target Name="BeforeGenerateProjectPriFile"></Target>
 </Project>
