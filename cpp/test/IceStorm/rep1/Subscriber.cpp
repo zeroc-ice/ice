@@ -52,7 +52,7 @@ public:
     waitForEvents()
     {
         Lock sync(*this);
-        IceUtil::Time timeout = IceUtil::Time::seconds(20);
+        IceUtil::Time timeout = IceUtil::Time::seconds(40);
         while(_count < _max)
         {
             if(!timedWait(timeout))
