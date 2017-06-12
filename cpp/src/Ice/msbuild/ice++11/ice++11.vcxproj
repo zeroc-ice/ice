@@ -975,9 +975,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Ice\BuiltinSequences.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -1759,24 +1756,27 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.7\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.7\build\native\bzip2.v140.targets')" />
-    <Import Project="..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.7\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.7\build\native\bzip2.v141.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets')" />
   </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.7\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.7\build\native\bzip2.v140.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.7\build\native\bzip2.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.7\build\native\bzip2.v141.targets'))" />
-  </Target>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('$(IceBuilderCppProps)')" Text="$(ErrorText)" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets'))" />
   </Target>
 </Project>

@@ -89,24 +89,24 @@
     <ClCompile Include="..\Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ClInclude Include="..\Parser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Parser.h" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\expat.v120.2.1.0.5\build\native\expat.v120.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v120.2.1.0.5\build\native\expat.v120.targets')" />
-    <Import Project="..\..\..\msbuild\packages\expat.v140.2.1.0.5\build\native\expat.v140.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v140.2.1.0.5\build\native\expat.v140.targets')" />
-    <Import Project="..\..\..\msbuild\packages\expat.v141.2.1.0.5\build\native\expat.v141.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v141.2.1.0.5\build\native\expat.v141.targets')" />
+    <Import Project="..\..\..\msbuild\packages\expat.v120.2.1.0.6\build\native\expat.v120.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v120.2.1.0.6\build\native\expat.v120.targets')" />
+    <Import Project="..\..\..\msbuild\packages\expat.v140.2.1.0.6\build\native\expat.v140.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v140.2.1.0.6\build\native\expat.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\expat.v141.2.1.0.6\build\native\expat.v141.targets" Condition="Exists('..\..\..\msbuild\packages\expat.v141.2.1.0.6\build\native\expat.v141.targets')" />
   </ImportGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\config\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v120.2.1.0.5\build\native\expat.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v120.2.1.0.5\build\native\expat.v120.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v140.2.1.0.5\build\native\expat.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v140.2.1.0.5\build\native\expat.v140.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v141.2.1.0.5\build\native\expat.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v141.2.1.0.5\build\native\expat.v141.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v120.2.1.0.6\build\native\expat.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v120.2.1.0.6\build\native\expat.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v140.2.1.0.6\build\native\expat.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v140.2.1.0.6\build\native\expat.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\expat.v141.2.1.0.6\build\native\expat.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\expat.v141.2.1.0.6\build\native\expat.v141.targets'))" />
   </Target>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\config\ice.sign.targets" />
 </Project>
