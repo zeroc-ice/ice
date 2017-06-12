@@ -111,7 +111,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Expect success.
         //
         [timeout op]; // Ensure adapter is active.
-        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_timeout:1000]];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_timeout:2000]];
         [to holdAdapter:500];
         [[to ice_getConnection] close:ICEConnectionCloseForcefully]; // Force a reconnect.
         @try
@@ -150,7 +150,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Expect success.
         //
         [timeout op]; // Ensure adapter is active.
-        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_timeout:1000]];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_timeout:2000]];
         [to holdAdapter:500];
         @try
         {
