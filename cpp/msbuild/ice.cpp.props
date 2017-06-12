@@ -78,7 +78,7 @@
       <AdditionalIncludeDirectories>$(IceSrcRootDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- PDB settings -->
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -98,30 +98,6 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
     </ResourceCompile>
-  </ItemDefinitionGroup>
-
-  <!--
-      GenerateDebugInformation supported values change from v120 to v140 and v141,
-      we set it conditionally to the platform tool set.
-  -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140'">
-    <Link>
-      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
-      <GenerateDebugInformation>Debug</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v141'">
-    <Link>
-      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
-      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120' OR '$(DefaultPlatformToolset)'=='v100'">
-    <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
-    </Link>
   </ItemDefinitionGroup>
 
   <!--
@@ -178,6 +154,29 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
 
+  <!--
+      The correct value for GenerateDebugInformation depends on the compiler:
+  -->
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
+    <Link>
+      <GenerateDebugInformation>Yes</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v140'">
+    <Link>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v141'">
+    <Link>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
   <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'DynamicLibrary|yes'">
     <Link>
       <ImportLibrary>$(IceSrcRootDir)\lib\$(Platform)\$(IceConfiguration)\$(TargetName).lib</ImportLibrary>
@@ -187,6 +186,17 @@
   <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'Application|yes'">
     <Link>
       <AdditionalDependencies>wsetargv.obj</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'!='v100'">
+    <Link>
+      <!--
+         We disable incremental linking (see above), which turns on
+         /OPT:LBR, which in turn conflicts with /EDITANDCONTINUE even
+         though /OPT:LBR is an ARM-only option. So we turn off LBR.
+      -->
+      <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
 

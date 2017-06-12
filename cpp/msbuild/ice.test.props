@@ -15,6 +15,22 @@
 
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>
 
+  <!--
+      The correct value for GenerateDebugInformation depends on the compiler:
+  -->
+  <ItemDefinitionGroup>
+    <Link>
+      <GenerateDebugInformation>Yes</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140' or '$(DefaultPlatformToolset)'=='v141'">
+    <Link>
+      <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
   <PropertyGroup>
     <IceBuilderOutputDir>$(Platform)\$(Configuration)\</IceBuilderOutputDir>
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
