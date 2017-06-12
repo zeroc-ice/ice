@@ -12,8 +12,8 @@
       <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
     </Target>
     
-    <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
-      <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln"/>
+    <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+      <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln" Condition="'$(ICE_BIN_DIST)' == 'all'"/>
     </Target>
 
     <PropertyGroup>
@@ -55,7 +55,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist;slice2cs">
+    <Target Name="Build" DependsOnTargets="NuGetRestore;BuildDist;slice2cs">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
