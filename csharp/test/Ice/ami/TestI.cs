@@ -77,7 +77,7 @@ public class TestI : TestIntfDisp_
         {
             while(_batchCount < count)
             {
-                System.Threading.Monitor.Wait(this, 5000);
+                System.Threading.Monitor.Wait(this, 10000);
             }
             bool result = count == _batchCount;
             _batchCount = 0;
