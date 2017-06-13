@@ -38,7 +38,7 @@
     </TestProjects>
   </ItemGroup>
 
-  <Target Name="BuildCppDist">
+  <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'cpp'">
     <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
     <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
              Targets="$(CppDistTargets)"

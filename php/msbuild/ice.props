@@ -18,6 +18,7 @@
       <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
       <IceBuilderPhpProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.props</IceBuilderPhpProps>
       <IceBuilderPhpTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.targets</IceBuilderPhpTargets>
+      <IceToolsPath Condition="'$(ICE_BIN_DIST)' == 'cpp'">$(MSBuildThisFileDirectory)/packages/zeroc.ice.v140.3.7.0/tools</IceToolsPath>
   </PropertyGroup>
 
   <ItemGroup>
