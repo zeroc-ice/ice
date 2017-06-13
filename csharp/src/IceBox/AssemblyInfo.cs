@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Ice")]
-[assembly: AssemblyCopyright("© 2003-2016 ZeroC, Inc.")]
+[assembly: AssemblyCopyright("© 2003-2017 ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("3.7.0")]
 

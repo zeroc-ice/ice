@@ -410,7 +410,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2016 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2017 ZeroC, Inc." << endl;
 }
 
 //

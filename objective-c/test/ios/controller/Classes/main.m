@@ -1,10 +1,11 @@
+// **********************************************************************
 //
-//  main.m
-//  C++ Test Controller
+// Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 //
-//  Created by Benoit Foucher on 08/12/2016.
-//  Copyright © 2016 ZeroC, Inc. All rights reserved.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
+// **********************************************************************
 
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
