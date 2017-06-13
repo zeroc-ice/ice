@@ -75,7 +75,7 @@ javadoc {
     failOnError = false
     options.header = project.displayName
     classpath =project.sourceSets.main.compileClasspath
-}.onlyIf{gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives")}
+}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
