@@ -498,6 +498,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     synchronized public void setHeartbeatCallback(final HeartbeatCallback callback)
     {
+        if(_state >= StateClosed)
+        {
+            return;
+        }
         _heartbeatCallback = callback;
     }
 

@@ -1066,6 +1066,10 @@ void
 Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state >= StateClosed)
+    {
+        return;
+    }
     _heartbeatCallback = callback;
 }
 

@@ -594,6 +594,10 @@ namespace Ice
         {
             lock(this)
             {
+                if(_state >= StateClosed)
+                {
+                    return;
+                }
                 _heartbeatCallback = callback;
             }
         }

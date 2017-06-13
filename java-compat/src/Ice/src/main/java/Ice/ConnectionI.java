@@ -541,6 +541,10 @@ public final class ConnectionI extends IceInternal.EventHandler
     @Override
     synchronized public void setHeartbeatCallback(final HeartbeatCallback callback)
     {
+        if(_state >= StateClosed)
+        {
+            return;
+        }
         _heartbeatCallback = callback;
     }
 

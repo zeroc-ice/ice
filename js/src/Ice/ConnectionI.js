@@ -489,6 +489,10 @@ class ConnectionI
 
     setHeartbeatCallback(callback)
     {
+        if(this._state >= StateClosed)
+        {
+            return;
+        }
         this._heartbeatCallback = callback;
     }
 
