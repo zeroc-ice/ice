@@ -42,7 +42,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing facet registration exceptions... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
+    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("d"))

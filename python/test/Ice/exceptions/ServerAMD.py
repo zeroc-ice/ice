@@ -169,7 +169,7 @@ try:
     initData.properties = Ice.createProperties(sys.argv)
     initData.properties.setProperty("Ice.Warn.Dispatch", "0")
     initData.properties.setProperty("Ice.Warn.Connections", "0");
-    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010")
     initData.properties.setProperty("Ice.MessageSizeMax", "10")
     initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011")
     initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0")

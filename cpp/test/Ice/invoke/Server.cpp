@@ -99,7 +99,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool array = opts.isSet("array");
     bool async = opts.isSet("async");
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, array, async), "");
     adapter->activate();

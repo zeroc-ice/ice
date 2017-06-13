@@ -215,7 +215,7 @@ class Callback(CallbackBase):
 def allTests(communicator):
     sys.stdout.write("testing servant registration exceptions... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
+    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *")
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("x"))
@@ -249,7 +249,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing servant locator registrations exceptions... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
+    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "tcp -h *")
     adapter = communicator.createObjectAdapter("TestAdapter2")
     loc = ServantLocatorI()
     adapter.addServantLocator(loc, "x")

@@ -19,7 +19,7 @@ using namespace Ice;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     ServantLocatorPtr locator = ICE_MAKE_SHARED(ServantLocatorI);
     adapter->addServantLocator(locator, "");

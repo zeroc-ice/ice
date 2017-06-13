@@ -50,7 +50,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     ostringstream endpts;
-    endpts << getTestEndpoint(communicator, port) << ":udp";
+    endpts << getTestEndpoint(communicator, port);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);

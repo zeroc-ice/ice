@@ -239,7 +239,7 @@ def allTests(communicator, ref):
     sys.stdout.flush()
     properties = communicator.getProperties()
     properties.setProperty("Ice.PrintAdapterReady", "0")
-    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default")
+    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *")
     adapter.setLocator(locator)
     assert(adapter.getLocator() == locator)
 

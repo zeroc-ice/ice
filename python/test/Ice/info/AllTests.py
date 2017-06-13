@@ -72,12 +72,12 @@ def allTests(communicator):
 
     print("ok")
 
-    defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
-
     sys.stdout.write("test object adapter endpoint information... ")
     sys.stdout.flush()
 
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -t 15000:udp")
+    host = "::1" if communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 else "127.0.0.1"
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
+                            "\" -t 15000:udp -h \"" + host + "\"")
     adapter = communicator.createObjectAdapter("TestAdapter")
     endpoints = adapter.getEndpoints()
     test(len(endpoints) == 2)
@@ -87,12 +87,12 @@ def allTests(communicator):
     tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo())
     test(tcpEndpoint.type() == Ice.TCPEndpointType or tcpEndpoint.type() == 2 or tcpEndpoint.type() == 4 or
          tcpEndpoint.type() == 5)
-    test(tcpEndpoint.host == defaultHost)
+    test(tcpEndpoint.host == host)
     test(tcpEndpoint.port > 0)
     test(tcpEndpoint.timeout == 15000)
 
     udpEndpoint = endpoints[1].getInfo()
-    test(udpEndpoint.host == defaultHost)
+    test(udpEndpoint.host == host)
     test(udpEndpoint.datagram())
     test(udpEndpoint.port > 0)
 
@@ -131,6 +131,8 @@ def allTests(communicator):
 
     sys.stdout.write("test connection endpoint information... ")
     sys.stdout.flush()
+
+    defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
 
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
     test(tcpinfo.port == 12010)

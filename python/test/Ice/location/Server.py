@@ -162,7 +162,7 @@ def run(args, communicator, initData):
     #
     properties = communicator.getProperties()
     properties.setProperty("Ice.ThreadPool.Server.Size", "2")
-    properties.setProperty("ServerManager.Endpoints", "default -p 12010:udp")
+    properties.setProperty("ServerManager.Endpoints", "default -p 12010")
 
     adapter = communicator.createObjectAdapter("ServerManager")
 

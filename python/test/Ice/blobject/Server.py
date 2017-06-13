@@ -30,7 +30,7 @@ class TestI(Test.Hello):
         current.adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     adapter.add(TestI(), Ice.stringToIdentity("test"))
     adapter.activate()
