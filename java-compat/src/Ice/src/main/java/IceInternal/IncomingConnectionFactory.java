@@ -165,8 +165,13 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
             }
             _connections.clear();
-            _monitor.destroy();
         }
+
+        //
+        // Must be destroyed outside the synchronization since this might block waiting for
+        // a timer task to complete.
+        //
+        _monitor.destroy();
     }
 
     public boolean
