@@ -353,6 +353,7 @@ class LocalDriver(Driver):
 
         self.results = []
         self.threadlocal = threading.local()
+        self.loopCount = 1
 
     def run(self, mappings, testSuiteIds):
 
@@ -411,6 +412,8 @@ class LocalDriver(Driver):
                 for r in sorted(results, key = lambda r : r.getDuration()):
                     print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
 
+            self.loopCount += 1
+
             if len(failures) > 0:
                 print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
                 for r in failures:
@@ -430,10 +433,12 @@ class LocalDriver(Driver):
                     return 0
 
     def runTestSuite(self, current):
-        current.result.writeln("*** [{0}/{1}] Running {2}/{3} tests ***".format(current.index,
-                                                                                current.total,
-                                                                                current.testsuite.getMapping(),
-                                                                                current.testsuite))
+        if self.loop:
+            current.result.write("*** [{0}/{1} loop={2}] ".format(current.index, current.total, self.loopCount))
+        else:
+            current.result.write("*** [{0}/{1}] ".format(current.index, current.total))
+        current.result.writeln("Running {0}/{1} tests ***".format(current.testsuite.getMapping(), current.testsuite))
+
         success = False
         try:
             try:
