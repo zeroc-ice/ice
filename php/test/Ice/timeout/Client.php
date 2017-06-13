@@ -290,7 +290,7 @@ function allTests($communicator)
         $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(800);
+        $timeout->holdAdapter(1000);
         try
         {
             $to->sendData($seq);
