@@ -34,7 +34,6 @@
       Restore NuGet packages.
   -->
   <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-    <Message Text="VisualStudioVersion=$(VisualStudioVersion)" />
     <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.$(DefaultPlatformToolset).sln"/>
   </Target>
 

@@ -17,10 +17,6 @@
     <IceHome>$(MSBuildThisFileDirectory)..\..\</IceHome>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(KeyFile)' == ''">
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\..\config\IceDevKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>

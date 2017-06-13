@@ -58,10 +58,17 @@
   <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and
        assembly paths -->
   <Target Name="PostBuild" AfterTargets="Build">
-    <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\..\..\..\Assemblies\Ice.dll">
+    <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\..\..\..\Assemblies\Ice.dll" Condition="'$(KEYFILE)' != ''">
       <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken" />
     </GetPublicKeyToken>
-    <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\iceboxnet.exe.config" OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\bin\iceboxnet.exe.config" Tokens="@PublicKeyToken@;@AssemblyDir@" Replacements="$(PublicKeyToken);..\Assemblies" />
+    <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\iceboxnet.exe.config.release" 
+                               OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\bin\iceboxnet.exe.config"
+                               Tokens="@PublicKeyToken@;@AssemblyDir@"
+                               Replacements="$(PublicKeyToken);..\Assemblies"
+                               Condition="'$(KEYFILE)' != ''" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\iceboxnet.exe.config.dev"
+          DestinationFiles="$(MSBuildThisFileDirectory)..\..\..\..\bin\iceboxnet.exe.config"
+          Condition="'$(KEYFILE)' == ''"/>
   </Target>
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

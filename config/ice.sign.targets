@@ -8,6 +8,7 @@
   <Target Name="SignPackage" AfterTargets="Build"
           Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(OutDir)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
     <Message Text="Signing $(TargetName)$(TargetExt)" />
+
     <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
 
     <WriteLinesToFile File                = "$(IntDir)sign.log"
@@ -20,10 +21,21 @@
      <Delete Files="$(IntDir)sign.log" />
   </Target>
 
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(PUBLIC_KEYFILE)' != '' Or '$(KEYFILE)' != ''">
     <SignAssembly>true</SignAssembly>
-    <DelaySign>false</DelaySign>
-    <AssemblyOriginatorKeyFile Condition="'$(KEYFILE)' != ''">$(KEYFILE)</AssemblyOriginatorKeyFile>
-    <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == ''">$(MSBuildThisFileDirectory)IceDevKey.snk</AssemblyOriginatorKeyFile>
+    
+    <!-- If PUBLIC_KEYFILE is set we use dealy sign to sign the assembly -->
+    <DelaySign Condition="'$(PUBLIC_KEYFILE)' != ''">true</DelaySign>
+    <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' != ''">$(PUBLIC_KEYFILE)</AssemblyOriginatorKeyFile>
+
+    <!-- If PUBLIC_KEYFILE is not set we usesign the assembly using KEYFILE during build -->
+    <DelaySign Condition="'$(PUBLIC_KEYFILE)' = ''">true</DelaySign>
+    <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' == ''">$(KEYFILE)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <!-- If both KEYFILE and PUBLIC_KEYFILE are set we sign the assembly after it has been build using KEYFILE -->
+  <Target Name="StrongNameSignPackage" AfterTargets="Build" BeforeTargets="SignPackage"
+          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != ''">
+    <Exec Command="sn -Ra $(OutDir)$(TargetName)$(TargetExt) $(KEYFILE)"/>
+  </Target>
 </Project>
