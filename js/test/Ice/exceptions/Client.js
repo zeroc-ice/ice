@@ -40,13 +40,18 @@
         }
 
         var p = new Ice.Promise();
-        var test = function(b)
+        var test = function(b, ex)
         {
             if(!b)
             {
                 try
                 {
-                    throw new Error("test failed");
+                    var msg = "test failed";
+                    if(ex)
+                    {
+                        msg += ex.toString();
+                    }
+                    throw new Error();
                 }
                 catch(err)
                 {
@@ -73,21 +78,21 @@
                                     failCB,
                                     function(ex)
                                     {
-                                        test(ex instanceof Ice.UnknownUserException);
+                                        test(ex instanceof Ice.UnknownUserException, ex);
                                         return thrower.throwUndeclaredB(1, 2);
                                     }
                                 ).then(
                                     failCB,
                                     function(ex)
                                     {
-                                        test(ex instanceof Ice.UnknownUserException);
+                                        test(ex instanceof Ice.UnknownUserException, ex);
                                         return thrower.throwUndeclaredC(1, 2, 3);
                                     }
                                 ).then(
                                     failCB,
                                     function(ex)
                                     {
-                                        test(ex instanceof Ice.UnknownUserException);
+                                        test(ex instanceof Ice.UnknownUserException, ex);
                                         out.writeLine("ok");
                                     }
                                 );
@@ -112,7 +117,7 @@
                                     function(ex)
                                     {
                                         test(ex instanceof Ice.ConnectionLostException ||
-                                             ex instanceof Ice.UnknownException);
+                                             ex instanceof Ice.UnknownException, ex);
                                         out.writeLine("ok");
                                     }
                                 );
@@ -130,7 +135,7 @@
                     failCB,
                     function(ex)
                     {
-                        test(ex instanceof Ice.InitializationException); // Expected
+                        test(ex instanceof Ice.InitializationException, ex); // Expected
                     });
             }
         ).then(
@@ -140,7 +145,7 @@
                     failCB,
                     function(ex)
                     {
-                        test(ex instanceof Ice.FeatureNotSupportedException); // Expected
+                        test(ex instanceof Ice.FeatureNotSupportedException, ex); // Expected
                         out.writeLine("ok");
                     });
             }
@@ -160,7 +165,7 @@
                         }
                         catch(ex)
                         {
-                            test(ex instanceof Ice.AlreadyRegisteredException);
+                            test(ex instanceof Ice.AlreadyRegisteredException, ex);
                         }
                         try
                         {
@@ -169,7 +174,7 @@
                         }
                         catch(ex)
                         {
-                            test(ex instanceof Ice.IllegalIdentityException);
+                            test(ex instanceof Ice.IllegalIdentityException, ex);
                             test(ex.id.name === "");
                         }
                         try
@@ -179,7 +184,7 @@
                         }
                         catch(ex)
                         {
-                            test(ex instanceof Ice.IllegalServantException);
+                            test(ex instanceof Ice.IllegalServantException, ex);
                         }
 
                         adapter.remove(Ice.stringToIdentity("x"));
@@ -190,7 +195,7 @@
                         }
                         catch(ex)
                         {
-                            test(ex instanceof Ice.NotRegisteredException);
+                            test(ex instanceof Ice.NotRegisteredException, ex);
                         }
                         adapter.deactivate();
                         out.writeLine("ok");
@@ -212,7 +217,7 @@
                         }
                         catch(ex)
                         {
-                            test(ex instanceof Ice.AlreadyRegisteredException);
+                            test(ex instanceof Ice.AlreadyRegisteredException, ex);
                         }
                         adapter.deactivate();
                         out.writeLine("ok");
@@ -231,7 +236,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.AlreadyRegisteredException);
+                    test(ex instanceof Ice.AlreadyRegisteredException, ex);
                 }
                 out.writeLine("ok");
 
@@ -257,7 +262,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.A);
+                test(ex instanceof Test.A, ex);
                 test(ex.aMem === 1);
                 return thrower.throwAorDasAorD(1);
             }
@@ -265,7 +270,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.A);
+                test(ex instanceof Test.A, ex);
                 test(ex.aMem === 1);
                 return thrower.throwAorDasAorD(-1);
             }
@@ -273,7 +278,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.D);
+                test(ex instanceof Test.D, ex);
                 test(ex.dMem === -1);
                 return thrower.throwBasB(1, 2);
             }
@@ -281,7 +286,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.B);
+                test(ex instanceof Test.B, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 return thrower.throwCasC(1, 2, 3);
@@ -290,7 +295,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.C);
+                test(ex instanceof Test.C, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
@@ -302,7 +307,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.A);
+                test(ex instanceof Test.A, ex);
                 test(ex.aMem == 1);
                 return thrower.throwCasC(1, 2, 3);
             }
@@ -310,7 +315,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.B);
+                test(ex instanceof Test.B, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 out.writeLine("ok");
@@ -321,7 +326,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.B);
+                test(ex instanceof Test.B, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 return thrower.throwCasA(1, 2, 3);
@@ -330,7 +335,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.C);
+                test(ex instanceof Test.C, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
@@ -340,7 +345,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Test.C);
+                test(ex instanceof Test.C, ex);
                 test(ex.aMem == 1);
                 test(ex.bMem == 2);
                 test(ex.cMem == 3);
@@ -360,14 +365,14 @@
                     failCB,
                     function(ex)
                     {
-                        test(ex instanceof Ice.MemoryLimitException);
+                        test(ex instanceof Ice.MemoryLimitException, ex);
                         return thrower.throwMemoryLimitException(new Uint8Array(20 * 1024));
                     }
                 ).then(
                     failCB,
                     function(ex)
                     {
-                        test(ex.toString().indexOf("ConnectionLostException") > 0);
+                        test(ex.toString().indexOf("ConnectionLostException") > 0, ex);
                         out.writeLine("ok");
                     }
                 );
@@ -384,7 +389,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.ObjectNotExistException);
+                test(ex instanceof Ice.ObjectNotExistException, ex);
                 test(ex.id.equals(Ice.stringToIdentity("does not exist")));
                 out.writeLine("ok");
                 out.write("catching facet not exist exception... ");
@@ -395,7 +400,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.FacetNotExistException);
+                test(ex instanceof Ice.FacetNotExistException, ex);
                 test(ex.facet == "no such facet");
                 out.writeLine("ok");
                 out.write("catching operation not exist exception... ");
@@ -406,7 +411,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.OperationNotExistException);
+                test(ex instanceof Ice.OperationNotExistException, ex);
                 test(ex.operation == "noSuchOperation");
                 out.writeLine("ok");
                 out.write("catching unknown local exception... ");
@@ -416,7 +421,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.UnknownLocalException);
+                test(ex instanceof Ice.UnknownLocalException, ex);
                 return thrower.throwLocalExceptionIdempotent();
             }
         ).then(
@@ -424,7 +429,7 @@
             function(ex)
             {
                 test(ex instanceof Ice.UnknownLocalException ||
-                     ex instanceof Ice.OperationNotExistException);
+                     ex instanceof Ice.OperationNotExistException, ex);
                 out.writeLine("ok");
                 out.write("catching unknown non-Ice exception... ");
                 return thrower.throwNonIceException();
@@ -433,7 +438,7 @@
             failCB,
             function(ex)
             {
-                test(ex instanceof Ice.UnknownException);
+                test(ex instanceof Ice.UnknownException, ex);
                 out.writeLine("ok");
                 out.write("testing asynchronous exceptions... ");
                 return thrower.throwAfterResponse();
@@ -459,6 +464,7 @@
     {
         id.properties.setProperty("Ice.MessageSizeMax", "10");
         id.properties.setProperty("Ice.Warn.Connections", "0");
+        id.properties.setProperty("Ice.PrintStackTraces", "1");
         var c = Ice.initialize(id);
         return Ice.Promise.try(
             function()
