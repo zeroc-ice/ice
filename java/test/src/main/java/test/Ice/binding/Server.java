@@ -28,7 +28,7 @@ public class Server extends test.Util.Application
     {
         com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.logger = new com.zeroc.Ice.Logger() {
             @Override public void print(String message)
             {

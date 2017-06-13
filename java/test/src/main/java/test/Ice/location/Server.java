@@ -54,8 +54,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        initData.properties.setProperty("ServerManagerAdapter.Endpoints",
-                                          getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
 
         _initData = initData;
         return initData;

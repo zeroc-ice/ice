@@ -18,6 +18,8 @@ tests.each {
 // Main source
 include ':ice-compat'
 project(':ice-compat').projectDir = new File('src/Ice')
+include ':icebt-compat'
+project(':icebt-compat').projectDir = new File('src/IceBT')
 include ':icediscovery-compat'
 project(':icediscovery-compat').projectDir = new File('src/IceDiscovery')
 include ':icelocatordiscovery-compat'

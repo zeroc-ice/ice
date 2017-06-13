@@ -719,7 +719,7 @@ public class AllTests
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default");
+            initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
             Ice.Communicator ic = app.initialize(initData);
             final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();

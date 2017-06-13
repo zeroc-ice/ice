@@ -82,5 +82,6 @@ clean {
 dependencies {
     compile localDependency('ice-compat')
     compile localDependency('icediscovery-compat')
+    compile localDependency('icebt-compat')
     compile project(':test')
 }

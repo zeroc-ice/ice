@@ -652,7 +652,7 @@ public class AllTests
         //
         com.zeroc.Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.PrintAdapterReady", "0");
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *");
         adapter.setLocator(locator);
 
         com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();

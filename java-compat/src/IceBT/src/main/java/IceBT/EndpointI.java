@@ -49,6 +49,7 @@ final class EndpointI extends IceInternal.EndpointI
         //
         _name = "";
         _channel = 0;
+        _connectionId = "";
 
         _addr = s.readString().toUpperCase();
         if(!BluetoothAdapter.checkBluetoothAddress(_addr))

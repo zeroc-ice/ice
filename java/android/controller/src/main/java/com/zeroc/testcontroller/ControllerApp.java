@@ -206,7 +206,8 @@ public class ControllerApp extends Application
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
             {
-                initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery.PluginFactory");
+                initData.properties.setProperty("Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
+                initData.properties.setProperty("Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
             _communicator = com.zeroc.Ice.Util.initialize(initData);
@@ -469,7 +470,6 @@ public class ControllerApp extends Application
         {
             println("starting " + testsuite + " " + exe + "... ");
             String className = "test." + testsuite.replace("/", ".") + "." + exe.substring(0, 1).toUpperCase() + exe.substring(1);
-            String dexFile = "test_" + testsuite.replace("/", "_") + ".dex";
             try
             {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());

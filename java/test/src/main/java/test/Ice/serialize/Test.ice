@@ -23,6 +23,7 @@ enum MyEnum
 interface Initial;
 class Base;
 
+["java:serialVersionUID:1001"]
 struct Struct1
 {
     bool bo;
@@ -47,6 +48,7 @@ dictionary<short, int> ShortIntD;
 dictionary<string, MyEnum> StringMyEnumD;
 dictionary<string, Base> StringBaseD;
 
+["java:serialVersionUID:1002"]
 class Base
 {
     Base b;
@@ -62,11 +64,13 @@ class Base
     StringBaseD d4;
 }
 
+["java:serialVersionUID:1003"]
 class Derived extends Base
 {
     Object* p;
 }
 
+["java:serialVersionUID:1004"]
 exception Ex
 {
     Struct1 s;

@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000:udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new PriorityI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();

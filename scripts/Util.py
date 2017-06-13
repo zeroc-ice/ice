@@ -682,6 +682,7 @@ class Mapping:
 
     @classmethod
     def add(self, name, mapping):
+        name = name.replace("\\", "/")
         self.mappings[name] = mapping.init(name)
 
     @classmethod
@@ -698,7 +699,7 @@ class Mapping:
     def init(self, name):
         self.name = name
         if not self.path:
-            self.path = os.path.join(toplevel, name)
+            self.path = os.path.normpath(os.path.join(toplevel, name))
         return self
 
     def __str__(self):
@@ -2793,6 +2794,10 @@ class Android:
                 "Ice/binding",
                 "Ice/timeout",
                 "Ice/udp"]
+        if protocol in ["bt", "bts"]:
+            tests += [
+                "Ice/info",
+                "Ice/udp"]
         return tests
 
 class AndroidMapping(JavaMapping):
@@ -3235,8 +3240,8 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(
         Mapping.add(m, ObjCMapping())
 
 if hasAndroidSDK:
-    Mapping.add("java-compat/android", AndroidCompatMapping())
-    Mapping.add("java/android", AndroidMapping())
+    Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
+    Mapping.add(os.path.join("java", "android"), AndroidMapping())
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])

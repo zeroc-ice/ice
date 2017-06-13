@@ -278,7 +278,28 @@ public abstract class Application
         {
             protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
         }
+
         int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
+
+        if(protocol.indexOf("bt") == 0)
+        {
+            //
+            // For Bluetooth, there's no need to specify a port (channel) number.
+            // The client locates the server using its address and a UUID.
+            //
+            switch(num)
+            {
+            case 0:
+                return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
+            case 1:
+                return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
+            case 2:
+                return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
+            default:
+                assert(false);
+            }
+        }
+
         return protocol + " -p " + Integer.toString(basePort + num);
     }
 

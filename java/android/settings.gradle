@@ -16,6 +16,8 @@ include ':icessl'
 project(':icessl').projectDir = new File('src/IceSSL')
 include ':icediscovery'
 project(':icediscovery').projectDir = new File('src/IceDiscovery')
+include ':icebt'
+project(':icebt').projectDir = new File('src/IceBT')
 include ':test', ':testController'
 project(':test').projectDir = new File('test')
 project(':testController').projectDir = new File('controller')

@@ -251,6 +251,7 @@ public class ControllerApp extends Application
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
             {
+                initData.properties.setProperty("Ice.Plugin.IceBT", "IceBT.PluginFactory");
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }

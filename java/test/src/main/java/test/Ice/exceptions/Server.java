@@ -41,7 +41,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
         initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(initData.properties, 1));
         initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");

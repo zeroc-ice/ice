@@ -629,6 +629,7 @@ public class AMI
     run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
         TestIntfControllerPrx testController)
     {
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         PrintWriter out = app.getWriter();
 
         out.print("testing begin/end invocation... ");
@@ -1820,7 +1821,7 @@ public class AMI
                 test(r2.isCompleted());
             }
 
-            if(p.ice_getConnection() != null)
+            if(p.ice_getConnection() != null && !bluetooth)
             {
                 //
                 // AsyncResult exception.
@@ -1881,7 +1882,7 @@ public class AMI
                 test(p.waitForBatch(2));
             }
 
-            if(p.ice_getConnection() != null)
+            if(p.ice_getConnection() != null && !bluetooth)
             {
                 //
                 // Type-safe exception.
@@ -1952,6 +1953,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception.
@@ -2016,6 +2018,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Type-safe exception.
@@ -2085,6 +2088,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 1 connection.
@@ -2117,6 +2121,7 @@ public class AMI
                     test(p.opBatchCount() == 0);
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult - 2 connections.
@@ -2154,6 +2159,7 @@ public class AMI
                     test(p.waitForBatch(4));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 2 connections - 1 failure.
@@ -2193,6 +2199,7 @@ public class AMI
                     test(p.waitForBatch(1));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 2 connections - 2 failures.
@@ -2264,6 +2271,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Type-safe exception - 1 connection.
@@ -2296,6 +2304,7 @@ public class AMI
                     test(p.opBatchCount() == 0);
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // 2 connections.
@@ -2333,6 +2342,7 @@ public class AMI
                     test(p.waitForBatch(4));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Exception - 2 connections - 1 failure.
@@ -2372,6 +2382,7 @@ public class AMI
                     test(p.waitForBatch(1));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Exception - 2 connections - 2 failures.
@@ -2611,7 +2622,7 @@ public class AMI
         }
         out.println("ok");
 
-        if(p.ice_getConnection() != null && p.supportsAMD())
+        if(p.ice_getConnection() != null && p.supportsAMD() && !bluetooth)
         {
             out.print("testing graceful close connection with wait... ");
             out.flush();

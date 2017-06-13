@@ -23,7 +23,7 @@ public class Server extends test.Util.Application
             }
         }
 
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.addServantLocator(new ServantLocatorI(async), "");
         adapter.activate();

@@ -507,7 +507,7 @@ class LocalDriver(Driver):
             if confStr:
                 current.writeln("- Config: {0}".format(confStr))
             if cross:
-                current.writeln("- Mappings: {0}/{1}".format(client.getMapping(), server.getMapping()))
+                current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
             if not current.config.canRun(current) or not current.testcase.canRun(current):
                 current.writeln("skipped, not supported with this configuration")
                 return

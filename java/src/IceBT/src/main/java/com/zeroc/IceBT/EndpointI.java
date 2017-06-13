@@ -60,6 +60,7 @@ final class EndpointI extends com.zeroc.IceInternal.EndpointI
         //
         _name = "";
         _channel = 0;
+        _connectionId = "";
 
         _addr = s.readString().toUpperCase();
         if(!BluetoothAdapter.checkBluetoothAddress(_addr))

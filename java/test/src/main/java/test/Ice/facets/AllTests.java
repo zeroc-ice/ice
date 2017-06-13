@@ -54,7 +54,8 @@ public class AllTests
         out.println("ok");
 
         out.print("testing facet registration exceptions... ");
-        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+        final String host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         com.zeroc.Ice.Object obj = new EmptyI();
         adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("d"));

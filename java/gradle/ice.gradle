@@ -50,7 +50,7 @@ slice {
     cppPlatform = this.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
         iceHome =  this.hasProperty('iceHome') ? this.iceHome
-            : new File([rootProject.projectDir, ".."].join(File.separator)).getCanonicalPath()
+            : new File(project.ext.topSrcDir).getCanonicalPath()
     }
 }
 

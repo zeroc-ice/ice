@@ -69,6 +69,8 @@ clean {
 dependencies {
     compile localDependency('ice')
     compile localDependency('icessl')
+    compile localDependency('icediscovery')
+    compile localDependency('icebt')
     compile project(':test')
     tests.each {
         def name = it.replace('/', '_')

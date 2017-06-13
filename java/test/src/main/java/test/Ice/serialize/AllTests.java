@@ -80,6 +80,7 @@ public class AllTests
         }
         catch(Throwable ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 

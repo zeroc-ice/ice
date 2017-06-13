@@ -167,6 +167,7 @@ public class AllTests
     public static void allTests(Application app, boolean collocated)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         PrintWriter out = app.getWriter();
 
         String sref = "test:" + app.getTestEndpoint(0);
@@ -500,7 +501,7 @@ public class AllTests
                 test(p.waitForBatch(2));
             }
 
-            if(p.ice_getConnection() != null)
+            if(p.ice_getConnection() != null && !bluetooth)
             {
                 final SentCallback cb = new SentCallback();
                 test(p.opBatchCount() == 0);
@@ -522,7 +523,7 @@ public class AllTests
         }
         out.println("ok");
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && !bluetooth)
         {
             out.print("testing batch requests with connection... ");
             out.flush();
@@ -924,7 +925,7 @@ public class AllTests
         }
         out.println("ok");
 
-        if(p.ice_getConnection() != null && p.supportsAMD())
+        if(p.ice_getConnection() != null && p.supportsAMD() && !bluetooth)
         {
             out.print("testing graceful close connection with wait... ");
             out.flush();

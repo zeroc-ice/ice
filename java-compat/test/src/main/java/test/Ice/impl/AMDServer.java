@@ -8,6 +8,7 @@
 // **********************************************************************
 
 package test.Ice.impl;
+
 import test.Ice.impl.AMD.Test.MyDerivedClassI;
 
 public class AMDServer extends test.Util.Application
@@ -15,7 +16,7 @@ public class AMDServer extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();
