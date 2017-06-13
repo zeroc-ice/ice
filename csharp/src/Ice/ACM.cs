@@ -112,7 +112,6 @@ namespace IceInternal
                     return;
                 }
                 _instance = null;
-                _connections.Clear();
                 _changes.Clear();
             }
         }
@@ -209,6 +208,7 @@ namespace IceInternal
             {
                 if(_instance == null)
                 {
+                    _connections.Clear();
                     return;
                 }
 

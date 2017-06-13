@@ -58,7 +58,6 @@ class FactoryACMMonitor implements ACMMonitor
             return;
         }
         _instance = null;
-        _connections.clear();
         _changes.clear();
     }
 
@@ -165,6 +164,7 @@ class FactoryACMMonitor implements ACMMonitor
         {
             if(_instance == null)
             {
+                _connections.clear();
                 return;
             }
 

@@ -95,7 +95,6 @@ IceInternal::FactoryACMMonitor::destroy()
     }
 
     _instance = 0;
-    _connections.clear();
     _changes.clear();
 }
 
@@ -187,6 +186,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         Lock sync(*this);
         if(!_instance)
         {
+            _connections.clear();
             return;
         }
 

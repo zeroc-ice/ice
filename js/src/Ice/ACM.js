@@ -80,7 +80,6 @@ class FactoryACMMonitor
             return;
         }
         this._instance = null;
-        this._connections = null;
     }
 
     add(connection)
@@ -162,6 +161,7 @@ class FactoryACMMonitor
     {
         if(this._instance === null)
         {
+            this._connections = null;
             return;
         }
 
@@ -170,7 +170,6 @@ class FactoryACMMonitor
         // that connections can be added or removed during monitoring.
         //
         let now = Date.now();
-
         this._connections.forEach(connection =>
             {
                 try
