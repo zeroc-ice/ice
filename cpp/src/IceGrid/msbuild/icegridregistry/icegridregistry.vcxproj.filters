@@ -205,9 +205,6 @@
     </IceBuilder>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Win32\Debug\IceGrid\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -232,5 +229,8 @@
     <ClInclude Include="x64\Release\IceGrid\Internal.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
