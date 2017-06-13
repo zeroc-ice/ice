@@ -119,6 +119,13 @@ ignoreErrorCallback(void*, const char* msg, int errnum)
     // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
 }
 
+int
+ignoreFrame(void*, uintptr_t pc, const char*, int, const char*)
+{
+    assert(pc == 0);
+    return 0;
+}
+
 #endif
 
 class Init
@@ -132,6 +139,13 @@ public:
         // Leaked, as libbacktrace does not provide an API to free
         // this state
         bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
+
+        // The first call to backtrace_pcinfo initializes bstate->fileline_fn, apparently
+        // not in a thread-safe manner (at least with GCC 5.4.0 on Ubuntu Xenial).
+        // See ICE-8036. So we make a "dummy" call to backtrace_pcinfo here for
+        // this extra initialization.
+        //
+        backtrace_pcinfo(bstate, 0, ignoreFrame, ignoreErrorCallback, 0);
 #endif
     }
 
@@ -290,8 +304,6 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 void
 handlePcInfoError(void* data, const char* msg, int errnum)
 {
-    // cerr << "pcinfo error callback: " << msg << ", " << errnum << endl;
-
     FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
     printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
     frameInfo.setByErrorCb = true;
