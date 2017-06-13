@@ -142,15 +142,15 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         {
             try
             {
-                throw ee.getCause();
+                throw ee.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex) // Includes LocalException
             {
-                throw ex;
+                throw (RuntimeException)ex.fillInStackTrace();
             }
             catch(UserException ex)
             {
-                throw ex;
+                throw (UserException)ex.fillInStackTrace();
             }
             catch(Throwable ex)
             {
