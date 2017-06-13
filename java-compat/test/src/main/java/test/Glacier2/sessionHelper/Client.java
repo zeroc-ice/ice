@@ -13,6 +13,9 @@ import java.io.PrintWriter;
 import test.Glacier2.sessionHelper.Test.CallbackPrx;
 import test.Glacier2.sessionHelper.Test.CallbackPrxHelper;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+
 public class Client extends test.Util.Application
 {
     Client()
@@ -30,60 +33,6 @@ public class Client extends test.Util.Application
         }
     }
 
-    public class WorkQueue extends Thread
-    {
-        @Override
-        public synchronized void
-        run()
-        {
-            while(!_done)
-            {
-                if(_runnables.size() == 0)
-                {
-                    try
-                    {
-                        wait();
-                        if(_done)
-                        {
-                            break;
-                        }
-                    }
-                    catch(java.lang.InterruptedException ex)
-                    {
-                    }
-                }
-
-                if(_runnables.size() != 0)
-                {
-                    _runnables.pop().run();
-                }
-            }
-        }
-
-        public synchronized void
-        add(Runnable runnable)
-        {
-            if(!_done)
-            {
-                if(_runnables.size() == 0)
-                {
-                    notify();
-                }
-                _runnables.add(runnable);
-            }
-        }
-
-        public synchronized void
-        _destroy()                  // Thread.destroy is deprecated.
-        {
-            _done = true;
-            notify();
-        }
-
-        private java.util.LinkedList<Runnable> _runnables = new java.util.LinkedList<Runnable>();
-        private boolean _done = false;
-    }
-
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
@@ -96,7 +45,7 @@ public class Client extends test.Util.Application
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
                 {
-                    _workQueue.add(runnable);
+                    _workQueue.submit(runnable);
                 }
             };
 
@@ -108,8 +57,6 @@ public class Client extends test.Util.Application
     {
         String protocol = getTestProtocol();
         String host = getTestHost();
-        _workQueue = new WorkQueue();
-        _workQueue.start();
 
         _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
@@ -317,7 +264,7 @@ public class Client extends test.Util.Application
             {
                 try
                 {
-                    wait(2000);
+                    wait(30000);
                     break;
                 }
                 catch(java.lang.InterruptedException ex)
@@ -562,7 +509,7 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
-        _workQueue._destroy();
+        _workQueue.shutdown();
 
         return 0;
     }
@@ -586,7 +533,7 @@ public class Client extends test.Util.Application
     private Glacier2.SessionHelper _session;
     private Glacier2.SessionFactoryHelper _factory;
     private Ice.InitializationData _initData;
-    private WorkQueue _workQueue;
+    private ExecutorService _workQueue = Executors.newSingleThreadExecutor();
     static public Client me;
     final public PrintWriter out;
 }
