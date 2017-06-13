@@ -40,7 +40,7 @@ public class AllTests : TestCommon.AllTests
         WriteLine("ok");
 
         Write("testing facet registration exceptions... ");
-        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
         adapter.add(obj, Ice.Util.stringToIdentity("d"));

@@ -27,7 +27,7 @@ public class Server : TestCommon.Application
         //
         Ice.Properties properties = communicator().getProperties();
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("ServerManagerAdapter");
 

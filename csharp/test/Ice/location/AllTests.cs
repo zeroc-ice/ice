@@ -595,7 +595,7 @@ public class AllTests : TestCommon.AllTests
         //
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.PrintAdapterReady", "0");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *");
         adapter.setLocator(locator);
 
         Ice.Identity id = new Ice.Identity();

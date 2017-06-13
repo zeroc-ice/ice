@@ -30,7 +30,7 @@ public class Client : TestCommon.Application
     {
         Ice.InitializationData initData = base.getInitData(ref args);
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0) + ":udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
         return initData;
     }

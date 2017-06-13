@@ -21,7 +21,7 @@ public class Collocated : TestCommon.Application
     public override int run(string[] args)
     {
         communicator().getProperties().setProperty("TestAdapter.AdapterId", "test");
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.

@@ -1112,122 +1112,127 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-        Write("preserved exceptions... ");
-        Flush();
+        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+        if(defaultHost.Equals("127.0.0.1") || defaultHost.Equals("::1"))
         {
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
-            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
-            adapter.activate();
+            Write("preserved exceptions... ");
+            Flush();
+            {
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+                RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
+                adapter.activate();
 
-            try
-            {
-                testPrx.relayKnownPreservedAsBase(relay);
-                test(false);
-            }
-            catch(KnownPreservedDerived ex)
-            {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-            }
-            catch(Ice.OperationNotExistException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+                try
+                {
+                    testPrx.relayKnownPreservedAsBase(relay);
+                    test(false);
+                }
+                catch(KnownPreservedDerived ex)
+                {
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-            try
-            {
-                testPrx.relayKnownPreservedAsKnownPreserved(relay);
-                test(false);
-            }
-            catch(KnownPreservedDerived ex)
-            {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-            }
-            catch(Ice.OperationNotExistException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+                try
+                {
+                    testPrx.relayKnownPreservedAsKnownPreserved(relay);
+                    test(false);
+                }
+                catch(KnownPreservedDerived ex)
+                {
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-            try
-            {
-                testPrx.relayUnknownPreservedAsBase(relay);
-                test(false);
-            }
-            catch(Preserved2 ex)
-            {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
-                PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
-                test(ex.p2 == ex.p1);
-            }
-            catch(KnownPreservedDerived ex)
-            {
-                //
-                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                //
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-            }
-            catch(Ice.OperationNotExistException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+                try
+                {
+                    testPrx.relayUnknownPreservedAsBase(relay);
+                    test(false);
+                }
+                catch(Preserved2 ex)
+                {
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                    test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                    PreservedClass pc = ex.p1 as PreservedClass;
+                    test(pc.bc.Equals("bc"));
+                    test(pc.pc.Equals("pc"));
+                    test(ex.p2 == ex.p1);
+                }
+                catch(KnownPreservedDerived ex)
+                {
+                    //
+                    // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                    //
+                    test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-            try
-            {
-                testPrx.relayUnknownPreservedAsKnownPreserved(relay);
-                test(false);
-            }
-            catch(Preserved2 ex)
-            {
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
-                PreservedClass pc = ex.p1 as PreservedClass;
-                test(pc.bc.Equals("bc"));
-                test(pc.pc.Equals("pc"));
-                test(ex.p2 == ex.p1);
-            }
-            catch(KnownPreservedDerived ex)
-            {
-                //
-                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                //
-                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
-                test(ex.b.Equals("base"));
-                test(ex.kp.Equals("preserved"));
-                test(ex.kpd.Equals("derived"));
-            }
-            catch(Ice.OperationNotExistException)
-            {
-            }
-            catch(Exception)
-            {
-                test(false);
-            }
+                try
+                {
+                    testPrx.relayUnknownPreservedAsKnownPreserved(relay);
+                    test(false);
+                }
+                catch(Preserved2 ex)
+                {
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                    test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                    PreservedClass pc = ex.p1 as PreservedClass;
+                    test(pc.bc.Equals("bc"));
+                    test(pc.pc.Equals("pc"));
+                    test(ex.p2 == ex.p1);
+                }
+                catch(KnownPreservedDerived ex)
+                {
+                    //
+                    // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                    //
+                    test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                    test(ex.b.Equals("base"));
+                    test(ex.kp.Equals("preserved"));
+                    test(ex.kpd.Equals("derived"));
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-            adapter.destroy();
+                adapter.destroy();
+            }
+            WriteLine("ok");
         }
-        WriteLine("ok");
+
         return testPrx;
     }
 }

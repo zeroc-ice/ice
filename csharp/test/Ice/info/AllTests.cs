@@ -85,12 +85,13 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         Ice.ObjectAdapter adapter;
         Write("test object adapter endpoint information... ");
         Flush();
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -t 15000:udp");
+            string host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
+                "\" -t 15000:udp -h \"" + host + "\"");
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             Ice.Endpoint[] endpoints = adapter.getEndpoints();
@@ -102,12 +103,12 @@ public class AllTests : TestCommon.AllTests
             test(tcpEndpoint.type() == Ice.TCPEndpointType.value || tcpEndpoint.type() == Ice.SSLEndpointType.value ||
                  tcpEndpoint.type() == Ice.WSEndpointType.value || tcpEndpoint.type() == Ice.WSSEndpointType.value);
 
-            test(tcpEndpoint.host.Equals(defaultHost));
+            test(tcpEndpoint.host.Equals(host));
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
-            test(udpEndpoint.host.Equals(defaultHost));
+            test(udpEndpoint.host.Equals(host));
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
@@ -149,6 +150,8 @@ public class AllTests : TestCommon.AllTests
                                                          app.getTestEndpoint(0) + ":" +
                                                          app.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(@base);
+
+        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
 
         Write("test connection endpoint information... ");
         Flush();

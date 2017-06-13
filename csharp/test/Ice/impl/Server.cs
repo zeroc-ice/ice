@@ -25,7 +25,7 @@ public class Server : TestCommon.Application
         //
         communicator().getProperties().setProperty("Ice.Warn.Connections", "0");
 
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new Test.MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();

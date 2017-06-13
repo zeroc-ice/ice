@@ -22,7 +22,7 @@ public class Server : TestCommon.Application
     {
         Timer timer = new Timer();
 
-        communicator().getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
         communicator().getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
         communicator().getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
         communicator().getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
@@ -30,7 +30,7 @@ public class Server : TestCommon.Application
         Ice.ObjectAdapter adapter1 = communicator().createObjectAdapter("TestAdapter1");
         adapter1.add(new HoldI(timer, adapter1), Ice.Util.stringToIdentity("hold"));
 
-        communicator().getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1) + ":udp");
+        communicator().getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
         communicator().getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
         communicator().getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
         communicator().getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
