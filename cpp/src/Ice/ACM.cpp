@@ -94,8 +94,26 @@ IceInternal::FactoryACMMonitor::destroy()
         return;
     }
 
+    //
+    // Cancel the scheduled timer task and schedule it again now to clear the
+    // connection set from the timer thread.
+    //
+    if(!_connections.empty())
+    {
+        _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
+        _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time());
+    }
+
     _instance = 0;
     _changes.clear();
+
+    //
+    // Wait for the connection set to be cleared by the timer thread.
+    //
+    while(!_connections.empty())
+    {
+        wait();
+    }
 }
 
 void
@@ -187,6 +205,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         if(!_instance)
         {
             _connections.clear();
+            notify();
             return;
         }
 

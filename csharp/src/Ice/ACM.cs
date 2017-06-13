@@ -111,8 +111,27 @@ namespace IceInternal
                 {
                     return;
                 }
+
+                if(_connections.Count > 0)
+                {
+                    //
+                    // Cancel the scheduled timer task and schedule it again now to clear the
+                    // connection set from the timer thread.
+                    //
+                    _instance.timer().cancel(this);
+                    _instance.timer().schedule(this, 0);
+                }
+
                 _instance = null;
                 _changes.Clear();
+
+                //
+                // Wait for the connection set to be cleared by the timer thread.
+                //
+                while(_connections.Count > 0)
+                {
+                    System.Threading.Monitor.Wait(this);
+                }
             }
         }
 
@@ -209,6 +228,7 @@ namespace IceInternal
                 if(_instance == null)
                 {
                     _connections.Clear();
+                    System.Threading.Monitor.Pulse(this);
                     return;
                 }
 
