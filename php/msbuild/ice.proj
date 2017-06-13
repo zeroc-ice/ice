@@ -27,6 +27,8 @@
   <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
     <!-- Restore NuGet packages to build Ice for PHP distribution -->
     <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
+    <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
+          Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
   </Target>
 
   <ItemGroup>
