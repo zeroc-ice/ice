@@ -70,5 +70,5 @@ This command is equivalent to:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice37/Using+the+macOS+Binary+Distribution
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.0
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

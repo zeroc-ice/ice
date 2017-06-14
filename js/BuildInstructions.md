@@ -148,4 +148,4 @@ This will generate the file `ice-3.7.0.tgz`, which can be installed by running:
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/distributions/ice

@@ -77,6 +77,6 @@ To create a NuGet package for the distribution, use the following command:
 
 This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
-[1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[1]: https://zeroc.com/distributions/ice
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: https://github.com/zeroc-ice/ice-builder-visualstudio

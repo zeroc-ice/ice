@@ -36,7 +36,7 @@ version 2.4 in the distribution. You cannot build the Ice for Java source
 distribution without an Internet connection. Gradle will download all required
 packages automatically from ZeroC's Maven repository located at
 
-    http://repo.zeroc.com/nexus/content/repositories/thirdparty
+    https://repo.zeroc.com/nexus/content/repositories/thirdparty
 
 ### Bzip2 Compression
 
@@ -145,4 +145,4 @@ failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
-[3]: http://gradle.org
+[3]: https://gradle.org

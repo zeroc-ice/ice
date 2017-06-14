@@ -142,5 +142,5 @@ command:
 
         SELINUX=disabled
 
-[1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[1]: https://zeroc.com/distributions/ice
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

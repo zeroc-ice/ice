@@ -175,11 +175,11 @@ controller. Use the following command to start the test controller:
 In the "Ice Test Suite" Windows Store application, select the Server language
 mapping and Protocol you want to use.
 
-[1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[1]: https://zeroc.com/distributions/ice
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: http://bzip.org
-[4]: http://expat.sourceforge.net
-[5]: http://symas.com/mdb/
+[4]: https://libexpat.github.io
+[5]: https://symas.com/lightning-memory-mapped-database/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.nuget.org
 [8]: https://github.com/zeroc-ice/ice-builder-visualstudio

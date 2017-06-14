@@ -43,7 +43,7 @@ distribution without an Internet connection. Gradle will download all required
 distribution without an Internet connection. Gradle will download all required
 packages automatically from ZeroC's Maven repository located at
 
-    http://repo.zeroc.com/nexus/content/repositories/thirdparty
+    https://repo.zeroc.com/nexus/content/repositories/thirdparty
 
 ### Bzip2 Compression
 
@@ -197,5 +197,5 @@ You can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in Fi
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
-[3]: http://gradle.org
+[3]: https://gradle.org
 [4]: http://proguard.sourceforge.net

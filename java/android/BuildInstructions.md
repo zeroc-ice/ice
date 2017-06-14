@@ -121,4 +121,4 @@ Where `--avd` is set to the Android emulator image you want to use. You can list
 the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/distributions/ice
