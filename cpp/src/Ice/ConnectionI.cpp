@@ -897,7 +897,7 @@ Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
 namespace
 {
 
-const ::std::string __heartbeat_name = "heartbeat";
+const ::std::string heartbeat_name = "heartbeat";
 
 class HeartbeatAsync : public OutgoingAsyncBase
 {
@@ -924,12 +924,12 @@ public:
 
     virtual const string& getOperation() const
     {
-        return __heartbeat_name;
+        return heartbeat_name;
     }
 
     void invoke()
     {
-        _observer.attach(_instance.get(), __heartbeat_name);
+        _observer.attach(_instance.get(), heartbeat_name);
         try
         {
             _os.write(magic[0]);
@@ -1057,7 +1057,7 @@ Ice::ConnectionI::_iceI_begin_heartbeat(const CallbackBasePtr& cb, const LocalOb
 void
 Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
 {
-    AsyncResult::_check(r, this, __heartbeat_name);
+    AsyncResult::_check(r, this, heartbeat_name);
     r->_waitForResponse();
 }
 #endif

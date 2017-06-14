@@ -554,7 +554,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         end_heartbeat(begin_heartbeat());
     }
 
-    private static final String __heartbeat_name = "heartbeat";
+    private static final String _heartbeat_name = "heartbeat";
 
     @Override
     public AsyncResult begin_heartbeat()
@@ -575,22 +575,22 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public AsyncResult begin_heartbeat(IceInternal.Functional_VoidCallback __responseCb,
-                                       final IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                       IceInternal.Functional_BoolCallback __sentCb)
+    public AsyncResult begin_heartbeat(IceInternal.Functional_VoidCallback responseCb,
+                                       final IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                       IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_heartbeatInternal(new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
+        return begin_heartbeatInternal(new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
         {
             @Override
-            public final void _iceCompleted(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
             {
                 try
                 {
-                    __result.getConnection().end_heartbeat(__result);
+                    result.getConnection().end_heartbeat(result);
                 }
-                catch(Exception __ex)
+                catch(Exception ex)
                 {
-                    __exceptionCb.apply(__ex);
+                    exceptionCb.apply(ex);
                 }
             }
         });
@@ -685,7 +685,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private AsyncResult begin_heartbeatInternal(IceInternal.CallbackBase cb)
     {
-        HeartbeatAsync result = new HeartbeatAsync(this, _communicator, _instance, __heartbeat_name, cb);
+        HeartbeatAsync result = new HeartbeatAsync(this, _communicator, _instance, _heartbeat_name, cb);
         result.invoke();
         return result;
     }
@@ -693,7 +693,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     @Override
     public void end_heartbeat(AsyncResult ir)
     {
-        HeartbeatAsync r = HeartbeatAsync.check(ir, this, __heartbeat_name);
+        HeartbeatAsync r = HeartbeatAsync.check(ir, this, _heartbeat_name);
         r.waitForResponseOrUserEx();
     }
 

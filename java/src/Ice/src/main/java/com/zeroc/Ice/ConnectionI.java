@@ -588,9 +588,9 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     public java.util.concurrent.CompletableFuture<Void> heartbeatAsync()
     {
-        HeartbeatAsync __f = new HeartbeatAsync(_communicator, _instance);
-        __f.invoke();
-        return __f;
+        HeartbeatAsync f = new HeartbeatAsync(_communicator, _instance);
+        f.invoke();
+        return f;
     }
 
     @Override
