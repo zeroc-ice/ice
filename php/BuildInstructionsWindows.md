@@ -12,13 +12,7 @@ Ice for PHP was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
 The build requires the [Ice Builder for Visual Studio][8]. You must install
-version 4.3.6 or greater to build Ice.
-
-### Preparing to Build
-
-The build system requires the slice2php compiler from Ice for C++. If you have not
-built Ice for C++ in this source distribution, refer to the
-[C++ build instructions](../cpp/BuildInstructionsWindows.md).
+version 4.3.7 or greater to build Ice.
 
 ## Building the PHP Extension
 
@@ -58,9 +52,11 @@ to `no`:
 
     msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
-It is also possible to build the test suite against a binary Ice distribution:
+The PHP extension depends on Ice for C++ commponents from `cpp` subidrectory, and those
+are build if required, it is also possible to build the PHP extension using the Ice for C++
+NuGet packages by setting the`ICE_BIN_DIST` msbuild propery to `cpp`:
 
-    msbuild msbuild\ice.proj /p:UseBinDist=yes /p:"IceHome=C:\Program Files\ZeroC\Ice-3.7.0"
+    msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
 
 ## Installing the PHP Extension
 
@@ -145,7 +141,13 @@ that the CLI version of the PHP interpreter be available in your PATH.
 
 After a successful build, you can run the tests as follows:
 
-    $ python allTests.py
+    python allTests.py
+
+If you have build the extension using the Ice for C++ NuGet packages you must
+also set `ICE_BIN_DIST` environment variable to `cpp` for testing:
+
+    set ICE_BIN_DIST=cpp
+    python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
