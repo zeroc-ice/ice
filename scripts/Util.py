@@ -305,7 +305,6 @@ class Windows(Platform):
                 mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
             nuget = package and os.path.exists(package)
-
             if not nuget:
                 return "bin"
             elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
@@ -324,7 +323,8 @@ class Windows(Platform):
             if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
             elif isinstance(mapping, PhpMapping):
-                return os.path.join("lib", platform, config)
+                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion()), 
+                                    "build", "native", "bin", platform, config)
             return "bin"
 
     def getLibSubDir(self, mapping, process, current):
@@ -565,7 +565,7 @@ class Mapping:
             return [c for c in gen(options)]
 
         def canRun(self, current):
-            if not platform.canRun(self, current):
+            if not platform.canRun(current.testcase.getMapping(), current):
                 return False
 
             options = {}
@@ -2456,7 +2456,7 @@ class Driver:
 
     def useIceBinDist(self, mapping):
         env = os.environ.get("ICE_BIN_DIST", "").split()
-        return 'all' in env or mapping in env
+        return 'all' in env or mapping.name in env
 
     def getIceDir(self, mapping, current):
         if self.useIceBinDist(mapping):
@@ -3076,8 +3076,9 @@ class PhpMapping(CppBasedClientMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if isinstance(platform, Windows) and current.driver.useIceBinDist(self):
-            env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
+        if (isinstance(platform, Windows) and
+            (current.driver.useIceBinDist(self) or "cpp" in os.environ.get("ICE_BIN_DIST", "").split())):
+                env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
         return env
 
     def getCommandLine(self, current, process, exe):
@@ -3089,8 +3090,12 @@ class PhpMapping(CppBasedClientMapping):
         if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
             useBinDist = current.driver.useIceBinDist(self)
             if isinstance(platform, Windows):
+
+                buildPlatform = current.driver.configs[self].buildPlatform
+                config = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
+
                 extension = "php_ice_nts.dll" if "NTS" in run("php -v") else "php_ice.dll"
-                extensionDir = self.getBinDir(process, current)
+                extensionDir = os.path.join(self.path, "lib", buildPlatform, config)
                 includePath = self.getLibDir(process, current)
             else:
                 extension = "IcePHP.so"
