@@ -9,7 +9,7 @@ platforms.
 ### Operating Systems
 
 Ice for Java is expected to build and run properly on Windows, macOS, and any
-recent Linux distribution for x86 and x86_64, and was extensively tested using
+recent Linux distribution for x86_64 (or ix86), and was extensively tested using
 the operating systems and compiler versions listed for our [supported
 platforms][2]. Due to the portability of Java, it is very likely that it will
 also work on other platforms for which a suitable Java implementation is
@@ -107,7 +107,7 @@ on Unix:
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.7.0 (MSI installation)
+    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation on Windows)
 
 On Windows if you are using Ice for C++ from a source distribution, you must
 set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
@@ -196,6 +196,6 @@ On macOS, the build also creates an application bundle named IceGrid GUI.
 You can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in Finder.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net
