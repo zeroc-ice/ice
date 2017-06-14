@@ -49,7 +49,7 @@
                     var msg = "test failed";
                     if(ex)
                     {
-                        msg += ex.toString();
+                        msg += ": " + ex.toString();
                     }
                     throw new Error();
                 }

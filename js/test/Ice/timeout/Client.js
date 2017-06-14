@@ -35,13 +35,18 @@
         var ref, obj, mult, timeout, to, connection, comm, now;
 
         var p = new Ice.Promise();
-        var test = function(b)
+        var test = function(b, ex)
         {
             if(!b)
             {
                 try
                 {
-                    throw new Error("test failed");
+                    var msg = "test failed";
+                    if(ex)
+                    {
+                        msg += ":\n" + ex.toString();
+                    }
+                    throw new Error(msg);
                 }
                 catch(err)
                 {
@@ -80,7 +85,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.ConnectTimeoutException);
+                test(ex instanceof Ice.ConnectTimeoutException, ex);
                 return timeout.op(); // Ensure adapter is active.
             }
         ).then(() =>
@@ -102,7 +107,7 @@
         ).then(() => test(false),
                ex =>
             {
-                test(ex instanceof Ice.TimeoutException);
+                test(ex instanceof Ice.TimeoutException, ex);
                 return timeout.op(); // Ensure adapter is active.
             }
         ).then(() =>
@@ -133,7 +138,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.InvocationTimeoutException);
+                test(ex instanceof Ice.InvocationTimeoutException, ex);
                 return obj.ice_ping();
             }
         ).then(() =>
@@ -179,7 +184,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.ConnectionManuallyClosedException); // Expected
+                    test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
                 }
                 return timeout.op();
             }
@@ -214,7 +219,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.TimeoutException);
+                test(ex instanceof Ice.TimeoutException, ex);
                 return timeout.op(); // Ensure adapter is active.
             }
         ).then(() =>
@@ -231,7 +236,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.TimeoutException);
+                test(ex instanceof Ice.TimeoutException, ex);
                 return comm.destroy();
             }
         ).then(() =>
@@ -258,7 +263,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.ConnectTimeoutException);
+                test(ex instanceof Ice.ConnectTimeoutException, ex);
                 return timeout.op(); // Ensure adapter is active.
             }
         ).then(() => timeout.holdAdapter(750 * mult)
@@ -273,7 +278,7 @@
         ).then(() => test(false),
                ex =>
             {
-                test(ex instanceof Ice.ConnectTimeoutException);
+                test(ex instanceof Ice.ConnectTimeoutException, ex);
                 return timeout.op(); // Ensure adapter is active.
             }
         ).then(() =>
@@ -287,7 +292,7 @@
             failCB,
             ex =>
             {
-                test(ex instanceof Ice.TimeoutException);
+                test(ex instanceof Ice.TimeoutException, ex);
                 return comm.destroy();
             }
         ).then(() =>
@@ -335,6 +340,7 @@
         // buffers to fill up.
         //
         id.properties.setProperty("Ice.MessageSizeMax", "10000");
+        id.properties.setProperty("Ice.PrintStackTraces", "1");
 
         var c = Ice.initialize(id);
         return Ice.Promise.try(() =>
