@@ -178,7 +178,7 @@ interface Topic
     /**
      *
      * Get a proxy to a publisher object for this topic. To publish
-     * data to a topic, the publisher calls {@link #getPublisher} and then
+     * data to a topic, the publisher calls {@link Topic#getPublisher} and then
      * casts to the topic type. An unchecked cast must be used on this
      * proxy. If a replicated IceStorm deployment is used this call
      * may return a replicated proxy.
@@ -192,7 +192,7 @@ interface Topic
      *
      * Get a non-replicated proxy to a publisher object for this
      * topic. To publish data to a topic, the publisher calls
-     * {@link #getPublisher} and then casts to the topic type. An unchecked
+     * {@link Topic#getPublisher} and then casts to the topic type. An unchecked
      * cast must be used on this proxy.
      *
      * @return A proxy to publish data on this topic.

@@ -138,7 +138,7 @@ interface RemoteLogger
     /**
      *
      * Log a {@link LogMessage}. Note that log may be called by {@link LoggerAdmin}
-     * before {@link #init}.
+     * before {@link RemoteLogger#init}.
      *
      * @param message The message to log.
      *
