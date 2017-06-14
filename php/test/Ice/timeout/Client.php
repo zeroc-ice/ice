@@ -199,7 +199,7 @@ function allTests($communicator)
         // Backward compatible connection timeouts
         //
         $to = $timeout->ice_invocationTimeout(-2)->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
-        $con = $to->ice_getConnection();
+        $con = connect($to);
         try
         {
             $to->sleep(750);

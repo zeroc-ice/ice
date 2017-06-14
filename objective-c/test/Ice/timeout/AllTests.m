@@ -234,7 +234,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         id<TestTimeoutTimeoutPrx> to =
             [TestTimeoutTimeoutPrx uncheckedCast:[[obj ice_invocationTimeout:-2] ice_timeout:250]];
-        id<ICEConnection> con = [to ice_getConnection];
+        id<ICEConnection> con = connectPrx(to);
         @try
         {
             [to sleep:500];
@@ -256,7 +256,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
 
         @try
         {
-            con = [to ice_getConnection];
+            con = connectPrx(to);
             [to end_sleep:[to begin_sleep:750]];
             test(NO);
         }
