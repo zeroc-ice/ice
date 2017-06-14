@@ -11,7 +11,7 @@ supported platforms.
 Ice for PHP was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][8]. You must install
+The build requires the [Ice Builder for Visual Studio][3]. You must install
 version 4.3.7 or greater to build Ice.
 
 ## Building the PHP Extension
@@ -69,14 +69,14 @@ directive by running the command-line version of PHP with the `-i` option:
 
 Review the output for a line like this:
 
-    extension_dir => C:\Program Files\iis express\PHP\v7.0\ext\ => C:\Program Files\iis express\PHP\v7.0\ext\
+    extension_dir => C:\Program Files\iis express\PHP\v7.1\ext\ => C:\Program Files\iis express\PHP\v7.1\ext\
 
 Once you've copied the extension to the appropriate directory, you will need
 to enable the extension in your PHP configuration. First you must discover the
 location of PHP's configuration file (`php.ini`), which is also displayed by
 the `-i` option. Look for the following line:
 
-    Loaded Configuration File => C:\Program Files\iis express\PHP\v7.0\php.ini
+    Loaded Configuration File => C:\Program Files\iis express\PHP\v7.1\php.ini
 
 Open `php.ini` and append the following directive:
 
@@ -98,7 +98,7 @@ and its third-party dependencies. On Windows, these DLLs are required:
 
 In general, these libraries must reside in a directory of the user's PATH. For
 IIS configured to run PHP as FastCGI, the simplest solution is to copy the
-libraries next to the php-cgi.exe in C:\Program Files\iis express\PHP\v7.0.
+libraries next to the php-cgi.exe in C:\Program Files\iis express\PHP\v7.1.
 
 You can verify that the Ice extension is installed properly by examining the
 output of the `php -m` command, or by calling the `phpInfo()` function from a
@@ -153,4 +153,5 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[3]: https://github.com/zeroc-ice/ice-builder-visualstudio
