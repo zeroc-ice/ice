@@ -79,7 +79,7 @@
 @end
 
 id<ICEConnection>
-connect(id<TestTimeoutTimeoutPrx> prx)
+connectPrx(id<TestTimeoutTimeoutPrx> prx)
 {
     int nRetry = 5;
     while(--nRetry > 0)
@@ -288,7 +288,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         [initData.properties setProperty:@"Ice.Override.Timeout" value:@"100"];
         id<ICECommunicator> comm = [ICEUtil createCommunicator:initData];
         id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[comm stringToProxy:sref]];
-        connect(to);
+        connectPrx(to);
         [timeout holdAdapter:500];
         @try
         {
@@ -304,7 +304,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         [timeout op]; // Ensure adapter is active.
         to = [TestTimeoutTimeoutPrx uncheckedCast:[to ice_timeout:1000]];
-        connect(to);
+        connectPrx(to);
         [timeout holdAdapter:500];
         @try
         {
@@ -356,7 +356,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         [timeout op]; // Ensure adapter is active.
         to = [TestTimeoutTimeoutPrx uncheckedCast:[to ice_timeout:100]];
-        connect(to);
+        connectPrx(to);
         [to ice_getConnection]; // Establish connection
         [timeout holdAdapter:500];
         @try
