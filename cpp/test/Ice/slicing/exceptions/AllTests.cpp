@@ -1039,22 +1039,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "preserved exceptions... " << flush;
-    string localOAEndpoint;
+    string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
+    if(defaultHost == "127.0.0.1" || defaultHost == "::1")
     {
-        ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
-        {
-            ostr << "default -a *";
-        }
-        else
-        {
-            ostr << "default -h *";
-        }
-        localOAEndpoint = ostr.str();
-    }
-    {
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", localOAEndpoint);
+        cout << "preserved exceptions... " << flush;
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", "default");
         RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
         adapter->activate();
 
@@ -1165,8 +1154,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         adapter->destroy();
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     return test;
 }

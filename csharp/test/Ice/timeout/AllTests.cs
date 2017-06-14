@@ -299,6 +299,7 @@ public class AllTests : TestCommon.AllTests
             string[] args = new string[0];
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
             initData.properties.setProperty("Ice.Override.Timeout", "100");
             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(comm.stringToProxy(sref));

@@ -137,6 +137,7 @@ def allTests(communicator)
     #
     initData = Ice::InitializationData.new
     initData.properties = communicator.getProperties().clone()
+    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
     initData.properties.setProperty("Ice.Override.Timeout", "100")
     comm = Ice.initialize(initData)
     to = Test::TimeoutPrx::uncheckedCast(comm.stringToProxy(sref))

@@ -318,6 +318,7 @@ public class AllTests
             //
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
             initData.properties.setProperty("Ice.Override.Timeout", "100");
             com.zeroc.Ice.Communicator comm = app.initialize(initData);
             TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));

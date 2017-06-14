@@ -200,10 +200,12 @@
                 initData.properties = communicator.getProperties().clone();
                 if(mult === 1)
                 {
+                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
                     initData.properties.setProperty("Ice.Override.Timeout", "100");
                 }
                 else
                 {
+                    initData.properties.setProperty("Ice.Override.ConnectTimeout", "5000");
                     initData.properties.setProperty("Ice.Override.Timeout", "2000");
                 }
                 comm = Ice.initialize(initData);

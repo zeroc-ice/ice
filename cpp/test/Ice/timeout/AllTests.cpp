@@ -355,6 +355,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
+        initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
         initData.properties->setProperty("Ice.Override.Timeout", "100");
         Ice::CommunicatorHolder ich(initData);
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));

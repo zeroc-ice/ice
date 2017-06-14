@@ -78,6 +78,25 @@
 }
 @end
 
+id<ICEConnection>
+connect(id<TestTimeoutTimeoutPrx> prx)
+{
+    int nRetry = 5;
+    while(--nRetry > 0)
+    {
+        @try
+        {
+            [prx ice_getConnection]; // Establish connection
+            break;
+        }
+        @catch(ICEConnectTimeoutException*)
+        {
+            // Can sporadically occur with slow machines
+        }
+    }
+    return [prx ice_getConnection];
+}
+
 id<TestTimeoutTimeoutPrx>
 timeoutAllTests(id<ICECommunicator> communicator)
 {
@@ -265,10 +284,12 @@ timeoutAllTests(id<ICECommunicator> communicator)
         //
         ICEInitializationData* initData = [ICEInitializationData initializationData];
         [initData setProperties:[[communicator getProperties] clone]];
-        [[initData properties] setProperty:@"Ice.Override.Timeout" value:@"250"];
+        [initData.properties setProperty:@"Ice.Override.ConnectTimeout" value:@"250"];
+        [initData.properties setProperty:@"Ice.Override.Timeout" value:@"100"];
         id<ICECommunicator> comm = [ICEUtil createCommunicator:initData];
-        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx checkedCast:[comm stringToProxy:sref]];
-        [timeout holdAdapter:1000];
+        id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[comm stringToProxy:sref]];
+        connect(to);
+        [timeout holdAdapter:500];
         @try
         {
             [to sendData:seq];
@@ -282,7 +303,8 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Calling ice_timeout() should have no effect.
         //
         [timeout op]; // Ensure adapter is active.
-        to = [TestTimeoutTimeoutPrx checkedCast:[to ice_timeout:1000]];
+        to = [TestTimeoutTimeoutPrx uncheckedCast:[to ice_timeout:1000]];
+        connect(to);
         [timeout holdAdapter:500];
         @try
         {
@@ -333,22 +355,10 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         [timeout op]; // Ensure adapter is active.
-        to = [TestTimeoutTimeoutPrx uncheckedCast:[to ice_timeout:250]];
-        int nRetry = 5;
-        while(--nRetry > 0)
-        {
-            @try
-            {
-                [to ice_getConnection]; // Establish connection
-                break;
-            }
-            @catch(ICEConnectTimeoutException*)
-            {
-                // Can sporadically occur with slow machines
-            }
-        }
+        to = [TestTimeoutTimeoutPrx uncheckedCast:[to ice_timeout:100]];
+        connect(to);
         [to ice_getConnection]; // Establish connection
-        [timeout holdAdapter:1000];
+        [timeout holdAdapter:500];
         @try
         {
             [to sendData:seq];

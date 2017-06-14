@@ -265,6 +265,7 @@ function allTests($communicator)
         //
         $initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
         $initData->properties = $communicator->getProperties()->clone();
+        $initData->properties->setProperty("Ice.Override.ConnectTimeout", "250");
         $initData->properties->setProperty("Ice.Override.Timeout", "100");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
