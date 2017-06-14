@@ -26,9 +26,10 @@ module Ice
  *
  * An interface to associate implict contexts with communicators.
  *
- * When you make a remote invocation without an explicit context parameter,
+ * <p>When you make a remote invocation without an explicit context parameter,
  * Ice uses the per-proxy context (if any) combined with the <tt>ImplicitContext</tt>
  * associated with the communicator.</p>
+ *
  * <p>Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
  * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
  * <dl>
@@ -46,7 +47,6 @@ module Ice
  * with <tt>java.lang.Object</tt> replaced by <tt>string</tt> and null replaced by the empty-string.
  *
  **/
-
 local interface ImplicitContext
 {
     /**

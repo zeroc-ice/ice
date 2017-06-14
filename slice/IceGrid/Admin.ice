@@ -386,7 +386,7 @@ struct ApplicationUpdateInfo
 
 /**
  *
- * The IceGrid administrative interface. </p>
+ * The IceGrid administrative interface.
  * <p class="Warning">Allowing access to this interface
  * is a security risk! Please see the IceGrid documentation
  * for further information.

@@ -740,6 +740,7 @@ public class OutputStream
     /**
      * Writes an optional serializable Java object to the stream.
      *
+     * @param <T> The serializable class.
      * @param tag The optional tag.
      * @param v The optional serializable object to write.
      **/

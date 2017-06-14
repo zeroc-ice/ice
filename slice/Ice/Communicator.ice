@@ -86,7 +86,7 @@ local interface Communicator
 
     /**
      *
-     * Shuts down this communicator's server functionality, which
+     * <p>Shuts down this communicator's server functionality, which
      * includes the deactivation of all object adapters. (Attempts to use
      * a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}.)
      * Subsequent calls to {@link #shutdown} are ignored.</p>
@@ -235,7 +235,7 @@ local interface Communicator
 
     /**
      *
-     * Create a new object adapter. The endpoints for the object
+     * <p>Create a new object adapter. The endpoints for the object
      * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.</p>
      *
      * <p>It is legal to create an object adapter with the empty string as
@@ -259,7 +259,7 @@ local interface Communicator
 
     /**
      *
-     * Create a new object adapter with endpoints. This operation sets
+     * <p>Create a new object adapter with endpoints. This operation sets
      * the property <tt><em>name</em>.Endpoints</tt>,
      * and then calls {@link #createObjectAdapter}. It is provided as a
      * convenience function.</p>
@@ -282,7 +282,7 @@ local interface Communicator
 
     /**
      *
-     * Create a new object adapter with a router. This operation
+     * <p>Create a new object adapter with a router. This operation
      * creates a routed object adapter.</p>
      *
      * <p>Calling this operation with an empty name will result in a
@@ -427,7 +427,7 @@ local interface Communicator
 
     /**
      *
-     * Set a default router for this communicator. All newly
+     * <p>Set a default router for this communicator. All newly
      * created proxies will use this default router. To disable the
      * default router, null can be used. Note that this
      * operation has no effect on existing proxies.</p>
@@ -458,7 +458,7 @@ local interface Communicator
 
     /**
      *
-     * Set a default Ice locator for this communicator. All newly
+     * <p>Set a default Ice locator for this communicator. All newly
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be used.
      * Note that this operation has no effect on existing proxies or
@@ -609,22 +609,24 @@ local interface Communicator
 local enum ToStringMode
 {
     /**
-     * Characters > 127 are kept as-is in the resulting string. Non-printable ASCII
-     * characters <= 127 are encoded as \\t, \\n (etc.) or \\unnnn.
+     * Characters with ordinal values greater than 127 are kept as-is in the resulting string.
+     * Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.)
+     * or \\unnnn.
      **/
     Unicode,
 
     /**
-     * Characters > 127 are encoded as universal character names in the resulting string:
-     * \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters. Non-printable ASCII
-     * characters <= 127 are encoded as \\t, \\n (etc.) or \\unnnn.
+     * Characters with ordinal values greater than 127 are encoded as universal character names in
+     * the resulting string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters.
+     * Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.)
+     * or \\unnnn.
      **/
     ASCII,
 
     /**
-     * Characters > 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
-     * characters <= 127 are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
-     * to generate strings compatible with Ice 3.6 and earlier.
+     * Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using
+     * octal escapes. Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or
+     * an octal escape. Use this mode to generate strings compatible with Ice 3.6 and earlier.
      **/
     Compat
 }

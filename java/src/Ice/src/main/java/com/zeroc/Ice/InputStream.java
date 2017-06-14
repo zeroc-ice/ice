@@ -1043,6 +1043,8 @@ public class InputStream
     /**
      * Extracts a serializable Java object from the stream.
      *
+     * @param <T> The serializable type.
+     * @param cl The class for the serializable type.
      * @return The deserialized Java object.
      **/
     public <T extends java.io.Serializable> T readSerializable(Class<T> cl)
@@ -1086,7 +1088,9 @@ public class InputStream
     /**
      * Extracts a optional serializable Java object from the stream.
      *
+     * @param <T> The serializable type.
      * @param tag The numeric tag associated with the value.
+     * @param cl The class for the serializable type.
      * @return The optional value (if any).
      **/
     public <T extends java.io.Serializable> java.util.Optional<T> readSerializable(int tag, Class<T> cl)
@@ -1852,6 +1856,7 @@ public class InputStream
     /**
      * Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
      *
+     * @param <T> The proxy type.
      * @param tag The numeric tag associated with the value.
      * @param cast The uncheckedCast function to call on the unmarshaled proxy to obtain the correct proxy type.
      * @return The optional value (if any).
@@ -1901,6 +1906,8 @@ public class InputStream
     /**
      * Extracts a Slice value from the stream.
      *
+     * @param <T> The value type.
+     *
      * @param cb The consumer to notify when the extracted instance is available. The stream
      * extracts Slice values in stages. The Ice run time calls accept on the consumer when
      * the corresponding instance has been fully unmarshaled.
@@ -1943,6 +1950,8 @@ public class InputStream
 
     /**
      * Extracts an optional Slice value from the stream.
+     *
+     * @param <T> The value type.
      *
      * @param tag The numeric tag associated with the value.
      *
