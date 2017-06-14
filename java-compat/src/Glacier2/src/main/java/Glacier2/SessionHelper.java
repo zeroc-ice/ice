@@ -134,10 +134,9 @@ public class SessionHelper
     }
 
     /**
-     * Returns the Glacier2 session proxy. If the session hasn't been established yet,
-     * or the session has already been destroyed, throws SessionNotExistException.
-     * @return The session proxy, or throws SessionNotExistException if no session exists.
-     * @throws SessionNotExistException No session exists.
+     * Returns the Glacier2 session proxy, or null if the session hasn't been established yet
+     * or the session has already been destroyed.
+     * @return The session proxy, or null if no session exists.
      */
     synchronized public SessionPrx
     session()
