@@ -69,7 +69,7 @@ on Unix:
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.7.0 (MSI installation)
+    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation)
 
 On Windows if you are using Ice for C++ from a source distribution, you must
 set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
@@ -143,6 +143,6 @@ window and change to the top-level directory. At the command prompt, execute:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice37/Supported+Platforms+for+Ice+3.7.0
+[1]: https://zeroc.com/distributions/ice
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: http://gradle.org
