@@ -2920,7 +2920,7 @@ class CSharpMapping(Mapping):
                                  "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
                                  "build", "native", "bin", "x64", "Release")
             assembliesDir = os.path.join(current.driver.getIceDir(self, current), "Assemblies")
-        return { "DEVPATH" : assembliesDir, "PATH" : bzip2 };
+        return { "DEVPATH" : assembliesDir, "PATH" : bzip2 }
 
     def getDefaultSource(self, processType):
         return {
