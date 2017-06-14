@@ -112,11 +112,10 @@ The installation installs the following JAR files to `<prefix>/lib`.
     icebox-compat-3.7.0.jar
     icebt-compat-3.7.0.jar
     icediscovery-compat-3.7.0.jar
-    icegrid-compat-3.7.0jar
-    icegridgui.jar
+    icegrid-compat-3.7.0.jar
     icelocatordiscovery-compat-3.7.0.jar
     icepatch2-compat-3.7.0.jar
-    icestorm-compat-3.7.0jar
+    icestorm-compat-3.7.0.jar
 
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
