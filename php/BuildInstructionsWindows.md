@@ -95,7 +95,7 @@ PHP will need to be able to locate the libraries for the Ice run-time libraries
 and its third-party dependencies. On Windows, these DLLs are required:
 
     bzip2.dll
-    ice37b0.dll
+    ice37.dll
     icediscovery37.dll
     icelocatordiscovery37.dll
     icessl37.dll
