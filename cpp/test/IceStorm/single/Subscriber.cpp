@@ -70,7 +70,7 @@ public:
         Lock sync(*this);
         cout << "testing " << _name << " ... " << flush;
         bool datagram = _name == "datagram" || _name == "batch datagram";
-        IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(20);
+        IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(30);
         while(_count < 1000)
         {
             if(!timedWait(timeout))
