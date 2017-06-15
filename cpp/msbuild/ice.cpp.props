@@ -200,6 +200,12 @@
     </Link>
   </ItemDefinitionGroup>
 
+  <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'uwp'">
+    <ClCompile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
   <!--
       Base target names.
   -->
