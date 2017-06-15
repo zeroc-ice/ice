@@ -21,6 +21,8 @@
   <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v141'">
     <Cpp11Compiler>yes</Cpp11Compiler>
     <UWPCompiler>yes</UWPCompiler>
+    <IceConfiguration Condition="'$(Configuration)' == '' OR $(Configuration.Contains('Release'))">Release</IceConfiguration>
+    <IceConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</IceConfiguration>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
@@ -52,7 +54,7 @@
 
   <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <MakeDir Directories="$(TEMP)\SymbolCache" />
-    <Exec Command="symchk /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(Configuration)\* /s SRV*$(TEMP)\SymbolCache*https://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.$(DefaultPlatformToolset).store/" />
+    <Exec Command="symchk /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s SRV*$(TEMP)\SymbolCache*https://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.$(DefaultPlatformToolset).store/" />
   </Target>
 
   <!-- Ice for C++ builds. -->
