@@ -48,16 +48,16 @@ packages automatically from ZeroC's Maven repository located at
 ### Bzip2 Compression
 
 Ice for Java supports protocol compression using the bzip2 classes included
-with Apache Ant or available separately from [kohsuke.org]().
+with [Apache Commons Compres][5].
 
-The Maven package id for the bzip2 JAR file is as follows:
+The Maven package id for the commons-compress JAR file is as follows:
 
-    groupId=org.apache.tools, version=1.0, artifactId=bzip2
+    groupId=org.apache.commons, version=1.14, artifactId=commons-compress
 
 The demos and tests are automatically setup to enable protocol compression by
-adding the bzip2 JAR to the manifest class path. For your own applications you
-must add the bzip2 JAR to the application CLASSPATH to enable protocol
-compression.
+adding the commons-compress JAR to the manifest class path. For your own
+applications you must add the commons-compress JAR to the application CLASSPATH
+to enable protocol compression.
 
 > *These classes are a pure Java implementation of the bzip2 algorithm and
 therefore add significant latency to Ice requests.*
@@ -199,3 +199,4 @@ You can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in Fi
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: https://gradle.org
 [4]: http://proguard.sourceforge.net
+[5]: https://commons.apache.org/proper/commons-compress/

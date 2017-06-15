@@ -438,13 +438,16 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Fixed a bug where unmarshaling Ice objects was very slow when using
   compact type IDs.
 
-- (Jaava) Added the proxy method `ice_executor`, which returns an instance of
+- (Java) Added the proxy method `ice_executor`, which returns an instance of
   `java.util.concurrent.Executor` that you can pass to `CompletableFuture`
   methods such as `whenCompleteAsync` in order to force an action to be
   executed by an Ice thread pool thread.
 
 - (Java Compat) Added new interface/class metadata `java:tie`. Use this metadata
   to generate a tie class for a given interface or class.
+
+- Protocol compression now uses Bzip2 implementation from Apache Commons Compress,
+  previous versions use Bizp2 implementation from Apache Ant.
 
 ## JavaScript Changes
 

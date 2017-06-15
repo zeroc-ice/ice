@@ -200,13 +200,13 @@ public class BZip2
             {
                 Class<?> cls;
                 Class<?>[] types = new Class<?>[1];
-                cls = Util.findClass("org.apache.tools.bzip2.CBZip2InputStream", null);
+                cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream", null);
                 if(cls != null)
                 {
                     types[0] = java.io.InputStream.class;
                     _bzInputStreamCtor = cls.getDeclaredConstructor(types);
                 }
-                cls = Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
+                cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream", null);
                 if(cls != null)
                 {
                     types = new Class<?>[2];
