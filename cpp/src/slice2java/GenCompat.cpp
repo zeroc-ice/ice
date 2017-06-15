@@ -1221,14 +1221,6 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
         if(generateOperation)
         {
             out << sp;
-            if(amd)
-            {
-                writeDocCommentAsync(out, op, InParam);
-            }
-            else
-            {
-                writeDocComment(out, op, deprecateReason);
-            }
             out << nl << "public final "
                 << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
                                 optionalMapping && op->returnIsOptional())
@@ -5738,7 +5730,6 @@ Slice::GenCompat::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         Output& out = output();
 
         out << sp;
-        writeDocComment(out, p, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"));
         out << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
         out << sb;
 
