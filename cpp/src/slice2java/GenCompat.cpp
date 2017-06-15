@@ -2104,6 +2104,39 @@ Slice::JavaCompatVisitor::writeDocCommentAsync(Output& out, const OperationPtr& 
 
     if(paramType == InParam)
     {
+        //
+        // Print @throws tags
+        //
+        const string throwsTag = "@throws";
+        bool found = false;
+        for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        {
+            if(found && i->find("@") == 0)
+            {
+                found = false; // reset
+            }
+
+            if(!found)
+            {
+                if(i->find(throwsTag) != string::npos)
+                {
+                    found = true;
+                }
+            }
+
+            if(found)
+            {
+                if((*i).empty())
+                {
+                    out << nl << " *";
+                }
+                else
+                {
+                    out << nl << " * " << *i;
+                }
+            }
+        }
+
         if(!deprecateReason.empty())
         {
             out << nl << " * @deprecated " << deprecateReason;
@@ -2200,6 +2233,11 @@ Slice::JavaCompatVisitor::writeDocCommentAMI(Output& out, const OperationPtr& p,
         bool found = false;
         for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
         {
+            if(found && i->find("@") == 0)
+            {
+                found = false; // reset
+            }
+
             if(!found)
             {
                 if(i->find(returnTag) != string::npos || i->find(throwsTag) != string::npos ||
@@ -2774,7 +2812,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << epar << ';';
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam, "@param " + getEscapedParamName(op, "cb") + " A generic callback.");
                 out << nl;
                 if(!p->isInterface())
                 {
@@ -2784,7 +2822,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     << epar << ';';
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam, "@param " + getEscapedParamName(op, "cb") + " A typed callback.");
                 out << nl;
                 if(!p->isInterface())
                 {
@@ -2794,7 +2832,10 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
 
                 out << sp;
-                writeDocCommentAMI(out, op, InParam);
+                writeDocCommentAMI(out, op, InParam,
+                                   "@param " + getEscapedParamName(op, "responseCb") + " The response callback.",
+                                   "@param " + getEscapedParamName(op, "exceptionCb") + " The exception callback.",
+                                   "@param " + getEscapedParamName(op, "sentCb") + " The sent callback.");
                 out << nl;
                 if(!p->isInterface())
                 {

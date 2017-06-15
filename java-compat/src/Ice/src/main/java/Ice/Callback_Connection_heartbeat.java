@@ -23,6 +23,10 @@ public abstract class Callback_Connection_heartbeat extends IceInternal.Callback
 
     /**
      * Called when a queued invocation is sent successfully.
+     *
+     * @param sentSynchronously True if the invocation was sent synchronously (by the calling thread),
+     *        and false otherwise.
+     *
      **/
     public void sent(boolean sentSynchronously)
     {
