@@ -70,11 +70,13 @@ class BatchOneways
         private int _count;
         private int _size;
         private int _lastRequestSize;
-    };
+    }
 
     static void
     batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
     {
+        final Ice.Communicator communicator = app.communicator();
+        final Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10  * 1024];
 
         MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
@@ -83,7 +85,7 @@ class BatchOneways
         {
             batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
         }
-        batch.ice_getCommunicator().flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
+        communicator.flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
 
         p.opByteSOnewayCallCount(); // Reset the call count
 
@@ -112,7 +114,8 @@ class BatchOneways
             }
         }
 
-        if(batch.ice_getConnection() != null)
+        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch1 = (MyClassPrx)p.ice_batchOneway();
             MyClassPrx batch2 = (MyClassPrx)p.ice_batchOneway();
@@ -145,10 +148,10 @@ class BatchOneways
         batch.ice_flushBatchRequests();
         batch.ice_ping();
 
-        if(batch.ice_getConnection() != null)
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = p.ice_getCommunicator().getProperties()._clone();
+            initData.properties = properties._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
             Ice.Communicator ic = app.initialize(initData);
@@ -184,8 +187,7 @@ class BatchOneways
         }
 
         p.ice_ping();
-        if(p.ice_getConnection() != null &&
-           p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").equals(""))
+        if(p.ice_getConnection() != null && properties.getProperty("Ice.Override.Compress").equals(""))
         {
             Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

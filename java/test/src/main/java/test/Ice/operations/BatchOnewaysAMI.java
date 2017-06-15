@@ -61,6 +61,8 @@ class BatchOnewaysAMI
 
     static void batchOneways(MyClassPrx p, PrintWriter out)
     {
+        final com.zeroc.Ice.Communicator communicator = p.ice_getCommunicator();
+        final com.zeroc.Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
@@ -93,7 +95,8 @@ class BatchOnewaysAMI
             }
         }
 
-        if(batch.ice_getConnection() != null)
+        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch2 = p.ice_batchOneway();
 
@@ -119,8 +122,7 @@ class BatchOnewaysAMI
         batch3.ice_pingAsync();
         batch3.ice_flushBatchRequestsAsync().join();
 
-        // Make sure that a bogus batch request doesn't cause troubles to other
-        // ones.
+        // Make sure that a bogus batch request doesn't cause troubles to other ones.
         batch3.ice_pingAsync();
         batch.ice_pingAsync();
         batch.ice_flushBatchRequestsAsync().join();

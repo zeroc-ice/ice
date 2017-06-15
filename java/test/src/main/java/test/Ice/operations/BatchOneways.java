@@ -69,6 +69,8 @@ class BatchOneways
 
     static void batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
     {
+        final com.zeroc.Ice.Communicator communicator = app.communicator();
+        final com.zeroc.Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10  * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
@@ -77,7 +79,7 @@ class BatchOneways
         {
             batch.ice_getConnection().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
         }
-        batch.ice_getCommunicator().flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
+        communicator.flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
 
         p.opByteSOnewayCallCount(); // Reset the call count
 
@@ -106,7 +108,8 @@ class BatchOneways
             }
         }
 
-        if(batch.ice_getConnection() != null)
+        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch1 = p.ice_batchOneway();
             MyClassPrx batch2 = p.ice_batchOneway();
@@ -139,10 +142,10 @@ class BatchOneways
         batch.ice_flushBatchRequests();
         batch.ice_ping();
 
-        if(batch.ice_getConnection() != null)
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = p.ice_getCommunicator().getProperties()._clone();
+            initData.properties = properties._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
             com.zeroc.Ice.Communicator ic = app.initialize(initData);
@@ -178,8 +181,7 @@ class BatchOneways
         }
 
         p.ice_ping();
-        if(p.ice_getConnection() != null &&
-           p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").equals(""))
+        if(p.ice_getConnection() != null && properties.getProperty("Ice.Override.Compress").equals(""))
         {
             com.zeroc.Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
