@@ -91,6 +91,14 @@ IceInternal::FactoryACMMonitor::destroy()
     Lock sync(*this);
     if(!_instance)
     {
+        //
+        // Ensure all the connections have been cleared, it's important to wait here
+        // to prevent the timer destruction in IceInternal::Instance::destroy.
+        //
+        while(!_connections.empty())
+        {
+            wait();
+        }
         return;
     }
 
@@ -205,7 +213,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         if(!_instance)
         {
             _connections.clear();
-            notify();
+            notifyAll();
             return;
         }
 

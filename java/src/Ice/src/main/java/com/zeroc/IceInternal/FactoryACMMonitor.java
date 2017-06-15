@@ -55,6 +55,20 @@ class FactoryACMMonitor implements ACMMonitor
     {
         if(_instance == null)
         {
+            //
+            // Ensure all the connections have been cleared, it's important to wait here
+            // to prevent the timer destruction in IceInternal::Instance::destroy.
+            //
+            while(!_connections.isEmpty())
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
             return;
         }
 
@@ -194,7 +208,7 @@ class FactoryACMMonitor implements ACMMonitor
             if(_instance == null)
             {
                 _connections.clear();
-                notify();
+                notifyAll();
                 return;
             }
 

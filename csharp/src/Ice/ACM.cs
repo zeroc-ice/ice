@@ -109,6 +109,14 @@ namespace IceInternal
             {
                 if(_instance == null)
                 {
+                    //
+                    // Ensure all the connections have been cleared, it's important to wait here
+                    // to prevent the timer destruction in IceInternal::Instance::destroy.
+                    //
+                    while(_connections.Count > 0)
+                    {
+                        System.Threading.Monitor.Wait(this);
+                    }
                     return;
                 }
 
@@ -228,7 +236,7 @@ namespace IceInternal
                 if(_instance == null)
                 {
                     _connections.Clear();
-                    System.Threading.Monitor.Pulse(this);
+                    System.Threading.Monitor.PulseAll(this);
                     return;
                 }
 
