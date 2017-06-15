@@ -1938,6 +1938,7 @@ class AndroidProcessController(RemoteProcessController):
         self.device = current.config.device
         self.avd = current.config.avd
         self.androidemulator = current.config.androidemulator
+        self.emulator = None # Keep a reference to the android emulator process
 
     def __str__(self):
         return "Android"
@@ -1948,7 +1949,7 @@ class AndroidProcessController(RemoteProcessController):
     def adb(self):
         return "adb -s {}".format(self.device) if self.device else "adb"
 
-    def emulator(self):
+    def emulatorCommand(self):
         #
         # We need to use emulator fullpath, otherwise fails to start with
         # :Qt library not found at ..\emulator\lib64\qt\lib
@@ -1962,7 +1963,7 @@ class AndroidProcessController(RemoteProcessController):
         #
         # First check if the AVD image is available
         #
-        out = run("{} -list-avds".format(self.emulator()))
+        out = run("{} -list-avds".format(self.emulatorCommand()))
         if config.avd not in out:
             raise RuntimeError("couldn't find AVD `{}'".format(config.avd))
 
@@ -1979,7 +1980,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "{0} -avd {1} -port {2} -wipe-data".format(self.emulator(), config.avd, port)
+        cmd = "{0} -avd {1} -port {2} -wipe-data".format(self.emulatorCommand(), config.avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2538,12 +2539,6 @@ class Driver:
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
         self.communicator = Ice.initialize(initData)
 
-        self.ctrlCHandler = Ice.CtrlCHandler()
-
-        def signal(sig):
-            self.communicator.destroy()
-        self.ctrlCHandler.setCallback(signal)
-
     def getProcessController(self, current, process=None):
         processController = None
         if current.config.buildPlatform == "iphonesimulator":
@@ -2584,7 +2579,6 @@ class Driver:
 
         if self.communicator:
             self.communicator.destroy()
-            self.ctrlCHandler.destroy()
 
 class CppMapping(Mapping):
 
