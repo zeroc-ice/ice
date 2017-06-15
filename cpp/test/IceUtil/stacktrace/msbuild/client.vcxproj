@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.0\build\native\zeroc.ice.v100.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.0\build\native\zeroc.ice.v100.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0\build\native\zeroc.ice.v141.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.0\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
@@ -123,6 +123,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140'">
+    <Link>
+      <!--
+          TODO: we don't use DebugFastLink for this test because dbghelp.dll on Windows Server 2012,
+          Windows 8.1 (etc.) does not support partial PDBs.
+      -->
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v141'">
+    <Link>
+      <!--
+          TODO: we don't use DebugFastLink for this test because dbghelp.dll on Windows Server 2012,
+          Windows 8.1 (etc.) does not support partial PDBs.
+      -->
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
