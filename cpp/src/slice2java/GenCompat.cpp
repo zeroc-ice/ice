@@ -118,6 +118,19 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
     return deprecateReason;
 }
 
+bool
+writeSuppressDeprecation(Output& out, const ContainedPtr& p1, const ContainedPtr& p2 = 0)
+{
+    string deprecateMetadata;
+    if(p1->findMetaData("deprecate", deprecateMetadata) ||
+       (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
+    {
+        out << nl << "@SuppressWarnings(\"deprecation\")";
+        return true;
+    }
+    return false;
+}
+
 string
 initValue(const TypePtr& p)
 {
@@ -1221,6 +1234,7 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
         if(generateOperation)
         {
             out << sp;
+            writeSuppressDeprecation(out, op, cl);
             out << nl << "public final "
                 << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
                                 optionalMapping && op->returnIsOptional())
@@ -1250,14 +1264,10 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         assert(cl);
-        string deprecateReason = getDeprecateReason(op, cl, "operation");
 
         string opName = op->name();
         out << sp;
-        if(!deprecateReason.empty())
-        {
-            out << nl << "/** @deprecated **/";
-        }
+        writeSuppressDeprecation(out, op);
         out << nl << "public static boolean _iceD_" << opName << '(' << name
             << " obj, IceInternal.Incoming inS, Ice.Current current)";
         out.inc();
@@ -4389,11 +4399,17 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
 
     open(absolute, file);
     Output& out = output();
-
-    string typeS = typeToString(p, TypeModeIn, getPackage(contained));
-    out << sp << nl << "public final class " << name << "Holder";
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+
+    out << sp;
+    if(cl)
+    {
+        writeSuppressDeprecation(out, cl->definition());
+    }
+
+    string typeS = typeToString(p, TypeModeIn, getPackage(contained));
+    out << nl << "public final class " << name << "Holder";
     if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
     {
         out << " extends Ice.ObjectHolderBase<" << typeS << ">";
@@ -4480,6 +4496,7 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     open(getAbsolute(p, "", "", "PrxHelper"), p->file());
     Output& out = output();
+    OperationList ops = p->allOperations();
 
     //
     // A proxy helper class serves two purposes: it implements the
@@ -4489,6 +4506,18 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     writeDocComment(out, getDeprecateReason(p, 0, p->isInterface() ? "interface" : "class"),
                     "Provides type-specific helper functions.");
+
+    if(!writeSuppressDeprecation(out, p))
+    {
+        for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
+        {
+            if(writeSuppressDeprecation(out, (*r)))
+            {
+                break;
+            }
+        }
+    }
+
     out << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
         << "Prx";
 
@@ -4497,7 +4526,6 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string contextParam = "java.util.Map<String, String> context";
     string explicitContextParam = "boolean explicitCtx";
 
-    OperationList ops = p->allOperations();
     for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
@@ -6498,8 +6526,9 @@ Slice::GenCompat::AsyncVisitor::visitOperation(const OperationPtr& p)
             }
 
             int iter;
-
-            out << sp << nl << "final class " << classNameAMDI << '_' << name
+            out << sp;
+            writeSuppressDeprecation(out, p);
+            out << nl << "final class " << classNameAMDI << '_' << name
                 << " extends IceInternal.IncomingAsync implements " << classNameAMD << '_' << name;
             out << sb;
 

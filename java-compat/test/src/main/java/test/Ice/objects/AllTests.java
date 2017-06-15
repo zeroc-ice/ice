@@ -46,6 +46,7 @@ public class AllTests
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static InitialPrx
     allTests(test.Util.Application app)
     {

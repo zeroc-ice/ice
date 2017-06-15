@@ -56,6 +56,7 @@ public class Collocated extends test.Util.Application
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
         @Override
@@ -71,6 +72,7 @@ public class Collocated extends test.Util.Application
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int run(String[] args)
     {

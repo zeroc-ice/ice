@@ -57,6 +57,7 @@ public class Client extends test.Util.Application
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static class MyObjectFactory implements Ice.ObjectFactory
     {
         @Override
@@ -72,6 +73,7 @@ public class Client extends test.Util.Application
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int run(String[] args)
     {
