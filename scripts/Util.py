@@ -28,7 +28,7 @@ def run(cmd, cwd=None, err=False):
     if(not err and p.wait() != 0) or (err and p.wait() == 0) :
         raise RuntimeError(cmd + " failed:\n" + out)
     #
-    # Without this we get warnings when runing with python_d on Windows
+    # Without this we get warnings when running with python_d on Windows
     #
     # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
     #
