@@ -695,11 +695,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex.reason << endl;
             test(false);
         }
-        for(int i = 0; i < nServers; ++i)
+        try
         {
-            ostringstream id;
-            id << "server-" << i;
-            admin->startServer(id.str());
+            for(int i = 0; i < nServers; ++i)
+            {
+                ostringstream id;
+                id << "server-" << i;
+                admin->startServer(id.str());
+            }
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
         }
         for(int i = 0; i < nServers; ++i)
         {
