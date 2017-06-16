@@ -323,7 +323,7 @@ class Windows(Platform):
             if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
             elif isinstance(mapping, PhpMapping):
-                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion()), 
+                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion()),
                                     "build", "native", "bin", platform, config)
             return "bin"
 
@@ -2150,7 +2150,10 @@ class iOSDeviceProcessController(RemoteProcessController):
 
     def getControllerIdentity(self, current):
         if isinstance(current.testcase.getMapping(), ObjCMapping):
-            return "iPhoneOS/com.zeroc.ObjC-Test-Controller"
+            if current.config.arc:
+                return "iPhoneOS/com.zeroc.ObjC-ARC-Test-Controller"
+            else:
+                return "iPhoneOS/com.zeroc.ObjC-Test-Controller"
         else:
             assert(isinstance(current.testcase.getMapping(), CppMapping))
             if current.config.cpp11:
