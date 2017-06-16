@@ -25,8 +25,8 @@ class Executor:
         self.continueOnFailure = continueOnFailure
         self.lock = threading.Lock()
 
-    def submit(self, testsuite, crossMappings):
-        mainThreadOnly = testsuite.isMainThreadOnly() or self.workers == 0
+    def submit(self, testsuite, crossMappings, driver):
+        mainThreadOnly = testsuite.isMainThreadOnly(driver) or self.workers == 0
 
         #
         # If the test supports workers and we are cross testing, ensure that all the cross
@@ -391,7 +391,7 @@ class LocalDriver(Driver):
                         continue
                     elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                         continue
-                    executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross])
+                    executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
 
             #
             # Run all the tests and wait for the executor to complete.
