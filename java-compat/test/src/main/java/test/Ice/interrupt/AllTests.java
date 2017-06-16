@@ -317,6 +317,8 @@ public class AllTests
             // This section of the test doesn't run when collocated.
             if(p.ice_getConnection() != null)
             {
+                testController.holdAdapter();
+
                 //
                 // Test interrupt of waitForSent. Here hold the adapter and send a large payload. The
                 // thread is interrupted in 500ms which should result in a operation interrupted exception.
@@ -337,7 +339,6 @@ public class AllTests
                     }
                 });
 
-                testController.holdAdapter();
                 Ice.AsyncResult r = null;
 
                 // The sequence needs to be large enough to fill the write/recv buffers
