@@ -227,7 +227,7 @@ class Windows(Platform):
 
     def __init__(self):
         Platform.__init__(self)
-        self.compiler = ""
+        self.compiler = None
         self.nugetPackageVersion = None
 
     def getFilters(self, config):
