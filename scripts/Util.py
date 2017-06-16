@@ -244,7 +244,12 @@ class Windows(Platform):
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
         elif self.getCompiler() in ["VC100"]:
-            return (["cpp/Ice/.*", "cpp/IceSSL/.*", "cpp/IceBox/.*", "cpp/IceDiscovery/.*", "cpp/IceUtil/.*", "cpp/Slice/.*"], [])
+            return (["cpp/Ice/.*",
+                     "cpp/IceSSL/.*",
+                     "cpp/IceBox/.*",
+                     "cpp/IceDiscovery/.*",
+                     "cpp/IceUtil/.*",
+                     "cpp/Slice/.*"], [])
         elif self.getCompiler() not in ["VC140"]:
             return ([], ["python", "php", "ruby"])
         else:
@@ -260,7 +265,7 @@ class Windows(Platform):
         return "Release"
 
     def getCompiler(self):
-        if self.compiler:
+        if self.compiler != None:
             return self.compiler
         if os.environ.get("CPP_COMPILER", "") != "":
             self.compiler = os.environ["CPP_COMPILER"]
@@ -278,7 +283,7 @@ class Windows(Platform):
                 elif out.find("Version 19.10.") != -1:
                     self.compiler = "VC141"
             except:
-                pass
+                self.compiler = ""
         return self.compiler
 
     def getNugetPackageVersion(self):
@@ -303,8 +308,10 @@ class Windows(Platform):
             packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
             package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
                 mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
-
             nuget = package and os.path.exists(package)
+            iceHome = os.environ.get("ICE_HOME", "")
+            if isinstance(mapping, CppMapping) and not nuget and not os.path.exists(iceHome):
+                raise RuntimeError("Cannot detect a valid C++ distribution")
             if not nuget:
                 return "bin"
             elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
@@ -349,7 +356,12 @@ class Windows(Platform):
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
         package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
             mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
-        return package if package and os.path.exists(package) else os.environ.get("ICE_HOME")
+
+        iceHome = os.environ.get("ICE_HOME", "")
+        if isinstance(mapping, CppMapping) and not package and not os.path.exists(iceHome):
+            raise RuntimeError("Cannot detect a valid C++ distribution")
+
+        return package if package and os.path.exists(package) else iceHome
 
     def canRun(self, mapping, current):
         #
