@@ -92,7 +92,10 @@ $1_targetdir    = /$$($1_multiarch)
 $1_objdir       = /$$($1_multiarch)
 $1_installdir   = $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
 
-$1_cppflags     = $(opt-cppflags)
+#
+# Disable ABI compatibility warnings for armhf using -Wno-psabi
+#
+$1_cppflags     = $(opt-cppflags) $(if $(filter $1,armhf),-Wno-psabi)
 $1_ldflags      = $(opt-ldflags)
 endef
 
