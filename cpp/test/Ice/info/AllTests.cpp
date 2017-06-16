@@ -166,7 +166,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
 
             ipEndpoint = getTCPEndpointInfo(publishedEndpoints[0]->getInfo());
-            test(ipEndpoint->host == "127.0.0.1");
+            test(ipEndpoint->host == getTestHost(communicator->getProperties()));
             test(ipEndpoint->port == port);
 
             adapter->destroy();
