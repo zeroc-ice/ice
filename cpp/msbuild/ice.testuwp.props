@@ -17,6 +17,7 @@
         <ClCompile>
             <PreprocessorDefinitions>WINAPI_FAMILY=2;_UNICODE;UNICODE;ICE_CPP11_MAPPING;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
             <AdditionalIncludeDirectories>$(Platform)\$(Configuration)\;$(IceSrcRootDir)\test\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
         </ClCompile>
         <Link>
             <AdditionalLibraryDirectories>$(IceSrcRootDir)\test\Common\msbuild\uwp\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
