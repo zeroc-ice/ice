@@ -674,6 +674,18 @@ endef
 # $(call make-project,$1=project)
 #
 define make-project
+
+# Validate platforms, configs, languages
+ifneq ($$(filter-out $(supported-platforms),$$(platforms)),)
+$$(error invalid platforms: $$(platforms), supported: $$(supported-platforms))
+endif
+ifneq ($$(filter-out $$(supported-configs),$$(configs)),)
+$$(error invalid configs: $$(configs), supported: $$(supported-configs))
+endif
+ifneq ($$(filter-out $$(supported-languages),$$(languages)),)
+$$(error invalid languages: $$(languages), supported: $$(supported-languages))
+endif
+
 ifeq ($(filter $(SKIP),$1),)
 $1_objdir               := $$(or $$($1_objdir),$1/build)
 $1_srcdir               := $$(or $$($1_srcdir),$1)
