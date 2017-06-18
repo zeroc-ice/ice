@@ -14,7 +14,12 @@
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\glacier2cryptpermissionsverifier*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icedb*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icesslopenssl*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icexml*.lib;
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*uwp++11*.lib"/>
     </ItemGroup>
 
@@ -31,21 +36,28 @@
         <Tools Include="$(IceSrcRootDir)bin\x64\Release\slice2*.exe" />
     </ItemGroup>
 
-    <!-- Win32/x64 Debug binaries -->
+    <!-- Debug binaries -->
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
         <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
+                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceboxadmin.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge*.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
                               $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe"/>
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestorm*.exe;
+                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
     </ItemGroup>
 
     <!-- public C++ header and Slice files -->
     <ItemGroup>
         <Headers Include="$(IceSrcRootDir)include\**\*.h"
                  Exclude="$(IceSrcRootDir)include\generated\**\*.h;
+                          $(IceSrcRootDir)include\IceIAP\*.h;
                           $(IceSrcRootDir)include\IceBT\*.h"/>
-        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h" />
+        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\IceDiscovery\*.h;
+                          $(IceSrcRootDir)include\IceLocatorDiscovery\*.h"/>
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice" />
     </ItemGroup>
