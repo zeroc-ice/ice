@@ -14,6 +14,7 @@
     <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
     <IceTestSolution>ice.test.sln</IceTestSolution>
     <IceTestSolution Condition="'$(VisualStudioVersion)' == '10.0'">ice.test.v100.sln</IceTestSolution>
+    <IceConfiguration>$(Configuration)</IceConfiguration>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -21,7 +22,7 @@
   <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v141'">
     <Cpp11Compiler>yes</Cpp11Compiler>
     <UWPCompiler>yes</UWPCompiler>
-    <IceConfiguration Condition="'$(Configuration)' == '' OR $(Configuration.Contains('Release'))">Release</IceConfiguration>
+    <IceConfiguration Condition="$(Configuration.Contains('Release'))">Release</IceConfiguration>
     <IceConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</IceConfiguration>
   </PropertyGroup>
 
