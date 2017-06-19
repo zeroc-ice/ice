@@ -214,14 +214,14 @@ $2/$(call mklibname,$1,$3,$4): $5
 	$(Q)$(call mklib,$2/$(call mklibname,$1,$3,$4),$(strip $5),$1,$3,$4,$(LDFLAGS) $(strip $7),$8)
 endef
 
-# $(call install-static-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir)
+# $(call install-static-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir,$6=devinstall)
 define install-static-library
 $(DESTDIR)$5/$(call mklibname,$1,$3,$4): $2/$(call mklibname,$1,$3,$4) | $(DESTDIR)$5
 	$(E) "Installing $$@"
 	$(Q)$(INSTALL) $$< $(DESTDIR)$5
 endef
 
-# $(call get-static-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion)
+# $(call get-static-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
 get-static-library-targets = $2/$(call mklibname,$1)
 
 #
@@ -249,7 +249,7 @@ endif
 
 endef
 
-# $(call install-shared-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir)
+# $(call install-shared-library,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir,$6=devinstall)
 define install-shared-library
 
 $(DESTDIR)$5/$(call mkshlibfilename,$1,$3,$4): $2/$(call mkshlibfilename,$1,$3,$4) | $(DESTDIR)$5
@@ -262,20 +262,21 @@ $(DESTDIR)$5/$(call mksoname,$1,$3,$4): $(DESTDIR)$5/$(call mkshlibfilename,$1,$
 					$2/$(call mksoname,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
 
-ifneq ($(and $3,$(filter-out undefined,$(origin mkshlibname))),)
+ifneq ($(and $(filter yes,$6),$3,$(filter-out undefined,$(origin mkshlibname))),)
 $(DESTDIR)$5/$(call mkshlibname,$1,$3,$4): $(DESTDIR)$5/$(call mkshlibnametarget,$1,$3,$4) \
 					   $2/$(call mkshlibname,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
 endif
+
 endif
 
 endef
 
-# $(call get-shared-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion)
+# $(call get-shared-library-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
 get-shared-library-targets = $(addprefix $2/,\
                               $(call mkshlibfilename,$1,$3,$4) \
                               $(if $(and $4,$(filter-out undefined,$(origin mksoname))),$(call mksoname,$1,$3,$4)) \
-                              $(if $(and $3,$(filter-out undefined,$(origin mkshlibname))),$(call mkshlibname,$1,$3,$4)))
+                              $(if $(and $(filter yes,$5),$3,$(filter-out undefined,$(origin mkshlibname))),$(call mkshlibname,$1,$3,$4)))
 
 #
 # $(call make-shared-module,$1=libname,$2=libdir,$3=version,$4=soversion,$5=objects,$6=dependencies,$7=ldflags,
@@ -290,7 +291,7 @@ $2/$1: $5 $(foreach d,$6,$($d_targets))
 	$(Q)$(call mkshlib,$2/$1,$(strip $5),$1,,,$(LDFLAGS) $(strip $7),$8)
 endef
 
-# $(call install-shared-module,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir)
+# $(call install-shared-module,$1=libname,$2=libdir,$3=version,$4=soversion,$5=installdir,$6=devinstall)
 define install-shared-module
 $(DESTDIR)$5/$1: $2/$1 | $(DESTDIR)$5
 	$(E) "Installing $$@"
@@ -298,7 +299,7 @@ $(DESTDIR)$5/$1: $2/$1 | $(DESTDIR)$5
 	$(Q)$(CHMOD) a+rx $$@
 endef
 
-# $(call get-shared-module-targets,$1=libname,$2=libdir,$3=version,$4=soversion)
+# $(call get-shared-module-targets,$1=libname,$2=libdir,$3=version,$4=soversion,$5=devinstall)
 get-shared-module-targets = $2/$1
 
 #
@@ -315,7 +316,7 @@ $2/$1$(EXE_EXT): $5 $(foreach d,$6,$($d_targets))
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(LDFLAGS) -o $$@ $5 $(strip $7)
 endef
 
-# $(call install-program,$1=exename,$2=bindir,$3=version,$4=soversion,$5=installdir)
+# $(call install-program,$1=exename,$2=bindir,$3=version,$4=soversion,$5=installdir,$6=devinstall)
 define install-program
 $(DESTDIR)$5/$1$(EXE_EXT): $2/$1$(EXE_EXT) | $(DESTDIR)$5
 	$(E) "Installing $$@"
@@ -323,7 +324,7 @@ $(DESTDIR)$5/$1$(EXE_EXT): $2/$1$(EXE_EXT) | $(DESTDIR)$5
 	$(Q)$(CHMOD) a+rx $$@
 endef
 
-# $(call get-program-targets,$1=exename,$2=bindir,$3=version,$4=soversion)
+# $(call get-program-targets,$1=exename,$2=bindir,$3=version,$4=soversion,$5=devinstall)
 get-program-targets = $2/$1$(EXE_EXT)
 
 #
@@ -342,7 +343,7 @@ $2_components   := $5
 # Compute the target and installation directories.
 #
 $5_targetdir    := $$(call var-value,targetdir,$1,$2,$3,$4,make-dirwsuffix)
-ifndef $1_noinstall
+ifeq ($$($1_caninstall),yes)
 $5_installdir   := $$(call var-value,installdir,$1,$2,$3,$4,make-dirwsuffix)
 endif
 
@@ -364,7 +365,8 @@ $5_system_libs  := $$(call var-compound,system_libs,$1,$2,$3,$4)
 #
 # The targets to build
 #
-$5_targets := $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$$($5_targetdir),$$($5_version),$$($5_soversion))
+$5_targets := $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$$($5_targetdir),$$($5_version),$$($5_soversion),yes)
+$5_install_targets := $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$(DESTDIR)$$($5_installdir),$$($5_version),$$($5_soversion),$$($2_devinstall))
 
 #
 # We define a secondary target for component[platform-config]. This is necessary
@@ -391,6 +393,9 @@ $2_targetname   := $$(call var-with-default,$2_targetname,$(patsubst $1_%,%,$2))
 $2_platforms    := $$(filter $(platforms) $$($2_always_enable_platforms),$$(call unique,$$($2_always_enable_platforms) $$(or $$($2_platforms),$$($1_platforms),$(call component-platforms,$1,$2))))
 $2_configs      := $$(filter $(configs) $$($2_always_enable_configs),$$(call unique,$$($2_always_enable_configs) $$(or $$($2_configs),$$($1_configs),$(call component-configs,$1,$2))))
 
+# Install files necessary for development.
+$2_devinstall   := $$(call var-with-default,$2_devinstall,yes)
+
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
 #
@@ -415,6 +420,7 @@ ifeq ($(filter $(SKIP),$1),)
 $1_targetdir    := $$(call var-with-default,$1_targetdir,$1/build)
 $1_version      := $$(call var-with-default,$1_version,$(version))
 $1_soversion    := $$(call var-with-default,$1_soversion,$(soversion))
+$1_caninstall   := $$(call var-with-default,$1_caninstall,yes)
 $$(foreach p,$$($1_programs),$$(if $$(filter $(SKIP),$$p),,$$(eval $$(call create-component-targets,$1,$$p,program))))
 $$(foreach l,$$($1_libraries),$$(if $$(filter $(SKIP),$$l),,$$(eval $$(call create-component-targets,$1,$$l,library))))
 endif
@@ -499,7 +505,7 @@ $5_distclean:
 
 $2_distclean:: $5_distclean
 
-ifndef $1_noinstall
+ifeq ($$($1_caninstall),yes)
 
 ifeq ($$(filter $$($5_installdir),$$(installdirs)),)
 installdirs += $$($5_installdir)
@@ -507,9 +513,9 @@ $(DESTDIR)$$($5_installdir):
 	$(Q)$(MKDIR) -p $$@
 endif
 
-$5_install:: $$(patsubst $$($5_targetdir)/%,$(DESTDIR)$$($5_installdir)/%,$$($5_targets))
+$5_install:: $$($5_install_targets)
 
-$$(eval $$(call install-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),$$($5_version),$$($5_soversion),$$($5_installdir)))
+$$(eval $$(call install-$$($5_targetrule),$$($5_targetname),$$($5_targetdir),$$($5_version),$$($5_soversion),$$($5_installdir),$$($2_devinstall)))
 
 ifneq ($$(and $$(filter $3,$$($2_install_platforms)),$$(filter $4,$$($2_install_configs))),)
 $2_install:: $5_install
@@ -652,10 +658,12 @@ $2_distclean::
 #
 # Install public header files if building a library
 #
+ifeq ($$($2_devinstall),yes)
 ifneq ($$(and $$($2_components),$(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),$(includedir),$(install_includedir),$2_install))
 ifneq ($$($2_generated_headers),)
 $$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
+endif
 endif
 endif
 

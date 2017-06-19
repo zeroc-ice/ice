@@ -62,7 +62,7 @@ define create-test-project
 
 $1_srcdir       := $1
 $1_programs     := $$(or $$($1_programs),$(test-programs))
-$1_noinstall    := 1
+$1_caninstall   := no
 
 $1_client_sources       := $$(call test-sources,$$(call $1_client_sources,$$($1_srcext)),$$($1_srcdir),\
                                 $$(call test-client-sources,$$($1_srcext)))

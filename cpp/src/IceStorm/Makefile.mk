@@ -16,6 +16,7 @@ $(project)_dependencies         := IceStorm Ice
 IceStormService_targetdir       := $(libdir)
 IceStormService_dependencies    := IceGrid Glacier2 IceBox IceDB
 IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
+IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              InstrumentationI.cpp \
                                                              NodeI.cpp \

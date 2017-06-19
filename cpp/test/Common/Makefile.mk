@@ -8,7 +8,7 @@
 # **********************************************************************
 
 $(project)_libraries    = TestCommon
-$(project)_noinstall    := 1
+$(project)_caninstall   := no
 
 #
 # Put the shared TestCommon library in the lib directory for convenience on platforms
