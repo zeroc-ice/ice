@@ -40,7 +40,6 @@
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
         <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
                      Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceboxadmin.exe;
                               $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge*.exe;
                               $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
                               $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
