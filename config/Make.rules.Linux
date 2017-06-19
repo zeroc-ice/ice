@@ -185,6 +185,3 @@ IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libba
 Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
 IceSSL_system_libs                              = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
-ifneq ($(filter debian ubuntu yocto,$(linux_id)),)
-IceBT_system_libs                               = $(IceSSL_system_libs) $(shell pkg-config --libs dbus-1)
-endif

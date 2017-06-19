@@ -51,6 +51,18 @@ that do not include them. You can install these packages as shown below:
     sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
     sudo yum install mcpp-devel
 
+In addition, on Ubuntu and Debian distributions where the Ice for Bluetooth
+plug-in is supported, you will need to install these packages if you want to
+build the IceBT transport plug-in:
+
+ - [pkg-config][8] 0.29 or later
+ - [D-Bus][9] 1.10 or later
+ - [BlueZ][10] 5.37 or later
+
+These packages are provided with the system and can be installed with:
+
+    sudo apt-get install pkg-config libdbus-1-dev libbluetooth-dev
+
 ## Building Ice
 
 From the top-level source directory, edit `config/Make.rules` to establish your
@@ -150,3 +162,6 @@ failure, the tests abort with `failed`.
 [5]: https://symas.com/lightning-memory-mapped-database/
 [6]: https://github.com/zeroc-ice/mcpp
 [7]: https://www.openssl.org/
+[8]: https://www.freedesktop.org/wiki/Software/pkg-config
+[9]: https://www.freedesktop.org/wiki/Software/dbus
+[10]: http://www.bluez.org

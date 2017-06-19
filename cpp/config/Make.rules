@@ -37,7 +37,7 @@ coreandstub_components  = IceUtil \
 
 # Add the Bluetooth transport for Debian/Ubuntu/Yocto
 ifneq ($(filter debian ubuntu yocto,$(linux_id)),)
-coreandstub_components  += IceXML IceBT
+coreandstub_components  += IceBT
 endif
 
 #
