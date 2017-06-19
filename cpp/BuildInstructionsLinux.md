@@ -63,6 +63,10 @@ These packages are provided with the system and can be installed with:
 
     sudo apt-get install pkg-config libdbus-1-dev libbluetooth-dev
 
+> *We have experienced problems with BlueZ versions up to and including 5.39,
+as well as 5.44 and 5.45. At this time we recommend using the daemon (`bluetoothd`)
+from BlueZ 5.43.*
+
 ## Building Ice
 
 From the top-level source directory, edit `config/Make.rules` to establish your
