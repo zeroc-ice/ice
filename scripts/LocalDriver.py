@@ -400,6 +400,8 @@ class LocalDriver(Driver):
 
             results = executor.runUntilCompleted(self, self.start)
 
+            Expect.cleanup() # Cleanup processes which might still be around
+
             failures = [r for r in results if not r.isSuccess()]
             m, s = divmod(time.time() - now, 60)
             print("")

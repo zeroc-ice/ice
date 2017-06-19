@@ -82,8 +82,7 @@ def escape(s, escapeNewlines = True):
     return o.getvalue()
 
 def taskkill(args):
-    p = subprocess.Popen("taskkill {0}".format(args),
-        shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen("taskkill {0}".format(args), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.stdout.read().decode('UTF-8').strip()
     p.wait()
     p.stdout.close()
@@ -94,7 +93,7 @@ def killProcess(p):
     else:
         os.kill(p.pid, signal.SIGKILL)
 
-def terminateProces(p):
+def terminateProcess(p):
     if win32:
         taskkill("/T /PID {0}".format(p.pid))
     else:
@@ -379,42 +378,38 @@ class Expect (object):
             self.logfile.write('spawn: "%s"\n' % command)
             self.logfile.flush()
 
-        try:
-            if win32:
-                # Don't rely on win32api
-                # import win32process
-                # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
-                #
-                # universal_newlines = True is necessary for Python 3 on Windows
-                #
-                # We can't use shell=True because terminate() wouldn't
-                # work. This means the PATH isn't searched for the
-                # command.
-                #
-                CREATE_NEW_PROCESS_GROUP = 512
-                self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
-                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                          creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
-            else:
-                self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
-                                          stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                          preexec_fn=preexec_fn)
-            global processes
-            processes[self.p.pid] = self.p
+        if win32:
+            # Don't rely on win32api
+            # import win32process
+            # creationflags = win32process.CREATE_NEW_PROCESS_GROUP)
+            #
+            # universal_newlines = True is necessary for Python 3 on Windows
+            #
+            # We can't use shell=True because terminate() wouldn't
+            # work. This means the PATH isn't searched for the
+            # command.
+            #
+            CREATE_NEW_PROCESS_GROUP = 512
+            self.p = subprocess.Popen(command, env=env, cwd=cwd, shell=False, bufsize=0, stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      creationflags = CREATE_NEW_PROCESS_GROUP, universal_newlines=True)
+        else:
+            self.p = subprocess.Popen(splitCommand(command), env=env, cwd=cwd, shell=False, bufsize=0,
+                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      preexec_fn=preexec_fn)
+        global processes
+        processes[self.p.pid] = self.p
 
-            self.r = reader(desc, self.p, logfile)
+        self.r = reader(desc, self.p, logfile)
 
-            # The thread is marked as a daemon thread. This is done so that if
-            # an expect script runs off the end of main without kill/wait on each
-            # spawned process the script will not hang trying to join with the
-            # reader thread.
-            self.r.setDaemon(True)
+        # The thread is marked as a daemon thread. This is done so that if
+        # an expect script runs off the end of main without kill/wait on each
+        # spawned process the script will not hang trying to join with the
+        # reader thread.
+        self.r.setDaemon(True)
 
-            if startReader:
-                self.startReader()
-        except:
-            cleanup()
-            raise
+        if startReader:
+            self.startReader()
 
     def startReader(self, watchDog = None):
         if watchDog is not None:
@@ -551,7 +546,7 @@ class Expect (object):
             pass
 
         try:
-            terminateProces(self.p)
+            terminateProcess(self.p)
         except:
             traceback.print_exc(file=sys.stdout)
 
@@ -595,52 +590,6 @@ class Expect (object):
                 killProcess(self.p)
         else:
             os.kill(self.p.pid, sig)
-
-    # status == 0 is normal exit status for C++
-    #
-    # status == 130 is normal exit status for a Java app that was
-    # SIGINT interrupted.
-    #
-    def waitTestSuccess(self, exitstatus = 0, timeout = None):
-        """Wait for the process to terminate for up to timeout seconds, and
-           validate the exit status is as expected."""
-
-        def test(result, expected):
-            if expected != result:
-                print("unexpected exit status: expected: %d, got %d" % (expected, result))
-                sys.exit(1)
-
-        try:
-            self.wait(timeout)
-            if self.mapping in ["java", "java-compat"]:
-                if self.killed is not None:
-                    if win32:
-                        test(self.exitstatus, -self.killed)
-                    else:
-                        if self.killed == signal.SIGINT:
-                            test(130, self.exitstatus)
-                        else:
-                            sys.exit(1)
-                else:
-                    test(self.exitstatus, exitstatus)
-            else:
-                test(self.exitstatus, exitstatus)
-
-        except:
-            cleanup()
-            raise
-
-    def waitTestFail(self, timeout = None):
-        """Wait for the process to terminate for up to timeout seconds, and
-           validate the exit status is as expected."""
-        try:
-            self.wait(timeout)
-            if self.exitstatus == 0:
-                print("unexpected non-zero exit status")
-                sys.exit(1)
-        except:
-            cleanup()
-            raise
 
     def trace(self, suppress = None):
         self.r.enabletrace(suppress)
