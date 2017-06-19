@@ -41,7 +41,7 @@ packages automatically from ZeroC's Maven repository located at
 ### Bzip2 Compression
 
 Ice for Java supports protocol compression using the bzip2 classes included
-with [Apache Commons Compres][4].
+with [Apache Commons Compress][4].
 
 The Maven package id for the commons-compress JAR file is as follows:
 
