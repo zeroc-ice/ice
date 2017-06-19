@@ -72,13 +72,20 @@
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
         <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
-              SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
+              SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)"
+              SkipUnchangedFiles="Yes" />
+
         <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
-              SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+              SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"
+              SkipUnchangedFiles="Yes" />
         <Copy Condition="'$(Platform)|$(Configuration)' == 'x64|Release'"
-              SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
-        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
-        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
-        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
+              SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools"
+              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)"
+              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)"
+              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" 
+              SkipUnchangedFiles="Yes"/>
     </Target>
 </Project>

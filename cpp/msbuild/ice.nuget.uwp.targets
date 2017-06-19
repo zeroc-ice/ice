@@ -11,17 +11,28 @@
 
         <!-- public header files and sources -->
         <Headers Include="$(IceSrcRootDir)include\**\*.h"
-                 Exclude="$(IceSrcRootDir)include\generated\**\*.h;
-                          $(IceSrcRootDir)include\IceBT\*.h"/>
-        <Headers Include="$(IceSrcRootDir)include\generated\uwp\Win32\Release\**\*.h" />
+                 Exclude="$(IceSrcRootDir)include\IceBT\*.h;
+                          $(IceSrcRootDir)include\IceIAP\*.h;
+                          $(IceSrcRootDir)include\generated\**\*.h"/>
 
-        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice" />
+        <Headers Include="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceDiscovery\*.h;
+                          $(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
+
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
+                Exclude="$(IceSrcRootDir)..\slice\IceBT\*.ice;
+                         $(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
+                         $(IceSrcRootDir)..\slice\IceIAP\*.ice;
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice;"/>
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
-        <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
-        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
+        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools"
+              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)"
+              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"
+              SkipUnchangedFiles="Yes" />
     </Target>
 </Project>

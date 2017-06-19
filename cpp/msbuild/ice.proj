@@ -55,7 +55,7 @@
 
   <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <MakeDir Directories="$(TEMP)\SymbolCache" />
-    <Exec Command="symchk /v /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s SRV*$(TEMP)\SymbolCache*https://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.$(DefaultPlatformToolset).store/" />
+    <Exec Command="symchk /v /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s SRV*$(TEMP)\SymbolCache*http://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.$(DefaultPlatformToolset).store/" />
   </Target>
 
   <!-- Ice for C++ builds. -->
@@ -267,7 +267,6 @@
   <Target Name="NuGetPack"
           DependsOnTargets="BuildDist"
           Condition="$(BuildAllConfigurations) == 'yes'">
-    <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
     <MSBuild Projects="ice.nuget.targets"
              Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
@@ -279,11 +278,14 @@
              Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
 
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).nuspec"
-          DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)" />
+          DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)"
+          SkipUnchangedFiles="Yes" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).props"
-          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
+          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props"
+          SkipUnchangedFiles="Yes" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
-          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
+          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets"
+          SkipUnchangedFiles="Yes" />
     <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
   </Target>
@@ -330,19 +332,17 @@
           DependsOnTargets="UWPBuildDist"
           Condition="$(BuildAllConfigurations) == 'yes' and '$(UWPCompiler)' == 'yes' ">
 
-    <RemoveDir Directories="zeroc.ice.uwp.$(DefaultPlatformToolset);
-                            zeroc.ice.uwp.$(DefaultPlatformToolset).x86;
-                            zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
-
     <!-- Win32 package -->
     <MSBuild Projects="ice.nuget.uwp.arch.targets"
              Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <MSBuild Projects="ice.nuget.uwp.arch.targets"
              Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86.nuspec"
-          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
+          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x86"
+          SkipUnchangedFiles="Yes" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
-          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x86.targets" />
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x86.targets"
+          SkipUnchangedFiles="Yes" />
     <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset).x86"/>
 
@@ -352,9 +352,11 @@
     <MSBuild Projects="ice.nuget.uwp.arch.targets"
              Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64.nuspec"
-          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
+          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x64"
+          SkipUnchangedFiles="Yes" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
-          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x64.targets" />
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).x64.targets"
+          SkipUnchangedFiles="Yes" />
     <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset).x64"/>
 
@@ -362,9 +364,11 @@
     <MSBuild Projects="ice.nuget.uwp.targets"
              Properties="PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).nuspec"
-          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset)" />
+          DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset)"
+          SkipUnchangedFiles="Yes" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).props"
-          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).props" />
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\build\native\zeroc.ice.uwp.$(DefaultPlatformToolset).props"
+          SkipUnchangedFiles="Yes" />
     <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
           WorkingDirectory="zeroc.ice.uwp.$(DefaultPlatformToolset)"/>
   </Target>
