@@ -365,12 +365,12 @@ class Windows(Platform):
 
     def canRun(self, mapping, current):
         #
-        # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge/IceStorm services
+        # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge services
         # with the Debug configurations since we don't provide binaries for them.
         #
         if current.driver.useIceBinDist(mapping):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
-            if parent in ["Glacier2", "IceBridge", "IceStorm"] and current.config.buildConfig.find("Debug") >= 0:
+            if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
         return True
 
