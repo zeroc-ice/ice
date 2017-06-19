@@ -36,7 +36,7 @@ class Executor:
             for cross in crossMappings:
                 if cross:
                     t = cross.findTestSuite(testsuite)
-                    if t and t.isMainThreadOnly():
+                    if t and t.isMainThreadOnly(driver):
                         mainThreadOnly = True
                         break
 
