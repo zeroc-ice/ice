@@ -273,33 +273,46 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing dispatcher with async/await... ");
         Flush();
-        p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
         {
-            await p.opAsync();
-            test(Dispatcher.isDispatcherThread());
+            TaskCompletionSource<object> t = new TaskCompletionSource<object>();
+            p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
+            {
+                try
+                {
+                    await p.opAsync();
+                    test(Dispatcher.isDispatcherThread());
 
-            try
-            {
-                TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
-                await i.opAsync();
-                test(false);
-            }
-            catch(Exception)
-            {
-                test(Dispatcher.isDispatcherThread());
-            }
+                    try
+                    {
+                        TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
+                        await i.opAsync();
+                        test(false);
+                    }
+                    catch(Exception)
+                    {
+                        test(Dispatcher.isDispatcherThread());
+                    }
 
-            Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
-            try
-            {
-                await to.sleepAsync(500);
-                test(false);
-            }
-            catch(Ice.InvocationTimeoutException)
-            {
-                test(Dispatcher.isDispatcherThread());
-            }
-        }, TaskContinuationOptions.ExecuteSynchronously).Wait();
+                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                    try
+                    {
+                        await to.sleepAsync(500);
+                        test(false);
+                    }
+                    catch(Ice.InvocationTimeoutException)
+                    {
+                        test(Dispatcher.isDispatcherThread());
+                    }
+                    t.SetResult(null);
+                }
+                catch(Exception ex)
+                {
+                    t.SetException(ex);
+                }
+            }, p.ice_scheduler());
+
+            t.Task.Wait();
+        }
         WriteLine("ok");
 
         p.shutdown();
