@@ -62,7 +62,9 @@
                  Exclude="$(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceDiscovery\*.h;
                           $(IceSrcRootDir)include\generated\cpp98\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
 
-        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"/>
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
+                Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice;"/>
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->
