@@ -196,6 +196,9 @@ class ControllerDriver(Driver):
     def isWorkerThread(self):
         return True
 
+    def isInterrupted(self):
+        return False
+
 Driver.add("controller", ControllerDriver, default=True)
 
 runTests()

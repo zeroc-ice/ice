@@ -411,6 +411,9 @@ class Expect (object):
         if startReader:
             self.startReader()
 
+    def __str__(self):
+        return "{0} pid={1}".format(self.desc, "<none>" if self.p is None else self.p.pid)
+
     def startReader(self, watchDog = None):
         if watchDog is not None:
             self.r.setWatchDog(watchDog)
@@ -618,7 +621,7 @@ class Expect (object):
             test(self.exitstatus, exitstatus)
 
     def getOutput(self):
-        return self.buf
+        return self.buf if self.p is None else self.r.getbuf()
 
     def hasInterruptSupport(self):
         """Return True if the application gracefully terminated, False otherwise."""

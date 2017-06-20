@@ -22,6 +22,7 @@ class Executor:
         self.mainThreadQueue = []
         self.queueLength = 0
         self.failure = False
+        self.interrupted = False
         self.continueOnFailure = continueOnFailure
         self.lock = threading.Lock()
 
@@ -55,6 +56,10 @@ class Executor:
                 return None
             self.queueLength -= 1
             return (queue.pop(0), total - self.queueLength)
+
+    def isInterrupted(self):
+        with self.lock:
+            return self.interrupted
 
     def runTestSuites(self, driver, total, results, mainThread=False):
         while True:
@@ -139,6 +144,7 @@ class Executor:
         except KeyboardInterrupt:
             with self.lock:
                 self.failure = True
+                self.interrupted = True
             if threads:
                 print("Terminating (waiting for worker threads to terminate)...")
             raise
@@ -354,6 +360,7 @@ class LocalDriver(Driver):
         self.results = []
         self.threadlocal = threading.local()
         self.loopCount = 1
+        self.executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
 
     def run(self, mappings, testSuiteIds):
 
@@ -364,7 +371,6 @@ class LocalDriver(Driver):
             self.runner = TestCaseRunner()
 
         while True:
-            executor = Executor(self.threadlocal, self.workers, self.continueOnFailure)
             for mapping in mappings:
                 testsuites = self.runner.getTestSuites(mapping, testSuiteIds)
 
@@ -391,14 +397,14 @@ class LocalDriver(Driver):
                         continue
                     elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                         continue
-                    executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
+                    self.executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
 
             #
             # Run all the tests and wait for the executor to complete.
             #
             now = time.time()
 
-            results = executor.runUntilCompleted(self, self.start)
+            results = self.executor.runUntilCompleted(self, self.start)
 
             Expect.cleanup() # Cleanup processes which might still be around
 
@@ -539,6 +545,9 @@ class LocalDriver(Driver):
 
     def isWorkerThread(self):
         return hasattr(self.threadlocal, "num")
+
+    def isInterrupted(self):
+        return self.executor.isInterrupted()
 
     def getTestPort(self, portnum):
         # Return a port number in the range 14100-14199 for the first thread, 14200-14299 for the

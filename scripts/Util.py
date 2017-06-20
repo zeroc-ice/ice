@@ -321,7 +321,7 @@ class Windows(Platform):
                 #
                 # With Windows binary distribution some binaries are only included for Release configuration.
                 #
-                binaries = [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server, IceBoxAdmin, IceBridge, 
+                binaries = [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server, IceBoxAdmin, IceBridge,
                             IceStormAdmin]
                 config = next(("Release" for p in binaries if isinstance(process, p)), config)
 
@@ -1031,34 +1031,43 @@ class Process(Runnable):
             print("unexpected exception while filtering process output:\n" + str(ex))
             raise
 
-    def run(self, current, args=[], props={}, exitstatus=0, timeout=480):
+    def run(self, current, args=[], props={}, exitstatus=0, timeout=None):
         class WatchDog:
 
             def __init__(self, timeout):
                 self.lastProgressTime = time.time()
-                self.timeout = timeout
                 self.lock = threading.Lock()
 
             def reset(self):
                 with self.lock: self.lastProgressTime = time.time()
 
-            def timedOut(self):
+            def timedOut(self, timeout):
                 with self.lock:
-                    return (time.time() - self.lastProgressTime) >= self.timeout
+                    return (time.time() - self.lastProgressTime) >= timeout
 
         watchDog = WatchDog(timeout)
         self.start(current, args, props, watchDog=watchDog)
+        process = current.processes[self]
+
+        if timeout is None:
+            # If it's not a local process use a large timeout as the watch dog might not
+            # get invoked (TODO: improve remote processes to use the watch dog)
+            timeout = 60 if isinstance(process, Expect.Expect) else 480
+
         if not self.quiet and not current.driver.isWorkerThread():
             # Print out the process output to stdout if we're running the client form the main thread.
-            current.processes[self].trace(self.outfilters)
+            process.trace(self.outfilters)
         try:
             while True:
                 try:
-                    current.processes[self].waitSuccess(exitstatus=exitstatus, timeout=30)
+                    process.waitSuccess(exitstatus=exitstatus, timeout=30)
                     break
                 except Expect.TIMEOUT:
-                    if watchDog and watchDog.timedOut():
-                        raise
+                    if watchDog and watchDog.timedOut(timeout):
+                        print("process {0} is hanging".format(process))
+                        if current.driver.isInterrupted():
+                            self.stop(current, False, exitstatus)
+                            raise
         finally:
             self.stop(current, True, exitstatus)
 
@@ -1112,13 +1121,21 @@ class Process(Runnable):
 
     def stop(self, current, waitSuccess=False, exitstatus=0):
         if self in current.processes:
+            process = current.processes[self]
             try:
                 # Wait for the process to exit successfully by itself.
-                if not current.processes[self].isTerminated() and waitSuccess:
-                    current.processes[self].waitSuccess(exitstatus=exitstatus, timeout=60)
+                if not process.isTerminated() and waitSuccess:
+                    while True:
+                        try:
+                            process.waitSuccess(exitstatus=exitstatus, timeout=30)
+                            break
+                        except Expect.TIMEOUT:
+                            print("process {0} is hanging on shutdown".format(process))
+                            if current.driver.isInterrupted():
+                                raise
             finally:
-                if not current.processes[self].isTerminated():
-                    current.processes[self].terminate()
+                if not process.isTerminated():
+                    process.terminate()
                 if not self.quiet: # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
 
@@ -1758,7 +1775,8 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
-        cmd += (process.getCommandLine(current) + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+        exe = process.getCommandLine(current)
+        cmd += (exe + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
         if current.driver.debug:
             if len(envs) > 0:
                 current.writeln("({0} env={1})".format(cmd, envs))
@@ -1773,7 +1791,7 @@ class LocalProcessController(ProcessController):
                                                       startReader=False,
                                                       env=env,
                                                       cwd=cwd,
-                                                      desc=process.desc,
+                                                      desc=process.desc or exe,
                                                       preexec_fn=process.preexec_fn,
                                                       mapping=str(mapping))
         process.startReader(watchDog)
@@ -1787,6 +1805,9 @@ class RemoteProcessController(ProcessController):
             self.proxy = proxy
             self.terminated = False
             self.stdout = False
+
+        def __str__(self):
+            return "{0} proxy={1}".format(self.exe, proxy)
 
         def waitReady(self, ready, readyCount, startTimeout):
             self.proxy.waitReady(startTimeout)
