@@ -59,9 +59,8 @@ define make-cpp-xcodesdk-component-with-config
 ifneq ($(filter src/%,$1),)
 
 $(make-xcodesdk-component-with-config)
-
-ifneq ($$(and $(filter iphone%,$3),$(filter Ice,$2),$$(filter-out $$($2_sdk_includedirs),$3-IceUtil)),)
-$2_sdk_includedirs += $3-IceUtil
+ifneq ($$(and $(filter Ice,$2),$(filter-out $(sdk_includedirs),$3-IceUtil)),)
+sdk_includedirs += $3-IceUtil
 $$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
         $(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 $$(eval $$(call install-data-files,$$(wildcard include/IceUtil/*.h),include,\
