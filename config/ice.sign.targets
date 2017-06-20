@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <TimeStampServer>http://timestamp.verisign.com/scripts/timstamp.dll</TimeStampServer>
-    <SignCommand>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommand>
+    <TimeStampServer>http://timestamp.digicert.com</TimeStampServer>
+    <SignCommandSHA1>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
+    <SignCommandSHA256>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
   </PropertyGroup>
 
   <Target Name="SignPackage" AfterTargets="Build"
           Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(OutDir)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
     <Message Text="Signing $(TargetName)$(TargetExt)" />
 
-    <Exec Command="$(SignCommand) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
+    <Exec Command="$(SignCommandSHA1) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
+    <Exec Command="$(SignCommandSHA256) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
 
     <WriteLinesToFile File                = "$(IntDir)sign.log"
                       Encoding            = "Unicode"
