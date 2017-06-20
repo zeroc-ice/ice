@@ -15,6 +15,8 @@
     <IceTestSolution>ice.test.sln</IceTestSolution>
     <IceTestSolution Condition="'$(VisualStudioVersion)' == '10.0'">ice.test.v100.sln</IceTestSolution>
     <IceConfiguration>$(Configuration)</IceConfiguration>
+    <SymbolServer Condition="'$(SymbolServer)' == ''">$(SYMBOLS_SERVER)</SymbolServer>
+    <SymbolServer Condition="'$(SymbolServer)' == ''">http://symbols.zeroc.com</SymbolServer>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -55,7 +57,7 @@
 
   <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <MakeDir Directories="$(TEMP)\SymbolCache" />
-    <Exec Command="symchk /v /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s SRV*$(TEMP)\SymbolCache*http://dev.zeroc.com/share/ice/master/nuget/zeroc.ice.$(DefaultPlatformToolset).store/" />
+    <Exec Command="symchk /v /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s SRV*$(TEMP)\SymbolCache*$(SymbolServer)" />
   </Target>
 
   <!-- Ice for C++ builds. -->
