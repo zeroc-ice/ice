@@ -61,7 +61,11 @@ public class AllTests : TestCommon.AllTests
 
         public void exception(Ice.Exception ex)
         {
-            test(ex is Ice.NoEndpointException);
+            if(!(ex is Ice.NoEndpointException))
+            {
+                WriteLine(ex.ToString());
+                test(false);
+            }
             test(Dispatcher.isDispatcherThread());
             called();
         }
@@ -73,7 +77,11 @@ public class AllTests : TestCommon.AllTests
 
         public void ignoreEx(Ice.Exception ex)
         {
-            test(ex is Ice.CommunicatorDestroyedException);
+            if(!(ex is Ice.CommunicatorDestroyedException))
+            {
+                WriteLine(ex.ToString());
+                test(false);
+            }
         }
 
         public void sent(bool sentSynchronously)
