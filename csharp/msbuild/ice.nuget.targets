@@ -13,7 +13,7 @@
         <Assemblies Include="$(IceSrcRootDir)Assemblies\*.xml" />
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
-                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice;"/>/>
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->

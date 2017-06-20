@@ -20,7 +20,7 @@
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icexml*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib;"/>
+                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
     </ItemGroup>
 
     <!-- Win32 Release binaries -->
@@ -64,7 +64,7 @@
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
-                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice;"/>
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
     </ItemGroup>
 
     <!-- Copy required files to the package specific directories -->
