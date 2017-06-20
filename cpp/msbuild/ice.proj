@@ -15,7 +15,7 @@
     <IceTestSolution>ice.test.sln</IceTestSolution>
     <IceTestSolution Condition="'$(VisualStudioVersion)' == '10.0'">ice.test.v100.sln</IceTestSolution>
     <IceConfiguration>$(Configuration)</IceConfiguration>
-    <SymbolServer Condition="'$(SymbolServer)' == ''">http://symbols.zeroc.com</SymbolServer>
+    <SymbolServer Condition="'$(SymbolServer)' == ''">https://symbols.zeroc.com</SymbolServer>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
