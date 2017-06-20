@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<configuration>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Ice"  culture="neutral"/>
+        <codeBase version="3.7.0.0" href="@AssemblyDir@\Ice.dll"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="IceBox"  culture="neutral"/>
+        <codeBase version="3.7.0.0" href="@AssemblyDir@\IceBox.dll"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="IceSSL"/>
+        <codeBase version="3.7.0.0" href="@AssemblyDir@\IceSSL.dll"/>
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+</configuration>

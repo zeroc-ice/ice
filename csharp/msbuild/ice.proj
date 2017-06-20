@@ -17,19 +17,19 @@
     </Target>
 
     <PropertyGroup>
-        <slice2cs Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2cs</slice2cs>
-        <slice2cs Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2cs</slice2cs>
+        <SliceCompilers Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2cs;c++98\slice2html</SliceCompilers>
+        <SliceCompilers Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2cs;slice2html</SliceCompilers>
     </PropertyGroup>
 
-    <Target Name="slice2cs" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
                 Targets="NuGetRestore"
                 BuildInParallel="true"/>
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
-                Targets="$(slice2cs)"
-                BuildInParallel="true"
-                Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+                 Targets="$(SliceCompilers)"
+                 BuildInParallel="true"
+                 Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
     </Target>
 
     <ItemGroup>
@@ -42,7 +42,7 @@
         </TestSoution>
     </ItemGroup>
 
-    <Target Name="BuildDist" DependsOnTargets="slice2cs" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="BuildDist" DependsOnTargets="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
@@ -55,7 +55,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="NuGetRestore;BuildDist;slice2cs">
+    <Target Name="Build" DependsOnTargets="NuGetRestore;BuildDist;SliceCompilers">
         <MSBuild Projects="@(TestSoution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />
@@ -83,7 +83,14 @@
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
                                    OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
                                    Tokens="@PublicKeyToken@;@AssemblyDir@"
-                                   Replacements="$(PublicKeyToken);..\lib"/>
+                                   Replacements="$(PublicKeyToken);..\lib" 
+                                   Condition="'$(PublicKeyToken)' != ''"/>
+
+        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release.unsigned"
+                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
+                                   Tokens="@AssemblyDir@"
+                                   Replacements="..\lib" 
+                                   Condition="'$(PublicKeyToken)' == ''"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll"
