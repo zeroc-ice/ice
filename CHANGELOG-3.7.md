@@ -78,8 +78,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
   server to relay requests and replies in both directions.
 
 - Added new operation metadata, `marshaled-result`, in C++11, C#, Java,
-  and Python. When this metadata is specified, the generated code for the 
-  servant dispatch returns a generated struct that contains the marshaled 
+  and Python. When this metadata is specified, the generated code for the
+  servant dispatch returns a generated struct that contains the marshaled
   values for the return and out parameters.
 
 - A Slice enumeration (enum) now creates a new namespace scope for its

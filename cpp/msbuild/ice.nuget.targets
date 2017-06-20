@@ -83,7 +83,7 @@
               SkipUnchangedFiles="Yes" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)"
               SkipUnchangedFiles="Yes" />
-        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" 
+        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)"
               SkipUnchangedFiles="Yes"/>
     </Target>
 </Project>

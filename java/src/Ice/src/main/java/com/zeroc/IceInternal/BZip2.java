@@ -140,7 +140,7 @@ public class BZip2
             //
             java.io.ByteArrayInputStream bais =
                 new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
-           
+
             java.lang.Object[] args = new java.lang.Object[]{ bais };
             java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
             r.b.position(headerSize);

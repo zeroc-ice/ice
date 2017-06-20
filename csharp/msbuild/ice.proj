@@ -83,13 +83,13 @@
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
                                    OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
                                    Tokens="@PublicKeyToken@;@AssemblyDir@"
-                                   Replacements="$(PublicKeyToken);..\lib" 
+                                   Replacements="$(PublicKeyToken);..\lib"
                                    Condition="'$(PublicKeyToken)' != ''"/>
 
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release.unsigned"
                                    OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
                                    Tokens="@AssemblyDir@"
-                                   Replacements="..\lib" 
+                                   Replacements="..\lib"
                                    Condition="'$(PublicKeyToken)' == ''"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
