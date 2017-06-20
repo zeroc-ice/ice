@@ -511,6 +511,7 @@ public class AllTests
         metrics.ice_connectionId("Con1").ice_ping();
 
         waitForCurrent(clientMetrics, "View", "Invocation", 0);
+        waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
         view = clientMetrics.getMetricsView("View", timestamp);
         test(view.get("Thread").length == threadCount);
@@ -540,7 +541,7 @@ public class AllTests
             test(view.get("Connection").length == 2);
         }
         test(view.get("Dispatch").length == 1);
-        test(view.get("Dispatch")[0].current <= 1 && view.get("Dispatch")[0].total == 5);
+        test(view.get("Dispatch")[0].current == 0 && view.get("Dispatch")[0].total == 5);
         test(view.get("Dispatch")[0].id.indexOf("[ice_ping]") > 0);
 
         if(!collocated)

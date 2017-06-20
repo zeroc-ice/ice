@@ -449,6 +449,7 @@ public class AllTests : TestCommon.AllTests
         metrics.ice_connectionId("Con1").ice_ping();
 
         waitForCurrent(clientMetrics, "View", "Invocation", 0);
+        waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
         view = clientMetrics.getMetricsView("View", out timestamp);
         test(view["Thread"].Length == 5);
@@ -481,7 +482,7 @@ public class AllTests : TestCommon.AllTests
             test(view["Connection"].Length == 2);
         }
         test(view["Dispatch"].Length == 1);
-        test(view["Dispatch"][0].current <= 1 && view["Dispatch"][0].total == 5);
+        test(view["Dispatch"][0].current == 0 && view["Dispatch"][0].total == 5);
         test(view["Dispatch"][0].id.IndexOf("[ice_ping]") > 0);
 
         if(!collocated)
