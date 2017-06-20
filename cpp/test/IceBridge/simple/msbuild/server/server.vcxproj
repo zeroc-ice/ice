@@ -168,8 +168,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\AllTests.cpp" />
-    <ClCompile Include="..\..\Client.cpp" />
+    <ClCompile Include="..\..\TestI.cpp" />
+    <ClCompile Include="..\..\Server.cpp" />
     <ClCompile Include="Win32\Cpp11-Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

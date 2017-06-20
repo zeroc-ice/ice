@@ -322,7 +322,7 @@ class Windows(Platform):
                 # With Windows binary distribution some binaries are only included for Release configuration.
                 #
                 binaries = [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server, IceBoxAdmin, IceBridge, 
-                            IceBridgeAdmin, IceStormAdmin]
+                            IceStormAdmin]
                 config = next(("Release" for p in binaries if isinstance(process, p)), config)
 
                 return os.path.join("build", "native", "bin", platform, config)
