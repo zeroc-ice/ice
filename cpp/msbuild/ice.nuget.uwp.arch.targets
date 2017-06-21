@@ -12,7 +12,6 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)"
-              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)"  />
     </Target>
 </Project>

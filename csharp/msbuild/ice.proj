@@ -68,12 +68,12 @@
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
+        <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net"/>
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
-              DestinationFolder="zeroc.ice.net"
-              SkipUnchangedFiles="Yes" />
+              DestinationFolder="zeroc.ice.net" />
 
         <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and assembly paths -->
         <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\Assemblies\Ice.dll">
@@ -94,12 +94,10 @@
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll"
-              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\bzip2.dll"
-              SkipUnchangedFiles="Yes" />
+              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\bzip2.dll"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
-              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"
-              SkipUnchangedFiles="Yes" />
+              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
 
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="zeroc.ice.net"/>

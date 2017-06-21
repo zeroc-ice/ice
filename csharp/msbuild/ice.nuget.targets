@@ -18,9 +18,8 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib" SkipUnchangedFiles="Yes" />
-        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"
-              SkipUnchangedFiles="Yes" />
-        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib"/>
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
+        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools"/>
     </Target>
 </Project>

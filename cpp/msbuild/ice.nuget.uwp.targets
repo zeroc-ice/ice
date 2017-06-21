@@ -26,11 +26,8 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools"
-              SkipUnchangedFiles="Yes" />
-        <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)"
-              SkipUnchangedFiles="Yes" />
-        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"
-              SkipUnchangedFiles="Yes" />
+        <Copy SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
+        <Copy SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
     </Target>
 </Project>
