@@ -71,6 +71,10 @@ You can also skip the build of the test suite with the `BuildDist` target:
 
     msbuild msbuild\ice.proj /t:BuildDist /p:Platform=x64
 
+To build the test suite using the NuGet binary distribution use:
+
+    msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+
 If you want to build all supported platforms and configurations at once, use:
 
     msbuild msbuild\ice.proj /p:BuildAllConfigurations=yes
@@ -104,7 +108,7 @@ To build all configurations:
 
     msbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
 
-To run the test suite without building the entire source base:
+To build the test suite using the NuGet binary distribution use:
 
     msbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 
@@ -146,34 +150,23 @@ failure, the tests abort with `failed`.
 
 ## Running the Universal Windows Platform Test Suite
 
-In Visual Studio 2015, open the solution file:
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
 
-    cpp\msbuild\ice.testuwp.sln
+    pip install passlib
 
-Now select the configuration that matches the settings that you used to build
-Ice for UWP.
+The scripts also require Ice for Python, you can build Ice for Python from [python](../python)
+folder of this source distribution or install the Python module `zeroc-ice`,  using the
+following command:
 
-To run the UWP Test suite application, you can deploy the application using "Deploy
-Solution" in the "Build" menu. Once deployed, you can start the application from
-the Start Menu by clicking the "Ice Test Suite" icon.
+    pip install zeroc-ice
 
-In the test suite application, selecting "uwp" for the Server field allows you
-to run tests with TCP and WS protocols supported by the UWP server side.
+You can run the testsuite from the console using python:
 
-You can also use C++, C# or Java servers to run the tests, which allows you to
-use additional SSL and WSS protocols.
+    python allTest.py --uwp --controller-app --platform x64 --config Release
 
-To use servers from C++, C# or Java language mappings, you need to build the
-tests for the desired language mapping.
-
-The test controller server is implemented in Java. Refer to the build
-instructions in the java subdirectory for information on building the test
-controller. Use the following command to start the test controller:
-
-    python scripts/TestController.py
-
-In the "Ice Test Suite" Windows Store application, select the Server language
-mapping and Protocol you want to use.
+If everything worked out, you should see lots of `ok` messages. In case of a
+failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
