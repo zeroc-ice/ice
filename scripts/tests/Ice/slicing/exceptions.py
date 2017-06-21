@@ -19,4 +19,4 @@ if Mapping.getByPath(__name__).hasSource("Ice/exceptions", "serveramd"):
         ClientAMDServerTestCase("client/amd server with 1.0 encoding", props={ "Ice.Default.EncodingVersion" : "1.0" }),
     ]
 
-TestSuite(__name__, testcases)
+TestSuite(__name__, testcases, options = { "serialize" : [False] })
