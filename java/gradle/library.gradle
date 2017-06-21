@@ -88,7 +88,13 @@ artifacts {
 }
 
 signing {
-    required { gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives") }
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        ( project.hasProperty('signing.keyId') &&
+          project.hasProperty('signing.password') &&
+          project.hasProperty('signing.secretKeyRingFile') )
+    }
     sign configurations.archives
 }
 
