@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.0\build\native\zeroc.ice.uwp.v140.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.0\build\native\zeroc.ice.uwp.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.0\build\native\zeroc.ice.uwp.v141.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.0\build\native\zeroc.ice.uwp.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
@@ -149,6 +149,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-d2SSAOptimizer- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
