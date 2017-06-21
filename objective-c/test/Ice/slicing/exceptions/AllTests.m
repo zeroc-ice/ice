@@ -685,11 +685,11 @@ slicingExceptionsAllTests(id<ICECommunicator> communicator)
 
     tprintf("preserved exceptions... ");
     {
-        id<ICEObjectAdapter> adapter = [communicator createObjectAdapterWithEndpoints:@"Relay" endpoints:@"default"];
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@""];
         TestSlicingExceptionsClientRelayPrx* relay =
             [TestSlicingExceptionsClientRelayPrx uncheckedCast:[adapter addWithUUID:[RelayI relay]]];
         [adapter activate];
-
+        [[test ice_getConnection] setAdapter:adapter];
         @try
         {
             [test relayKnownPreservedAsBase:relay];

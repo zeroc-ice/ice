@@ -200,7 +200,8 @@ public final class TestI implements TestIntf
     public void relayKnownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
         throws Base
     {
-        r.knownPreservedAsBase();
+        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsBase();
         test(false);
     }
 
@@ -208,7 +209,8 @@ public final class TestI implements TestIntf
     public void relayKnownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
-        r.knownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsKnownPreserved();
         test(false);
     }
 
@@ -242,7 +244,8 @@ public final class TestI implements TestIntf
     public void relayUnknownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
         throws Base
     {
-        r.unknownPreservedAsBase();
+        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsBase();
         test(false);
     }
 
@@ -250,7 +253,8 @@ public final class TestI implements TestIntf
     public void relayUnknownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
         throws KnownPreserved
     {
-        r.unknownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsKnownPreserved();
         test(false);
     }
 }

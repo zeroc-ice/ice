@@ -122,7 +122,8 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     relayKnownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        r.knownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsBase();
         test(false);
         return null;
     }
@@ -130,7 +131,8 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        r.knownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsKnownPreserved();
         test(false);
         return null;
     }
@@ -161,7 +163,8 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     relayUnknownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
     {
-        r.unknownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsBase();
         test(false);
         return null;
     }
@@ -169,7 +172,8 @@ public sealed class TestI : TestIntfDisp_
     public override Task
     relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
     {
-        r.unknownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsKnownPreserved();
         test(false);
         return null;
     }

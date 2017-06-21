@@ -221,7 +221,8 @@ public final class AMDTestI extends _TestIntfDisp
     {
         try
         {
-            r.knownPreservedAsBase();
+            RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.knownPreservedAsBase();
             test(false);
         }
         catch(Ice.UserException ex)
@@ -241,7 +242,8 @@ public final class AMDTestI extends _TestIntfDisp
     {
         try
         {
-            r.knownPreservedAsKnownPreserved();
+            RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.knownPreservedAsKnownPreserved();
             test(false);
         }
         catch(Ice.UserException ex)
@@ -286,7 +288,8 @@ public final class AMDTestI extends _TestIntfDisp
     {
         try
         {
-            r.unknownPreservedAsBase();
+            RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.unknownPreservedAsBase();
             test(false);
         }
         catch(Ice.UserException ex)
@@ -306,7 +309,8 @@ public final class AMDTestI extends _TestIntfDisp
     {
         try
         {
-            r.unknownPreservedAsKnownPreserved();
+            RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.unknownPreservedAsKnownPreserved();
             test(false);
         }
         catch(Ice.UserException ex)

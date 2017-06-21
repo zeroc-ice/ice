@@ -104,13 +104,17 @@
 
 -(void) relayKnownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay knownPreservedAsBase];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p knownPreservedAsBase];
     test(NO);
 }
 
 -(void) relayKnownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay knownPreservedAsKnownPreserved];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p knownPreservedAsKnownPreserved];
     test(NO);
 }
 
@@ -138,13 +142,17 @@
 
 -(void) relayUnknownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay unknownPreservedAsBase];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p unknownPreservedAsBase];
     test(NO);
 }
 
 -(void) relayUnknownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay unknownPreservedAsKnownPreserved];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p unknownPreservedAsKnownPreserved];
     test(NO);
 }
 

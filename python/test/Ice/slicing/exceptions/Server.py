@@ -121,11 +121,13 @@ class TestI(Test.TestIntf):
         ex.kpd = "derived"
         raise ex
 
-    def relayKnownPreservedAsBase(self, r, current=None):
-        r.knownPreservedAsBase()
+    def relayKnownPreservedAsBase(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.knownPreservedAsBase()
 
-    def relayKnownPreservedAsKnownPreserved(self, r, current=None):
-        r.knownPreservedAsKnownPreserved()
+    def relayKnownPreservedAsKnownPreserved(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.knownPreservedAsKnownPreserved()
 
     def unknownPreservedAsBase(self, current=None):
         ex = Test.SPreserved2()
@@ -145,11 +147,13 @@ class TestI(Test.TestIntf):
         ex.p2 = ex.p1
         raise ex
 
-    def relayUnknownPreservedAsBase(self, r, current=None):
-        r.unknownPreservedAsBase()
+    def relayUnknownPreservedAsBase(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.unknownPreservedAsBase()
 
-    def relayUnknownPreservedAsKnownPreserved(self, r, current=None):
-        r.unknownPreservedAsKnownPreserved()
+    def relayUnknownPreservedAsKnownPreserved(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.unknownPreservedAsKnownPreserved()
 
 def run(args, communicator):
     properties = communicator.getProperties()

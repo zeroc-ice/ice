@@ -649,126 +649,123 @@ public class AllTests
         }
         out.println("ok");
 
-        final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
-        if(defaultHost.equals("127.0.0.1") || defaultHost.equals("::1"))
+        out.print("preserved exceptions... ");
+        out.flush();
         {
-            out.print("preserved exceptions... ");
-            out.flush();
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+            RelayPrx relay = RelayPrx.uncheckedCast(adapter.addWithUUID(new RelayI()));
+            adapter.activate();
+            test.ice_getConnection().setAdapter(adapter);
+
+            try
             {
-                com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
-                RelayPrx relay = RelayPrx.uncheckedCast(adapter.addWithUUID(new RelayI()));
-                adapter.activate();
-
-                try
-                {
-                    test.relayKnownPreservedAsBase(relay);
-                    test(false);
-                }
-                catch(KnownPreservedDerived ex)
-                {
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                }
-                catch(com.zeroc.Ice.OperationNotExistException ex)
-                {
-                }
-                catch(Exception ex)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    test.relayKnownPreservedAsKnownPreserved(relay);
-                    test(false);
-                }
-                catch(KnownPreservedDerived ex)
-                {
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                }
-                catch(com.zeroc.Ice.OperationNotExistException ex)
-                {
-                }
-                catch(Exception ex)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    test.relayUnknownPreservedAsBase(relay);
-                    test(false);
-                }
-                catch(Preserved2 ex)
-                {
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                    test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
-                    PreservedClass pc = (PreservedClass)ex.p1;
-                    test(pc.bc.equals("bc"));
-                    test(pc.pc.equals("pc"));
-                    test(ex.p2 == ex.p1);
-                }
-                catch(KnownPreservedDerived ex)
-                {
-                    //
-                    // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                    //
-                    test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                }
-                catch(com.zeroc.Ice.OperationNotExistException ex)
-                {
-                }
-                catch(Exception ex)
-                {
-                    test(false);
-                }
-
-                try
-                {
-                    test.relayUnknownPreservedAsKnownPreserved(relay);
-                    test(false);
-                }
-                catch(Preserved2 ex)
-                {
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                    test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
-                    PreservedClass pc = (PreservedClass)ex.p1;
-                    test(pc.bc.equals("bc"));
-                    test(pc.pc.equals("pc"));
-                    test(ex.p2 == ex.p1);
-                }
-                catch(KnownPreservedDerived ex)
-                {
-                    //
-                    // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-                    //
-                    test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
-                    test(ex.b.equals("base"));
-                    test(ex.kp.equals("preserved"));
-                    test(ex.kpd.equals("derived"));
-                }
-                catch(com.zeroc.Ice.OperationNotExistException ex)
-                {
-                }
-                catch(Exception ex)
-                {
-                    test(false);
-                }
-
-                adapter.destroy();
+                test.relayKnownPreservedAsBase(relay);
+                test(false);
             }
-            out.println("ok");
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(com.zeroc.Ice.OperationNotExistException ex)
+            {
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayKnownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(com.zeroc.Ice.OperationNotExistException ex)
+            {
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayUnknownPreservedAsBase(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+                test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = (PreservedClass)ex.p1;
+                test(pc.bc.equals("bc"));
+                test(pc.pc.equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(com.zeroc.Ice.OperationNotExistException ex)
+            {
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayUnknownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+                test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = (PreservedClass)ex.p1;
+                test(pc.bc.equals("bc"));
+                test(pc.pc.equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0));
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(com.zeroc.Ice.OperationNotExistException ex)
+            {
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            adapter.destroy();
         }
+        out.println("ok");
 
         return test;
     }

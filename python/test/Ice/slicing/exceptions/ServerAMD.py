@@ -154,19 +154,21 @@ class TestI(Test.TestIntf):
         f.set_exception(ex)
         return f
 
-    def relayKnownPreservedAsBase(self, r, current=None):
+    def relayKnownPreservedAsBase(self, r, current):
         f = Ice.Future()
         try:
-            r.knownPreservedAsBase()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.knownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
             f.set_exception(ex)
         return f
 
-    def relayKnownPreservedAsKnownPreserved(self, r, current=None):
+    def relayKnownPreservedAsKnownPreserved(self, r, current):
         f = Ice.Future()
         try:
-            r.knownPreservedAsKnownPreserved()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.knownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
             f.set_exception(ex)
@@ -194,19 +196,21 @@ class TestI(Test.TestIntf):
         f.set_exception(ex)
         return f
 
-    def relayUnknownPreservedAsBase(self, r, current=None):
+    def relayUnknownPreservedAsBase(self, r, current):
         f = Ice.Future()
         try:
-            r.unknownPreservedAsBase()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.unknownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
             f.set_exception(ex)
         return f
 
-    def relayUnknownPreservedAsKnownPreserved(self, r, current=None):
+    def relayUnknownPreservedAsKnownPreserved(self, r, current):
         f = Ice.Future()
         try:
-            r.unknownPreservedAsKnownPreserved()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.unknownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
             f.set_exception(ex)
