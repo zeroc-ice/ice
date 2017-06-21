@@ -47,6 +47,8 @@ main(int argc, char* argv[])
 #endif
     try
     {
+        initCounts();
+
         Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.observer = getObserver();
 
