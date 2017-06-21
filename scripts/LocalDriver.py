@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os
+import sys, os, time
 from Util import *
 
 #
@@ -508,7 +508,7 @@ class LocalDriver(Driver):
                     current.writeln("skipped, no server available for `{0}' mapping".format(cross))
                 continue
 
-            current.writeln("[ running {0} test ]".format(current.testcase))
+            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
             if not self.all:
                 current.config = current.config.cloneRunnable(current)
             confStr = str(current.config)
@@ -531,7 +531,7 @@ class LocalDriver(Driver):
     def runTestCase(self, current):
         if not self.cross and not self.allCross:
             if not current.testcase.getParent():
-                current.writeln("[ running {0} test ]".format(current.testcase))
+                current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
                 if not self.all:
                     current.config = current.config.cloneRunnable(current)
                 confStr = str(current.config)

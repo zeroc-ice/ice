@@ -1064,7 +1064,7 @@ class Process(Runnable):
                     break
                 except Expect.TIMEOUT:
                     if watchDog and watchDog.timedOut(timeout):
-                        print("process {0} is hanging".format(process))
+                        print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
                         if current.driver.isInterrupted():
                             self.stop(current, False, exitstatus)
                             raise
@@ -1130,7 +1130,7 @@ class Process(Runnable):
                             process.waitSuccess(exitstatus=exitstatus, timeout=30)
                             break
                         except Expect.TIMEOUT:
-                            print("process {0} is hanging on shutdown".format(process))
+                            print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
                             if current.driver.isInterrupted():
                                 raise
             finally:
