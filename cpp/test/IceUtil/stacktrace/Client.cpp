@@ -66,24 +66,6 @@ private:
 };
 typedef IceUtil::Handle<Thrower> ThrowerPtr;
 
-#if defined(__APPLE__)
-void
-standardizeVersion(string& str)
-{
-    string v1(ICE_STRING_VERSION);
-
-    vector<string> split;
-    IceUtilInternal::splitString(v1, ".", split);
-    string v2(split[0] + split[1]);
-
-    size_t pos = 0;
-    while((pos = str.find(v1, pos)) != string::npos)
-    {
-        str.replace(pos, v1.length(), v2);
-        pos += v2.length();
-    }
-}
-#else
 vector<string>
 splitLines(const string& str)
 {
@@ -92,11 +74,26 @@ splitLines(const string& str)
     string line;
     while(std::getline(is, line))
     {
+#ifdef __APPLE__
+        //
+        // Remove patch number from stack trace
+        //
+        string v1 = ICE_STRING_VERSION;
+        size_t pos = line.find(v1);
+        if(pos != string::npos)
+        {
+            vector<string> split;
+            IceUtilInternal::splitString(v1, ".", split);
+            string v2(split[0] + split[1]);
+            line.replace(pos, v1.length(), v2);
+        }
+#endif
+
         result.push_back(line);
-    };
+    }
     return result;
 }
-#endif
+
 }
 
 int main(int argc, char* argv[])
@@ -123,12 +120,16 @@ int main(int argc, char* argv[])
     const char* s = getenv("ICE_BIN_DIST");
     if(s && *s != '\0')
     {
-       binDist = (string(s).find("all") != std::string::npos) || (string(s).find("cpp") != std::string::npos);
+        binDist = (string(s).find("all") != std::string::npos) || (string(s).find("cpp") != std::string::npos);
     }
 
-    if(binDist && !optimized)
+    if(binDist)
     {
-        filename += "debug-release";
+        if(!optimized)
+        {
+            filename += "debug-";
+        }
+        filename += "bindist";
     }
     else if(optimized)
 #else
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
 #elif defined(_WIN32)
     filename += ".Win32";
 #elif defined(__APPLE__)
-    filename += ".OSX";
+    filename += ".macOS";
 #else
     filename += ".Linux";
 
@@ -176,9 +177,7 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-#ifndef __APPLE__
         bool match = true;
-#endif
         ifstream ifs(filename.c_str());
 
         if(!ifs)
@@ -192,12 +191,7 @@ int main(int argc, char* argv[])
 
         stringstream sstr;
         sstr << ifs.rdbuf();
-#if defined(__APPLE__)
-        string expected = sstr.str();
-        standardizeVersion(expected);
-#else
         vector<string> expected = splitLines(sstr.str());
-#endif
 
         ThrowerPtr thrower = new Thrower();
         try
@@ -207,20 +201,7 @@ int main(int argc, char* argv[])
         catch(const IceUtil::Exception& ex)
         {
             string stack = ex.ice_stackTrace();
-            // cerr << "\n full stack trace is \n" << stack << endl;
 
-#ifdef __APPLE__
-            standardizeVersion(stack);
-            if(expected.size() < stack.size())
-            {
-                test(stack.compare(0, expected.size(), expected) == 0);
-            }
-            else
-            {
-                test(stack == expected);
-            }
-            break;
-#else
             vector<string> actual = splitLines(stack);
             for(size_t i = 0; i < expected.size(); ++i)
             {
@@ -231,8 +212,7 @@ int main(int argc, char* argv[])
                     // With windows and Linux optimized builds retry with the alternate
                     // files.
                     //
-                    if(filename.find("StackTrace.release-vc") == 0 ||
-                       filename == "StackTrace.release.Linux")
+                    if(filename.find("StackTrace.release-vc") == 0 || filename == "StackTrace.release.Linux")
                     {
                         break;
                     }
@@ -265,7 +245,6 @@ int main(int argc, char* argv[])
             }
             test(actual.size() >= expected.size());
             break;
-#endif
         }
     }
     cout << "ok" << endl;
