@@ -380,6 +380,30 @@
         ).then(
             function()
             {
+                // The above test can cause a close connection between the echo server and
+                // bidir server, we need to wait until the bidir server has reopen the
+                // connection with the echo server.
+                var reconnect = function(retries)
+                    {
+                        return thrower.ice_ping().catch(
+                            (ex) =>
+                            {
+                                if(ex instanceof Ice.ObjectNotExistException && retries > 0)
+                                {
+                                    return Ice.Promise.delay(20).then(() => reconnect(retries--));
+                                }
+                                else
+                                {
+                                    throw ex;
+                                }
+                            });
+                    };
+
+                return reconnect(5);
+            }
+        ).then(
+            function()
+            {
                 out.write("catching object not exist exception... ");
                 var id = Ice.stringToIdentity("does not exist");
                 var thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
