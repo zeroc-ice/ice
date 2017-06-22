@@ -10,7 +10,7 @@
 $(project)_libraries := IcePHP
 
 IcePHP_target           := php-module
-IcePHP_targetname       := IcePHP
+IcePHP_targetname       := ice
 IcePHP_targetdir        := lib
 IcePHP_installdir       := $(install_phplibdir)
 IcePHP_cppflags         := -I$(project) -I$(top_srcdir)/cpp/src $(php_cpp_includes) $(php_cppflags)

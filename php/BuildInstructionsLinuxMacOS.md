@@ -54,7 +54,7 @@ you can create a file in `/etc/php.d` that contains the directive to load the
 Ice extension. For example, create the file `/etc/php.d/ice.ini` containing
 the following line:
 
-    extension = IcePHP.so
+    extension = ice.so
 
 If PHP does not support the `/etc/php.d` directory, determine the path name of
 PHP's configuration file as reported by the `php -i` command:
@@ -63,7 +63,7 @@ PHP's configuration file as reported by the `php -i` command:
 
 Open the configuration file and append the following line:
 
-    extension = IcePHP.so
+    extension = ice.so
 
 You can verify that PHP is loading the Ice extension by running the command
 shown below:
