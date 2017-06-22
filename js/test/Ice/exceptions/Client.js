@@ -51,7 +51,7 @@
                     {
                         msg += ": " + ex.toString();
                     }
-                    throw new Error();
+                    throw new Error(msg);
                 }
                 catch(err)
                 {
