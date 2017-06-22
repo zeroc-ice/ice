@@ -37,15 +37,11 @@ ifneq ($(filter src/%,$1),)
 
 $(make-xcodesdk-component-with-config)
 
-$(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
-	$(Q)$(call install-data,objc/$$(*).h,include,$(top_srcdir)/IceSDK/$3.sdk/usr/include)
+$$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
+        $(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 
-$(install_libdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
-	$(Q)$(call install-data,objc/$$(*).h,include,$(install_libdir)/IceSDK/$3.sdk/usr/include)
-
-$5:: $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
-
-$5_install:: $(install_libdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+$$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
+        $(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
 
 $5_clean::
 	$(Q)$(RM) $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
