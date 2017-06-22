@@ -1815,7 +1815,7 @@ class RemoteProcessController(ProcessController):
             self.stdout = False
 
         def __str__(self):
-            return "{0} proxy={1}".format(self.exe, proxy)
+            return "{0} proxy={1}".format(self.exe, self.proxy)
 
         def waitReady(self, ready, readyCount, startTimeout):
             self.proxy.waitReady(startTimeout)
