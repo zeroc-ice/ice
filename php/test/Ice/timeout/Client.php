@@ -357,7 +357,7 @@ function allTests($communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         $timeout->op(); // Ensure adapter is active.
-        $to = $to->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
+        $to = $to->ice_timeout(50)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
         $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
