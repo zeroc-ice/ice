@@ -11,7 +11,8 @@
     <Message Text="Signing $(TargetName)$(TargetExt)" />
 
     <Exec Command="$(SignCommandSHA1) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
-    <Exec Command="$(SignCommandSHA256) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
+    <Exec Command="$(SignCommandSHA256) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"
+          Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
 
     <WriteLinesToFile File                = "$(IntDir)sign.log"
                       Encoding            = "Unicode"
