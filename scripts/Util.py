@@ -1568,6 +1568,14 @@ class Result:
         self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
         self._testcases[testcase] = (self._start, self._stdout.tell())
         self._failed[testcase] = exception
+        output = self.getOutput(testcase);
+        for s in ["EADDRINUSE", "Address already in use"]:
+            if output.find(s) >= 0:
+                if isinstance(platform, Windows):
+                    self.writeln(run("netstat -on"))
+                    self.writeln(run("powershell.exe \"Get-Process | Select id,name,path\""))
+                else:
+                    self.writeln(run("lsof -n -P -i; ps ax"))
 
     def succeeded(self, testcase):
         self._testcases[testcase] = (self._start, self._stdout.tell())
