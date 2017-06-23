@@ -14,6 +14,7 @@ class TestIntfI(Test.TestIntf):
         self._cond = threading.Condition()
         self._batchCount = 0
         self._pending = None
+        self._shutdown = False
 
     def op(self, current=None):
         pass
@@ -52,24 +53,32 @@ class TestIntfI(Test.TestIntf):
 
     def startDispatch(self, current=None):
         with self._cond:
+            if self._shutdown:
+                # Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                # before start dispatch.
+                v = Ice.Future()
+                v.set_result(None)
+                return v
+            elif self._pending:
+                self._pending.set_result(None)
             self._pending = Ice.Future()
-            self._cond.notifyAll()
             return self._pending
 
     def finishDispatch(self, current=None):
         with self._cond:
-            while self._pending is None:
-                self._cond.wait()
-            self._pending.set_result(None)
-            self._pending = None
+            if self._shutdown:
+                return
+            elif self._pending: # Pending might not be set yet if startDispatch is dispatch out-of-order
+                self._pending.set_result(None)
+                self._pending = None
 
     def shutdown(self, current=None):
-        #
-        # Just in case a request arrived late.
-        #
         with self._cond:
-            assert self._pending is None
-        current.adapter.getCommunicator().shutdown()
+            self._shutdown = True
+            if self._pending:
+                self._pending.set_result(None)
+                self._pending = None
+            current.adapter.getCommunicator().shutdown()
 
     def supportsAMD(self, current=None):
         return True

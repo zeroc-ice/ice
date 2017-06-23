@@ -166,40 +166,49 @@ public class TestI extends _TestIntfDisp
     public synchronized void
     startDispatch_async(AMD_TestIntf_startDispatch cb, Ice.Current current)
     {
+        if(_shutdown)
+        {
+            // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+            // before start dispatch.
+            cb.ice_response();
+            return;
+        }
+        else if(_pending != null)
+        {
+            _pending.ice_response();
+        }
         _pending = cb;
-        notifyAll();
     }
 
     @Override
     public synchronized void
     finishDispatch(Ice.Current current)
     {
-        while(_pending == null)
+        if(_shutdown)
         {
-            try
-            {
-                wait();
-            }
-            catch(InterruptedException ex)
-            {
-            }
-
+            return;
         }
-        _pending.ice_response();
-        _pending = null;
+        else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        {
+            _pending.ice_response();
+            _pending = null;
+        }
     }
 
     @Override
     public synchronized void
     shutdown(Ice.Current current)
     {
-        //
-        // Just in case a request arrived late.
-        //
-        assert(_pending == null);
+        _shutdown = true;
+        if(_pending != null)
+        {
+            _pending.ice_response();
+            _pending = null;
+        }
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
+    private boolean _shutdown = false;
     private AMD_TestIntf_startDispatch _pending = null;
 }

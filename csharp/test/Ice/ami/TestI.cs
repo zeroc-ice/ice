@@ -100,7 +100,16 @@ public class TestI : TestIntfDisp_
     override public void
     shutdown(Ice.Current current)
     {
-        current.adapter.getCommunicator().shutdown();
+        lock(this)
+        {
+            _shutdown = true;
+            if(_pending != null)
+            {
+                _pending.SetResult(null);
+                _pending  = null;
+            }
+            current.adapter.getCommunicator().shutdown();
+        }
     }
 
     override public bool
@@ -163,8 +172,19 @@ public class TestI : TestIntfDisp_
     {
         lock(this)
         {
+            if(_shutdown)
+            {
+                // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                // before start dispatch.
+                var v = new TaskCompletionSource<object>();
+                v.SetResult(null);
+                return v.Task;
+            }
+            else if(_pending != null)
+            {
+                _pending.SetResult(null);
+            }
             _pending = new TaskCompletionSource<object>();
-            Monitor.PulseAll(this);
             return _pending.Task;
         }
     }
@@ -174,16 +194,20 @@ public class TestI : TestIntfDisp_
     {
         lock(this)
         {
-            while(_pending == null)
+            if(_shutdown)
             {
-                Monitor.Wait(this);
+                return;
             }
-            _pending.SetResult(null);
-            _pending  = null;
+            else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+            {
+                _pending.SetResult(null);
+                _pending  = null;
+            }
         }
     }
 
     private int _batchCount;
+    private bool _shutdown;
     private TaskCompletionSource<object> _pending = null;
 }
 

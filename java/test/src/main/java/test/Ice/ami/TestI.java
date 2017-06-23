@@ -178,8 +178,19 @@ public class TestI implements TestIntf
     public synchronized CompletionStage<Void>
     startDispatchAsync(com.zeroc.Ice.Current current)
     {
+        if(_shutdown)
+        {
+            // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+            // before start dispatch.
+            CompletableFuture<Void> v = new CompletableFuture<>();
+            v.complete(null);
+            return v;
+        }
+        else if(_pending != null)
+        {
+            _pending.complete(null);
+        }
         _pending = new CompletableFuture<>();
-        notifyAll();
         return _pending;
     }
 
@@ -187,29 +198,31 @@ public class TestI implements TestIntf
     public synchronized void
     finishDispatch(com.zeroc.Ice.Current current)
     {
-        while(_pending == null)
+        if(_shutdown)
         {
-            try
-            {
-                wait();
-            }
-            catch(InterruptedException ex)
-            {
-            }
-
+            return;
         }
-        _pending.complete(null);
-        _pending = null;
+        else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        {
+            _pending.complete(null);
+            _pending = null;
+        }
     }
 
     @Override
     public synchronized void
     shutdown(com.zeroc.Ice.Current current)
     {
-        assert(_pending == null);
+        _shutdown = true;
+        if(_pending != null)
+        {
+            _pending.complete(null);
+            _pending = null;
+        }
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
+    private boolean _shutdown = false;
     private CompletableFuture<Void> _pending = null;
 }

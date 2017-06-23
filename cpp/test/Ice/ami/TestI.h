@@ -51,6 +51,7 @@ public:
 private:
 
     int _batchCount;
+    bool _shutdown;
 #ifdef ICE_CPP11_MAPPING
     std::function<void()> _pending;
 #else

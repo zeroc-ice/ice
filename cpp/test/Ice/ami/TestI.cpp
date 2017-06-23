@@ -14,7 +14,7 @@ using namespace std;
 using namespace Ice;
 
 TestIntfI::TestIntfI() :
-    _batchCount(0)
+    _batchCount(0), _shutdown(false)
 {
 }
 
@@ -111,16 +111,34 @@ TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void
                               const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_shutdown)
+    {
+        response();
+        return;
+    }
+    else if(_pending)
+    {
+        _pending();
+    }
     _pending = move(response);
-    notifyAll();
 }
 #else
 void
 TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_shutdown)
+    {
+        // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+        // before start dispatch.
+        cb->ice_response();
+        return;
+    }
+    else if(_pending)
+    {
+        _pending->ice_response();
+    }
     _pending = cb;
-    notifyAll();
 }
 #endif
 
@@ -128,27 +146,37 @@ void
 TestIntfI::finishDispatch(const Ice::Current& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    while(!_pending)
+    if(_shutdown)
     {
-        wait();
+        return;
     }
+    else if(_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
+    {
 #ifdef ICE_CPP11_MAPPING
-    _pending();
-    _pending = nullptr;
+        _pending();
+        _pending = nullptr;
 #else
-    _pending->ice_response();
-    _pending = 0;
+        _pending->ice_response();
+        _pending = 0;
 #endif
+    }
 }
 
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
-    //
-    // Just in case a request arrived late.
-    //
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    assert(!_pending);
+    _shutdown = true;
+    if(_pending)
+    {
+#ifdef ICE_CPP11_MAPPING
+        _pending();
+        _pending = nullptr;
+#else
+        _pending->ice_response();
+        _pending = 0;
+#endif
+    }
     current.adapter->getCommunicator()->shutdown();
 }
 
