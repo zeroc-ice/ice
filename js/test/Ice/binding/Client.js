@@ -93,20 +93,25 @@
                     }).catch(
                         ex =>
                         {
-                            test(ex instanceof Ice.CommunicatorDestroyedException);
+                            test(ex instanceof Ice.CommunicatorDestroyedException, ex);
                         });
             };
             return f1(ArrayUtil.clone(adapters));
         };
 
         var p = new Ice.Promise();
-        var test = function(b)
+        var test = function(b, ex)
         {
             if(!b)
             {
                 try
                 {
-                    throw new Error("test failed");
+                    var msg = "test failed";
+                    if(ex)
+                    {
+                        msg += ex.toString();
+                    }
+                    throw new Error(msg);
                 }
                 catch(err)
                 {
@@ -191,7 +196,7 @@
             },
             function(ex)
             {
-                test(isConnectionFailed(ex));
+                test(isConnectionFailed(ex), ex);
                 out.writeLine("ok");
                 return initialize();
             }
@@ -544,7 +549,7 @@
                                             return forEach(proxies,
                                                            function(p)
                                                            {
-                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException));
+                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException), ex);
                                                            });
                                         }
                                     ).then(
@@ -556,7 +561,7 @@
                                                                return proxy.ice_ping().catch(
                                                                    function(ex)
                                                                    {
-                                                                       test(ex instanceof Ice.LocalException);
+                                                                       test(ex instanceof Ice.LocalException, ex);
                                                                    });
                                                            });
                                         }
@@ -593,7 +598,7 @@
                                                             function(ex)
                                                             {
                                                                 // Expected if adapter is down.
-                                                                test(ex instanceof Ice.LocalException);
+                                                                test(ex instanceof Ice.LocalException, ex);
                                                             }
                                                         );
                                                 }));
@@ -636,8 +641,7 @@
             },
             function(ex)
             {
-                console.log(ex.stack);
-                test(false);
+                test(false, ex);
             }
         ).then(
             function(prx)
@@ -701,7 +705,7 @@
             },
             function(ex)
             {
-                test(false);
+                test(false, ex);
             }
         ).then(
             function()
@@ -777,7 +781,7 @@
             },
             function(ex)
             {
-                test(isConnectionFailed(ex));
+                test(isConnectionFailed(ex), ex);
                 return prx.ice_getEndpoints();
             }
         ).then(
@@ -881,7 +885,7 @@
                         },
                         function(ex)
                         {
-                            test(isConnectionFailed(ex));
+                            test(isConnectionFailed(ex), ex);
                         });
                 };
                 return f1();
@@ -1048,7 +1052,7 @@
                     },
                     function(ex)
                     {
-                        test(isConnectionFailed(ex));
+                        test(isConnectionFailed(ex), ex);
                         return prx.ice_getEndpoints();
                     }
                 ).then(
