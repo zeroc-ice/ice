@@ -13,7 +13,7 @@ class TestIntfI(Test.TestIntf):
     def __init__(self):
         self._cond = threading.Condition()
         self._batchCount = 0
-        self._pending = []
+        self._pending = None
 
     def op(self, current=None):
         pass
@@ -51,24 +51,24 @@ class TestIntfI(Test.TestIntf):
         time.sleep(ms / 1000.0)
 
     def startDispatch(self, current=None):
-        f = Ice.Future()
         with self._cond:
-            self._pending.append(f)
-        return f
+            self._pending = Ice.Future()
+            self._cond.notifyAll()
+            return self._pending
 
     def finishDispatch(self, current=None):
         with self._cond:
-            for f in self._pending:
-                f.set_result(None)
-            self._pending = []
+            while self._pending is None:
+                self._cond.wait()
+            self._pending.set_result(None)
+            self._pending = None
 
     def shutdown(self, current=None):
         #
         # Just in case a request arrived late.
         #
         with self._cond:
-            for f in self._pending:
-                f.set_result(None)
+            assert self._pending is None
         current.adapter.getCommunicator().shutdown()
 
     def supportsAMD(self, current=None):

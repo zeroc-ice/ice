@@ -178,36 +178,38 @@ public class TestI implements TestIntf
     public synchronized CompletionStage<Void>
     startDispatchAsync(com.zeroc.Ice.Current current)
     {
-        CompletableFuture<Void> f = new CompletableFuture<>();
-        _pending.add(f);
-        return f;
+        _pending = new CompletableFuture<>();
+        notifyAll();
+        return _pending;
     }
 
     @Override
     public synchronized void
     finishDispatch(com.zeroc.Ice.Current current)
     {
-        for(CompletableFuture<Void> f : _pending)
+        while(_pending == null)
         {
-            f.complete(null);
+            try
+            {
+                wait();
+            }
+            catch(InterruptedException ex)
+            {
+            }
+
         }
-        _pending.clear();
+        _pending.complete(null);
+        _pending = null;
     }
 
     @Override
     public synchronized void
     shutdown(com.zeroc.Ice.Current current)
     {
-        //
-        // Just in case a request arrived late.
-        //
-        for(CompletableFuture<Void> f : _pending)
-        {
-            f.complete(null);
-        }
+        assert(_pending == null);
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
-    private java.util.List<CompletableFuture<Void>> _pending = new java.util.LinkedList<>();
+    private CompletableFuture<Void> _pending = null;
 }

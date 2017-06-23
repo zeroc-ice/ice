@@ -163,9 +163,9 @@ public class TestI : TestIntfDisp_
     {
         lock(this)
         {
-            TaskCompletionSource<object> t = new TaskCompletionSource<object>();
-            _pending.Add(t);
-            return t.Task;
+            _pending = new TaskCompletionSource<object>();
+            Monitor.PulseAll(this);
+            return _pending.Task;
         }
     }
 
@@ -174,16 +174,17 @@ public class TestI : TestIntfDisp_
     {
         lock(this)
         {
-            foreach(TaskCompletionSource<object> t in _pending)
+            while(_pending == null)
             {
-                t.SetResult(null);
+                Monitor.Wait(this);
             }
+            _pending.SetResult(null);
+            _pending  = null;
         }
-        _pending.Clear();
     }
 
     private int _batchCount;
-    private List<TaskCompletionSource<object>> _pending = new List<TaskCompletionSource<object>>();
+    private TaskCompletionSource<object> _pending = null;
 }
 
 public class TestII : Test.Outer.Inner.TestIntfDisp_

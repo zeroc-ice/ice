@@ -166,18 +166,27 @@ public class TestI extends _TestIntfDisp
     public synchronized void
     startDispatch_async(AMD_TestIntf_startDispatch cb, Ice.Current current)
     {
-        _pending.add(cb);
+        _pending = cb;
+        notifyAll();
     }
 
     @Override
     public synchronized void
     finishDispatch(Ice.Current current)
     {
-        for(AMD_TestIntf_startDispatch cb : _pending)
+        while(_pending == null)
         {
-            cb.ice_response();
+            try
+            {
+                wait();
+            }
+            catch(InterruptedException ex)
+            {
+            }
+
         }
-        _pending.clear();
+        _pending.ice_response();
+        _pending = null;
     }
 
     @Override
@@ -187,13 +196,10 @@ public class TestI extends _TestIntfDisp
         //
         // Just in case a request arrived late.
         //
-        for(AMD_TestIntf_startDispatch cb : _pending)
-        {
-            cb.ice_response();
-        }
+        assert(_pending == null);
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
-    private java.util.List<AMD_TestIntf_startDispatch> _pending = new java.util.LinkedList<>();
+    private AMD_TestIntf_startDispatch _pending = null;
 }

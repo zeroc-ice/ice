@@ -2398,6 +2398,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 },
                 [](const exception_ptr& ex)
                 {
+                    try
+                    {
+                        rethrow_exception(ex);
+                    }
+                    catch(const std::exception& exc)
+                    {
+                        cerr << exc.what() << endl;
+                    }
                     test(false);
                 });
         promise.get_future().get();
