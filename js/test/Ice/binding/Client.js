@@ -549,7 +549,7 @@
                                             return forEach(proxies,
                                                            function(p)
                                                            {
-                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException), ex);
+                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException, ex));
                                                            });
                                         }
                                     ).then(
