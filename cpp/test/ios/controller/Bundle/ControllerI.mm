@@ -193,10 +193,16 @@ MainHelperI::run()
         return;
     }
 
-    // The following call is necessary to prevent random failures from CFBundleGetFunctionPointerForName
-    dlsym(_handle, "dllTestShutdown");
+    //
+    // The first CFBundleGetFunction... does not always succeed, so we make up to 3 attempts
+    //
+    void* sym = 0;
+    int attempts = 0;
+    while((sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllTestShutdown"))) == 0 && attempts < 3)
+    {
+        attempts++;
+    }
 
-    void* sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllTestShutdown"));
     if(sym == 0)
     {
         NSString* err = [NSString stringWithFormat:@"Could not get function pointer dllTestShutdown from bundle %@",
@@ -205,6 +211,13 @@ MainHelperI::run()
         completed(EXIT_FAILURE);
         return;
     }
+    /*
+    else
+    {
+        print([[NSString stringWithFormat:@"*** found dllTestShutdown after %d failed attempt(s)", attempts] UTF8String]);
+    }
+    */
+
     _dllTestShutdown = (SHUTDOWN_ENTRY_POINT)sym;
 
     sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("dllMain"));
