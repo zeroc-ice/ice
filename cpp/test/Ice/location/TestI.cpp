@@ -51,24 +51,54 @@ ServerManagerI::startServer(const Ice::Current&)
     // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
     // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
     //
-    Ice::PropertiesPtr props = _initData.properties;
-    serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(props, _nextPort++));
-    serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(props, _nextPort++));
+    int nRetry = 10;
+    while(--nRetry > 0)
+    {
+        Ice::ObjectAdapterPtr adapter;
+        Ice::ObjectAdapterPtr adapter2;
+        try
+        {
+            Ice::PropertiesPtr props = _initData.properties;
+            serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
+                                                             getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
+                                                             getTestEndpoint(props, _nextPort++));
 
-    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
+            adapter = serverCommunicator->createObjectAdapter("TestAdapter");
+            adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-    Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:" + getTestEndpoint(props, 0));
-    adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
-    adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+            Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:" + getTestEndpoint(props, 0));
+            adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+            adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
-    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
-    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
-    adapter->add(object, Ice::stringToIdentity("test3"));
+            Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
+            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
+            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
+            adapter->add(object, Ice::stringToIdentity("test3"));
 
-    adapter->activate();
-    adapter2->activate();
+            adapter->activate();
+            adapter2->activate();
+            break;
+        }
+        catch(const Ice::SocketException&)
+        {
+            if(nRetry == 0)
+            {
+                throw;
+            }
+
+            // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+            // browser clients if the driver uses ports in the same range as this test, ICE-8148)
+            if(adapter)
+            {
+                adapter->destroy();
+            }
+            if(adapter2)
+            {
+                adapter2->destroy();
+            }
+        }
+    }
 }
 
 void

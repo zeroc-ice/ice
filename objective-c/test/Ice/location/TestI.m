@@ -61,27 +61,54 @@
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
+    int nRetry = 10;
+    while(nRetry > 0)
+    {
+        id<ICEObjectAdapter> adapter = nil;
+        id<ICEObjectAdapter> adapter2 = nil;
+        @try
+        {
+            id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
+            [communicators_ addObject:serverCommunicator];
 
-    id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
-    [communicators_ addObject:serverCommunicator];
+            [[serverCommunicator getProperties] setProperty:@"TestAdapter.Endpoints" value:[self getTestEndpoint:nextPort_++]];
+            [[serverCommunicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:[self getTestEndpoint:nextPort_++]];
 
-    [[serverCommunicator getProperties] setProperty:@"TestAdapter.Endpoints" value:[self getTestEndpoint:nextPort_++]];
-    [[serverCommunicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:[self getTestEndpoint:nextPort_++]];
+            adapter = [serverCommunicator createObjectAdapter:@"TestAdapter"];
+            adapter2 = [serverCommunicator createObjectAdapter:@"TestAdapter2"];
 
-    id<ICEObjectAdapter> adapter = [serverCommunicator createObjectAdapter:@"TestAdapter"];
-    id<ICEObjectAdapter> adapter2 = [serverCommunicator createObjectAdapter:@"TestAdapter2"];
+            id<ICEObjectPrx> locator = [serverCommunicator stringToProxy:@"locator:default -p 12010"];
+            [adapter setLocator:[ICELocatorPrx uncheckedCast:locator]];
+            [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
 
-    id<ICEObjectPrx> locator = [serverCommunicator stringToProxy:@"locator:default -p 12010"];
-    [adapter setLocator:[ICELocatorPrx uncheckedCast:locator]];
-    [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
+            ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
+            [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test"]]];
+            [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test2"]]];
+            [adapter add:object identity:[ICEUtil stringToIdentity:@"test3"]];
 
-    ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
-    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test"]]];
-    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test2"]]];
-    [adapter add:object identity:[ICEUtil stringToIdentity:@"test3"]];
+            [adapter activate];
+            [adapter2 activate];
+            break;
+        }
+        @catch(ICESocketException* ex)
+        {
+            if(nRetry == 0)
+            {
+                @throw ex;
+            }
 
-    [adapter activate];
-    [adapter2 activate];
+            // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+            // browser clients if the driver uses ports in the same range as this test, ICE-8148)
+            if(adapter != nil)
+            {
+                [adapter destroy];
+            }
+            if(adapter2 != nil)
+            {
+                [adapter2 destroy];
+            }
+        }
+    }
 }
 
 -(void) shutdown:(ICECurrent*)current

@@ -104,23 +104,39 @@ class ServerManagerI(Test.ServerManager):
             self._nextPort += 1
             return "default -p {}".format(12010 + self._nextPort)
 
-        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint())
-        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint())
+        nRetry = 10
+        while --nRetry > 0:
+            adapter = None
+            adapter2 = None
+            try:
+                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint())
+                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint())
 
-        adapter = serverCommunicator.createObjectAdapter("TestAdapter")
-        adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
+                adapter = serverCommunicator.createObjectAdapter("TestAdapter")
+                adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
-        locator = serverCommunicator.stringToProxy("locator:default -p 12010")
-        adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
-        adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
+                locator = serverCommunicator.stringToProxy("locator:default -p 12010")
+                adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
+                adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
-        object = TestI(adapter, adapter2, self._registry)
-        self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test")))
-        self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test2")))
-        adapter.add(object, Ice.stringToIdentity("test3"))
+                object = TestI(adapter, adapter2, self._registry)
+                self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test")))
+                self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test2")))
+                adapter.add(object, Ice.stringToIdentity("test3"))
 
-        adapter.activate()
-        adapter2.activate()
+                adapter.activate()
+                adapter2.activate()
+                break
+            except Ice.SocketException as ex:
+                if nRetry == 0:
+                    raise ex
+
+                # Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+                # browser clients if the driver uses ports in the same range as this test, ICE-8148)
+                if adapter:
+                    adapter.destroy()
+                if adapter2:
+                    adapter2.destroy()
 
     def shutdown(self, current=None):
         for i in self._communicators:
