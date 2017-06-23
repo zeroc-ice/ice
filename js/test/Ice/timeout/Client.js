@@ -100,8 +100,8 @@
                 out.writeLine("ok");
                 out.write("testing connection timeout... ");
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
-                seq = new Uint8Array(10000000);
-                return timeout.holdAdapter(1000 * mult);
+                seq = new Uint8Array(1000000);
+                return timeout.holdAdapter(1500 * mult);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException
         ).then(() => test(false),
