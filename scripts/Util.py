@@ -1568,7 +1568,7 @@ class Result:
         self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
         self._testcases[testcase] = (self._start, self._stdout.tell())
         self._failed[testcase] = exception
-        output = self.getOutput(testcase);
+        output = self.getOutput(testcase)
         for s in ["EADDRINUSE", "Address already in use"]:
             if output.find(s) >= 0:
                 if isinstance(platform, Windows):
@@ -1598,7 +1598,7 @@ class Result:
                 try:
                     return self._stdout.read(end - start)
                 finally:
-                    self._stdout.seek(os.SEEK_END)
+                    self._stdout.seek(0, os.SEEK_END)
 
         return self._stdout.getvalue()
 
