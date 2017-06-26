@@ -1114,6 +1114,7 @@ EventHandlerWrapper::updateRunLoop()
 
         if(_finish)
         {
+            CFRunLoopSourceInvalidate(_source.get());
             CFSocketInvalidate(_socket.get());
         }
     }
