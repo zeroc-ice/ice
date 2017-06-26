@@ -8,21 +8,21 @@
   </PropertyGroup>
 
   <Target Name="SignPackage" AfterTargets="AfterCompile"
-          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
+          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
     <Message Text="Signing $(SignTarget)" />
 
     <Exec Command="$(SignCommandSHA1) $(SignTarget)" EchoOff="yes"/>
     <Exec Command="$(SignCommandSHA256) $(SignTarget)" EchoOff="yes"
           Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
 
-    <WriteLinesToFile File                = "$(IntDir)sign.log"
+    <WriteLinesToFile File                = "$(IntermediateOutputPath)sign.log"
                       Encoding            = "Unicode"
                       Overwrite           = "true"
                       Lines               = "Signing $(SignTarget)"/>
   </Target>
 
   <Target Name="SignPackageClean" AfterTargets="Clean">
-     <Delete Files="$(IntDir)sign.log" />
+     <Delete Files="$(IntermediateOutputPath)sign.log" />
   </Target>
 
   <PropertyGroup Condition="'$(PUBLIC_KEYFILE)' != '' Or '$(KEYFILE)' != ''">
@@ -39,7 +39,7 @@
 
   <!-- If both KEYFILE and PUBLIC_KEYFILE are set we sign the assembly after it has been build using KEYFILE -->
   <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
-          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
+          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
     <Exec Command="sn -Ra $(SignTarget) $(KEYFILE)"/>
   </Target>
 </Project>
