@@ -1824,10 +1824,10 @@ class RemoteProcessController(ProcessController):
             import Ice
             try:
                 result = self.proxy.waitSuccess(timeout)
+            except Ice.UserException:
+                raise Expect.TIMEOUT("waitSuccess timeout")
             except Ice.LocalException:
                 raise
-            except:
-                raise Expect.TIMEOUT("waitSuccess timeout")
             if exitstatus != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
 
