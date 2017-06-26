@@ -74,5 +74,5 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
 </Project>

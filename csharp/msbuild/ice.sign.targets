@@ -4,20 +4,21 @@
     <TimeStampServer>http://timestamp.digicert.com</TimeStampServer>
     <SignCommandSHA1>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
     <SignCommandSHA256>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
+    <SignTarget>$(IntermediateOutputPath)$(TargetName)$(TargetExt)</SignTarget>
   </PropertyGroup>
 
-  <Target Name="SignPackage" AfterTargets="Build"
-          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(OutDir)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
-    <Message Text="Signing $(TargetName)$(TargetExt)" />
+  <Target Name="SignPackage" AfterTargets="AfterCompile"
+          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
+    <Message Text="Signing $(SignTarget)" />
 
-    <Exec Command="$(SignCommandSHA1) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"/>
-    <Exec Command="$(SignCommandSHA256) $(OutDir)$(TargetName)$(TargetExt)" EchoOff="yes"
+    <Exec Command="$(SignCommandSHA1) $(SignTarget)" EchoOff="yes"/>
+    <Exec Command="$(SignCommandSHA256) $(SignTarget)" EchoOff="yes"
           Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
 
     <WriteLinesToFile File                = "$(IntDir)sign.log"
                       Encoding            = "Unicode"
                       Overwrite           = "true"
-                      Lines               = "Signing $(TargetName)$(TargetExt)"/>
+                      Lines               = "Signing $(SignTarget)"/>
   </Target>
 
   <Target Name="SignPackageClean" AfterTargets="Clean">
@@ -37,8 +38,8 @@
   </PropertyGroup>
 
   <!-- If both KEYFILE and PUBLIC_KEYFILE are set we sign the assembly after it has been build using KEYFILE -->
-  <Target Name="StrongNameSignPackage" AfterTargets="Build" BeforeTargets="SignPackage"
-          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != ''">
-    <Exec Command="sn -Ra $(OutDir)$(TargetName)$(TargetExt) $(KEYFILE)"/>
+  <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
+          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntDir)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntDir)sign.log').Ticks))">
+    <Exec Command="sn -Ra $(SignTarget) $(KEYFILE)"/>
   </Target>
 </Project>

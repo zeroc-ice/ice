@@ -464,7 +464,7 @@
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\config\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>

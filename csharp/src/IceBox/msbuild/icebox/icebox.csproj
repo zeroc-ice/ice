@@ -53,7 +53,7 @@
     <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
   </PropertyGroup>
   <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\config\ice.sign.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.common.targets" />
   <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and
        assembly paths -->
