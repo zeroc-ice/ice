@@ -371,6 +371,11 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
             // by the locator is an indirect proxy. We now need to resolve the endpoints
             // of this indirect proxy.
             //
+            if(_ref->getInstance()->traceLevels()->location >= 1)
+            {
+                locatorInfo->trace("retrieved adapter for well-known object from locator, adding to locator cache",
+                                   _ref, r);
+            }
             locatorInfo->getEndpoints(r, _ref, _ttl, _callback);
             return;
         }
@@ -591,6 +596,10 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
         }
         else if(!r->isWellKnown())
         {
+            if(ref->getInstance()->traceLevels()->location >= 1)
+            {
+                trace("found adapter for well-known object in locator cache", ref, r);
+            }
             getEndpoints(r, ref, ttl, callback);
             return;
         }
@@ -618,7 +627,7 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 
         if(!endpoints.empty() && ref->getInstance()->traceLevels()->location >= 2)
         {
-            trace("removed endpoints from locator table", ref, endpoints);
+            trace("removed endpoints for adapter from locator cache", ref, endpoints);
         }
     }
     else
@@ -630,11 +639,15 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
             {
                 if(ref->getInstance()->traceLevels()->location >= 2)
                 {
-                    trace("removed endpoints from locator table", ref, r->getEndpoints());
+                    trace("removed endpoints for well-known object from locator cache", ref, r->getEndpoints());
                 }
             }
             else if(!r->isWellKnown())
             {
+                if(ref->getInstance()->traceLevels()->location >= 2)
+                {
+                    trace("removed adapter for well-known object from locator cache", ref, r);
+                }
                 clearCache(r);
             }
         }
@@ -690,11 +703,10 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
         if(ref->getInstance()->traceLevels()->location >= 1)
         {
             Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-            out << "couldn't contact the locator to retrieve adapter endpoints\n";
+            out << "couldn't contact the locator to retrieve endpoints\n";
             if(ref->getAdapterId().empty())
             {
-                out << "object = " << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode())
-                    << "\n";
+                out << "well-known proxy = " << ref->toString() << "\n";
             }
             else
             {
@@ -715,11 +727,25 @@ IceInternal::LocatorInfo::getEndpointsTrace(const ReferencePtr& ref,
     {
         if(cached)
         {
-            trace("found endpoints in locator table", ref, endpoints);
+            if(ref->isWellKnown())
+            {
+                trace("found endpoints for well-known proxy in locator cache", ref, endpoints);
+            }
+            else
+            {
+                trace("found endpoints for adapter in locator cache", ref, endpoints);
+            }
         }
         else
         {
-            trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+            if(ref->isWellKnown())
+            {
+                trace("retrieved endpoints for well-known proxy from locator, adding to locator cache", ref, endpoints);
+            }
+            else
+            {
+                trace("retrieved endpoints for adapter from locator, adding to locator cache", ref, endpoints);
+            }
         }
     }
     else
@@ -728,8 +754,8 @@ IceInternal::LocatorInfo::getEndpointsTrace(const ReferencePtr& ref,
         out << "no endpoints configured for ";
         if(ref->getAdapterId().empty())
         {
-            out << "object\n";
-            out << "object = " << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode());
+            out << "well-known object\n";
+            out << "well-known proxy = " << ref->toString();
         }
         else
         {
@@ -752,8 +778,7 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
     }
     else
     {
-        out << "object = "  << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode())
-            << '\n';
+        out << "well-known proxy = "  << ref->toString() << '\n';
     }
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
@@ -761,6 +786,17 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
     transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
               Ice::constMemFun(&Endpoint::toString));
     out << "endpoints = " << o.str();
+}
+
+void
+IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, const ReferencePtr& resolved)
+{
+    assert(ref->isWellKnown());
+
+    Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
+    out << msg << '\n';
+    out << "well-known proxy = "  << ref->toString() << '\n';
+    out << "adapter = " << resolved->getAdapterId();
 }
 
 IceInternal::LocatorInfo::RequestPtr
@@ -791,8 +827,7 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
     if(ref->getInstance()->traceLevels()->location >= 1)
     {
         Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
-        out << "searching for object by id\nobject = " << Ice::identityToString(ref->getIdentity(),
-                                                                                ref->getInstance()->toStringMode());
+        out << "searching for well-known object\nwell-known proxy = " << ref->toString();
     }
 
     map<Ice::Identity, RequestPtr>::const_iterator p = _objectRequests.find(ref->getIdentity());

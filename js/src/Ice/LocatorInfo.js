@@ -134,6 +134,10 @@ class LocatorInfo
             }
             else if(!r.isWellKnown())
             {
+                if(ref.getInstance().traceLevels().location >= 1)
+                {
+                    this.traceWellKnown("found adapter for well-known object in locator cache", ref, r);
+                }
                 this.getEndpoints(r, ref, ttl, promise);
                 return promise;
             }
@@ -159,7 +163,7 @@ class LocatorInfo
 
             if(endpoints !== null && ref.getInstance().traceLevels().location >= 2)
             {
-                this.trace("removed endpoints from locator table\n", ref, endpoints);
+                this.trace("removed endpoints for adapter from locator cache", ref, endpoints);
             }
         }
         else
@@ -171,11 +175,15 @@ class LocatorInfo
                 {
                     if(ref.getInstance().traceLevels().location >= 2)
                     {
-                        this.trace("removed endpoints from locator table", ref, r.getEndpoints());
+                        this.trace("removed endpoints for well-known object from locator cache", ref, r.getEndpoints());
                     }
                 }
                 else if(!r.isWellKnown())
                 {
+                    if(ref.getInstance().traceLevels().location >= 2)
+                    {
+                        this.traceWellKnown("removed adapter for well-known object from locator cache", ref, r);
+                    }
                     this.clearCache(r);
                 }
             }
@@ -197,13 +205,29 @@ class LocatorInfo
         }
         else
         {
-            s.push("object = ");
-            s.push(Ice.identityToString(ref.getIdentity(), ref.getInstance().toStringMode()));
+            s.push("well-known proxy = ");
+            s.push(ref.toString());
             s.push("\n");
         }
 
         s.push("endpoints = ");
         s.push(endpoints.map(e => e.toString()).join(":"));
+        ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.join(""));
+    }
+
+    traceWellKnown(msg, ref, resolved)
+    {
+        Debug.assert(ref.isWellKnown());
+
+        const s = [];
+        s.push(msg);
+        s.push("\n");
+        s.push("well-known proxy = ");
+        s.push(ref.toString());
+        s.push("\n");
+
+        s.push("adapter = ");
+        s.push(resolved.getAdapterId());
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.join(""));
     }
 
@@ -259,7 +283,7 @@ class LocatorInfo
                 if(instance.traceLevels().location >= 1)
                 {
                     const s = [];
-                    s.push("couldn't contact the locator to retrieve adapter endpoints\n");
+                    s.push("couldn't contact the locator to retrieve endpoints\n");
                     if(ref.getAdapterId().length > 0)
                     {
                         s.push("adapter = ");
@@ -268,8 +292,8 @@ class LocatorInfo
                     }
                     else
                     {
-                        s.push("object = ");
-                        s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
+                        s.push("well-known proxy = ");
+                        s.push(ref.toString());
                         s.push("\n");
                     }
                     s.push("reason = " + ex.toString());
@@ -290,11 +314,27 @@ class LocatorInfo
         {
             if(cached)
             {
-                this.trace("found endpoints in locator table", ref, endpoints);
+                if(ref.isWellKnown())
+                {
+                    this.trace("found endpoints for well-known proxy in locator cache", ref, endpoints);
+                }
+                else
+                {
+                    this.trace("found endpoints for adapter in locator cache", ref, endpoints);
+                }
             }
             else
             {
-                this.trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+                if(ref.isWellKnown())
+                {
+                    this.trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                               ref, endpoints);
+                }
+                else
+                {
+                    this.trace("retrieved endpoints for adapter from locator, adding to locator cache",
+                               ref, endpoints);
+                }
             }
         }
         else
@@ -311,9 +351,9 @@ class LocatorInfo
             }
             else
             {
-                s.push("object\n");
-                s.push("object = ");
-                s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
+                s.push("well-known object\n");
+                s.push("well-known proxy = ");
+                s.push(ref.toString());
                 s.push("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
@@ -348,9 +388,9 @@ class LocatorInfo
         {
             const instance = ref.getInstance();
             const s = [];
-            s.push("searching for object by id\n");
-            s.push("object = ");
-            s.push(Ice.identityToString(ref.getIdentity(), instance.toStringMode()));
+            s.push("searching for well-known object\n");
+            s.push("well-known proxy = ");
+            s.push(ref.toString());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.join(""));
         }
 
@@ -447,6 +487,11 @@ class RequestCallback
                 // by the locator is an indirect proxy. We now need to resolve the endpoints
                 // of this indirect proxy.
                 //
+                if(this._ref.getInstance().traceLevels().location >= 1)
+                {
+                    locatorInfo.traceWellKnown("retrieved adapter for well-known object from locator, " +
+                                               "adding to locator cache", this._ref, r);
+                }
                 locatorInfo.getEndpoints(r, this._ref, this._ttl).then(
                     values =>
                     {

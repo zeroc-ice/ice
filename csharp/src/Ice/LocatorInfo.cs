@@ -50,6 +50,11 @@ namespace IceInternal
                         // by the locator is an indirect proxy. We now need to resolve the endpoints
                         // of this indirect proxy.
                         //
+                        if(_ref.getInstance().traceLevels().location >= 1)
+                        {
+                            locatorInfo.trace("retrieved adapter for well-known object from locator, " +
+                                              "adding to locator cache", _ref, r);
+                        }
                         locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
                         return;
                     }
@@ -346,6 +351,10 @@ namespace IceInternal
                 }
                 else if(!r.isWellKnown())
                 {
+                    if(@ref.getInstance().traceLevels().location >= 1)
+                    {
+                        trace("found adapter for well-known object in locator cache", @ref, r);
+                    }
                     getEndpoints(r, @ref, ttl, callback);
                     return;
                 }
@@ -371,7 +380,7 @@ namespace IceInternal
 
                 if(endpoints != null && rf.getInstance().traceLevels().location >= 2)
                 {
-                    trace("removed endpoints from locator table\n", rf, endpoints);
+                    trace("removed endpoints for adapter from locator cache", rf, endpoints);
                 }
             }
             else
@@ -383,11 +392,15 @@ namespace IceInternal
                     {
                         if(rf.getInstance().traceLevels().location >= 2)
                         {
-                            trace("removed endpoints from locator table", rf, r.getEndpoints());
+                            trace("removed endpoints for well-known object from locator cache", rf, r.getEndpoints());
                         }
                     }
                     else if(!r.isWellKnown())
                     {
+                        if(rf.getInstance().traceLevels().location >= 2)
+                        {
+                            trace("removed adapter for well-known object from locator cache", rf, r);
+                        }
                         clearCache(r);
                     }
                 }
@@ -404,8 +417,7 @@ namespace IceInternal
             }
             else
             {
-                s.Append("object = " + Ice.Util.identityToString(r.getIdentity(), r.getInstance().toStringMode())
-                         + "\n");
+                s.Append("well-known proxy = " + r.ToString() + "\n");
             }
 
             s.Append("endpoints = ");
@@ -418,6 +430,22 @@ namespace IceInternal
                     s.Append(":");
                 }
             }
+
+            r.getInstance().initializationData().logger.trace(r.getInstance().traceLevels().locationCat, s.ToString());
+        }
+
+        private void trace(string msg, Reference r, Reference resolved)
+        {
+            Debug.Assert(r.isWellKnown());
+
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            s.Append(msg);
+            s.Append("\n");
+            s.Append("well-known proxy = ");
+            s.Append(r.ToString());
+            s.Append("\n");
+            s.Append("adapter = ");
+            s.Append(resolved.getAdapterId());
 
             r.getInstance().initializationData().logger.trace(r.getInstance().traceLevels().locationCat, s.ToString());
         }
@@ -470,14 +498,14 @@ namespace IceInternal
                 if(instance.traceLevels().location >= 1)
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
-                    s.Append("couldn't contact the locator to retrieve adapter endpoints\n");
+                    s.Append("couldn't contact the locator to retrieve endpoints\n");
                     if(@ref.getAdapterId().Length > 0)
                     {
                         s.Append("adapter = " + @ref.getAdapterId() + "\n");
                     }
                     else
                     {
-                        s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()) + "\n");
+                        s.Append("well-known proxy = " + @ref.ToString() + "\n");
                     }
                     s.Append("reason = " + ex);
                     instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
@@ -496,11 +524,27 @@ namespace IceInternal
             {
                 if(cached)
                 {
-                    trace("found endpoints in locator table", @ref, endpoints);
+                    if(@ref.isWellKnown())
+                    {
+                        trace("found endpoints for well-known proxy in locator cache", @ref, endpoints);
+                    }
+                    else
+                    {
+                        trace("found endpoints for adapter in locator cache", @ref, endpoints);
+                    }
                 }
                 else
                 {
-                    trace("retrieved endpoints from locator, adding to locator table", @ref, endpoints);
+                    if(@ref.isWellKnown())
+                    {
+                        trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                              @ref, endpoints);
+                    }
+                    else
+                    {
+                        trace("retrieved endpoints for adapter from locator, adding to locator cache",
+                              @ref, endpoints);
+                    }
                 }
             }
             else
@@ -515,8 +559,8 @@ namespace IceInternal
                 }
                 else
                 {
-                    s.Append("object\n");
-                    s.Append("object = " + Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
+                    s.Append("well-known object\n");
+                    s.Append("well-known proxy = " + @ref.ToString());
                 }
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
             }
@@ -555,8 +599,8 @@ namespace IceInternal
             {
                 Instance instance = @ref.getInstance();
                 System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("searching for object by id\nobject = ");
-                s.Append(Ice.Util.identityToString(@ref.getIdentity(), instance.toStringMode()));
+                s.Append("searching for well-known object\nwell-known proxy = ");
+                s.Append(@ref.ToString());
                 instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.ToString());
             }
 

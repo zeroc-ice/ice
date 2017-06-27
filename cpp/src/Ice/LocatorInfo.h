@@ -171,6 +171,7 @@ private:
     void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
     void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
     void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
+    void trace(const std::string&, const ReferencePtr&, const ReferencePtr&);
 
     RequestPtr getAdapterRequest(const ReferencePtr&);
     RequestPtr getObjectRequest(const ReferencePtr&);

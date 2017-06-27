@@ -45,6 +45,11 @@ public final class LocatorInfo
                     // by the locator is an indirect proxy. We now need to resolve the endpoints
                     // of this indirect proxy.
                     //
+                    if(_ref.getInstance().traceLevels().location >= 1)
+                    {
+                        locatorInfo.trace("retrieved adapter for well-known object from locator, " +
+                                          "adding to locator cache", _ref, r);
+                    }
                     locatorInfo.getEndpoints(r, _ref, _ttl, _callback);
                     return;
                 }
@@ -395,6 +400,10 @@ public final class LocatorInfo
             }
             else if(!r.isWellKnown())
             {
+                if(ref.getInstance().traceLevels().location >= 1)
+                {
+                    trace("found adapter for well-known object in locator cache", ref, r);
+                }
                 getEndpoints(r, ref, ttl, callback);
                 return;
             }
@@ -422,7 +431,7 @@ public final class LocatorInfo
 
             if(endpoints != null && ref.getInstance().traceLevels().location >= 2)
             {
-                trace("removed endpoints from locator table\n", ref, endpoints);
+                trace("removed endpoints for adapter from locator cache", ref, endpoints);
             }
         }
         else
@@ -434,11 +443,15 @@ public final class LocatorInfo
                 {
                     if(ref.getInstance().traceLevels().location >= 2)
                     {
-                        trace("removed endpoints from locator table", ref, r.getEndpoints());
+                        trace("removed endpoints for well-known object from locator cache", ref, r.getEndpoints());
                     }
                 }
                 else if(!r.isWellKnown())
                 {
+                    if(ref.getInstance().traceLevels().location >= 2)
+                    {
+                        trace("removed adapter for well-known object from locator cache", ref, r);
+                    }
                     clearCache(r);
                 }
             }
@@ -461,8 +474,8 @@ public final class LocatorInfo
         }
         else
         {
-            s.append("object = ");
-            s.append(com.zeroc.Ice.Util.identityToString(ref.getIdentity(), ref.getInstance().toStringMode()));
+            s.append("well-known proxy = ");
+            s.append(ref.toString());
             s.append("\n");
         }
 
@@ -476,6 +489,23 @@ public final class LocatorInfo
                 s.append(":");
             }
         }
+
+        ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
+    }
+
+    private void
+    trace(String msg, Reference ref, Reference resolved)
+    {
+        assert(ref.isWellKnown());
+
+        StringBuilder s = new StringBuilder(128);
+        s.append(msg);
+        s.append("\n");
+        s.append("well-known proxy = ");
+        s.append(ref.toString());
+        s.append("\n");
+        s.append("adapter = ");
+        s.append(resolved.getAdapterId());
 
         ref.getInstance().initializationData().logger.trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
@@ -533,7 +563,7 @@ public final class LocatorInfo
             if(instance.traceLevels().location >= 1)
             {
                 StringBuilder s = new StringBuilder(128);
-                s.append("couldn't contact the locator to retrieve adapter endpoints\n");
+                s.append("couldn't contact the locator to retrieve endpoints\n");
                 if(ref.getAdapterId().length() > 0)
                 {
                     s.append("adapter = ");
@@ -542,8 +572,8 @@ public final class LocatorInfo
                 }
                 else
                 {
-                    s.append("object = ");
-                    s.append(com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
+                    s.append("well-known proxy = ");
+                    s.append(ref.toString());
                     s.append("\n");
                 }
                 s.append("reason = " + ex);
@@ -564,11 +594,27 @@ public final class LocatorInfo
         {
             if(cached)
             {
-                trace("found endpoints in locator table", ref, endpoints);
+                if(ref.isWellKnown())
+                {
+                    trace("found endpoints for well-known proxy in locator cache", ref, endpoints);
+                }
+                else
+                {
+                    trace("found endpoints for adapter in locator cache", ref, endpoints);
+                }
             }
             else
             {
-                trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+                if(ref.isWellKnown())
+                {
+                    trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                          ref, endpoints);
+                }
+                else
+                {
+                    trace("retrieved endpoints for adapter from locator, adding to locator cache",
+                          ref, endpoints);
+                }
             }
         }
         else
@@ -585,9 +631,9 @@ public final class LocatorInfo
             }
             else
             {
-                s.append("object\n");
-                s.append("object = ");
-                s.append(com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
+                s.append("well-known object\n");
+                s.append("well-known proxy = ");
+                s.append(ref.toString());
                 s.append("\n");
             }
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
@@ -624,9 +670,9 @@ public final class LocatorInfo
         {
             Instance instance = ref.getInstance();
             StringBuilder s = new StringBuilder(128);
-            s.append("searching for object by id\n");
-            s.append("object = ");
-            s.append(com.zeroc.Ice.Util.identityToString(ref.getIdentity(), instance.toStringMode()));
+            s.append("searching for well-known object\n");
+            s.append("well-known proxy = ");
+            s.append(ref.toString());
             instance.initializationData().logger.trace(instance.traceLevels().locationCat, s.toString());
         }
 
