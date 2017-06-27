@@ -163,26 +163,26 @@ AdapterRequest::finished(const ObjectPrxPtr& proxy)
     if(proxy || _proxies.empty())
     {
         RequestT<string, AdapterCB>::finished(proxy);
-        return;
     }
     else if(_proxies.size() == 1)
     {
         RequestT<string, AdapterCB>::finished(*_proxies.begin());
-        return;
     }
-
-    EndpointSeq endpoints;
-    ObjectPrxPtr prx;
-    for(set<ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
+    else
     {
-        if(!prx)
+        EndpointSeq endpoints;
+        ObjectPrxPtr prx;
+        for(set<ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
-            prx = *p;
+            if(!prx)
+            {
+                prx = *p;
+            }
+            Ice::EndpointSeq endpts = (*p)->ice_getEndpoints();
+            copy(endpts.begin(), endpts.end(), back_inserter(endpoints));
         }
-        Ice::EndpointSeq endpts = (*p)->ice_getEndpoints();
-        copy(endpts.begin(), endpts.end(), back_inserter(endpoints));
+        RequestT<string, AdapterCB>::finished(prx->ice_endpoints(endpoints));
     }
-    RequestT<string, AdapterCB>::finished(prx->ice_endpoints(endpoints));
 }
 
 void
@@ -453,14 +453,12 @@ LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice
 {
     Lock sync(*this);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
-    if(p == _objectRequests.end() || p->second->getRequestId() != requestId) // Ignore responses from old requests
+    if(p != _objectRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
-        return;
+        p->second->response(proxy);
+        _timer->cancel(p->second);
+        _objectRequests.erase(p);
     }
-
-    p->second->response(proxy);
-    _timer->cancel(p->second);
-    _objectRequests.erase(p);
 }
 
 void
@@ -469,15 +467,13 @@ LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ic
 {
     Lock sync(*this);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
-    if(p == _adapterRequests.end() || p->second->getRequestId() != requestId) // Ignore responses from old requests
+    if(p != _adapterRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
-        return;
-    }
-
-    if(p->second->response(proxy, isReplicaGroup))
-    {
-        _timer->cancel(p->second);
-        _adapterRequests.erase(p);
+        if(p->second->response(proxy, isReplicaGroup))
+        {
+            _timer->cancel(p->second);
+            _adapterRequests.erase(p);
+        }
     }
 }
 
