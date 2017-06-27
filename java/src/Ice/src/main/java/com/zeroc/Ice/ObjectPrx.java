@@ -972,11 +972,11 @@ public interface ObjectPrx
             }
             catch(RuntimeException ex) // Includes LocalException
             {
-                throw ex;
+                throw (LocalException)ex.fillInStackTrace();
             }
             catch(UserException ex)
             {
-                throw ex;
+                throw (UserException)ex.fillInStackTrace();
             }
             catch(Throwable ex)
             {

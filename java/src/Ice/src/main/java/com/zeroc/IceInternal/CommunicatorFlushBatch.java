@@ -174,11 +174,11 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         {
             try
             {
-                throw ee.getCause();
+                throw ee.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex) // Includes LocalException
             {
-                throw ex;
+                throw (RuntimeException)ex.fillInStackTrace();
             }
             catch(Throwable ex)
             {

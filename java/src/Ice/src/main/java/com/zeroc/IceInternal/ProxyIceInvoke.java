@@ -88,11 +88,11 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
         {
             try
             {
-                throw ee.getCause();
+                throw ee.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex) // Includes LocalException
             {
-                throw ex;
+                throw (RuntimeException)ex.fillInStackTrace();
             }
             catch(Throwable ex)
             {

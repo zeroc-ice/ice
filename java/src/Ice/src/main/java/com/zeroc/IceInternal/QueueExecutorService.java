@@ -90,11 +90,11 @@ public final class QueueExecutorService
         {
             try
             {
-                throw e.getCause();
+                throw e.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex)
             {
-                throw ex;
+                throw (RuntimeException)ex.fillInStackTrace();
             }
             catch(Throwable ex)
             {
