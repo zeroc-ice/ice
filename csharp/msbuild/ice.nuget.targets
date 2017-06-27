@@ -7,7 +7,8 @@
     <ItemGroup>
         <Tools Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
                         $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe;
-                        $(IceSrcRootDir)bin\iceboxnet.exe" />
+                        $(IceSrcRootDir)bin\iceboxnet.exe;
+                        $(IceSrcRootDir)bin\iceboxnet.pdb" />
         <Assemblies Include="$(IceSrcRootDir)Assemblies\*.dll" />
         <Assemblies Include="$(IceSrcRootDir)Assemblies\*.pdb" />
         <Assemblies Include="$(IceSrcRootDir)Assemblies\*.xml" />
