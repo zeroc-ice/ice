@@ -15,6 +15,7 @@
 
 #include <IceUtil/Timer.h>
 #include <Ice/Properties.h>
+#include <Ice/Comparable.h>
 
 #include <set>
 
@@ -138,7 +139,11 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    std::set<Ice::ObjectPrxPtr> _proxies;
+#ifdef ICE_CPP11_MAPPING
+    std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
+#else
+    std::set<Ice::ObjectPrx> _proxies;
+#endif
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
