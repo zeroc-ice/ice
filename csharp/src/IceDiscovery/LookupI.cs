@@ -123,25 +123,25 @@ namespace IceDiscovery
             if(proxy != null || _proxies.Count == 0)
             {
                 sendResponse(proxy);
-                return;
             }
             else if(_proxies.Count == 1)
             {
                 sendResponse(_proxies.First());
-                return;
             }
-
-            List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
-            Ice.ObjectPrx result = null;
-            foreach(Ice.ObjectPrx prx in _proxies)
+            else
             {
-                if(result == null)
+                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                Ice.ObjectPrx result = null;
+                foreach(Ice.ObjectPrx prx in _proxies)
                 {
-                    result = prx;
+                    if(result == null)
+                    {
+                        result = prx;
+                    }
+                    endpoints.AddRange(prx.ice_getEndpoints());
                 }
-                endpoints.AddRange(prx.ice_getEndpoints());
+                sendResponse(result.ice_endpoints(endpoints.ToArray()));
             }
-            sendResponse(result.ice_endpoints(endpoints.ToArray()));
         }
 
         public void runTimerTask()
@@ -391,13 +391,13 @@ namespace IceDiscovery
             lock(this)
             {
                 ObjectRequest request;
-                if(!_objectRequests.TryGetValue(id, out request) || request.getRequestId() != requestId)
+                if(_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
                 {
-                    return; // Ignore responses from old requests
+                    request.response(proxy);
+                    _timer.cancel(request);
+                    _objectRequests.Remove(id);
                 }
-                request.response(proxy);
-                _timer.cancel(request);
-                _objectRequests.Remove(id);
+                // else ignore responses from old requests
             }
         }
 
@@ -406,16 +406,15 @@ namespace IceDiscovery
             lock(this)
             {
                 AdapterRequest request;
-                if(!_adapterRequests.TryGetValue(adapterId, out request) || request.getRequestId() != requestId)
+                if(_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
                 {
-                    return; // Ignore responses from old requests
+                    if(request.response(proxy, isReplicaGroup))
+                    {
+                        _timer.cancel(request);
+                        _adapterRequests.Remove(request.getId());
+                    }
                 }
-
-                if(request.response(proxy, isReplicaGroup))
-                {
-                    _timer.cancel(request);
-                    _adapterRequests.Remove(request.getId());
-                }
+                // else ignore responses from old requests
             }
         }
 
