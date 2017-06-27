@@ -95,8 +95,9 @@ public class PluginI implements com.zeroc.Ice.Plugin
         LookupI lookup = new LookupI(locatorRegistry, LookupPrx.uncheckedCast(lookupPrx), properties);
         _multicastAdapter.add(lookup, com.zeroc.Ice.Util.stringToIdentity("IceDiscovery/Lookup"));
 
-        com.zeroc.Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(lookup)).ice_datagram();
-        lookup.setLookupReply(LookupReplyPrx.uncheckedCast(lookupReply));
+        _replyAdapter.addDefaultServant(new LookupReplyI(lookup), "");
+        final com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity("dummy", "");
+        lookup.setLookupReply(LookupReplyPrx.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
 
         //
         // Setup locator on the communicator.

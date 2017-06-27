@@ -16,6 +16,8 @@
 #include <IceUtil/Timer.h>
 #include <Ice/Properties.h>
 
+#include <set>
+
 namespace IceDiscovery
 {
 
@@ -30,6 +32,7 @@ public:
     virtual bool retry();
     void invoke(const std::string&, const std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> >&);
     bool exception();
+    std::string getRequestId() const;
 
     virtual void finished(const Ice::ObjectPrxPtr&) = 0;
 
@@ -38,6 +41,7 @@ protected:
     virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&) = 0;
 
     LookupIPtr _lookup;
+    const std::string _requestId;
     int _retryCount;
     size_t _lookupCount;
     size_t _failureCount;
@@ -129,7 +133,12 @@ private:
     virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
     virtual void runTimerTask();
 
-    std::vector<Ice::ObjectPrxPtr> _proxies;
+    //
+    // We use a set because the same IceDiscovery plugin might return multiple times
+    // the same proxy if it's accessible through multiple network interfaces and if we
+    // also sent the request to multiple interfaces.
+    //
+    std::set<Ice::ObjectPrxPtr> _proxies;
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
@@ -157,8 +166,8 @@ public:
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const Ice::ObjectPrxPtr&);
-    void foundAdapter(const std::string&, const Ice::ObjectPrxPtr&, bool);
+    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrxPtr&);
+    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void adapterRequestException(const AdapterRequestPtr&, const Ice::LocalException&);
