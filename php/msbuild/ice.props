@@ -7,7 +7,7 @@
 
   <PropertyGroup Label="UserMacros">
 
-    <!-- The PHP version used to build the extension, then only supported value is 7.0 -->
+    <!-- The PHP version used to build the extension. The only supported values are 7.0 and 7.1. -->
     <BuildWithPhpVersion>7.1</BuildWithPhpVersion>
 
     <!-- Determines whether the extension uses PHP namespaces (requires PHP 5.3 or later). -->

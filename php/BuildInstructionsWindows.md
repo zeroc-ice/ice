@@ -52,9 +52,9 @@ to `no`:
 
     msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
-The PHP extension depends on Ice for C++ commponents from `cpp` subidrectory, and those
-are build if required, it is also possible to build the PHP extension using the Ice for C++
-NuGet packages by setting the`ICE_BIN_DIST` msbuild propery to `cpp`:
+The PHP extension depends on Ice for C++ components from the `cpp` subdirectory, and those
+are built if required. It is also possible to build the PHP extension using the Ice for C++
+NuGet packages by setting the`ICE_BIN_DIST` msbuild property to `cpp`:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
 
@@ -143,8 +143,8 @@ After a successful build, you can run the tests as follows:
 
     python allTests.py
 
-If you have build the extension using the Ice for C++ NuGet packages you must
-also set `ICE_BIN_DIST` environment variable to `cpp` for testing:
+If you have built the extension using the Ice for C++ NuGet packages, you must
+also set the `ICE_BIN_DIST` environment variable to `cpp` for testing:
 
     set ICE_BIN_DIST=cpp
     python allTests.py
