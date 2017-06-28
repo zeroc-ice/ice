@@ -2383,6 +2383,11 @@ public class AllTests
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+                //
+                // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
+                // can cause SSL handshake errors whe connecting to the remote zeroc server.
+                //
+                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
                 try
@@ -2405,6 +2410,11 @@ public class AllTests
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+                //
+                // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
+                // can cause SSL handshake errors whe connecting to the remote zeroc server.
+                //
+                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 comm = Ice.Util.initialize(initData);
                 p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
                 IceSSL.ConnectionInfo info;

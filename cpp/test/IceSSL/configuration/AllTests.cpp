@@ -4198,6 +4198,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             initData.properties->setProperty("IceSSL.DefaultDir", "");
             initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+#   ifdef _WIN32
+            //
+            // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
+            // can cause SSL handshake errors whe connecting to the remote zeroc server.
+            //
+            initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+#   endif
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
             try
@@ -4223,6 +4230,13 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             initData.properties->setProperty("IceSSL.VerifyDepthMax", "4");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
+#   ifdef _WIN32
+            //
+            // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
+            // can cause SSL handshake errors whe connecting to the remote zeroc server.
+            //
+            initData.properties->setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
+#   endif
             CommunicatorPtr comm = initialize(initData);
             Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -h demo.zeroc.com -p 5064");
 
