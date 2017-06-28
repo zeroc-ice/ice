@@ -47,7 +47,7 @@ by the binary distributions for our supported platforms.
 ### Bzip2 Compression
 
 Ice for Android supports protocol compression using the bzip2 classes included
-with Apache Ant or available separately from [kohsuke.org]().
+with [Apache Commons Compress][2].
 
 The Maven package id for the bzip2 JAR file is as follows:
 
@@ -122,3 +122,4 @@ the available image names in your host by using `emulator -list-avds`. Images
 can be created using Android Studio.
 
 [1]: https://zeroc.com/distributions/ice
+[2]: https://commons.apache.org/proper/commons-compress/
