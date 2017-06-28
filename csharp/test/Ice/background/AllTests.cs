@@ -420,36 +420,45 @@ public class AllTests
 
         OpThread thread1 = new OpThread(background);
         OpThread thread2 = new OpThread(background);
-
-        for(int i = 0; i < 5; i++)
+        try
         {
-            try
+            for(int i = 0; i < 5; i++)
             {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
 
-            configuration.connectException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
-            Thread.Sleep(10);
-            configuration.connectException(null);
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
+                configuration.connectException(new Ice.SocketException());
+                background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                Thread.Sleep(10);
+                configuration.connectException(null);
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                }
             }
         }
+        catch(Exception ex)
+        {
+            System.Console.Out.WriteLine(ex);
+            test(false);
+        }
+        finally
+        {
+            thread1.destroy();
+            thread2.destroy();
 
-        thread1.destroy();
-        thread2.destroy();
-
-        thread1.Join();
-        thread2.Join();
+            thread1.Join();
+            thread2.Join();
+        }
     }
 
     private static void initializeTests(Configuration configuration, Test.BackgroundPrx background,
