@@ -38,7 +38,7 @@ function test($b)
 
 function connect($prx)
 {
-    $nRetry = 5;
+    $nRetry = 10;
     while(--$nRetry > 0)
     {
         try
@@ -124,7 +124,8 @@ function allTests($communicator)
         //
         // Expect TimeoutException.
         //
-        $to = $timeout->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
+        $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
+        connect($to);
         $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
         {
@@ -359,7 +360,7 @@ function allTests($communicator)
         // This test is not reliable enough with slow VMs so we disable it.
         //
         // $timeout->op(); // Ensure adapter is active.
-        // $to = $to->ice_timeout(100)->ice_uncheckedCast("::Test::Timeout");
+        // $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         // connect($to);
         // $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         // try

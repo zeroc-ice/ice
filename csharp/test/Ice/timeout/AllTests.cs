@@ -47,7 +47,7 @@ public class AllTests : TestCommon.AllTests
 
     private static Ice.Connection connect(Ice.ObjectPrx prx)
     {
-        int nRetry = 5;
+        int nRetry = 10;
         while(--nRetry > 0)
         {
             try
@@ -118,8 +118,9 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect TimeoutException.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(100));
-            timeout.holdAdapter(500);
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
+            connect(to);
+            timeout.holdAdapter(750);
             try
             {
                 to.sendData(seq);
@@ -371,9 +372,9 @@ public class AllTests : TestCommon.AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(100));
+            to = Test.TimeoutPrxHelper.uncheckedCast(to.ice_timeout(250));
             connect(to);
-            timeout.holdAdapter(500);
+            timeout.holdAdapter(750);
             try
             {
                 to.sendData(seq);

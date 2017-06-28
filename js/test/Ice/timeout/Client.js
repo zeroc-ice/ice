@@ -19,7 +19,7 @@
 
     var connect = function(prx)
     {
-        var nRetry = 5;
+        var nRetry = 10;
         var next = function next() {
             if(--nRetry > 0) {
                 return prx.ice_getConnection().then(c => c, ex => next());
@@ -99,7 +99,11 @@
             {
                 out.writeLine("ok");
                 out.write("testing connection timeout... ");
-                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
+                to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+                return connect(to);
+            }
+        ).then(() =>
+            {
                 seq = new Uint8Array(1000000);
                 return timeout.holdAdapter(1500 * mult);
             }

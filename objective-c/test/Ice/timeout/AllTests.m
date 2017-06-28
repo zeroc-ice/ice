@@ -81,7 +81,7 @@
 id<ICEConnection>
 connectPrx(id<TestTimeoutTimeoutPrx> prx)
 {
-    int nRetry = 5;
+    int nRetry = 10;
     while(--nRetry > 0)
     {
         @try
@@ -153,7 +153,8 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Expect TimeoutException.
         //
         id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_timeout:250]];
-        [to holdAdapter:1000];
+        connectPrx(to);
+        [to holdAdapter:750];
         @try
         {
             [to sendData:seq];

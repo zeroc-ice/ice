@@ -8,7 +8,7 @@
 # **********************************************************************
 
 def connect(prx)
-    nRetry = 5
+    nRetry = 10
     while nRetry > 0 do
         nRetry -=1
         begin
@@ -62,8 +62,9 @@ def allTests(communicator)
     # Expect TimeoutException.
     #
     seq = "\0" * 10000000 # 10,000,000 entries
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(700)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(250))
+    connect(to)
+    timeout.holdAdapter(750)
     begin
         to.sendData(seq)
         test(false)
@@ -197,9 +198,9 @@ def allTests(communicator)
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(100))
+    to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(250))
     connect(to)
-    timeout.holdAdapter(700)
+    timeout.holdAdapter(750)
     begin
         to.sendData(seq)
         test(false)

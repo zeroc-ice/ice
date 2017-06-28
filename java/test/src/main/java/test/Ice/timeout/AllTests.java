@@ -59,7 +59,7 @@ public class AllTests
 
     public static com.zeroc.Ice.Connection connect(com.zeroc.Ice.ObjectPrx prx)
     {
-        int nRetry = 5;
+        int nRetry = 10;
         while(--nRetry > 0)
         {
             try
@@ -139,8 +139,9 @@ public class AllTests
             //
             // Expect TimeoutException.
             //
-            TimeoutPrx to = timeout.ice_timeout(100);
-            timeout.holdAdapter(500 * mult);
+            TimeoutPrx to = timeout.ice_timeout(250);
+            connect(to);
+            timeout.holdAdapter(750 * mult);
             try
             {
                 to.sendData(seq);
@@ -397,9 +398,9 @@ public class AllTests
             // Verify that timeout set via ice_timeout() is still used for requests.
             //
             timeout.op(); // Ensure adapter is active.
-            to = to.ice_timeout(100);
+            to = to.ice_timeout(250);
             connect(to);
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(750 * mult);
             try
             {
                 to.sendData(seq);

@@ -92,7 +92,7 @@ connect(const Ice::ObjectPrxPtr& prx)
     // too slow). The loop ensures that the connection is established by retrying
     // in case we can a ConnectTimeoutException
     //
-    int nRetry = 5;
+    int nRetry = 10;
     while(--nRetry > 0)
     {
         try
@@ -163,8 +163,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect TimeoutException.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(100));
-        timeout->holdAdapter(500);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        connect(to);
+        timeout->holdAdapter(750);
         try
         {
             to->sendData(seq);
@@ -426,9 +427,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
         timeout->op(); // Ensure adapter is active.
-        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(100));
+        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(250));
         connect(to);
-        timeout->holdAdapter(500);
+        timeout->holdAdapter(750);
         try
         {
             to->sendData(seq);

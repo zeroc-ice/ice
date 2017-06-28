@@ -49,7 +49,7 @@ def connect(prx):
     # set and might sporadically fail on connection establishment if it's
     # too slow). The loop ensures that the connection is established by retrying
     # in case we can a ConnectTimeoutException
-    nRetry = 5
+    nRetry = 10
     while --nRetry > 0:
         try:
             prx.ice_getConnection();
@@ -104,8 +104,9 @@ def allTests(communicator):
         seq = ''.join(seq) # make into a byte array
     else:
         seq = bytes([0 for x in range(0, 10000000)])
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(500)
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
+    connect(to)
+    timeout.holdAdapter(750)
     try:
         to.sendData(seq)
         test(False)
@@ -248,9 +249,9 @@ def allTests(communicator):
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
     timeout.op() # Ensure adapter is active.
-    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(100))
+    to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
     connect(to)
-    timeout.holdAdapter(500)
+    timeout.holdAdapter(750)
     try:
         to.sendData(seq)
         test(False)
