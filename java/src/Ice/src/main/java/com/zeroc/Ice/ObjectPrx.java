@@ -936,55 +936,6 @@ public interface ObjectPrx
         return r;
     }
 
-    static <T> T waitForResponseForCompletion(java.util.concurrent.CompletableFuture<T> f)
-    {
-        try
-        {
-            return waitForResponseForCompletionUserEx(f);
-        }
-        catch(UserException ex)
-        {
-            throw new UnknownUserException(ex.ice_id(), ex);
-        }
-    }
-
-    static <T> T waitForResponseForCompletionUserEx(java.util.concurrent.CompletableFuture<T> f)
-        throws UserException
-    {
-        if(Thread.interrupted())
-        {
-            throw new OperationInterruptedException();
-        }
-
-        try
-        {
-            return f.get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw (LocalException)ex.fillInStackTrace();
-            }
-            catch(UserException ex)
-            {
-                throw (UserException)ex.fillInStackTrace();
-            }
-            catch(Throwable ex)
-            {
-                throw new UnknownException(ex);
-            }
-        }
-    }
-
     void _write(OutputStream os);
     void _copyFrom(ObjectPrx p);
     com.zeroc.IceInternal.Reference _getReference();

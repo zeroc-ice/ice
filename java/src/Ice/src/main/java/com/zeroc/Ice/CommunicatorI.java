@@ -222,7 +222,7 @@ public final class CommunicatorI implements Communicator
         return _iceI_flushBatchRequestsAsync(compressBatch);
     }
 
-    public com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch)
+    private com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch)
     {
         com.zeroc.IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
         com.zeroc.IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();

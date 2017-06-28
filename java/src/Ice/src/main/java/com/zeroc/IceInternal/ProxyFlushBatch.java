@@ -60,37 +60,5 @@ public class ProxyFlushBatch extends ProxyOutgoingAsyncBaseI<Void>
         invokeImpl(true); // userThread = true
     }
 
-    public void waitForResponse()
-    {
-        if(Thread.interrupted())
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-
-        try
-        {
-            get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause().fillInStackTrace();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw (RuntimeException)ex.fillInStackTrace();
-            }
-            catch(Throwable ex)
-            {
-                throw new com.zeroc.Ice.UnknownException(ex);
-            }
-        }
-    }
-
     protected int _batchRequestNum;
 }

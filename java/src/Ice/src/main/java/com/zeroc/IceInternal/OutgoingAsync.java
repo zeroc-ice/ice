@@ -105,6 +105,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         }
     }
 
+    @Override
     public T waitForResponse()
     {
         if(isBatch())
@@ -136,7 +137,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
         }
         catch(InterruptedException ex)
         {
-            throw new OperationInterruptedException();
+            throw new OperationInterruptedException(ex);
         }
         catch(java.util.concurrent.ExecutionException ee)
         {
@@ -146,11 +147,11 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
             }
             catch(RuntimeException ex) // Includes LocalException
             {
-                throw (RuntimeException)ex.fillInStackTrace();
+                throw ex;
             }
             catch(UserException ex)
             {
-                throw (UserException)ex.fillInStackTrace();
+                throw ex;
             }
             catch(Throwable ex)
             {

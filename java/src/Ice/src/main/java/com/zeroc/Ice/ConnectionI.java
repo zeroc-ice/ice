@@ -216,7 +216,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
 
@@ -453,11 +453,16 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     public void flushBatchRequests(CompressBatch compressBatch)
     {
-        ObjectPrx.waitForResponseForCompletion(flushBatchRequestsAsync(compressBatch));
+        _iceI_flushBatchRequestsAsync(compressBatch).waitForResponse();
     }
 
     @Override
     public java.util.concurrent.CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compressBatch)
+    {
+        return _iceI_flushBatchRequestsAsync(compressBatch);
+    }
+
+    private com.zeroc.IceInternal.ConnectionFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch)
     {
         com.zeroc.IceInternal.ConnectionFlushBatch f =
             new com.zeroc.IceInternal.ConnectionFlushBatch(this, _communicator, _instance);
@@ -508,7 +513,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     @Override
     public void heartbeat()
     {
-        ObjectPrx.waitForResponseForCompletion(heartbeatAsync());
+        _iceI_heartbeatAsync().waitForResponse();
     }
 
     private class HeartbeatAsync extends com.zeroc.IceInternal.OutgoingAsyncBaseI<Void>
@@ -587,6 +592,11 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
 
     @Override
     public java.util.concurrent.CompletableFuture<Void> heartbeatAsync()
+    {
+        return _iceI_heartbeatAsync();
+    }
+
+    private HeartbeatAsync _iceI_heartbeatAsync()
     {
         HeartbeatAsync f = new HeartbeatAsync(_communicator, _instance);
         f.invoke();

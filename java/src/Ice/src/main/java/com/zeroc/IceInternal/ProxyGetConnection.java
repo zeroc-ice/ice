@@ -56,36 +56,4 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Co
     {
         invokeImpl(true); // userThread = true
     }
-
-    public com.zeroc.Ice.Connection waitForResponse()
-    {
-        if(Thread.interrupted())
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-
-        try
-        {
-            return get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause().fillInStackTrace();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw (RuntimeException)ex.fillInStackTrace();
-            }
-            catch(Throwable ex)
-            {
-                throw new com.zeroc.Ice.UnknownException(ex);
-            }
-        }
-    }
 }

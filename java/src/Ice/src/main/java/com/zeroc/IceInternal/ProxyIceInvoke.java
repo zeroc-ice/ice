@@ -70,35 +70,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object
             //
             return new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]);
         }
-
-        if(Thread.interrupted())
-        {
-            throw new OperationInterruptedException();
-        }
-
-        try
-        {
-            return get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause().fillInStackTrace();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw (RuntimeException)ex.fillInStackTrace();
-            }
-            catch(Throwable ex)
-            {
-                throw new UnknownException(ex);
-            }
-        }
+        return super.waitForResponse();
     }
 
     @Override

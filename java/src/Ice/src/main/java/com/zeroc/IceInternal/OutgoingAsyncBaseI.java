@@ -70,6 +70,38 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
         return _os;
     }
 
+    public T waitForResponse()
+    {
+        if(Thread.interrupted())
+        {
+            throw new com.zeroc.Ice.OperationInterruptedException();
+        }
+
+        try
+        {
+            return get();
+        }
+        catch(InterruptedException ex)
+        {
+            throw new com.zeroc.Ice.OperationInterruptedException(ex);
+        }
+        catch(java.util.concurrent.ExecutionException ee)
+        {
+            try
+            {
+                throw ee.getCause().fillInStackTrace();
+            }
+            catch(RuntimeException ex) // Includes LocalException
+            {
+                throw ex;
+            }
+            catch(Throwable ex)
+            {
+                throw new com.zeroc.Ice.UnknownException(ex);
+            }
+        }
+    }
+
     protected OutgoingAsyncBaseI(com.zeroc.Ice.Communicator com, Instance instance, String op)
     {
         super(com, instance, op);

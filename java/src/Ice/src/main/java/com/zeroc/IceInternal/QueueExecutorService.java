@@ -94,7 +94,7 @@ public final class QueueExecutorService
             }
             catch(RuntimeException ex)
             {
-                throw (RuntimeException)ex.fillInStackTrace();
+                throw ex;
             }
             catch(Throwable ex)
             {
