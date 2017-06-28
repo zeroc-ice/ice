@@ -104,7 +104,7 @@
             }
         ).then(() =>
             {
-                seq = new Uint8Array(1000000);
+                seq = new Uint8Array(10000000);
                 return timeout.holdAdapter(1500 * mult);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException
@@ -218,7 +218,6 @@
             }
         ).then(c =>
             {
-                seq = new Uint8Array(10000000);
                 return timeout.holdAdapter(750 * 2 * mult);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException.
