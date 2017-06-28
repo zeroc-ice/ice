@@ -258,6 +258,7 @@ public class AllTests : TestCommon.AllTests
     {
         public InvocationHeartbeatTest(RemoteCommunicatorPrx com) : base("invocation heartbeat", com)
         {
+            setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)

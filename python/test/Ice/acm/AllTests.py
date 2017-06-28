@@ -150,6 +150,7 @@ def allTests(communicator):
     class InvocationHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation heartbeat", com)
+            self.setServerACM(1, -1, -1) # Faster ACM to make sure we receive enough ACM heartbeats
 
         def runTestCase(self, adapter, proxy):
             proxy.sleep(4)

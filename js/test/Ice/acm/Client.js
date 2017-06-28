@@ -200,6 +200,7 @@
         constructor(com, out)
         {
             super("invocation heartbeat", com, out);
+            this.setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
         runTestCase(adapter, proxy)

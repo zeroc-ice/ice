@@ -306,6 +306,7 @@ public:
     InvocationHeartbeatTest(const RemoteCommunicatorPrxPtr& com) :
         TestCase("invocation heartbeat", com)
     {
+        setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)

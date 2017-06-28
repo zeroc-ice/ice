@@ -294,6 +294,7 @@ public class AllTests
         public InvocationHeartbeatTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(app, "invocation heartbeat", com, out);
+            setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)

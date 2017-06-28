@@ -380,6 +380,12 @@
 @end
 
 @implementation InvocationHeartbeatTest
++(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
+{
+    id tc = [super testCase:com];
+    [tc setServerACM:1 close:-1 heartbeat:-1]; // Faster ACM to make sure we receive enough ACM heartbeats
+    return tc;
+}
 +(NSString*) getName
 {
       return @"invocation heartbeat";
