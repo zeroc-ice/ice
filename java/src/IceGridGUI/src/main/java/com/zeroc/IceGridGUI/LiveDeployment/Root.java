@@ -1060,10 +1060,10 @@ public class Root extends Communicator
     private void loadLogPrefs()
     {
         Preferences logPrefs = Coordinator.getPreferences().node("Log");
-        _logMaxLines = logPrefs.getInt("maxLines", 500);
-        _logMaxSize = logPrefs.getInt("maxSize", 20000);
-        _logInitialLines = logPrefs.getInt("initialLines", 10);
-        _logMaxReadSize = logPrefs.getInt("maxReadSize", 10000);
+        _logMaxLines = logPrefs.getInt("maxLines", 1000);
+        _logMaxSize = logPrefs.getInt("maxSize", 1000000);
+        _logInitialLines = logPrefs.getInt("initialLines", 1000);
+        _logMaxReadSize = logPrefs.getInt("maxReadSize", 1000000);
         _logPeriod = logPrefs.getInt("period", 300);
 
         if(_logMaxReadSize + 512 > _messageSizeMax)
