@@ -14,16 +14,21 @@ our [supported platforms][2].
 ## Building Ice for Objective-C
 
 The build of Ice for Objective-C requires that you first build Ice for C++ in the
-`cpp` subdirectory.
+`cpp` subdirectory for the same configuration(s) and platform(s).
 
-From the top-level source directory, edit `config/Make.rules` to establish your
-build configuration. The comments in the file provide more information.
+Review the top-level [config/Make.rules](../config/Make.rules) in your build tree and 
+update the configuration if needed. The comments in the file provide more information.
 
 Change to the Ice for Objective-C source subdirectory:
-
+```
     $ cd objective-c
-
-Run `make` to build the Ice Objective-C libraries.
+```
+Run `make` to build the Ice Objective-C libraries and test suite. Set `V=1` to get
+a more detailed build output. You can build only the libraries with the `srcs`
+target, or only the tests with the `tests` target. For example:
+```
+   $ make V=1 -j8 srcs
+```
 
 ### Build configurations and platforms
 
@@ -35,7 +40,11 @@ To see the supported configurations and platforms:
 
 To build all the supported configurations and platforms:
 
-    make CONFIGS=all PLATFORMS=all
+    make CONFIGS=all PLATFORMS=all -j8
+    
+The `arc-` configurations (for [Automatic Reference Counting][3]) apply only to the 
+test suite; the Ice libraries don't use these configurations, and the same Ice for
+Objective-C library can be used with and without ARC.
 
 ### Ice Xcode SDK
 
@@ -43,7 +52,8 @@ The build system supports building Xcode SDKs for Ice. These SDKs allow you to
 easily develop Ice applications with Xcode. To build Xcode SDKs, use the
 `xcodesdk` configurations:
 
-    make CONFIGS=xcodesdk          # Build the Objective-C mapping Xcode SDK
+    make CONFIGS=xcodesdk -j8 srcs     # Build the Objective-C mapping Xcode SDK
+                                       # for the default platform
 
 The Xcode SDKs are built into `ice/IceSDK`.
 
@@ -56,19 +66,41 @@ When compiling Ice programs, you must pass the location of the
 `<prefix>/include` directory to the compiler with the `-I` option, and the
 location of the library directory with the `-L` option.
 
+## Building the Test Suite
+
+`make all` or `make tests` builds the test suite for the platform(s) and 
+configuration(s) you selected. 
+
+However, in order to run the test suite on `iphoneos`, you need to build the 
+Objective-C Controller App from Xcode:
+ - Open the Objective-C Test Controller project located in the 
+ `objective-c\test\ios\controller` directory.
+ - Build the `Objective-C Controller` or `Objective-C ARC Controller` app.
+
 ## Running the Test Suite
 
 Python is required to run the test suite. After a successful source build, you
-can run the tests as follows:
+can run the tests as shown below. If everything worked out, you should see lots 
+of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-    $ make test
-
-This command is equivalent to:
-
-    $ python allTests.py
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+### macOS
+```
+    $ python allTests.py # default config and default platform
+    $ python allTests --config=... --platform=... # use the specified config and platform
+```
+### iOS Simulator
+```
+    $ python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
+```
+### iOS
+ - Start the `Objective-C Controller` or `Objective-C ARC Controller` app on your iOS 
+ device, from Xcode.
+ - On your Mac:
+ ```
+   $ python allTests.py --config=xcodesdk --platform=iphoneos
+ ```
+ All the test clients and servers run on the iOS device, not on your Mac computer.
 
 [1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.0
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[3]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting
