@@ -3539,6 +3539,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         string name = resultStructName(cl->name(), p->name(), true);
 
         _out << sp;
+        emitGeneratedCodeAttribute();
         _out << nl << "public struct " << name << " : Ice.MarshaledResult";
         _out << sb;
 
