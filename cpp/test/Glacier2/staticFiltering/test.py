@@ -145,10 +145,10 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
             testaddr1 = socket.gethostbyname(fqdn)
             testaddr2 = socket.gethostbyname(hostname)
 
-            # On SuSE distributions, 127.0.0.2 is sometime used in /etc/hosts
+            # On SUSE distributions, 127.0.0.2 is sometimes used in /etc/hosts
             # for the hostname (apparently if no network interface was found
-            # when the OS was installed). However, connecting to this IP addr
-            # doesn't work (even if can be "ping").
+            # when the OS was installed). However, connecting to this IP address
+            # doesn't work (even if it can be pinged).
             if testaddr1 == "127.0.0.2" or testaddr2 == "127.0.0.2":
                 limitedTests = True
                 hostname = "127.0.0.1"
