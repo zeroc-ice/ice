@@ -2592,7 +2592,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     const bool hasDataMemberInitializers = requiresDataMemberInitializers(dataMembers);
     if(hasDataMemberInitializers)
     {
-        _out << sp << nl << "private void _initDM()";
+        _out << sp;
+        emitGeneratedCodeAttribute();
+        _out << nl << "private void _initDM()";
         _out << sb;
         writeDataMemberInitializers(dataMembers, DotNet::Exception);
         _out << eb;
@@ -2633,7 +2635,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         if(!dataMembers.empty())
         {
-            _out << sp << nl << "private void _initDM" << spar << paramDecl << epar;
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "private void _initDM" << spar << paramDecl << epar;
             _out << sb;
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
