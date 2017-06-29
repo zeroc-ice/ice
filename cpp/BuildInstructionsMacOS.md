@@ -37,7 +37,7 @@ In a command window, change to the `cpp` subdirectory:
    cd cpp
 ```
 Run `make` to build the Ice C++ libraries, services and test suite. Set `V=1` to get
-a more detailed build output. You can build only the libraries and services with the 
+a more detailed build output. You can build only the libraries and services with the
 `srcs` target, or only the tests with the `tests` target. For example:
 ```
    make V=1 -j8 srcs
@@ -55,6 +55,7 @@ To build all the supported configurations and platforms:
 ```
     make CONFIGS=all PLATFORMS=all -j8
 ```
+
 ### C++11 mapping
 
 The C++ source tree supports two different language mappings (C++98 and C++11).
@@ -63,9 +64,9 @@ that uses new language features.
 
 To build the C++11 mapping, use build configurations that are prefixed with
 `cpp11`, for example:
-
+```
     make CONFIGS=cpp11-shared -j8
-
+```
 ### Ice Xcode SDK
 
 The build system supports building Xcode SDKs for Ice. These SDKs allow you to
@@ -122,7 +123,7 @@ require the Python module `passlib`, which you can install with the command:
 ```
     pip install passlib
 ```
-After a successful source build, you can run the tests as shown below. If everything 
+After a successful source build, you can run the tests as shown below. If everything
 worked out, you should see lots of `ok` messages. In case of a failure, the tests abort
 with `failed`.
 
