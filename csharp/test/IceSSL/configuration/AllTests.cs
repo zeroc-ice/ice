@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 
 public class AllTests
 {
@@ -2379,54 +2380,98 @@ public class AllTests
             Console.Out.Write("testing system CAs... ");
             Console.Out.Flush();
             {
+                //
+                // Retry a few times in case there are connectivity problems with demo.zeroc.com.
+                //
+                const int retryMax = 5;
+                const int retryDelay = 1000;
+                int retryCount = 0;
+
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 //
-                // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
-                // can cause SSL handshake errors whe connecting to the remote zeroc server.
+                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                // can cause SSL handshake errors when connecting to the remote zeroc server.
                 //
                 initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-                try
+                while(true)
                 {
-                    p.ice_ping();
-                    test(false);
-                }
-                catch(Ice.SecurityException)
-                {
-                    // Expected, by default we don't check for system CAs.
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
-                }
+                    try
+                    {
+                        p.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException)
+                    {
+                        // Expected, by default we don't check for system CAs.
+                        break;
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if((ex is Ice.ConnectTimeoutException) ||
+                           (ex is Ice.SocketException) ||
+                           (ex is Ice.DNSException))
+                        {
+                            if(++retryCount < retryMax)
+                            {
+                                Console.Out.Write("retrying... ");
+                                Console.Out.Flush();
+                                Thread.Sleep(retryDelay);
+                                continue;
+                            }
+                        }
 
+                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
+                        Console.WriteLine(ex.ToString());
+                        break;
+                    }
+                }
+                comm.destroy();
+
+                retryCount = 0;
                 initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                 //
-                // BUGFIX: SCHannel TLS 1.2 bug that affects Windows version prior to Windows 10
-                // can cause SSL handshake errors whe connecting to the remote zeroc server.
+                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                // can cause SSL handshake errors when connecting to the remote zeroc server.
                 //
                 initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 comm = Ice.Util.initialize(initData);
                 p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-                IceSSL.ConnectionInfo info;
-                try
+                while(true)
                 {
-                    info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
-                    test(info.verified);
-                }
-                catch(Ice.LocalException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    test(false);
+                    try
+                    {
+                        IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
+                        test(info.verified);
+                        break;
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if((ex is Ice.ConnectTimeoutException) ||
+                           (ex is Ice.SocketException) ||
+                           (ex is Ice.DNSException))
+                        {
+                            if(++retryCount < retryMax)
+                            {
+                                Console.Out.Write("retrying... ");
+                                Console.Out.Flush();
+                                Thread.Sleep(retryDelay);
+                                continue;
+                            }
+                        }
+
+                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
+                        Console.WriteLine(ex.ToString());
+                        break;
+                    }
                 }
                 comm.destroy();
             }

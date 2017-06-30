@@ -46,9 +46,9 @@ and you must re-sign the assemblies with the full identity key pair.
 If only KEYFILE is set, the assemblies are fully signed during the build using
 KEYFILE.
 
-If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay signed during the
-build using PUBLIC_KEYFILE and re-sig after build using KEYFILE. This can be used
-for generating [Enhanced Strong Naming](3) signatures.
+If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay signed during
+the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
+This can be used for generating [Enhanced Strong Naming](3) signatures.
 
 You can also sign the Ice binaries with Authenticode by setting the following
 environment variables:
