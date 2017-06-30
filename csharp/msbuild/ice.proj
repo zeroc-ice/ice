@@ -29,7 +29,7 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
                  Targets="$(SliceCompilers)"
                  BuildInParallel="true"
-                 Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+                 Properties="Platform=$(Platform);Configuration=$(Configuration.Replace('-Managed', ''))"/>
     </Target>
 
     <ItemGroup>
