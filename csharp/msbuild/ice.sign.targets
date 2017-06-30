@@ -27,19 +27,22 @@
 
   <PropertyGroup Condition="'$(PUBLIC_KEYFILE)' != '' Or '$(KEYFILE)' != ''">
     <SignAssembly>true</SignAssembly>
-
     <!-- If PUBLIC_KEYFILE is set we use dealy sign to sign the assembly -->
-    <DelaySign Condition="'$(PUBLIC_KEYFILE)' != ''">true</DelaySign>
+    <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' != ''">$(PUBLIC_KEYFILE)</AssemblyOriginatorKeyFile>
 
-    <!-- If PUBLIC_KEYFILE is not set we sign the assembly using KEYFILE during build -->
-    <DelaySign Condition="'$(PUBLIC_KEYFILE)' == ''">true</DelaySign>
+    <!-- If PUBLIC_KEYFILE is not set we use sign the assembly using KEYFILE -->
+    <DelaySign Condition="'$(PUBLIC_KEYFILE)' == ''">false</DelaySign>
     <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' == ''">$(KEYFILE)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <!-- If both KEYFILE and PUBLIC_KEYFILE are set we sign the assembly after it has been build using KEYFILE -->
+  <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been build -->
   <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
-          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
+          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
     <Exec Command="sn -Ra $(SignTarget) $(KEYFILE)"/>
+    <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
+                      Encoding            = "Unicode"
+                      Overwrite           = "true"
+                      Lines               = "Signing $(SignTarget)"/>
   </Target>
 </Project>

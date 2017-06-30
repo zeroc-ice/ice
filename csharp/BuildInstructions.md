@@ -43,8 +43,12 @@ environment variables:
 If only PUBLIC_KEYFILE is set, the assemblies are delay signed during the build
 and you must re-sign the assemblies with the full identity key pair.
 
-If both PUBLIC_KEYFILE and KEYFILE are set, or only KEYFILE is set, the
-assemblies are fully signed during the build using KEYFILE.
+If only KEYFILE is set, the assemblies are fully signed during the build using
+KEYFILE.
+
+If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay signed during the
+build using PUBLIC_KEYFILE and re-sig after build using KEYFILE. This can be used
+for generating [Enhanced Strong Naming](3) signatures.
 
 You can also sign the Ice binaries with Authenticode by setting the following
 environment variables:
@@ -99,3 +103,4 @@ This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [3]: https://github.com/zeroc-ice/ice-builder-visualstudio
+[4]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
