@@ -299,6 +299,12 @@
         TestCommonInit(helper, @selector(print:));
         TestCommonTestInit(helper, @selector(serverReady), @"", NO, NO);
     }
+
+    //
+    // Use a 768KB thread stack size for the objects test. This is necessary when running the
+    // test on arm64 devices with a debug Ice libraries which require lots of stack space.
+    //
+    [helper setStackSize:768 * 1024];
     [helper start];
     id<ICEObjectPrx> prx = [c.adapter addWithUUID:ICE_AUTORELEASE([[ProcessI alloc] init:_controller helper:helper])];
     return [TestCommonProcessPrx uncheckedCast:prx];
