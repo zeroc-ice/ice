@@ -3,9 +3,9 @@
 This file describes how to build Ice for C++ from sources on Windows and how
 to test the resulting build.
 
-ZeroC provides [Ice binary distributions][1] for various platforms and compilers,
-including Windows and Visual Studio, so building Ice from sources is usually
-unnecessary.
+ZeroC provides [Ice binary distributions][1] for various platforms and
+compilers, including Windows and Visual Studio, so building Ice from sources is
+usually unnecessary.
 
 ## Build Requirements
 
@@ -84,17 +84,18 @@ environment variables:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
 
-If you want to run the test suite without building the entire source base, use this
-command:
+If you want to run the test suite without building the entire source base, use
+this command:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
-The build will automatically install ZeroC's official Ice binary NuGet packages if necessary.
+The build will automatically install ZeroC's official Ice binary NuGet packages
+if necessary.
 
 ## Building Ice for UWP
 
-The steps are the same as for Building Ice for C++ above, except you must also use a
-`UWP` target.
+The steps are the same as for Building Ice for C++ above, except you must also
+use a `UWP` target.
 
 To build Ice for UWP:
 
@@ -118,17 +119,21 @@ You can create a NuGet package with the following command:
 
     msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
-This creates zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or
-`zeroc.ice.v141\zeroc.ice.v141.nupkg` depending on the compiler you are using.
+This creates `zeroc.ice.v120\zeroc.ice.v120.nupkg`,
+`zeroc.ice.v140\zeroc.ice.v140.nupkg` or `zeroc.ice.v141\zeroc.ice.v141.nupkg`
+depending on the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:
 
     msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 
-This creates `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg`
-and `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015 builds or
-`zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`, `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
-`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017 builds.
+This creates: `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
+`zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
+`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015
+builds or `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
+`zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
+`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017
+builds.
 
 ## Running the Test Suite
 
@@ -141,7 +146,8 @@ After a successful source build, you can run the tests as follows:
 
     python allTests.py
 
-For the C++11 mapping you need to use the `Cpp11-Debug` or `Cpp11-Release` configuration:
+For the C++11 mapping you need to use the `Cpp11-Debug` or `Cpp11-Release`
+configuration:
 
     python allTests.py --config Cpp11-Debug
 
@@ -155,9 +161,9 @@ require the Python module `passlib`, which you can install with the command:
 
     pip install passlib
 
-The scripts also require Ice for Python, you can build Ice for Python from [python](../python)
-folder of this source distribution or install the Python module `zeroc-ice`,  using the
-following command:
+The scripts also require Ice for Python, you can build Ice for Python from
+[python](../python) folder of this source distribution or install the Python
+module `zeroc-ice`,  using the following command:
 
     pip install zeroc-ice
 

@@ -33,8 +33,8 @@ environment variable to the installation directory. For example:
 
     $ export RUBY_HOME=/opt/ruby
 
-The build of Ice for Python requires that you first build Ice for C++ in the `cpp`
-subdirectory.
+The build of Ice for Python requires that you first build Ice for C++ in the
+`cpp` subdirectory.
 
 From the top-level source directory, edit `config/Make.rules` to establish your
 build configuration. The comments in the file provide more information.

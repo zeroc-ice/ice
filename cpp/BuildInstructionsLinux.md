@@ -67,22 +67,23 @@ These packages are provided with the system and can be installed with:
     sudo apt-get install pkg-config libdbus-1-dev libbluetooth-dev
 ```
 
-> *We have experienced problems with BlueZ versions up to and including 5.39,
-as well as 5.44 and 5.45. At this time we recommend using the daemon (`bluetoothd`)
+> *We have experienced problems with BlueZ versions up to and including 5.39, as
+well as 5.44 and 5.45. At this time we recommend using the daemon (`bluetoothd`)
 from BlueZ 5.43.*
 
 ## Building Ice
 
-Review the top-level [config/Make.rules](../config/Make.rules) in your build tree and
-update the configuration if needed. The comments in the file provide more information.
+Review the top-level [config/Make.rules](../config/Make.rules) in your build
+tree and update the configuration if needed. The comments in the file provide
+more information.
 
 In a command window, change to the `cpp` subdirectory:
 ```
    cd cpp
 ```
-Run `make` to build the Ice C++ libraries, services and test suite. Set `V=1` to get
-a more detailed build output. You can build only the libraries and services with the
-`srcs` target, or only the tests with the `tests` target. For example:
+Run `make` to build the Ice C++ libraries, services and test suite. Set `V=1` to
+get a more detailed build output. You can build only the libraries and services
+with the `srcs` target, or only the tests with the `tests` target. For example:
 ```
    make V=1 -j8 srcs
 ```
@@ -117,7 +118,8 @@ To build the C++11 mapping, use build configurations that are prefixed with
 Simply run `make install`. This will install Ice in the directory specified by
 the `<prefix>` variable in `../config/Make.rules`.
 
-After installation, make sure that the `<prefix>/bin` directory is in your `PATH`.
+After installation, make sure that the `<prefix>/bin` directory is in your
+`PATH`.
 
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `../config/Make.rules`) or did not create a symbolic link from
@@ -129,13 +131,13 @@ On an x86_64 system:
     <prefix>/lib64                 (RHEL, SLES, Amazon)
     <prefix>/lib/x86_64-linux-gnu  (Ubuntu)
 
-When compiling Ice programs, you must pass the location of the `<prefix>/include`
-directory to the compiler with the `-I` option, and the location of the library
-directory with the `-L` option.
+When compiling Ice programs, you must pass the location of the
+`<prefix>/include` directory to the compiler with the `-I` option, and the
+location of the library directory with the `-L` option.
 
-If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro during
-compilation with the `-D` option (`g++ -DICE_CPP11_MAPPING`) and add
-the `++11` suffix to the library name when linking (such as `-lIce++11`).
+If building a C++11 program, you must define the `ICE_CPP11_MAPPING` macro
+during compilation with the `-D` option (`g++ -DICE_CPP11_MAPPING`) and add the
+`++11` suffix to the library name when linking (such as `-lIce++11`).
 
 ## Running the Test Suite
 

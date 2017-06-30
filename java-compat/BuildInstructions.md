@@ -59,10 +59,10 @@ therefore add significant latency to Ice requests.*
 
 ### Preparing to Build
 
-The build system requires the Slice to Java compiler from Ice for C++. If you have
-not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
-environment variable with the path name of your Ice installation. For example,
-on Unix:
+The build system requires the Slice to Java compiler from Ice for C++. If you
+have not built Ice for C++ in this source distribution, you must set the
+`ICE_HOME` environment variable with the path name of your Ice installation. For
+example, on Unix:
 
     $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
@@ -71,8 +71,8 @@ On Windows:
 
     > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation)
 
-On Windows if you are using Ice for C++ from a source distribution, you must
-set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
+On Windows if you are using Ice for C++ from a source distribution, you must set
+the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
 platform and configuration used in your C++ build:
 
     > set CPP_PLATFORM=x64

@@ -33,28 +33,30 @@ Now you're ready to build Ice for PHP:
 
     msbuild msbuild\ice.proj
 
-This builds the extension with `Release` binaries for the default platform.
-The extension will be placed in `lib\x64\Release\php_ice.dll` for the `x64` platform
+This builds the extension with `Release` binaries for the default platform. The
+extension will be placed in `lib\x64\Release\php_ice.dll` for the `x64` platform
 and `lib\Win32\Release\php_ice.dll` for the `Win32` platform.
 
-The default configuration builds the extension against the thread-safe PHP run time.
-You can build with the non-thread-safe run time using the `NTS-Release` or `NTS-Debug`
-configuration:
+The default configuration builds the extension against the thread-safe PHP run
+time. You can build with the non-thread-safe run time using the `NTS-Release` or
+`NTS-Debug` configuration:
 
     msbuild msbuild\ice.proj /p:Configuration=NTS-Release
 
 The extension will be placed in `lib\x64\Release\php_ice_nts.dll` directory for
-the `x64` platform and `lib\Win32\Release\php_ice_nts.dll` for the `Win32` platform.
+the `x64` platform and `lib\Win32\Release\php_ice_nts.dll` for the `Win32`
+platform.
 
 The extension is built by default with namespaces enabled. You can build the PHP
-extension with namespaces disabled by setting the MSBuild property `PhpUseNamespaces`
-to `no`:
+extension with namespaces disabled by setting the MSBuild property
+`PhpUseNamespaces` to `no`:
 
     msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 
-The PHP extension depends on Ice for C++ components from the `cpp` subdirectory, and those
-are built if required. It is also possible to build the PHP extension using the Ice for C++
-NuGet packages by setting the`ICE_BIN_DIST` msbuild property to `cpp`:
+The PHP extension depends on Ice for C++ components from the `cpp` subdirectory,
+and those are built if required. It is also possible to build the PHP extension
+using the Ice for C++ NuGet packages by setting the`ICE_BIN_DIST` msbuild
+property to `cpp`:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
 

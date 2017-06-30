@@ -2,9 +2,17 @@
 
 # Ice - Comprehensive RPC Framework
 
-Ice is a comprehensive RPC framework that helps you network your software with minimal effort. Ice takes care of all interactions with low-level network programming interfaces and allows you to focus your efforts on your application logic. When using Ice, there is no need to worry about details such as opening network connections, serializing and deserializing data for network transmission, or retrying failed connection attempts (to name just a few of dozens of such low-level details).
+Ice is a comprehensive RPC framework that helps you network your software with
+minimal effort. Ice takes care of all interactions with low-level network
+programming interfaces and allows you to focus your efforts on your application
+logic. When using Ice, there is no need to worry about details such as opening
+network connections, serializing and deserializing data for network
+transmission, or retrying failed connection attempts (to name just a few of
+dozens of such low-level details).
 
-You can download Ice releases from [ZeroC's website](https://zeroc.com/downloads/ice). Use this GitHub repository to build from source; see [branches](#branches) for more information.
+You can download Ice releases from [ZeroC's
+website](https://zeroc.com/downloads/ice). Use this GitHub repository to build
+from source; see [branches](#branches) for more information.
 
 ## Languages
 
@@ -47,10 +55,15 @@ Ice runs on a wide range of platforms:
   and server-side dispatches
 - Automatic discovery of remote objects through UDP multicast
 - Comes with a number of optional services:
-    - [IceGrid](https://zeroc.com/products/ice/services/icegrid) - a DNS-like service for Ice objects, with support for server deployment, replication, monitoring, load-balancing and more
-    - [IceStorm](https://zeroc.com/products/ice/services/icestorm) - a lightweight topic-based pub-sub service
-    - [Glacier2](https://zeroc.com/products/ice/services/glacier2) - a sysadmin-friendly solution for routing Ice communications through firewalls
-    - [IcePatch2](https://zeroc.com/products/ice/services/icepatch2) - an efficient software distribution and patching service
+    - [IceGrid](https://zeroc.com/products/ice/services/icegrid) - a DNS-like
+    service for Ice objects, with support for server deployment, replication,
+    monitoring, load-balancing and more
+    - [IceStorm](https://zeroc.com/products/ice/services/icestorm) - a
+    lightweight topic-based pub-sub service
+    - [Glacier2](https://zeroc.com/products/ice/services/glacier2) - a
+    sysadmin-friendly solution for routing Ice communications through firewalls
+    - [IcePatch2](https://zeroc.com/products/ice/services/icepatch2) - an
+    efficient software distribution and patching service
 
 ## Branches
 
@@ -68,17 +81,25 @@ Ice runs on a wide range of platforms:
 
 ## Copyright and License
 
-Ice is a single-copyright project: all the source code in this [ice repository](https://github.com/zeroc-ice/ice) is Copyright &copy; ZeroC, Inc., with very few exceptions.
+Ice is a single-copyright project: all the source code in this [ice
+repository](https://github.com/zeroc-ice/ice) is Copyright &copy; ZeroC, Inc.,
+with very few exceptions.
 
-As copyright owner, ZeroC can license Ice under different license terms, and offers the following licenses for Ice:
-- GPL v2, a popular open-source license with strong [copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the default license)
-- Commercial or closed-source licenses
+As copyright owner, ZeroC can license Ice under different license terms, and
+offers the following licenses for Ice: - GPL v2, a popular open-source license
+with strong [copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the
+default license) - Commercial or closed-source licenses
 
-If you license Ice under GPL v2, there is no license fee or signed license agreement: you just need to comply with the GPL v2 terms and conditions. See [ICE_LICENSE](./ICE_LICENSE) and [LICENSE](./LICENSE) for further information.
+If you license Ice under GPL v2, there is no license fee or signed license
+agreement: you just need to comply with the GPL v2 terms and conditions. See
+[ICE_LICENSE](./ICE_LICENSE) and [LICENSE](./LICENSE) for further information.
 
-If you purchase a commercial or closed-source license for Ice, you must comply with the terms and conditions listed in the associated license agreement; the GPL v2 terms and conditions do not apply.
+If you purchase a commercial or closed-source license for Ice, you must comply
+with the terms and conditions listed in the associated license agreement; the
+GPL v2 terms and conditions do not apply.
 
-The Ice software itself remains the same: the only difference between an open-source Ice and a commercial Ice are the license terms.
+The Ice software itself remains the same: the only difference between an open-
+source Ice and a commercial Ice are the license terms.
 
 ## Documentation
 

@@ -29,16 +29,17 @@ You can install LMDB and mcpp using [Homebrew][7]:
 ```
 ## Building Ice
 
-Review the top-level [config/Make.rules](../config/Make.rules) in your build tree and
-update the configuration if needed. The comments in the file provide more information.
+Review the top-level [config/Make.rules](../config/Make.rules) in your build
+tree and update the configuration if needed. The comments in the file provide
+more information.
 
 In a command window, change to the `cpp` subdirectory:
 ```
    cd cpp
 ```
-Run `make` to build the Ice C++ libraries, services and test suite. Set `V=1` to get
-a more detailed build output. You can build only the libraries and services with the
-`srcs` target, or only the tests with the `tests` target. For example:
+Run `make` to build the Ice C++ libraries, services and test suite. Set `V=1` to
+get a more detailed build output. You can build only the libraries and services
+with the `srcs` target, or only the tests with the `tests` target. For example:
 ```
    make V=1 -j8 srcs
 ```
@@ -109,12 +110,12 @@ configuration(s) you selected.
 
 However, in order to run the test suite on `iphoneos`, you need to build the
 C++98 Test Controller app or C++11 Test Controller app from Xcode:
- - Build the test suite with `make` for the `xcodedsk` or `cpp11-xcodesdk` configuration,
- and the `iphoneos` platform.
+ - Build the test suite with `make` for the `xcodedsk` or `cpp11-xcodesdk`
+ configuration, and the `iphoneos` platform.
  - Open the C++ Test Controller project located in the
- `cpp\test\ios\controller` directory.
- - Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must match
- the configuration(s) selected when building the test suite).
+ `cpp/test/ios/controller` directory.
+ - Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must
+ match the configuration(s) selected when building the test suite).
 
 ## Running the Test Suite
 
@@ -123,9 +124,9 @@ require the Python module `passlib`, which you can install with the command:
 ```
     pip install passlib
 ```
-After a successful source build, you can run the tests as shown below. If everything
-worked out, you should see lots of `ok` messages. In case of a failure, the tests abort
-with `failed`.
+After a successful source build, you can run the tests as shown below. If
+everything worked out, you should see lots of `ok` messages. In case of a
+failure, the tests abort with `failed`.
 
 ### macOS
 ```
@@ -138,14 +139,15 @@ with `failed`.
     python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 ### iOS
- - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your iOS
- device, from Xcode.
+ - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
+ iOS device, from Xcode.
  - On your Mac:
  ```
    python allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
    python allTests.py --confg=cpp11-xcodesdk --platform=iphoneos # C++11 controller
  ```
- All the test clients and servers run on the iOS device, not on your Mac computer.
+ All the test clients and servers run on the iOS device, not on your Mac
+ computer.
 
 [1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.0
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

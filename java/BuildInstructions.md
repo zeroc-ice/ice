@@ -30,10 +30,10 @@ Ice for Java requires J2SE 1.8 or later.
 Make sure that the `javac` and `java` commands are present in your PATH.
 
 The Metrics Graph feature of the IceGrid GUI tool requires JavaFX support. This
-feature will not be available if you build the source with a JVM that lacks support
-for JavaFX. Alternatively, building the source in an environment with JavaFX
-produces an IceGrid GUI JAR file that can be used in JVMs with or without JavaFX
-support, as the Metrics Graph feature is enabled dynamically.
+feature will not be available if you build the source with a JVM that lacks
+support for JavaFX. Alternatively, building the source in an environment with
+JavaFX produces an IceGrid GUI JAR file that can be used in JVMs with or without
+JavaFX support, as the Metrics Graph feature is enabled dynamically.
 
 ### Gradle
 
@@ -97,10 +97,10 @@ The Maven package id for the application bundler package is as follows:
 
 ### Preparing to Build
 
-The build system requires the Slice to Java compiler from Ice for C++. If you have
-not built Ice for C++ in this source distribution, you must set the `ICE_HOME`
-environment variable with the path name of your Ice installation. For example,
-on Unix:
+The build system requires the Slice to Java compiler from Ice for C++. If you
+have not built Ice for C++ in this source distribution, you must set the
+`ICE_HOME` environment variable with the path name of your Ice installation. For
+example, on Unix:
 
     $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
@@ -109,8 +109,8 @@ On Windows:
 
     > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation on Windows)
 
-On Windows if you are using Ice for C++ from a source distribution, you must
-set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
+On Windows if you are using Ice for C++ from a source distribution, you must set
+the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
 platform and configuration used in your C++ build:
 
     > set CPP_PLATFORM=x64
@@ -192,8 +192,9 @@ You can start the tool with the following command:
 
     > java -jar icegridgui.jar
 
-On macOS, the build also creates an application bundle named IceGrid GUI.
-You can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in Finder.
+On macOS, the build also creates an application bundle named IceGrid GUI. You
+can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
+Finder.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

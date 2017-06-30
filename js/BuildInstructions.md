@@ -9,7 +9,8 @@ supported platforms.
 To build Ice for JavaScript you must have the following:
 
 - The `slice2js` compiler from Ice for C++. If you have not built Ice for C++
-  in this source distribution, refer to the [C++ build instructions](../cpp/BuildInstructions.md).
+  in this source distribution, refer to the
+  [C++ build instructions](../cpp/BuildInstructions.md).
 - Node.js 4.6 or later
 
 ## Building the JavaScript libraries and NodeJS packages

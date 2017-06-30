@@ -13,27 +13,28 @@ our [supported platforms][2].
 
 ## Building Ice for Objective-C
 
-The build of Ice for Objective-C requires that you first build Ice for C++ in the
-`cpp` subdirectory for the same configuration(s) and platform(s).
+The build of Ice for Objective-C requires that you first build Ice for C++ in
+the `cpp` subdirectory for the same configuration(s) and platform(s).
 
-Review the top-level [config/Make.rules](../config/Make.rules) in your build tree and
-update the configuration if needed. The comments in the file provide more information.
+Review the top-level [config/Make.rules](../config/Make.rules) in your build
+tree and update the configuration if needed. The comments in the file provide
+more information.
 
 Change to the Ice for Objective-C source subdirectory:
 ```
     cd objective-c
 ```
-Run `make` to build the Ice Objective-C libraries and test suite. Set `V=1` to get
-a more detailed build output. You can build only the libraries with the `srcs`
-target, or only the tests with the `tests` target. For example:
+Run `make` to build the Ice Objective-C libraries and test suite. Set `V=1` to
+get a more detailed build output. You can build only the libraries with the
+`srcs` target, or only the tests with the `tests` target. For example:
 ```
     make V=1 -j8 srcs
 ```
 
 ### Build configurations and platforms
 
-The Objective-C source tree supports multiple build configurations and platforms.
-To see the supported configurations and platforms:
+The Objective-C source tree supports multiple build configurations and
+platforms. To see the supported configurations and platforms:
 ```
     make print V=supported-configs
     make print V=supported-platforms
@@ -42,9 +43,9 @@ To build all the supported configurations and platforms:
 ```
     make CONFIGS=all PLATFORMS=all -j8
 ```
-The `arc-` configurations (for [Automatic Reference Counting][3]) apply only to the
-test suite; the Ice libraries don't use these configurations, and the same Ice for
-Objective-C library can be used with and without ARC.
+The `arc-` configurations (for [Automatic Reference Counting][3]) apply only to
+the test suite; the Ice libraries don't use these configurations, and the same
+Ice for Objective-C library can be used with and without ARC.
 
 ### Ice Xcode SDK
 
@@ -74,7 +75,7 @@ configuration(s) you selected.
 However, in order to run the test suite on `iphoneos`, you need to build the
 Objective-C Controller app from Xcode:
  - Open the Objective-C Test Controller project located in the
- `objective-c\test\ios\controller` directory.
+ `objective-c/test/ios/controller` directory.
  - Build the `Objective-C Controller` or `Objective-C ARC Controller` app.
 
 ## Running the Test Suite
@@ -93,13 +94,14 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
     python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 ```
 ### iOS
- - Start the `Objective-C Controller` or `Objective-C ARC Controller` app on your iOS
- device, from Xcode.
+ - Start the `Objective-C Controller` or `Objective-C ARC Controller` app on
+ your iOS device, from Xcode.
  - On your Mac:
  ```
    python allTests.py --config=xcodesdk --platform=iphoneos
  ```
- All the test clients and servers run on the iOS device, not on your Mac computer.
+ All the test clients and servers run on the iOS device, not on your Mac
+ computer.
 
 [1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.0
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

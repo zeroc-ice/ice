@@ -34,12 +34,13 @@ To build the Ice assemblies, services and tests, run
 
 Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
 
-If you want to build the test suite without building the entire source base, use this
-command:
+If you want to build the test suite without building the entire source base, use
+this command:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
-The build will automatically install ZeroC's official Ice binary NuGet packages if necessary.
+The build will automatically install ZeroC's official Ice binary NuGet packages
+if necessary.
 
 ## Running the .NET Tests
 
