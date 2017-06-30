@@ -34,6 +34,24 @@ To build the Ice assemblies, services and tests, run
 
 Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
 
+You can add Strong Naming signatures to Ice assemblies by setting the following
+environment variables:
+
+ - PUBLIC_KEYFILE Identity public key use to delay sign the assembly
+ - KEYFILE Identy full key pair use to sign the assembly
+
+If only PUBLIC_KEYFILE is set the assemblies are delay sign during build and you
+must re-sign the assemblies with the full identity key pair.
+
+If both PUBLIC_KEYFILE and KEYFILE are set or only KEYFILE is set the assemblies
+are fully signed during build using KEYFILE.
+
+You can also sign the Ice binaries with Authenticode, by setting the following
+environment variables:
+
+ - SIGN_CERTIFICATE to your Authenticode certificate
+ - SIGN_PASSWORD to the certificate password
+
 If you want to build the test suite without building the entire source base, use
 this command:
 
