@@ -37,16 +37,16 @@ Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
 You can add Strong Naming signatures to Ice assemblies by setting the following
 environment variables:
 
- - PUBLIC_KEYFILE Identity public key use to delay sign the assembly
- - KEYFILE Identy full key pair use to sign the assembly
+ - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
+ - KEYFILE Identity full key pair used to sign the assembly
 
-If only PUBLIC_KEYFILE is set the assemblies are delay sign during build and you
-must re-sign the assemblies with the full identity key pair.
+If only PUBLIC_KEYFILE is set, the assemblies are delay signed during the build
+and you must re-sign the assemblies with the full identity key pair.
 
-If both PUBLIC_KEYFILE and KEYFILE are set or only KEYFILE is set the assemblies
-are fully signed during build using KEYFILE.
+If both PUBLIC_KEYFILE and KEYFILE are set, or only KEYFILE is set, the
+assemblies are fully signed during the build using KEYFILE.
 
-You can also sign the Ice binaries with Authenticode, by setting the following
+You can also sign the Ice binaries with Authenticode by setting the following
 environment variables:
 
  - SIGN_CERTIFICATE to your Authenticode certificate
