@@ -84,12 +84,16 @@ public:
     static IceUtil::Mutex* _mutex;
 
     static long _nextId;
+    static long _destroyedIds;
+    static size_t _slotVectors;
 
 #ifdef _WIN32
     static DWORD _key;
 #else
     static pthread_key_t _key;
 #endif
+
+    static void tryCleanupKey(); // must be called with _mutex locked
 
 private:
 
@@ -257,6 +261,8 @@ SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 //
 #ifndef ICE_OS_UWP
 long PerThreadImplicitContext::_nextId;
+long PerThreadImplicitContext::_destroyedIds;
+size_t PerThreadImplicitContext::_slotVectors;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
 IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;
 
@@ -295,10 +301,6 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     _id = _nextId++;
     if(_id == 0)
     {
-        //
-        // Initialize; note that we never dealloc this key (it would be
-        // complex, and since it's a static variable, it's not really a leak)
-        //
 #   ifdef _WIN32
         _key = TlsAlloc();
         if(_key == TLS_OUT_OF_INDEXES)
@@ -315,7 +317,7 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     }
 
     //
-    // Now grabs an index
+    // Now grab an index
     //
     if(_indexInUse == 0)
     {
@@ -345,6 +347,27 @@ PerThreadImplicitContext::~PerThreadImplicitContext()
         delete _indexInUse;
         _indexInUse = 0;
     }
+
+    _destroyedIds++;
+    tryCleanupKey();
+}
+
+void
+PerThreadImplicitContext::tryCleanupKey()
+{
+    if(_destroyedIds == _nextId && _slotVectors == 0)
+    {
+        //
+        // We can do a full reset
+        //
+        _nextId = 0;
+        _destroyedIds = 0;
+#   ifdef _WIN32
+        TlsFree(_key);
+#   else
+        pthread_key_delete(_key);
+#   endif
+    }
 }
 
 Context*
@@ -362,7 +385,12 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
             return 0;
         }
 
-        sv = new SlotVector(_index + 1);
+        {
+             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+             sv = new SlotVector(_index + 1);
+             _slotVectors++;
+        }
+
 #   ifdef _WIN32
 
         if(TlsSetValue(_key, sv) == 0)
@@ -464,6 +492,11 @@ PerThreadImplicitContext::clearThreadContext() const
             if(int err = pthread_setspecific(_key, 0))
             {
                 throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+            }
+
+            {
+                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+                _slotVectors--;
             }
 #   endif
         }
@@ -627,6 +660,12 @@ extern "C" void iceImplicitContextThreadDestructor(void* v)
         // Then the vector
         //
         delete sv;
+
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(PerThreadImplicitContext::_mutex);
+            PerThreadImplicitContext::_slotVectors--;
+            PerThreadImplicitContext::tryCleanupKey();
+        }
     }
 }
 
