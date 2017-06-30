@@ -141,7 +141,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\RecMutex.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScopedArray.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\SHA1.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
@@ -150,7 +149,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Time.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\UniquePtr.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

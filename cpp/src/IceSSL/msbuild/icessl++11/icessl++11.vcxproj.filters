@@ -199,12 +199,6 @@
     <ClInclude Include="..\..\..\..\include\IceSSL\Plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\SChannelEngine.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\SChannelEngineF.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\IceSSL\ConnectionInfoF.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -240,6 +234,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceSSL\EndpointInfo.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SChannelEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SChannelEngineF.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

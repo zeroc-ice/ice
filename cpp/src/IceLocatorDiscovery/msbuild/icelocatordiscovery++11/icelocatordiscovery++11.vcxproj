@@ -137,7 +137,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\..\PluginI.h" />
+    <ClInclude Include="..\..\Plugin.h" />
   </ItemGroup>
   <ItemGroup>
     <IceBuilder Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice" />

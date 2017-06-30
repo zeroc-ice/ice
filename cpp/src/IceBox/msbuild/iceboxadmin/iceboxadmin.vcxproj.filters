@@ -12,11 +12,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\IceBoxAdmin.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\Admin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\IceBoxAdmin.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

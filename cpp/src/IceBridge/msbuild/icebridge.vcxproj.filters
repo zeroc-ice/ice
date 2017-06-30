@@ -14,12 +14,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\IceBridge.cpp">
-      <Filter>Slice Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\IceBridge.rc">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 # Ignore objects and archives.
+*.aps
 *.[oa]
 *.obj
 *.dll

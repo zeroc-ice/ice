@@ -77,9 +77,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\PluginI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -91,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugin.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
