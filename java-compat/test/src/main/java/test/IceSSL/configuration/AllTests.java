@@ -149,6 +149,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -174,6 +175,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -230,6 +232,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -250,6 +253,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -276,6 +280,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -332,6 +337,7 @@ public class AllTests
             }
             catch(Exception ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -361,6 +367,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -394,6 +401,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -424,6 +432,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -476,6 +485,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -498,6 +508,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -531,6 +542,7 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -581,6 +593,7 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -661,6 +674,7 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -738,6 +752,7 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -763,6 +778,7 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -803,6 +819,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -822,6 +839,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -841,6 +859,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -868,6 +887,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -901,6 +921,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -930,6 +951,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -975,6 +997,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1012,6 +1035,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1028,6 +1052,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1067,6 +1092,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -1090,6 +1116,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -1121,6 +1148,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -1173,6 +1201,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1238,6 +1267,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1271,6 +1301,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1303,6 +1334,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1334,6 +1366,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1357,6 +1390,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1384,6 +1418,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
         }
@@ -1411,6 +1446,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -1435,6 +1471,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -1478,6 +1515,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1502,6 +1540,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1523,6 +1562,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1554,6 +1594,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1586,6 +1627,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1620,6 +1662,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1650,6 +1693,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1675,6 +1719,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1717,6 +1762,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1738,6 +1784,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1779,6 +1826,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1819,6 +1867,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1919,6 +1968,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1939,6 +1989,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1979,6 +2030,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1999,6 +2051,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2129,6 +2182,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2171,6 +2225,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2211,6 +2266,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2239,6 +2295,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2281,6 +2338,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2347,6 +2405,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2407,6 +2466,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2417,24 +2477,58 @@ public class AllTests
         out.print("testing system CAs... ");
         out.flush();
         {
+            //
+            // Retry a few times in case there are connectivity problems with demo.zeroc.com.
+            //
+            final int retryMax = 5;
+            final int retryDelay = 1000;
+            int retryCount = 0;
+
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
             initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
             initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             Ice.Communicator comm = Ice.Util.initialize(initData);
             Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-            try
+            while(true)
             {
-                p.ice_ping();
-                test(false);
+                try
+                {
+                    p.ice_ping();
+                    test(false);
+                }
+                catch(Ice.SecurityException ex)
+                {
+                    // Expected, by default we don't check for system CAs.
+                    break;
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if((ex instanceof Ice.ConnectTimeoutException) ||
+                       (ex instanceof Ice.SocketException) ||
+                       (ex instanceof Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
+
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
+                }
             }
-            catch(Ice.SecurityException ex)
-            {
-                // Expected, by default we don't check for system CAs.
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
+            comm.destroy();
 
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
             initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
@@ -2442,15 +2536,41 @@ public class AllTests
             initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
             comm = Ice.Util.initialize(initData);
             p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-            try
+            while(true)
             {
-                Ice.WSConnectionInfo info  = (Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
-                IceSSL.ConnectionInfo sslinfo = (IceSSL.ConnectionInfo)info.underlying;
-                test(sslinfo.verified);
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
+                try
+                {
+                    Ice.WSConnectionInfo info  = (Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
+                    IceSSL.ConnectionInfo sslinfo = (IceSSL.ConnectionInfo)info.underlying;
+                    test(sslinfo.verified);
+                    break;
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if((ex instanceof Ice.ConnectTimeoutException) ||
+                       (ex instanceof Ice.SocketException) ||
+                       (ex instanceof Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
+
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
+                }
             }
             comm.destroy();
         }

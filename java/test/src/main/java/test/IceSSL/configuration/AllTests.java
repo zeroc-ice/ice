@@ -2492,7 +2492,6 @@ public class AllTests
             com.zeroc.Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
             while(true)
             {
-                com.zeroc.Ice.LocalException retryEx = null;
                 try
                 {
                     p.ice_ping();
@@ -2503,44 +2502,31 @@ public class AllTests
                     // Expected, by default we don't check for system CAs.
                     break;
                 }
-                catch(com.zeroc.Ice.ConnectTimeoutException ex)
-                {
-                    retryEx = ex;
-                }
-                catch(com.zeroc.Ice.SocketException ex)
-                {
-                    retryEx = ex;
-                }
-                catch(com.zeroc.Ice.DNSException ex)
-                {
-                    retryEx = ex;
-                }
                 catch(com.zeroc.Ice.LocalException ex)
                 {
-                    ex.printStackTrace();
-                    test(false);
-                }
+                    if((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
+                       (ex instanceof com.zeroc.Ice.SocketException) ||
+                       (ex instanceof com.zeroc.Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
 
-                if(retryEx != null)
-                {
-                    if(++retryCount > retryMax)
-                    {
-                        retryEx.printStackTrace();
-                        test(false);
-                    }
-                    else
-                    {
-                        out.print("retrying... ");
-                        out.flush();
-                        try
-                        {
-                            Thread.sleep(retryDelay);
-                        }
-                        catch(InterruptedException e)
-                        {
-                            break;
-                        }
-                    }
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
                 }
             }
             comm.destroy();
@@ -2554,7 +2540,6 @@ public class AllTests
             p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
             while(true)
             {
-                com.zeroc.Ice.LocalException retryEx = null;
                 try
                 {
                     com.zeroc.Ice.WSConnectionInfo info =
@@ -2563,44 +2548,31 @@ public class AllTests
                     test(sslinfo.verified);
                     break;
                 }
-                catch(com.zeroc.Ice.ConnectTimeoutException ex)
-                {
-                    retryEx = ex;
-                }
-                catch(com.zeroc.Ice.SocketException ex)
-                {
-                    retryEx = ex;
-                }
-                catch(com.zeroc.Ice.DNSException ex)
-                {
-                    retryEx = ex;
-                }
                 catch(com.zeroc.Ice.LocalException ex)
                 {
-                    ex.printStackTrace();
-                    test(false);
-                }
+                    if((ex instanceof com.zeroc.Ice.ConnectTimeoutException) ||
+                       (ex instanceof com.zeroc.Ice.SocketException) ||
+                       (ex instanceof com.zeroc.Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
 
-                if(retryEx != null)
-                {
-                    if(++retryCount > retryMax)
-                    {
-                        retryEx.printStackTrace();
-                        test(false);
-                    }
-                    else
-                    {
-                        out.print("retrying... ");
-                        out.flush();
-                        try
-                        {
-                            Thread.sleep(retryDelay);
-                        }
-                        catch(InterruptedException e)
-                        {
-                            break;
-                        }
-                    }
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
                 }
             }
             comm.destroy();
