@@ -75,22 +75,11 @@ To build the test suite using the NuGet binary distribution use:
 
     msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 
-If you want to build all supported platforms and configurations at once, use:
-
-    msbuild msbuild\ice.proj /p:BuildAllConfigurations=yes
-
 You can also sign the Ice binaries with Authenticode, by setting the following
 environment variables:
+
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
-
-If you want to run the test suite without building the entire source base, use
-this command:
-
-    msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
-
-The build will automatically install ZeroC's official Ice binary NuGet packages
-if necessary.
 
 ## Building Ice for UWP
 
@@ -105,10 +94,6 @@ To skip the building of the test suite:
 
     msbuild msbuild\ice.proj /t:UWPBuildDist
 
-To build all configurations:
-
-    msbuild msbuild\ice.proj /t:UWPBuildDist /p:BuildAllConfigurations=yes
-
 To build the test suite using the NuGet binary distribution use:
 
     msbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
@@ -119,8 +104,9 @@ You can create a NuGet package with the following command:
 
     msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
 
-This creates `zeroc.ice.v120\zeroc.ice.v120.nupkg`,
-`zeroc.ice.v140\zeroc.ice.v140.nupkg` or `zeroc.ice.v141\zeroc.ice.v141.nupkg`
+This creates `zeroc.ice.v100\zeroc.ice.v100.nupkg`,
+`zeroc.ice.v120\zeroc.ice.v120.nupkg`, `zeroc.ice.v140\zeroc.ice.v140.nupkg` or
+`zeroc.ice.v141\zeroc.ice.v141.nupkg`
 depending on the compiler you are using.
 
 To create UWP NuGet packages, use the `UWPNuGetPack` target instead:

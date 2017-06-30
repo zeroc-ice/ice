@@ -142,10 +142,10 @@ failure, the tests abort with `failed`.
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
  - On your Mac:
- ```
-   python allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
-   python allTests.py --confg=cpp11-xcodesdk --platform=iphoneos # C++11 controller
- ```
+```
+    python allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
+    python allTests.py --confg=cpp11-xcodesdk --platform=iphoneos # C++11 controller
+```
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
 
