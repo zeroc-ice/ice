@@ -546,7 +546,7 @@
         {
             [adminFacets_ removeObjectForKey:facet];
         }
-        return toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet)));
+        return [toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -564,14 +564,14 @@
             ICEObject* obj = [adminFacets_ objectForKey:facet];
             if(obj != nil)
             {
-                return obj;
+                return [[obj retain] autorelease];
             }
             obj = toObjC(COMMUNICATOR->findAdminFacet(fromNSString(facet)));
             if(obj != nil)
             {
                 [adminFacets_ setObject:obj forKey:facet];
             }
-            return obj;
+            return [obj autorelease];
         }
     }
     catch(const std::exception& ex)
@@ -590,7 +590,7 @@
         {
             [adminFacets_ addEntriesFromDictionary:facetMap];
         }
-        return facetMap;
+        return [facetMap autorelease];
     }
     catch(const std::exception& ex)
     {

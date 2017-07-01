@@ -189,8 +189,9 @@ private:
 @synthesize batchRequestInterceptor;
 @synthesize prefixTable_;
 
--(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>,
-                                                                                  id<ICEConnection>))d;
+-(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log
+                                dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                   batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 {
     self = [super init];
     if(!self)
@@ -200,6 +201,7 @@ private:
     properties = [props retain];
     logger = [log retain];
     dispatcher = [d copy];
+    batchRequestInterceptor = [i copy];
     return self;
 }
 
@@ -211,9 +213,11 @@ private:
 }
 
 +(id) initializationData:(id<ICEProperties>)p logger:(id<ICELogger>)l
-              dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
+                                          dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                             batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 {
-   return [[((ICEInitializationData *)[ICEInitializationData alloc]) init:p logger:l dispatcher:d] autorelease];
+   return [[((ICEInitializationData *)[ICEInitializationData alloc]) init:p logger:l dispatcher:d
+            batchRequestInterceptor:i] autorelease];
 }
 
 -(id) copyWithZone:(NSZone *)zone
@@ -222,6 +226,7 @@ private:
     copy->properties = [properties retain];
     copy->logger = [logger retain];
     copy->dispatcher = [dispatcher copy];
+    copy->batchRequestInterceptor = [batchRequestInterceptor copy];
     copy->prefixTable_ = [prefixTable_ retain];
     return copy;
 }
@@ -231,6 +236,8 @@ private:
     NSUInteger h = 0;
     h = (h << 5 ^ [properties hash]);
     h = (h << 5 ^ [logger hash]);
+    h = (h << 5 ^ [dispatcher hash]);
+    h = (h << 5 ^ [batchRequestInterceptor hash]);
     h = (h << 5 ^ [prefixTable_ hash]);
     return h;
 }
@@ -288,6 +295,20 @@ private:
             return NO;
         }
     }
+    if(!batchRequestInterceptor)
+    {
+        if(obj->batchRequestInterceptor)
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        if(batchRequestInterceptor == obj->batchRequestInterceptor)
+        {
+            return NO;
+        }
+    }
     if(!prefixTable_)
     {
         if(obj->prefixTable_)
@@ -310,6 +331,7 @@ private:
     [properties release];
     [logger release];
     [dispatcher release];
+    [batchRequestInterceptor release];
     [prefixTable_ release];
     [super dealloc];
 }

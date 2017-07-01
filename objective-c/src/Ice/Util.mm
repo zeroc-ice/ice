@@ -50,22 +50,34 @@ void completed(const Ice::AsyncResultPtr& result)
     {
         @try
         {
+            NSException* nsex = nil;
             try
             {
                 _completed(result);
             }
             catch(const Ice::Exception& ex)
             {
+                nsex = toObjCException(ex);
+            }
+            if(nsex != nil)
+            {
                 @try
                 {
-                    NSException* nsex = toObjCException(ex);
+
                     @throw nsex;
                 }
                 @catch(ICEException* e)
                 {
                     if(_exception)
                     {
-                        _exception(e);
+                        try
+                        {
+                            _exception(e);
+                        }
+                        catch(const Ice::Exception& ex)
+                        {
+                            exception = [toObjCException(ex) retain];
+                        }
                     }
                 }
             }
@@ -462,7 +474,7 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is an Objective-C servant wrapped into a C++
         // object, return the wrapped Objective-C object.
         //
-        return [[wrapper->getServant() retain] autorelease];
+        return [wrapper->getServant() retain];
     }
     else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
     {
@@ -470,13 +482,13 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is a properties admin facet, return the
         // Objective-C wrapper.
         //
-        return [ICENativePropertiesAdmin servantWrapperWithCxxObject:object.get()];
+        return [ICENativePropertiesAdmin servantWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
     else
     {
         //
         // Given object is a C++ servant, return an Objective-C wrapper.
         //
-        return [ICEServantWrapper servantWrapperWithCxxObject:object.get()];
+        return [ICEServantWrapper servantWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
 }

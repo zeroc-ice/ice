@@ -137,7 +137,6 @@ void exception(const Ice::Exception& ex)
                     exception = [e retain];
                 }
             }
-            return;
         }
     }
     if(exception != nil)
@@ -558,7 +557,7 @@ BOOL _returnsData;
         }
         @catch(id e)
         {
-            nsex = [e retain];
+            nsex = e;
         }
         [is release];
     }
@@ -861,7 +860,7 @@ BOOL _returnsData;
         }
         @catch(id e)
         {
-            nsex = [e retain];
+            nsex = e;
         }
         [is release];
     }

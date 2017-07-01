@@ -358,6 +358,7 @@
 {
     [_cond lock];
     [_test run];
+    _test = nil; // Break cyclic reference count
     _called = YES;
     [_cond signal];
     [_cond unlock];

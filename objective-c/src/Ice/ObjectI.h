@@ -40,5 +40,5 @@ typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 {
     Ice::Object* object_;
 }
-+(id) servantWrapperWithCxxObject:(Ice::Object*)arg;
++(id) servantWrapperWithCxxObjectNoAutoRelease:(Ice::Object*)arg;
 @end

@@ -47,10 +47,12 @@ ICE_API @interface ICEInitializationData : NSObject
 @property(retain, nonatomic) NSDictionary* prefixTable_;
 
 -(id) init:(id<ICEProperties>)properties logger:(id<ICELogger>)logger
-     dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
+                                     dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                        batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 +(id) initializationData;
 +(id) initializationData:(id<ICEProperties>)properties logger:(id<ICELogger>)logger
-     dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
+                                                   dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                                      batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 // This class also overrides copyWithZone:, hash, isEqual:, and dealloc.
 @end
 
