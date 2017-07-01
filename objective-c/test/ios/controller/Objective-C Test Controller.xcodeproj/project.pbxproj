@@ -1823,6 +1823,7 @@
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions ";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",
 					"-lGlacier2ObjC",
@@ -1859,6 +1860,7 @@
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions ";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",
 					"-lGlacier2ObjC",
