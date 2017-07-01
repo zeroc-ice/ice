@@ -607,6 +607,7 @@
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-lIce++11",
 					"-lIceDiscovery++11",
@@ -631,6 +632,7 @@
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-lIce++11",
 					"-lIceDiscovery++11",
@@ -737,6 +739,7 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-lIce",
 					"-lIceDiscovery",
@@ -757,6 +760,7 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-lIce",
 					"-lIceDiscovery",
