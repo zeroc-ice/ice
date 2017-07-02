@@ -210,7 +210,7 @@ public:
             id co = cookie ? CookiePtr::dynamicCast(cookie)->cookie() : nil;
             @try
             {
-                [_locator finished:cu servant:toObjC(servant) cookie:co];
+                [_locator finished:cu servant:[toObjC(servant) autorelease] cookie:co];
             }
             @catch(id e)
             {
