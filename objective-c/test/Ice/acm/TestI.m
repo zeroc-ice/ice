@@ -21,6 +21,13 @@
     _count = 0;
     return self;
 }
+#if defined(__clang__) && !__has_feature(objc_arc)
+-(void) dealloc
+{
+    [_cond release];
+    [super dealloc];
+}
+#endif
 -(void) heartbeat:(id<ICEConnection>)c
 {
     [_cond lock];

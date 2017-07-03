@@ -593,7 +593,7 @@ run(id<ICECommunicator> communicator)
     }
 
     {
-        TestStreamMyInterface ICE_AUTORELEASING_QUALIFIER * i = [TestStreamMyInterface new];
+        TestStreamMyInterface ICE_AUTORELEASING_QUALIFIER * i = ICE_AUTORELEASE([TestStreamMyInterface new]);
         out = [ICEUtil createOutputStream:communicator];
         [TestStreamMyInterfaceHelper write:i stream:out];
         [out writePendingValues];

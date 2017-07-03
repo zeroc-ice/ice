@@ -267,8 +267,8 @@ ICE_API @interface ICEEnumHelper : ICEStreamHelper
 @end
 
 ICE_API @interface ICEStructHelper : ICEStreamHelper
-+(id) readRetained:(id<ICEInputStream>)stream value:(id)v NS_RETURNS_RETAINED;
-+(id) read:(id<ICEInputStream>)stream value:(id)v;
++(void) readRetained:(id<ICEInputStream>)stream value:(id ICE_STRONG_QUALIFIER*)v;
++(void) read:(id<ICEInputStream>)stream value:(id*)v;
 +(Class) getOptionalHelper;
 @end
 

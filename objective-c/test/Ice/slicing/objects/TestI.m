@@ -249,19 +249,19 @@
         // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
         // from unread slice.
         //
-        return [[TestSlicingObjectsServerPSUnknown alloc] init:5
+        return ICE_AUTORELEASE([[TestSlicingObjectsServerPSUnknown alloc] init:5
                                                             ps:@"preserved"
                                                            psu:@"unknown"
                                                          graph:0
-                                                            cl:nil];
+                                                            cl:nil]);
     }
     else
     {
-        return [[TestSlicingObjectsServerPSUnknown alloc] init:5
-                                                            ps:@"preserved"
-                                                           psu:@"unknown"
-                                                         graph:0
-                                                            cl:[[TestSlicingObjectsServerMyClass alloc] init:15]];
+        return ICE_AUTORELEASE([[TestSlicingObjectsServerPSUnknown alloc] init:5
+                                            ps:@"preserved"
+                                           psu:@"unknown"
+                                         graph:0
+                                            cl:ICE_AUTORELEASE([[TestSlicingObjectsServerMyClass alloc] init:15])]);
     }
 }
 

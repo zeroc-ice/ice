@@ -40,8 +40,6 @@ class ValueFactoryI : public Ice::ValueFactory
 {
 public:
 
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the dictionaries.
     ValueFactoryI(NSDictionary* factories, NSDictionary* prefixTable) :
         _factories(factories), _prefixTable(prefixTable)
     {
@@ -59,6 +57,7 @@ public:
     create(const std::string& type)
     {
         NSString* sliceId = [[NSString alloc] initWithUTF8String:type.c_str()];
+        NSException* ex = nil;
         @try
         {
             ICEValueFactory factory = nil;
@@ -74,7 +73,7 @@ public:
             ICEObject* obj = nil;
             if(factory != nil)
             {
-                obj = [factory(sliceId) retain];
+                obj = factory(sliceId);
             }
 
             if(obj == nil)
@@ -99,13 +98,17 @@ public:
             }
             return o;
         }
-        @catch(id ex)
+        @catch(id exc)
         {
-            rethrowCxxException(ex);
+            ex = exc;
         }
         @finally
         {
             [sliceId release];
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex);
         }
         return nil; // Keep the compiler happy.
     }

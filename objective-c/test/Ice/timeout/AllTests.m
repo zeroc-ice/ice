@@ -34,6 +34,11 @@
     return self;
 }
 
++(id) create
+{
+    return ICE_AUTORELEASE([[TestTimeoutCallback alloc] init]);
+}
+
 #if defined(__clang__) && !__has_feature(objc_arc)
 -(void) dealloc
 {
@@ -215,7 +220,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Expect InvocationTimeoutException.
         //
         id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:100]];
-        TestTimeoutCallback* cb = [[TestTimeoutCallback alloc] init];
+        TestTimeoutCallback* cb = [TestTimeoutCallback create];
         [to begin_sleep:750 response:^ { [cb responseEx]; } exception:^(ICEException* ex) { [cb exceptionEx:ex]; }];
         [cb check];
         [obj ice_ping];
@@ -225,7 +230,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         // Expect Success.
         //
         id<TestTimeoutTimeoutPrx> to = [TestTimeoutTimeoutPrx uncheckedCast:[obj ice_invocationTimeout:500]];
-        TestTimeoutCallback* cb = [[TestTimeoutCallback alloc] init];
+        TestTimeoutCallback* cb = [TestTimeoutCallback create];
         [to begin_sleep:100 response:^ { [cb response]; } exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
     }

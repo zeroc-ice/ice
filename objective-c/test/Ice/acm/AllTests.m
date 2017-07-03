@@ -178,6 +178,7 @@
 
     _cond = [[NSCondition alloc] init];
     _logger = [[LoggerI alloc] init];
+    _thread = nil;
 
     _clientACMTimeout = -1;
     _clientACMClose = -1;
@@ -196,6 +197,7 @@
 {
     [_cond release];
     [_logger release];
+    [_thread release];
     [super dealloc];
 }
 #endif

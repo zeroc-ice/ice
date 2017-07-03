@@ -16,41 +16,43 @@
 #   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-// Note that the factory must not autorelease the
-// returned objects.
+#if defined(__clang__) && __has_feature(objc_arc)
+ICEValueFactory factory = ^ICEObject* (NSString* type) NS_RETURNS_RETAINED
+#else
 ICEValueFactory factory = ^ICEObject* (NSString* type)
+#endif
 {
     if([type isEqualToString:@"::Test::B"])
     {
-        return  ICE_AUTORELEASE([[TestObjectsBI alloc] init]);
+        return [[TestObjectsBI alloc] init];
     }
     else if([type isEqualToString:@"::Test::C"])
     {
-        return ICE_AUTORELEASE([[TestObjectsCI alloc] init]);
+        return [[TestObjectsCI alloc] init];
     }
     else if([type isEqualToString:@"::Test::D"])
     {
-        return ICE_AUTORELEASE([[TestObjectsDI alloc] init]);
+        return [[TestObjectsDI alloc] init];
     }
     else if([type isEqualToString:@"::Test::E"])
     {
-        return ICE_AUTORELEASE([[TestObjectsEI alloc] init]);
+        return [[TestObjectsEI alloc] init];
     }
     else if([type isEqualToString:@"::Test::F"])
     {
-        return ICE_AUTORELEASE([[TestObjectsFI alloc] init]);
+        return [[TestObjectsFI alloc] init];
     }
     else if([type isEqualToString:@"::Test::I"])
     {
-        return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
+        return [[TestObjectsI alloc] init];
     }
     else if([type isEqualToString:@"::Test::J"])
     {
-        return ICE_AUTORELEASE([[TestObjectsJI alloc] init]);
+        return [[TestObjectsJI alloc] init];
     }
     else if([type isEqualToString:@"::Test::H"])
     {
-        return ICE_AUTORELEASE([[TestObjectsHI alloc] init]);
+        return [[TestObjectsHI alloc] init];
     }
     else
     {

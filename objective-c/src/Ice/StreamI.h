@@ -19,6 +19,7 @@
 {
     Ice::InputStream* is_;
     Ice::InputStream stream_;
+    std::vector<IceUtil::Handle<IceUtil::Shared> >* objectReaders_;
     NSDictionary* prefixTable_;
     NSData* data_;
 }

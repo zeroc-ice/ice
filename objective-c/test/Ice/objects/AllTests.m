@@ -197,8 +197,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(d.theA == b1);
     test(d.theB == b2);
     //test(d.theC == 0);
-//    if(!collocated)
-//    {
+
     test(d.preMarshalInvoked);
     test(d.postUnmarshalInvoked);
     test(d.theA.preMarshalInvoked);
@@ -207,7 +206,6 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(d.theB.postUnmarshalInvoked);
     test(d.theB.theC.preMarshalInvoked);
     test(d.theB.theC.postUnmarshalInvoked);
-//    }
 
     breakRetainCycleB(b1);
     breakRetainCycleB(b2);
@@ -297,10 +295,10 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     tprintf("testing marshaled results...");
     b1 = [initial getMB];
     test(b1 != nil && b1.theB == b1);
-    b1.theB = nil;
+    breakRetainCycleB(b1);
     b1 = [initial end_getAMDMB:[initial begin_getAMDMB]];
     test(b1 != nil && b1.theB == b1);
-    b1.theB = nil;
+    breakRetainCycleB(b1);
     tprintf("ok\n");
 
     tprintf("testing UnexpectedObjectException... ");
@@ -324,12 +322,11 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         test(NO);
     }
     tprintf("ok\n");
-//     }
 
     //
     // TestObjectss specific to Objective-C.
     //
-   {
+    {
         tprintf("setting Object sequence... ");
         TestObjectsMutableObjectSeq* seq = [TestObjectsMutableObjectSeq array];
 

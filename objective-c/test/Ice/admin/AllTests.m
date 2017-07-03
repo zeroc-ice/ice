@@ -167,7 +167,9 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     [_cond lock];
     @try
     {
+        ICE_RELEASE(_expectedPrefix);
         _expectedPrefix = ICE_RETAIN(prefix);
+        ICE_RELEASE(_expectedInitMessages);
         _expectedInitMessages = ICE_RETAIN(logMessages);
     }
     @finally

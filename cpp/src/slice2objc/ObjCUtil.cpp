@@ -871,11 +871,11 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         {
             if(autoreleased)
             {
-                out << nl << param << " = [" << name << " read:" << stream << " value:" << param << "];";
+                out << nl << "[" << name << " read:" << stream << " value:&" << param << "];";
             }
             else
             {
-                out << nl << param << " = [" << name << " readRetained:" << stream << " value:" << param << "];";
+                out << nl << "[" << name << " readRetained:" << stream << " value:&" << param << "];";
             }
         }
         else
