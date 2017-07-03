@@ -314,7 +314,7 @@ public:
         proxy->sleep(4);
 
         Lock sync(*this);
-        test(_heartbeat >= 2);
+        test(_heartbeat >= 6);
     }
 };
 

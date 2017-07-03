@@ -400,7 +400,7 @@
     [_cond lock];
     @try
     {
-        test(_heartbeat >= 2);
+        test(_heartbeat >= 6);
     }
     @finally
     {

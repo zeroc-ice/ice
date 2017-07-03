@@ -156,7 +156,7 @@ def allTests(communicator):
             proxy.sleep(4)
 
             with self.m:
-                test(self._heartbeat >= 2)
+                test(self._heartbeat >= 6)
 
     class InvocationHeartbeatOnHoldTest(TestCase):
         def __init__(self, com):

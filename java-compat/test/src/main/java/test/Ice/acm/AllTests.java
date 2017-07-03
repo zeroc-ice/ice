@@ -315,7 +315,7 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             proxy.sleep(4);
-            test(_heartbeat >= 2);
+            test(_heartbeat >= 6);
         }
     }
 

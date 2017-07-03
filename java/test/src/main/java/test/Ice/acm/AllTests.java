@@ -206,6 +206,7 @@ public class AllTests
         {
             TestIntfPrx proxy = TestIntfPrx.uncheckedCast(_communicator.stringToProxy(
                 _adapter.getTestIntf().toString()));
+
             try
             {
                 proxy.ice_getConnection().setCloseCallback(con ->
@@ -300,7 +301,7 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             proxy.sleep(4);
-            test(_heartbeat >= 2);
+            test(_heartbeat >= 6);
         }
     }
 

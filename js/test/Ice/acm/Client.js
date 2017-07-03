@@ -207,7 +207,7 @@
         {
             return proxy.sleep(4).then(() =>
                 {
-                    test(this._heartbeat >= 2);
+                    test(this._heartbeat >= 6);
                 });
         }
     }
