@@ -7,7 +7,7 @@ ZeroC provides [Ice binary distributions][1] for various platforms and
 compilers, including Windows and Visual Studio, so building Ice from sources is
 usually unnecessary.
 
-## Build Requirements
+## C++ Build Requirements
 
 ### Operating Systems and Compilers
 
@@ -33,7 +33,7 @@ The Ice build system for Windows downloads and installs the NuGet command-line
 executable and these NuGet packages when you build Ice for C++. The third-party
 packages are installed in the ``ice/cpp/msbuild/packages`` folder.
 
-## Building Ice for C++
+## Building Ice
 
 Open a Visual Studio command prompt. For example, with Visual Studio 2015, you
 can open one of:
