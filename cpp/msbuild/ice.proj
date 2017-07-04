@@ -133,34 +133,34 @@
 
        <!-- OpenSSL C++ test configurations (C++98 mapping) -->
       <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OpenSSL)' == 'yes'">
-        <TestSolution Include="ice.openssl.test.sln">
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Debug;Platform=Win32</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Debug;Platform=x64</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Release;Platform=Win32</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Release;Platform=x64</Properties>
-        </TestSolution>
+        </OpenSSLTestSolution>
       </ItemGroup>
 
       <!-- OpenSSL C++ test configurations (C++11 mapping) -->
       <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all' and $(OpenSSL) == 'yes' and '$(Cpp11Compiler)' == 'yes'">
-        <TestSolution Include="ice.openssl.test.sln">
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=Win32</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-Debug;Platform=x64</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-Release;Platform=Win32</Properties>
-        </TestSolution>
-        <TestSolution Include="ice.openssl.test.sln">
+        </OpenSSLTestSolution>
+        <OpenSSLTestSolution Include="ice.openssl.test.sln">
           <Properties>Configuration=Cpp11-Release;Platform=x64</Properties>
-        </TestSolution>
+        </OpenSSLTestSolution>
       </ItemGroup>
 
       <!-- Ice for UWP test configurations -->

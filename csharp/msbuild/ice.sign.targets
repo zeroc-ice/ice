@@ -31,7 +31,7 @@
     <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' != ''">$(PUBLIC_KEYFILE)</AssemblyOriginatorKeyFile>
 
-    <!-- If PUBLIC_KEYFILE is not set we use sign the assembly using KEYFILE -->
+    <!-- If PUBLIC_KEYFILE is not set sign the assembly using KEYFILE -->
     <DelaySign Condition="'$(PUBLIC_KEYFILE)' == ''">false</DelaySign>
     <AssemblyOriginatorKeyFile Condition="'$(PUBLIC_KEYFILE)' == ''">$(KEYFILE)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
