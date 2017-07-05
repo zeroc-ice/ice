@@ -258,6 +258,19 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
     }
 
+    /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    @Override
+    public SlicedData
+    ice_getSlicedData()
+    {
+        return null;
+    }
+
     private final static String[] _all =
     {
         "ice_id",

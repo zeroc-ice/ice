@@ -15,6 +15,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
+#include <Ice/SlicedDataF.h>
 #include <Ice/Current.h>
 #include <Ice/Format.h>
 
@@ -133,6 +134,8 @@ public:
     static const std::string& ice_staticId();
 
     virtual ObjectPtr ice_clone() const;
+
+    virtual SlicedDataPtr ice_getSlicedData() const;
 
     virtual bool ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);

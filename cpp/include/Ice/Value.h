@@ -13,6 +13,7 @@
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 #include <Ice/ValueF.h>
+#include <Ice/SlicedDataF.h>
 
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
@@ -45,6 +46,8 @@ public:
     static const std::string& ice_staticId();
 
     std::shared_ptr<Value> ice_clone() const;
+
+    virtual std::shared_ptr<SlicedData> ice_getSlicedData() const;
 
 protected:
 

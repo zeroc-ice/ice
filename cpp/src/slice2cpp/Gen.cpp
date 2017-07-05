@@ -2691,6 +2691,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(preserved && !basePreserved)
         {
+            H << sp << nl << "virtual ::Ice::SlicedDataPtr ice_getSlicedData() const;";
+
             H << sp;
             H << nl << "virtual void _iceWrite(::Ice::OutputStream*) const;";
             H << nl << "virtual void _iceRead(::Ice::InputStream*);";
@@ -2706,6 +2708,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(preserved && !basePreserved)
         {
+            C << sp;
+            C << nl << "::Ice::SlicedDataPtr" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
+            C << sb;
+            C << nl << "return _iceSlicedData;";
+            C << eb;
+
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(::Ice::OutputStream* ostr) const";
             C << sb;
@@ -7314,6 +7322,14 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(preserved && !basePreserved)
     {
+        H << sp << nl << "virtual ::std::shared_ptr<::Ice::SlicedData> ice_getSlicedData() const override;";
+
+        C << sp;
+        C << nl << "::std::shared_ptr<::Ice::SlicedData>" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
+        C << sb;
+        C << nl << "return _iceSlicedData;";
+        C << eb;
+
         H << sp;
         H << nl << "virtual void _iceWrite(::Ice::OutputStream*) const override;";
         H << nl << "virtual void _iceRead(::Ice::InputStream*) override;";

@@ -1500,6 +1500,13 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     {
         out << sp;
         out << nl << "@Override";
+        out << nl << "public com.zeroc.Ice.SlicedData ice_getSlicedData()";
+        out << sb;
+        out << nl << "return _iceSlicedData;";
+        out << eb;
+
+        out << sp;
+        out << nl << "@Override";
         out << nl << "public void _iceWrite(com.zeroc.Ice.OutputStream ostr)";
         out << sb;
         out << nl << "ostr.startValue(_iceSlicedData);";

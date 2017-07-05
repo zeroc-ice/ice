@@ -62,6 +62,17 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
         return ice_staticId();
     }
 
+    /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    public SlicedData ice_getSlicedData()
+    {
+        return null;
+    }
+
     public static String ice_staticId()
     {
         return "::Ice::Object";

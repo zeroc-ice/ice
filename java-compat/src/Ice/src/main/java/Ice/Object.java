@@ -128,6 +128,14 @@ public interface Object
     void ice_postUnmarshal();
 
     /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    SlicedData ice_getSlicedData();
+
+    /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
      * to a servant (or to another interceptor).
      *

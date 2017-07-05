@@ -31,6 +31,11 @@ Ice.Value = class
     {
     }
 
+    ice_getSlicedData()
+    {
+        return null;
+    }
+
     _iceWrite(os)
     {
         os.startValue(null);
@@ -174,13 +179,12 @@ function readPreserved(is)
     this._iceSlicedData = is.endValue(true);
 }
 
-const Slice = Ice.Slice;
-
-Slice.PreservedObject = function(obj)
+function ice_getSlicedData()
 {
-    obj.prototype._iceWrite = writePreserved;
-    obj.prototype._iceRead = readPreserved;
-};
+    return this._iceSlicedData;
+}
+
+const Slice = Ice.Slice;
 
 Slice.defineValue = function(valueType, id, preserved, compactId = 0)
 {
@@ -201,6 +205,7 @@ Slice.defineValue = function(valueType, id, preserved, compactId = 0)
 
     if(preserved)
     {
+        valueType.prototype.ice_getSlicedData = ice_getSlicedData;
         valueType.prototype._iceWrite = writePreserved;
         valueType.prototype._iceRead = readPreserved;
     }

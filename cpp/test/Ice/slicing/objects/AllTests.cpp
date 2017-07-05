@@ -579,6 +579,7 @@ testUOO(const TestIntfPrxPtr& test)
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData());
         test->checkSUnknown(o);
     }
     catch(const Ice::NoValueFactoryException&)
@@ -2646,7 +2647,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test->checkPBSUnknown(p);
         if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
         {
+            Ice::SlicedDataPtr slicedData = p->ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 1);
+            test(slicedData->slices[0]->typeId == "::Test::PSUnknown");
             test->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
+        }
+        else
+        {
+            test(!p->ice_getSlicedData());
         }
     }
     catch(const Ice::OperationNotExistException&)

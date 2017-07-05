@@ -30,6 +30,24 @@ Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
 {
 }
 
+void
+Ice::SlicedData::clear()
+{
+    SliceInfoSeq tmp;
+    tmp.swap(const_cast<SliceInfoSeq&>(slices));
+    for(SliceInfoSeq::const_iterator p = tmp.begin(); p != tmp.end(); ++p)
+    {
+        for(vector<ValuePtr>::const_iterator q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        {
+            Ice::SlicedDataPtr slicedData = (*q)->ice_getSlicedData();
+            if(slicedData)
+            {
+                slicedData->clear();
+            }
+        }
+    }
+}
+
 #ifndef ICE_CPP11_MAPPING
 void
 Ice::SlicedData::_iceGcVisitMembers(IceInternal::GCVisitor& visitor)
@@ -57,7 +75,6 @@ Ice::UnknownSlicedValue::_iceGcVisitMembers(IceInternal::GCVisitor& _v)
         _slicedData->_iceGcVisitMembers(_v);
     }
 }
-
 #endif
 
 Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
@@ -68,12 +85,6 @@ const string&
 Ice::UnknownSlicedValue::getUnknownTypeId() const
 {
     return _unknownTypeId;
-}
-
-SlicedDataPtr
-Ice::UnknownSlicedValue::getSlicedData() const
-{
-    return _slicedData;
 }
 
 void
@@ -88,6 +99,12 @@ Ice::UnknownSlicedValue::_iceRead(Ice::InputStream* istr)
 {
     istr->startValue();
     _slicedData = istr->endValue(true);
+}
+
+SlicedDataPtr
+Ice::UnknownSlicedValue::ice_getSlicedData() const
+{
+    return _slicedData;
 }
 
 #ifdef ICE_CPP11_MAPPING

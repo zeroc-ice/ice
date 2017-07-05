@@ -774,7 +774,16 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         {
             emitGeneratedCodeAttribute();
         }
+        _out << nl << "public override Ice.SlicedData ice_getSlicedData()";
+        _out << sb;
+        _out << nl << "return iceSlicedData_;";
+        _out << eb;
 
+        _out << sp;
+        if(!p->isInterface())
+        {
+            emitGeneratedCodeAttribute();
+        }
         _out << nl << "public override void iceWrite(Ice.OutputStream ostr_)";
         _out << sb;
         _out << nl << "ostr_.startValue(iceSlicedData_);";

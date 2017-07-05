@@ -1155,6 +1155,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(preserved && !basePreserved)
         {
+            _M << nl << "-(id<ICESlicedData>) ice_getSlicedData";
+            _M << sb;
+            _M << nl << "return iceSlicedData_;";
+            _M << eb;
+
             _M << nl << "-(void) iceWrite:(id<ICEOutputStream>)ostr";
             _M << sb;
             _M << nl << "[ostr startValue:iceSlicedData_];";

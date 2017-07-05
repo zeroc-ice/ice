@@ -378,6 +378,7 @@ public class AllTests
                 test(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
                 test(o instanceof com.zeroc.Ice.UnknownSlicedValue);
                 test(((com.zeroc.Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((com.zeroc.Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }
             catch(com.zeroc.Ice.NoValueFactoryException ex)
@@ -2003,7 +2004,15 @@ public class AllTests
             test.checkPBSUnknown(p);
             if(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
+                com.zeroc.Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.length == 1);
+                test(slicedData.slices[0].typeId.equals("::Test::PSUnknown"));
                 test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(com.zeroc.Ice.OperationNotExistException ex)

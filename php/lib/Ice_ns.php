@@ -75,6 +75,18 @@ namespace Ice
         {
             return "::Ice::Object";
         }
+
+        public function ice_getSlicedData()
+        {
+            if(property_exists($this, '_ice_slicedData'))
+            {
+                return $this->_ice_slicedData;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     class InterfaceByValue extends Value

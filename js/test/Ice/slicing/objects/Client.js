@@ -137,6 +137,7 @@
                 test(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
                 test(obj instanceof Ice.UnknownSlicedValue);
                 test(obj.getUnknownTypeId() == "::Test::SUnknown");
+                test(obj.ice_getSlicedData() != null);
                 return prx.checkSUnknown(obj);
             },
             ex =>
@@ -791,7 +792,15 @@
                     {
                         if(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
                         {
+                            let slicedData = p.ice_getSlicedData();
+                            test(slicedData !== null);
+                            test(slicedData.slices.length === 1);
+                            test(slicedData.slices[0].typeId == "::Test::PSUnknown");
                             return prx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p);
+                        }
+                        else
+                        {
+                            test(p.ice_getSlicedData() === null);
                         }
                     });
             }

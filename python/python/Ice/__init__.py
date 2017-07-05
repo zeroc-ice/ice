@@ -326,7 +326,8 @@ _struct_marker = object()
 # Core Ice types.
 #
 class Value(object):
-    def ice_id():
+
+    def ice_id(self):
         '''Obtains the type id corresponding to the most-derived Slice
 interface supported by the target object.
 Returns:
@@ -351,6 +352,14 @@ Returns:
     #def ice_postUnmarshal(self):
     #    pass
 
+    def ice_getSlicedData(self):
+        '''Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+un-marshaling of the value, null is returned otherwise.
+Returns:
+    The sliced data or null.
+'''
+        return getattr(self, "_ice_slicedData", None);
+
 class InterfaceByValue(Value):
 
     def __init__(self, id):
@@ -360,6 +369,7 @@ class InterfaceByValue(Value):
         return self.id
 
 class Object(object):
+
     def ice_isA(self, id, current=None):
         '''Determines whether the target object supports the interface denoted
 by the given Slice type id.

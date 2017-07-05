@@ -784,6 +784,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
             test([o isKindOfClass:[ICEUnknownSlicedValue class]]);
             test([[((ICEUnknownSlicedValue*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
+            test([((ICEUnknownSlicedValue*)o) ice_getSlicedData] != nil);
             [test checkSUnknown:o];
         }
         @catch(ICENoValueFactoryException*)
@@ -2106,7 +2107,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         [test checkPBSUnknown:p];
         if(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
+            test([p ice_getSlicedData] != nil);
             [[test ice_encodingVersion:ICEEncoding_1_0] checkPBSUnknown:p];
+        }
+        else
+        {
+            test([p ice_getSlicedData] == nil);
         }
     }
     @catch(ICEOperationNotExistException*)

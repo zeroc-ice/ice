@@ -112,7 +112,7 @@ def allTests(communicator)
         test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)
         test(o.is_a?(Ice::UnknownSlicedValue))
         test(o.unknownTypeId == "::Test::SUnknown")
-        test(o._ice_slicedData != nil)
+        test(o.ice_getSlicedData() != nil)
         t.checkSUnknown(o)
     rescue Ice::NoValueFactoryException
         test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -796,7 +796,12 @@ def allTests(communicator)
     p = t.PBSUnknownAsPreserved()
     t.checkPBSUnknown(p)
     if t.ice_getEncodingVersion() != Ice::Encoding_1_0
+        slicedData = p.ice_getSlicedData()
+        test(slicedData.slices.length == 1)
+        test(slicedData.slices[0].typeId == "::Test::PSUnknown")
         t.ice_encodingVersion(Ice::Encoding_1_0).checkPBSUnknown(p)
+    else
+        test(!p.ice_getSlicedData())
     end
 
     #

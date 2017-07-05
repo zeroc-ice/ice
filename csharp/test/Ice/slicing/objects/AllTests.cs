@@ -401,6 +401,7 @@ public class AllTests : TestCommon.AllTests
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
                 test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
             catch(Ice.NoValueFactoryException)
@@ -2684,7 +2685,15 @@ public class AllTests : TestCommon.AllTests
             testPrx.checkPBSUnknown(p);
             if(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
+                Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.Length == 1);
+                test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(Ice.OperationNotExistException)

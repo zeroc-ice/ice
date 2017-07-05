@@ -333,6 +333,10 @@ static NSString* ICEObject_ids[1] =
 -(void) ice_postUnmarshal
 {
 }
+-(id<ICESlicedData>) ice_getSlicedData
+{
+    return nil;
+}
 -(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
 {
     NSAssert(NO, @"ice_isA requires override");

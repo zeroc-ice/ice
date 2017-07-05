@@ -37,6 +37,10 @@
     return slicedData_;
 }
 
+-(void) clear
+{
+    slicedData_->clear();
+}
 @end
 
 @implementation ICEUnknownSlicedValue
@@ -86,4 +90,10 @@
     assert(!slicedData->slices.empty());
     unknownTypeId_ = toNSString(slicedData->slices[0]->typeId);
 }
+
+-(ICESlicedData*) ice_getSlicedData
+{
+    return [[slicedData_ retain] autorelease];
+}
+
 @end

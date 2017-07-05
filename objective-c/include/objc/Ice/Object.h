@@ -48,6 +48,7 @@ ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 +(NSString*) ice_staticId;
 -(void) ice_preMarshal;
 -(void) ice_postUnmarshal;
+-(id<ICESlicedData>) ice_getSlicedData;
 +(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx;
 -(void) iceWrite:(id<ICEOutputStream>)os;
 -(void) iceRead:(id<ICEInputStream>)is;

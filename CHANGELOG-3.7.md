@@ -26,6 +26,9 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
+- Added `ice_getSlicedData` method to the `Value` base class. This method can
+  be used to obtain the sliced data when available.
+
 - Defining operations on non-local classes is now deprecated: operations should
   be defined only on interfaces and local classes. Likewise, having a class
   implement an interface, passing a class by proxy and passing an interface by
@@ -304,6 +307,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## C++ Changes
 
+- Added `Ice::SlicedData::clear` method to allow clearing the slices associated
+  with the slice data. Calling `clear` can be useful if the sliced data contains
+  cycles. You should call this method if your application receives sliced values
+  which might contain cycles.
+
 - Added a new C++11 mapping that takes advantage of C++11 language features. This
   new mapping is very different from the Slice-to-C++ mapping provided in prior
   releases. The old mapping, now known as the C++98 mapping, is still supported
@@ -480,6 +488,11 @@ These are the changes since the Ice 3.6 release or snapshot described in
   the use of `Uint8Array`.
 
 ## Objective-C Changes
+
+- Added clear selector to `ICESlicedData` to allow clearing the slices
+  associated with the slice data. Calling `clear` can be useful if the sliced
+  data contains cycles. You should call this method if your application receives
+  sliced values which might contain cycles.
 
 - The UDP and WS transports are no longer enabled by default with static builds
   of the IceObjC library. You need to register them explicitly with the

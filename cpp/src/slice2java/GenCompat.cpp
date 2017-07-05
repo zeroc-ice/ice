@@ -1680,6 +1680,11 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
 
     if(preserved && !basePreserved)
     {
+        out << sp << nl << "public Ice.SlicedData ice_getSlicedData()";
+        out << sb;
+        out << nl << "return _iceSlicedData;";
+        out << eb;
+
         out << sp << nl << "public void _iceWrite(Ice.OutputStream ostr)";
         out << sb;
         out << nl << "ostr.startValue(_iceSlicedData);";
@@ -3417,7 +3422,6 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-
             out << sp << nl << "public void" << nl << "_write(Ice.OutputStream ostr)";
             out << sb;
             out << nl << "ostr.startException(_slicedData);";

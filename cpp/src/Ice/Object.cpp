@@ -120,6 +120,12 @@ Ice::Object::ice_clone() const
     throw CloneNotImplementedException(__FILE__, __LINE__);
     return 0; // avoid warning with some compilers
 }
+
+Ice::SlicedDataPtr
+Ice::Object::ice_getSlicedData() const
+{
+    return 0;
+}
 #endif
 
 bool

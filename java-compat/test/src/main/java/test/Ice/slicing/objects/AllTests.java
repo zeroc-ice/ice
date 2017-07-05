@@ -1541,6 +1541,7 @@ public class AllTests
                 test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
                 test(o instanceof Ice.UnknownSlicedValue);
                 test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }
             catch(Ice.NoValueFactoryException ex)
@@ -2898,7 +2899,15 @@ public class AllTests
             test.checkPBSUnknown(p);
             if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
             {
+                Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.length == 1);
+                test(slicedData.slices[0].typeId.equals("::Test::PSUnknown"));
                 ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(Ice.OperationNotExistException ex)

@@ -136,6 +136,10 @@ module Ice
             self::ICE_ID
         end
 
+        def ice_getSlicedData()
+            return _ice_slicedData
+        end
+
         attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
     end
 
