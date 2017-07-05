@@ -26,16 +26,6 @@ public final class UnknownSlicedValue extends ObjectImpl
     }
 
     /**
-     * Determine the Slice type ID associated with this object.
-     *
-     * @return The type ID.
-     **/
-    public String getUnknownTypeId()
-    {
-        return _unknownTypeId;
-    }
-
-    /**
      * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
      * un-marshaling of the value, null is returned otherwise.
      *
@@ -45,6 +35,17 @@ public final class UnknownSlicedValue extends ObjectImpl
     public SlicedData ice_getSlicedData()
     {
         return _slicedData;
+    }
+
+    /**
+     * Determine the Slice type ID associated with this object.
+     *
+     * @return The type ID.
+     **/
+    @Override
+    public String ice_id()
+    {
+        return _unknownTypeId;
     }
 
     @Override

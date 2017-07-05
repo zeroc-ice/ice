@@ -24,15 +24,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Determine the Slice type ID associated with this object.
-        /// </summary>
-        /// <returns>The type ID.</returns>
-        public string getUnknownTypeId()
-        {
-            return _unknownTypeId;
-        }
-
-        /// <summary>
         /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>
@@ -40,6 +31,15 @@ namespace Ice
         public override SlicedData ice_getSlicedData()
         {
             return _slicedData;
+        }
+
+        /// <summary>
+        /// Returns the Slice type ID associated with this object.
+        /// </summary>
+        /// <returns>The type ID.</returns>
+        public override string ice_id()
+        {
+            return _unknownTypeId;
         }
 
         public override void iceWrite(OutputStream ostr)

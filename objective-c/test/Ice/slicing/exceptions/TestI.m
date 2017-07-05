@@ -120,7 +120,7 @@
 
 -(void) unknownPreservedAsBase:(ICECurrent*)current
 {
-    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 alloc];
+    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";
@@ -131,7 +131,7 @@
 
 -(void) unknownPreservedAsKnownPreserved:(ICECurrent*)current
 {
-    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 alloc];
+    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";

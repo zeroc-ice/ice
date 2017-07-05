@@ -111,7 +111,7 @@ def allTests(communicator)
         o = t.SUnknownAsObject()
         test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)
         test(o.is_a?(Ice::UnknownSlicedValue))
-        test(o.unknownTypeId == "::Test::SUnknown")
+        test(o.ice_id() == "::Test::SUnknown")
         test(o.ice_getSlicedData() != nil)
         t.checkSUnknown(o)
     rescue Ice::NoValueFactoryException

@@ -3136,6 +3136,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             out << sp;
             out << nl << "@Override";
+            out << nl << "public com.zeroc.Ice.SlicedData ice_getSlicedData()";
+            out << sb;
+            out << nl << "return _slicedData;";
+            out << eb;
+
+            out << sp;
+            out << nl << "@Override";
             out << nl << "public void _write(com.zeroc.Ice.OutputStream ostr)";
             out << sb;
             out << nl << "ostr.startException(_slicedData);";

@@ -1193,7 +1193,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << "virtual void _write(::Ice::OutputStream*) const;";
+            H << sp;
+            H << nl << "virtual ::Ice::SlicedDataPtr ice_getSlicedData() const;";
+
+            H << sp;
+            H << nl << "virtual void _write(::Ice::OutputStream*) const;";
             H << nl << "virtual void _read(::Ice::InputStream*);";
 
             string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
@@ -1214,6 +1218,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
 
             H << sp << nl << "::Ice::SlicedDataPtr _slicedData;";
+
+            C << sp;
+            C << nl << "::Ice::SlicedDataPtr" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
+            C << sb;
+            C << nl << "return _slicedData;";
+            C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::_write(::Ice::OutputStream* ostr) const";
             C << sb;
@@ -5576,10 +5586,19 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            H << sp << nl << _dllMemberExport << "virtual void _write(::Ice::OutputStream*) const override;";
+            H << sp;
+            H << nl << _dllMemberExport << "virtual ::std::shared_ptr<::Ice::SlicedData> ice_getSlicedData() const override;";
+            H << sp;
+            H << nl << _dllMemberExport << "virtual void _write(::Ice::OutputStream*) const override;";
             H << nl << _dllMemberExport << "virtual void _read(::Ice::InputStream*) override;";
 
             H << sp << nl << "::std::shared_ptr<::Ice::SlicedData> _slicedData;";
+
+            C << sp;
+            C << nl << "::std::shared_ptr<::Ice::SlicedData>" << nl << scoped.substr(2) << "::ice_getSlicedData() const";
+            C << sb;
+            C << nl << "return _slicedData;";
+            C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::_write(::Ice::OutputStream* ostr) const";
             C << sb;

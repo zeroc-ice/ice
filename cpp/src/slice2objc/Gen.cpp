@@ -1157,7 +1157,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             _M << nl << "-(id<ICESlicedData>) ice_getSlicedData";
             _M << sb;
-            _M << nl << "return iceSlicedData_;";
+            _M << nl << "return ICE_AUTORELEASE(ICE_RETAIN(iceSlicedData_));";
             _M << eb;
 
             _M << nl << "-(void) iceWrite:(id<ICEOutputStream>)ostr";
@@ -1404,6 +1404,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
+            _M << nl << nl << "-(id<ICESlicedData>) ice_getSlicedData";
+            _M << sb;
+            _M << nl << "return ICE_AUTORELEASE(ICE_RETAIN(slicedData_));";
+            _M << eb;
+
             _M << nl << nl << "-(void) iceWrite:(id<ICEOutputStream>)ostr";
             _M << sb;
             _M << nl << "[ostr startException:slicedData_];";

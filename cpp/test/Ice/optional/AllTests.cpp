@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -101,7 +101,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -141,7 +141,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -194,7 +194,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -248,7 +248,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -294,7 +294,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;

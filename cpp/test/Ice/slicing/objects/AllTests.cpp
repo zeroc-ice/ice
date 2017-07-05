@@ -130,7 +130,7 @@ public:
     response_SUnknownAsObject11(const Ice::ObjectPtr& o)
     {
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
         called();
     }
 
@@ -578,7 +578,7 @@ testUOO(const TestIntfPrxPtr& test)
         o = test->SUnknownAsObject();
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData());
         test->checkSUnknown(o);
     }
@@ -938,7 +938,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     shared_ptr<Ice::Value> v = f.get();
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v));
-                    test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->getUnknownTypeId() == "::Test::SUnknown");
+                    test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id() == "::Test::SUnknown");
                 }
                 catch(...)
                 {

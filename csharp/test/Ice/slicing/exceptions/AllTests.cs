@@ -1115,6 +1115,49 @@ public class AllTests : TestCommon.AllTests
         Write("preserved exceptions... ");
         Flush();
         {
+            try
+            {
+                testPrx.unknownPreservedAsBase();
+                test(false);
+            }
+            catch(Base ex)
+            {
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.Length == 2);
+                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                }
+            }
+
+            try
+            {
+                testPrx.unknownPreservedAsKnownPreserved();
+                test(false);
+            }
+            catch(KnownPreserved ex)
+            {
+                test(ex.kp.Equals("preserved"));
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.Length == 2);
+                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                }
+            }
+
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
             RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
             adapter.activate();

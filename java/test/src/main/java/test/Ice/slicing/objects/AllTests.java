@@ -377,7 +377,7 @@ public class AllTests
                 o = test.SUnknownAsObject();
                 test(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
                 test(o instanceof com.zeroc.Ice.UnknownSlicedValue);
-                test(((com.zeroc.Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((com.zeroc.Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
                 test(((com.zeroc.Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }
@@ -413,7 +413,7 @@ public class AllTests
                     {
                         test(ex == null);
                         test(result instanceof com.zeroc.Ice.UnknownSlicedValue);
-                        test(((com.zeroc.Ice.UnknownSlicedValue)result).getUnknownTypeId().equals("::Test::SUnknown"));
+                        test(((com.zeroc.Ice.UnknownSlicedValue)result).ice_id().equals("::Test::SUnknown"));
                         cb.called();
                     });
                 cb.check();

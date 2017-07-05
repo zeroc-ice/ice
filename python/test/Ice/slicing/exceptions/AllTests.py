@@ -510,6 +510,34 @@ def allTests(communicator):
 
     sys.stdout.write("preserved exceptions... ")
     sys.stdout.flush()
+
+    try:
+        t.unknownPreservedAsBase();
+        test(False);
+    except Test.Base as ex:
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ex.ice_getSlicedData() is None)
+        else:
+            slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(len(slicedData.slices) == 2);
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+
+    try:
+        t.unknownPreservedAsKnownPreserved();
+        test(False);
+    except Test.KnownPreserved as ex:
+        test(ex.kp == "preserved")
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ex.ice_getSlicedData() is None)
+        else:
+            slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(len(slicedData.slices) == 2);
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+
     adapter = communicator.createObjectAdapter("")
     relay = Test.RelayPrx.uncheckedCast(adapter.addWithUUID(RelayI()))
     adapter.activate()

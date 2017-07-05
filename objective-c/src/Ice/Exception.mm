@@ -171,6 +171,11 @@ localExceptionToString(const Ice::LocalException& ex)
 @end
 
 @implementation ICEUserException
+-(id<ICESlicedData>)ice_getSlicedData
+{
+    return nil;
+}
+
 -(BOOL)iceUsesClasses
 {
     return NO;

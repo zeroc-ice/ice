@@ -247,6 +247,47 @@
                 {
                     test(false);
                 }
+
+                out.write("preserved exceptions...")
+                return prx.unknownPreservedAsBase();
+            }
+        ).then(
+            failCB,
+            ex =>
+            {
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() === null);
+                }
+                else
+                {
+                    let slicedData = ex.ice_getSlicedData();
+                    test(slicedData !== null);
+                    test(slicedData.slices.length == 2);
+                    test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+                    test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+                }
+
+                return prx.unknownPreservedAsKnownPreserved();
+            }
+        ).then(
+            failCB,
+            ex =>
+            {
+                test(ex.kp == "preserved");
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() === null);
+                }
+                else
+                {
+                    let slicedData = ex.ice_getSlicedData();
+                    test(slicedData !== null);
+                    test(slicedData.slices.length == 2);
+                    test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+                    test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+                }
+
                 out.writeLine("ok");
                 return prx.shutdown();
             }

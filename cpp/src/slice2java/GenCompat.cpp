@@ -3422,6 +3422,12 @@ Slice::GenCompat::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
+            out << sp;
+            out << nl << "public Ice.SlicedData " << nl << "ice_getSlicedData()";
+            out << sb;
+            out << nl << "return _slicedData;";
+            out << eb;
+
             out << sp << nl << "public void" << nl << "_write(Ice.OutputStream ostr)";
             out << sb;
             out << nl << "ostr.startException(_slicedData);";

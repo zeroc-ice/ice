@@ -63,14 +63,14 @@ class UnknownSlicedValue extends Ice.Value
         this._unknownTypeId = unknownTypeId;
     }
 
-    getUnknownTypeId()
-    {
-        return this._unknownTypeId;
-    }
-
     ice_getSlicedData()
     {
         return this._slicedData;
+    }
+
+    ice_id()
+    {
+        return this._unknownTypeId;
     }
 
     _iceWrite(os)

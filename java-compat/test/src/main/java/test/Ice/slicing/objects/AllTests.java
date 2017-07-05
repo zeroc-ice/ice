@@ -294,7 +294,7 @@ public class AllTests
         response(Ice.Object o)
         {
             test(o instanceof Ice.UnknownSlicedValue);
-            test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+            test(((Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
             callback.called();
         }
 
@@ -1540,7 +1540,7 @@ public class AllTests
                 o = test.SUnknownAsObject();
                 test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
                 test(o instanceof Ice.UnknownSlicedValue);
-                test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
                 test(((Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }

@@ -132,7 +132,10 @@ namespace Ice
         {
         }
 
-        public $unknownTypeId;
+        public function ice_id()
+        {
+            return $this->unknownTypeId;
+        }
     }
 
     $Ice__t_UnknownSlicedValue = IcePHP_defineClass('::Ice::UnknownSlicedValue', "\\Ice\\UnknownSlicedValue", -1, true, false, $Ice__t_Value, null);

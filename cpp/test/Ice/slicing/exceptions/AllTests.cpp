@@ -1040,6 +1040,67 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "preserved exceptions... " << flush;
+    try
+    {
+        test->unknownPreservedAsBase();
+        test(false);
+    }
+    catch(const Base& ex)
+    {
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!ex.ice_getSlicedData());
+        }
+        else
+        {
+            Ice::SlicedDataPtr slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 2);
+            test(slicedData->slices[1]->typeId == "::Test::SPreserved1");
+            test(slicedData->slices[0]->typeId == "::Test::SPreserved2");
+        }
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        test->unknownPreservedAsKnownPreserved();
+        test(false);
+    }
+    catch(const KnownPreserved& ex)
+    {
+        test(ex.kp == "preserved");
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!ex.ice_getSlicedData());
+        }
+        else
+        {
+            Ice::SlicedDataPtr slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 2);
+            test(slicedData->slices[1]->typeId == "::Test::SPreserved1");
+            test(slicedData->slices[0]->typeId == "::Test::SPreserved2");
+        }
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
     RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
     adapter->activate();

@@ -938,7 +938,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             o = [test SUnknownAsObject];
             test(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
             test([o isKindOfClass:[ICEUnknownSlicedValue class]]);
-            test([[((ICEUnknownSlicedValue*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
+            test([[((ICEUnknownSlicedValue*)o) ice_id] isEqualToString:@"::Test::SUnknown"]);
             test([((ICEUnknownSlicedValue*)o) ice_getSlicedData] != nil);
             [test checkSUnknown:o];
             [[o ice_getSlicedData] clear];

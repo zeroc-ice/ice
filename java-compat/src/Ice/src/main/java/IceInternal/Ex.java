@@ -21,7 +21,7 @@ public class Ex
         if(v instanceof Ice.UnknownSlicedValue)
         {
             Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
-            throw new Ice.NoValueFactoryException("", usv.getUnknownTypeId());
+            throw new Ice.NoValueFactoryException("", usv.ice_id());
         }
 
         String type = v.ice_id();

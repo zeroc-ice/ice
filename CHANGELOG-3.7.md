@@ -26,8 +26,8 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 ## General Changes
 
-- Added `ice_getSlicedData` method to the `Value` base class. This method can
-  be used to obtain the sliced data when available.
+- Added `ice_getSlicedData` method to the `Value` and `UserException` base
+  classes. This method can be used to obtain the sliced data when available.
 
 - Defining operations on non-local classes is now deprecated: operations should
   be defined only on interfaces and local classes. Likewise, having a class

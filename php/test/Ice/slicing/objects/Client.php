@@ -125,7 +125,7 @@ function allTests($communicator)
             $o = $test->SUnknownAsObject();
             test($test->ice_getEncodingVersion() != $Ice_Encoding_1_0);
             test($o instanceof $usocls);
-            test($o->unknownTypeId == "::Test::SUnknown");
+            test($o->ice_id() == "::Test::SUnknown");
             test($o->ice_getSlicedData() != null);
             $test->checkSUnknown($o);
         }

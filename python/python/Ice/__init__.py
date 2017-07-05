@@ -499,7 +499,14 @@ class LocalException(Exception):
 
 class UserException(Exception):
     '''The base class for all user-defined exceptions.'''
-    pass
+
+    def ice_getSlicedData(self):
+        '''Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+un-marshaling of the value, null is returned otherwise.
+Returns:
+    The sliced data or null.
+'''
+        return getattr(self, "_ice_slicedData", None);
 
 class EnumBase(object):
     def __init__(self, _n, _v):
@@ -600,7 +607,9 @@ class UnknownSlicedValue(Value):
     # Members:
     #
     # unknownTypeId - string
-    pass
+
+    def ice_id(self):
+        return self.unknownTypeId
 
 def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''

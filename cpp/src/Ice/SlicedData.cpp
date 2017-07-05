@@ -72,12 +72,6 @@ Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unkn
 {
 }
 
-const string&
-Ice::UnknownSlicedValue::getUnknownTypeId() const
-{
-    return _unknownTypeId;
-}
-
 SlicedDataPtr
 Ice::UnknownSlicedValue::ice_getSlicedData() const
 {
@@ -105,6 +99,12 @@ Ice::UnknownSlicedValue::_iceCloneImpl() const
 }
 
 #else
+
+const string&
+Ice::UnknownSlicedValue::ice_id(const Current&) const
+{
+    return _unknownTypeId;
+}
 
 void
 Ice::UnknownSlicedValue::_iceGcVisitMembers(IceInternal::GCVisitor& _v)

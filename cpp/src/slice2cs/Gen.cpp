@@ -2797,6 +2797,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             _out << sp;
             emitGeneratedCodeAttribute();
+            _out << nl << "public override Ice.SlicedData ice_getSlicedData()";
+            _out << sb;
+            _out << nl << "return slicedData_;";
+            _out << eb;
+
+            _out << sp;
+            emitGeneratedCodeAttribute();
             _out << nl << "public override void iceWrite(Ice.OutputStream ostr_)";
             _out << sb;
             _out << nl << "ostr_.startException(slicedData_);";

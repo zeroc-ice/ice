@@ -136,8 +136,8 @@
             {
                 test(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
                 test(obj instanceof Ice.UnknownSlicedValue);
-                test(obj.getUnknownTypeId() == "::Test::SUnknown");
-                test(obj.ice_getSlicedData() != null);
+                test(obj.ice_id() == "::Test::SUnknown");
+                test(obj.ice_getSlicedData() !== null);
                 return prx.checkSUnknown(obj);
             },
             ex =>

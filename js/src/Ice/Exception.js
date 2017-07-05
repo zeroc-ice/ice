@@ -177,6 +177,11 @@ class UserException extends Exception
         return "::Ice::UserException";
     }
 
+    ice_getSlicedData()
+    {
+        return null;
+    }
+
     _write(os)
     {
         os.startException(null);
@@ -273,8 +278,14 @@ const readPreserved = function(is)
     this._slicedData = is.endException(true);
 };
 
+const ice_getSlicedData = function()
+{
+    return this._slicedData;
+}
+
 Ice.Slice.PreservedUserException = function(ex)
 {
+    ex.prototype.ice_getSlicedData = ice_getSlicedData;
     ex.prototype._write = writePreserved;
     ex.prototype._read = readPreserved;
 };

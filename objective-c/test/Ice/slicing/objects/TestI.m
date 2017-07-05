@@ -62,9 +62,11 @@ static void breakCycles(id o)
         TestSlicingObjectsServerPNode* curr = o;
         while(curr && o != curr.next)
         {
-            TestSlicingObjectsServerPNode* next = curr.next;
+            curr = curr.next;
+        }
+        if(curr && o == curr.next)
+        {
             curr.next = nil;
-            curr = next;
         }
     }
     if([o isKindOfClass:[TestSlicingObjectsServerPSUnknown class]])
@@ -75,7 +77,7 @@ static void breakCycles(id o)
     if([o isKindOfClass:[TestSlicingObjectsServerPSUnknown2 class]])
     {
         TestSlicingObjectsServerPSUnknown2* p = (TestSlicingObjectsServerPSUnknown2*)o;
-        breakCycles(p.pb);
+        p.pb = nil;
     }
     if([o isKindOfClass:[TestSlicingObjectsServerBaseException class]])
     {
@@ -143,7 +145,7 @@ static void breakCycles(id o)
 +(id) serverI
 {
     TestSlicingObjectsServerI* impl = [[TestSlicingObjectsServerI alloc] init];
-    impl->objects_ = [NSMutableArray array];
+    impl->objects_ = [[NSMutableArray alloc] init];
     return ICE_AUTORELEASE(impl);
 }
 -(void) dealloc
@@ -153,6 +155,7 @@ static void breakCycles(id o)
         breakCycles(o);
     }
 #if !__has_feature(objc_arc)
+    [objects_ release];
     [super dealloc];
 #endif
 }

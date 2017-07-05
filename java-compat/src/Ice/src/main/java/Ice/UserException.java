@@ -67,6 +67,18 @@ public abstract class UserException extends java.lang.Exception implements Clone
     ice_id();
 
     /**
+     * Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
+     * un-marshaling, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    public Ice.SlicedData
+    ice_getSlicedData()
+    {
+        return null;
+    }
+
+    /**
      * Returns a string representation of this exception.
      *
      * @return A string representation of this exception.

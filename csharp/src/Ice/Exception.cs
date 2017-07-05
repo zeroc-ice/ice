@@ -26,7 +26,7 @@ namespace IceInternal
             if(v is Ice.UnknownSlicedValue)
             {
                 Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
-                throw new Ice.NoValueFactoryException("", usv.getUnknownTypeId());
+                throw new Ice.NoValueFactoryException("", usv.ice_id());
             }
 
             string type = v.ice_id();
@@ -225,6 +225,16 @@ namespace Ice
         /// <param name="info">Holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
+
+        /// <summary>
+        /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
+        /// un-marshaling, null is returned otherwise.
+        /// </summary>
+        /// <returns>The sliced data or null.</returns>
+        public virtual Ice.SlicedData ice_getSlicedData()
+        {
+            return null;
+        }
 
         public virtual void iceWrite(OutputStream ostr)
         {

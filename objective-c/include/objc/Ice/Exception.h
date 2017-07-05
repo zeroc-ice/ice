@@ -16,6 +16,7 @@
 //
 @protocol ICEOutputStream;
 @protocol ICEInputStream;
+@protocol ICESlicedData;
 
 @class NSCoder;
 
@@ -40,6 +41,7 @@ ICE_API @interface ICELocalException : ICEException
 @end
 
 ICE_API @interface ICEUserException : ICEException
+-(id<ICESlicedData>)ice_getSlicedData;
 -(BOOL)iceUsesClasses;
 -(void)iceWrite:(id<ICEOutputStream>)stream;
 -(void) iceWriteImpl:(id<ICEOutputStream>)os;

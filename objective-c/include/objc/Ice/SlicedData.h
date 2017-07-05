@@ -30,6 +30,4 @@ ICE_API @interface ICEUnknownSlicedValue : ICEObject
     NSString* unknownTypeId_;
     id<ICESlicedData> slicedData_;
 }
--(NSString*) getUnknownTypeId;
--(id<ICESlicedData>) getSlicedData;
 @end

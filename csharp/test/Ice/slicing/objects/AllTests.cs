@@ -400,7 +400,7 @@ public class AllTests : TestCommon.AllTests
                 Ice.Value o = testPrx.SUnknownAsObject();
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
-                test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                 test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
@@ -459,7 +459,7 @@ public class AllTests : TestCommon.AllTests
                             (Ice.Value o) =>
                             {
                                 test(o is Ice.UnknownSlicedValue);
-                                test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                                 cb.called();
                             },
                             (Ice.Exception ex) =>
@@ -472,7 +472,7 @@ public class AllTests : TestCommon.AllTests
                     {
                         var o = testPrx.SUnknownAsObjectAsync().Result;
                         test(o is Ice.UnknownSlicedValue);
-                        test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                        test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                     }
                     catch(AggregateException)
                     {

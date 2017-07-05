@@ -161,7 +161,9 @@ module Ice
     # UnknownSlicedValue.
     #
     class UnknownSlicedValue < Value
-        attr_accessor :unknownTypeId
+        def ice_id
+            return @unknownTypeId
+        end
     end
     T_UnknownSlicedValue = Ice.__declareClass('::Ice::UnknownSlicedValue')
     T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, true, false, T_Value, [])
