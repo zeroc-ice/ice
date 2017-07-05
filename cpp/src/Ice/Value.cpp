@@ -69,7 +69,7 @@ Ice::Value::ice_staticId()
 shared_ptr<Value>
 Ice::Value::ice_clone() const
 {
-    return cloneImpl();
+    return _iceCloneImpl();
 }
 
 shared_ptr<SlicedData>

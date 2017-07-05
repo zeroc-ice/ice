@@ -23,7 +23,7 @@ namespace Ice
 {
 
 class OutputStream;
-class InpputStream;
+class InputStream;
 
 }
 

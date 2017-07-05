@@ -66,15 +66,6 @@ Ice::SlicedData::_iceGcVisitMembers(IceInternal::GCVisitor& visitor)
         }
     }
 }
-
-void
-Ice::UnknownSlicedValue::_iceGcVisitMembers(IceInternal::GCVisitor& _v)
-{
-    if(_slicedData)
-    {
-        _slicedData->_iceGcVisitMembers(_v);
-    }
-}
 #endif
 
 Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
@@ -85,20 +76,6 @@ const string&
 Ice::UnknownSlicedValue::getUnknownTypeId() const
 {
     return _unknownTypeId;
-}
-
-void
-Ice::UnknownSlicedValue::_iceWrite(Ice::OutputStream* ostr) const
-{
-    ostr->startValue(_slicedData);
-    ostr->endValue();
-}
-
-void
-Ice::UnknownSlicedValue::_iceRead(Ice::InputStream* istr)
-{
-    istr->startValue();
-    _slicedData = istr->endValue(true);
 }
 
 SlicedDataPtr
@@ -118,13 +95,38 @@ Ice::UnknownSlicedValue::ice_id() const
 shared_ptr<Ice::UnknownSlicedValue>
 Ice::UnknownSlicedValue::ice_clone() const
 {
-    return static_pointer_cast<UnknownSlicedValue>(cloneImpl());
+    return static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
 }
 
 shared_ptr<Ice::Value>
-Ice::UnknownSlicedValue::cloneImpl() const
+Ice::UnknownSlicedValue::_iceCloneImpl() const
 {
     return make_shared<UnknownSlicedValue>(static_cast<const UnknownSlicedValue&>(*this));
 }
 
+#else
+
+void
+Ice::UnknownSlicedValue::_iceGcVisitMembers(IceInternal::GCVisitor& _v)
+{
+    if(_slicedData)
+    {
+        _slicedData->_iceGcVisitMembers(_v);
+    }
+}
+
 #endif
+
+void
+Ice::UnknownSlicedValue::_iceWrite(Ice::OutputStream* ostr) const
+{
+    ostr->startValue(_slicedData);
+    ostr->endValue();
+}
+
+void
+Ice::UnknownSlicedValue::_iceRead(Ice::InputStream* istr)
+{
+    istr->startValue();
+    _slicedData = istr->endValue(true);
+}

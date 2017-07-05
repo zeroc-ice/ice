@@ -102,22 +102,23 @@ public:
     const std::string& getUnknownTypeId() const;
 
 #ifdef ICE_CPP11_MAPPING
-    virtual void _iceWrite(::Ice::OutputStream*) const override;
-    virtual void _iceRead(::Ice::InputStream*) override;
     virtual SlicedDataPtr ice_getSlicedData() const override;
 
     virtual std::string ice_id() const override;
     std::shared_ptr<UnknownSlicedValue> ice_clone() const;
 
+    virtual void _iceWrite(::Ice::OutputStream*) const override;
+    virtual void _iceRead(::Ice::InputStream*) override;
+
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const override;
+    virtual std::shared_ptr<Value> _iceCloneImpl() const override;
 #else
-    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);
+    virtual SlicedDataPtr ice_getSlicedData() const;
 
+    virtual void _iceGcVisitMembers(IceInternal::GCVisitor&);
     virtual void _iceWrite(::Ice::OutputStream*) const;
     virtual void _iceRead(::Ice::InputStream*);
-    virtual SlicedDataPtr ice_getSlicedData() const;
 #endif
 
 private:

@@ -39,9 +39,6 @@ public:
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
-
     virtual std::string ice_id() const;
     static const std::string& ice_staticId();
 
@@ -49,10 +46,12 @@ public:
 
     virtual std::shared_ptr<SlicedData> ice_getSlicedData() const;
 
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
+
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const = 0;
-
+    virtual std::shared_ptr<Value> _iceCloneImpl() const = 0;
     virtual void _iceWriteImpl(Ice::OutputStream*) const {}
     virtual void _iceReadImpl(Ice::InputStream*) {}
 };
@@ -67,7 +66,7 @@ public:
 
     std::shared_ptr<T> ice_clone() const
     {
-        return std::static_pointer_cast<T>(cloneImpl());
+        return std::static_pointer_cast<T>(_iceCloneImpl());
     }
 
     virtual std::string ice_id() const override
@@ -77,7 +76,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const override
+    virtual std::shared_ptr<Value> _iceCloneImpl() const override
     {
         return std::make_shared<T>(static_cast<const T&>(*this));
     }
