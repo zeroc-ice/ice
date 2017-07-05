@@ -547,6 +547,7 @@ IceSSL::SecureTransport::loadCertificateChain(const string& file,
     int count = 0;
     do
     {
+        items.reset();
         UniqueRef<CFStringRef> pass(toCFString(password.empty() && prompt ? prompt->getPassword() : password));
         CFDictionarySetValue(settings.get(), kSecImportExportPassphrase, pass.get());
         err = SecPKCS12Import(cert.get(), settings.get(), &items.get());

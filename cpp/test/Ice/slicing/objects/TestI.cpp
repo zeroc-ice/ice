@@ -76,6 +76,9 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
     SUnknownPtr su = ICE_MAKE_SHARED(SUnknown);
     su->su = "SUnknown.su";
     su->cycle = su;
+#ifndef ICE_CPP11_MAPPING
+    su->ice_collectable(true);
+#endif
     return su;
 }
 

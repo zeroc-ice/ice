@@ -132,8 +132,8 @@ checkTrustResult(SecTrustRef trust,
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
             }
             UniqueRef<CFMutableArrayRef> newPolicies(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, policies.get()));
-            CFArrayAppendValue(newPolicies.get(), policy.release());
-            if((err = SecTrustSetPolicies(trust, newPolicies.release())))
+            CFArrayAppendValue(newPolicies.get(), policy.get());
+            if((err = SecTrustSetPolicies(trust, newPolicies.get())))
             {
                 throw SecurityException(__FILE__, __LINE__, "IceSSL: handshake failure:\n" + sslErrorToString(err));
             }

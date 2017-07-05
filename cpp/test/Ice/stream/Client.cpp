@@ -855,6 +855,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in.setCollectObjects(true);
+#endif
         MyClassS arr2;
         in.read(arr2);
         in.readPendingValues();
@@ -887,6 +890,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in2.setCollectObjects(true);
+#endif
         MyClassSS arr2S;
         in2.read(arr2S);
         test(arr2S.size() == arrS.size());
@@ -1057,6 +1063,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in.setCollectObjects(true);
+#endif
         try
         {
             in.throwException();
