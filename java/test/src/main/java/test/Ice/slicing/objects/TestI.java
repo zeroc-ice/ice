@@ -87,6 +87,7 @@ public final class TestI implements TestIntf
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
+        su.cycle = su;
         return su;
     }
 

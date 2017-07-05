@@ -77,6 +77,7 @@ public sealed class TestI : TestIntfDisp_
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
+        su.cycle = su;
         return su;
     }
 

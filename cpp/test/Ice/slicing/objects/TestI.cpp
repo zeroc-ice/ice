@@ -75,6 +75,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 {
     SUnknownPtr su = ICE_MAKE_SHARED(SUnknown);
     su->su = "SUnknown.su";
+    su->cycle = su;
     return su;
 }
 

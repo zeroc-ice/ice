@@ -65,7 +65,9 @@ public sealed class TestI : TestIntfDisp_
 
     public override Task<Ice.Value> SUnknownAsObjectAsync(Ice.Current current)
     {
-        return Task.FromResult<Ice.Value>(new SUnknown("SUnknown.su"));
+        var su = new SUnknown("SUnknown.su", null);
+        su.cycle = su;
+        return Task.FromResult<Ice.Value>(su);
     }
 
     public override Task checkSUnknownAsync(Ice.Value obj, Ice.Current current)

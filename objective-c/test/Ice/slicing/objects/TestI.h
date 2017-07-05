@@ -12,6 +12,7 @@
 @interface TestSlicingObjectsServerI : TestSlicingObjectsServerTestIntf<TestSlicingObjectsServerTestIntf>
 {
 @private
-    TestSlicingObjectsServerPSUnknownException* ex_;
+    NSMutableArray* objects_;
 }
++(id) serverI;
 @end

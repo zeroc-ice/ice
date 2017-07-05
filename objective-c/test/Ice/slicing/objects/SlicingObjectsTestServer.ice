@@ -201,6 +201,7 @@ class SBSUnknownDerived extends SBase
 class SUnknown
 {
     string su;
+    SUnknown cycle;
 }
 
 class D2 extends B

@@ -93,6 +93,7 @@ public final class TestI extends _TestIntfDisp
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
+        su.cycle = su;
         return su;
     }
 
