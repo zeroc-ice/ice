@@ -370,7 +370,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = /usr/local/bin/icebuilder;
+			script = "\"$(git rev-parse --show-toplevel)/scripts/ice-builder-xcode-wrapper\"";
 		};
 		14B7DF791E043085001D0109 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -382,7 +382,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = /usr/local/bin/icebuilder;
+			script = "\"$(git rev-parse --show-toplevel)/scripts/ice-builder-xcode-wrapper\"";
 		};
 /* End PBXBuildRule section */
 
@@ -1649,7 +1649,7 @@
 		14905C661DF98FD8002AE61B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../IceSDK/$(PLATFORM_NAME).sdk";
+				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1697,7 +1697,7 @@
 		14905C671DF98FD8002AE61B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../IceSDK/$(PLATFORM_NAME).sdk";
+				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";

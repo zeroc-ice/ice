@@ -77,7 +77,7 @@ easily develop Ice applications with Xcode. To build Xcode SDKs, use the
     make CONFIGS=xcodesdk -j8 srcs         # Build the C++98 mapping Xcode SDK
     make CONFIGS=cpp11-xcodesdk -j8 srcs   # Build the C++11 mapping Xcode SDK
 ```
-The Xcode SDKs are built into `ice/IceSDK`.
+The Xcode SDKs are built into `ice/sdk`.
 
 ## Installing a C++ Source Build
 
@@ -101,7 +101,7 @@ during compilation with the `-D` option (for example `clang++
 -DICE_CPP11_MAPPING`) and add the `++11` suffix to the library name when linking
 (such as `-lIce++11`).
 
-The Ice Xcode SDKs are installed in `<prefix>/lib/IceSDK`.
+The Ice Xcode SDKs are installed in `<prefix>/sdk`.
 
 ## Building the Test Suite
 

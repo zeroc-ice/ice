@@ -89,7 +89,7 @@ IceBuilder.d
 
 xcuserdata
 xcshareddata
-/IceSDK
+/sdk
 
 # IceBuilder build log
 IceBuilder.command.*.log

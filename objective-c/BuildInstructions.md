@@ -56,7 +56,7 @@ easily develop Ice applications with Xcode. To build Xcode SDKs, use the
     make CONFIGS=xcodesdk -j8 srcs     # Build the Objective-C mapping Xcode SDK
                                        # for the default platform
 ```
-The Xcode SDKs are built into `ice/IceSDK`.
+The Xcode SDKs are built into `ice/sdk`.
 
 ## Installing an Objective-C Source Build
 

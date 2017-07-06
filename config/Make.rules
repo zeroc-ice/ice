@@ -101,11 +101,13 @@ bindir                  = $(install_bindir)
 libdir                  = $(install_libdir)
 slicedir                = $(install_slicedir)
 includedir              = $(install_includedir)
+sdkdir                  = $(or $(ICE_HOME),/usr/local/opt/ice)/sdk
 else
 bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
 libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)
 slicedir                = $(top_srcdir)/slice
 includedir              = $(call mappingdir,$(or $1,$(currentdir)),include)
+sdkdir                  = $(top_srcdir)/sdk
 endif
 
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
@@ -118,6 +120,7 @@ install_includedir      ?= $(prefix)/include
 install_docdir          ?= $(prefix)$(if $(usr_dir_install),/share/ice)
 install_mandir          ?= $(prefix)$(if $(usr_dir_install),/share)/man
 install_configdir       ?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
+install_sdkdir          ?= $(prefix)/sdk
 
 version                 = 3.7.0
 mmversion               = 3.7
