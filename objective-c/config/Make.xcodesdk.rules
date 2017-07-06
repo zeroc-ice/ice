@@ -37,6 +37,8 @@ ifneq ($(filter src/%,$1),)
 
 $(make-xcodesdk-component-with-config)
 
+ifneq ($(filter-out $(sdk_includefiles),$3-$2),)
+sdk_includefiles += $3-$2
 $$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
         $(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
 
@@ -46,6 +48,7 @@ $$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
 $5_clean::
 	$(Q)$(RM) $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
 	$(Q)$(RM) -r $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2)
+endif
 
 endif
 endef
