@@ -2,17 +2,16 @@
 
 # Ice - Comprehensive RPC Framework
 
-Ice is a comprehensive RPC framework that helps you network your software with
-minimal effort. Ice takes care of all interactions with low-level network
-programming interfaces and allows you to focus your efforts on your application
-logic. When using Ice, there is no need to worry about details such as opening
-network connections, serializing and deserializing data for network
-transmission, or retrying failed connection attempts (to name just a few of
-dozens of such low-level details).
+Ice helps you network your software with minimal effort. By taking care of all 
+interactions with low-level network programming interfaces, Ice allows you to focus
+your efforts on your application logic. When using Ice, there is no need to worry 
+about details such as opening network connections, serializing and deserializing 
+data for network transmission, or retrying failed connection attempts (to name just 
+a few of dozens of such low-level details).
 
-You can download Ice releases from [ZeroC's
-website](https://zeroc.com/downloads/ice). Use this GitHub repository to build
-from source; see [branches](#branches) for more information.
+You can download Ice releases from [ZeroC's website](https://zeroc.com/downloads/ice). 
+Use this GitHub repository to build from source; see [branches](#branches) for more 
+information.
 
 ## Languages
 
@@ -86,9 +85,11 @@ repository](https://github.com/zeroc-ice/ice) is Copyright &copy; ZeroC, Inc.,
 with very few exceptions.
 
 As copyright owner, ZeroC can license Ice under different license terms, and
-offers the following licenses for Ice: - GPL v2, a popular open-source license
-with strong [copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the
-default license) - Commercial or closed-source licenses
+offers the following licenses for Ice:
+- GPL v2, a popular open-source license with strong 
+[copyleft](http://en.wikipedia.org/wiki/Copyleft) conditions (the default
+license) 
+- Commercial or closed-source licenses
 
 If you license Ice under GPL v2, there is no license fee or signed license
 agreement: you just need to comply with the GPL v2 terms and conditions. See
