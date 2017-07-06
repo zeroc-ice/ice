@@ -2075,18 +2075,10 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
                         break;
                     }
                     case Builtin::KindFloat:
-                    {
-                        _M << sb;
-                        _M << nl << "uint32_t bits_ = *(uint32_t*)&" << name << ";";
-                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)bits_;";
-                        _M << eb;
-                        break;
-                    }
                     case Builtin::KindDouble:
                     {
                         _M << sb;
-                        _M << nl << "uint64_t bits_ = *(uint64_t*)&" << name << ";";
-                        _M << nl << "h_ = ((h_ << 5) + h_) ^ (uint)(bits_ ^ (bits_ >> 32));";
+                        _M << nl << "h_ = ((h_ << 5) + h_) ^ [@(" << name << ") hash];";
                         _M << eb;
                         break;
                     }
