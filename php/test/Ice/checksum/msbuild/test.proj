@@ -3,7 +3,7 @@
   <Import Project="..\..\..\..\msbuild\ice.tests.props" />
   <Import Project="$(IceBuilderPhpProps)" />
   <PropertyGroup>
-    <IceBuilderChecksum>true</IceBuilderChecksum>
+    <IceBuilderAdditionalOptions>--checksum</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
       <IceBuilder Include="..\*.ice" />
