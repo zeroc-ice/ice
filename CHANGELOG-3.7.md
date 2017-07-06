@@ -29,6 +29,12 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Added `ice_getSlicedData` method to the `Value` and `UserException` base
   classes. This method can be used to obtain the sliced data when available.
 
+- Fixed IceGrid inconsistency when resolving dynamically registered replica
+  group endpoints. Like for replica group registered with descriptors, if the
+  replica group members don't support the encoding requested by the client, the
+  client will raise `Ice::NoEndpointException` instead of
+  `Ice::NotRegisteredException`.
+
 - Defining operations on non-local classes is now deprecated: operations should
   be defined only on interfaces and local classes. Likewise, having a class
   implement an interface, passing a class by proxy and passing an interface by
