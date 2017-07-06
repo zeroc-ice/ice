@@ -169,7 +169,7 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
     if(_opening)
     {
         // Wait for the stream to be ready for write
-        if(op == SocketOperationWrite)
+        if(op & SocketOperationWrite)
         {
             _writeStreamRegistered = false;
         }
@@ -182,7 +182,7 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
         // client to write the HTTP upgrade request.
         //
         //if(op & SocketOperationRead && (_fd != INVALID_SOCKET || !(op & SocketOperationConnect)))
-        if(op == (SocketOperationRead | SocketOperationConnect))
+        if(op & (SocketOperationRead | SocketOperationConnect))
         {
             _readStreamRegistered = false;
         }
