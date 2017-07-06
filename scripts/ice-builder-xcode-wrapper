@@ -14,10 +14,10 @@
 
 if [[ "$ICE_BIN_DIST" =~ ^(all|cpp)$ ]]; then
     if [ -n "$ICE_HOME" ]; then
-        FLAGS="--ice-home $ICE_HOME"
+        FLAGS="--ice-home \"$ICE_HOME\""
     fi
 else
-    FLAGS="--ice-home $(git rev-parse --show-toplevel)"
+    FLAGS="--ice-home ../../../.."
 fi
 
 /usr/local/bin/icebuilder $FLAGS "$@"
