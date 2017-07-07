@@ -16,7 +16,7 @@ is-iostest-program      = $(and $(filter-out macosx,$2),$(filter program,$($1_ta
 #
 # Xcode configuration to build Xcode sdks for Ice.
 #
-xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,sdk/$2.sdk/usr/lib))
+xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,$(if $(filter all cpp obj%c,$(ICE_BIN_DIST)),,../)../sdk/$2.sdk/usr/lib))
 xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,$(if $(is-iostest-program),,../sdk/$2.sdk/usr/lib))
 xcodesdk_targetrule     = $(if $(is-iostest-program),iostest,$(if $(filter-out program,$($1_target)),static))
 

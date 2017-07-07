@@ -96,12 +96,12 @@ include $(top_srcdir)/config/Make.project.rules
 include $(top_srcdir)/config/Make.tests.rules
 
 ifneq ($(ICE_BIN_DIST),)
-prefix                  := $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
+prefix                  := $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice,/usr))
 bindir                  = $(install_bindir)
 libdir                  = $(install_libdir)
 slicedir                = $(install_slicedir)
 includedir              = $(install_includedir)
-sdkdir                  = $(or $(ICE_HOME),/usr/local/opt/ice)/sdk
+sdkdir                  = $(install_sdkdir)
 else
 bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
 libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)

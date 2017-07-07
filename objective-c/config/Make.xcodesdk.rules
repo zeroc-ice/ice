@@ -14,7 +14,7 @@ supported-configs       += xcodesdk arc-xcodesdk
 #
 # Xcode configuration to build Xcode sdks for Ice.
 #
-xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,sdk/$2.sdk/usr/lib)
+xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(filter all cpp obj%c,$(ICE_BIN_DIST)),,../)../sdk/$2.sdk/usr/lib)
 xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,../sdk/$2.sdk/usr/lib)
 xcodesdk_targetrule     = $(if $(filter-out program,$($1_target)),static)
 
