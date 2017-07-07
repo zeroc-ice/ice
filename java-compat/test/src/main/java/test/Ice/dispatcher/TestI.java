@@ -40,11 +40,11 @@ public class TestI extends _TestIntfDisp
     {
         try
         {
-            Thread.currentThread();
             Thread.sleep(to);
         }
         catch(InterruptedException ex)
         {
+            System.err.println("sleep interrupted");
         }
     }
 

@@ -38,11 +38,11 @@ public class TestI implements TestIntf
     {
         try
         {
-            Thread.currentThread();
             Thread.sleep(to);
         }
         catch(InterruptedException ex)
         {
+            System.err.println("sleep interrupted");
         }
     }
 
