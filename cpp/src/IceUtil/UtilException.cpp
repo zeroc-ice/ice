@@ -136,14 +136,13 @@ public:
     {
         globalMutex = new IceUtil::Mutex;
 #ifdef ICE_LIBBACKTRACE
-        // Leaked, as libbacktrace does not provide an API to free
-        // this state
+        // Leaked, as libbacktrace does not provide an API to free this state.
+        //
         bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
 
-        // The first call to backtrace_pcinfo initializes bstate->fileline_fn, apparently
-        // not in a thread-safe manner (at least with GCC 5.4.0 on Ubuntu Xenial).
-        // See ICE-8036. So we make a "dummy" call to backtrace_pcinfo here for
-        // this extra initialization.
+        // The first call to backtrace_pcinfo does not initialize bstate->fileline_fn
+        // in a thread-safe manner, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81098.
+        // So we make a "dummy" call to backtrace_pcinfo to initialize it here.
         //
         backtrace_pcinfo(bstate, 0, ignoreFrame, ignoreErrorCallback, 0);
 #endif
