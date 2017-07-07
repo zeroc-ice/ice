@@ -140,13 +140,17 @@ public class ConnectRequestHandler
     }
 
     @Override
-    public synchronized void
+    public void
     setException(final Ice.LocalException ex)
     {
-        assert(!_initialized && _exception == null);
-        _exception = ex;
-        _proxies.clear();
-        _proxy = null; // Break cyclic reference count.
+        synchronized(this)
+        {
+            assert(!_initialized && _exception == null);
+            _exception = ex;
+            _proxies.clear();
+            _proxy = null; // Break cyclic reference count.
+            notifyAll();
+        }
 
         //
         // NOTE: remove the request handler *before* notifying the
@@ -171,7 +175,6 @@ public class ConnectRequestHandler
             }
         }
         _requests.clear();
-        notifyAll();
     }
 
     //
