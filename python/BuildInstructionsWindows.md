@@ -15,7 +15,7 @@ listed on [supported platforms][2].
 
 ### With Pip
 
-You can build the Ice for Python extension from source using pip:
+You can build the Ice for Python extension from source using `pip`:
 ```
 pip install <URL of Ice source distribution for Python> 
 ```
