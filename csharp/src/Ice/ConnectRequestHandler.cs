@@ -109,7 +109,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(_exception == null && _connection == null);
+                Debug.Assert(!_flushing && _exception == null && _connection == null);
                 _connection = connection;
                 _compress = compress;
             }
@@ -134,18 +134,15 @@ namespace IceInternal
         {
             lock(this)
             {
-                Debug.Assert(!_initialized && _exception == null);
+                Debug.Assert(!_flushing && !_initialized && _exception == null);
                 _exception = ex;
-                _proxies.Clear();
-                _proxy = null; // Break cyclic reference count.
-                Monitor.PulseAll(this);
+                _flushing = true; // Ensures request handler is removed before processing new requests.
             }
 
             //
-            // NOTE: remove the request handler *before* notifying the
-            // requests that the connection failed. It's important to ensure
-            // that future invocations will obtain a new connect request
-            // handler once invocations are notified.
+            // NOTE: remove the request handler *before* notifying the requests that the connection
+            // failed. It's important to ensure that future invocations will obtain a new connect
+            // request handler once invocations are notified.
             //
             try
             {
@@ -164,6 +161,14 @@ namespace IceInternal
                 }
             }
             _requests.Clear();
+
+            lock(this)
+            {
+                _flushing = false;
+                _proxies.Clear();
+                _proxy = null; // Break cyclic reference count.
+                Monitor.PulseAll(this);
+            }
         }
 
         //
@@ -197,7 +202,7 @@ namespace IceInternal
             }
             else
             {
-                while(_flushing && _exception == null)
+                while(_flushing)
                 {
                     Monitor.Wait(this);
                 }

@@ -585,6 +585,7 @@ public class AllTests
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
 
@@ -611,6 +612,7 @@ public class AllTests
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
 
@@ -652,6 +654,7 @@ public class AllTests
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
 
@@ -691,6 +694,7 @@ public class AllTests
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
         background.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
@@ -967,6 +971,7 @@ public class AllTests
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -979,6 +984,7 @@ public class AllTests
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -1191,6 +1197,7 @@ public class AllTests
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -1203,6 +1210,7 @@ public class AllTests
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
+            ex.printStackTrace();
             test(false);
         }
 
@@ -1245,6 +1253,7 @@ public class AllTests
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
 
