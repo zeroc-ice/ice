@@ -79,7 +79,7 @@ on the command prompt's default platform.
 
 The build will use the default location for Python defined in
 `python\msbuild\ice.props`. You can override it by setting the `PythonHome`
-MSBuild property. For example, the following command will use Python
+MSBuild property. For example, the following command will use the Python
 installation from `C:\Python36-AMD64` instead of the default location:
 ```
 msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python36-AMD64
@@ -99,8 +99,10 @@ set PYTHONPATH=C:\Ice\python;C:\Ice\python\Win32\Release
 
 After a successful build, you can run the tests as follows:
 ```
-python allTests.py --mode=Release --x86
+python allTests.py --config=Release --platform=Win32
 ```
+(adjust `--config` and `--platform` to match your build)
+
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
