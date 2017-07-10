@@ -370,7 +370,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "\"$(git rev-parse --show-toplevel)/scripts/ice-builder-xcode-wrapper\"";
+			script = "#export ICE_BIN_DIST=all\n../../../..scripts/ice-builder-xcode-wrapper";
 		};
 		14B7DF791E043085001D0109 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -382,7 +382,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "\"$(git rev-parse --show-toplevel)/scripts/ice-builder-xcode-wrapper\"";
+			script = "#export ICE_BIN_DIST=all\n../../../..scripts/ice-builder-xcode-wrapper";
 		};
 /* End PBXBuildRule section */
 
