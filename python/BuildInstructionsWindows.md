@@ -26,7 +26,7 @@ with the one used to build Ice for C++.
 The Python interpreter is readily available on Windows platforms. You can build
 it yourself using Microsoft Visual C++, or obtain a binary distribution from the
 Python web site. The Python 3.6.x binary distribution is compiled with Visual
-C++ 14, while Python 2.7.x is compiled with Visual C++ 10. You should compile
+C++ 14, while Python 2.7.x is compiled with Visual C++ 9. You should compile
 the Ice extension with the same Visual C++ version as your Python binary
 distribution.
 
