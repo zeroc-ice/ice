@@ -28,7 +28,7 @@ build configuration. The comments in the file provide more information.
 
 Change to the Ice for Python source subdirectory:
 ```
-    cd python
+cd python
 ```
 
 Execute `python -V` to verify that the correct Python interpreter is in your
@@ -45,13 +45,13 @@ Modify your `PYTHONPATH` environment variable to include the Ice extension
 for Python. For example, assuming you installed the extension in the directory
 `/opt/Ice`, you would modify your environment as shown below:
 ```
-    export PYTHONPATH=/opt/Ice/python:$PYTHONPATH
+export PYTHONPATH=/opt/Ice/python:$PYTHONPATH
 ```
 ## Running the Python Tests
 
 After a successful build, you can run the tests as follows:
 ```
-    python allTests.py
+python allTests.py
 ```
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
