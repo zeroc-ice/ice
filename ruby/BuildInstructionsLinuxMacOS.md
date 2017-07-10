@@ -18,10 +18,11 @@ Ice for Ruby supports Ruby versions 1.8.1 or later. You can use a source or
 binary installation of Ruby.
 
 If you use an RPM installation, the following packages are required:
-
-    ruby
-    ruby-devel
-    ruby-libs (RHEL)
+```
+ruby
+ruby-devel
+ruby-libs (RHEL)
+```
 
 ## Building the Ruby Extension
 
@@ -30,8 +31,9 @@ installed Ruby.
 
 If you installed Ruby in a non-standard location, set the `RUBY_HOME`
 environment variable to the installation directory. For example:
-
-    $ export RUBY_HOME=/opt/ruby
+```
+export RUBY_HOME=/opt/ruby
+````
 
 The build of Ice for Python requires that you first build Ice for C++ in the
 `cpp` subdirectory.
@@ -40,16 +42,18 @@ From the top-level source directory, edit `config/Make.rules` to establish your
 build configuration. The comments in the file provide more information.
 
 Change to the Ice for Ruby source subdirectory:
-
-    $ cd ruby
+```
+cd ruby
+```
 
 Run `make` to build the extension.
 
 ## Installing Ice for Ruby
 
 You can perform an automated installation with the following command:
-
-    $ make install
+```
+make install
+```
 
 This process uses the `prefix` variable in `../config/Make.rules` as the
 installation's root directory. The subdirectory `<prefix>/ruby` is created as a
@@ -60,13 +64,15 @@ that you modify your environment as described in *Using Ice for Ruby* below.
 Another option is to copy the contents of the local `ruby` directory to your
 Ruby installation's `site_ruby` directory. For example, if you installed Ruby
 via RPM, you can use the steps below:
-
-    # cd <Ice source directory>/ruby/ruby
-    # sudo tar cf - * | (cd /usr/lib/ruby/site_ruby/1.8/i386-linux; tar xvf -)
+```
+cd <Ice source directory>/ruby/ruby
+sudo tar cf - * | (cd /usr/lib/ruby/site_ruby/1.8/i386-linux; tar xvf -)
+```
 
 On x86_64 systems, change the last command to:
-
-    #  sudo tar cf - * | (cd /usr/lib64/ruby/site_ruby/1.8/x86_64-linux; tar xvf -)
+```
+sudo tar cf - * | (cd /usr/lib64/ruby/site_ruby/1.8/x86_64-linux; tar xvf -)
+```
 
 There is no need to modify your environment if you use this approach.
 
@@ -75,27 +81,27 @@ There is no need to modify your environment if you use this approach.
 The Ruby interpreter must be able to locate the Ice extension. If you used the
 automated installation described above, you need to define the `RUBYLIB`
 environment variable as follows:
-
-    $ export RUBYLIB=/opt/Ice/ruby:$RUBYLIB
+```
+export RUBYLIB=/opt/Ice/ruby:$RUBYLIB
+```
 
 This example assumes that your Ice for Ruby installation is located in the
 `/opt/Ice` directory.
 
 You must also modify `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` to include the
 directory `/opt/Ice/lib`:
-
-    $ export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH       (Linux)
-    $ export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (macOS)
+```
+export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH       (Linux)
+export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (macOS)
+```
 
 To verify that Ruby can load the Ice extension successfully, open a command
-window and start the interpreter using `irb`:
+window and start the interpreter using `irb`.
 
-    > irb
-    irb(main):001:0>
-
-At the prompt, enter
-
-    require "Ice"
+At the prompt, enter:
+```
+require "Ice"
+```
 
 If the interpreter responds with the value true, the Ice extension was loaded
 successfully. Enter `exit` to quit the interpreter.
@@ -110,13 +116,15 @@ subdirectory of this source distribution.
 
 Open a command window and change to the top-level directory. At the command
 prompt, execute:
-
-    > python allTests.py
+```
+python allTests.py
+```
 
 You can also run tests individually by changing to the test directory and
 running this command:
-
-    > python run.py
+```
+python run.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
@@ -125,22 +133,26 @@ failure, the tests abort with `failed`.
 
 If SELinux is enabled on your RHEL system, you may encounter this error message
 when Ruby attempts to load the Ice extension:
-
-    cannot restore segment prot after reloc: Permission denied
-
+```
+cannot restore segment prot after reloc: Permission denied
+```
 There are two ways to solve this problem:
 
 - Change the default security context for the Ice extension using the following
 command:
 
-        $ chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
+    ```
+    chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
+    ```
 
-    Replace `/opt/Ice` with your installation directory.
+Replace `/opt/Ice` with your installation directory.
 
 - Disable SELinux completely by adding the following line to your
 `/etc/sysconfig/selinux` file:
 
-        SELINUX=disabled
+    ```
+    SELINUX=disabled
+    ```
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
