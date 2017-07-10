@@ -195,7 +195,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 {
     {
         Lock sync(*this);
-        assert(!_exception.get() && !_connection);
+        assert(!_flushing && !_exception.get() && !_connection);
         _connection = connection;
         _compress = compress;
     }
@@ -221,18 +221,15 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     {
         Lock sync(*this);
-        assert(!_initialized && !_exception.get());
+        assert(!_flushing && !_initialized && !_exception.get());
+        _flushing = true; // Ensures request handler is removed before processing new requests.
         _exception.reset(ex.ice_clone());
-        _proxies.clear();
-        _proxy = 0; // Break cyclic reference count.
-        notifyAll();
     }
 
     //
-    // NOTE: remove the request handler *before* notifying the
-    // requests that the connection failed. It's important to ensure
-    // that future invocations will obtain a new connect request
-    // handler once invocations are notified.
+    // NOTE: remove the request handler *before* notifying the requests that the connection
+    // failed. It's important to ensure that future invocations will obtain a new connect
+    // request handler once invocations are notified.
     //
     try
     {
@@ -258,6 +255,14 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         }
     }
     _requests.clear();
+
+    {
+        Lock sync(*this);
+        _flushing = false;
+        _proxies.clear();
+        _proxy = 0; // Break cyclic reference count.
+        notifyAll();
+    }
 }
 
 void
@@ -282,7 +287,7 @@ ConnectRequestHandler::initialized()
     }
     else
     {
-        while(_flushing && !_exception.get())
+        while(_flushing)
         {
             wait();
         }

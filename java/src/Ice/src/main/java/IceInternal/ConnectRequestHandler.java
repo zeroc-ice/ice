@@ -118,7 +118,7 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
-            assert(_exception == null && _connection == null);
+            assert(!_flushing && _exception == null && _connection == null);
             _connection = connection;
             _compress = compress;
         }
@@ -145,11 +145,9 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
-            assert(!_initialized && _exception == null);
+            assert(!_flushing && !_initialized && _exception == null);
             _exception = ex;
-            _proxies.clear();
-            _proxy = null; // Break cyclic reference count.
-            notifyAll();
+            _flushing = true;
         }
 
         //
@@ -175,6 +173,14 @@ public class ConnectRequestHandler
             }
         }
         _requests.clear();
+
+        synchronized(this)
+        {
+            _proxies.clear();
+            _proxy = null; // Break cyclic reference count.
+            _flushing = false;
+            notifyAll();
+        }
     }
 
     //
@@ -227,7 +233,7 @@ public class ConnectRequestHandler
             // only true for a short period of time.
             //
             boolean interrupted = false;
-            while(_flushing && _exception == null)
+            while(_flushing)
             {
                 try
                 {
