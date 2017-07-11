@@ -2870,12 +2870,14 @@ IcePy::NewAsyncInvocation::exception(const Ice::Exception& ex)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
+    PyObjectHandle exh = convertException(ex); // NOTE: This can release the GIL
+
     if(!_future)
     {
         //
         // The future hasn't been created yet, which means invoke() is still running. Save the exception for later.
         //
-        _exception = convertException(ex);
+        _exception = exh.release();
         _done = true;
         return;
     }
@@ -2884,7 +2886,6 @@ IcePy::NewAsyncInvocation::exception(const Ice::Exception& ex)
     _future = 0; // Break cyclic dependency.
     _done = true;
 
-    PyObjectHandle exh = convertException(ex);
     assert(exh.get());
     PyObjectHandle tmp = callMethod(future.get(), "set_exception", exh.get());
     if(PyErr_Occurred())
