@@ -352,6 +352,13 @@ public class AllTests
                 {
                     // Expected.
                 }
+                catch(Ice.ConnectionTimeoutException)
+                {
+                    // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                    // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                    // the connection closure to be detected).
+                    Console.WriteLine("warning: connection timed out");
+                }
                 catch(Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
@@ -471,6 +478,13 @@ public class AllTests
                 catch(Ice.ConnectionLostException)
                 {
                     // Expected.
+                }
+                catch(Ice.ConnectionTimeoutException)
+                {
+                    // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                    // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                    // the connection closure to be detected).
+                    Console.WriteLine("warning: connection timed out");
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -1058,6 +1072,13 @@ public class AllTests
                         {
                             // Expected
                         }
+                        catch(Ice.ConnectionTimeoutException)
+                        {
+                            // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                            // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                            // the connection closure to be detected).
+                            Console.WriteLine("warning: connection timed out");
+                        }
                         catch(Ice.LocalException ex)
                         {
                             Console.WriteLine(ex.ToString());
@@ -1192,6 +1213,13 @@ public class AllTests
                 {
                     // Expected.
                 }
+                catch(Ice.ConnectionTimeoutException)
+                {
+                    // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                    // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                    // the connection closure to be detected).
+                    Console.WriteLine("warning: connection timed out");
+                }
                 catch(Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
@@ -1284,6 +1312,13 @@ public class AllTests
                 {
                     // Expected.
                 }
+                catch(Ice.ConnectionTimeoutException)
+                {
+                    // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                    // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                    // the connection closure to be detected).
+                    Console.WriteLine("warning: connection timed out");
+                }
                 catch(Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
@@ -1364,6 +1399,13 @@ public class AllTests
                 catch(Ice.ConnectionLostException)
                 {
                     // Expected.
+                }
+                catch(Ice.ConnectionTimeoutException)
+                {
+                    // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                    // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                    // the connection closure to be detected).
+                    Console.WriteLine("warning: connection timed out");
                 }
                 catch(Ice.LocalException ex)
                 {
