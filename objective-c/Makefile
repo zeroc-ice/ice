@@ -17,7 +17,7 @@ include $(lang_srcdir)/config/Make.rules
 # Load C++ dependencies
 #
 $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2objc))
-$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL)))
+$(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceIAP)))
 
 #
 # Load source projects

@@ -28,7 +28,7 @@ endif
 #
 # Build only few components with the static configuration (libraries)
 #
-static_components       = Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC
+static_components       = Ice IceSSL IceIAP IceObjC IceSSLObjC IceIAPObjC Glacier2ObjC IceStormObjC IceGridObjC
 static_projects         = test/%
 static_ldflags          += $(if $(filter program,$($1_target)),-ObjC)
 
