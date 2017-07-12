@@ -99,9 +99,9 @@ The Maven package id for the application bundler package is as follows:
 
 The build system requires the Slice to Java compiler from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
-`ICE_BIN_DIST` environment variable to `cpp` and`ICE_HOME` environment variable with
-the path name of your Ice installation. For example, on Unix with an RPM
-installation:
+`ICE_BIN_DIST` environment variable to `cpp` and the `ICE_HOME` environment
+variable with the path name of your Ice installation. For example, on Unix with
+an RPM installation:
 
 ```
 export ICE_BIN_DIST=cpp
@@ -111,16 +111,18 @@ export ICE_HOME=/usr
 On Windows with an MSI installation:
 
 ```
-    set ICE_BIN_DIST=cpp
-    set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+set ICE_BIN_DIST=cpp
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
 ```
 
-On Windows if you are using Ice for C++ from a source distribution, you must set
+If you are using Ice for C++ from a source distribution on Windows, you must set
 the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
 platform and configuration used in your C++ build:
 
-    > set CPP_PLATFORM=x64
-    > set CPP_CONFIGURATION=Debug
+```
+set CPP_PLATFORM=x64
+set CPP_CONFIGURATION=Debug
+```
 
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
@@ -132,22 +134,28 @@ Before building Ice for Java, review the settings in the file
 
 To build Ice, all services, and tests, run
 
-    > gradlew build
+```
+gradlew build
+```
 
 Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
 
 If at any time you wish to discard the current build and start a new one, use
 these commands:
 
-    > gradlew clean
-    > gradlew build
+```
+gradlew clean
+gradlew build
+```
 
 ## Installing Ice for Java
 
 To install Ice for Java in the directory specified by the `prefix` variable in
 `gradle.properties` run the following command:
 
-    > gradlew install
+```
+gradlew install
+```
 
 The following JAR files will be installed to `<prefix>/lib`.
 
@@ -173,17 +181,23 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
-    $ export ICE_HOME=/usr (For RPM installation)
+```
+export ICE_HOME=/opt/Ice-3.7.0 (For local build)
+export ICE_HOME=/usr (For RPM installation)
+```
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+```
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+```
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
 
-    > python allTests.py
+```
+python allTests.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
@@ -196,7 +210,9 @@ Ice for Java includes the IceGrid GUI tool. It can be found in the file
 This JAR file is completely self-contained and has no external dependencies.
 You can start the tool with the following command:
 
-    > java -jar icegridgui.jar
+```
+java -jar icegridgui.jar
+```
 
 On macOS, the build also creates an application bundle named IceGrid GUI. You
 can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
