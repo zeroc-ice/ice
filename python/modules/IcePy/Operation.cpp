@@ -3890,7 +3890,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 ParamInfoPtr info = *p;
                 if(!info->optional)
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
                     info->type->unmarshal(&is, info, args.get(), closure, false, &info->metaData);
                 }
             }
@@ -3903,7 +3903,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 ParamInfoPtr info = *p;
                 if(is.readOptional(info->tag, info->type->optionalFormat()))
                 {
-                    void* closure = reinterpret_cast<void*>(info->pos);
+                    void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
                     info->type->unmarshal(&is, info, args.get(), closure, true, &info->metaData);
                 }
                 else

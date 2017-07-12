@@ -150,17 +150,11 @@
     <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <DisableSpecificWarnings>4302;4311;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
     <Link>
       <ImportLibrary />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <DisableSpecificWarnings>4302;4311;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
     <Link>
       <ImportLibrary />
     </Link>

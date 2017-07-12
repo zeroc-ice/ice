@@ -31,6 +31,11 @@ namespace
 // P = sizeof(void*), L = sizeof(long)
 template<int P, int L> struct Hasher;
 
+#ifndef _WIN64
+//
+// COMPILERFIX: With Windows 64 the templates bellow will produce trucation warnings,
+// we ifdef them out as they are never used with Windows 64.
+//
 template<>
 struct Hasher<4, 4>
 {
@@ -48,6 +53,7 @@ struct Hasher<8, 8>
         return reinterpret_cast<long>(ptr);
     }
 };
+#endif
 
 template<>
 struct Hasher<8, 4>
