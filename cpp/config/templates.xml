@@ -12,26 +12,6 @@
 <icegrid>
   <application name="Templates">
 
-    <server-template id="IcePatch2">
-
-       <parameter name="instance-name" default="${application}.IcePatch2"/>
-       <parameter name="endpoints" default="default"/>
-       <parameter name="directory"/>
-
-       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="on-demand">
-
-         <adapter name="IcePatch2" endpoints="${endpoints}">
-           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
-         </adapter>
-
-         <properties>
-            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
-            <property name="IcePatch2.Directory" value="${directory}"/>
-         </properties>
-       </server>
-
-    </server-template>
-
     <server-template id="Glacier2">
 
       <parameter name="instance-name" default="${application}.Glacier2"/>
