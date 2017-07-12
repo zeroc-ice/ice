@@ -339,6 +339,7 @@ public class Root extends Communicator
         _metricsRetrieved = false;
         _treeModel.nodeStructureChanged(this);
         _tree.setRootVisible(false);
+        _editor = null;
     }
 
     public void patch(final String applicationName)
