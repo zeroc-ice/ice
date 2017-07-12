@@ -17,10 +17,10 @@ project.ext.description = "Ice is a comprehensive RPC framework that helps you b
 slice {
     java {
         stream {
-            files = [file("$sliceDir/Ice/BuiltinSequences.ice")]
+            files = [file("$project.ext.topSrcDir/slice/Ice/BuiltinSequences.ice")]
         }
         nostream {
-            files = fileTree(dir: "$sliceDir", includes:['Ice/*.ice'],
+            files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['Ice/*.ice'],
                 excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
         }
     }

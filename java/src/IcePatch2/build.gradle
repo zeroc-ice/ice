@@ -17,7 +17,7 @@ slice {
     java {
         set1 {
             args = "--checksum com.zeroc.IcePatch2.SliceChecksums"
-            files = fileTree(dir: "$sliceDir/IcePatch2", includes:['*.ice'], excludes:["*F.ice"])
+            files = fileTree(dir: "$project.ext.topSrcDir/slice/IcePatch2", includes:['*.ice'], excludes:["*F.ice"])
         }
     }
 }

@@ -15,7 +15,7 @@ project.ext.description = "Ice plug-in that enables the discovery of IceGrid and
 
 slice {
     java {
-        files = fileTree(dir: "$sliceDir/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
 

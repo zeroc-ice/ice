@@ -8,7 +8,7 @@ the supported platforms.
 
 ### Operating Systems and Compilers
 
-Ice for Python was extensively tested on the operating systems and compiler versions 
+Ice for Python was extensively tested on the operating systems and compiler versions
 listed on [supported platforms][2].
 
 ## Building the Python Extension
@@ -17,7 +17,7 @@ listed on [supported platforms][2].
 
 You can build the Ice for Python extension from source using `pip`:
 ```
-pip install <URL of Ice source distribution for Python> 
+pip install <URL of Ice source distribution for Python>
 ```
 ### With Visual Studio 2015 and MSBuild (Python 3.6 only)
 

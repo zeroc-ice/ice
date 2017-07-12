@@ -99,15 +99,21 @@ The Maven package id for the application bundler package is as follows:
 
 The build system requires the Slice to Java compiler from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
-`ICE_HOME` environment variable with the path name of your Ice installation. For
-example, on Unix:
+`ICE_BIN_DIST` environment variable to `cpp` and`ICE_HOME` environment variable with
+the path name of your Ice installation. For example, on Unix with an RPM
+installation:
 
-    $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
-    $ export ICE_HOME=/usr (For RPM installation)
+```
+export ICE_BIN_DIST=cpp
+export ICE_HOME=/usr
+```
 
-On Windows:
+On Windows with an MSI installation:
 
-    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation on Windows)
+```
+    set ICE_BIN_DIST=cpp
+    set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+```
 
 On Windows if you are using Ice for C++ from a source distribution, you must set
 the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the

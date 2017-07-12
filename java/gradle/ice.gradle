@@ -50,7 +50,7 @@ slice {
     cppPlatform = this.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
         iceHome =  this.hasProperty('iceHome') ? this.iceHome
-            : new File(project.ext.topSrcDir).getCanonicalPath()
+            : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
     }
 }
 
@@ -96,10 +96,6 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
     ext.binDir = prefix + "/bin"
 }
 
-// Check if we are building against source distribution
-def iceCppDir = slice.srcDist ? [slice.iceHome, "cpp"].join(File.separator) : slice.iceHome
-def iceSrcDist = false
-
 // Check is DESTDIR is set (non-Windows)
 if (isWindows) {
     ext.DESTDIR = ""
@@ -133,7 +129,7 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
 }
 
 ext.localDependency = { artifactId ->
-    if (project.slice.srcDist) {
+    if (project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
         return project(":${artifactId}")
     } else {
         return "com.zeroc:${artifactId}:${project.version}"
