@@ -25,13 +25,21 @@ routerProps = {
    "Glacier2.SessionTimeout" : "30",
 }
 
+traceProps = {
+    "Ice.Trace.Protocol": 1,
+    "Ice.Trace.Network": 2,
+    "Ice.Trace.Retry": 1,
+}
+
 def buffered(enabled):
     return { "Glacier2.Client.Buffered": enabled, "Glacier2.Server.Buffered": enabled }
 
 Glacier2TestSuite(__name__, routerProps, [
                   ClientServerTestCase(name="client/server with router in unbuffered mode",
                                        servers=[Glacier2Router(passwords=passwords, props=buffered(False)), Server()],
-                                       client=Client(args=["--shutdown"])),
+                                       client=Client(args=["--shutdown"]),
+                                       traceProps=traceProps),
                   ClientServerTestCase(name="client/server with router in buffered mode",
                                        servers=[Glacier2Router(passwords=passwords, props=buffered(True)), Server()],
-                                       clients=[Client(), Client(args=["--shutdown"])])])
+                                       clients=[Client(), Client(args=["--shutdown"])],
+                                       traceProps=traceProps)])

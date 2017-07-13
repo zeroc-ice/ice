@@ -980,13 +980,14 @@ class Process(Runnable):
     processType = None
 
     def __init__(self, exe=None, outfilters=None, quiet=False, args=None, props=None, envs=None, desc=None,
-                 mapping=None, preexec_fn=None):
+                 mapping=None, preexec_fn=None, traceProps=None):
         Runnable.__init__(self, desc)
         self.exe = exe
         self.outfilters = outfilters or []
         self.quiet = quiet
         self.args = args or []
         self.props = props or {}
+        self.traceProps = traceProps or {}
         self.envs = envs or {}
         self.mapping = mapping
         self.preexec_fn = preexec_fn
@@ -1102,6 +1103,12 @@ class Process(Runnable):
         allEnvs.update(self.envs(self, current) if callable(self.envs) else self.envs)
         return allEnvs
 
+    def getEffectiveTraceProps(self, current):
+        traceProps = {}
+        traceProps.update(current.testcase.getTraceProps(self, current))
+        traceProps.update(self.traceProps(self, current) if callable(self.traceProps) else self.traceProps)
+        return traceProps
+
     def start(self, current, args=[], props={}, watchDog=None):
         allArgs = self.getEffectiveArgs(current, args)
         allProps = self.getEffectiveProps(current, props)
@@ -1138,6 +1145,10 @@ class Process(Runnable):
                     process.terminate()
                 if not self.quiet: # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
+
+    def teardown(self, current, success):
+        assert self in current.processes
+        current.processes[self].teardown(current, success)
 
     def expect(self, current, pattern, timeout=60):
         assert(self in current.processes and isinstance(current.processes[self], Expect.Expect))
@@ -1290,7 +1301,7 @@ class EchoServer(Server):
 class TestCase(Runnable):
 
     def __init__(self, name, client=None, clients=None, server=None, servers=None, args=None, props=None, envs=None,
-                 options=None, desc=None):
+                 options=None, desc=None, traceProps=None):
         Runnable.__init__(self, desc)
 
         self.name = name
@@ -1300,6 +1311,7 @@ class TestCase(Runnable):
         self.options = options or {}
         self.args = args or []
         self.props = props or {}
+        self.traceProps = traceProps or {}
         self.envs = envs or {}
 
         #
@@ -1397,6 +1409,9 @@ class TestCase(Runnable):
 
     def getProps(self, process, current):
         return self.props
+
+    def getTraceProps(self, process, current):
+        return self.traceProps
 
     def getEnv(self, process, current):
         return self.envs
@@ -1497,9 +1512,12 @@ class TestCase(Runnable):
         try:
             current.push(self)
             current.result.started(self)
+            self.setup(current)
             self.runWithDriver(current)
+            self.teardown(current, True)
             current.result.succeeded(self)
         except Exception as ex:
+            self.teardown(current, False)
             current.result.failed(self, traceback.format_exc() if current.driver.debug else str(ex))
             raise
         finally:
@@ -1739,6 +1757,10 @@ class LocalProcessController(ProcessController):
 
     class LocalProcess(Expect.Expect):
 
+        def __init__(self, traceFile, *args, **kargs):
+            Expect.Expect.__init__(self, *args, **kargs)
+            self.traceFile = traceFile
+
         def waitReady(self, ready, readyCount, startTimeout):
             if ready:
                 self.expect("%s ready\n" % ready, timeout = startTimeout)
@@ -1749,6 +1771,13 @@ class LocalProcessController(ProcessController):
 
         def isTerminated(self):
             return self.p is None
+
+        def teardown(self, current, success):
+            if self.traceFile:
+                if success:
+                    os.remove(self.traceFile)
+                else:
+                    current.writeln("saved {0}".format(self.traceFile))
 
     def getHost(self, current):
         # Depending on the configuration, either use an IPv4, IPv6 or BT address for Ice.Default.Host
@@ -1775,6 +1804,16 @@ class LocalProcessController(ProcessController):
             "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
         }
 
+        traceFile = ""
+        if not isinstance(process.getMapping(current), JavaScriptMapping):
+            traceProps = process.getEffectiveTraceProps(current)
+            if traceProps:
+                traceFile = os.path.join(current.testsuite.getPath(),
+                                         "{0}-{1}.log".format(process.exe or current.testcase.getProcessType(process),
+                                                              time.strftime("%m%d%y-%H%M")))
+                traceProps["Ice.StdErr"] = traceFile
+            props.update(traceProps)
+
         args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
         for k, v in envs.items():
             envs[k] = val(v, quoteValue=False)
@@ -1795,13 +1834,14 @@ class LocalProcessController(ProcessController):
         env.update(envs)
         mapping = process.getMapping(current)
         cwd = mapping.getTestCwd(process, current)
-        process = LocalProcessController.LocalProcess(cmd,
+        process = LocalProcessController.LocalProcess(command=cmd,
                                                       startReader=False,
                                                       env=env,
                                                       cwd=cwd,
                                                       desc=process.desc or exe,
                                                       preexec_fn=process.preexec_fn,
-                                                      mapping=str(mapping))
+                                                      mapping=str(mapping),
+                                                      traceFile=traceFile)
         process.startReader(watchDog)
         return process
 
@@ -1845,6 +1885,9 @@ class RemoteProcessController(ProcessController):
             self.terminated = True
             if self.stdout and self.output:
                 print(self.output)
+
+        def teardown(self, current, success):
+            pass
 
     def __init__(self, current, endpoints=None):
         self.processControllerProxies = {}
