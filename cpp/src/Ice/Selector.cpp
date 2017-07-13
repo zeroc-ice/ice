@@ -711,6 +711,7 @@ Selector::select(int timeout)
         timeout = -1;
     }
 
+    int spuriousWakeup = 0;
     while(true)
     {
 #if defined(ICE_USE_EPOLL)
@@ -758,6 +759,16 @@ Selector::select(int timeout)
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;
             IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
+        }
+        else if(_count == 0 && timeout < 0 && ++spuriousWakeup < 100)
+        {
+            if(spuriousWakeup == 1)
+            {
+                Ice::Warning out(_instance->initializationData().logger);
+                out << "spurious selector wakeup";
+            }
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+            continue;
         }
         break;
     }

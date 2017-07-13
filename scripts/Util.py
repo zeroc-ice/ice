@@ -1147,8 +1147,8 @@ class Process(Runnable):
                     current.write(self.getOutput(current), stdout=False)
 
     def teardown(self, current, success):
-        assert self in current.processes
-        current.processes[self].teardown(current, success)
+        if self in current.processes:
+            current.processes[self].teardown(current, success)
 
     def expect(self, current, pattern, timeout=60):
         assert(self in current.processes and isinstance(current.processes[self], Expect.Expect))
@@ -1774,7 +1774,7 @@ class LocalProcessController(ProcessController):
 
         def teardown(self, current, success):
             if self.traceFile:
-                if success:
+                if success or current.driver.isInterrupted():
                     os.remove(self.traceFile)
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
