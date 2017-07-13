@@ -122,7 +122,7 @@
     <TargetName>Ice_checksum_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderChecksum>true</IceBuilderChecksum>
+    <IceBuilderAdditionalOptions>--checksum</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\AllTests.cpp" />

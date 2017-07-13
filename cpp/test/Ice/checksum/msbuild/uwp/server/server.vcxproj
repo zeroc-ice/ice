@@ -123,7 +123,7 @@
     <TargetName>Ice_checksum_server</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="IceBuilder">
-    <IceBuilderChecksum>true</IceBuilderChecksum>
+    <IceBuilderAdditionalOptions>--checksum</IceBuilderAdditionalOptions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
