@@ -94,7 +94,7 @@ application, check the following page for instructions on how to disable it:
 Start the `testController` application from Android Studio and once it has
 started, run the testsuite by using the `allTests.py` script:
 
-    cd android-compat
+    cd android
     python allTests.py
 
 This will try to run the testsuite on the connected device. If multiple devices
