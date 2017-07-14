@@ -205,7 +205,6 @@
                 out.write("testing AsyncResult operations... ");
 
                 var indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"));
-
                 return indirect.op().catch(ex => test(ex instanceof Ice.NoEndpointException)
                 ).then(() => testController.holdAdapter()
                 ).then(() =>
@@ -213,29 +212,40 @@
                         var r1 = p.op();
                         var r2 = null;
                         var seq = new Uint8Array(100000);
-
-                        while((r2 = p.opWithPayload(seq)).sentSynchronously());
-                        test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                             !r1.sentSynchronously() && !r1.isCompleted());
-
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
-
-                        testController.resumeAdapter();
-
-                        test(r1.operation === "op");
-                        test(r2.operation === "opWithPayload");
-
-                        return r1.then(() =>
+                        loop = () => {
+                            r2 = p.opWithPayload(seq);
+                            if(r2.sentSynchronously())
                             {
-                                test(r1.isSent());
-                                test(r1.isCompleted());
-                                return r2;
+                                return Ice.Promise.delay(0).then(loop);
                             }
-                        ).then(() =>
+                            else
                             {
-                                test(r2.isSent());
-                                test(r2.isCompleted());
-                            });
+                                return Ice.Promise.resolve();
+                            }
+                        };
+                        return loop().then(() => {
+                            test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                                 !r1.sentSynchronously() && !r1.isCompleted());
+
+                            test(!r2.sentSynchronously() && !r2.isCompleted());
+
+                            testController.resumeAdapter();
+
+                            test(r1.operation === "op");
+                            test(r2.operation === "opWithPayload");
+
+                            return r1.then(() =>
+                                {
+                                    test(r1.isSent());
+                                    test(r1.isCompleted());
+                                    return r2;
+                                }
+                            ).then(() =>
+                                {
+                                    test(r2.isSent());
+                                    test(r2.isCompleted());
+                                });
+                        });
                     }
                 ).then(() =>
                     {
@@ -287,29 +297,43 @@
                 ).then(() =>
                     {
                         var seq = new Uint8Array(new Array(100000));
-                        while((r = p.opWithPayload(seq)).sentSynchronously());
-                        test(!r.isSent());
+                        var r = null;
+                        loop = () => {
+                            r = p.opWithPayload(seq);
+                            if(r.sentSynchronously())
+                            {
+                                return Ice.Promise.delay(0).then(loop);
+                            }
+                            else
+                            {
+                                return Ice.Promise.resolve();
+                            }
+                        };
+                        return loop().then(() => {
 
-                        var r1 = p.ice_ping();
-                        r1.then(
-                            () => test(false),
-                            (ex) => test(ex instanceof Ice.InvocationCanceledException));
+                            test(!r.isSent());
 
-                        var r2 = p.ice_id();
-                        r2.then(
-                            () => test(false),
-                            (ex) => test(ex instanceof Ice.InvocationCanceledException));
+                            var r1 = p.ice_ping();
+                            r1.then(
+                                () => test(false),
+                                (ex) => test(ex instanceof Ice.InvocationCanceledException));
 
-                        r1.cancel();
-                        r2.cancel();
+                            var r2 = p.ice_id();
+                            r2.then(
+                                () => test(false),
+                                (ex) => test(ex instanceof Ice.InvocationCanceledException));
 
-                        return testController.resumeAdapter()
-                            .then(() => p.ice_ping())
-                            .then(() =>
-                                {
-                                    test(!r1.isSent() && r1.isCompleted());
-                                    test(!r2.isSent() && r2.isCompleted());
-                                });
+                            r1.cancel();
+                            r2.cancel();
+
+                            return testController.resumeAdapter()
+                                .then(() => p.ice_ping())
+                                .then(() =>
+                                    {
+                                        test(!r1.isSent() && r1.isCompleted());
+                                        test(!r2.isSent() && r2.isCompleted());
+                                    });
+                            });
                     }
                 ).then(() => testController.holdAdapter()
                 ).then(() =>
