@@ -36,7 +36,7 @@ $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir
          install-doc,"Installing documentation files"))
 
 $(eval $(call install-data-files,$(filter-out %Discovery.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
-	 install-slice,"Installing slice files"))
+         install-slice,"Installing slice files"))
 
 #
 # Remove top-level sdk directory on macOS
