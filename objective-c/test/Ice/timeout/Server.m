@@ -63,6 +63,12 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 
             //
+            // The client sends large messages to cause the transport
+            // buffers to fill up.
+            //
+            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"20000"];
+
+            //
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //

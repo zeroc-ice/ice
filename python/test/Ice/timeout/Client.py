@@ -37,12 +37,6 @@ try:
     initData.properties = Ice.createProperties(sys.argv)
 
     #
-    # We need to send messages large enough to cause the transport
-    # buffers to fill up.
-    #
-    initData.properties.setProperty("Ice.MessageSizeMax", "10000");
-
-    #
     # For this test, we want to disable retries.
     #
     initData.properties.setProperty("Ice.RetryIntervals", "-1");

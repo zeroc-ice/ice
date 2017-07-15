@@ -34,6 +34,12 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //
+        // The client sends large messages to cause the transport
+        // buffers to fill up.
+        //
+        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+
+        //
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");

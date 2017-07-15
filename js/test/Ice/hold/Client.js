@@ -329,12 +329,6 @@
         //
         id.properties.setProperty("Ice.Warn.Connections", "0");
 
-        //
-        // We need to send messages large enough to cause the transport
-        // buffers to fill up.
-        //
-        id.properties.setProperty("Ice.MessageSizeMax", "10000");
-
         id.properties.setProperty("Ice.RetryIntervals", "-1");
 
         var c = Ice.initialize(id);
