@@ -62,13 +62,13 @@ tests.each {
 
         def dexName = "test_${name}.dex"
         task dexClasses {
-            inputs.dir "${buildDir}/classes/main"
-            outputs.file "${buildDir}/classes/main/${dexName}"
+            inputs.dir "${buildDir}/classes/java/main"
+            outputs.file "${buildDir}/classes/java/main/${dexName}"
             doLast {
                 exec {
                     commandLine "${dxCmd}", '--dex',
-                            "--output=${buildDir}/classes/main/${dexName}",
-                            "${buildDir}/classes/main"
+                            "--output=${buildDir}/classes/java/main/${dexName}",
+                            "${buildDir}/classes/java/main"
                 }
             }
         }

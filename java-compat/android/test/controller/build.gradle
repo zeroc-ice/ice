@@ -57,7 +57,7 @@ tests.each {
     def testName = ":test_${name}"
     def dexName = "test_${name}.dex"
     task "${taskName}"(type: Copy, dependsOn: "${testName}:dexClasses") {
-        from "${rootProject.projectDir}/test/src/test_${name}/build/classes/main/${dexName}"
+        from "${rootProject.projectDir}/test/src/test_${name}/build/classes/java/main/${dexName}"
         into "src/main/assets"
     }
     preBuild.dependsOn(tasks[taskName])
