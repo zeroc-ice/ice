@@ -855,9 +855,10 @@ class SSLEngine
         else
         {
             //
-            // Enable the HTTPS hostname verification algorithm
+            // Enable the HTTPS hostname verification algorithm. This requires Android API 24 therefore we
+            // don't use it on Android in Java Compat.
             //
-            if(_checkCertName && _verifyPeer > 0 && host != null)
+            if(_checkCertName && _verifyPeer > 0 && host != null && !IceInternal.Util.isAndroid())
             {
                 SSLParameters params = new SSLParameters();
                 params.setEndpointIdentificationAlgorithm("HTTPS");
@@ -971,15 +972,137 @@ class SSLEngine
 
     void verifyPeer(String address, ConnectionInfo info, String desc)
     {
-        //
-        // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
-        // for a server, but we have to do it ourselves for a client.
-        //
-        if(!info.incoming)
+        if(!info.incoming && _verifyPeer > 0)
         {
-            if(_verifyPeer > 0 && !info.verified)
+            //
+            // IceSSL.VerifyPeer is translated into the proper SSLEngine configuration
+            // for a server, but we have to do it ourselves for a client.
+            //
+            if(!info.verified)
             {
                 throw new Ice.SecurityException("IceSSL: server did not supply a certificate");
+            }
+
+            assert(info.certs != null && info.certs.length > 0);
+
+            //
+            // If IceSSL.CheckCertName is enabled on Android, we have to handle this manually.
+            //
+            if(_checkCertName && address.length() > 0 && IceInternal.Util.isAndroid())
+            {
+                //
+                // For an outgoing connection, we compare the proxy address (if any) against
+                // fields in the server's certificate (if any).
+                //
+                X509Certificate cert = (X509Certificate)info.certs[0];
+
+                //
+                // Extract the IP addresses and the DNS names from the subject
+                // alternative names.
+                //
+                java.util.ArrayList<String> ipAddresses = new java.util.ArrayList<String>();
+                java.util.ArrayList<String> dnsNames = new java.util.ArrayList<String>();
+                try
+                {
+                    java.util.Collection<java.util.List<?> > subjectAltNames = cert.getSubjectAlternativeNames();
+                    if(subjectAltNames != null)
+                    {
+                        for(java.util.List<?> l : subjectAltNames)
+                        {
+                            assert(!l.isEmpty());
+                            Integer n = (Integer)l.get(0);
+                            if(n.intValue() == 7)
+                            {
+                                ipAddresses.add((String)l.get(1));
+                            }
+                            else if(n.intValue() == 2)
+                            {
+                                dnsNames.add(((String)l.get(1)).toLowerCase());
+                            }
+                        }
+                    }
+                }
+                catch(CertificateParsingException ex)
+                {
+                    assert(false);
+                }
+
+                //
+                // Compare the peer's address against the common name as well as
+                // the dnsName and ipAddress values in the subject alternative name.
+                //
+                boolean certNameOK = false;
+                String dn = "";
+                String addrLower = address.toLowerCase();
+                {
+                    javax.security.auth.x500.X500Principal principal = cert.getSubjectX500Principal();
+                    dn = principal.getName(javax.security.auth.x500.X500Principal.CANONICAL);
+                    //
+                    // Canonical format is already in lower case.
+                    //
+                    String cn = "cn=" + addrLower;
+                    int pos = dn.indexOf(cn);
+                    if(pos >= 0)
+                    {
+                        //
+                        // Ensure we match the entire common name.
+                        //
+                        certNameOK = (pos + cn.length() == dn.length()) || (dn.charAt(pos + cn.length()) == ',');
+                    }
+                }
+
+                //
+                // Compare the peer's address against the dnsName and ipAddress
+                // values in the subject alternative name.
+                //
+                if(!certNameOK)
+                {
+                    certNameOK = ipAddresses.contains(addrLower);
+                }
+                if(!certNameOK)
+                {
+                    certNameOK = dnsNames.contains(addrLower);
+                }
+
+                if(!certNameOK)
+                {
+                    StringBuilder sb = new StringBuilder(128);
+                    sb.append("IceSSL: certificate validation failure:\npeer certificate does not have `");
+                    sb.append(address);
+                    sb.append("' as its commonName or in its subjectAltName extension");
+                    if(dn.length() > 0)
+                    {
+                        sb.append("\nSubject DN: ");
+                        sb.append(dn);
+                    }
+                    if(!dnsNames.isEmpty())
+                    {
+                        sb.append("\nDNS names found in certificate: ");
+                        for(int j = 0; j < dnsNames.size(); ++j)
+                        {
+                            if(j > 0)
+                            {
+                                sb.append(", ");
+                            }
+                            sb.append(dnsNames.get(j));
+                        }
+                    }
+                    if(!ipAddresses.isEmpty())
+                    {
+                        sb.append("\nIP addresses found in certificate: ");
+                        for(int j = 0; j < ipAddresses.size(); ++j)
+                        {
+                            if(j > 0)
+                            {
+                                sb.append(", ");
+                            }
+                            sb.append(ipAddresses.get(j));
+                        }
+                    }
+                    Ice.SecurityException ex = new Ice.SecurityException();
+                    ex.reason = sb.toString();
+                    throw ex;
+                }
             }
         }
 
