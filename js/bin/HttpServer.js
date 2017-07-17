@@ -49,9 +49,13 @@ function Init()
     }
 
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
-                    "/lib/Glacier2.js", "/lib/Glacier2.min.js",
-                    "/lib/IceStorm.js", "/lib/IceStorm.min.js",
-                    "/lib/IceGrid.js", "/lib/IceGrid.min.js",];
+                     "/lib/Glacier2.js", "/lib/Glacier2.min.js",
+                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
+                     "/lib/IceGrid.js", "/lib/IceGrid.min.js",
+                     "/lib/es5/Ice.js", "/lib/es5/Ice.min.js",
+                     "/lib/es5/Glacier2.js", "/lib/es5/Glacier2.min.js",
+                     "/lib/es5/IceStorm.js", "/lib/es5/IceStorm.min.js",
+                     "/lib/es5/IceGrid.js", "/lib/es5/IceGrid.min.js"];
 
     TestData.TestSuites = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestSuites.json"), "utf8");
     var TestSuites = JSON.parse(TestData.TestSuites);
