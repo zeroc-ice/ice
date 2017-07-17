@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-ifneq ($(filter debian ubuntu yocto,$(linux_id)),)
+ifneq ($(filter debian ubuntu yocto poky,$(linux_id)),)
 
 #
 # Only build the IceBT plugin if pkg-config, BlueZ and D-Bus requirements are
