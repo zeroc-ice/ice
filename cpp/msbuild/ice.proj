@@ -284,6 +284,10 @@
     <MSBuild Projects="ice.nuget.targets"
              Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.$(DefaultPlatformToolset)" />
 
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
+          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\ICE_LICENSE.txt" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
+          DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\LICENSE.txt" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).nuspec"
           DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).props"
@@ -345,6 +349,10 @@
              Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <MSBuild Projects="ice.nuget.uwp.arch.targets"
              Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\ICE_LICENSE.txt" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\LICENSE.txt" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86.nuspec"
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x86" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
@@ -357,6 +365,10 @@
              Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
     <MSBuild Projects="ice.nuget.uwp.arch.targets"
              Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\ICE_LICENSE.txt" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\LICENSE.txt" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64.nuspec"
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset).x64" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).targets"
@@ -367,6 +379,10 @@
     <!-- noarch package -->
     <MSBuild Projects="ice.nuget.uwp.targets"
              Properties="PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset)" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\ICE_LICENSE.txt" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
+          DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset)\LICENSE.txt" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).nuspec"
           DestinationFolder="zeroc.ice.uwp.$(DefaultPlatformToolset)" />
     <Copy SourceFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).props"

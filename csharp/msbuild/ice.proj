@@ -75,6 +75,11 @@
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
 
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
+              DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
+              DestinationFiles="zeroc.ice.net\LICENSE.txt" />
+
         <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and assembly paths -->
         <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\Assemblies\Ice.dll">
           <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
