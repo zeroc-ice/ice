@@ -155,7 +155,7 @@ module `zeroc-ice`,  using the following command:
 
 You can run the testsuite from the console using python:
 
-    python allTest.py --uwp --controller-app --platform x64 --config Release
+    python allTests.py --uwp --controller-app --platform x64 --config Release
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
