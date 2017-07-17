@@ -101,7 +101,7 @@ depending on the browser you're using:
 - Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. Then select Console Root > Certificates (Local Computer)
-   > Trusted Root Certificate Authorities. In the Action menu, choose All Tasks
+   \> Trusted Root Certificate Authorities. In the Action menu, choose All Tasks
    and Import. Navigate to the `cacert.der` file and import it into. Reload the
    test page to continue.
 
