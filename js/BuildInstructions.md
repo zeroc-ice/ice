@@ -16,45 +16,51 @@ To build Ice for JavaScript you must have the following:
 ## Building the JavaScript libraries and NodeJS packages
 
 Change to the Ice for JavaScript source subdirectory:
-
-    > cd js
+```
+cd js
+```
 
 Run these commands to build the libraries and tests:
-
-    > npm install
-    > npm run build
+```
+npm install
+npm run build
+```
 
 On Windows, you need to set the platform and configuration in order to locate
-slice2js. For example, if you have built C++ with the x64 Release configuration,
+`slice2js`. For example, if you have built C++ with the x64 Release configuration,
 you can use the following command to build JavaScript:
-
-    > npm run build -- --cppPlatform x64 --cppConfiguration Release
+```
+npm run build -- --cppPlatform x64 --cppConfiguration Release
+```
 
 Alternatively you can use the CPP_PLATFORM and CPP_CONFIGURATION environment
 variables:
-
-    > set CPP_PLATFORM=x64
-    > set CPP_CONFIGURATION=Debug
-    > npm run build
-
+```
+set CPP_PLATFORM=x64
+set CPP_CONFIGURATION=Debug
+npm run build
+```
 ## Running the JavaScript Tests
 
 Python is required to run the test suite with Node.js. Additionally, the
 Glacier2 tests require the Python module `passlib`, which you can install
 with the command:
-
-    $ pip install passlib
+```
+pip install passlib
+```
 
 To start the tests simply run:
-
-    > npm run test:node
+```
+npm run test:node
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 To start the browser tests run:
-
-    > npm run test:browser
+```
+npm run test:browser
+```
 
 This requires that you build the Java test controller from the Java subdirectory
 and test servers from C++, C# or Java. Follow the instructions from the
@@ -75,7 +81,7 @@ browser.
 The browser-based tests allow you to choose whether to run the tests over
 non-secure WebSocket (WS) or secure WebSocket (WSS) connections. This
 distribution includes a self-signed certificate used for securing WSS
-connections, located in `certs/cacert.pem`. If you select WSS, the page
+connections, located in the `certs/cacert` files. If you select WSS, the page
 will automatically reload if necessary to connect to HTTPS port 9090.
 To successfully run the tests over WSS, additional action may be necessary
 depending on the browser you're using:
@@ -94,14 +100,14 @@ depending on the browser you're using:
 
 - Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
-   the computer account. In the console window, open the Certificates folder.
-   From the Action menu, choose All Tasks and Import. Navigate to the
-   cacert.pem file and import it into the Trusted Root Certification Authorities
-   store. Reload the test page to continue.
+   the computer account. Then select Console Root > Certificates (Local Computer)
+   > Trusted Root Certificate Authorities. In the Action menu, choose All Tasks
+   and Import. Navigate to the `cacert.der` file and import it into. Reload the
+   test page to continue.
 
 #### Windows 8
 
-On Windows 8 and Windows 8.1, network isolation prevents Internet Explorer from
+On Windows 8, network isolation prevents Internet Explorer from
 connecting to 127.0.0.1. To work around this limitation, you'll need to disable
 Internet Explorer's "Protected Mode". Open the "Internet Options" dialog and in
 the "Security" settings tab, deselect the "Enable Protected Mode" checkbox.
@@ -114,8 +120,9 @@ the tests, and that the test certificate authority be installed on your device.
 
 First you'll need to generate new certificates to match the IP address of the
 computer hosting the tests:
-
-    > certs/makecerts.py [IP address]
+```
+certs/makecerts.py [IP address]
+```
 
 Next you must install the certificate authority on your device. The simplest way
 is to email the CA certificate (`certs/cacert.pem`) to yourself and then follow
@@ -139,12 +146,14 @@ Next go to _Settings -> Security -> Install from storage_, and choose
 
 After a successful build, you can generate a package by running the
 following command:
-
-    > npm pack
+```
+npm pack
+```
 
 This will generate the file `ice-3.7.0.tgz`, which can be installed by running:
-
-    > npm install <path_to_file>/ice-3.7.0.tgz
+```
+npm install <path_to_file>/ice-3.7.0.tgz
+```
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
