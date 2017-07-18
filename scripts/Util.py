@@ -303,7 +303,9 @@ class Windows(Platform):
         buildConfig = current.driver.configs[mapping].buildConfig
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
-        if current.driver.useIceBinDist(mapping):
+        if current.config.uwp:
+            return ""
+        elif current.driver.useIceBinDist(mapping):
             version = self.getNugetPackageVersion()
             packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
             package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
@@ -349,7 +351,6 @@ class Windows(Platform):
         return "PATH"
 
     def getIceInstallDir(self, mapping, current):
-
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
         version = self.getNugetPackageVersion()
