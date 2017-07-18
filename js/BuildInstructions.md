@@ -50,12 +50,12 @@ pip install passlib
 
 The scripts also require Ice for Python, you can build Ice for Python from
 [python](../python) folder of this source distribution or install the Python
-module `zeroc-ice`,  using the following command:
+module `zeroc-ice`, using the following command:
 ```
   pip install zeroc-ice
 ```
 
-To start the NodeJS tests simply run:
+You can start the NodeJS tests with:
 ```
 npm run test:node
 ```
@@ -63,38 +63,37 @@ npm run test:node
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-To start the browser tests run:
+You can start the browser tests with:
 ```
 npm run test:browser
 ```
 
-This require an EcmaScript 6 supported browser (Chrome, Firefox or Safari), for
-browsers that are only supported with EcmaScript 5 (Edge and Internet Explorer)
-you will instead run:
+This opens the test page (http://127.0.0.1:8080) using the system's default
+browser. These tests require a web browser wtih ECMAScript 6 support, such as
+a recent version of Chrome, Firefox or Safari.
+
+If you are using another web browser, such as Microsoft Edge or Internet
+Explorer, you should use instead:
 ```
-npm run test:browser_es5
+npm run test:browser-es5
 ```
 
-This runs a version of the test suite that is transpiled using [Babel][2] to
-support previous versions of JavaScript standard.
+This runs a version of the test suite transpiled to ECMAScript 5 using [Babel][2].
 
-In macOS the first time you run the script, you will be prompted for your
+On macOS the first time you run the tests, you will be prompted for your
 password. This is necessary to configure the trust setting for the HTTP
 server certificate, which will enable you to connect to the HTTP server
 with SSL via your web browser.
-
-The test page (http://127.0.0.1:8080) will be opened using the system's default
-browser.
 
 ### Browser Information
 
 #### Self-Signed Certificate
 
 The browser-based tests allow you to choose whether to run the tests over
-non-secure WebSocket (WS) or secure WebSocket (WSS) connections. This
-distribution includes a self-signed certificate used for securing WSS
-connections, located in the `certs/cacert` files. If you select WSS, the page
-will automatically reload if necessary to connect to HTTPS port 9090.
+non-secure WebSocket (WS) or secure WebSocket (WSS) connections. The WSS
+connections in these tests rely on a self-signed certificate, `cacert`,
+provided in the certs(../certs) directory.
+
 To successfully run the tests over WSS, additional action may be necessary
 depending on the browser you're using:
 
@@ -106,16 +105,18 @@ depending on the browser you're using:
    You'll see a warning saying "This Connection is Untrusted". Open Firefox's
    Preferences or Options dialog, click on the Advanced section, select the
    Certificates tab and click on the "View Certificates..." button. In the
-   Authorities tab, click the "Import..." button, navigate to the cacert.pem
+   Authorities tab, click the "Import..." button, navigate to the `cacert.pem`
    file, and add it as a certificate authority (CA) for trusting web sites.
-   After closing the dialogs, reload the test page to continue.
+   After closing the dialogs, reload the test page to continue. You should
+   uninstall this certificate after running the tests.
 
 - Internet Explorer and Microsoft Edge
    Run the management console (mmc.exe) and add the Certificates snap-in for
    the computer account. Then select Console Root > Certificates (Local Computer)
    \> Trusted Root Certificate Authorities. In the Action menu, choose All Tasks
    and Import. Navigate to the `cacert.der` file and import it into the Trusted
-   Root Certificate Authorities. Reload the test page to continue.
+   Root Certificate Authorities. Reload the test page to continue. You should
+   uninstall this certificate after running the tests.
 
 #### Windows 8
 
