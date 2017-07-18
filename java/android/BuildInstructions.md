@@ -19,7 +19,7 @@ SDK build tools. We tested with the following components:
 
 - Android Studio 3.0 preview
 - Android SDK 25
-- Android Build Tools 26.0.0 rc3
+- Android Build Tools 26.0.0
 
 Using Ice's Java mapping with Java 8 requires at minimum API level 24:
 
