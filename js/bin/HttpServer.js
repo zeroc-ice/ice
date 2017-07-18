@@ -38,7 +38,7 @@ function Init()
             "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js",
             "https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.10/URI.min.js",
             "https://cdnjs.cloudflare.com/ajax/libs/animo.js/1.0.3/animo.min.js",
-            "http://spin.js.org/jquery.spin.js"
+            "/assets/jquery.spin.js"
         ]
     };
 
