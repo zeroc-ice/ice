@@ -42,14 +42,20 @@ npm run build
 ```
 ## Running the JavaScript Tests
 
-Python is required to run the test suite with Node.js. Additionally, the
-Glacier2 tests require the Python module `passlib`, which you can install
-with the command:
+Python is required to run the test suite. Additionally, the Glacier2 tests
+require the Python module `passlib`, which you can install with the command:
 ```
 pip install passlib
 ```
 
-To start the tests simply run:
+The scripts also require Ice for Python, you can build Ice for Python from
+[python](../python) folder of this source distribution or install the Python
+module `zeroc-ice`,  using the following command:
+```
+  pip install zeroc-ice
+```
+
+To start the NodeJS tests simply run:
 ```
 npm run test:node
 ```
@@ -62,9 +68,15 @@ To start the browser tests run:
 npm run test:browser
 ```
 
-This requires that you build the Java test controller from the Java subdirectory
-and test servers from C++, C# or Java. Follow the instructions from the
-corresponding language mapping to build the tests and the server controller.
+This require an EcmaScript 6 supported browser (Chrome, Firefox or Safari), for
+browsers that are only supported with EcmaScript 5 (Edge and Internet Explorer)
+you will instead run:
+```
+npm run test:browser_es5
+```
+
+This runs a version of the test suite that is transpiled using [Babel][2] to
+support previous versions of JavaScript standard.
 
 In macOS the first time you run the script, you will be prompted for your
 password. This is necessary to configure the trust setting for the HTTP
@@ -159,3 +171,4 @@ To use Ice for JavaScript with a browser, copy the appropriate JavaScript
 library files located in the `lib` directory to your web server.
 
 [1]: https://zeroc.com/distributions/ice
+[2]: https://babeljs.io
