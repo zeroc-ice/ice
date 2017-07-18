@@ -20,8 +20,7 @@ var communicator = Ice.initialize(process.argv);
 var proxy = communicator.stringToProxy("hello:tcp -h localhost -p 10000");
 ```
 
-The npm package also includes the browser version of Ice for JavaScript. Add `<script>` 
-tags to your html to include the Ice for JavaScript components you require. For example:
+The npm package also includes the browser version of Ice for JavaScript. For example:
 
 ```html
 <script src="/node_modules/ice/lib/Ice.js"></script>
@@ -42,7 +41,7 @@ See the [Ice Manual](https://doc.zeroc.com/display/Ice37/Ice+Manual).
 
 ## Compiling Slice Files to JavaScript
 
-You can use `slice2js` directly or through the Ice Builder for Gulp to compile Slice files to JavaScript: 
+You can use `slice2js` directly or through the Ice Builder for Gulp to compile Slice files to JavaScript:
 - [slice2js](https://github.com/zeroc-ice/npm-slice2js)
 - [gulp-ice-builder](https://github.com/zeroc-ice/gulp-ice-builder)
 
