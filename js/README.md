@@ -1,11 +1,11 @@
-# Internet Communications Engine (Ice)
-Ice is a comprehensive RPC framework with support for C++, .NET, Java, Python, JavaScript and more.
+# Ice for JavaScript
+Ice is a comprehensive RPC framework with support for JavaScript, C++, .NET, Java, Python and more.
 
 ## Install
 Using npm:
 
 ```bash
-$ npm install ice --save
+npm install ice --save
 ```
 
 ## Usage
@@ -20,7 +20,8 @@ var communicator = Ice.initialize(process.argv);
 var proxy = communicator.stringToProxy("hello:tcp -h localhost -p 10000");
 ```
 
-The npm package also includes the browser version of Ice for JavaScript. Add the necessary `<script>` tags to your html to include the Ice for JavaScript components you require. `node_modules` must server out from the root directory of your web server.
+The npm package also includes the browser version of Ice for JavaScript. Add `<script>` 
+tags to your html to include the Ice for JavaScript components you require. For example:
 
 ```html
 <script src="/node_modules/ice/lib/Ice.js"></script>
@@ -37,14 +38,15 @@ Minified versions are available with the `.min.js` extension.
 
 ## Documentation
 
-See the [Ice Documentation](https://doc.zeroc.com/display/Ice37/JavaScript+Mapping).
+See the [Ice Manual](https://doc.zeroc.com/display/Ice37/Ice+Manual).
 
-## Slice2js Compiler
+## Compiling Slice Files to JavaScript
 
-To compile [Slice](https://doc.zeroc.com/display/Ice37/The+Slice+Language) files to JavaScript see the following:
+You can use `slice2js` directly or through the Ice Builder for Gulp to compile Slice files to JavaScript: 
 - [slice2js](https://github.com/zeroc-ice/npm-slice2js)
 - [gulp-ice-builder](https://github.com/zeroc-ice/gulp-ice-builder)
 
 ## Demos
 
-A collection of demos for Ice for JavaScript (and other language mappings) can be found [here](https://github.com/zeroc-ice/ice-demos).
+The [ice-demos](https://github.com/zeroc-ice/ice-demos) repository provides a collection of demos for
+JavaScript and other programming languages.
