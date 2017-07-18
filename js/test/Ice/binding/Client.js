@@ -1100,7 +1100,7 @@
             {
                 return com.shutdown();
             }
-        ).then(p.resolve, p.rejectr);
+        ).then(p.resolve, p.reject);
         return p;
     };
 
