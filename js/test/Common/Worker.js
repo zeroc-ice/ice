@@ -35,6 +35,10 @@ self.onmessage = function(e)
             self.importScripts("/node_modules/regenerator-runtime/runtime.js");
             self.importScripts("/lib/es5/Ice.js");
             self.importScripts("/test/es5/Common/Controller.js");
+            test.files = test.files.map(function(f)
+                {
+                    return f.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js");
+                });
         }
         else
         {
@@ -42,6 +46,7 @@ self.onmessage = function(e)
             self.importScripts("/test/Common/Controller.js");
         }
         self.importScripts("/test/Common/TestRunner.js");
+
         for(var i = 0; i < test.files.length; ++i)
         {
             var f = test.files[i];
