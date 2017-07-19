@@ -80,5 +80,5 @@ dist.dependsOn(project(":IceGridGUI").assemble)
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "3.2"
+    gradleVersion = "4.0.1"
 }
