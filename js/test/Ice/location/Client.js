@@ -660,7 +660,7 @@
                 {
                     if(!(ex instanceof Ice.NotRegisteredException))
                     {
-                        p.fail(ex);
+                        p.reject(ex);
                     }
 
                     if(all < 999)
