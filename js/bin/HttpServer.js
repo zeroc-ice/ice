@@ -157,6 +157,11 @@ function Init()
                                 "/test/Common/TestSuite.js",
                                 "/test/es5/Common/Controller.js"
                             ].concat(testSuite.files);
+
+                            TestData.scripts = TestData.scripts.map(function(f)
+                                {
+                                    return f.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js")
+                                });
                         }
                         else
                         {
