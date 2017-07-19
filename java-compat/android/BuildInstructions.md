@@ -32,6 +32,8 @@ suite, edit `gradle.properties` and change the following variables:
     ice_minSdkVersion
     ice_targetSdkVersion
 
+*NOTE: Do not use Android Studio to modify the project's settings.*
+
 ### Slice to Java Compiler
 
 To build this project you'll need the Slice to Java compiler, which generates
@@ -60,13 +62,12 @@ therefore add significant latency to Ice requests.*
 
 ## Building the Project
 
-Follow these steps to import the Ice for Android project into Android Studio:
+Follow these steps to open the project in Android Studio:
 
 1. Start Android Studio
-2. Select Open Project
-3. Navigate to the android-compat subdirectory
-4. If presented with an "Import Project from Gradle" dialog, select
-   "Use default gradle wrapper" and press OK
+2. Select "Open an existing Android Studio project"
+3. Navigate to and select the "android" subdirectory
+4. Click OK and wait for the project to open and build
 
 The Android Studio project contains a `testController` application for the Ice
 test suite. To run the application, select it in the configuration pull down and
@@ -87,7 +88,7 @@ directories from the Android SDK to your PATH.
 
 The Instant Run feature from Android Studio causes some problems with the test
 suite application. You need to disable it in order to run the test controller
-application, check the following page for instructions on how to disable it:
+application. Check the following page for instructions on disabling it:
 
     https://developer.android.com/studio/run/index.html#disable-ir
 

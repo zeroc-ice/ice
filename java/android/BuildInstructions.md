@@ -18,7 +18,7 @@ Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
 - Android Studio 3.0 preview
-- Android SDK 25
+- Android SDK 24
 - Android Build Tools 26.0.0
 
 Using Ice's Java mapping with Java 8 requires at minimum API level 24:
@@ -31,6 +31,8 @@ suite, edit `gradle.properties` and change the following variables:
     ice_compileSdkVersion
     ice_minSdkVersion
     ice_targetSdkVersion
+
+*NOTE: Do not use Android Studio to modify the project's settings.*
 
 ### Slice to Java Compiler
 
@@ -60,13 +62,12 @@ therefore add significant latency to Ice requests.*
 
 ## Building the Project
 
-Follow these steps to import the Ice for Android project into Android Studio:
+Follow these steps to open the project in Android Studio:
 
 1. Start Android Studio
-2. Select Open Project
-3. Navigate to the android subdirectory
-4. If presented with an "Import Project from Gradle" dialog, select
-   "Use default gradle wrapper" and press OK
+2. Select "Open an existing Android Studio project"
+3. Navigate to and select the "android" subdirectory
+4. Click OK and wait for the project to open and build
 
 The Android Studio project contains a `testController` application for the Ice
 test suite. To run the application, select it in the configuration pull down and
@@ -87,8 +88,8 @@ directories of Android SDK to the PATH.
 
 The Instant Run feature of Android Studio causes some problems with the test
 suite application and you need to disable it in order to run the test controller
-application from the Android Studio, check the following page for instructions
-to disable it:
+application from Android Studio. Check the following page for instructions on
+disabling it:
 
     https://developer.android.com/studio/run/index.html#disable-ir
 
