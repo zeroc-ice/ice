@@ -33,14 +33,19 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "https://repo.zeroc.com/nexus/content/repositories/releases"
+            url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: "${iceBuilderVersion}"
+        classpath group: "${iceBuilderClassPath}", name: 'slice', version: "${iceBuilderVersion}"
     }
 }
 
+//
+// We do not use the new gradle Plugin DSL because on debian we want to use the plug-in
+// from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
+// included in stretch and the Plugin DSL.
+//
 if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
     project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 }
