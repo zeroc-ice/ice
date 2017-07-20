@@ -30,7 +30,7 @@ class PluginI implements com.zeroc.Ice.Plugin
         f.addEndpointFactory(new EndpointFactoryI(bt));
 
         Instance bts = new Instance(communicator, BTSEndpointType.value, "bts");
-        f.addEndpointFactory(new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTSEndpointType.value));
+        f.addEndpointFactory(new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
     }
 
     @Override
