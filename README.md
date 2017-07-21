@@ -69,6 +69,9 @@ Ice runs on a wide range of platforms:
 - `master`
   Primary development branch (unstable, frequently updated)
 
+- `3.7`
+  Ice 3.7.x plus various patches (stable, frequently updated)
+
 - `3.6`
   Ice 3.6.x plus various patches (stable, frequently updated)
 
@@ -99,8 +102,8 @@ If you purchase a commercial or closed-source license for Ice, you must comply
 with the terms and conditions listed in the associated license agreement; the
 GPL v2 terms and conditions do not apply.
 
-The Ice software itself remains the same: the only difference between an open-
-source Ice and a commercial Ice are the license terms.
+The Ice software itself remains the same: the only difference between an open-source
+Ice and a commercial Ice are the license terms.
 
 ## Documentation
 
