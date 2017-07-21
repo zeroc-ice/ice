@@ -797,11 +797,6 @@ namespace IceInternal
                         _initData.logger =
                             new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), console);
                     }
-
-                    if(Ice.Util.getProcessLogger() is Ice.LoggerI)
-                    {
-                        _initData.logger = new Ice.ConsoleLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
-                    }
                     else
                     {
                         _initData.logger = Ice.Util.getProcessLogger();
