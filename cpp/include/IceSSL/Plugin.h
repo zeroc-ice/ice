@@ -18,13 +18,6 @@
 #include <vector>
 #include <list>
 
-// For struct sockaddr_storage
-#ifdef _WIN32
-#   include <winsock2.h>
-#else
-#   include <sys/socket.h>
-#endif
-
 #if defined(ICE_USE_SECURE_TRANSPORT)
 #   include <CoreFoundation/CFError.h>
 #elif defined(ICE_USE_SCHANNEL)
