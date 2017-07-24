@@ -57,8 +57,11 @@ Ice runs on a wide range of platforms:
 - `master`
   Primary development branch (unstable, frequently updated)
 
+- `3.7`
+  Ice 3.7.x plus various patches (stable, frequently updated)
+
 - `3.6`
-  Ice 3.6.x plus various patches (stable, frequently updated)
+  Ice 3.6.x plus various patches (stable)
 
 - `3.5`
   Ice 3.5.1 plus various patches (stable)
