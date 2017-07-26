@@ -109,7 +109,6 @@
 #   define ICE_CPP11
 #endif
 
-
 #if defined(ICE_CPP11) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
@@ -175,7 +174,6 @@
 #   define ICE_UTIL_API ICE_DECLSPEC_IMPORT
 #endif
 
-
 #if defined(_MSC_VER)
 #   define ICE_DEPRECATED_API(msg) __declspec(deprecated(msg))
 #elif defined(__clang__)
@@ -216,6 +214,7 @@
 #include <sstream>
 
 #ifndef _WIN32
+#   include <unistd.h>
 #   include <pthread.h>
 #   include <errno.h>
 #endif
@@ -233,7 +232,6 @@
 // TODO: better fix for this warning
 #   pragma report(disable, "1540-0198") // private inheritance without private keyword
 #endif
-
 
 #if !defined(ICE_BUILDING_ICE_UTIL) && defined(ICE_UTIL_API_EXPORTS)
 #   define ICE_BUILDING_ICE_UTIL

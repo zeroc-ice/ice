@@ -66,6 +66,11 @@ These are the changes since Ice 3.6.3 included in this pre-release.
 - Fixed bug which would cause an IceUtil::NullHandleException to be raised when
   using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
 
+- Fixed bug which cause PTHREAD_PRIO_INHERIT not being set when Ice was build
+  with -DICE_PRIO_INHERIT because the system macros for priority inheritance
+  where included after Ice Mutex headers resulting in Ice mutexes not using
+  the priority inheritance protocol.
+
 ## Java Changes
 
 - Fixed generated code bug which would cause a build failure if an interface

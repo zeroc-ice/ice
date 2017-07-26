@@ -19,7 +19,7 @@ public:
     PriorityInversionTest();
 
 private:
-    
+
     virtual void run();
 };
 
