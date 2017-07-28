@@ -15,7 +15,6 @@ subprojects {
     apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
-
     repositories {
         if (slice.jarDir) {
             flatDir {
@@ -70,5 +69,5 @@ dist.dependsOn(project(":IceGridGUI").assemble)
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.6"
+    gradleVersion = "4.0.1"
 }
