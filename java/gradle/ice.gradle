@@ -40,11 +40,11 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "https://${iceMavenRepo}/nexus/content/repositories/releases"
+            url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: "${iceBuilderVersion}"
+        classpath group: iceBuilderClassPath, name: 'slice', version: iceBuilderVersion
     }
 }
 
@@ -101,7 +101,6 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
 def iceCppDir = slice.srcDist ? [slice.iceHome, "cpp"].join(File.separator) : slice.iceHome
 def iceSrcDist = false
 
-
 // Check is DESTDIR is set (non-Windows)
 if (isWindows) {
     ext.DESTDIR = ""
@@ -133,8 +132,6 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
         new File(it).exists()
     }
 }
-
-
 
 def localDependency(artifactId) {
     if (project.slice.srcDist) {
@@ -220,7 +217,6 @@ if (!android) {
             new File(it).exists()
         }
     }
-
 
     if(!ext.dbJar || !new File(ext.dbJar).exists()) {
         throw new GradleException("Unable to locate the required third party BerkeleyDB jar file `db.jar'.")
