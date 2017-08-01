@@ -199,12 +199,12 @@ public class ControllerApp extends Application
         return addresses;
     }
 
-    public synchronized void startController(ControllerActivity controller)
+    public synchronized void startController(ControllerActivity controller, boolean bluetooth)
     {
         if(_helper == null)
         {
             _controller = controller;
-            _helper = new ControllerHelper();
+            _helper = new ControllerHelper(bluetooth);
         }
         else
         {
@@ -241,7 +241,7 @@ public class ControllerApp extends Application
 
     class ControllerHelper
     {
-        public ControllerHelper()
+        public ControllerHelper(boolean bluetooth)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
@@ -251,7 +251,10 @@ public class ControllerApp extends Application
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
             {
-                initData.properties.setProperty("Ice.Plugin.IceBT", "IceBT.PluginFactory");
+                if(bluetooth)
+                {
+                    initData.properties.setProperty("Ice.Plugin.IceBT", "IceBT.PluginFactory");
+                }
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
