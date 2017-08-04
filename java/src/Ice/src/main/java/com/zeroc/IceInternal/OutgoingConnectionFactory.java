@@ -9,6 +9,8 @@
 
 package com.zeroc.IceInternal;
 
+import java.util.concurrent.Callable;
+
 import com.zeroc.Ice.ConnectionI;
 import com.zeroc.Ice.LocalException;
 
@@ -205,8 +207,28 @@ public final class OutgoingConnectionFactory
             return;
         }
 
-        ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
-        cb.getConnectors();
+        final ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
+        //
+        // Calling cb.getConnectors() can eventually result in a call to connect() on a socket, which is not
+        // allowed while in Android's main thread (with a dispatcher installed).
+        //
+        if(_instance.queueRequests())
+        {
+            _instance.getQueueExecutor().executeNoThrow(new Callable<Void>()
+            {
+                @Override
+                public Void call()
+                    throws Exception
+                {
+                    cb.getConnectors();
+                    return null;
+                }
+            });
+        }
+        else
+        {
+            cb.getConnectors();
+        }
     }
 
     public synchronized void
