@@ -32,7 +32,6 @@ self.onmessage = function(e)
         if(test.es5)
         {
             self.importScripts("/node_modules/babel-polyfill/dist/polyfill.js");
-            self.importScripts("/node_modules/regenerator-runtime/runtime.js");
             self.importScripts("/lib/es5/Ice.js");
             self.importScripts("/test/es5/Common/Controller.js");
             test.files = test.files.map(function(f)

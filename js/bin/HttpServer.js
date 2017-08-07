@@ -151,7 +151,6 @@ function Init()
                             TestData.scripts =
                             [
                                 "/node_modules/babel-polyfill/dist/polyfill.js",
-                                "/node_modules/regenerator-runtime/runtime.js",
                                 "/lib/es5/Ice.js",
                                 "/test/Common/TestRunner.js",
                                 "/test/Common/TestSuite.js",
@@ -199,7 +198,6 @@ function Init()
             var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
             var scripts = es5 ? [
                 "/node_modules/babel-polyfill/dist/polyfill.js",
-                "/node_modules/regenerator-runtime/runtime.js",
                 "/lib/es5/Ice.js",
                 "/test/es5/Common/Controller.js",
                 "/test/es5/Common/ControllerI.js",
