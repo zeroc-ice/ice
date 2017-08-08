@@ -9,6 +9,8 @@
 
 import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil, copy, inspect
 
+import xml.sax.saxutils
+
 isPython2 = sys.version_info[0] == 2
 if isPython2:
     import Queue as queue
@@ -47,6 +49,13 @@ def val(v, escapeQuotes=False, quoteValue=True):
             return "\"{0}\"".format(v)
     else:
         return str(v)
+
+def escapeXml(s):
+    # Remove backspace characters from the output (they aren't accepted by Jenkins XML parser)
+    if isPython2:
+        return xml.sax.saxutils.escape("".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8"))
+    else:
+        return xml.sax.saxutils.escape("".join(ch for ch in s if ch != u"\u0008"))
 
 def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
@@ -1566,13 +1575,14 @@ class Result:
 
     def __init__(self, testsuite, writeToStdout):
         self.testsuite = testsuite
-        self._skipped = []
         self._failed = {}
         self._succeeded = []
+        self._skipped = {}
         self._stdout = StringIO()
         self._writeToStdout = writeToStdout
         self._testcases = {}
         self._duration = 0
+        self._testCaseDuration = 0;
 
     def start(self):
         self._duration = time.time()
@@ -1581,11 +1591,13 @@ class Result:
         self._duration = time.time() - self._duration
 
     def started(self, testcase):
+        self._testCaseDuration = time.time();
         self._start = self._stdout.tell()
 
     def failed(self, testcase, exception):
+        self._testCaseDuration = time.time() - self._testCaseDuration;
         self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
-        self._testcases[testcase] = (self._start, self._stdout.tell())
+        self._testcases[testcase] = (self._start, self._stdout.tell(), self._testCaseDuration)
         self._failed[testcase] = exception
         output = self.getOutput(testcase)
         for s in ["EADDRINUSE", "Address already in use"]:
@@ -1597,8 +1609,15 @@ class Result:
                     self.writeln(run("lsof -n -P -i; ps ax"))
 
     def succeeded(self, testcase):
-        self._testcases[testcase] = (self._start, self._stdout.tell())
+        self._testCaseDuration = time.time() - self._testCaseDuration;
+        self._testcases[testcase] = (self._start, self._stdout.tell(), self._testCaseDuration)
         self._succeeded.append(testcase)
+
+    def skipped(self, testcase, reason):
+        self._start = self._stdout.tell()
+        self.writeln("skipped, " + reason)
+        self._testcases[testcase] = (self._start, self._stdout.tell(), 0)
+        self._skipped[testcase] = reason
 
     def isSuccess(self):
         return len(self._failed) == 0
@@ -1612,7 +1631,7 @@ class Result:
     def getOutput(self, testcase=None):
         if testcase:
             if testcase in self._testcases:
-                (start, end) = self._testcases[testcase]
+                (start, end, duration) = self._testcases[testcase]
                 self._stdout.seek(start)
                 try:
                     return self._stdout.read(end - start)
@@ -1650,6 +1669,40 @@ class Result:
                 print(str(msg.encode("utf-8")).replace("\\\\", "\\"))
         self._stdout.write(msg)
         self._stdout.write("\n")
+
+    def writeAsXml(self, out, hostname=""):
+        out.write('  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3}" name="{4}">\n'
+                    .format(len(self._testcases) - 2,
+                            len(self._failed),
+                            len(self._skipped),
+                            self._duration,
+                            self.testsuite))
+
+        for (tc, v) in self._testcases.items():
+            if isinstance(tc, TestCase):
+                (s, e, d) = v
+                out.write('    <testcase name="{0}" time="{1}" classname="{2}.{3}">\n'
+                          .format(tc,
+                                  d,
+                                  self.testsuite.getMapping(),
+                                  self.testsuite.getId().replace("/", ".")))
+                if tc in self._failed:
+                    last = self._failed[tc].strip().split('\n')
+                    if len(last) > 0:
+                        last = last[len(last) - 1]
+                    if hostname:
+                        last = "Failed on {0}\n{1}".format(hostname, last)
+                    out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[tc]), last))
+                elif tc in self._skipped:
+                    out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[tc])))
+                out.write('      <system-out>\n')
+                if hostname:
+                    out.write('Running on {0}\n'.format(hostname))
+                out.write(escapeXml(self.getOutput(tc)))
+                out.write('      </system-out>\n')
+                out.write('    </testcase>\n')
+
+        out.write(  '</testsuite>\n')
 
 class TestSuite:
 

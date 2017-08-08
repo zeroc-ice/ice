@@ -301,6 +301,23 @@ class RemoteTestCaseRunner(TestCaseRunner):
                                   current.config.cprops,
                                   current.config.sprops)
 
+class XmlExporter:
+
+    def __init__(self, results, duration, failures):
+        self.results = results
+        self.duration = duration
+        self.failures = failures
+
+    def save(self, filename, hostname):
+        with open(filename, "w") as out:
+            out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
+            out.write('<testsuites tests="{0}" failures="{1}" time="{2}">\n'.format(len(self.results),
+                                                                                    self.duration,
+                                                                                    len(self.failures)))
+            for r in self.results:
+                r.writeAsXml(out, hostname)
+            out.write('</testsuites>\n')
+
 class LocalDriver(Driver):
 
     class Current(Driver.Current):
@@ -313,7 +330,7 @@ class LocalDriver(Driver):
     @classmethod
     def getSupportedArgs(self):
         return ("", ["cross=", "workers=", "continue", "loop", "start=", "all", "all-cross", "host=",
-                     "client=", "server=", "show-durations"])
+                     "client=", "server=", "show-durations", "export-xml="])
 
     @classmethod
     def usage(self):
@@ -329,6 +346,7 @@ class LocalDriver(Driver):
         print("--client=<proxy>      The endpoint of the controller to run the client side.")
         print("--server=<proxy>      The endpoint of the controller to run the server side.")
         print("--show-durations      Print out the duration of each tests.")
+        print("--export-xml=<file>   Export JUnit XML test report.")
 
     def __init__(self, options, *args, **kargs):
         Driver.__init__(self, options, *args, **kargs)
@@ -341,6 +359,7 @@ class LocalDriver(Driver):
         self.start = 0
         self.all = False
         self.showDurations = False
+        self.exportToXml = ""
 
         self.clientCtlPrx = ""
         self.serverCtlPrx = ""
@@ -350,7 +369,8 @@ class LocalDriver(Driver):
                                       "all-cross" : "allCross",
                                       "client" : "clientCtlPrx",
                                       "server" : "serverCtlPrx",
-                                      "show-durations" : "showDurations" })
+                                      "show-durations" : "showDurations",
+                                      "export-xml" : "exportToXml" })
 
         if self.cross:
             self.cross = Mapping.getByName(self.cross)
@@ -409,7 +429,12 @@ class LocalDriver(Driver):
             Expect.cleanup() # Cleanup processes which might still be around
 
             failures = [r for r in results if not r.isSuccess()]
-            m, s = divmod(time.time() - now, 60)
+            duration = time.time() - now
+
+            if self.exportToXml:
+                XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
+
+            m, s = divmod(duration, 60)
             print("")
             if m > 0:
                 print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
@@ -505,7 +530,7 @@ class LocalDriver(Driver):
 
             if cross and server.getMapping() != cross:
                 if not self.allCross:
-                    current.writeln("skipped, no server available for `{0}' mapping".format(cross))
+                    current.result.skipped(current.testcase, "no server available for `{0}' mapping".format(cross))
                 continue
 
             current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
@@ -517,7 +542,7 @@ class LocalDriver(Driver):
             if cross:
                 current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
             if not current.config.canRun(current) or not current.testcase.canRun(current):
-                current.writeln("skipped, not supported with this configuration")
+                current.result.skipped(current.testcase, "not supported with this configuration")
                 return
 
             success = False
@@ -538,7 +563,7 @@ class LocalDriver(Driver):
                 if confStr:
                     current.writeln("- Config: {0}".format(confStr))
                 if not current.config.canRun(current) or not current.testcase.canRun(current):
-                    current.writeln("skipped, not supported with this configuration")
+                    current.result.skipped(current.testcase, "not supported with this configuration")
                     return
 
             current.testcase._runClientSide(current)
