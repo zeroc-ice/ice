@@ -103,7 +103,6 @@ var FactoryACMMonitor = Class(ACMMonitor, {
             return;
         }
         this._instance = null;
-        this._connections = null;
     },
     add: function(connection)
     {
@@ -184,6 +183,7 @@ var FactoryACMMonitor = Class(ACMMonitor, {
     {
         if(this._instance === null)
         {
+            this._connections = null;
             return;
         }
 

@@ -22,14 +22,14 @@ IceUtil::Shared* IceInternal::upCast(ACMMonitor* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(FactoryACMMonitor* p) { return p; }
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
-    timeout(IceUtil::Time::seconds(60)), 
-    heartbeat(Ice::HeartbeatOnInvocation), 
+    timeout(IceUtil::Time::seconds(60)),
+    heartbeat(Ice::HeartbeatOnInvocation),
     close(server ? Ice::CloseOnInvocation : Ice::CloseOnInvocationAndIdle)
 {
 }
 
-IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p, 
-                                  const Ice::LoggerPtr& l, 
+IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
+                                  const Ice::LoggerPtr& l,
                                   const string& prefix,
                                   const ACMConfig& dflt)
 {
@@ -43,7 +43,7 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
         timeoutProperty = prefix + ".Timeout";
     };
 
-    this->timeout = IceUtil::Time::seconds(p->getPropertyAsIntWithDefault(timeoutProperty, 
+    this->timeout = IceUtil::Time::seconds(p->getPropertyAsIntWithDefault(timeoutProperty,
                                                                           static_cast<int>(dflt.timeout.toSeconds())));
     int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat);
     if(hb >= Ice::HeartbeatOff && hb <= Ice::HeartbeatAlways)
@@ -87,12 +87,37 @@ IceInternal::FactoryACMMonitor::destroy()
     Lock sync(*this);
     if(!_instance)
     {
+        //
+        // Ensure all the connections have been cleared, it's important to wait here
+        // to prevent the timer destruction in IceInternal::Instance::destroy.
+        //
+        while(!_connections.empty())
+        {
+            wait();
+        }
         return;
     }
 
+    //
+    // Cancel the scheduled timer task and schedule it again now to clear the
+    // connection set from the timer thread.
+    //
+    if(!_connections.empty())
+    {
+        _instance->timer()->cancel(this);
+        _instance->timer()->schedule(this, IceUtil::Time());
+    }
+
     _instance = 0;
-    _connections.clear();
     _changes.clear();
+
+    //
+    // Wait for the connection set to be cleared by the timer thread.
+    //
+    while(!_connections.empty())
+    {
+        wait();
+    }
 }
 
 void
@@ -136,8 +161,8 @@ IceInternal::FactoryACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout, 
-                                    const IceUtil::Optional<Ice::ACMClose>& close, 
+IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
+                                    const IceUtil::Optional<Ice::ACMClose>& close,
                                     const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     Lock sync(*this);
@@ -183,6 +208,8 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         Lock sync(*this);
         if(!_instance)
         {
+            _connections.clear();
+            notifyAll();
             return;
         }
 
@@ -206,7 +233,6 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         }
     }
 
-        
     //
     // Monitor connections outside the thread synchronization, so
     // that connections can be added or removed during monitoring.
@@ -215,11 +241,11 @@ IceInternal::FactoryACMMonitor::runTimerTask()
     for(set<ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
         try
-        {          
+        {
             (*p)->monitor(now, _config);
         }
         catch(const exception& ex)
-        {   
+        {
             handleException(ex);
         }
         catch(...)
@@ -237,7 +263,7 @@ FactoryACMMonitor::handleException(const exception& ex)
     {
         return;
     }
-    
+
     Error out(_instance->initializationData().logger);
     out << "exception in connection monitor:\n" << ex.what();
 }
@@ -250,12 +276,12 @@ FactoryACMMonitor::handleException()
     {
         return;
     }
-    
+
     Error out(_instance->initializationData().logger);
     out << "unknown exception in connection monitor";
 }
 
-IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent, 
+IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent,
                                                         const IceUtil::TimerPtr& timer,
                                                         const ACMConfig& config) :
     _parent(parent), _timer(timer), _config(config)
@@ -298,8 +324,8 @@ IceInternal::ConnectionACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::ConnectionACMMonitor::acm(const IceUtil::Optional<int>& timeout, 
-                                       const IceUtil::Optional<Ice::ACMClose>& close, 
+IceInternal::ConnectionACMMonitor::acm(const IceUtil::Optional<int>& timeout,
+                                       const IceUtil::Optional<Ice::ACMClose>& close,
                                        const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     return _parent->acm(timeout, close, heartbeat);
@@ -327,13 +353,13 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
         }
         connection = _connection;
     }
-    
+
     try
-    {          
+    {
         connection->monitor(IceUtil::Time::now(IceUtil::Time::Monotonic), _config);
     }
     catch(const exception& ex)
-    {   
+    {
         _parent->handleException(ex);
     }
     catch(...)

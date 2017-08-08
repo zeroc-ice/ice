@@ -44,13 +44,13 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&) = 0;
     virtual void reap(const Ice::ConnectionIPtr&) = 0;
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&) = 0;
     virtual Ice::ACM getACM() = 0;
 };
 
-class FactoryACMMonitor : public ACMMonitor, public ::IceUtil::Mutex
+class FactoryACMMonitor : public ACMMonitor, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -61,8 +61,8 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 
@@ -96,8 +96,8 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&, 
-                              const IceUtil::Optional<Ice::ACMClose>&, 
+    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
+                              const IceUtil::Optional<Ice::ACMClose>&,
                               const IceUtil::Optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 
