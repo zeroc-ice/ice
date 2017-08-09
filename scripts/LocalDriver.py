@@ -10,6 +10,8 @@
 import sys, os, time
 from Util import *
 
+isPython2 = sys.version_info[0] == 2
+
 #
 # The Executor class runs testsuites on multiple worker threads.
 #
@@ -309,11 +311,11 @@ class XmlExporter:
         self.failures = failures
 
     def save(self, filename, hostname):
-        with open(filename, "w") as out:
+        with open(filename, "w") if isPython2 else open(filename, "w", encoding="utf-8") as out:
             out.write('<?xml version="1.1" encoding="UTF-8"?>\n')
-            out.write('<testsuites tests="{0}" failures="{1}" time="{2}">\n'.format(len(self.results),
-                                                                                    self.duration,
-                                                                                    len(self.failures)))
+            out.write('<testsuites tests="{0}" failures="{1}" time="{2:.9f}">\n'.format(len(self.results),
+                                                                                        self.duration,
+                                                                                        len(self.failures)))
             for r in self.results:
                 r.writeAsXml(out, hostname)
             out.write('</testsuites>\n')
@@ -530,7 +532,7 @@ class LocalDriver(Driver):
 
             if cross and server.getMapping() != cross:
                 if not self.allCross:
-                    current.result.skipped(current.testcase, "no server available for `{0}' mapping".format(cross))
+                    current.result.skipped(current, "no server available for `{0}' mapping".format(cross))
                 continue
 
             current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
@@ -539,10 +541,14 @@ class LocalDriver(Driver):
             confStr = str(current.config)
             if confStr:
                 current.writeln("- Config: {0}".format(confStr))
+                current.desc = confStr
+            else:
+                current.desc = ""
             if cross:
                 current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
+                current.desc += (" " if current.desc else "") + "cross={0}".format(server.getMapping())
             if not current.config.canRun(current) or not current.testcase.canRun(current):
-                current.result.skipped(current.testcase, "not supported with this configuration")
+                current.result.skipped(current, "not supported with this configuration")
                 return
 
             success = False
@@ -554,19 +560,22 @@ class LocalDriver(Driver):
                 self.runner.stopServerSide(server, current, success)
 
     def runTestCase(self, current):
-        if not self.cross and not self.allCross:
-            if not current.testcase.getParent():
-                current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
-                if not self.all:
-                    current.config = current.config.cloneRunnable(current)
-                confStr = str(current.config)
-                if confStr:
-                    current.writeln("- Config: {0}".format(confStr))
-                if not current.config.canRun(current) or not current.testcase.canRun(current):
-                    current.result.skipped(current.testcase, "not supported with this configuration")
-                    return
+        if self.cross or self.allCross:
+            current.result.skipped(current, "only client/server tests are ran with cross tests")
 
-            current.testcase._runClientSide(current)
+        if not current.testcase.getParent():
+            current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
+            if not self.all:
+                current.config = current.config.cloneRunnable(current)
+            confStr = str(current.config)
+            if confStr:
+                current.writeln("- Config: {0}".format(confStr))
+                current.desc = confStr
+            if not current.config.canRun(current) or not current.testcase.canRun(current):
+                current.result.skipped(current, "not supported with this configuration")
+                return
+
+        current.testcase._runClientSide(current)
 
     def isWorkerThread(self):
         return hasattr(self.threadlocal, "num")

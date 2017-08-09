@@ -1521,14 +1521,17 @@ class TestCase(Runnable):
     def run(self, current):
         try:
             current.push(self)
-            current.result.started(self)
+            if not self.parent:
+                current.result.started(current)
             self.setup(current)
             self.runWithDriver(current)
             self.teardown(current, True)
-            current.result.succeeded(self)
+            if not self.parent:
+                current.result.succeeded(current)
         except Exception as ex:
             self.teardown(current, False)
-            current.result.failed(self, traceback.format_exc() if current.driver.debug else str(ex))
+            if not self.parent:
+                current.result.failed(current, traceback.format_exc() if current.driver.debug else str(ex))
             raise
         finally:
             current.pop()
@@ -1573,10 +1576,12 @@ class ClientAMDServerTestCase(ClientServerTestCase):
 
 class Result:
 
+    getKey = lambda self, current: (current.testcase, current.config) if isinstance(current, Driver.Current) else current
+    getDesc = lambda self, current: current.desc if isinstance(current, Driver.Current) else ""
+
     def __init__(self, testsuite, writeToStdout):
         self.testsuite = testsuite
         self._failed = {}
-        self._succeeded = []
         self._skipped = {}
         self._stdout = StringIO()
         self._writeToStdout = writeToStdout
@@ -1590,16 +1595,20 @@ class Result:
     def finished(self):
         self._duration = time.time() - self._duration
 
-    def started(self, testcase):
+    def started(self, current):
         self._testCaseDuration = time.time();
         self._start = self._stdout.tell()
 
-    def failed(self, testcase, exception):
+    def failed(self, current, exception):
+        print(exception)
+        key = self.getKey(current)
         self._testCaseDuration = time.time() - self._testCaseDuration;
         self.writeln("\ntest in {0} failed:\n{1}".format(self.testsuite, exception))
-        self._testcases[testcase] = (self._start, self._stdout.tell(), self._testCaseDuration)
-        self._failed[testcase] = exception
-        output = self.getOutput(testcase)
+        self._testcases[key] = (self._start, self._stdout.tell(), self._testCaseDuration, self.getDesc(current))
+        self._failed[key] = exception
+
+        # If ADDRINUSE, dump the current processes
+        output = self.getOutput(key)
         for s in ["EADDRINUSE", "Address already in use"]:
             if output.find(s) >= 0:
                 if isinstance(platform, Windows):
@@ -1608,16 +1617,14 @@ class Result:
                 else:
                     self.writeln(run("lsof -n -P -i; ps ax"))
 
-    def succeeded(self, testcase):
+    def succeeded(self, current):
+        key = self.getKey(current)
         self._testCaseDuration = time.time() - self._testCaseDuration;
-        self._testcases[testcase] = (self._start, self._stdout.tell(), self._testCaseDuration)
-        self._succeeded.append(testcase)
+        self._testcases[key] = (self._start, self._stdout.tell(), self._testCaseDuration, self.getDesc(current))
 
-    def skipped(self, testcase, reason):
-        self._start = self._stdout.tell()
+    def skipped(self, current, reason):
         self.writeln("skipped, " + reason)
-        self._testcases[testcase] = (self._start, self._stdout.tell(), 0)
-        self._skipped[testcase] = reason
+        self._skipped[self.getKey(current)] = reason
 
     def isSuccess(self):
         return len(self._failed) == 0
@@ -1628,10 +1635,10 @@ class Result:
     def getDuration(self):
         return self._duration
 
-    def getOutput(self, testcase=None):
-        if testcase:
-            if testcase in self._testcases:
-                (start, end, duration) = self._testcases[testcase]
+    def getOutput(self, key=None):
+        if key:
+            if key in self._testcases:
+                (start, end, duration, desc) = self._testcases[key]
                 self._stdout.seek(start)
                 try:
                     return self._stdout.read(end - start)
@@ -1671,36 +1678,47 @@ class Result:
         self._stdout.write("\n")
 
     def writeAsXml(self, out, hostname=""):
-        out.write('  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3}" name="{4}">\n'
+        out.write('  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3:.9f}" name="{5}/{4}">\n'
                     .format(len(self._testcases) - 2,
                             len(self._failed),
                             len(self._skipped),
                             self._duration,
-                            self.testsuite))
+                            self.testsuite,
+                            self.testsuite.getMapping()))
 
-        for (tc, v) in self._testcases.items():
-            if isinstance(tc, TestCase):
-                (s, e, d) = v
-                out.write('    <testcase name="{0}" time="{1}" classname="{2}.{3}">\n'
-                          .format(tc,
-                                  d,
-                                  self.testsuite.getMapping(),
-                                  self.testsuite.getId().replace("/", ".")))
-                if tc in self._failed:
-                    last = self._failed[tc].strip().split('\n')
-                    if len(last) > 0:
-                        last = last[len(last) - 1]
-                    if hostname:
-                        last = "Failed on {0}\n{1}".format(hostname, last)
-                    out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[tc]), last))
-                elif tc in self._skipped:
-                    out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[tc])))
-                out.write('      <system-out>\n')
+        for (k, v) in self._testcases.items():
+            if isinstance(k, str):
+                # Don't keep track of setup/teardown steps
+                continue
+
+            (tc, cf) = k
+            (s, e, d, c) = v
+            if c:
+                name = "{0} [{1}]".format(tc, c)
+            else:
+                name = str(tc)
+            if hostname:
+                name += " on " + hostname
+            out.write('    <testcase name="{0}" time="{1:.9f}" classname="{2}.{3}">\n'
+                      .format(name,
+                              d,
+                              self.testsuite.getMapping(),
+                              self.testsuite.getId().replace("/", ".")))
+            if k in self._failed:
+                last = self._failed[k].strip().split('\n')
+                if len(last) > 0:
+                    last = last[len(last) - 1]
                 if hostname:
-                    out.write('Running on {0}\n'.format(hostname))
-                out.write(escapeXml(self.getOutput(tc)))
-                out.write('      </system-out>\n')
-                out.write('    </testcase>\n')
+                    last = "Failed on {0}\n{1}".format(hostname, last)
+                out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]), last))
+            elif k in self._skipped:
+                out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
+            out.write('      <system-out>\n')
+            if hostname:
+                out.write('Running on {0}\n'.format(hostname))
+            out.write(escapeXml(self.getOutput(k)))
+            out.write('      </system-out>\n')
+            out.write('    </testcase>\n')
 
         out.write(  '</testsuite>\n')
 
@@ -2460,6 +2478,7 @@ class Driver:
             self.driver = driver
             self.testsuite = testsuite
             self.config = driver.configs[testsuite.getMapping()]
+            self.desc = ""
             self.result = result
             self.host = None
             self.testcase = None
