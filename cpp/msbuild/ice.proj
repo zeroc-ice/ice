@@ -55,7 +55,6 @@
   </Target>
 
   <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
-    <MakeDir Directories="$(TEMP)\SymbolCache" />
     <Exec IgnoreExitCode="True"
           Command="symchk /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(IceConfiguration)\* /s $(SymbolServer)">
           <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
