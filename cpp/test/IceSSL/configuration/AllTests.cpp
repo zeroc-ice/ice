@@ -129,17 +129,17 @@ public:
             }
             CertDeleteCertificateFromStore(cert);
         }
-	_certs.clear();
+        _certs.clear();
         for(vector<HCERTSTORE>::const_iterator i = _stores.begin(); i != _stores.end(); ++i)
         {
             CertCloseStore(*i, 0);
         }
-	_stores.clear();
-	if(_store)
-	{
-	    CertCloseStore(_store, 0);
-	    _store = 0;
-	}
+        _stores.clear();
+        if(_store)
+        {
+            CertCloseStore(_store, 0);
+            _store = 0;
+        }
     }
 
 private:
@@ -1313,7 +1313,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
     }
     cout << "ok" << endl;
 
-
     cout << "testing protocols... " << flush;
     {
 #ifndef ICE_USE_SECURE_TRANSPORT
@@ -1418,9 +1417,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
             comm->destroy();
         }
 
-	//
-	// SSLv3 is now disabled by default with some SSL implementations.
-	//
+        //
+        // SSLv3 is now disabled by default with some SSL implementations.
+        //
         // //
         // // This should success because both have SSLv3 enabled
         // //
@@ -1442,7 +1441,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         //     }
         //     catch(const LocalException& ex)
         //     {
-	//         test(false);
+        //         test(false);
         //     }
         //     fact->destroyServer(server);
         //     comm->destroy();
@@ -2047,18 +2046,16 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
 #endif
 
     //
-    // No DSA support in Secure Transport / AIX 7.1
+    // No DSA support in Secure Transport / AIX 7.1 / SChannel
     //
-#if !defined(ICE_USE_SECURE_TRANSPORT) && !defined(_AIX)
+#if !defined(ICE_USE_SECURE_TRANSPORT) && !defined(_AIX) && !defined(ICE_USE_SCHANNEL)
     {
+        //
+        // DSA PEM keys are not supported with SChannel. Since Windows 10
+        // Creator Update DHE_DSS is also disabled by default so DSA keys
+        // can no longer be used.
+        //
 
-    //
-    // DSA PEM certificates are not supported with SChannel.
-    //
-#   ifdef ICE_USE_SCHANNEL
-    if(p12)
-    {
-#   endif
         //
         // Configure a server with RSA and DSA certificates.
         //
@@ -2116,11 +2113,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
         fact->destroyServer(server);
         comm->destroy();
-#   ifdef ICE_USE_SCHANNEL
-    }
-#   endif
 
-#   ifndef ICE_USE_SCHANNEL
         //
         // Next try a client with ADH. This should fail.
         //
@@ -2150,9 +2143,8 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         }
         fact->destroyServer(server);
         comm->destroy();
-#   endif
     }
-#   ifndef ICE_USE_SCHANNEL
+
     {
         //
         // Configure a server with RSA and a client with DSA. This should fail.
@@ -2189,7 +2181,6 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12, b
         fact->destroyServer(server);
         comm->destroy();
     }
-#   endif
 #endif
     cout << "ok" << endl;
 
