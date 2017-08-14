@@ -51,8 +51,10 @@ ext.projectPom = {
 
 task writeNewPom {
     outputs.file file(pomName)
-} << {
-    projectPom().writeTo(pomName)
+
+    doLast {
+        projectPom().writeTo(pomName)
+    }
 }
 
 jar.dependsOn(writeNewPom)
@@ -136,11 +138,13 @@ if(jarsClassPath.toBoolean()){
         into "${DESTDIR}${jarDir}"
     }
 
-    task updateInstallManifest(dependsOn: copyJars) << {
-        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
-            delegate.manifest {
-                attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+    task updateInstallManifest(dependsOn: copyJars) {
+        doLast {
+            ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
+                delegate.manifest {
+                    attribute(name: "Built-By", value: "ZeroC, Inc.")
+                    attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+                }
             }
         }
     }

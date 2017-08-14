@@ -14,12 +14,14 @@ task copyTmpJars(type: Copy, dependsOn: jar) {
 
 }
 
-task updateManifest(dependsOn: copyTmpJars) << {
-    ant.jar(update: true, destfile: "${libDir}/${jarName}") {
-        delegate.manifest {
-            attribute(name: "Main-Class", value: "IceGridGUI.Main")
-            attribute(name: "Built-By", value: "ZeroC, Inc.")
-            attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
+task updateManifest(dependsOn: copyTmpJars) {
+    doLast {
+        ant.jar(update: true, destfile: "${libDir}/${jarName}") {
+            delegate.manifest {
+                attribute(name: "Main-Class", value: "IceGridGUI.Main")
+                attribute(name: "Built-By", value: "ZeroC, Inc.")
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' '))
+            }
         }
     }
 }
@@ -39,12 +41,14 @@ task copyJars(type: Copy, dependsOn: jar) {
 // We need to update the manifest of the installed IceGridGUI jar and fix the
 // Class-Path to point to the installed JAR files.
 //
-task updateInstallManifest(dependsOn: copyJars) << {
-    ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
-        delegate.manifest {
-            attribute(name: "Main-Class", value: "IceGridGUI.Main")
-            attribute(name: "Built-By", value: "ZeroC, Inc.")
-            attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+task updateInstallManifest(dependsOn: copyJars) {
+    doLast {
+        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jarName}") {
+            delegate.manifest {
+                attribute(name: "Main-Class", value: "IceGridGUI.Main")
+                attribute(name: "Built-By", value: "ZeroC, Inc.")
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
+            }
         }
     }
 }
@@ -53,15 +57,16 @@ updateInstallManifest.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 //
 // We need to sign the install JARs after updating the manifest.
 //
-task signInstallJar(dependsOn: updateInstallManifest) << {
-    if(keystore != null && keystore.length() > 0) {
-        ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
-                    alias: "zeroc.com",
-                    keystore: "${keystore}",
-                    storepass:"${keystore_password}")
+task signInstallJar(dependsOn: updateInstallManifest) {
+    doLast {
+        if(keystore != null && keystore.length() > 0) {
+            ant.signjar(jar: "${DESTDIR}${jarDir}/${jarName}",
+                        alias: "zeroc.com",
+                        keystore: "${keystore}",
+                        storepass:"${keystore_password}")
+        }
     }
 }
 signInstallJar.outputs.files("${DESTDIR}${jarDir}/${jarName}")
 
 task install(dependsOn: signInstallJar)
-
