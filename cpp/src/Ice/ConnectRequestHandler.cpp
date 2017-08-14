@@ -219,11 +219,14 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 void
 ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
-    Lock sync(*this);
-    assert(!_initialized && !_exception.get());
-    _exception.reset(ex.ice_clone());
-    _proxies.clear();
-    _proxy = 0; // Break cyclic reference count.
+    {
+        Lock sync(*this);
+        assert(!_initialized && !_exception.get());
+        _exception.reset(ex.ice_clone());
+        _proxies.clear();
+        _proxy = 0; // Break cyclic reference count.
+        notifyAll();
+    }
 
     //
     // NOTE: remove the request handler *before* notifying the
@@ -255,7 +258,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         }
     }
     _requests.clear();
-    notifyAll();
 }
 
 void

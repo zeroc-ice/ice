@@ -143,33 +143,33 @@ namespace IceInternal
                 _exception = ex;
                 _proxies.Clear();
                 _proxy = null; // Break cyclic reference count.
-
-                //
-                // NOTE: remove the request handler *before* notifying the
-                // requests that the connection failed. It's important to ensure
-                // that future invocations will obtain a new connect request
-                // handler once invocations are notified.
-                //
-                try
-                {
-                    _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
-                }
-                catch(Ice.CommunicatorDestroyedException)
-                {
-                    // Ignore
-                }
-
-                foreach(ProxyOutgoingAsyncBase outAsync in _requests)
-                {
-                    Ice.AsyncCallback cb = outAsync.completed(_exception);
-                    if(cb != null)
-                    {
-                        outAsync.invokeCompletedAsync(cb);
-                    }
-                }
-                _requests.Clear();
                 System.Threading.Monitor.PulseAll(this);
             }
+
+            //
+            // NOTE: remove the request handler *before* notifying the
+            // requests that the connection failed. It's important to ensure
+            // that future invocations will obtain a new connect request
+            // handler once invocations are notified.
+            //
+            try
+            {
+                _reference.getInstance().requestHandlerFactory().removeRequestHandler(_reference, this);
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
+
+            foreach(ProxyOutgoingAsyncBase outAsync in _requests)
+            {
+                Ice.AsyncCallback cb = outAsync.completed(_exception);
+                if(cb != null)
+                {
+                    outAsync.invokeCompletedAsync(cb);
+                }
+            }
+            _requests.Clear();
         }
 
         //
