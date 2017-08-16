@@ -18,7 +18,7 @@
 {
     id<ICECommunicator> communicator = [current.adapter getCommunicator];
     id<ICEObjectAdapter> adapter =
-        [communicator createObjectAdapterWithEndpoints:@"TransientTestAdapter" endpoints:@"default -p 9999"];
+        [communicator createObjectAdapterWithEndpoints:@"TransientTestAdapter" endpoints:@"default"];
     [adapter activate];
     [adapter destroy];
 }
