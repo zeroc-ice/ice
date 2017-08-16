@@ -87,7 +87,6 @@ const Byte FLAG_IS_LAST_SLICE         = (1<<5);
 
 }
 
-
 IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion& encoding) :
     _instance(instance),
     _closure(0),
@@ -95,6 +94,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
+    _classGraphDepthMax(instance->classGraphDepthMax()),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
@@ -117,6 +117,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
+    _classGraphDepthMax(instance->classGraphDepthMax()),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
@@ -182,6 +183,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
     resetEncaps();
     other.resetEncaps();
 
+    std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
 }
@@ -1846,11 +1848,13 @@ IceInternal::BasicStream::initReadEncaps()
         ObjectFactoryManagerPtr factoryManager = _instance->servantFactoryManager();
         if(_currentReadEncaps->encoding == Encoding_1_0)
         {
-            _currentReadEncaps->decoder = new EncapsDecoder10(this, _currentReadEncaps, _sliceObjects, factoryManager);
+            _currentReadEncaps->decoder = new EncapsDecoder10(this, _currentReadEncaps, _sliceObjects,
+                                                              _classGraphDepthMax, factoryManager);
         }
         else
         {
-            _currentReadEncaps->decoder = new EncapsDecoder11(this, _currentReadEncaps, _sliceObjects, factoryManager);
+            _currentReadEncaps->decoder = new EncapsDecoder11(this, _currentReadEncaps, _sliceObjects,
+                                                              _classGraphDepthMax, factoryManager);
         }
     }
 }
@@ -1986,6 +1990,7 @@ IceInternal::BasicStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patc
     PatchEntry e;
     e.patchFunc = patchFunc;
     e.patchAddr = patchAddr;
+    e.classGraphDepth = _classGraphDepth;
     q->second.push_back(e);
 }
 
@@ -2373,6 +2378,30 @@ IceInternal::BasicStream::EncapsDecoder10::readInstance()
         //
         skipSlice();
         startSlice(); // Read next Slice header for next iteration.
+    }
+
+    //
+    // Compute the biggest class graph depth of this object. To compute this,
+    // we get the class graph depth of each ancestor from the patch map and
+    // keep the biggest one.
+    //
+    _classGraphDepth = 0;
+    PatchMap::iterator patchPos = _patchMap.find(index);
+    if(patchPos != _patchMap.end())
+    {
+        assert(patchPos->second.size() > 0);
+        for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
+        {
+            if(k->classGraphDepth > _classGraphDepth)
+            {
+                _classGraphDepth = k->classGraphDepth;
+            }
+        }
+    }
+
+    if(++_classGraphDepth > _classGraphDepthMax)
+    {
+        throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
     }
 
     //
@@ -2862,10 +2891,17 @@ IceInternal::BasicStream::EncapsDecoder11::readInstance(Int index, PatchFunc pat
         startSlice(); // Read next Slice header for next iteration.
     }
 
+    if(++_classGraphDepth > _classGraphDepthMax)
+    {
+        throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
+    }
+
     //
     // Un-marshal the object
     //
     unmarshal(index, v);
+
+    --_classGraphDepth;
 
     if(!_current && !_patchMap.empty())
     {
@@ -3392,4 +3428,3 @@ IceInternal::BasicStream::EncapsEncoder11::writeInstance(const ObjectPtr& v)
     _stream->writeSize(1); // Object instance marker.
     v->__write(_stream);
 }
-

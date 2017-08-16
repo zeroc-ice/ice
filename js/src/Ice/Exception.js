@@ -52,6 +52,15 @@ var toString = function(key, object, objectTable, ident)
     return s;
 };
 
+var ServantError = Class(Error, {
+    __init__: function(cause)
+    {
+        this.cause = cause;
+    }
+});
+
+Ice.ServantError = ServantError;
+
 //
 // Ice.Exception
 //

@@ -49,6 +49,20 @@ These are the changes since Ice 3.6.3 included in this pre-release.
 
 ## General Changes
 
+- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
+  overflows in case a sender sends a very large graph.
+
+  The unmarshaling or destruction of a graph of Slice class instances is a
+  recursive operation. This property limits the amount of stack size required to
+  perform these operations. This property is supported with all the language
+  mappings except Java and JavaScript where it's not needed (the run time
+  environment allows graceful handling of stack overflows).
+
+  The default maximum class graph depth is infinite. If your application
+  receives class graphs in an insecure environment, you should set the
+  `Ice.ClassGraphDepthMax` to a value that ensures the thread pool stack size is
+  large enough to allow reading graphs without causing a stack overflow.
+
 - Fixed IceGrid bug where updating properties of an IceBox service at runtime
   would fail if the service used the IceBox shared communicator. Thanks to
   Andreas Sommer for the bug report and fix.

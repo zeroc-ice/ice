@@ -927,8 +927,10 @@ private:
 
     protected:
 
-        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
-            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _servantFactoryManager(f), _typeIdIndex(0)
+        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, size_t classGraphDepthMax,
+                      const ObjectFactoryManagerPtr& f) :
+            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _classGraphDepthMax(classGraphDepthMax),
+            _classGraphDepth(0), _servantFactoryManager(f), _typeIdIndex(0)
         {
         }
 
@@ -945,6 +947,7 @@ private:
         {
             PatchFunc patchFunc;
             void* patchAddr;
+            size_t classGraphDepth;
         };
         typedef std::vector<PatchEntry> PatchList;
         typedef std::map<Ice::Int, PatchList> PatchMap;
@@ -952,6 +955,8 @@ private:
         BasicStream* _stream;
         ReadEncaps* _encaps;
         const bool _sliceObjects;
+        const size_t _classGraphDepthMax;
+        size_t _classGraphDepth;
         ObjectFactoryManagerPtr _servantFactoryManager;
 
         // Encapsulation attributes for object un-marshalling
@@ -970,8 +975,10 @@ private:
     {
     public:
 
-        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceObjects, f), _sliceType(NoSlice)
+        EncapsDecoder10(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, size_t classGraphDepthMax,
+                        const ObjectFactoryManagerPtr& f) :
+            EncapsDecoder(stream, encaps, sliceObjects, classGraphDepthMax, f),
+            _sliceType(NoSlice)
         {
         }
 
@@ -1003,8 +1010,10 @@ private:
     {
     public:
 
-        EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, const ObjectFactoryManagerPtr& f) :
-            EncapsDecoder(stream, encaps, sliceObjects, f), _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
+        EncapsDecoder11(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects, size_t classGraphDepthMax,
+                        const ObjectFactoryManagerPtr& f) :
+            EncapsDecoder(stream, encaps, sliceObjects, classGraphDepthMax, f),
+            _preAllocatedInstanceData(0), _current(0), _objectIdIndex(1)
         {
         }
 
@@ -1313,6 +1322,8 @@ private:
     WriteEncaps _preAllocatedWriteEncaps;
 
     bool _sliceObjects;
+
+    size_t _classGraphDepthMax;
 
     const IceUtil::StringConverterPtr _stringConverter;
     const IceUtil::WstringConverterPtr _wstringConverter;

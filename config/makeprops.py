@@ -333,7 +333,7 @@ class CppPropertyHandler(PropertyHandler):
 
     def closeFiles(self):
         self.hFile.write(cppHeaderPostamble % {'classname' : self.className})
-        self.cppFile.write("\nconst IceInternal::PropertyArray "\
+        self.cppFile.write("const IceInternal::PropertyArray "\
                         "IceInternal::%(classname)s::validProps[] =\n" % \
                 {'classname' : self.className})
 
@@ -341,7 +341,7 @@ class CppPropertyHandler(PropertyHandler):
         for s in self.sections:
             self.cppFile.write("    %sProps,\n" % s)
         self.cppFile.write("    IceInternal::PropertyArray(0,0)\n");
-        self.cppFile.write("};\n\n")
+        self.cppFile.write("};\n")
 
         self.cppFile.write("\nconst char* IceInternal::%(classname)s::clPropNames[] =\n" % \
                 {'classname' : self.className})
@@ -349,7 +349,7 @@ class CppPropertyHandler(PropertyHandler):
         for s in self.cmdLineOptions:
             self.cppFile.write("    \"%s\",\n" % s)
         self.cppFile.write("    0\n")
-        self.cppFile.write("};\n\n")
+        self.cppFile.write("};\n")
         self.hFile.close()
         self.cppFile.close()
 
@@ -370,7 +370,7 @@ class CppPropertyHandler(PropertyHandler):
 
     def newSection(self):
         self.hFile.write("    static const PropertyArray %sProps;\n" % self.currentSection)
-        self.cppFile.write("const IceInternal::Property %sPropsData[] = \n" % self.currentSection)
+        self.cppFile.write("const IceInternal::Property %sPropsData[] =\n" % self.currentSection)
         self.cppFile.write("{\n")
 
     def closeSection(self):
@@ -407,7 +407,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("\n    public static final Property[] validProps[] =\n")
+        self.srcFile.write("    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
         for s in self.sections:
@@ -448,7 +448,7 @@ class JavaPropertyHandler(PropertyHandler):
                 {"section" : self.currentSection, "pattern": self.fix(propertyName)} )
 
     def newSection(self):
-        self.srcFile.write("    public static final Property %sProps[] = \n" % self.currentSection)
+        self.srcFile.write("    public static final Property %sProps[] =\n" % self.currentSection)
         self.srcFile.write("    {\n")
 
     def closeSection(self):

@@ -162,7 +162,7 @@ var IncomingAsync = Ice.Class({
         }
         this._instance.initializationData().logger.warning(s.join(""));
     },
-    __servantLocatorFinished: function()
+    __servantLocatorFinished: function(amd)
     {
         Debug.assert(this._locator !== null && this._servant !== null);
         try
@@ -197,12 +197,12 @@ var IncomingAsync = Ice.Class({
             }
             else
             {
-                this.__handleException(ex);
+                this.__handleException(ex, amd);
             }
             return false;
         }
     },
-    __handleException: function(ex)
+    __handleException: function(ex, amd)
     {
         Debug.assert(this._connection !== null);
 
@@ -400,6 +400,11 @@ var IncomingAsync = Ice.Class({
             {
                 this._connection.sendNoResponse();
             }
+
+            if(!amd)
+            {
+                throw new Ice.ServantError(ex);
+            }
         }
 
         this._connection = null;
@@ -491,7 +496,7 @@ var IncomingAsync = Ice.Class({
                         else
                         {
                             this._is.skipEncaps(); // Required for batch requests.
-                            this.__handleException(ex);
+                            this.__handleException(ex, false);
                             return;
                         }
                     }
@@ -515,7 +520,7 @@ var IncomingAsync = Ice.Class({
                     return;
                 }
 
-                if(this._locator !== null && !this.__servantLocatorFinished())
+                if(this._locator !== null && !this.__servantLocatorFinished(false))
                 {
                     return;
                 }
@@ -542,11 +547,11 @@ var IncomingAsync = Ice.Class({
         }
         catch(ex)
         {
-            if(this._servant !== null && this._locator !== null && !this.__servantLocatorFinished())
+            if(this._servant !== null && this._locator !== null && !this.__servantLocatorFinished(false))
             {
                 return;
             }
-            this.__handleException(ex);
+            this.__handleException(ex, false);
             return;
         }
 
@@ -595,7 +600,7 @@ var IncomingAsync = Ice.Class({
     {
         try
         {
-            if(this._locator !== null && !this.__servantLocatorFinished())
+            if(this._locator !== null && !this.__servantLocatorFinished(true))
             {
                 return;
             }
@@ -622,12 +627,12 @@ var IncomingAsync = Ice.Class({
     {
         try
         {
-            if(this._locator !== null && !this.__servantLocatorFinished())
+            if(this._locator !== null && !this.__servantLocatorFinished(true))
             {
                 return;
             }
 
-            this.__handleException(exc);
+            this.__handleException(exc, true);
         }
         catch(ex)
         {

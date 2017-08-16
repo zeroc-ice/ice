@@ -1913,9 +1913,18 @@ var ConnectionI = Class({
             {
                 this.invokeException(ex, invokeNum);
             }
+            else if(ex instanceof Ice.ServantError)
+            {
+                // Ignore
+            }
             else
             {
-                throw ex;
+                //
+                // An Error was raised outside of servant code (i.e., by Ice code).
+                // Attempt to log the error and clean up.
+                //
+                this._logger.error("unexpected exception:\n" + ex.toString());
+                this.invokeException(new Ice.UnknownException(ex), invokeNum);
             }
         }
     },

@@ -33,6 +33,7 @@ import test.Ice.objects.Test.InitialPrxHelper;
 import test.Ice.objects.Test.J;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
+import test.Ice.objects.Test.Recursive;
 
 public class AllTests
 {
@@ -152,7 +153,7 @@ public class AllTests
         test(d.preMarshalInvoked);
         test(d.postUnmarshalInvoked(null));
         test(d.theA.preMarshalInvoked);
-        test(d.theA.postUnmarshalInvoked(null)); 
+        test(d.theA.postUnmarshalInvoked(null));
         test(d.theB.preMarshalInvoked);
         test(d.theB.postUnmarshalInvoked(null));
         test(d.theB.theC.preMarshalInvoked);
@@ -196,7 +197,7 @@ public class AllTests
         I h = initial.getH();
         test(h != null && ((H)h) != null);
         out.println("ok");
-        
+
         out.print("getting D1... ");
         out.flush();
         D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
@@ -206,7 +207,7 @@ public class AllTests
         test(d1.a3.name.equals("a3"));
         test(d1.a4.name.equals("a4"));
         out.println("ok");
-        
+
         out.print("throw EDerived... ");
         out.flush();
         try
@@ -225,11 +226,11 @@ public class AllTests
 
         out.print("setting I... ");
         out.flush();
-        initial.setI(i);
+       initial.setI(i);
         initial.setI(j);
         initial.setI(h);
         out.println("ok");
-        
+
         out.print("testing sequences...");
         try
         {
@@ -238,7 +239,7 @@ public class AllTests
             BaseSeqHolder outS = new BaseSeqHolder();
             Base[] retS;
             retS = initial.opBaseSeq(inS, outS);
-            
+
             inS = new Base[1];
             inS[0] = new Base(new S(), "");
             retS = initial.opBaseSeq(inS, outS);
@@ -247,6 +248,42 @@ public class AllTests
         catch(Ice.OperationNotExistException ex)
         {
         }
+        out.println("ok");
+
+        out.print("testing recursive type... ");
+        out.flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 20000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(Ice.UnknownException ex)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        catch(java.lang.StackOverflowError ex)
+        {
+            // Stack overflow while writing instances
+        }
+        initial.setRecursive(new Recursive());
         out.println("ok");
 
         out.print("testing compact ID...");

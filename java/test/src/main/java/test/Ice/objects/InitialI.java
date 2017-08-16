@@ -26,6 +26,7 @@ import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
+import test.Ice.objects.Test.Recursive;
 
 public final class InitialI extends Initial
 {
@@ -53,6 +54,17 @@ public final class InitialI extends Initial
         _d.theA = _b1; // Reference to a B.
         _d.theB = _b2; // Reference to a B.
         _d.theC = null; // Reference to a C.
+    }
+
+    @Override
+    public void setRecursive(Recursive r, Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean supportsClassGraphDepthMax(Ice.Current current)
+    {
+        return false;
     }
 
     @Override
@@ -144,14 +156,14 @@ public final class InitialI extends Initial
     {
         return new HI();
     }
-    
+
     @Override
     public D1
     getD1(D1 d1, Ice.Current current)
     {
         return d1;
     }
-    
+
     @Override
     public void
     throwEDerived(Ice.Current current) throws EDerived

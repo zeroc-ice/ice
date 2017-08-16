@@ -184,7 +184,6 @@ private:
     const InstancePtr _instance;
 };
 
-
 //
 // Timer specialization which supports the thread observer
 //
@@ -1064,6 +1063,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _initData(initData),
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
+    _classGraphDepthMax(0),
     _collectObjects(false),
     _implicitContext(0),
     _stringConverter(IceUtil::getProcessStringConverter()),
@@ -1210,7 +1210,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
-
         if(!_initData.logger)
         {
             string logfile = _initData.properties->getProperty("Ice.LogFile");
@@ -1300,6 +1299,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             {
                 // Property is in kilobytes, convert in bytes.
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num) * 1024;
+            }
+        }
+
+        {
+            static const int defaultValue = 0; // Disabled by default
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
             }
         }
 
@@ -1889,7 +1901,6 @@ IceInternal::Instance::updateThreadObservers()
     {
     }
 }
-
 
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)

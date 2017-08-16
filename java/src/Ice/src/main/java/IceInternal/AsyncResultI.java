@@ -136,7 +136,7 @@ public class AsyncResultI implements AsyncResult
         {
             Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
         }
-        
+
         try
         {
             _callback.__sent(this);
@@ -148,7 +148,9 @@ public class AsyncResultI implements AsyncResult
         catch(java.lang.Error exc)
         {
             error(exc);
-            if(!(exc instanceof java.lang.AssertionError || exc instanceof java.lang.OutOfMemoryError))
+            if(!(exc instanceof java.lang.AssertionError ||
+                 exc instanceof java.lang.OutOfMemoryError ||
+                 exc instanceof java.lang.StackOverflowError))
             {
                 throw exc;
             }
@@ -180,7 +182,7 @@ public class AsyncResultI implements AsyncResult
         {
             Thread.currentThread().setContextClassLoader(_callback.getClass().getClassLoader());
         }
-        
+
         try
         {
             _callback.__completed(this);
@@ -197,6 +199,10 @@ public class AsyncResultI implements AsyncResult
         {
             error(exc);
         }
+        catch(StackOverflowError exc)
+        {
+            error(exc);
+        }
         finally
         {
             if(_instance.useApplicationClassLoader())
@@ -204,7 +210,7 @@ public class AsyncResultI implements AsyncResult
                 Thread.currentThread().setContextClassLoader(null);
             }
         }
-    
+
         if(_observer != null)
         {
             _observer.detach();
@@ -246,7 +252,7 @@ public class AsyncResultI implements AsyncResult
 
     public final boolean __wait()
     {
-        try 
+        try
         {
             synchronized(this)
             {
@@ -254,7 +260,7 @@ public class AsyncResultI implements AsyncResult
                 {
                     throw new IllegalArgumentException("end_ method called more than once");
                 }
-    
+
                 _state |= StateEndCalled;
                 if(Thread.interrupted())
                 {
@@ -264,12 +270,12 @@ public class AsyncResultI implements AsyncResult
                 {
                     this.wait();
                 }
-    
+
                 if(_exception != null)
                 {
                     throw (Ice.Exception)_exception.fillInStackTrace();
                 }
-    
+
                 return (_state & StateOK) > 0;
             }
         }
@@ -299,7 +305,7 @@ public class AsyncResultI implements AsyncResult
     protected boolean sent(boolean done)
     {
         synchronized(this)
-        {        
+        {
             assert(_exception == null);
 
             boolean alreadySent = (_state & StateSent) != 0;
@@ -456,7 +462,7 @@ public class AsyncResultI implements AsyncResult
     private final CallbackBase _callback;
 
     private Ice.Exception _exception;
-    
+
     private CancellationHandler _cancellationHandler;
     private Ice.LocalException _cancellationException;
 

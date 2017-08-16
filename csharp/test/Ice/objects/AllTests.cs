@@ -94,38 +94,38 @@ public class AllTests : TestCommon.TestApp
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
         WriteLine("ok");
-        
+
         Write("getting B1... ");
         Flush();
         B b1 = initial.getB1();
         test(b1 != null);
         WriteLine("ok");
-        
+
         Write("getting B2... ");
         Flush();
         B b2 = initial.getB2();
         test(b2 != null);
         WriteLine("ok");
-        
+
         Write("getting C... ");
         Flush();
         C c = initial.getC();
         test(c != null);
         WriteLine("ok");
-        
+
         Write("getting D... ");
         Flush();
         D d = initial.getD();
         test(d != null);
         WriteLine("ok");
-        
+
         Write("checking consistency... ");
         Flush();
         test(b1 != b2);
@@ -153,7 +153,7 @@ public class AllTests : TestCommon.TestApp
         test(b2.theA == b2);
         test(d.theC == null);
         WriteLine("ok");
-        
+
         Write("getting B1, B2, C, and D all at once... ");
         Flush();
         B b1out;
@@ -166,7 +166,7 @@ public class AllTests : TestCommon.TestApp
         test(cout != null);
         test(dout != null);
         WriteLine("ok");
-        
+
         Write("checking consistency... ");
         Flush();
         test(b1out != b2out);
@@ -183,7 +183,7 @@ public class AllTests : TestCommon.TestApp
         test(dout.preMarshalInvoked);
         test(dout.postUnmarshalInvoked());
         test(dout.theA.preMarshalInvoked);
-        test(dout.theA.postUnmarshalInvoked()); 
+        test(dout.theA.postUnmarshalInvoked());
         test(dout.theB.preMarshalInvoked);
         test(dout.theB.postUnmarshalInvoked());
         test(dout.theB.theC.preMarshalInvoked);
@@ -216,7 +216,7 @@ public class AllTests : TestCommon.TestApp
         I h = initial.getH();
         test(h != null && ((H)h) != null);
         WriteLine("ok");
-        
+
         Write("getting D1... ");
         Flush();
         D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
@@ -226,7 +226,7 @@ public class AllTests : TestCommon.TestApp
         test(d1.a3.name.Equals("a3"));
         test(d1.a4.name.Equals("a4"));
         WriteLine("ok");
-        
+
         Write("throw EDerived... ");
         Flush();
         try
@@ -258,7 +258,7 @@ public class AllTests : TestCommon.TestApp
             Base[] outS;
             Base[] retS;
             retS = initial.opBaseSeq(inS, out outS);
-            
+
             inS = new Base[1];
             inS[0] = new Base(new S(), "");
             retS = initial.opBaseSeq(inS, out outS);
@@ -267,6 +267,38 @@ public class AllTests : TestCommon.TestApp
         catch(Ice.OperationNotExistException)
         {
         }
+        WriteLine("ok");
+
+        Write("testing recursive type... ");
+        Flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 1000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(Ice.UnknownLocalException)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(Ice.UnknownException)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        initial.setRecursive(new Recursive());
         WriteLine("ok");
 
         Write("testing compact ID...");

@@ -164,6 +164,11 @@ exception EDerived extends EBase
     A1 a4;
 };
 
+class Recursive
+{
+    Recursive v;
+};
+
 class Initial
 {
     void shutdown();
@@ -173,6 +178,9 @@ class Initial
     D getD();
     E getE();
     F getF();
+
+    void setRecursive(Recursive p);
+    bool supportsClassGraphDepthMax();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

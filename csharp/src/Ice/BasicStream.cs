@@ -119,6 +119,8 @@ namespace IceInternal
             _closure = null;
             _encoding = encoding;
 
+            _classGraphDepthMax = instance.classGraphDepthMax();
+
             _readEncapsStack = null;
             _writeEncapsStack = null;
             _readEncapsCache = null;
@@ -200,6 +202,10 @@ namespace IceInternal
             //
             resetEncaps();
             other.resetEncaps();
+
+            int tmpClassGraphDepthMax = other._classGraphDepthMax;
+            other._classGraphDepthMax = _classGraphDepthMax;
+            _classGraphDepthMax = tmpClassGraphDepthMax;
 
             int tmpStartSeq = other._startSeq;
             other._startSeq = _startSeq;
@@ -3578,11 +3584,26 @@ namespace IceInternal
 
         abstract private class EncapsDecoder
         {
-            internal EncapsDecoder(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
+            protected struct PatchEntry
+            {
+                public PatchEntry(IPatcher cb, int classGraphDepth)
+                {
+                    this.cb = cb;
+                    this.classGraphDepth = classGraphDepth;
+                }
+
+                public IPatcher cb;
+                public int classGraphDepth;
+            };
+
+            internal EncapsDecoder(BasicStream stream, ReadEncaps encaps, bool sliceObjects, int classGraphDepthMax,
+                                   ObjectFactoryManager f)
             {
                 _stream = stream;
                 _encaps = encaps;
                 _sliceObjects = sliceObjects;
+                _classGraphDepthMax = classGraphDepthMax;
+                _classGraphDepth = 0;
                 _servantFactoryManager = f;
                 _typeIdIndex = 0;
                 _unmarshaledMap = new Dictionary<int, Ice.Object>();
@@ -3684,7 +3705,7 @@ namespace IceInternal
 
                 if(_patchMap == null)
                 {
-                    _patchMap = new Dictionary<int, LinkedList<IPatcher>>();
+                    _patchMap = new Dictionary<int, LinkedList<PatchEntry>>();
                 }
 
                 //
@@ -3692,21 +3713,21 @@ namespace IceInternal
                 // the smart pointer will be patched when the instance is
                 // un-marshalled.
                 //
-                LinkedList<IPatcher> l;
+                LinkedList<PatchEntry> l;
                 if(!_patchMap.TryGetValue(index, out l))
                 {
                     //
                     // We have no outstanding instances to be patched for this
                     // index, so make a new entry in the patch map.
                     //
-                    l = new LinkedList<IPatcher>();
+                    l = new LinkedList<PatchEntry>();
                     _patchMap.Add(index, l);
                 }
 
                 //
                 // Append a patch entry for this instance.
                 //
-                l.AddLast(patcher);
+                l.AddLast(new PatchEntry(patcher, _classGraphDepth));
             }
 
             protected void unmarshal(int index, Ice.Object v)
@@ -3727,7 +3748,7 @@ namespace IceInternal
                     //
                     // Patch all instances now that the object is un-marshalled.
                     //
-                    LinkedList<IPatcher> l;
+                    LinkedList<PatchEntry> l;
                     if(_patchMap.TryGetValue(index, out l))
                     {
                         Debug.Assert(l.Count > 0);
@@ -3735,9 +3756,9 @@ namespace IceInternal
                         //
                         // Patch all pointers that refer to the instance.
                         //
-                        foreach(IPatcher p in l)
+                        foreach(PatchEntry p in l)
                         {
-                            p.patch(v);
+                            p.cb.patch(v);
                         }
 
                         //
@@ -3796,10 +3817,12 @@ namespace IceInternal
             protected readonly BasicStream _stream;
             protected readonly ReadEncaps _encaps;
             protected readonly bool _sliceObjects;
+            protected readonly int _classGraphDepthMax;
+            protected int _classGraphDepth;
             protected ObjectFactoryManager _servantFactoryManager;
 
             // Encapsulation attributes for object un-marshalling
-            protected Dictionary<int, LinkedList<IPatcher> > _patchMap;
+            protected Dictionary<int, LinkedList<PatchEntry> > _patchMap;
 
             // Encapsulation attributes for object un-marshalling
             private Dictionary<int, Ice.Object> _unmarshaledMap;
@@ -3810,8 +3833,9 @@ namespace IceInternal
 
         private sealed class EncapsDecoder10 : EncapsDecoder
         {
-            internal EncapsDecoder10(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
-                : base(stream, encaps, sliceObjects, f)
+            internal EncapsDecoder10(BasicStream stream, ReadEncaps encaps, bool sliceObjects, int classGraphDepthMax,
+                                     ObjectFactoryManager f)
+                : base(stream, encaps, sliceObjects, classGraphDepthMax, f)
             {
                 _sliceType = SliceType.NoSlice;
             }
@@ -4090,6 +4114,30 @@ namespace IceInternal
                 }
 
                 //
+                // Compute the biggest class graph depth of this object. To compute this,
+                // we get the class graph depth of each ancestor from the patch map and
+                // keep the biggest one.
+                //
+                _classGraphDepth = 0;
+                LinkedList<PatchEntry> l;
+                if(_patchMap != null && _patchMap.TryGetValue(index, out l))
+                {
+                    Debug.Assert(l.Count > 0);
+                    foreach(PatchEntry entry in l)
+                    {
+                        if(entry.classGraphDepth > _classGraphDepth)
+                        {
+                            _classGraphDepth = entry.classGraphDepth;
+                        }
+                    }
+                }
+
+                if(++_classGraphDepth > _classGraphDepthMax)
+                {
+                    throw new Ice.MarshalException("maximum class graph depth reached");
+                }
+
+                //
                 // Un-marshal the object and add-it to the map of un-marshaled objects.
                 //
                 unmarshal(index, v);
@@ -4106,8 +4154,9 @@ namespace IceInternal
 
         private sealed class EncapsDecoder11 : EncapsDecoder
         {
-            internal EncapsDecoder11(BasicStream stream, ReadEncaps encaps, bool sliceObjects, ObjectFactoryManager f)
-                : base(stream, encaps, sliceObjects, f)
+            internal EncapsDecoder11(BasicStream stream, ReadEncaps encaps, bool sliceObjects, int classGraphDepthMax,
+                                     ObjectFactoryManager f)
+                : base(stream, encaps, sliceObjects, classGraphDepthMax, f)
             {
                 _objectIdIndex = 1;
                 _current = null;
@@ -4590,10 +4639,17 @@ namespace IceInternal
                     startSlice(); // Read next Slice header for next iteration.
                 }
 
+                if(++_classGraphDepth > _classGraphDepthMax)
+                {
+                    throw new Ice.MarshalException("maximum class graph depth reached");
+                }
+
                 //
                 // Un-marshal the object
                 //
                 unmarshal(index, v);
+
+                --_classGraphDepth;
 
                 if(_current == null && _patchMap != null && _patchMap.Count > 0)
                 {
@@ -5352,11 +5408,13 @@ namespace IceInternal
                 ObjectFactoryManager factoryMgr = instance_.servantFactoryManager();
                 if(_readEncapsStack.encoding_1_0)
                 {
-                    _readEncapsStack.decoder = new EncapsDecoder10(this, _readEncapsStack, _sliceObjects, factoryMgr);
+                    _readEncapsStack.decoder = new EncapsDecoder10(this, _readEncapsStack, _sliceObjects,
+                                                                   _classGraphDepthMax, factoryMgr);
                 }
                 else
                 {
-                    _readEncapsStack.decoder = new EncapsDecoder11(this, _readEncapsStack, _sliceObjects, factoryMgr);
+                    _readEncapsStack.decoder = new EncapsDecoder11(this, _readEncapsStack, _sliceObjects,
+                                                                   _classGraphDepthMax, factoryMgr);
                 };
             }
         }
@@ -5396,7 +5454,7 @@ namespace IceInternal
         }
 
         private bool _sliceObjects;
-
+        private int _classGraphDepthMax;
         private int _startSeq;
         private int _minSeqSize;
 

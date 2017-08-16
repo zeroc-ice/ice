@@ -104,11 +104,15 @@ public:
     virtual Test::DPtr getD(const Ice::Current&);
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
+
+    virtual void setRecursive(const Test::RecursivePtr&, const Ice::Current&);
+    virtual bool supportsClassGraphDepthMax(const Ice::Current&);
+
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
     virtual Test::IPtr getI(const Ice::Current&);
     virtual Test::IPtr getJ(const Ice::Current&);
     virtual Test::IPtr getH(const Ice::Current&);
-    
+
     virtual Test::D1Ptr getD1(const Test::D1Ptr&, const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 
@@ -117,13 +121,13 @@ public:
     virtual Test::BaseSeq opBaseSeq(const Test::BaseSeq&, Test::BaseSeq&, const Ice::Current&);
 
     virtual Test::CompactPtr getCompact(const Ice::Current&);
-    
+
     virtual Test::Inner::APtr getInnerA(const Ice::Current&);
     virtual Test::Inner::Sub::APtr getInnerSubA(const Ice::Current&);
-    
+
     virtual void throwInnerEx(const Ice::Current&);
     virtual void throwInnerSubEx(const Ice::Current&);
-    
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

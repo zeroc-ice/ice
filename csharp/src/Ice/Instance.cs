@@ -358,6 +358,12 @@ namespace IceInternal
             return _batchAutoFlushSize;
         }
 
+        public int classGraphDepthMax()
+        {
+            // No mutex lock, immutable.
+            return _classGraphDepthMax;
+        }
+
         public int cacheMessageBuffers()
         {
             // No mutex lock, immutable.
@@ -390,7 +396,6 @@ namespace IceInternal
         {
             return Ice.Util.identityToString(ident);
         }
-
 
         public Ice.ObjectPrx
         createAdmin(Ice.ObjectAdapter adminAdapter, Ice.Identity adminIdentity)
@@ -863,6 +868,19 @@ namespace IceInternal
                     else
                     {
                         _batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                    }
+                }
+
+                {
+                    const int defaultValue = 0; // Disabled by default
+                    int num = _initData.properties.getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+                    if(num < 1 || num > 0x7fffffff)
+                    {
+                        _classGraphDepthMax = 0x7fffffff;
+                    }
+                    else
+                    {
+                        _classGraphDepthMax = num;
                     }
                 }
 
@@ -1536,6 +1554,7 @@ namespace IceInternal
 #endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
         private int _batchAutoFlushSize; // Immutable, not reset by destroy().
+        private int _classGraphDepthMax; // Immutable, not reset by destroy().
         private int _cacheMessageBuffers; // Immutable, not reset by destroy().
         private ACMConfig _clientACM; // Immutable, not reset by destroy().
         private ACMConfig _serverACM; // Immutable, not reset by destroy().

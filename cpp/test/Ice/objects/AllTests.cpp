@@ -17,8 +17,8 @@ using namespace Test;
 class AbstractBaseI : public AbstractBase
 {
 public:
-    
-    virtual void op(const Ice::Current&) 
+
+    virtual void op(const Ice::Current&)
     {}
 };
 
@@ -94,7 +94,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     BasePtr bp2 = BasePtr::dynamicCast(bp1->ice_clone());
     test(bp1->theS.str == bp2->theS.str);
     test(bp1->str == bp2->str);
-    
+
     AbstractBasePtr abp1 = new AbstractBaseI;
     try
     {
@@ -110,22 +110,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     BPtr b1 = initial->getB1();
     test(b1);
     cout << "ok" << endl;
-    
+
     cout << "getting B2... " << flush;
     BPtr b2 = initial->getB2();
     test(b2);
     cout << "ok" << endl;
-    
+
     cout << "getting C... " << flush;
     CPtr c = initial->getC();
     test(c);
     cout << "ok" << endl;
-    
+
     cout << "getting D... " << flush;
     DPtr d = initial->getD();
     test(d);
     cout << "ok" << endl;
-    
+
     cout << "checking consistency... " << flush;
     test(b1 != b2);
     test(b1 != c);
@@ -147,7 +147,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->theA->postUnmarshalInvoked());
     test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
     test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
-    
+
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
     test(d->theC == 0);
@@ -160,7 +160,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(c);
     test(d);
     cout << "ok" << endl;
-    
+
     cout << "checking consistency... " << flush;
     test(b1 != b2);
     test(b1 != c);
@@ -178,7 +178,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d->theA == b1);
     test(d->theB == b2);
     test(d->theC == 0);
-    
+
     test(d->preMarshalInvoked);
     test(d->postUnmarshalInvoked());
     test(d->theA->preMarshalInvoked);
@@ -206,7 +206,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IPtr h = initial->getH();
     test(h && HPtr::dynamicCast(h));
     cout << "ok" << endl;
-    
+
     cout << "getting D1... " << flush;
     D1Ptr d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
     d1 = initial->getD1(d1);
@@ -215,7 +215,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(d1->a3->name == "a3");
     test(d1->a4->name == "a4");
     cout << "ok" << endl;
-    
+
     cout << "throw EDerived... " << flush;
     try
     {
@@ -245,6 +245,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
     inS[0] = new Base();
     retS = initial->opBaseSeq(inS, outS);
     test(retS.size() == 1 && outS.size() == 1);
+    cout << "ok" << endl;
+
+    cout << "testing recursive type... " << flush;
+    RecursivePtr top = new Recursive;
+    RecursivePtr p = top;
+    int depth = 0;
+    try
+    {
+        for(; depth <= 2000; ++depth)
+        {
+            p->v = new Recursive;
+            p = p->v;
+            if((depth < 10 && (depth % 10) == 0) ||
+               (depth < 1000 && (depth % 100) == 0) ||
+               (depth < 10000 && (depth % 1000) == 0) ||
+               (depth % 10000) == 0)
+            {
+                initial->setRecursive(top);
+            }
+        }
+        test(!initial->supportsClassGraphDepthMax());
+    }
+    catch(const Ice::UnknownLocalException&)
+    {
+        // Expected marshal exception from the server (max class graph depth reached)
+        test(depth == 100); // The default is 100.
+    }
+    catch(const Ice::UnknownException&)
+    {
+        // Expected stack overflow from the server (Java only)
+    }
+    initial->setRecursive(new Recursive);
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;

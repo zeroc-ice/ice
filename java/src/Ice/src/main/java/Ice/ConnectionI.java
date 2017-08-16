@@ -2557,7 +2557,9 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
             //
-            if(!(t instanceof java.lang.AssertionError || t instanceof java.lang.OutOfMemoryError))
+            if(!(t instanceof java.lang.AssertionError ||
+                 t instanceof java.lang.OutOfMemoryError ||
+                 t instanceof java.lang.StackOverflowError))
             {
                 throw (java.lang.Error)t;
             }
@@ -2582,7 +2584,9 @@ public final class ConnectionI extends IceInternal.EventHandler
             //
             // Suppress AssertionError and OutOfMemoryError, rethrow everything else.
             //
-            if(!(ex instanceof java.lang.AssertionError || ex instanceof java.lang.OutOfMemoryError))
+            if(!(ex instanceof java.lang.AssertionError ||
+                 ex instanceof java.lang.OutOfMemoryError ||
+                 ex instanceof java.lang.StackOverflowError))
             {
                 throw ex;
             }

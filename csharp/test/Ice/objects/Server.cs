@@ -72,14 +72,16 @@ public class Server
         try
         {
             Ice.InitializationData data = new Ice.InitializationData();
+            data.properties = Ice.Util.createProperties();
 #if COMPACT
             //
             // When using Ice for .NET Compact Framework, we need to specify
             // the assembly so that Ice can locate classes and exceptions.
             //
-            data.properties = Ice.Util.createProperties();
             data.properties.setProperty("Ice.FactoryAssemblies", "server");
 #endif
+            data.properties.setProperty("Ice.Warn.Dispatch", "0");
+            data.properties.setProperty("Ice.ClassGraphDepthMax", "100");
             communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }

@@ -192,6 +192,17 @@ InitialI::getF(const Ice::Current&)
 }
 
 void
+InitialI::setRecursive(const RecursivePtr&, const Ice::Current&)
+{
+}
+
+bool
+InitialI::supportsClassGraphDepthMax(const Ice::Current&)
+{
+    return true;
+}
+
+void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 {
     _b1->preMarshalInvoked = false;
