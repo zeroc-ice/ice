@@ -506,7 +506,7 @@ class IncomingAsync
     {
         try
         {
-            if(this._locator !== null && !this.servantLocatorFinished(amd))
+            if(this._locator !== null)
             {
                 Debug.assert(this._locator !== null && this._servant !== null);
                 try

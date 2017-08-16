@@ -1946,7 +1946,7 @@ class ConnectionI
                 // Attempt to log the error and clean up.
                 //
                 this._logger.error("unexpected exception:\n" + ex.toString());
-                this.invokeException(requestId, new Ice.UnknownException(ex), invokeNum, false);
+                this.invokeException(new Ice.UnknownException(ex), invokeNum);
             }
         }
     }
