@@ -35,12 +35,6 @@ ifeq ($(os),Darwin)
     php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
 
-ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
-php_cpp_includes        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
-else
-php_cpp_includes        = -I$(includedir)
-endif
-
 ifeq ($(os),Linux)
    allow-undefined-symbols    := yes
 endif

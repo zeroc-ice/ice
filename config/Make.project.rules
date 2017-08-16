@@ -328,7 +328,8 @@ endef
 get-program-targets = $2/$1$(EXE_EXT)
 
 #
-# $(call create-component-with-config-targets,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config])
+# $(call create-component-with-config-targets,$1=project,$2=component,$3=platform,$4=config,$5=comp[platform-config],
+#                                             $6=nobuild)
 #
 # Defines target variables for the given component/paltform/configuration
 #
@@ -343,9 +344,7 @@ $2_components   := $5
 # Compute the target and installation directories.
 #
 $5_targetdir    := $$(call var-value,targetdir,$1,$2,$3,$4,make-dirwsuffix)
-ifeq ($$($1_caninstall),yes)
 $5_installdir   := $$(call var-value,installdir,$1,$2,$3,$4,make-dirwsuffix)
-endif
 
 #
 # Compute the target rule and name for this platform/configuration combination.
@@ -363,10 +362,12 @@ $5_libs         := $$(call var-compound,libs,$1,$2,$3,$4,make-unique)
 $5_system_libs  := $$(call var-compound,system_libs,$1,$2,$3,$4)
 
 #
-# The targets to build
+# The targets to build.
 #
+ifeq ($6,)
 $5_targets := $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$$($5_targetdir),$$($5_version),$$($5_soversion),yes)
 $5_install_targets := $$(call get-$$($5_targetrule)-targets,$$($5_targetname),$(DESTDIR)$$($5_installdir),$$($5_version),$$($5_soversion),$$($2_devinstall))
+endif
 
 #
 # We define a secondary target for component[platform-config]. This is necessary
@@ -379,7 +380,7 @@ $5:: $$($5_targets)
 endef
 
 #
-# $(call create-component-targets,$1=project,$2=component,$3=type)
+# $(call create-component-targets,$1=project,$2=component,$3=type,$4=nobuild)
 #
 # Create the target variables for the given component.
 #
@@ -399,17 +400,18 @@ $2_devinstall   := $$(call var-with-default,$2_devinstall,yes)
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
 #
-$2_installdir   := $$(or $$($2_installdir),$$(if $$(filter program,$$($2_target)),$(install_bindir),$(install_libdir)))
+$2_targetdir    := $$(or $$($2_targetdir),$$(if $$(filter program,$$($2_target)),$$($1_bindir),$$($1_libdir)))
+$2_installdir   := $$(or $$($2_installdir),$$(if $$(filter program,$$($2_target)),$$($1_install_bindir),$$($1_install_libdir)))
 
 $$(foreach p,$$($2_platforms),\
     $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$($2_configs)),\
         $$(if $$(filter $(SKIP),$2[$$p-$$c]),,\
-            $$(eval $$(call create-component-with-config-targets,$1,$2,$$p,$$c,$2[$$p-$$c])))))
+            $$(eval $$(call create-component-with-config-targets,$1,$2,$$p,$$c,$2[$$p-$$c],$4)))))
 
 endef
 
 #
-# $(call create-project-targets,$1=project)
+# $(call create-project-targets,$1=project,$2=nobuild)
 #
 # Creates all the target variables which are necessary to depend on the components
 # from the given project. This is used by various language mappings to depend on C++
@@ -418,11 +420,15 @@ endef
 define create-project-targets
 ifeq ($(filter $(SKIP),$1),)
 $1_targetdir    := $$(call var-with-default,$1_targetdir,$1/build)
+$1_bindir       := $$(call var-with-default,$1_bindir,$$($1_targetdir))
+$1_libdir       := $$(call var-with-default,$1_libdir,$$($1_targetdir))
+$1_install_bindir := $$(call var-with-default,$1_install_bindir,$(install_bindir))
+$1_install_libdir := $$(call var-with-default,$1_install_libdir,$(install_libdir))
 $1_version      := $$(call var-with-default,$1_version,$(version))
 $1_soversion    := $$(call var-with-default,$1_soversion,$(soversion))
 $1_caninstall   := $$(call var-with-default,$1_caninstall,yes)
-$$(foreach p,$$($1_programs),$$(if $$(filter $(SKIP),$$p),,$$(eval $$(call create-component-targets,$1,$$p,program))))
-$$(foreach l,$$($1_libraries),$$(if $$(filter $(SKIP),$$l),,$$(eval $$(call create-component-targets,$1,$$l,library))))
+$$(foreach p,$$($1_programs),$$(if $$(filter $(SKIP),$$p),,$$(eval $$(call create-component-targets,$1,$$p,program,$2))))
+$$(foreach l,$$($1_libraries),$$(if $$(filter $(SKIP),$$l),,$$(eval $$(call create-component-targets,$1,$$l,library,$2))))
 endif
 endef
 
@@ -807,6 +813,26 @@ projects := $$(tmp_projects)
 endef
 
 #
+# $(call create-project-dependencies,$1=project,$2=home,$3=srcsubdir,$3=libs,$4=programs)
+#
+define create-project-dependencies
+$1_home           := $(or $2,$(system-install-dir))
+$1_system_install := $$(call is-system-install,$$($1_home))
+$1_src_dist       := $$(wildcard $$($1_home)/$3)
+$1_bindir         := $$($1_home)$$(if $$($1_src_dist),/$3)/bin
+$1_slicedir       := $$($1_home)$$(if $$(or $$($1_system_install),$$(wildcard $$($1_home)/share/ice)),/share/ice)/slice
+$1_libdir         := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$3)/lib)
+$1_includedir     := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$3)/include)
+$1_install_bindir := $$($1_bindir)
+$1_install_libdir := $$($1_libdir)
+$1_targetdir      := $$($1_home)
+$1_libraries      := $4
+$1_programs       := $5
+$1_cppflags       := $$(if $$($1_includedir),-I$$($1_includedir) $$(if $$($1_src_dist),-I$$($1_includedir)/generated))
+$$(eval $$(call create-project-targets,$1,nobuild))
+endef
+
+#
 # $(call create-translator-project,$1=project)
 #
 # Defines a project for the given translator
@@ -858,8 +884,8 @@ endef
 #
 # Create the targets for the given projects and then make the project rules.
 #
-make-projects = $(foreach p,$1,$(eval $(call $(or $(if $($p_type),create-$($p_type)-project-targets),$3,create-project-targets),$p)))\
-                $(foreach p,$1,$(eval $(call $(or $(if $($p_type),make-$($p_type)-project),$2,make-project),$p)))
+make-projects = $(foreach p,$1,$(eval $(call $(or $(if $($p_type),create-$($p_type)-project-targets),$3,create-project-targets),$p,$4)))\
+                $(if $4,,$(foreach p,$1,$(eval $(call $(or $(if $($p_type),make-$($p_type)-project),$2,make-project),$p))))
 
 #
 # $(call depend_cppflags,$1=dependencyfile,$2=targetfile)
@@ -878,6 +904,12 @@ rpath-ldflag    ?= -Wl,-rpath,$1
 #
 mklibname               ?= lib$(1).a
 mkshlibnametarget       ?= $(if $3,$(mksoname),$(mkshlibfilename))
+
+#
+# Check for system install
+#
+system-install-dir      ?= /usr
+is-system-install       ?= $(filter $(system-install-dir),$1)
 
 #
 # Helper functions
@@ -931,7 +963,7 @@ var-rcompound   = $(call $(or $6,var-valu2),$1,$3,$4,$5,$3[$4-$5],$(strip $(fore
 #
 # $(call make-xxx,$1=varname,$2=component,$3=platform,$4=config,$5=$2[$3-$4],$6=value)
 #
-make-dirwsuffix = $(patsubst %/,%,$6$(platform-var)/$(subst $(space),-,$(config-var)))
+make-dirwsuffix = $(if $6,$(patsubst %/,%,$6$(platform-var)/$(subst $(space),-,$(config-var))))
 make-targetrule = $(patsubst -%,%,$(subst $(space),-,$(call platform-and-config-var,targetrule,$2,$3,$4,$5,$6))-$6)
 make-targetname = $6$(subst $(space),,$(platform-and-config-var))
 make-unique     = $(call unique,$6)
@@ -963,15 +995,17 @@ make-rpath-ldflag = $(if $(filter-out $1,$2),\
                             $(call rpath-ldflag,$1),\
                             $(call rpath-ldflag,$(loader_path)/$(call relpathfromdir,$(patsubst $(lang_srcdir)/%,%,$2))/$1)),\
                         $(call rpath-ldflag,$(loader_path)))
-make-shared-dep-ldflags = $(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir) -l$($1_targetname)
+make-shared-dep-ldflags = $(if $($1_targetdir),$(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir)) -l$($1_targetname)
 else
 # Add rpath with $(embedded_runpath_prefix) if linking with library installed in different directory.
 make-rpath-ldflag = $(if $(filter-out $1,$2),\
-                        $(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)))
-make-shared-dep-ldflags = $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) -L$($1_targetdir) -l$($1_targetname)
+                        $(if $(filter $(prefix)/%,$1),\
+                            $(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)),\
+                            $(call rpath-ldflag,$1)))
+make-shared-dep-ldflags = $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) $(if $($1_targetdir),-L$($1_targetdir)) -l$($1_targetname)
 endif
 else
-make-shared-dep-ldflags = -L$($1_targetdir) -l$($1_targetname)
+make-shared-dep-ldflags = $(if $($1_targetdir),-L$($1_targetdir)) -l$($1_targetname)
 endif
 
 make-static-dep-ldflags = $($1_targetdir)/$(call mklibname,$($1_targetname))

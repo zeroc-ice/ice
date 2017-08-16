@@ -122,10 +122,7 @@ endef
 define make-cpp-test-project
 $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
-$1_cppflags             += -I$1/generated -I$1 -Itest/include -I$(includedir)
-ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
-$1_cppflags             += -I$(includedir)/generated
-endif
+$1_cppflags             += -I$1/generated -I$1 -Itest/include $(ice_cpp_cppflags)
 $(make-project)
 tests:: $1
 endef

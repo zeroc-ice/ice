@@ -118,8 +118,11 @@ class Platform:
     def getLdPathEnvName(self):
         return "LD_LIBRARY_PATH"
 
+    def getInstallDir(self, mapping, current, envName):
+        return os.environ.get(envName, "/usr")
+
     def getIceInstallDir(self, mapping, current):
-        return os.environ.get("ICE_HOME", "/usr")
+        return self.getInstallDir(mapping, current, "ICE_HOME")
 
     def getSliceDir(self, iceDir):
         if iceDir.startswith("/usr"):
@@ -163,8 +166,8 @@ class Darwin(Platform):
     def getLdPathEnvName(self):
         return "DYLD_LIBRARY_PATH"
 
-    def getIceInstallDir(self, mapping, current):
-        return os.environ.get("ICE_HOME", "/usr/local")
+    def getInstallDir(self, mapping, current, envName):
+        return os.environ.get(envName, "/usr/local")
 
 class AIX(Platform):
 
@@ -359,7 +362,7 @@ class Windows(Platform):
     def getLdPathEnvName(self):
         return "PATH"
 
-    def getIceInstallDir(self, mapping, current):
+    def getInstallDir(self, mapping, current, envName):
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
         version = self.getNugetPackageVersion()
@@ -367,11 +370,15 @@ class Windows(Platform):
         package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
             mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
-        iceHome = os.environ.get("ICE_HOME", "")
-        if isinstance(mapping, CppMapping) and not package and not os.path.exists(iceHome):
+        package = None
+        if hasattr(mapping, "getNugetPackage"):
+            package = os.path.join(mapping.path, "msbuild", "packages", mapping.getNugetPackage(packageSuffix, version))
+
+        home = os.environ.get(envName, "")
+        if isinstance(mapping, CppMapping) and not package and not os.path.exists(home):
             raise RuntimeError("Cannot detect a valid C++ distribution")
 
-        return package if package and os.path.exists(package) else iceHome
+        return package if package and os.path.exists(package) else home
 
     def canRun(self, mapping, current):
         #
@@ -2619,12 +2626,18 @@ class Driver:
         self.configs = configs
 
     def useIceBinDist(self, mapping):
-        env = os.environ.get("ICE_BIN_DIST", "").split()
-        return 'all' in env or mapping.name in env
+        return self.useBinDist(mapping, "ICE_BIN_DIST")
 
     def getIceDir(self, mapping, current):
-        if self.useIceBinDist(mapping):
-            return platform.getIceInstallDir(mapping, current)
+        return self.getInstallDir(mapping, current, "ICE_HOME", "ICE_BIN_DIST")
+
+    def useBinDist(self, mapping, envName):
+        env = os.environ.get(envName, "").split()
+        return 'all' in env or mapping.name in env
+
+    def getInstallDir(self, mapping, current, envHomeName, envBinDistName):
+        if self.useBinDist(mapping, envBinDistName):
+            return platform.getInstallDir(mapping, current, envHomeName)
         elif mapping:
             return mapping.getPath()
         else:
@@ -3362,12 +3375,16 @@ class JavaScriptMapping(Mapping):
 
         return options
 
-from Glacier2Util import *
-from IceBoxUtil import *
-from IceBridgeUtil import *
-from IcePatch2Util import *
-from IceGridUtil import *
-from IceStormUtil import *
+try:
+    from Glacier2Util import *
+    from IceBoxUtil import *
+    from IceBridgeUtil import *
+    from IcePatch2Util import *
+    from IceGridUtil import *
+    from IceStormUtil import *
+except ImportError:
+    pass
+
 from LocalDriver import *
 
 #
@@ -3383,7 +3400,7 @@ except:
 #
 # Supported mappings
 #
-for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)),  os.listdir(toplevel)):
+for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
         Mapping.add(m, CppMapping())
     elif m == "java-compat" or re.match("java-compat-.*", m):
@@ -3427,7 +3444,7 @@ def runTests(mappings=None, drivers=None):
             driver.usage()
 
         Mapping.Config.commonUsage()
-        for mapping in Mapping.getAll():
+        for mapping in mappings:
             mapping.Config.usage()
 
         print("")

@@ -10,8 +10,6 @@
 top_srcdir      := ..
 lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
-ifeq ($(filter all ruby,$(ICE_BIN_DIST)),)
-
 include $(top_srcdir)/config/Make.rules
 
 #
@@ -24,6 +22,8 @@ $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2rb))
 # Load ruby rules after loading C++ dependencies
 #
 include $(lang_srcdir)/config/Make.rules
+
+ifeq ($(filter all ruby,$(ICE_BIN_DIST)),)
 
 #
 # Load Makefile.mk fragments

@@ -23,6 +23,8 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL Ic
 #
 include $(lang_srcdir)/config/Make.rules
 
+ifeq ($(filter all php,$(ICE_BIN_DIST)),)
+
 #
 # Load Makefile.mk fragments
 #
@@ -61,6 +63,8 @@ $(eval $(call make-php-package,$(slicedir),lib,IceBox))
 $(eval $(call make-php-package,$(slicedir),lib,IceGrid))
 $(eval $(call make-php-package,$(slicedir),lib,IcePatch2))
 $(eval $(call make-php-package,$(slicedir),lib,IceStorm))
+
+endif
 
 #
 # Translate the Slice files from test directories

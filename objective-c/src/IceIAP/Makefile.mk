@@ -13,7 +13,7 @@ IceIAPObjC_configs              := xcodesdk
 IceIAPObjC_platforms            := iphoneos iphonesimulator
 
 IceIAPObjC_targetdir            := $(libdir)
-IceIAPObjC_cppflags             := -DICEIAP_API_EXPORTS -Isrc/Ice -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+IceIAPObjC_cppflags             := -DICEIAP_API_EXPORTS -Isrc/Ice $(ice_cpp_cppflags)
 IceIAPObjC_sliceflags           := --include-dir objc/IceIAP
 IceIAPObjC_dependencies         := IceObjC IceIAP Ice
 IceIAPObjC_slicedir             := $(slicedir)/IceIAP

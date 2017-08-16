@@ -55,6 +55,9 @@ mkshlib         = $(or $($7_cxx),$(CXX)) -dynamiclib $(if $5,-install_name @rpat
                      $(call machoversion,$(if $(filter $4,$(version)),$(compatversion),$4))) \
                   -o $1 $2 $6
 
+# system install directory
+system-install-dir = /usr/local
+
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
 #
