@@ -15,8 +15,7 @@ public sealed class TestI : TestIntfDisp_
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
 
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
         adapter.activate();
         adapter.destroy();
     }
