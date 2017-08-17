@@ -94,14 +94,14 @@ ICECPPFLAGS		= -I"$(slicedir)"
 SLICE2PYFLAGS		= $(ICECPPFLAGS)
 
 !if "$(ice_src_dist)" != ""
-SLICE2PY                = $(PYTHON_HOME)\python $(top_srcdir)\config\s2py.py
+SLICE2PY                = "$(PYTHON_HOME)\python" $(top_srcdir)\config\s2py.py
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\slice.lib
 !if !exist ("$(SLICEPARSERLIB)")
 SLICEPARSERLIB          = $(ice_cpp_dir)\lib\sliced.lib
 !endif
 !else
-SLICE2PY                = $(PYTHON_HOME)\Scripts\slice2py.exe
-SLICEPARSERLIB          = $(PYTHON_HOME)\Scripts\slice2py.exe
+SLICE2PY                = "$(PYTHON_HOME)\Scripts\slice2py.exe"
+SLICEPARSERLIB          = "$(PYTHON_HOME)\Scripts\slice2py.exe"
 !endif
 
 MT			= mt.exe

@@ -42,7 +42,7 @@ CPP_COMPILER=auto
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-!if ([$(PYTHON_HOME)\python.exe -c "import sys;print(sys.version_info >= (3, 5))" | findstr "True" > nul] == 0)
+!if (["$(PYTHON_HOME)\python.exe" -c "import sys;print(sys.version_info >= (3, 5))" | findstr "True" > nul] == 0)
 REQUIRED_COMPILER	= VC140
 !else
 REQUIRED_COMPILER	= VC100
