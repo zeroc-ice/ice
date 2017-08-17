@@ -7,118 +7,118 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir      = ../..
 
-ADMIN		= $(bindir)/icegridadmin
-DB		= $(bindir)/icegriddb
-NODE_SERVER	= $(bindir)/icegridnode
-REGISTRY_SERVER	= $(bindir)/icegridregistry
+ADMIN           = $(bindir)/icegridadmin
+DB              = $(bindir)/icegriddb
+NODE_SERVER     = $(bindir)/icegridnode
+REGISTRY_SERVER = $(bindir)/icegridregistry
 
 TARGETS         = $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN) $(DB)
 
 CSLICE_OBJS     = Internal.o \
-		  IceLocatorDiscovery.o
+                  IceLocatorDiscovery.o
 
-ADMIN_OBJS	= Client.o \
-		  DescriptorBuilder.o \
-		  DescriptorHelper.o \
-		  DescriptorParser.o \
-		  FileParserI.o \
-		  Grammar.o \
-		  Parser.o \
-		  Scanner.o \
-		  Util.o \
-		  $(CSLICE_OBJS)
+ADMIN_OBJS      = Client.o \
+                  DescriptorBuilder.o \
+                  DescriptorHelper.o \
+                  DescriptorParser.o \
+                  FileParserI.o \
+                  Grammar.o \
+                  Parser.o \
+                  Scanner.o \
+                  Util.o \
+                  $(CSLICE_OBJS)
 
-COMMON_OBJS	= AdminRouter.o \
-		  DescriptorBuilder.o \
-		  DescriptorParser.o \
-		  FileCache.o \
-		  PlatformInfo.o \
-		  SessionManager.o \
-		  TraceLevels.o \
-		  $(CSLICE_OBJS)
+COMMON_OBJS     = AdminRouter.o \
+                  DescriptorBuilder.o \
+                  DescriptorParser.o \
+                  FileCache.o \
+                  PlatformInfo.o \
+                  SessionManager.o \
+                  TraceLevels.o \
+                  $(CSLICE_OBJS)
 
-NODE_OBJS	= Activator.o \
-		  NodeAdminRouter.o \
-		  NodeI.o \
-		  NodeSessionManager.o \
-		  ServerAdapterI.o \
-		  ServerI.o
+NODE_OBJS       = Activator.o \
+                  NodeAdminRouter.o \
+                  NodeI.o \
+                  NodeSessionManager.o \
+                  ServerAdapterI.o \
+                  ServerI.o
 
 REGISTRY_OBJS   = AdminCallbackRouter.o \
-		  AdapterCache.o \
-		  AdminI.o \
-		  AdminSessionI.o \
-		  Allocatable.o \
-		  AllocatableObjectCache.o \
-		  Database.o \
-		  DescriptorHelper.o \
-		  FileUserAccountMapperI.o \
-		  IdentityObjectInfoDict.o \
-		  InternalRegistryI.o \
-		  LocatorI.o \
-		  LocatorRegistryI.o \
-		  NodeCache.o \
-		  NodeSessionI.o \
-		  ObjectCache.o \
-		  PluginFacadeI.o \
-		  QueryI.o \
-		  ReapThread.o \
-		  RegistryAdminRouter.o \
-		  RegistryI.o \
-		  ReplicaCache.o \
-		  ReplicaSessionI.o \
-		  ReplicaSessionManager.o \
-		  SerialsDict.o \
-		  ServerCache.o \
-		  SessionI.o \
-		  SessionServantManager.o \
-		  StringAdapterInfoDict.o \
-		  StringApplicationInfoDict.o \
-		  Topics.o \
-		  Util.o \
-		  WellKnownObjectsManager.o
+                  AdapterCache.o \
+                  AdminI.o \
+                  AdminSessionI.o \
+                  Allocatable.o \
+                  AllocatableObjectCache.o \
+                  Database.o \
+                  DescriptorHelper.o \
+                  FileUserAccountMapperI.o \
+                  IdentityObjectInfoDict.o \
+                  InternalRegistryI.o \
+                  LocatorI.o \
+                  LocatorRegistryI.o \
+                  NodeCache.o \
+                  NodeSessionI.o \
+                  ObjectCache.o \
+                  PluginFacadeI.o \
+                  QueryI.o \
+                  ReapThread.o \
+                  RegistryAdminRouter.o \
+                  RegistryI.o \
+                  ReplicaCache.o \
+                  ReplicaSessionI.o \
+                  ReplicaSessionManager.o \
+                  SerialsDict.o \
+                  ServerCache.o \
+                  SessionI.o \
+                  SessionServantManager.o \
+                  StringAdapterInfoDict.o \
+                  StringApplicationInfoDict.o \
+                  Topics.o \
+                  Util.o \
+                  WellKnownObjectsManager.o
 
-NODE_SVR_OBJS 	= $(COMMON_OBJS) \
-		  $(NODE_OBJS) \
-		  $(REGISTRY_OBJS) \
-		  IceGridNode.o
+NODE_SVR_OBJS   = $(COMMON_OBJS) \
+                  $(NODE_OBJS) \
+                  $(REGISTRY_OBJS) \
+                  IceGridNode.o
 
 REGISTRY_SVR_OBJS = \
-		  $(COMMON_OBJS) \
-		  $(REGISTRY_OBJS) \
-		  IceGridRegistry.o
+                  $(COMMON_OBJS) \
+                  $(REGISTRY_OBJS) \
+                  IceGridRegistry.o
 
-DSLICE_OBJS	= DBTypes.o
+DSLICE_OBJS     = DBTypes.o
 
-DB_OBJS		= IceGridDB.o \
-		  StringApplicationInfoDict.o \
-		  IdentityObjectInfoDict.o \
-		  StringAdapterInfoDict.o \
-		  SerialsDict.o \
-		  $(DSLICE_OBJS)
+DB_OBJS         = IceGridDB.o \
+                  StringApplicationInfoDict.o \
+                  IdentityObjectInfoDict.o \
+                  StringAdapterInfoDict.o \
+                  SerialsDict.o \
+                  $(DSLICE_OBJS)
 
-OBJS		= $(ADMIN_OBJS) \
-		  $(COMMON_OBJS) \
-		  $(NODE_OBJS) \
-		  $(NODE_SVR_OBJS) \
-		  $(REGISTRY_SVR_OBJS) \
-		  $(DB_OBJS)
+OBJS            = $(ADMIN_OBJS) \
+                  $(COMMON_OBJS) \
+                  $(NODE_OBJS) \
+                  $(NODE_SVR_OBJS) \
+                  $(REGISTRY_SVR_OBJS) \
+                  $(DB_OBJS)
 
-SLICE_OBJS	= $(CSLICE_OBJS) \
-		  $(DSLICE_OBJS)
+SLICE_OBJS      = $(CSLICE_OBJS) \
+                  $(DSLICE_OBJS)
 
-SDIR		= $(slicedir)/IceGrid
+SDIR            = $(slicedir)/IceGrid
 
-RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
+RPATH_DIR       = $(LOADER_PATH)/../$(libsubdir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= $(CPPFLAGS) -I. -I.. $(READLINE_FLAGS)
-ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
-SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD	:= $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
+CPPFLAGS        := $(CPPFLAGS) -I.. $(READLINE_FLAGS)
+ICECPPFLAGS     := $(ICECPPFLAGS) -I..
+SLICE2CPPFLAGS  := --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
+SLICE2FREEZECMD := $(SLICE2FREEZE) --ice --include-dir IceGrid $(ICECPPFLAGS)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
