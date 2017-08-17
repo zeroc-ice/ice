@@ -879,7 +879,7 @@ def hashPasswords(filePath, entries):
       os.remove(filePath)
     passwords = open(filePath, "a")
 
-    command = '%s "%s"' % (sys.executable,
+    command = '"%s" "%s"' % (sys.executable,
                            os.path.abspath(os.path.join(os.path.dirname(__file__), "icehashpassword.py")))
 
     #
@@ -1187,7 +1187,7 @@ def getCommandLine(exe, config, options = "", interpreterOptions = ""):
             output.write(" " + interpreterOptions)
         output.write(" " + exe + " ")
     elif config.lang == "python":
-        output.write(sys.executable)
+        output.write('"' + sys.executable + '"')
         if interpreterOptions:
             output.write(" " + interpreterOptions)
         output.write(' "%s" ' % exe)
@@ -2451,13 +2451,15 @@ def runTests(start, expanded, num = 0, script = False):
 
             global keepGoing
             if script:
-                print("if ! %s %s %s; then" % (sys.executable, os.path.join(dir, "run.py"), args))
+                print('if ! "%s" "%s" %s; then' % (sys.executable, os.path.join(dir, "run.py"), args))
                 print("  echo 'test in %s failed'" % os.path.abspath(dir))
                 if not keepGoing:
                     print("  exit 1")
                 print("fi")
             else:
-                status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
+                status = subprocess.call("%s %s %s" % (quoteArgument(sys.executable),
+                                                       quoteArgument(os.path.join(dir, "run.py")),
+                                                       args), shell=True)
                 if status:
                     status = status if isWin32() else (status >> 8)
                     if(num > 0):
