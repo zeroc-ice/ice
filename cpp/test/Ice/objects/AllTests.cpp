@@ -248,35 +248,42 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing recursive type... " << flush;
-    RecursivePtr top = new Recursive;
-    RecursivePtr p = top;
-    int depth = 0;
     try
     {
-        for(; depth <= 2000; ++depth)
+        RecursivePtr top = new Recursive;
+        RecursivePtr p = top;
+        int depth = 0;
+        try
         {
-            p->v = new Recursive;
-            p = p->v;
-            if((depth < 10 && (depth % 10) == 0) ||
-               (depth < 1000 && (depth % 100) == 0) ||
-               (depth < 10000 && (depth % 1000) == 0) ||
-               (depth % 10000) == 0)
+            for(; depth <= 2000; ++depth)
             {
-                initial->setRecursive(top);
+                p->v = new Recursive;
+                p = p->v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial->setRecursive(top);
+                }
             }
+            test(!initial->supportsClassGraphDepthMax());
         }
-        test(!initial->supportsClassGraphDepthMax());
+        catch(const Ice::UnknownLocalException&)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+            test(depth == 100); // The default is 100.
+        }
+        catch(const Ice::UnknownException&)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        initial->setRecursive(new Recursive);
     }
-    catch(const Ice::UnknownLocalException&)
+    catch(const Ice::OperationNotExistException&)
     {
-        // Expected marshal exception from the server (max class graph depth reached)
-        test(depth == 100); // The default is 100.
+        // Expected if running against server that doesn't support this method.
     }
-    catch(const Ice::UnknownException&)
-    {
-        // Expected stack overflow from the server (Java only)
-    }
-    initial->setRecursive(new Recursive);
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;

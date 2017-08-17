@@ -252,38 +252,45 @@ public class AllTests
 
         out.print("testing recursive type... ");
         out.flush();
-        Recursive top = new Recursive();
-        Recursive p = top;
-        int depth = 0;
         try
         {
-            for(; depth <= 20000; ++depth)
+            Recursive top = new Recursive();
+            Recursive p = top;
+            int depth = 0;
+            try
             {
-                p.v = new Recursive();
-                p = p.v;
-                if((depth < 10 && (depth % 10) == 0) ||
-                   (depth < 1000 && (depth % 100) == 0) ||
-                   (depth < 10000 && (depth % 1000) == 0) ||
-                   (depth % 10000) == 0)
+                for(; depth <= 20000; ++depth)
                 {
-                    initial.setRecursive(top);
+                    p.v = new Recursive();
+                    p = p.v;
+                    if((depth < 10 && (depth % 10) == 0) ||
+                       (depth < 1000 && (depth % 100) == 0) ||
+                       (depth < 10000 && (depth % 1000) == 0) ||
+                       (depth % 10000) == 0)
+                    {
+                        initial.setRecursive(top);
+                    }
                 }
+                test(!initial.supportsClassGraphDepthMax());
             }
-            test(!initial.supportsClassGraphDepthMax());
+            catch(Ice.UnknownLocalException ex)
+            {
+                // Expected marshal exception from the server (max class graph depth reached)
+            }
+            catch(Ice.UnknownException ex)
+            {
+                // Expected stack overflow from the server (Java only)
+            }
+            catch(java.lang.StackOverflowError ex)
+            {
+                // Stack overflow while writing instances
+            }
+            initial.setRecursive(new Recursive());
         }
-        catch(Ice.UnknownLocalException ex)
+        catch(Ice.OperationNotExistException ex)
         {
-            // Expected marshal exception from the server (max class graph depth reached)
+            // Expected if running against server that doesn't support this method.
         }
-        catch(Ice.UnknownException ex)
-        {
-            // Expected stack overflow from the server (Java only)
-        }
-        catch(java.lang.StackOverflowError ex)
-        {
-            // Stack overflow while writing instances
-        }
-        initial.setRecursive(new Recursive());
         out.println("ok");
 
         out.print("testing compact ID...");
