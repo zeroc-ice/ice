@@ -94,7 +94,6 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
-    _classGraphDepthMax(instance->classGraphDepthMax()),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
@@ -117,7 +116,6 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _sliceObjects(true),
-    _classGraphDepthMax(instance->classGraphDepthMax()),
     _stringConverter(instance->getStringConverter()),
     _wstringConverter(instance->getWstringConverter()),
     _startSeq(-1),
@@ -183,7 +181,6 @@ IceInternal::BasicStream::swap(BasicStream& other)
     resetEncaps();
     other.resetEncaps();
 
-    std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
 }
@@ -1846,15 +1843,16 @@ IceInternal::BasicStream::initReadEncaps()
     if(!_currentReadEncaps->decoder) // Lazy initialization.
     {
         ObjectFactoryManagerPtr factoryManager = _instance->servantFactoryManager();
+        size_t classGraphDepthMax = _instance->classGraphDepthMax();
         if(_currentReadEncaps->encoding == Encoding_1_0)
         {
             _currentReadEncaps->decoder = new EncapsDecoder10(this, _currentReadEncaps, _sliceObjects,
-                                                              _classGraphDepthMax, factoryManager);
+                                                              classGraphDepthMax, factoryManager);
         }
         else
         {
             _currentReadEncaps->decoder = new EncapsDecoder11(this, _currentReadEncaps, _sliceObjects,
-                                                              _classGraphDepthMax, factoryManager);
+                                                              classGraphDepthMax, factoryManager);
         }
     }
 }

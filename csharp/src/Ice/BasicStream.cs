@@ -119,8 +119,6 @@ namespace IceInternal
             _closure = null;
             _encoding = encoding;
 
-            _classGraphDepthMax = instance.classGraphDepthMax();
-
             _readEncapsStack = null;
             _writeEncapsStack = null;
             _readEncapsCache = null;
@@ -202,10 +200,6 @@ namespace IceInternal
             //
             resetEncaps();
             other.resetEncaps();
-
-            int tmpClassGraphDepthMax = other._classGraphDepthMax;
-            other._classGraphDepthMax = _classGraphDepthMax;
-            _classGraphDepthMax = tmpClassGraphDepthMax;
 
             int tmpStartSeq = other._startSeq;
             other._startSeq = _startSeq;
@@ -5406,15 +5400,16 @@ namespace IceInternal
             if(_readEncapsStack.decoder == null) // Lazy initialization.
             {
                 ObjectFactoryManager factoryMgr = instance_.servantFactoryManager();
+                int classGraphDepthMax = instance_.classGraphDepthMax();
                 if(_readEncapsStack.encoding_1_0)
                 {
                     _readEncapsStack.decoder = new EncapsDecoder10(this, _readEncapsStack, _sliceObjects,
-                                                                   _classGraphDepthMax, factoryMgr);
+                                                                   classGraphDepthMax, factoryMgr);
                 }
                 else
                 {
                     _readEncapsStack.decoder = new EncapsDecoder11(this, _readEncapsStack, _sliceObjects,
-                                                                   _classGraphDepthMax, factoryMgr);
+                                                                   classGraphDepthMax, factoryMgr);
                 };
             }
         }
@@ -5454,7 +5449,6 @@ namespace IceInternal
         }
 
         private bool _sliceObjects;
-        private int _classGraphDepthMax;
         private int _startSeq;
         private int _minSeqSize;
 

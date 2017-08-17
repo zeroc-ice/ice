@@ -1323,8 +1323,6 @@ private:
 
     bool _sliceObjects;
 
-    size_t _classGraphDepthMax;
-
     const IceUtil::StringConverterPtr _stringConverter;
     const IceUtil::WstringConverterPtr _wstringConverter;
 
