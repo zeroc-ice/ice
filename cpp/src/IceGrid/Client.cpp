@@ -767,33 +767,9 @@ Client::run(StringSeq& originalArgs)
             keepAlive->start();
         }
 
-        AdminPrx admin = session->getAdmin();
-
-        SliceChecksumDict serverChecksums = admin->getSliceChecksums();
-        SliceChecksumDict localChecksums = sliceChecksums();
-
-        //
-        // The following slice types are only used by the admin CLI.
-        //
-        localChecksums.erase("::IceGrid::FileParser");
-        localChecksums.erase("::IceGrid::ParseException");
-
-        for(SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
-        {
-            SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
-            if(r == serverChecksums.end())
-            {
-                consoleErr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
-            }
-            else if(q->second != r->second)
-            {
-                consoleErr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
-            }
-        }
-
         {
             Lock sync(*this);
-            _parser = Parser::createParser(communicator(), session, admin, commands.empty());
+            _parser = Parser::createParser(communicator(), session, session->getAdmin(), commands.empty());
         }
 
         if(!commands.empty()) // Commands were given
