@@ -199,7 +199,7 @@ NUGET 			= $(LOCALAPPDATA)\ZeroC\nuget\nuget.exe
 
 "$(NUGET)":
 	@if not exist "$(LOCALAPPDATA)\ZeroC\nuget" $(MKDIR) "$(LOCALAPPDATA)\ZeroC\nuget"
-	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '$(NUGET)')"
+	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://dist.nuget.org/win-x86-commandline/v3.4.4/NuGet.exe', '$(NUGET)')"
 
 $(BZIP2_NUPKG): "$(NUGET)"
 	@if not exist "$(PKG_DIR)" $(MKDIR) "$(PKG_DIR)"
@@ -224,7 +224,6 @@ $(EXPAT_NUPKG): "$(NUGET)"
 !endif
 
 !endif
-
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"

@@ -162,7 +162,7 @@ task nugetDirectory() {
 }
 
 task nugetInstall(type:Exec, dependsOn:nugetDirectory) {
-  commandLine 'cmd', '/c', 'powershell', '-Command', "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '${nuget}')"
+  commandLine 'cmd', '/c', 'powershell', '-Command', "(New-Object Net.WebClient).DownloadFile('http://dist.nuget.org/win-x86-commandline/v3.4.4/NuGet.exe', '${nuget}')"
 }
 
 task nugetInstallBerkeleyDb(type:Exec) {
