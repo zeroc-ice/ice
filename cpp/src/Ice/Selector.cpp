@@ -486,6 +486,7 @@ void
 Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int timeout)
 {
     int ret = 0;
+    int spuriousWakeup = 0;
     while(true)
     {
 #if defined(ICE_USE_EPOLL)
@@ -517,6 +518,16 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
                 out << "fatal error: selector failed:\n" << ex;
             }
             abort();
+        }
+        else if(ret == 0 && timeout <= 0 && ++spuriousWakeup < 100)
+        {
+            if(spuriousWakeup == 1)
+            {
+                Ice::Warning out(_instance->initializationData().logger);
+                out << "spurious selector wakeup";
+            }
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+            continue;
         }
         break;
     }
