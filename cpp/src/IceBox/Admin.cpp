@@ -140,21 +140,6 @@ Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    Ice::SliceChecksumDict serverChecksums = manager->getSliceChecksums();
-    Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
-    for(Ice::SliceChecksumDict::const_iterator p = localChecksums.begin(); p != localChecksums.end(); ++p)
-    {
-        Ice::SliceChecksumDict::const_iterator q = serverChecksums.find(p->first);
-        if(q == serverChecksums.end())
-        {
-            cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
-        }
-        else if(p->second != q->second)
-        {
-            cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
-        }
-    }
-
     for(vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {
         if((*r) == "shutdown")
