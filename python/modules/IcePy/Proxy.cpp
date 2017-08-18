@@ -2114,19 +2114,20 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
     bool b = false;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        if(!ctx || ctx == Py_None)
-        {
-            b = target->ice_isA(id);
-        }
-        else
+        if(ctx && ctx != Py_None)
         {
             Ice::Context c;
             if(!dictionaryToContext(ctx, c))
             {
                 return 0;
             }
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             b = target->ice_isA(id, c);
+        }
+        else
+        {
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+            b = target->ice_isA(id);
         }
     }
     catch(const Ice::FacetNotExistException&)
