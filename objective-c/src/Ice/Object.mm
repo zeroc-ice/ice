@@ -620,7 +620,7 @@ static NSString* ICEObject_all__[4] =
     object__->__decRef();
     [super dealloc];
 }
-+(id) objectWrapperWithCxxObject:(Ice::Object*)arg
++(id) objectWrapperWithCxxObjectNoAutoRelease:(Ice::Object*)arg
 {
     @synchronized([ICEObjectWrapper class])
     {
@@ -631,7 +631,7 @@ static NSString* ICEObject_all__[4] =
         }
         else
         {
-            return [[(ICEObjectWrapper*)[self alloc] initWithCxxObject:arg] autorelease];
+            return [(ICEObjectWrapper*)[self alloc] initWithCxxObject:arg];
         }
     }
 }

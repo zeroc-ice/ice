@@ -462,7 +462,7 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is an Objective-C servant wrapped into a C++
         // object, return the wrapped Objective-C object.
         //
-        return [[wrapper->getObject() retain] autorelease];
+        return [wrapper->getObject() retain];
     }
     else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
     {
@@ -470,13 +470,13 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is a properties admin facet, return the
         // Objective-C wrapper.
         //
-        return [ICENativePropertiesAdmin objectWrapperWithCxxObject:object.get()];
+        return [ICENativePropertiesAdmin objectWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
     else
     {
         //
         // Given object is a C++ servant, return an Objective-C wrapper.
         //
-        return [ICEObjectWrapper objectWrapperWithCxxObject:object.get()];
+        return [ICEObjectWrapper objectWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
 }

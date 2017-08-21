@@ -109,6 +109,7 @@ main(int argc, char* argv[])
 #if defined(__APPLE__)
         initData.properties->setProperty("Ice.ThreadPool.Server.StackSize", "1048576"); // 1MB stack size
 #endif
+        initData.properties->setProperty("Ice.CollectObjects", "1");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         initData.properties->setProperty("Ice.ClassGraphDepthMax", "100");
         communicator = Ice::initialize(argc, argv, initData);

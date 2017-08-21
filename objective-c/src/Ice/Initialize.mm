@@ -206,6 +206,7 @@ private:
     copy->properties = [properties retain];
     copy->logger = [logger retain];
     copy->dispatcher = [dispatcher copy];
+    copy->batchRequestInterceptor = [batchRequestInterceptor copy];
     copy->prefixTable__ = [prefixTable__ retain];
     return copy;
 }
@@ -216,6 +217,8 @@ private:
     h = (h << 5 ^ [properties hash]);
     h = (h << 5 ^ [logger hash]);
     h = (h << 5 ^ [prefixTable__ hash]);
+    h = (h << 5 ^ [dispatcher hash]);
+    h = (h << 5 ^ [batchRequestInterceptor hash]);
     return h;
 }
 
@@ -272,6 +275,20 @@ private:
             return NO;
         }
     }
+    if(!batchRequestInterceptor)
+    {
+        if(obj->batchRequestInterceptor)
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        if(batchRequestInterceptor == obj->batchRequestInterceptor)
+        {
+            return NO;
+        }
+    }
     if(!prefixTable__)
     {
         if(obj->prefixTable__)
@@ -294,6 +311,7 @@ private:
     [properties release];
     [logger release];
     [dispatcher release];
+    [batchRequestInterceptor release];
     [prefixTable__ release];
     [super dealloc];
 }

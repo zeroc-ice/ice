@@ -30,7 +30,7 @@
 }
 -(NSMutableString*) getPrefix
 {
-    return [@"NullLogger" mutableCopy];
+    return ICE_AUTORELEASE([@"NullLogger" mutableCopy]);
 }
 -(id<ICELogger>) cloneWithPrefix:(NSString*)prefix
 {
@@ -123,6 +123,7 @@
     [_cond lock];
     @try
     {
+        ICE_RELEASE(_changes);
         _changes = ICE_RETAIN(changes);
         _called = YES;
         [_cond signal];
@@ -149,7 +150,7 @@
 
     if([init.properties getPropertyAsInt:@"NullLogger"] > 0)
     {
-        init.logger = [NullLogger new];
+        init.logger = ICE_AUTORELEASE([NullLogger new]);
     }
 
     //

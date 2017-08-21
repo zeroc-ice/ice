@@ -1160,7 +1160,6 @@ private:
 
 -(void) throwException
 {
-    ICEUserException* ex = nil;
     NSException* nsex = nil;
     try
     {
@@ -1170,12 +1169,15 @@ private:
     }
     catch(const IceObjC::ExceptionReader& reader)
     {
-        ex = reader.getException();
-        @throw [ex autorelease]; // NOTE: exceptions are always auto-released, no need for the caller to do it.
+        // NOTE: exceptions are always auto-released, no need for the caller to do it.
+        nsex = [reader.getException() autorelease];
     }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
         @throw nsex;
     }
 }

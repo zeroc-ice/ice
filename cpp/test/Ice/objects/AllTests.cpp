@@ -247,6 +247,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
+#if TARGET_OS_IPHONE == 0
     cout << "testing recursive type... " << flush;
     try
     {
@@ -285,6 +286,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Expected if running against server that doesn't support this method.
     }
     cout << "ok" << endl;
+#endif
 
     cout << "testing compact ID..." << flush;
     try

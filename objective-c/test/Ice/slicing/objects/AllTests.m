@@ -50,6 +50,8 @@
 -(void) dealloc
 {
     [cond release];
+    [r release];
+    [bout release];
     [super dealloc];
 }
 #endif
@@ -170,6 +172,7 @@
     test([[b ice_id:nil] isEqualToString:@"::Test::B"]);
     test([b.sb isEqualToString:@"B1.sb"]);
     test(b.pb == b);
+    b.pb = nil;
     [self called];
 }
 
@@ -189,6 +192,8 @@
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"B2.sb"]);
     test(b2.pb == b1);
+
+    b2.pb = nil;
     [self called];
 }
 
@@ -216,6 +221,10 @@
     test(b2.pb == b1);
     test([b2.sb isEqualToString:@"D2.sb"]);
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+
+    d1.pb = nil;
+    d1.pd1 = nil;
+
     [self called];
 }
 
@@ -823,10 +832,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b ice_id] isEqualToString:@"::Test::B"]);
             test([b.sb isEqualToString:@"B1.sb"]);
             test([b.pb.sb isEqualToString:@"B1.sb"]);
+            b.pb = nil;
+
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -853,10 +864,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);
             test([b2.sb isEqualToString:@"B2.sb"]);
             test(b2.pb == b1);
+
+            b2.pb = nil;
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -892,10 +905,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b2.pb == b1);
             test([b2.sb isEqualToString:@"D2.sb"]);
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);
+
+            d1.pb = nil;
+            d1.pd1 = nil;
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");

@@ -39,9 +39,11 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        initData.properties->setProperty("Ice.CollectObjects", "1");
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
-
     }
     catch(const Ice::Exception& ex)
     {
