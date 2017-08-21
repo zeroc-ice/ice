@@ -1592,7 +1592,7 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
                         break;
                     }
                 }
-                
+
                 out << val[i];                              // Print normally if in basic source character set
             }
             ++i;
@@ -2070,13 +2070,24 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
             if(builtin)
             {
-                if(builtin->kind() == Builtin::KindFloat || builtin->kind() == Builtin::KindDouble)
+                switch(builtin->kind())
                 {
-                    _M << "(2654435761u * (uint)" << name << ");";
-                }
-                else
-                {
-                    _M << "(2654435761u * " << name << ");";
+                    case Builtin::KindLong:
+                    {
+                        _M << nl << "(uint)(" << name << " ^ (" << name << " >> 32));";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    case Builtin::KindDouble:
+                    {
+                        _M << nl << "[@(" << name << ") hash];";
+                        break;
+                    }
+                    default:
+                    {
+                        _M << "(2654435761u * " << name << ");";
+                        break;
+                    }
                 }
             }
             else
