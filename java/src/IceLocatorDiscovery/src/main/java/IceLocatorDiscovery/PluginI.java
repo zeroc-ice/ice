@@ -452,7 +452,6 @@ class PluginI implements Ice.Plugin
 
         _replyAdapter.activate();
         _locatorAdapter.activate();
-        _communicator.setDefaultLocator(_defaultLocator);
     }
 
     @Override

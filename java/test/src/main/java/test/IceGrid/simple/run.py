@@ -22,12 +22,16 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
 # Test IceGrid discovery with multiple replicas
-IceGridAdmin.nreplicas=2 
+IceGridAdmin.nreplicas=2
+
+clientOpts=""
+if not TestUtil.isLinux():
+    clientOpts='--IceLocatorDiscovery.Interface="{}"'.format("::1" if TestUtil.ipv6 else "127.0.0.1")
 
 #
 # Test client/server without on demand activation.
 #
-IceGridAdmin.iceGridClientServerTest("", "--TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter")
+IceGridAdmin.iceGridClientServerTest(clientOpts + " --Ice.Trace.Network=3", "--TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.
