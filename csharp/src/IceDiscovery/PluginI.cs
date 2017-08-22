@@ -118,8 +118,9 @@ namespace IceDiscovery
             LookupI lookup = new LookupI(locatorRegistry, LookupPrxHelper.uncheckedCast(lookupPrx), properties);
             _multicastAdapter.add(lookup, _communicator.stringToIdentity("IceDiscovery/Lookup"));
 
-            Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(lookup)).ice_datagram();
-            lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
+            _replyAdapter.addDefaultServant(new LookupReplyI(lookup), "");
+            Ice.Identity id = new Ice.Identity("dummy", "");
+            lookup.setLookupReply(LookupReplyPrxHelper.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
 
             //
             // Setup locator on the communicator.

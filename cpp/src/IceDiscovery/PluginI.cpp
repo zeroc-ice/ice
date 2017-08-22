@@ -149,8 +149,11 @@ PluginI::initialize()
     _lookup = new LookupI(locatorRegistry, LookupPrx::uncheckedCast(lookupPrx), properties);
     _multicastAdapter->add(_lookup, _communicator->stringToIdentity("IceDiscovery/Lookup"));
 
-    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(_lookup))->ice_datagram();
-    _lookup->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
+    _replyAdapter->addDefaultServant(new LookupReplyI(_lookup), "");
+    Ice::Identity id;
+    id.name = "dummy";
+    _lookup->setLookupReply(LookupReplyPrx::uncheckedCast(_replyAdapter->createProxy(id)->ice_datagram()));
+
 
     //
     // Setup locator on the communicator.

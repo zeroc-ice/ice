@@ -29,16 +29,19 @@ public:
 
     virtual bool retry();
 
+    const std::string& getRequestId() const;
+
 protected:
 
     LookupIPtr _lookup;
     int _nRetry;
+    const std::string _requestId;
 };
 
 template<class T, class CB> class RequestT : public Request
 {
 public:
-    
+
     RequestT(LookupI* lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id)
     {
     }
@@ -73,7 +76,7 @@ class ObjectRequest : public RequestT<Ice::Identity, Ice::AMD_Locator_findObject
 {
 public:
 
-    ObjectRequest(LookupI* lookup, const Ice::Identity& id, int retryCount) : 
+    ObjectRequest(LookupI* lookup, const Ice::Identity& id, int retryCount) :
         RequestT<Ice::Identity, Ice::AMD_Locator_findObjectByIdPtr>(lookup, id, retryCount)
     {
     }
@@ -90,7 +93,7 @@ class AdapterRequest : public RequestT<std::string, Ice::AMD_Locator_findAdapter
 {
 public:
 
-    AdapterRequest(LookupI* lookup, const std::string& adapterId, int retryCount) : 
+    AdapterRequest(LookupI* lookup, const std::string& adapterId, int retryCount) :
         RequestT<std::string, Ice::AMD_Locator_findAdapterByIdPtr>(lookup, adapterId, retryCount),
         _start(IceUtil::Time::now())
     {
@@ -121,16 +124,16 @@ public:
 
     void setLookupReply(const LookupReplyPrx&);
 
-    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&, 
+    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&,
                                 const Ice::Current&);
-    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrx&, 
+    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrx&,
                                  const Ice::Current&);
 
     void findObject(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&);
     void findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const Ice::ObjectPrx&);
-    void foundAdapter(const std::string&, const Ice::ObjectPrx&, bool);
+    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrx&);
+    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void objectRequestTimedOut(const ObjectRequestPtr&);

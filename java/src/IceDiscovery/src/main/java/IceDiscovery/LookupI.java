@@ -22,12 +22,19 @@ class LookupI extends _LookupDisp
         {
             _id = id;
             _nRetry = retryCount;
+            _requestId = java.util.UUID.randomUUID().toString();
         }
 
         T
         getId()
         {
             return _id;
+        }
+
+        String
+        getRequestId()
+        {
+            return _requestId;
         }
 
         boolean
@@ -61,6 +68,7 @@ class LookupI extends _LookupDisp
         protected List<AmdCB> _callbacks = new ArrayList<AmdCB>();
         private T _id;
         protected java.util.concurrent.Future<?> _future;
+        final private String _requestId;
     };
 
     private class AdapterRequest extends Request<String, Ice.AMD_Locator_findAdapterById>
@@ -265,7 +273,11 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                Ice.Identity ident = new Ice.Identity();
+                ident.name = request.getRequestId();
+                _lookup.begin_findObjectById(_domainId,
+                                             id,
+                                             LookupReplyPrxHelper.uncheckedCast(_lookupReply.ice_identity(ident)));
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -290,7 +302,11 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                Ice.Identity ident = new Ice.Identity();
+                ident.name = request.getRequestId();
+                _lookup.begin_findAdapterById(_domainId,
+                                              adapterId,
+                                              LookupReplyPrxHelper.uncheckedCast(_lookupReply.ice_identity(ident)));
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -302,32 +318,28 @@ class LookupI extends _LookupDisp
     }
 
     synchronized void
-    foundObject(Ice.Identity id, Ice.ObjectPrx proxy)
+    foundObject(Ice.Identity id, String requestId, Ice.ObjectPrx proxy)
     {
         ObjectRequest request = _objectRequests.get(id);
-        if(request == null)
+        if(request != null && requestId.equals(request.getRequestId()))
         {
-            return;
+            request.response(proxy);
+            request.cancelTimer();
+            _objectRequests.remove(id);
         }
-
-        request.response(proxy);
-        request.cancelTimer();
-        _objectRequests.remove(id);
     }
 
     synchronized void
-    foundAdapter(String adapterId, Ice.ObjectPrx proxy, boolean isReplicaGroup)
+    foundAdapter(String adapterId, String requestId, Ice.ObjectPrx proxy, boolean isReplicaGroup)
     {
         AdapterRequest request = _adapterRequests.get(adapterId);
-        if(request == null)
+        if(request != null && requestId.equals(request.getRequestId()))
         {
-            return;
-        }
-
-        if(request.response(proxy, isReplicaGroup))
-        {
-            request.cancelTimer();
-            _adapterRequests.remove(adapterId);
+            if(request.response(proxy, isReplicaGroup))
+            {
+                request.cancelTimer();
+                _adapterRequests.remove(adapterId);
+            }
         }
     }
 

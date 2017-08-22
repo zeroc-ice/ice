@@ -19,11 +19,17 @@ namespace IceDiscovery
             lookup_ = lookup;
             nRetry_ = retryCount;
             _id = id;
+            _requestId = Ice.Util.generateUUID();
         }
 
         public T getId()
         {
             return _id;
+        }
+
+        public string getRequestId()
+        {
+            return _requestId;
         }
 
         public bool addCallback(AmdCB cb)
@@ -42,6 +48,7 @@ namespace IceDiscovery
         protected List<AmdCB> callbacks_ = new List<AmdCB>();
 
         private T _id;
+        private string _requestId;
     };
 
     class AdapterRequest : Request<string, Ice.AMD_Locator_findAdapterById>, IceInternal.TimerTask
@@ -231,7 +238,11 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                        Ice.Identity ident = new Ice.Identity();
+                        ident.name = request.getRequestId();
+                        _lookup.begin_findObjectById(_domainId,
+                                                     id,
+                                                     LookupReplyPrxHelper.uncheckedCast(_lookupReply.ice_identity(ident)));
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -257,7 +268,11 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                        Ice.Identity ident = new Ice.Identity();
+                        ident.name = request.getRequestId();
+                        _lookup.begin_findAdapterById(_domainId,
+                                                      adapterId,
+                                                      LookupReplyPrxHelper.uncheckedCast(_lookupReply.ice_identity(ident)));
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -269,35 +284,32 @@ namespace IceDiscovery
             }
         }
 
-        internal void foundObject(Ice.Identity id, Ice.ObjectPrx proxy)
+        internal void foundObject(Ice.Identity id, string requestId, Ice.ObjectPrx proxy)
         {
             lock(this)
             {
                 ObjectRequest request;
-                if(!_objectRequests.TryGetValue(id, out request))
+                if(_objectRequests.TryGetValue(id, out request) && requestId.Equals(request.getRequestId()))
                 {
-                    return;
+                    request.response(proxy);
+                    _timer.cancel(request);
+                    _objectRequests.Remove(id);
                 }
-                request.response(proxy);
-                _timer.cancel(request);
-                _objectRequests.Remove(id);
             }
         }
 
-        internal void foundAdapter(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup)
+        internal void foundAdapter(string adapterId, string requestId, Ice.ObjectPrx proxy, bool isReplicaGroup)
         {
             lock(this)
             {
                 AdapterRequest request;
-                if(!_adapterRequests.TryGetValue(adapterId, out request))
+                if(_adapterRequests.TryGetValue(adapterId, out request) && requestId.Equals(request.getRequestId()))
                 {
-                    return;
-                }
-
-                if(request.response(proxy, isReplicaGroup))
-                {
-                    _timer.cancel(request);
-                    _adapterRequests.Remove(request.getId());
+                    if(request.response(proxy, isReplicaGroup))
+                    {
+                        _timer.cancel(request);
+                        _adapterRequests.Remove(request.getId());
+                    }
                 }
             }
         }
@@ -393,12 +405,12 @@ namespace IceDiscovery
 
         public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
         {
-            _lookup.foundObject(id, proxy);
+            _lookup.foundObject(id, c.id.name, proxy);
         }
 
         public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
         {
-            _lookup.foundAdapter(adapterId, proxy, isReplicaGroup);
+            _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
         }
 
         private LookupI _lookup;
