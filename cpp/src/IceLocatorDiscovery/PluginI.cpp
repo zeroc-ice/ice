@@ -10,7 +10,6 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 
-#include <IceLocatorDiscovery/PluginI.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
 using namespace std;
@@ -23,31 +22,6 @@ using namespace IceLocatorDiscovery;
 #       define ICE_LOCATOR_DISCOVERY_API /**/
 #   endif
 #endif
-
-//
-// Plugin factory function.
-//
-extern "C"
-{
-
-ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
-{
-    return new PluginI(communicator);
-}
-
-}
-
-namespace Ice
-{
-
-ICE_LOCATOR_DISCOVERY_API void
-registerIceLocatorDiscovery(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
-}
-
-}
 
 namespace
 {
@@ -141,13 +115,6 @@ private:
     const LocatorIPtr _locator;
 };
 
-const ::std::string IceGrid_Locator_ids[3] =
-{
-    "::Ice::Locator",
-    "::Ice::Object",
-    "::IceGrid::Locator"
-};
-
 //
 // The void locator implementation below is used when no locator is found.
 //
@@ -178,7 +145,51 @@ public:
     }
 };
 
+class PluginI : public Ice::Plugin
+{
+public:
+
+    PluginI(const Ice::CommunicatorPtr&);
+
+    virtual void initialize();
+    virtual void destroy();
+
+private:
+
+    const Ice::CommunicatorPtr _communicator;
+    Ice::ObjectAdapterPtr _locatorAdapter;
+    Ice::ObjectAdapterPtr _replyAdapter;
+    Ice::LocatorPrx _locatorPrx;
+    Ice::LocatorPrx _defaultLocator;
+};
+
 }
+
+//
+// Plugin factory function.
+//
+extern "C"
+{
+
+ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
+createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
+{
+    return new PluginI(communicator);
+}
+
+}
+
+namespace Ice
+{
+
+ICE_LOCATOR_DISCOVERY_API void
+registerIceLocatorDiscovery(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
+}
+
+}
+
 
 PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
 {
@@ -238,7 +249,8 @@ PluginI::initialize()
     }
 
     Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-    lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+     // No collocation optimization for the multicast proxy!
+    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(0);
     try
     {
         // Ensure we can establish a connection to the multicast proxy
@@ -265,7 +277,9 @@ PluginI::initialize()
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : IceUtil::generateUUID();
     LocatorIPtr locator = new LocatorI(LookupPrx::uncheckedCast(lookupPrx), properties, instanceName, voidLocator);
-    _communicator->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(_locatorAdapter->add(locator, id)));
+    _defaultLocator = _communicator->getDefaultLocator();
+    _locatorPrx = Ice::LocatorPrx::uncheckedCast(_locatorAdapter->add(locator, id));
+    _communicator->setDefaultLocator(_locatorPrx);
 
     Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(new LookupReplyI(locator))->ice_datagram();
     locator->setLookupReply(LookupReplyPrx::uncheckedCast(lookupReply));
@@ -277,8 +291,19 @@ PluginI::initialize()
 void
 PluginI::destroy()
 {
-    _replyAdapter->destroy();
-    _locatorAdapter->destroy();
+    if(_replyAdapter)
+    {
+        _replyAdapter->destroy();
+    }
+    if(_locatorAdapter)
+    {
+        _locatorAdapter->destroy();
+    }
+    if(_communicator->getDefaultLocator() == _locatorPrx)
+    {
+        // Restore original default locator proxy, if the user didn't change it in the meantime
+        _communicator->setDefaultLocator(_defaultLocator);
+    }
 }
 
 void
@@ -463,11 +488,11 @@ void
 LocatorI::invoke(const Ice::LocatorPrx& locator, const RequestPtr& request)
 {
     Lock sync(*this);
-    if(_locator && _locator != locator)
+    if(request && _locator && _locator != locator)
     {
         request->invoke(_locator);
     }
-    else if(IceUtil::Time::now() < _nextRetry)
+    else if(request && IceUtil::Time::now() < _nextRetry)
     {
         request->invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
     }

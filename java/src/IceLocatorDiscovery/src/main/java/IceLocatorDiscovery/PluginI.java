@@ -259,11 +259,11 @@ class PluginI implements Ice.Plugin
         public synchronized void
         invoke(Ice.LocatorPrx locator, Request request)
         {
-            if(_locator != null && _locator != locator)
+            if(request != null && _locator != null && _locator != locator)
             {
                 request.invoke(_locator);
             }
-            else if(IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+            else if(request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
             {
                 request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
             }
@@ -422,7 +422,8 @@ class PluginI implements Ice.Plugin
         }
 
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-        lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
+        // No collocation optimization for the multicast proxy!
+        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
         try
         {
             lookupPrx.ice_getConnection(); // Ensure we can establish a connection to the multicast proxy
@@ -442,24 +443,40 @@ class PluginI implements Ice.Plugin
         id.name = "Locator";
         id.category = !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
         LocatorI locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
-        _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(locator)));
+        _defaultLocator = _communicator.getDefaultLocator();
+        _locator = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(locator));
+        _communicator.setDefaultLocator(_locator);
 
         Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(locator)).ice_datagram();
         locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
         _replyAdapter.activate();
         _locatorAdapter.activate();
+        _communicator.setDefaultLocator(_defaultLocator);
     }
 
     @Override
     public void
     destroy()
     {
-        _replyAdapter.destroy();
-        _locatorAdapter.destroy();
+        if(_replyAdapter != null)
+        {
+            _replyAdapter.destroy();
+        }
+        if(_locatorAdapter != null)
+        {
+            _locatorAdapter.destroy();
+        }
+        // Restore original default locator proxy, if the user didn't change it in the meantime
+        if(_communicator.getDefaultLocator().equals(_locator))
+        {
+            _communicator.setDefaultLocator(_defaultLocator);
+        }
     }
 
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.ObjectAdapter _replyAdapter;
+    private Ice.LocatorPrx _locator;
+    private Ice.LocatorPrx _defaultLocator;
 }

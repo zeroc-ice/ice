@@ -19,7 +19,7 @@ namespace IceDiscovery
 class PluginI : public Ice::Plugin
 {
 public:
-    
+
     PluginI(const Ice::CommunicatorPtr&);
 
     virtual void initialize();
@@ -32,6 +32,8 @@ private:
     Ice::ObjectAdapterPtr _replyAdapter;
     Ice::ObjectAdapterPtr _locatorAdapter;
     LookupIPtr _lookup;
+    Ice::LocatorPrx _locator;
+    Ice::LocatorPrx _defaultLocator;
 };
 
 };

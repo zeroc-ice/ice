@@ -133,7 +133,6 @@ PluginI.obj: \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\Service.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
-    "PluginI.h" \
     "IceLocatorDiscovery.h" \
 
 IceLocatorDiscovery.obj: \
