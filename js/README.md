@@ -33,6 +33,24 @@ The npm package also includes the browser version of Ice for JavaScript. For exa
 </script>
 ```
 
+For older browsers that do not support all of the required EcmaScript 6 features
+used by Ice for JavaScript, we provide a pre-compiled version of the libraries
+using the Babel JavaScript compiler. These libraries depend on the
+[babel-polyfill](https://www.npmjs.com/package/babel-polyfill) run time and are
+available in the `es5` subdirectory with the same names as the main libraries:
+
+```html
+<script src="/node_modules/babel-polyfill/dist/polyfill.min.js"></script>
+<script src="/node_modules/ice/lib/es5/Ice.js"></script>
+<script src="/node_modules/ice/lib/es5/Glacier2.js"></script>
+<script src="/node_modules/ice/lib/es5/IceStorm.js"></script>
+<script src="/node_modules/ice/lib/es5/IceGrid.js"></script>
+<script type="text/javascript">
+    var communicator = Ice.initialize();
+    var proxy = communicator.stringToProxy("hello:ws -h localhost -p 10002");
+</script>
+```
+
 Minified versions are available with the `.min.js` extension.
 
 ## Documentation
