@@ -2461,7 +2461,6 @@ def runTests(start, expanded, num = 0, script = False):
                                                        quoteArgument(os.path.join(dir, "run.py")),
                                                        args), shell=True)
                 if status:
-                    status = status if isWin32() else (status >> 8)
                     if(num > 0):
                         sys.stdout.write("[" + str(num) + "] ")
                     message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
