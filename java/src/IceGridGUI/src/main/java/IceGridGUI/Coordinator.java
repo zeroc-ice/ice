@@ -1266,8 +1266,7 @@ public class Coordinator
 
         destroyCommunicator();
 
-        Ice.InitializationData initData = _initData;
-        initData = initData.clone();
+        Ice.InitializationData initData = _initData.clone();
         initData.properties = initData.properties._clone();
         initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
         initData.properties.setProperty("IceSSL.VerifyPeer", "0");
