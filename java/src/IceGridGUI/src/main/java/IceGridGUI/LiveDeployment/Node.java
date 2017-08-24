@@ -681,6 +681,7 @@ class Node extends ListTreeNode
                     {
                         p.remove();
                     }
+                    else
                     {
                         p.set(updatedInfo);
                     }
