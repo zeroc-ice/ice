@@ -364,6 +364,7 @@ public class Root extends ListArrayTreeNode
         _slaves.clear();
         _treeModel.nodeStructureChanged(this);
         _tree.setRootVisible(false);
+        _editor = null;
     }
 
     public void patch(final String applicationName)
