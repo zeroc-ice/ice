@@ -1088,7 +1088,7 @@ public class SessionKeeper
     {
         ConnectionWizardDialog(JDialog parent)
         {
-            super(parent, true);
+            super(_coordinator.getMainFrame(), true);
             _x509CertificateDefault = true;
             initialize("New Connection - IceGrid Admin", parent);
             _connectNow = true;
@@ -1096,7 +1096,7 @@ public class SessionKeeper
 
         ConnectionWizardDialog(ConnectionInfo inf, JDialog parent)
         {
-            super(parent, true);
+            super(_coordinator.getMainFrame(), true);
             _conf = inf;
             _x509CertificateDefault = false;
             initialize("Edit Connection - IceGrid Admin", parent);
