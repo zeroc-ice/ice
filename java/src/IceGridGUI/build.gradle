@@ -34,6 +34,9 @@ if (project.ext.hasJavaFx) {
     }
 }
 
+// Avoid gradle warnings related to separate output directories for each JVM language
+sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
+
 // Disable deprecation warnings caused by JGoodies
 tasks.withType(JavaCompile) {
     options.deprecation = false
