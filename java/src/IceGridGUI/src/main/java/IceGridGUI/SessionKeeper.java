@@ -293,43 +293,6 @@ public class SessionKeeper
                     }
                 }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
             }
-
-            try
-            {
-                registerObservers();
-            }
-            catch(final Ice.LocalException e)
-            {
-                while(true)
-                {
-                    try
-                    {
-                        SwingUtilities.invokeAndWait(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    logout(true);
-                                    JOptionPane.showMessageDialog(parent,
-                                                                "Could not register observers: "
-                                                                + e.toString(),
-                                                                "Login failed",
-                                                                JOptionPane.ERROR_MESSAGE);
-                                }
-                            });
-                        break;
-                    }
-                    catch(java.lang.InterruptedException ex)
-                    {
-                        // Ignore and retry
-                    }
-                    catch(java.lang.reflect.InvocationTargetException ex)
-                    {
-                        break;
-                    }
-                }
-                throw e;
-            }
         }
 
         void logout(boolean destroySession)
@@ -446,7 +409,7 @@ public class SessionKeeper
             _coordinator.setConnected(false);
         }
 
-        private void registerObservers() throws java.lang.Throwable
+        public void registerObservers() throws java.lang.Throwable
         {
             //
             // Create the object adapter for the observers
@@ -5229,12 +5192,12 @@ public class SessionKeeper
     }
 
     public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout,
-                             final int acmTimeout, final AdminSessionPrx session, final ConnectionInfo info)
+                             final int acmTimeout, final AdminSessionPrx adminSession, final ConnectionInfo info)
     {
-        assert session != null;
+        assert adminSession != null;
         try
         {
-            _replicaName = session.getReplicaName();
+            _replicaName = adminSession.getReplicaName();
         }
         catch(Ice.LocalException e)
         {
@@ -5260,7 +5223,7 @@ public class SessionKeeper
         }
 
         //
-        // Create the session in is own thread as it made remote calls
+        // Create the session in its own thread as it made remote calls
         //
         new Thread(new Runnable()
             {
@@ -5269,7 +5232,51 @@ public class SessionKeeper
                 {
                     try
                     {
-                        setSession(new Session(session, sessionTimeout, acmTimeout, !info.getDirect(), parent));
+                        final Session session = new Session(adminSession, sessionTimeout, acmTimeout, !info.getDirect(), parent);
+                        SwingUtilities.invokeAndWait(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    _session = session;
+                                }
+                            });
+                        try
+                        {
+                            session.registerObservers();
+                        }
+                        catch(final Ice.LocalException e)
+                        {
+                            while(true)
+                            {
+                                try
+                                {
+                                    SwingUtilities.invokeAndWait(new Runnable()
+                                        {
+                                            @Override
+                                            public void run()
+                                            {
+                                                logout(true);
+                                                JOptionPane.showMessageDialog(parent,
+                                                                              "Could not register observers: "
+                                                                              + e.toString(),
+                                                                              "Login failed",
+                                                                              JOptionPane.ERROR_MESSAGE);
+                                            }
+                                        });
+                                    break;
+                                }
+                                catch(java.lang.InterruptedException ex)
+                                {
+                                    // Ignore and retry
+                                }
+                                catch(java.lang.reflect.InvocationTargetException ex)
+                                {
+                                    break;
+                                }
+                            }
+                            throw e;
+                        }
                     }
                     catch(java.lang.Throwable e)
                     {
@@ -5537,11 +5544,6 @@ public class SessionKeeper
             _session.logout(destroySession);
             _session = null;
         }
-    }
-
-    synchronized void setSession(Session session)
-    {
-        _session = session;
     }
 
     AdminSessionPrx getSession()
