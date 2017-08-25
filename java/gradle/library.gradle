@@ -139,6 +139,7 @@ if(jarsClassPath.toBoolean()){
     }
 
     task updateInstallManifest(dependsOn: copyJars) {
+        outputs.file("${DESTDIR}${jarDir}/${jar.archiveName}")
         doLast {
             ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
                 delegate.manifest {
@@ -148,7 +149,6 @@ if(jarsClassPath.toBoolean()){
             }
         }
     }
-    updateInstallManifest.files("${DESTDIR}${jarDir}/${jar.archiveName}")
     install.dependsOn(updateInstallManifest)
 } else {
     task install(type: Copy, dependsOn: jarSources, overwrite: true) {
