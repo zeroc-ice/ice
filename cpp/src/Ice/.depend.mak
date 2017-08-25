@@ -3032,6 +3032,7 @@ Initialize.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Process.h" \
     "PluginManagerI.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
 
 Instance.obj: \
 	Instance.cpp \
@@ -3706,12 +3707,12 @@ LoggerI.obj: \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \

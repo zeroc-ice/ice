@@ -1,15 +1,15 @@
 
-Main.obj: \
-	Main.cpp \
-    "$(includedir)\IceUtil\DisableWarnings.h" \
-    "$(includedir)\IceUtil\CtrlCHandler.h" \
+Client.obj: \
+	Client.cpp \
+    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Config.h" \
-    "$(includedir)\IceUtil\Exception.h" \
+    "$(top_srcdir)\test\include\TestCommon.h" \
     "$(includedir)\IceUtil\IceUtil.h" \
     "$(includedir)\IceUtil\PushDisableWarnings.h" \
     "$(includedir)\IceUtil\AbstractMutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
+    "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Time.h" \
     "$(includedir)\IceUtil\Cache.h" \
     "$(includedir)\IceUtil\Handle.h" \
@@ -17,6 +17,7 @@ Main.obj: \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\CountDownLatch.h" \
     "$(includedir)\IceUtil\Cond.h" \
+    "$(includedir)\IceUtil\CtrlCHandler.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\Monitor.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
@@ -30,14 +31,3 @@ Main.obj: \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\IceUtil\UniquePtr.h" \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
-    "$(includedir)\IceUtil\InputUtil.h" \
-    "$(includedir)\IceUtil\Options.h" \
-    "$(includedir)\IceUtil\OutputUtil.h" \
-    "$(includedir)\IceUtil\StringUtil.h" \
-    "..\..\src\IceUtil\Unicode.h" \
-    "$(includedir)\Slice\Checksum.h" \
-    "$(includedir)\Slice\Parser.h" \
-    "$(includedir)\Slice\Preprocessor.h" \
-    "$(includedir)\Slice\FileTracker.h" \
-    "$(includedir)\Slice\PHPUtil.h" \
-    "$(includedir)\Slice\Util.h" \

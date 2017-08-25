@@ -188,6 +188,7 @@ LookupI.obj: \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
+    "$(includedir)\IceUtil\UUID.h" \
     "LookupI.h" \
     "IceDiscovery.h" \
     "LocatorI.h" \

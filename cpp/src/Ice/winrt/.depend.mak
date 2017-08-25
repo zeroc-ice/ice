@@ -3380,6 +3380,7 @@ $(ARCH)\$(CONFIG)\Initialize.obj: \
     "$(includedir)\Ice\ImplicitContext.h" \
     "$(includedir)\Ice\Process.h" \
     "..\..\..\src\Ice\PluginManagerI.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
 
 $(ARCH)\$(CONFIG)\Instance.obj: \
 	..\Instance.cpp \
@@ -4082,12 +4083,12 @@ $(ARCH)\$(CONFIG)\LoggerI.obj: \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "..\..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringConverter.h" \
+    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\Mutex.h" \
     "$(includedir)\IceUtil\Lock.h" \
     "$(includedir)\IceUtil\ThreadException.h" \
     "$(includedir)\IceUtil\MutexProtocol.h" \
     "$(includedir)\IceUtil\MutexPtrLock.h" \
-    "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\Ice\LocalException.h" \
     "$(includedir)\Ice\Identity.h" \
     "$(includedir)\Ice\Version.h" \
@@ -9978,6 +9979,7 @@ $(ARCH)\$(CONFIG)\IceDiscovery\LookupI.obj: \
     "$(includedir)\Ice\Dispatcher.h" \
     "$(includedir)\Ice\Plugin.h" \
     "$(includedir)\Ice\BatchRequestInterceptor.h" \
+    "$(includedir)\IceUtil\UUID.h" \
     "..\..\..\src\IceDiscovery\LookupI.h" \
     "IceDiscovery\IceDiscovery.h" \
     "..\..\..\src\IceDiscovery\LocatorI.h" \
@@ -10336,7 +10338,6 @@ $(ARCH)\$(CONFIG)\IceLocatorDiscovery\PluginI.obj: \
     "$(includedir)\Ice\SliceChecksums.h" \
     "$(includedir)\Ice\SliceChecksumDict.h" \
     "$(includedir)\Ice\RegisterPlugins.h" \
-    "..\..\..\src\IceLocatorDiscovery\PluginI.h" \
     "IceLocatorDiscovery\IceLocatorDiscovery.h" \
 
 $(ARCH)\$(CONFIG)\RegisterPluginsInit.obj: \

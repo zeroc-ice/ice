@@ -7,9 +7,10 @@ Gen.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
-    "$(includedir)\Slice\FileTracker.h" \
+    "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\Shared.h" \
     "$(includedir)\IceUtil\Atomic.h" \
+    "$(includedir)\Slice\FileTracker.h" \
     "$(includedir)\Slice\Parser.h" \
     "Gen.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \

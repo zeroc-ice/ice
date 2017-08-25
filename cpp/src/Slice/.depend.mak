@@ -66,6 +66,7 @@ JavaUtil.obj: \
     "$(includedir)\Slice\Util.h" \
     "MD5.h" \
     "$(includedir)\IceUtil\Functional.h" \
+    "..\..\src\IceUtil\FileUtil.h" \
 
 MD5.obj: \
 	MD5.cpp \
@@ -155,6 +156,7 @@ PythonUtil.obj: \
     "$(includedir)\IceUtil\PopDisableWarnings.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
+    "..\..\src\IceUtil\Unicode.h" \
 
 Python.obj: \
 	Python.cpp \
@@ -211,6 +213,8 @@ RubyUtil.obj: \
     "$(includedir)\Slice\Util.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
+    "..\..\src\IceUtil\Unicode.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
 
 Util.obj: \
 	Util.cpp \
@@ -224,6 +228,7 @@ Util.obj: \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "..\..\src\IceUtil\FileUtil.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
 
 Ruby.obj: \
 	Ruby.cpp \

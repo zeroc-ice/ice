@@ -15,6 +15,8 @@ Gen.obj: \
     "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "..\..\src\IceUtil\Unicode.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\IceUtil\UUID.h" \
     "$(includedir)\Slice\Checksum.h" \
     "$(includedir)\Slice\FileTracker.h" \

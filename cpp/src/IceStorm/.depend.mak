@@ -263,6 +263,8 @@ Instance.obj: \
     "$(includedir)\Ice\MetricsAdminI.h" \
     "$(includedir)\Ice\MetricsFunctional.h" \
     "..\..\src\Ice\InstrumentationI.h" \
+    "..\..\src\Ice\TraceUtil.h" \
+    "..\..\src\Ice\TraceLevelsF.h" \
 
 InstrumentationI.obj: \
 	InstrumentationI.cpp \
@@ -3823,9 +3825,6 @@ IceStormDB.obj: \
     "$(includedir)\Freeze\TransactionHolder.h" \
     "$(includedir)\Freeze\Catalog.h" \
     "$(includedir)\Freeze\CatalogData.h" \
-    "..\..\src\IcePatch2Lib\Util.h" \
-    "$(includedir)\IcePatch2\FileInfo.h" \
-    "$(includedir)\IcePatch2\Config.h" \
     "DBTypes.h" \
     "SubscriberRecord.h" \
     "$(includedir)\IceStorm\IceStorm.h" \

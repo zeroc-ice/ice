@@ -16,6 +16,8 @@ Gen.obj: \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
     "$(includedir)\IceUtil\InputUtil.h" \
+    "..\..\src\IceUtil\Unicode.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
 
 Main.obj: \
 	Main.cpp \

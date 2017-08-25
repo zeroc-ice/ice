@@ -7,14 +7,18 @@ Gen.obj: \
     "$(includedir)\IceUtil\Exception.h" \
     "$(includedir)\IceUtil\Config.h" \
     "$(includedir)\IceUtil\StringUtil.h" \
+    "$(includedir)\IceUtil\InputUtil.h" \
+    "..\..\src\IceUtil\FileUtil.h" \
+    "$(includedir)\IceUtil\Shared.h" \
+    "$(includedir)\IceUtil\Atomic.h" \
     "Gen.h" \
     "$(includedir)\Slice\CsUtil.h" \
     "$(includedir)\Slice\Parser.h" \
-    "$(includedir)\IceUtil\Shared.h" \
-    "$(includedir)\IceUtil\Atomic.h" \
     "$(includedir)\IceUtil\OutputUtil.h" \
     "$(includedir)\IceUtil\Iterator.h" \
     "$(includedir)\IceUtil\UUID.h" \
+    "..\..\src\IceUtil\Unicode.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Slice\Checksum.h" \
     "$(includedir)\Slice\DotNetNames.h" \
     "$(includedir)\Slice\FileTracker.h" \

@@ -14,8 +14,12 @@ Gen.obj: \
     "$(includedir)\Slice\CPlusPlusUtil.h" \
     "$(includedir)\IceUtil\Functional.h" \
     "$(includedir)\IceUtil\Iterator.h" \
+    "$(includedir)\IceUtil\InputUtil.h" \
+    "..\..\src\IceUtil\Unicode.h" \
+    "$(includedir)\IceUtil\StringConverter.h" \
     "$(includedir)\Slice\Checksum.h" \
     "$(includedir)\Slice\FileTracker.h" \
+    "..\..\src\IceUtil\FileUtil.h" \
 
 Main.obj: \
 	Main.cpp \

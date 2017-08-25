@@ -8191,9 +8191,6 @@ IceGridDB.obj: \
     "$(includedir)\IceGrid\Exception.h" \
     "$(includedir)\IceGrid\Config.h" \
     "$(includedir)\IceGrid\Descriptor.h" \
-    "..\..\src\IcePatch2Lib\Util.h" \
-    "$(includedir)\IcePatch2\FileInfo.h" \
-    "$(includedir)\IcePatch2\Config.h" \
     "DBTypes.h" \
     "StringApplicationInfoDict.h" \
     "StringAdapterInfoDict.h" \
