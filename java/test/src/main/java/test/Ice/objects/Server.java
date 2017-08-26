@@ -67,6 +67,7 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed for JDK 1.7
         return initData;
     }
 

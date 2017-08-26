@@ -87,6 +87,7 @@ public class Client extends test.Util.Application
         Ice.InitializationData initData = createInitializationData() ;
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed for JDK 1.7
         return initData;
     }
 
