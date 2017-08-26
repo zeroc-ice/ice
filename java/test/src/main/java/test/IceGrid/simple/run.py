@@ -31,7 +31,7 @@ if not TestUtil.isLinux():
 #
 # Test client/server without on demand activation.
 #
-IceGridAdmin.iceGridClientServerTest(clientOpts + " --Ice.Trace.Network=3", "--TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter")
+IceGridAdmin.iceGridClientServerTest(clientOpts, "--TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.
