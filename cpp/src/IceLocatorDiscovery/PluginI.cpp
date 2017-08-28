@@ -145,13 +145,6 @@ private:
     const LocatorIPtr _locator;
 };
 
-const ::std::string IceGrid_Locator_ids[3] =
-{
-    "::Ice::Locator",
-    "::Ice::Object",
-    "::IceGrid::Locator"
-};
-
 //
 // The void locator implementation below is used when no locator is found.
 //
