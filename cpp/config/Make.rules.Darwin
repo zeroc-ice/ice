@@ -96,7 +96,7 @@ SSL_OS_LIBS             = $(CRYPT_OS_LIBS)
 PLATFORM_HAS_READLINE   := yes
 
 ifeq ($(DB_HOME),)
-    ifneq ($(wildcard /usr/local/opt/berkeley-db53),)
-        DB_HOME = /usr/local/opt/berkeley-db53
+    ifneq ($(wildcard /usr/local/opt/berkeley-db@5.3),)
+        DB_HOME = /usr/local/opt/berkeley-db@5.3
     endif
 endif

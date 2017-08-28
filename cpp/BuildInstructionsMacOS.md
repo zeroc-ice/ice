@@ -21,35 +21,28 @@ Ice has dependencies on a number of third-party libraries:
  - [expat][3] 2.1
  - [mcpp][6] 2.7.2 (with patches)
 
-Expat and bzip are included with your system. For Berkeley DB and mcpp, you have
-a couple of options:
-
-- Using [Homebrew][7], install Berkeley DB and mcpp with these commands:
-
-        $ brew tap zeroc-ice/tap
-        $ brew install berkeley-db53 [--without-java]
-        $ brew install mcpp
-
-  The `berkeley-db53` package is a pre-compiled bottle that includes Java
-  support by default; you can exclude Java support using the `--without-java`
-  option.
-
-- Download the Berkeley DB and mcpp source distributions and build them
-  yourself.
+Expat and bzip are included with your system. We recommend you install
+Berkeley DB and mcpp with [Homebrew][7]:
+```
+brew install zeroc-ice/tap/berkeley-db@5.3
+brew install mcpp
+```
 
 ## Building Ice
 
 In a command window, change to the `cpp` subdirectory:
-
-    $ cd cpp
+```
+cd cpp
+```
 
 Edit `config/Make.rules` to establish your build configuration. The comments in
 the file provide more information. Pay particular attention to the variables
 that define the locations of the third-party libraries.
 
 Now you're ready to build Ice:
-
-    $ make
+```
+make
+```
 
 This will build the Ice core libraries, services, and tests.
 
@@ -74,21 +67,24 @@ location of the library directory with the `-L` option.
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
-
-    $ pip install passlib
+```
+pip install passlib
+```
 
 After a successful source build, you can run the tests as follows:
-
-    $ make test
+```
+make test
+```
 
 This command is equivalent to:
-
-    $ python allTests.py
+```
+python allTests.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Ice36/Using+the+OS+X+Binary+Distribution
+[1]: https://doc.zeroc.com/display/Ice36/Using+the+macOS+Binary+Distribution
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.4
 [3]: http://expat.sourceforge.net
 [4]: http://bzip.org

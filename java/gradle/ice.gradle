@@ -197,7 +197,7 @@ if (!android) {
         } else {
             subdirs = [
                 "/usr/local/opt/ice/libexec/lib/",
-                "/usr/local/opt/berkeley-db53/lib/",
+                "/usr/local/opt/berkeley-db@5.3/lib/",
                 "/usr/local/lib/",
                 "/usr/share/java/",
                 "/opt/Ice-${project.version}/lib/",

@@ -1847,8 +1847,8 @@ def getJavaLibraryPath():
             return ("-Djava.library.path=\"%s\" " % os.path.join(getIceDir("cpp"), "third-party-packages",
                     "berkeley.db.java7", "build", "native", "bin", "x64" if x64 else "Win32"))
     elif isDarwin():
-        if os.path.exists('/usr/local/opt/berkeley-db53/lib'):
-            return "-Djava.library.path=/usr/local/opt/berkeley-db53/lib "
+        if os.path.exists('/usr/local/opt/berkeley-db@5.3/lib'):
+            return "-Djava.library.path=/usr/local/opt/berkeley-db@5.3/lib "
         elif os.path.exists('/usr/local/opt/ice/libexec/lib'):
             return "-Djava.library.path=/usr/local/opt/ice/libexec/lib "
     elif isRhel() or isSles():
@@ -1986,8 +1986,8 @@ def getTestEnv(lang, testdir):
                       addClasspath(os.path.join(pkgdir, "berkeley.db.java7", "build", "native", "lib", "db.jar"), env)
 
         elif isDarwin():
-            if os.path.exists('/usr/local/opt/berkeley-db53/lib'):
-                addClasspath(os.path.join("/", "usr", "local", "opt", "berkeley-db53", "lib", "db.jar"), env)
+            if os.path.exists('/usr/local/opt/berkeley-db@5.3/lib'):
+                addClasspath(os.path.join("/", "usr", "local", "opt", "berkeley-db@5.3", "lib", "db.jar"), env)
             elif os.path.exists('/usr/local/opt/ice/libexec/lib'):
                 addClasspath(os.path.join("/", "usr", "local", "opt", "ice", "libexec", "lib", "db.jar"), env)
         else:

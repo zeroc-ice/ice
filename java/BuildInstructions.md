@@ -51,15 +51,17 @@ CLASSPATH and verify that the Berkeley DB shared libraries are in your
 
 Assuming you are using ZeroC's distribution of Berkeley DB, the bash command is
 shown below for Linux:
-
-    $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
-    $ export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
+```
+export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
+export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
+```
 
 On an x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB libraries are
 installed in a different directory:
-
-    $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
-    $ export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
+```
+export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
+export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
+```
 
 ### Gradle
 
@@ -136,13 +138,15 @@ The build system also requires the Slice translators from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation.
 For example, on Unix:
-
-    $ export ICE_HOME=/opt/Ice-3.6.4 (For local build)
-    $ export ICE_HOME=/usr (For RPM installation)
+```
+export ICE_HOME=/opt/Ice-3.6.4 (For local build)
+export ICE_HOME=/usr (For RPM installation)
+```
 
 On Windows:
-
-    > set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.4
+```
+set ICE_HOME=C:\Program Files (x86)\ZeroC\Ice-3.6.4
+```
 
 Before building Ice for Java, review the settings in the file
 `gradle.properties` and edit as necessary.
@@ -150,23 +154,26 @@ Before building Ice for Java, review the settings in the file
 ### Building Ice for Java
 
 To build Ice, all services, and tests, run
-
-    > gradlew build
+```
+gradlew build
+```
 
 Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
 
 If at any time you wish to discard the current build and start a new one, use
 these commands:
-
-    > gradlew clean
-    > gradlew build
+```
+gradlew clean
+gradlew build
+```
 
 ## Installing Ice for Java
 
 To install Ice for Java in the directory specified by the `prefix` variable in
 `gradle.properties` run the following command
-
-    > gradlew install
+```
+gradlew install
+```
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
@@ -190,23 +197,27 @@ Some of the Ice for Java tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
-
-    $ export ICE_HOME=/opt/Ice-3.6.4 (For local build)
-    $ export ICE_HOME=/usr (For RPM installation)
+```
+export ICE_HOME=/opt/Ice-3.6.4 (For local build)
+export ICE_HOME=/usr (For RPM installation)
+```
 
 On Windows:
-
-    > set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.4
+```
+set ICE_HOME=c:\Program Files (x86)\ZeroC\Ice-3.6.4
+```
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
-
-    > python allTests.py
+```
+python allTests.py
+```
 
 You can also run tests individually by changing to the test directory and
 running this command:
-
-    > python run.py
+```
+python run.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
@@ -218,8 +229,9 @@ found in the file `lib/icegridgui.jar`.
 
 The JAR file is completely self-contained and has no external dependencies.
 You can start the tool with the following command:
-
-    > java -jar icegridgui.jar
+```
+java -jar icegridgui.jar
+```
 
 In macOS there is also an application bundle named IceGrid Admin. You can start
 the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
@@ -229,9 +241,9 @@ the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 The test Controller is an Ice server that allows to start servers for languages
 that doesn't provide a full server side. This is currently used by JavaScript
 and WinRT test suites to start the required servers.
-
-    > gradlew :testController:assemble
-
+```
+gradlew :testController:assemble
+```
 
 [1]: https://zeroc.com/download.html
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.4
