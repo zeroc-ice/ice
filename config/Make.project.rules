@@ -400,8 +400,8 @@ $2_devinstall   := $$(call var-with-default,$2_devinstall,yes)
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
 #
-$2_targetdir    := $$(or $$($2_targetdir),$$(if $$(filter program,$$($2_target)),$$($1_bindir),$$($1_libdir)))
-$2_installdir   := $$(or $$($2_installdir),$$(if $$(filter program,$$($2_target)),$$($1_install_bindir),$$($1_install_libdir)))
+$2_targetdir    := $$(call var-with-default,$2_targetdir,$$(if $$(filter program,$$($2_target)),$$($1_bindir),$$($1_libdir)))
+$2_installdir   := $$(call var-with-default,$2_installdir,$$(if $$(filter program,$$($2_target)),$$($1_install_bindir),$$($1_install_libdir)))
 
 $$(foreach p,$$($2_platforms),\
     $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$($2_configs)),\
