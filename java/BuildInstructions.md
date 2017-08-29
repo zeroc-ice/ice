@@ -222,6 +222,6 @@ gradlew :testController:assemble
 ```
 
 [1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+IceTouch+3.6.4
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net
