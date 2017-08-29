@@ -10,18 +10,12 @@ platforms.
 
 Ice for Java is expected to build and run properly on Windows, macOS, and any
 recent Linux distribution for x86 and x86_64, and was extensively tested using
-the operating systems and compiler versions listed for our [supported
-platforms][2]. Due to the portability of Java, it is very likely that it will
-also work on other platforms for which a suitable Java implementation is
-available.
+the operating systems and compiler versions listed on the [supported platforms][2].
 
-### Slice to Java Translator
+### Slice to Java Compiler
 
-You will need the Slice to Java translator. ZeroC provides translator binaries
-for our supported platforms. For other platforms, you will have to either port
-Ice for C++ (which contains the Slice to Java translator), or you will have to
-translate your Slice files to Java on a supported platform and then copy the
-generated Java files to your target platform.
+You will need the Slice-to-Java compiler (`slice2java`) for your build platform.
+`slice2java` is a C++ application included in the Ice binary distributions.
 
 ### Java Version
 
@@ -43,7 +37,7 @@ Ice applications. Freeze uses Berkeley DB as its underlying database and
 currently requires Berkeley DB version 5.3 (the recommended version is 5.3.28).
 
 In order to run an application that uses Freeze, you must add `db.jar` to your
-CLASSPATH and verify that the Berkeley DB shared libraries are in your
+CLASSPATH and verify that the Berkeley DB shared library is in your
 `java.library.path`.
 
 ### Gradle
@@ -119,7 +113,7 @@ you must set `dbHome` in `gradle.properties`.
 The build system also requires the Slice translators from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation.
-For example, on Unix:
+For example, on Linux:
 ```
 export ICE_HOME=/opt/Ice-3.6.4 (For local build)
 export ICE_HOME=/usr (For RPM installation)
@@ -178,7 +172,7 @@ distribution system.
 Some of the Ice for Java tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
-Ice installation. On Unix:
+Ice installation. On Linux:
 ```
 export ICE_HOME=/opt/Ice-3.6.4 (For local build)
 export ICE_HOME=/usr (For RPM installation)
