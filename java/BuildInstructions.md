@@ -42,44 +42,26 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 Ice applications. Freeze uses Berkeley DB as its underlying database and
 currently requires Berkeley DB version 5.3 (the recommended version is 5.3.28).
 
-ZeroC includes Berkeley DB in the binary distributions for all supported
-platforms, or you can build it from source yourself.
-
 In order to run an application that uses Freeze, you must add `db.jar` to your
 CLASSPATH and verify that the Berkeley DB shared libraries are in your
 `java.library.path`.
-
-Assuming you are using ZeroC's distribution of Berkeley DB, the bash command is
-shown below for Linux:
-```
-export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
-export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
-```
-
-On an x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB libraries are
-installed in a different directory:
-```
-export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH                 (RHEL, SLES, Amazon)
-export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH  (Ubuntu)
-```
 
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
 version 2.4 in the distribution. Except for Berkeley DB, Gradle will
 download all required packages automatically. These packages are listed below.
-Gradle will automatically download any necessary build artifacts from Maven central
-repository.
-
+Gradle will automatically download any necessary build artifacts from the Maven
+Central repository.
 
 ### Bzip2 Compression
 
 Ice for Java supports protocol compression using the bzip2 classes included
-with Apache Ant or available separately from [kohsuke.org]().
-
-The Maven package id for the bzip2 JAR file is as follows:
-
-    groupId=org.apache.tools, version=1.0, artifactId=bzip2
+with Apache Ant. The Maven package id for the bzip2 JAR file in ZeroC's Maven
+repository is as follows:
+```
+groupId=org.apache.tools, version=1.0, artifactId=bzip2
+```
 
 The demos and tests are automatically setup to enable protocol compression by
 adding the bzip2 JAR to the manifest class path. For your own applications you
@@ -240,12 +222,12 @@ the IceGrid Admin tool by double-clicking the IceGrid Admin icon in Finder.
 
 The test Controller is an Ice server that allows to start servers for languages
 that doesn't provide a full server side. This is currently used by JavaScript
-and WinRT test suites to start the required servers.
+and UWP test suites to start the required servers.
 ```
 gradlew :testController:assemble
 ```
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.4
 [3]: http://gradle.org
 [4]: http://proguard.sourceforge.net
