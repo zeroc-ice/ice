@@ -156,30 +156,29 @@ public class SimpleMapField extends JTable
             getCellEditor().stopCellEditing();
         }
         @SuppressWarnings("unchecked")
-        java.util.Vector<java.util.Vector<String>> vector =
-            _model.getDataVector();
+        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
 
         java.util.TreeMap<String, String> result = new java.util.TreeMap<String, String>();
 
-        for(java.util.Vector<String> row : vector)
+        for(java.util.Vector row : vector)
         {
-             //
-             // Eliminate rows with null or empty keys
-             //
-             String key = row.elementAt(0);
-             if(key != null)
-             {
-                 key = key.trim();
-                 if(!key.equals(""))
-                 {
-                     String val = row.elementAt(1);
-                     if(val == null)
-                     {
-                         val = "";
-                     }
-                     result.put(key, val);
-                 }
-             }
+            //
+            // Eliminate rows with null or empty keys
+            //
+            String key = row.elementAt(0).toString();
+            if(key != null)
+            {
+                key = key.trim();
+                if(!key.equals(""))
+                {
+                    String val = row.elementAt(1).toString();
+                    if(val == null)
+                    {
+                        val = "";
+                    }
+                    result.put(key, val);
+                }
+            }
         }
         return result;
     }

@@ -21,9 +21,9 @@ import IceGridGUI.*;
 abstract class ListTreeNode extends TreeNode
 {
     @Override
-    public Enumeration<Object> children()
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -32,7 +32,7 @@ abstract class ListTreeNode extends TreeNode
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     return _p.next();
                 }

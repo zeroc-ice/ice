@@ -48,34 +48,31 @@ class Node extends TreeNode implements PropertySetParent
     }
 
     @Override
-    public Enumeration<Object> children()
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
                 {
-                    if(!_p.hasNext())
-                    {
-                        if(!_iteratingOverServers)
-                        {
-                            _p = _servers.iterator();
-                            _iteratingOverServers = true;
-                            return _p.hasNext();
-                        }
-                        return false;
-                    }
-                    return true;
+                    return _p.hasNext() || _q.hasNext();
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
-                    return _p.next();
+                    if(_p.hasNext())
+                    {
+                        return _p.next();
+                    }
+                    else
+                    {
+                        return (javax.swing.tree.TreeNode)_q.next();
+                    }
                 }
 
-                private java.util.Iterator _p = _propertySets.iterator();
-                private boolean _iteratingOverServers = false;
+                private java.util.Iterator<PropertySet> _p = _propertySets.iterator();
+                private java.util.Iterator<Server> _q = _servers.iterator();
             };
     }
 

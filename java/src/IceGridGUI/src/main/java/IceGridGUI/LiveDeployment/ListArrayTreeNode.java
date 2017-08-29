@@ -17,9 +17,10 @@ import java.util.Enumeration;
 abstract class ListArrayTreeNode extends TreeNode
 {
     @Override
-    public Enumeration<Object> children()
+    @SuppressWarnings("unchecked")
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -41,7 +42,7 @@ abstract class ListArrayTreeNode extends TreeNode
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     try
                     {
@@ -61,7 +62,7 @@ abstract class ListArrayTreeNode extends TreeNode
                 }
 
                 private int _index = 0;
-                private java.util.Iterator _p = _childrenArray[0].iterator();
+                private java.util.Iterator<javax.swing.tree.TreeNode> _p = _childrenArray[0].iterator();
             };
     }
 

@@ -30,9 +30,9 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     }
 
     @Override
-    public Enumeration<Object> children()
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -41,7 +41,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     throw new java.util.NoSuchElementException();
                 }
