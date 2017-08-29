@@ -86,7 +86,7 @@ failure, the tests abort with `failed`.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+macOS+Binary+Distribution
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
-[3]: http://expat.sourceforge.net
+[3]: https://libexpat.github.io
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp

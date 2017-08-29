@@ -56,4 +56,5 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+OS+X+Binary+Distribution
-[2]: https://zeroc.com/platforms_3_6_0.html
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
+

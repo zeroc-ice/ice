@@ -48,9 +48,9 @@ Ice runs on a wide range of platforms:
 - Comes with a number of optional services:
     - [IceGrid](https://zeroc.com/products/ice/services/icegrid) - the nerve-center of any large-scale application, with support for server deployment, replication, monitoring, load-balancing and more
     - [IceStorm](https://zeroc.com/products/ice/services/icestorm) - a lightweight topic-based pub-sub service
-    - [Freeze](https://zeroc.com/products/ice/services/freeze) - an embedded, transactional database for Ice datatypes
+    - [Freeze](https://doc.zeroc.com/display/Ice36/Freeze) - an embedded, transactional database for Ice datatypes
     - [Glacier2](https://zeroc.com/products/ice/services/glacier2) - a sysadmin-friendly solution for routing Ice communications through firewalls
-    - [IcePatch2](https://zeroc.com/products/ice/services/icepatch2) - an efficient software distribution and patching service
+    - [IcePatch2](https://doc.zeroc.com/display/Ice36/IcePatch2) - an efficient software distribution and patching service
 
 ## Branches
 
@@ -85,5 +85,5 @@ The Ice software itself remains the same: the only difference between an open-so
 
 ## Documentation
 
-- [Ice Release Notes](https://doc.zeroc.com/display/Rel/Ice+3.6.4+Release+Notes)
+- [Ice Release Notes](https://doc.zeroc.com/display/Ice36/Ice+Release+Notes)
 - [Ice Manual](https://doc.zeroc.com/display/Ice36/Home)

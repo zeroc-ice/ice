@@ -83,9 +83,9 @@ After a successful source build, you can run the tests as follows:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://zeroc.com/download.html
+[1]: https://zeroc.com/downloads/ice
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
-[3]: http://expat.sourceforge.net
+[3]: https://libexpat.github.io
 [4]: http://bzip.org
 [5]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [6]: https://github.com/zeroc-ice/mcpp
