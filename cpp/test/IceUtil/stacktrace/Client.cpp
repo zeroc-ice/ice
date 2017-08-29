@@ -113,7 +113,7 @@ getIceHome()
 void
 standardizeVersion(string& str)
 {
-    string v1("3.6.3");
+    string v1 = ICE_STRING_VERSION;
     string v2("36");
     size_t pos = 0;
     while((pos = str.find(v1, pos)) != string::npos)
