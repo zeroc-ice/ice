@@ -132,7 +132,7 @@ endif
 
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 
-usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(call is-system-install,$(prefix)))
+usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
 install_bindir          ?= $(prefix)/bin
 install_libdir          ?= $(prefix)/lib
 install_slicedir        ?= $(prefix)$(if $(usr_dir_install),/share/ice)/slice
