@@ -134,5 +134,5 @@ before:
     > nmake /f Makefile.mak
 
 [1]: https://zeroc.com/download.html
-[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+3.6.4
+[2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
 [3]: https://msdn.microsoft.com/en-us/library/ms241613.aspx
