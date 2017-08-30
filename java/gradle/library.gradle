@@ -149,7 +149,8 @@ if(jarsClassPath.toBoolean()){
             }
         }
     }
-    install.dependsOn(updateInstallManifest)
+    task install(dependsOn:updateInstallManifest, overwrite: true) {
+    }
 } else {
     task install(type: Copy, dependsOn: jarSources, overwrite: true) {
         from "${pomName}"
