@@ -19,14 +19,12 @@ include $(lang_srcdir)/config/Make.rules
 $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2objc))
 $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL IceIAP)))
 
-ifeq ($(filter all objective-c,$(ICE_BIN_DIST)),)
 #
 # Load source projects
 #
 projects :=
 include $(shell find $(lang_srcdir)/src -name Makefile.mk)
-$(call make-projects,$(projects),make-objc-src-project)
-endif
+$(call make-projects,$(projects),make-objc-src-project,,$(filter all cpp,$(ICE_BIN_DIST)))
 
 #
 # Now, create and load test projects.

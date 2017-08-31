@@ -81,12 +81,6 @@ $1_clean:: $1[$2-$3]_clean
 endef
 
 #
-# $(call create-xcode-project-targets,$1=project)
-#
-define create-xcode-project-targets
-endef
-
-#
 # $(call make-xcode-project,$1=project)
 #
 define make-xcode-project
