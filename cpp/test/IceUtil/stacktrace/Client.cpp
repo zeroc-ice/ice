@@ -29,6 +29,8 @@ namespace IceUtilInternal
 extern bool ICE_UTIL_API printStackTraces;
 }
 
+#ifdef HAS_STACK_TRACES
+
 namespace
 {
 class Thrower : public IceUtil::Shared
@@ -137,6 +139,8 @@ splitLines(const string& str)
 }
 #endif
 }
+
+#endif
 
 int main(int argc, char* argv[])
 {

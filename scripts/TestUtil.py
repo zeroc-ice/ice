@@ -2012,7 +2012,10 @@ def getTestEnv(lang, testdir):
     if isWin32():
         if lang == "java":
             addLdPath(os.path.join(getIceDir("cpp"), "bin", "x64" if x64 else ""), env) # Add bin for db53_vc100.dll
-        addLdPath(getCppLibDir(lang), env)
+        if isMINGW() and lang == "ruby":
+            addPathToEnv("RUBY_DLL_PATH", getCppLibDir(lang), env)
+        else:
+            addLdPath(getCppLibDir(lang), env)
     elif isAIX():
         addLdPath(getCppLibDir(lang), env)
     elif lang in ["python", "ruby", "php", "js", "objective-c"]:

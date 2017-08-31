@@ -21,6 +21,9 @@ RPATH_DIR	= $(LOADER_PATH)/../$(libsubdir)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS)
+ifneq ($(findstring MINGW,$(UNAME)),)
+LDEXEFLAGS 	:= -municode $(LDEXEFLAGS)
+endif
 
 $(NAME): $(OBJS)
 	rm -f $@

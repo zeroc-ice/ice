@@ -211,7 +211,6 @@ ifeq ($(SSL_OS_LIBS),)
 	SSL_OS_LIBS = $(OPENSSL_LIBS)
 endif
 
-ifneq ($(UNAME),MINGW)
 ifneq ($(BZIP2_HOME),)
     BZIP2_FLAGS         = -I$(BZIP2_HOME)/include
 endif
@@ -219,7 +218,6 @@ ifeq ($(BZIP2_LIBS),)
     BZIP2_LIBS          = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 endif
 BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
-endif
 
 ifeq ($(ICONV_LIBS),)
     ICONV_LIBS          = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
@@ -324,14 +322,14 @@ ifeq ($(STATICLIBS),yes)
 else
     SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
 endif
-    SLICE2CPP	= $(bindir)/slice2cpp
+    SLICE2CPP	= $(bindir)/slice2cpp$(EXE_EXT)
     SLICE2FREEZE	= $(bindir)/slice2freeze
 else
     SLICEPARSERLIB  = $(ice_dir)/$(libsubdir)/$(subst $(cpp11libsuffix),,$(call mksoname,Slice))
     ifeq ($(wildcard $(SLICEPARSERLIB)),)
 	SLICEPARSERLIB  = $(ice_dir)/$(lib64subdir)/$(subst $(cpp11libsuffix),,$(call mksoname,Slice))
     endif
-    SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp
+    SLICE2CPP	= $(ice_dir)/$(binsubdir)/slice2cpp$(EXE_EXT)
     SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
 endif
 
@@ -411,7 +409,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 	@touch $(*F).cpp
 	@mkdir -p .depend
-	@$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend/$(*F).ice.d
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) --depend $(*F).ice > .depend/$(*F).ice.d
 
 ifeq ($(BISON_FLEX),yes)
 

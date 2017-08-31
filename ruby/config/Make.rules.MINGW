@@ -28,3 +28,5 @@ ifdef ice_bin_dist
     SLICE2RB            = $(ice_dir)/bin/$(slice_translator)
     SLICEPARSERLIB      = $(SLICE2RB)
 endif
+
+export RUBY_DLL_PATH := $(ice_lib_dir)

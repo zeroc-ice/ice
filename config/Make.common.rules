@@ -391,7 +391,7 @@ ifneq ($(ice_dir), $(usr_dir))
     endif
 
     ifneq ($(findstring MINGW,$(UNAME)),)
-	set PATH := $(ice_lib_dir);$(PATH)
+	export PATH := $(ice_lib_dir):$(PATH)
     endif
 endif
 

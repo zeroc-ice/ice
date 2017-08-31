@@ -159,30 +159,6 @@ setKeepAlive(SOCKET fd)
 }
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
-void
-setTcpLoopbackFastPath(SOCKET fd)
-{
-    int OptionValue = 1;
-    DWORD NumberOfBytesReturned = 0;
-
-    int status =
-        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
-    if(status == SOCKET_ERROR)
-    {
-	    // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
-        DWORD LastError = ::GetLastError();
-        if(LastError != WSAEOPNOTSUPP)
-        {
-            closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
-        }
-    }
-}
-#endif
-
 #ifdef ICE_OS_WINRT
 SOCKET
 createSocketImpl(bool udp, int)

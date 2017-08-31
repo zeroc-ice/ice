@@ -379,7 +379,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     // /foo/A.ice /foo/B.ice becomes
     // /foo/A.ice
     // /foo/B.ice
-    // 
+    //
     // C:\foo\A.ice C:\foo\B.ice becomes
     // C:\foo\A.ice
     // C:\foo\B.ice
@@ -404,7 +404,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
     //
     // Get the main output file name.
     //
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
      string suffix = ".obj:";
 #else
      string suffix = ".o:";

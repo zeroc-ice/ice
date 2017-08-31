@@ -74,12 +74,6 @@ endif
 PLATFORMTOOLSET		= mingw4.7.2
 PKG_DIR			= $(top_srcdir)/third-party-packages
 
-BZIP2_VERSION		= 1.0.6.1
-BZIP2_HOME		= $(PKG_DIR)/bzip2.$(PLATFORMTOOLSET)
-BZIP2_FLAGS		= -I$(BZIP2_HOME)/build/native/include
-BZIP2_LIBS		= -L$(BZIP2_HOME)/build/native/bin/$(PLATFORM) -lbzip2$(COMPSUFFIX)
-BZIP2_NUPKG		= $(BZIP2_HOME)/bzip2.$(PLATFORMTOOLSET).nupkg
-
 MCPP_VERSION		= 2.7.2.8
 MCPP_HOME		= $(PKG_DIR)/mcpp.$(PLATFORMTOOLSET)
 MCPP_LIBS		= -L$(MCPP_HOME)/build/native/lib/$(PLATFORM) -lmcpp
@@ -90,11 +84,6 @@ NUGET			= $(subst \,/,$(LOCALAPPDATA)/ZeroC/nuget/nuget.exe)
 $(NUGET):
 	@mkdir -p "$(LOCALAPPDATA)\ZeroC\nuget"
 	powershell -Command "(New-Object Net.WebClient).DownloadFile('http://nuget.org/nuget.exe', '$(NUGET)')"
-
-$(BZIP2_NUPKG): $(NUGET)
-	@mkdir -p "$(PKG_DIR)"
-	@rm -rf "$(PKG_DIR)\bzip2.$(PLATFORMTOOLSET)"
-	$(NUGET) install bzip2.$(PLATFORMTOOLSET) -OutputDirectory "$(PKG_DIR)" -ExcludeVersion
 
 $(MCPP_NUPKG): $(NUGET)
 	@mkdir -p "$(PKG_DIR)"
