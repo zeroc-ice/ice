@@ -6,17 +6,8 @@ supported platforms.
 
 ## Ruby Build Requirements
 
-### Operating Systems
-
-Ice for Ruby is expected to build and run properly on Windows, and was
-extensively tested using the operating systems and Ruby versions listed for our
-[supported platforms][2].
-
-### Prerequisites
-
-To build Ice for Ruby you must have the following:
-
-- Ruby 2.4
+To build Ice for Ruby on Windows, you first need to install Ruby 2.4. Older
+versions are not supported.
 
 These instructions assume you have added the Ruby 2.4 `bin` directory to your
 `PATH` environment variable.
@@ -25,8 +16,9 @@ The Ruby distribution for Windows uses the [MSYS2][3] MinGW compiler, therefore
 MinGW is the only C++ compiler supported by Ice for Ruby. To install the MSYS2
 build environment, you can use the `ridk` tool provided with Ruby, from a
 command line prompt run:
-
-    ridk install
+```
+ridk install
+```
 
 Select `3` to install MSYS2 and the MinGW development tools.
 
@@ -37,22 +29,26 @@ build it. Please refer to
 [BuildInstructionsMinGW.md](../cpp/BuildInstructionsMinGW.md) for instructions.
 
 Open a Windows command prompt and enable the Ruby MSYS2 development environment:
-
-    ridk enable
+```
+ridk enable
+```
 
 Change to the Ice for Ruby source directory:
-
-    cd ruby
+```
+cd ruby
+```
 
 Then run make to build the extension:
-
-    make
+```
+make
+```
 
 ## Installing Ice for Ruby
 
 You can perform an automated installation with the following command:
-
-    > make install
+```
+make install
+```
 
 This process uses the `prefix` variable in `config\Make.rules` as the
 installation's root directory. The subdirectory `<prefix>\ruby` is created as a
@@ -65,17 +61,19 @@ requires that you modify your environment as described below.
 The Ruby interpreter must be able to locate the Ice extension. One way to
 configure the interpreter is to define the `RUBYLIB` environment variable as
 follows:
-
-    > set RUBYLIB=C:\Ice-3.6.4\ruby
+```            
+set RUBYLIB=C:\Ice-3.6.4\ruby
+```
 
 This example assumes your Ice for Ruby installation is located in the
 `C:\Ice-3.6.4` directory.
 
 In addition, you must set the `RUBY_DLL_PATH` environment variable to include
 the following directory:
-
-    C:\Ice-3.6.4\bin       (32-bit)
-    C:\Ice-3.6.4\bin\x64   (64-bit)
+```
+C:\Ice-3.6.4\bin       (32-bit)
+C:\Ice-3.6.4\bin\x64   (64-bit)
+```
 
 ## Running the Ruby Tests
 
@@ -87,13 +85,15 @@ subdirectory of this source distribution.
 
 Open a command window and change to the top-level directory. At the command
 prompt, execute:
-
-    > python allTests.py
+```
+python allTests.py
+```
 
 You can also run tests individually by changing to the test directory and
 running this command:
-
-    > python run.py
+```
+python run.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
