@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-namespace 
+namespace
 {
 const bool printException = false;
 }
@@ -554,6 +554,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 		first->deactivate();
 #endif
     }
+    cout << "ok" << endl;
 
     if(!winrt || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
                   communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
@@ -964,7 +965,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex << endl;
             test(false);
         }
-        
+
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(communicator->stringToProxy("thrower:default -p 12011"));
         try
         {
@@ -1126,7 +1127,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasA);
         thrower->begin_throwAasA(1, callback);
         cb->check();
@@ -1134,7 +1135,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback = 
+        Callback_Thrower_throwAorDasAorDPtr callback =
             newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
         thrower->begin_throwAorDasAorD(1, callback);
         cb->check();
@@ -1142,7 +1143,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAorDasAorDPtr callback = 
+        Callback_Thrower_throwAorDasAorDPtr callback =
             newCallback_Thrower_throwAorDasAorD(cb, &Callback::response, &Callback::exception_AorDasAorD);
         thrower->begin_throwAorDasAorD(-1, callback);
         cb->check();
@@ -1150,7 +1151,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasBPtr callback = 
+        Callback_Thrower_throwBasBPtr callback =
             newCallback_Thrower_throwBasB(cb, &Callback::response, &Callback::exception_BasB);
         thrower->begin_throwBasB(1, 2, callback);
         cb->check();
@@ -1158,7 +1159,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasCPtr callback = 
+        Callback_Thrower_throwCasCPtr callback =
             newCallback_Thrower_throwCasC(cb, &Callback::response, &Callback::exception_CasC);
         thrower->begin_throwCasC(1, 2, 3, callback);
         cb->check();
@@ -1166,7 +1167,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwModAPtr callback = 
+        Callback_Thrower_throwModAPtr callback =
             newCallback_Thrower_throwModA(cb, &Callback::response, &Callback::exception_ModA);
         thrower->begin_throwModA(1, 2, callback);
         cb->check();
@@ -1178,7 +1179,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwBasAPtr callback = 
+        Callback_Thrower_throwBasAPtr callback =
             newCallback_Thrower_throwBasA(cb, &Callback::response, &Callback::exception_BasA);
         thrower->begin_throwBasA(1, 2, callback);
         cb->check();
@@ -1186,7 +1187,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasAPtr callback = 
+        Callback_Thrower_throwCasAPtr callback =
             newCallback_Thrower_throwCasA(cb, &Callback::response, &Callback::exception_CasA);
         thrower->begin_throwCasA(1, 2, 3, callback);
         cb->check();
@@ -1194,7 +1195,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwCasBPtr callback = 
+        Callback_Thrower_throwCasBPtr callback =
             newCallback_Thrower_throwCasB(cb, &Callback::response, &Callback::exception_CasB);
         thrower->begin_throwCasB(1, 2, 3, callback);
         cb->check();
@@ -1208,7 +1209,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredAPtr callback = 
+            Callback_Thrower_throwUndeclaredAPtr callback =
                 newCallback_Thrower_throwUndeclaredA(cb, &Callback::response, &Callback::exception_UndeclaredA);
             thrower->begin_throwUndeclaredA(1, callback);
             cb->check();
@@ -1224,7 +1225,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             CallbackPtr cb = new Callback;
-            Callback_Thrower_throwUndeclaredCPtr callback = 
+            Callback_Thrower_throwUndeclaredCPtr callback =
                 newCallback_Thrower_throwUndeclaredC(cb, &Callback::response, &Callback::exception_UndeclaredC);
             thrower->begin_throwUndeclaredC(1, 2, 3, callback);
             cb->check();
@@ -1239,7 +1240,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         id = communicator->stringToIdentity("does not exist");
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_identity(id));
         CallbackPtr cb = new Callback(communicator);
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAObjectNotExist);
         thrower2->begin_throwAasA(1, callback);
         cb->check();
@@ -1252,7 +1253,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwAasAPtr callback = 
+        Callback_Thrower_throwAasAPtr callback =
             newCallback_Thrower_throwAasA(cb, &Callback::response, &Callback::exception_AasAFacetNotExist);
         thrower2->begin_throwAasA(1, callback);
         cb->check();
@@ -1264,8 +1265,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_WrongOperation_noSuchOperationPtr callback = 
-            newCallback_WrongOperation_noSuchOperation(cb, &Callback::response, 
+        Callback_WrongOperation_noSuchOperationPtr callback =
+            newCallback_WrongOperation_noSuchOperation(cb, &Callback::response,
                                                        &Callback::exception_noSuchOperation);
         WrongOperationPrx thrower4 = WrongOperationPrx::uncheckedCast(thrower);
         thrower4->begin_noSuchOperation(callback);
@@ -1278,7 +1279,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionPtr callback = 
+        Callback_Thrower_throwLocalExceptionPtr callback =
             newCallback_Thrower_throwLocalException(cb, &Callback::response, &Callback::exception_LocalException);
         thrower->begin_throwLocalException(callback);
         cb->check();
@@ -1286,8 +1287,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwLocalExceptionIdempotentPtr callback = 
-            newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response, 
+        Callback_Thrower_throwLocalExceptionIdempotentPtr callback =
+            newCallback_Thrower_throwLocalExceptionIdempotent(cb, &Callback::response,
                                                               &Callback::exception_LocalException);
         thrower->begin_throwLocalExceptionIdempotent(callback);
         cb->check();
@@ -1299,7 +1300,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CallbackPtr cb = new Callback;
-        Callback_Thrower_throwNonIceExceptionPtr callback = 
+        Callback_Thrower_throwNonIceExceptionPtr callback =
             newCallback_Thrower_throwNonIceException(cb, &Callback::response, &Callback::exception_NonIceException);
         thrower->begin_throwNonIceException(callback);
         cb->check();
