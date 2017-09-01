@@ -760,12 +760,12 @@ Selector::select(int timeout)
             out << "selector failed:\n" << ex;
             IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
         }
-        else if(_count == 0 && timeout < 0 && ++spuriousWakeup < 100)
+        else if(_count == 0 && timeout < 0)
         {
-            if(spuriousWakeup == 1)
+            if(++spuriousWakeup > 100)
             {
-                Ice::Warning out(_instance->initializationData().logger);
-                out << "spurious selector wakeup";
+                spuriousWakeup = 0;
+                _instance->initializationData().logger->warning("spurious selector wakeup");
             }
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
             continue;
