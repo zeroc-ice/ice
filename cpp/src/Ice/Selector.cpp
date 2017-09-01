@@ -519,12 +519,12 @@ Selector::select(vector<pair<EventHandler*, SocketOperation> >& handlers, int ti
             }
             abort();
         }
-        else if(ret == 0 && timeout <= 0 && ++spuriousWakeup < 100)
+        else if(ret == 0 && timeout <= 0)
         {
-            if(spuriousWakeup == 1)
+            if(++spuriousWakeup > 100)
             {
-                Ice::Warning out(_instance->initializationData().logger);
-                out << "spurious selector wakeup";
+                spuriousWakeup = 0;
+                _instance->initializationData().logger->warning("spurious selector wakeup");
             }
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
             continue;
