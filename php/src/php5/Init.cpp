@@ -22,11 +22,22 @@ using namespace IcePHP;
 
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
+//
+// BUGFIX Avoid narrowing conversion warnings with ZEND_BEGIN_ARG_INFO_EX usage
+//
+#if ZEND_MODULE_API_NO >= 20041030
+ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_unit>(-1))
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_uint>(-1))
+ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_unit>(-1))
 ZEND_END_ARG_INFO()
+#else
+ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, -1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, -1)
+ZEND_END_ARG_INFO()
+#endif
 
 #define ICEPHP_COMMUNICATOR_FUNCTIONS \
     ZEND_FE(Ice_initialize, Ice_initialize_arginfo) \
