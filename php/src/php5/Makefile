@@ -33,7 +33,7 @@ LINKWITH        := $(ICE_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBNAME): $(OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+	$(call mkplugin,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
 install:: all
 	$(call installphplib,$(libdir)/$(LIBNAME),$(DESTDIR)$(install_libdir))

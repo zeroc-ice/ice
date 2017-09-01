@@ -72,6 +72,7 @@ ifeq ($(STATICLIBS),)
     mklibname		= lib$(1).sl
 endif
 mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
+mkplugin                = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) $(3) $(4)
 mklib			= ar cr $(1) $(2)
 
 rpathlink               = -L$(1)

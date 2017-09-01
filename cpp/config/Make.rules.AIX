@@ -87,6 +87,8 @@ mklibtargets		= $(1)
 
 mkshlib			= $(CXX) -qmkshrobj $(LDFLAGS) -o $(2) $(3) $(4) ; ar -rc $(1) $(2) ; rm $(2)
 
+mkplugin		= $(mkshlib)
+
 mklib			= ar -rc $(1) $(2)
 
 installlib		= $(INSTALL) $(2)/$(3) $(1)

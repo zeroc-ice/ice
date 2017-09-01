@@ -82,6 +82,7 @@ endif
 
 mklib 			= libtool -static -o $(1) $(2)
 mkshlib			= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) -install_name @rpath/$(2) $(3) $(4)
+mkplugin		= $(CXX)  -dynamiclib $(LDFLAGS) -o $(1) $(3) $(4)
 
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)

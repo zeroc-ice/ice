@@ -55,6 +55,8 @@ ifeq ($(CXX),CC)
 
     mkshlib          = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
+    mkplugin         = $(CXX) -G $(LDFLAGS) -o $(1) $(3) $(4)
+
     mklib            = $(CXX) -xar -o $(1) $(2)
 
     CXXLIBS          = -lCrun -lCstd
@@ -92,6 +94,8 @@ ifeq ($(CXX),g++)
     endif
 
     mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+
+    mkplugin		    = $(CXX) -shared $(LDFLAGS) -o $(1) $(3) $(4)
 
     mklib		    = ar cr $(1) $(2)
 
