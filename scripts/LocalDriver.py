@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, time
+import sys, os, time, threading
 from Util import *
 
 isPython2 = sys.version_info[0] == 2
@@ -63,6 +63,10 @@ class Executor:
         with self.lock:
             return self.interrupted
 
+    def setInterrupt(self, value):
+        with self.lock:
+            self.interrupted = value
+
     def runTestSuites(self, driver, total, results, mainThread=False):
         while True:
             item = self.get(total, mainThread)
@@ -76,7 +80,8 @@ class Executor:
             try:
                 testsuite.run(current)
             except KeyboardInterrupt:
-                raise
+                if mainThread:
+                    raise
             except:
                 pass
             finally:
@@ -149,6 +154,8 @@ class Executor:
                 self.interrupted = True
             if threads:
                 print("Terminating (waiting for worker threads to terminate)...")
+            else:
+                print("")
             raise
         finally:
             #
@@ -557,7 +564,19 @@ class LocalDriver(Driver):
                 self.runner.runClientSide(client, current, host)
                 success = True
             finally:
-                self.runner.stopServerSide(server, current, success)
+                #
+                # We start a thread to stop the servers, this ensures that stopServerSide doesn't get
+                # interrupted by potential KeyboardInterrupt exceptions which could leave some servers
+                # behind.
+                #
+                t=threading.Thread(target = lambda: self.runner.stopServerSide(server, current, success))
+                t.start()
+                while True:
+                    try:
+                        t.join()
+                        break
+                    except KeyboardInterrupt:
+                        pass # Ignore keyboard interrupts
 
     def runTestCase(self, current):
         if self.cross or self.allCross:
@@ -582,6 +601,9 @@ class LocalDriver(Driver):
 
     def isInterrupted(self):
         return self.executor.isInterrupted()
+
+    def setInterrupt(self, value):
+        self.executor.setInterrupt(value)
 
     def getTestPort(self, portnum):
         # Return a port number in the range 14100-14199 for the first thread, 14200-14299 for the

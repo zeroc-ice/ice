@@ -84,6 +84,7 @@ def escape(s, escapeNewlines = True):
 def taskkill(args):
     p = subprocess.Popen("taskkill {0}".format(args), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.stdout.read().decode('UTF-8').strip()
+    #print(out)
     p.wait()
     p.stdout.close()
 
@@ -93,9 +94,24 @@ def killProcess(p):
     else:
         os.kill(p.pid, signal.SIGKILL)
 
-def terminateProcess(p):
+def terminateProcess(p, hasInterruptSupport=True):
     if win32:
-        taskkill("/T /PID {0}".format(p.pid))
+        #
+        # Signals under windows are all turned into CTRL_BREAK_EVENT, except with Java since
+        # CTRL_BREAK_EVENT generates a stack trace. We don't use taskkill here because it
+        # doesn't work with CLI processes (it sends a WM_CLOSE event).
+        #
+        if hasInterruptSupport:
+            try:
+                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid) # 1 is CTRL_BREAK_EVENT
+            except NameError:
+                taskkill("/F /T /PID {0}".format(p.pid))
+                pass
+            except:
+                traceback.print_exc(file=sys.stdout)
+                taskkill("/F /T /PID {0}".format(p.pid))
+        else:
+            taskkill("/F /T /PID {0}".format(p.pid))
     else:
         os.kill(p.pid, signal.SIGINT)
 
@@ -542,14 +558,37 @@ class Expect (object):
         if self.p is None:
             return
 
+        def kill():
+            ex = None
+            while True:
+                try:
+                    if not self.p:
+                        return
+                    killProcess(self.p)
+                    self.wait()
+                except KeyboardInterrupt as e:
+                    ex = e
+                    raise
+                except e:
+                    ex = e
+            if ex:
+                print(ex)
+                raise ex
+
         try:
             self.wait(timeout = 0.5)
             return
-        except TIMEOUT as e:
+        except KeyboardInterrupt:
+            kill()
+            raise
+        except TIMEOUT:
             pass
 
         try:
-            terminateProcess(self.p)
+            terminateProcess(self.p, self.hasInterruptSupport())
+        except KeyboardInterrupt:
+            kill()
+            raise
         except:
             traceback.print_exc(file=sys.stdout)
 
@@ -558,39 +597,17 @@ class Expect (object):
         try:
             self.wait(timeout = 5)
             return
-        except TIMEOUT as e:
-            pass
-
-        try:
-            killProcess(self.p)
-            self.wait()
-        except:
-            traceback.print_exc(file=sys.stdout)
+        except KeyboardInterrupt:
+            kill()
+            raise
+        except TIMEOUT:
+            kill()
 
     def kill(self, sig):
         """Send the signal to the process."""
         self.killed = sig # Save the sent signal.
         if win32:
-            # Signals under windows are all turned into CTRL_BREAK_EVENT,
-            # except with Java since CTRL_BREAK_EVENT generates a stack
-            # trace.
-            #
-            # We BREAK since CTRL_C doesn't work (the only way to make
-            # that work is with remote code injection).
-            if self.hasInterruptSupport():
-                try:
-                    #
-                    # Using the ctypes module removes the reliance on the
-                    # python win32api
-                    try:
-                        #win32console.GenerateConsoleCtrlEvent(win32console.CTRL_BREAK_EVENT, self.p.pid)
-                        ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, self.p.pid) # 1 is CTRL_BREAK_EVENT
-                    except NameError:
-                        pass
-                except:
-                    traceback.print_exc(file=sys.stdout)
-            else:
-                killProcess(self.p)
+            terminateProcess(self.p, self.hasInterruptSupport())
         else:
             os.kill(self.p.pid, sig)
 
@@ -602,6 +619,8 @@ class Expect (object):
            validate the exit status is as expected."""
 
         def test(result, expected):
+            if not win32 and result == -2: # Interrupted by Ctrl-C, simulate KeyboardInterrupt
+                raise KeyboardInterrupt()
             if expected != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (expected, result))
 

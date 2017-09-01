@@ -1080,6 +1080,9 @@ class Process(Runnable):
                 try:
                     process.waitSuccess(exitstatus=exitstatus, timeout=30)
                     break
+                except KeyboardInterrupt:
+                    current.driver.setInterrupt(True)
+                    raise
                 except Expect.TIMEOUT:
                     if watchDog and watchDog.timedOut(timeout):
                         print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
@@ -1153,6 +1156,9 @@ class Process(Runnable):
                         try:
                             process.waitSuccess(exitstatus=exitstatus, timeout=30)
                             break
+                        except KeyboardInterrupt:
+                            current.driver.setInterrupt(True)
+                            raise
                         except Expect.TIMEOUT:
                             print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
                             if current.driver.isInterrupted():
