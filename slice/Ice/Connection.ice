@@ -181,7 +181,7 @@ local enum ConnectionClose
  * The user-level interface to a connection.
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local interface Connection
 {
     /**

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+ <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets"/>
+
+  <PropertyGroup>
+    <topSrcDir>$(MSBuildThisFileDirectory)..\..</topSrcDir>
+    <sliceDir>$(topSrcDir)\slice</sliceDir>
+    <srcDir>$(MSBuildThisFileDirectory)..\src\IceMatlab</srcDir>
+    <testDir>$(MSBuildThisFileDirectory)..\test</testDir>
+    <slice2matlabexe>$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\slice2matlab</slice2matlabexe>
+    <slice2matlab Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2matlab</slice2matlab>
+    <cpp11core Condition="'$(DefaultPlatformToolset)' == 'v140'">c++11\ice++11</cpp11core>
+  </PropertyGroup>
+
+  <ItemGroup>
+        <Slice Include="$(sliceDir)\Ice\Connection.ice" />
+        <Slice Include="$(sliceDir)\Ice\Current.ice" />
+        <Slice Include="$(sliceDir)\Ice\Identity.ice" />
+        <Slice Include="$(sliceDir)\Ice\LocalException.ice" />
+        <Slice Include="$(sliceDir)\Ice\Version.ice" />
+  </ItemGroup>
+
+  <Target Name="CppPrereqs">
+    <MSBuild Projects="$(topSrcDir)\cpp\msbuild\ice.proj"
+             Targets="NuGetRestore"
+             BuildInParallel="false"/>
+
+    <MSBuild Projects="$(topSrcDir)\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+             Targets="$(slice2matlab);$(cpp11core)"
+             BuildInParallel="false"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="CppPrereqs">
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>
+        <Exec Command="mex -outdir $(srcDir) -output icematlab -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
+        <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2.dll $(srcDir)"/>
+        <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11.dll&quot; $(srcDir)"/>
+  </Target>
+
+</Project>
