@@ -9,10 +9,12 @@
 
 package test.Glacier2.sessionHelper;
 
-import javax.swing.SwingUtilities;
 import java.io.PrintWriter;
 import test.Glacier2.sessionHelper.Test.CallbackPrx;
 import test.Glacier2.sessionHelper.Test.CallbackPrxHelper;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 public class Client extends test.Util.Application
 {
@@ -43,7 +45,7 @@ public class Client extends test.Util.Application
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
                 {
-                    SwingUtilities.invokeLater(runnable);
+                    _workQueue.submit(runnable);
                 }
             };
 
@@ -516,6 +518,8 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        _workQueue.shutdown();
+
         return 0;
     }
 
@@ -538,6 +542,7 @@ public class Client extends test.Util.Application
     private Glacier2.SessionHelper _session;
     private Glacier2.SessionFactoryHelper _factory;
     private Ice.InitializationData _initData;
+    private ExecutorService _workQueue = Executors.newSingleThreadExecutor();
     static public Client me;
     final public PrintWriter out;
 }
