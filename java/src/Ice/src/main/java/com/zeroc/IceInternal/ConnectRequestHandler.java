@@ -96,14 +96,20 @@ public class ConnectRequestHandler
     synchronized public com.zeroc.Ice.ConnectionI
     getConnection()
     {
-        if(_exception != null)
-        {
-            throw (com.zeroc.Ice.LocalException)_exception.fillInStackTrace();
-        }
-        else
+        //
+        // First check for the connection, it's important otherwise the user could first get a connection
+        // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+        // exception can be set after the connection is set if the flush of pending requests fails).
+        //
+        if(_connection != null)
         {
             return _connection;
         }
+        else if(_exception != null)
+        {
+            throw (com.zeroc.Ice.LocalException)_exception.fillInStackTrace();
+        }
+        return null;
     }
 
     //
