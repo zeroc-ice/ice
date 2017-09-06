@@ -369,7 +369,7 @@ public class SessionHelper
 
         if(communicator != null)
         {
-            _communicator.destroy();
+            communicator.destroy();
         }
     }
 
