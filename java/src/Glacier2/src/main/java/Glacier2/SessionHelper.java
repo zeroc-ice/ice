@@ -465,7 +465,7 @@ public class SessionHelper
         {
             try
             {
-                _communicator.destroy();
+                communicator.destroy();
             }
             catch(Throwable ex)
             {
