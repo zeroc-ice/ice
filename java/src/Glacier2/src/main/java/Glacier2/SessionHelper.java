@@ -478,19 +478,25 @@ public class SessionHelper
     {
         assert !_destroy;
 
-        try
+        new Thread(new Runnable()
         {
-            _communicator = Ice.Util.initialize(_initData);
-        }
-        catch(final Ice.LocalException ex)
-        {
-            _destroy = true;
-            new Thread(new Runnable()
+            @Override
+            public void run()
+            {
+                try
                 {
-                    @Override
-                    public void run()
+                    synchronized(SessionHelper.this)
                     {
-                        dispatchCallback(new Runnable()
+                        _communicator = Ice.Util.initialize(_initData);
+                    }
+                }
+                catch(final Ice.LocalException ex)
+                {
+                    synchronized(SessionHelper.this)
+                    {
+                        _destroy = true;
+                    }
+                    dispatchCallback(new Runnable()
                         {
                             @Override
                             public void run()
@@ -498,18 +504,11 @@ public class SessionHelper
                                 _callback.connectFailed(SessionHelper.this, ex);
                             }
                         }, null);
-                    }
-                }).start();
-            return;
-        }
+                    return;
+                }
 
-        final Ice.RouterFinderPrx finder =
-            Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
+                final Ice.RouterFinderPrx finder =
+                    Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
                 if(_communicator.getDefaultRouter() == null)
                 {
                     try
