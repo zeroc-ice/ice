@@ -1232,7 +1232,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
             updateRevision(desc->uuid, desc->revision);
         }
 
-        if(!_desc)
+        if(!_desc || (_load && descriptorUpdated(_load->getInternalServerDescriptor(), _desc)))
         {
             _load->addCallback(amdCB);
             return 0;
