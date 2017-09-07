@@ -1,6 +1,5 @@
 sudo: false
-language: generic
-group: edge
+language: python
 addons:
   apt:
     sources:
@@ -25,8 +24,6 @@ env:
     - LMDB_REVISION=0.9.16
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
-    - PYTHONUSERBASE=${HOME}/python-deps
-    - PYTHONPATH=${PYTHONUSERBASE}
     - JAVA_HOME=/usr/lib/jvm/java-8-oracle
     - USE_NAMESPACES=no
     - OPTIMIZE=no
@@ -38,7 +35,6 @@ env:
 cache:
   directories:
   - $HOME/.gradle
-  - $HOME/python-deps
   - $TRAVIS_BUILD_DIR/js/node_modules
 
 before_install:
