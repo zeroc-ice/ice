@@ -81,13 +81,11 @@ These are the changes since Ice 3.6.3.
   This message would only show up under certain circumstances when using Ice
   on macOS Sierra (10.2).
 
-- Fixed bug which would cause an IceUtil::NullHandleException to be raised when
+- Fixed a bug which would cause an IceUtil::NullHandleException to be raised when
   using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
 
-- Fixed bug which cause PTHREAD_PRIO_INHERIT not being set when Ice was build
-  with -DICE_PRIO_INHERIT because the system macros for priority inheritance
-  where included after Ice Mutex headers resulting in Ice mutexes not using
-  the priority inheritance protocol.
+- Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice 
+  with -DICE_PRIO_INHERIT.
 
 ## Java Changes
 
@@ -102,11 +100,12 @@ These are the changes since Ice 3.6.3.
 
 ## CSharp Changes
 
-- Fixed a bug that affect Stack sequence mapping, when using the Stack mapping
-with a element of type Object* items where unmarshal in reverse order.
+- Fixed a bug that affects the Stack sequence mapping. When using the Stack
+mapping with a sequence<Object*>, items were unmarshaled in reverse
+order.
 
-- Fixed a bug where metadata was not correctly ignored and can result in bogus
-code being generated if applying invalid metadata directives.
+- Fixed a bug where incorrect code could be generated for invalid metadata
+directives.
 
 # Changes in Ice 3.6.3
 
