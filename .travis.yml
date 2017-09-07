@@ -1,5 +1,6 @@
 sudo: false
 language: generic
+group: edge
 addons:
   apt:
     sources:
