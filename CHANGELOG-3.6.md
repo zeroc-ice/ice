@@ -71,9 +71,12 @@ These are the changes since Ice 3.6.3.
   would fail if the service used the IceBox shared communicator. Thanks to
   Andreas Sommer for the bug report and fix.
 
-- Fixed a bug in Slice compilers which generates bogus dependencies when the
-  Slice files are located in a directory that contains the string ".ice" in
-  the path.
+- Fixed a bug in the Slice compilers: they generated incorrect dependencies for
+  Slice files in directories with the string ".ice" in their path.
+
+- Significantly reduced the size of the Windows binary distribution by
+  moving all C++ debug information (PDB files) to https://symbols.zeroc.com.
+  Also removed the WinRT libraries from the Windows binary distribution.
 
 ## C++ Changes
 
@@ -84,7 +87,7 @@ These are the changes since Ice 3.6.3.
 - Fixed a bug which would cause an IceUtil::NullHandleException to be raised when
   using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
 
-- Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice 
+- Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice
   with -DICE_PRIO_INHERIT.
 
 ## Java Changes
