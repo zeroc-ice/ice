@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.4 (Pre-Release Snapshot)](#changes-in-ice-364-pre-release-snapshot)
+- [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
@@ -43,11 +43,15 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.6.4 (Pre-Release Snapshot)
+# Changes in Ice 3.6.4
 
-These are the changes since Ice 3.6.3 included in this pre-release.
+These are the changes since Ice 3.6.3.
 
 ## General Changes
+
+- Fixed IceGrid node bug where a replica might not get up-to-date object
+  adapter information about a server if an update is pending for this
+  server. Thanks to Michael Gmelin for the bug report and fix.
 
 - Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
   overflows in case a sender sends a very large graph.
