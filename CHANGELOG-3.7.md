@@ -8,6 +8,8 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.7.1 (Pre-Release Snapshot)](#changes-in-ice-371-pre-release-snapshot)
+  - [General Changes](#general-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -18,6 +20,16 @@ particular aspect of Ice.
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
   - [Ruby Changes](#ruby-changes)
+
+# Changes in Ice 3.7.1 (Pre-Release Snapshot)
+
+These are the changes since Ice 3.7.0 included in this pre-release.
+
+## General Changes
+
+- Fixed IceGrid node bug where a replica would not get up-to-date object
+  adapter information about a server if an update was pending for the
+  server. Thanks to Michael Gmelin for the bug report and fix.
 
 # Changes in Ice 3.7.0
 

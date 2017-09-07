@@ -1234,6 +1234,10 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
 
         if(!_desc || (_load && descriptorUpdated(_load->getInternalServerDescriptor(), _desc)))
         {
+            //
+            // If the server initial loading didn't complete yet or there's a new updated descriptor
+            // waiting to be loaded, we wait for the loading to complete before replying.
+            //
             _load->addCallback(amdCB);
             return 0;
         }
