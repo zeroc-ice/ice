@@ -97,8 +97,8 @@ These are the changes since Ice 3.6.3.
 
 ## JavaScript Changes
 
-- Fixed a bug in Ice.Long toNumber implementation where negative integers
-  smaller than -(2^52 - 1) where not correctly handle.
+- Fixed a bug in the Ice.Long toNumber implementation: negative integers
+  smaller than -(2^52 - 1) were not correctly handled.
 
 ## CSharp Changes
 
