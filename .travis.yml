@@ -24,8 +24,6 @@ env:
     - LMDB_REVISION=0.9.16
     - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
     - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
-    - PYTHONUSERBASE=${HOME}/python-deps
-    - PYTHONPATH=${PYTHONUSERBASE}
     - JAVA_HOME=/usr/lib/jvm/java-8-oracle
     - USE_NAMESPACES=no
     - OPTIMIZE=no
@@ -37,7 +35,6 @@ env:
 cache:
   directories:
   - $HOME/.gradle
-  - $HOME/python-deps
   - $TRAVIS_BUILD_DIR/js/node_modules
 
 before_install:
@@ -55,7 +52,7 @@ install:
 - mkdir -p ${LMDB_HOME}/man/man1
 - CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
 - rm -f ${LMDB_HOME}/lib/liblmdb.so
-- pip install --user passlib
+- pip install passlib
 - if [ "${CONFIGS}" = "cpp11-shared" ]; then make -C ${WORK_DIR} -j3 CONFIGS=shared srcs; fi
 - make -C ${WORK_DIR} -j3 V=1
 
