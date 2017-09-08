@@ -9,153 +9,161 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef OutputStream < Ice.WrapperObject
+classdef OutputStream < IceInternal.WrapperObject
     methods
-        function self = OutputStream(impl)
-            self = self@Ice.WrapperObject(impl);
+        function obj = OutputStream(impl)
+            obj = obj@IceInternal.WrapperObject(impl);
         end
-        function writeBool(self, v)
-            Ice.Util.callMethod(self, 'writeBool', v);
+        function writeBool(obj, v)
+            Ice.Util.callMethod(obj, 'writeBool', v);
         end
-        function writeBoolOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeBoolOpt', tag, v);
+        function writeBoolOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeBoolOpt', tag, v);
         end
-        function writeBoolSeq(self, v)
-            Ice.Util.callMethod(self, 'writeBoolSeq', v, length(v));
+        function writeBoolSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeBoolSeq', v, length(v));
         end
-        function writeBoolSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeBoolSeqOpt', tag, v, length(v));
+        function writeBoolSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeBoolSeqOpt', tag, v, length(v));
         end
-        function writeByte(self, v)
-            Ice.Util.callMethod(self, 'writeByte', v);
+        function writeByte(obj, v)
+            Ice.Util.callMethod(obj, 'writeByte', v);
         end
-        function writeByteOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeByteOpt', tag, v);
+        function writeByteOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeByteOpt', tag, v);
         end
-        function writeByteSeq(self, v)
-            Ice.Util.callMethod(self, 'writeByteSeq', v, length(v));
+        function writeByteSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeByteSeq', v, length(v));
         end
-        function writeByteSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeByteSeqOpt', tag, v, length(v));
+        function writeByteSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeByteSeqOpt', tag, v, length(v));
         end
-        function writeShort(self, v)
-            Ice.Util.callMethod(self, 'writeShort', v);
+        function writeShort(obj, v)
+            Ice.Util.callMethod(obj, 'writeShort', v);
         end
-        function writeShortOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeShortOpt', tag, v);
+        function writeShortOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeShortOpt', tag, v);
         end
-        function writeShortSeq(self, v)
-            Ice.Util.callMethod(self, 'writeShortSeq', v, length(v));
+        function writeShortSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeShortSeq', v, length(v));
         end
-        function writeShortSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeShortSeqOpt', tag, v, length(v));
+        function writeShortSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeShortSeqOpt', tag, v, length(v));
         end
-        function writeInt(self, v)
-            Ice.Util.callMethod(self, 'writeInt', v);
+        function writeInt(obj, v)
+            Ice.Util.callMethod(obj, 'writeInt', v);
         end
-        function writeIntOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeIntOpt', tag, v);
+        function writeIntOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeIntOpt', tag, v);
         end
-        function writeIntSeq(self, v)
-            Ice.Util.callMethod(self, 'writeIntSeq', v, length(v));
+        function writeIntSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeIntSeq', v, length(v));
         end
-        function writeIntSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeIntSeqOpt', tag, v, length(v));
+        function writeIntSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeIntSeqOpt', tag, v, length(v));
         end
-        function writeLong(self, v)
-            Ice.Util.callMethod(self, 'writeLong', v);
+        function writeLong(obj, v)
+            Ice.Util.callMethod(obj, 'writeLong', v);
         end
-        function writeLongOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeLongOpt', tag, v);
+        function writeLongOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeLongOpt', tag, v);
         end
-        function writeLongSeq(self, v)
-            Ice.Util.callMethod(self, 'writeLongSeq', v, length(v));
+        function writeLongSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeLongSeq', v, length(v));
         end
-        function writeLongSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeLongSeqOpt', tag, v, length(v));
+        function writeLongSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeLongSeqOpt', tag, v, length(v));
         end
-        function writeFloat(self, v)
-            Ice.Util.callMethod(self, 'writeFloat', v);
+        function writeFloat(obj, v)
+            Ice.Util.callMethod(obj, 'writeFloat', v);
         end
-        function writeFloatOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeFloatOpt', tag, v);
+        function writeFloatOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeFloatOpt', tag, v);
         end
-        function writeFloatSeq(self, v)
-            Ice.Util.callMethod(self, 'writeFloatSeq', v, length(v));
+        function writeFloatSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeFloatSeq', v, length(v));
         end
-        function writeFloatSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeFloatSeqOpt', tag, v, length(v));
+        function writeFloatSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeFloatSeqOpt', tag, v, length(v));
         end
-        function writeDouble(self, v)
-            Ice.Util.callMethod(self, 'writeDouble', v);
+        function writeDouble(obj, v)
+            Ice.Util.callMethod(obj, 'writeDouble', v);
         end
-        function writeDoubleOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeDoubleOpt', tag, v);
+        function writeDoubleOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeDoubleOpt', tag, v);
         end
-        function writeDoubleSeq(self, v)
-            Ice.Util.callMethod(self, 'writeDoubleSeq', v, length(v));
+        function writeDoubleSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeDoubleSeq', v, length(v));
         end
-        function writeDoubleSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeDoubleSeqOpt', tag, v, length(v));
+        function writeDoubleSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeDoubleSeqOpt', tag, v, length(v));
         end
-        function writeString(self, str)
-            Ice.Util.callMethod(self, 'writeString', str);
+        function writeString(obj, str)
+            Ice.Util.callMethod(obj, 'writeString', str);
         end
-        function writeStringOpt(self, tag, str)
-            Ice.Util.callMethod(self, 'writeStringOpt', tag, str);
+        function writeStringOpt(obj, tag, str)
+            Ice.Util.callMethod(obj, 'writeStringOpt', tag, str);
         end
-        function writeStringSeq(self, v)
-            Ice.Util.callMethod(self, 'writeStringSeq', v);
+        function writeStringSeq(obj, v)
+            Ice.Util.callMethod(obj, 'writeStringSeq', v);
         end
-        function writeStringSeqOpt(self, tag, v)
-            Ice.Util.callMethod(self, 'writeStringSeqOpt', tag, v);
+        function writeStringSeqOpt(obj, tag, v)
+            Ice.Util.callMethod(obj, 'writeStringSeqOpt', tag, v);
         end
-        function writeSize(self, size)
-            Ice.Util.callMethod(self, 'writeSize', size);
+        function writeSize(obj, size)
+            Ice.Util.callMethod(obj, 'writeSize', size);
         end
-        function writeProxy(self, v)
+        function writeProxy(obj, v)
             if isempty(v)
                 impl = libpointer;
             else
                 impl = v.impl;
             end
-            Ice.Util.callMethod(self, 'writeProxy', impl);
+            Ice.Util.callMethod(obj, 'writeProxy', impl);
         end
-        function writeProxyOpt(self, tag, v)
+        function writeProxyOpt(obj, tag, v)
             if ~isempty(v)
-                Ice.Util.callMethod(self, 'writeProxyOpt', tag, v.impl);
+                Ice.Util.callMethod(obj, 'writeProxyOpt', tag, v.impl);
             end
         end
-        function writeEnum(self, v, maxValue)
-            Ice.Util.callMethod(self, 'writeEnum', v, maxValue);
+        function writeEnum(obj, v, maxValue)
+            Ice.Util.callMethod(obj, 'writeEnum', v, maxValue);
         end
-        function startEncapsulation(self)
-            Ice.Util.callMethod(self, 'startEncapsulation');
+        function writeValue(obj, v)
+            % Pass a reference to the wrapper object.
+            Ice.Util.callMethod(obj, 'writeValue', obj, v);
         end
-        function startEncapsulationWithFormat(self, fmt)
-            Ice.Util.callMethod(self, 'startEncapsulationWithFormat', fmt);
+        function writeValueOpt(obj, tag, v)
+            % Pass a reference to the wrapper object.
+            Ice.Util.callMethod(obj, 'writeValueOpt', tag, obj, v);
         end
-        function endEncapsulation(self)
-            Ice.Util.callMethod(self, 'endEncapsulation');
+        function startEncapsulation(obj)
+            Ice.Util.callMethod(obj, 'startEncapsulation');
         end
-        function startSlice(self, typeId, compactId, last)
-            Ice.Util.callMethod(self, 'startSlice', typeId, compactId, last);
+        function startEncapsulationWithFormat(obj, fmt)
+            Ice.Util.callMethod(obj, 'startEncapsulationWithFormat', fmt);
         end
-        function endSlice(self)
-            Ice.Util.callMethod(self, 'endSlice');
+        function endEncapsulation(obj)
+            Ice.Util.callMethod(obj, 'endEncapsulation');
         end
-        function r = writeOptional(self, tag, f)
+        function startSlice(obj, typeId, compactId, last)
+            Ice.Util.callMethod(obj, 'startSlice', typeId, compactId, last);
+        end
+        function endSlice(obj)
+            Ice.Util.callMethod(obj, 'endSlice');
+        end
+        function r = writeOptional(obj, tag, f)
             supportsOptionals = libpointer('uint8Ptr', 0);
-            Ice.Util.callMethod(self, 'writeOptional', tag, f, supportsOptionals);
+            Ice.Util.callMethod(obj, 'writeOptional', tag, f, supportsOptionals);
             r = supportsOptionals.Value;
         end
-        function r = startSize(self)
+        function r = startSize(obj)
             pos = libpointer('uint32Ptr', 0);
-            Ice.Util.callMethod(self, 'startSize', pos);
+            Ice.Util.callMethod(obj, 'startSize', pos);
             r = pos.Value;
         end
-        function endSize(self, pos)
-            Ice.Util.callMethod(self, 'endSize', pos);
+        function endSize(obj, pos)
+            Ice.Util.callMethod(obj, 'endSize', pos);
         end
     end
 end

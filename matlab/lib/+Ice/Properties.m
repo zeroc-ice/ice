@@ -9,54 +9,54 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Properties < Ice.WrapperObject
+classdef Properties < IceInternal.WrapperObject
     methods
-        function self = Properties(impl)
-            self = self@Ice.WrapperObject(impl);
+        function obj = Properties(impl)
+            obj = obj@IceInternal.WrapperObject(impl);
         end
-        function r = getProperty(self, key)
-            r = Ice.Util.callMethodWithResult(self, 'getProperty', key);
+        function r = getProperty(obj, key)
+            r = Ice.Util.callMethodWithResult(obj, 'getProperty', key);
         end
-        function r = getPropertyWithDefault(self, key, def)
-            r = Ice.Util.callMethodWithResult(self, 'getPropertyWithDefault', key, def);
+        function r = getPropertyWithDefault(obj, key, def)
+            r = Ice.Util.callMethodWithResult(obj, 'getPropertyWithDefault', key, def);
         end
-        function r = getPropertyAsInt(self, key)
+        function r = getPropertyAsInt(obj, key)
             v = libpointer('int32Ptr', 0);
-            Ice.Util.callMethod(self, 'getPropertyAsInt', key, v);
+            Ice.Util.callMethod(obj, 'getPropertyAsInt', key, v);
             r = v.Value;
         end
-        function r = getPropertyAsIntWithDefault(self, key, def)
+        function r = getPropertyAsIntWithDefault(obj, key, def)
             v = libpointer('int32Ptr', 0);
-            Ice.Util.callMethod(self, 'getPropertyAsIntWithDefault', key, def, v);
+            Ice.Util.callMethod(obj, 'getPropertyAsIntWithDefault', key, def, v);
             r = v.Value;
         end
-        function r = getPropertyAsList(self, key)
-            r = Ice.Util.callMethodWithResult(self, 'getPropertyAsList', key);
+        function r = getPropertyAsList(obj, key)
+            r = Ice.Util.callMethodWithResult(obj, 'getPropertyAsList', key);
         end
-        function r = getPropertyAsListWithDefault(self, key, def)
-            r = Ice.Util.callMethodWithResult(self, 'getPropertyAsListWithDefault', key, def);
+        function r = getPropertyAsListWithDefault(obj, key, def)
+            r = Ice.Util.callMethodWithResult(obj, 'getPropertyAsListWithDefault', key, def);
         end
-        function r = getPropertiesForPrefix(self, prefix)
-            r = Ice.Util.callMethodWithResult(self, 'getPropertiesForPrefix', prefix);
+        function r = getPropertiesForPrefix(obj, prefix)
+            r = Ice.Util.callMethodWithResult(obj, 'getPropertiesForPrefix', prefix);
         end
-        function setProperty(self, key, value)
-            Ice.Util.callMethod(self, 'setProperty', key, value);
+        function setProperty(obj, key, value)
+            Ice.Util.callMethod(obj, 'setProperty', key, value);
         end
-        function r = getCommandLineOptions(self)
-            r = Ice.Util.callMethodWithResult(self, 'getCommandLineOptions');
+        function r = getCommandLineOptions(obj)
+            r = Ice.Util.callMethodWithResult(obj, 'getCommandLineOptions');
         end
-        function r = parseCommandLineOptions(self, prefix, options)
-            r = Ice.Util.callMethodWithResult(self, 'parseCommandLineOptions', prefix, options);
+        function r = parseCommandLineOptions(obj, prefix, options)
+            r = Ice.Util.callMethodWithResult(obj, 'parseCommandLineOptions', prefix, options);
         end
-        function r = parseIceCommandLineOptions(self, options)
-            r = Ice.Util.callMethodWithResult(self, 'parseIceCommandLineOptions', options);
+        function r = parseIceCommandLineOptions(obj, options)
+            r = Ice.Util.callMethodWithResult(obj, 'parseIceCommandLineOptions', options);
         end
-        function load(self, file)
-            Ice.Util.callMethod(self, 'load', file);
+        function load(obj, file)
+            Ice.Util.callMethod(obj, 'load', file);
         end
-        function r = clone(self)
+        function r = clone(obj)
             impl = libpointer('voidPtr');
-            Ice.Util.callMethod(self, 'clone', impl);
+            Ice.Util.callMethod(obj, 'clone', impl);
             r = Ice.Properties(impl);
         end
     end

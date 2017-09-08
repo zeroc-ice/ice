@@ -9,13 +9,12 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef (Abstract) Exception < MException
-    methods(Abstract)
-        ice_id(obj)
-    end
-    methods
-        function obj = Exception(id, msg)
-            obj = obj@MException(id, msg)
-        end
+%
+% A dictionary<struct-type, Value-type> is mapped to a StructArrayHandle object. This is necessary to support
+% the staged nature of Value unmarshaling.
+%
+classdef StructArrayHandle < handle
+    properties
+        array
     end
 end

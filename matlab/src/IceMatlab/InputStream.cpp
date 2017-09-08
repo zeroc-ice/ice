@@ -20,16 +20,6 @@
 using namespace std;
 using namespace IceMatlab;
 
-void*
-IceMatlab::createInputStream(const shared_ptr<Ice::Communicator>& communicator, const Ice::EncodingVersion& encoding,
-                             vector<Ice::Byte>& data)
-{
-    InputStreamData* p = new InputStreamData;
-    p->data.swap(data);
-    p->in = new Ice::InputStream(communicator, encoding, p->data);
-    return p;
-}
-
 namespace
 {
 
@@ -101,6 +91,16 @@ readSeqOpt(Ice::InputStream* in, int tag, mxClassID cls)
     return 0;
 }
 
+}
+
+void*
+IceMatlab::createInputStream(const shared_ptr<Ice::Communicator>& communicator, const Ice::EncodingVersion& encoding,
+                             vector<Ice::Byte>& data)
+{
+    InputStreamData* p = new InputStreamData;
+    p->data.swap(data);
+    p->in = new Ice::InputStream(communicator, encoding, p->data);
+    return p;
 }
 
 extern "C"
@@ -470,85 +470,15 @@ Ice_InputStream_skip(void* self, int n)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_InputStream_startException(void* self)
+Ice_InputStream_skipSize(void* self)
 {
     try
     {
-        SELF->in->startException();
+        SELF->in->skipSize();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_endException(void* self)
-{
-    try
-    {
-        SELF->in->endException(false);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_startEncapsulation(void* self)
-{
-    try
-    {
-        SELF->in->startEncapsulation();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_endEncapsulation(void* self)
-{
-    try
-    {
-        SELF->in->endEncapsulation();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_skipEmptyEncapsulation(void* self)
-{
-    try
-    {
-        SELF->in->skipEmptyEncapsulation();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_skipEncapsulation(void* self)
-{
-    try
-    {
-        return createResultValue(createEncodingVersion(SELF->in->skipEncapsulation()));
-    }
-    catch(const std::exception& ex)
-    {
-        return createResultException(convertException(ex));
     }
     return 0;
 }
@@ -568,68 +498,11 @@ Ice_InputStream_getEncoding(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_InputStream_startSlice(void* self)
-{
-    try
-    {
-        SELF->in->startSlice();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_endSlice(void* self)
-{
-    try
-    {
-        SELF->in->endSlice();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_skipSlice(void* self)
-{
-    try
-    {
-        SELF->in->skipSlice();
-    }
-    catch(const std::exception& ex)
-    {
-        return createResultException(convertException(ex));
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_InputStream_readSize(void* self, int* size)
 {
     try
     {
         *size = SELF->in->readSize();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_InputStream_readOptional(void* self, int tag, Ice_OptionalFormat f, unsigned char* r)
-{
-    try
-    {
-        bool b = SELF->in->readOptional(tag, static_cast<Ice::OptionalFormat>(f));
-        *r = b ? 1 : 0;
     }
     catch(const std::exception& ex)
     {
@@ -698,131 +571,49 @@ Ice_InputStream_readEnum(void* self, int maxValue, int* r)
     return 0;
 }
 
-namespace
-{
-
-class MatlabUserException : public Ice::UserException
-{
-public:
-
-    MatlabUserException(const string& id, mxArray* ex, mxArray* streamWrapper) :
-        _id(id), _ex(ex), _streamWrapper(streamWrapper)
-    {
-    }
-
-    mxArray* exception() const
-    {
-        return _ex;
-    }
-
-    virtual string ice_id() const override
-    {
-        return _id;
-    }
-
-    virtual void _read(Ice::InputStream*) override
-    {
-        //
-        // Call read_() on the exception instance.
-        //
-        mxArray* params[2];
-        params[0] = _ex;
-        params[1] = _streamWrapper;
-        mxArray* err = mexCallMATLABWithTrap(0, 0, 2, params, "read_");
-        if(err)
-        {
-            mxDestroyArray(err);
-            throw Ice::MarshalException(__FILE__, __LINE__, "failure in exception's read_ method");
-        }
-    }
-
-    virtual bool _usesClasses() const override
-    {
-        //
-        // Call usesClasses_() on the exception instance.
-        //
-        mxArray* ex = const_cast<mxArray*>(_ex);
-        mxArray* r;
-        mxArray* err = mexCallMATLABWithTrap(1, &r, 1, &ex, "usesClasses_");
-        if(err)
-        {
-            mxDestroyArray(err);
-            throw Ice::MarshalException(__FILE__, __LINE__, "failure in exception's usesClasses_ method");
-        }
-        else
-        {
-            bool b = mxIsLogicalScalarTrue(r) ? true : false;
-            mxDestroyArray(r);
-            return b;
-        }
-    }
-
-    virtual void ice_throw() const override
-    {
-        throw static_cast<const MatlabUserException&>(*this);
-    }
-
-protected:
-
-    virtual IceUtil::Exception* ice_cloneImpl() const override
-    {
-        return 0;
-    }
-
-    virtual void _writeImpl(Ice::OutputStream*) const override
-    {
-        assert(false);
-    }
-
-    virtual void _readImpl(Ice::InputStream* in) override
-    {
-        assert(false);
-    }
-
-private:
-
-    string _id;
-    mxArray* _ex;
-    mxArray* _streamWrapper;
-};
-
-void createException(mxArray* streamWrapper, const string& id)
-{
-    //
-    // Convert the Slice type ID to a Matlab class name.
-    //
-    string cls = idToClass(id);
-    //
-    // Attempt to call the class constructor to obtain an instance. This may raise an exception.
-    //
-    mxArray* ex;
-    mxArray* err = mexCallMATLABWithTrap(1, &ex, 0, 0, cls.c_str());
-    if(err)
-    {
-        mxDestroyArray(err);
-    }
-    else
-    {
-        throw MatlabUserException(id, ex, streamWrapper);
-    }
-}
-
-}
-
 EXPORTED_FUNCTION mxArray*
-Ice_InputStream_throwException(void* self, mxArray* wrapper)
+Ice_InputStream_pos(void* self, unsigned int* pos)
 {
     try
     {
-        SELF->in->throwException([wrapper](const string& id){ createException(wrapper, id); });
-    }
-    catch(MatlabUserException& ex)
-    {
-        return ex.exception();
+        *pos = SELF->in->pos();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_InputStream_size(void* self, unsigned int* sz)
+{
+    try
+    {
+        *sz = SELF->in->b.size();
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_InputStream_getBytes(void* self, unsigned int start, unsigned int end)
+{
+    if(end > start)
+    {
+        try
+        {
+            mxArray* r = mxCreateUninitNumericMatrix(1, end - start, mxUINT8_CLASS, mxREAL);
+            memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), SELF->in->b.begin() + start, end - start);
+            return createResultValue(r);
+        }
+        catch(const std::exception& ex)
+        {
+            return createResultException(convertException(ex));
+        }
     }
     return 0;
 }

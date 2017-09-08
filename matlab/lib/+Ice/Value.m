@@ -18,20 +18,20 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         function id = ice_id(obj)
             id = ice_staticId()
         end
-        function iceWrite_(self, os)
+        function iceWrite_(obj, os)
             os.startValue([]);
-            self.iceWriteImpl_(os);
+            obj.iceWriteImpl_(os);
             os.endValue();
         end
-        function self = iceRead_(self, is)
+        function obj = iceRead_(obj, is)
             is.startValue();
-            self = self.iceReadImpl_(is);
+            obj = obj.iceReadImpl_(is);
             is.endValue(false);
         end
     end
     methods(Abstract)
-        iceWriteImpl_(self, os)
-        self = iceReadImpl_(self, is)
+        iceWriteImpl_(obj, os)
+        obj = iceReadImpl_(obj, is)
     end
     methods(Static)
         function id = ice_staticId()

@@ -4,6 +4,9 @@
  <PropertyGroup>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <MexCompilerFlags Condition="'$(Configuration)' == 'Debug'">-g COMPFLAGS=&quot;/MDd /EHsc&quot;</MexCompilerFlags>
+    <MexCompilerFlags Condition="'$(Configuration)' == 'Release'">COMPFLAGS=&quot;/EHsc&quot;</MexCompilerFlags>
+    <DebugExt Condition="'$(Configuration)' == 'Debug'">d</DebugExt>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -41,9 +44,10 @@
   <Target Name="Build" DependsOnTargets="CppPrereqs">
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>
-        <Exec Command="mex -outdir $(srcDir) -output icematlab -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
-        <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2.dll $(srcDir)"/>
-        <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11.dll&quot; $(srcDir)"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\exceptions\generated $(testDir)\Ice\exceptions\Test.ice"/>
+        <Exec Command="mex -v -outdir $(srcDir) -output icematlab $(MexCompilerFlags) -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
+        <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2$(DebugExt).dll $(srcDir)"/>
+        <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11$(DebugExt).dll&quot; $(srcDir)"/>
   </Target>
 
 </Project>

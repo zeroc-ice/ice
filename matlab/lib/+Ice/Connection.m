@@ -12,10 +12,10 @@ ICE_LICENSE file included in this distribution.
 % Ice version 3.7.0
 %
 
-classdef Connection < Ice.WrapperObject
+classdef Connection < IceInternal.WrapperObject
     methods
-        function self = Connection(impl)
-            self = self@Ice.WrapperObject(impl);
+        function obj = Connection(impl)
+            obj = obj@IceInternal.WrapperObject(impl);
         end
         function close(obj, mode)
             Ice.Util.callMethod(obj, 'close', mode);

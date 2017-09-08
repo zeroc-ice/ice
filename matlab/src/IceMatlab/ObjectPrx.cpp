@@ -1123,7 +1123,7 @@ Ice_GetConnectionFuture_fetch(void* self, void** con)
         }
     }
 
-    assert(GCFSELF->connection());
+    assert(GCFSELF->getConnection());
     *con = new shared_ptr<Ice::Connection>(GCFSELF->getConnection());
     return 0;
 }

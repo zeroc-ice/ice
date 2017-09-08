@@ -1250,17 +1250,12 @@ classdef TwowaysAMI
 end
 
 function varargout = call(p, op, varargin)
-    try
-        name = [op, 'Async'];
-        future = p.(name)(varargin{:});
-        assert(strcmp(future.Operation, op));
-        assert(~future.Read);
-        assert(future.wait());
-        assert(strcmp(future.State, 'finished'));
-        [varargout{1:nargout}] = future.fetchOutputs();
-        assert(future.Read);
-    catch ex
-        disp(getReport(ex, 'extended'));
-        assert(false);
-    end
+    name = [op, 'Async'];
+    future = p.(name)(varargin{:});
+    assert(strcmp(future.Operation, op));
+    assert(~future.Read);
+    assert(future.wait());
+    assert(strcmp(future.State, 'finished'));
+    [varargout{1:nargout}] = future.fetchOutputs();
+    assert(future.Read);
 end

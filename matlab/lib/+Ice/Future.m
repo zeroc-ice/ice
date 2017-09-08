@@ -42,11 +42,7 @@ classdef Future < handle
             if obj.Read
                 throw(MException('Ice:InvalidStateException', 'outputs already read'));
             end
-            if obj.NumOutputArguments == 0
-                Ice.Util.callMethodOnType(obj, obj.type_, 'check');
-            else
-                [varargout{1:nargout}] = obj.fetchFunc_(obj);
-            end
+            [varargout{1:obj.NumOutputArguments}] = obj.fetchFunc_(obj);
             obj.Read = true;
         end
         function cancel(obj)

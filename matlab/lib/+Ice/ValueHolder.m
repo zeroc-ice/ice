@@ -9,13 +9,13 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef (Abstract) Exception < MException
-    methods(Abstract)
-        ice_id(obj)
+classdef ValueHolder < handle
+    properties
+        value
     end
     methods
-        function obj = Exception(id, msg)
-            obj = obj@MException(id, msg)
+        function set(obj, v)
+            obj.value = v;
         end
     end
 end

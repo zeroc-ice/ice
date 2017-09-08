@@ -9,23 +9,23 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Communicator < Ice.WrapperObject
+classdef Communicator < IceInternal.WrapperObject
     methods
-        function self = Communicator(impl)
-            self = self@Ice.WrapperObject(impl);
+        function obj = Communicator(impl)
+            obj = obj@IceInternal.WrapperObject(impl);
         end
-        function r = stringToProxy(self, str)
+        function r = stringToProxy(obj, str)
             impl = libpointer('voidPtr');
-            Ice.Util.callMethod(self, 'stringToProxy', str, impl);
+            Ice.Util.callMethod(obj, 'stringToProxy', str, impl);
             r = Ice.ObjectPrx(impl);
         end
-        function r = getProperties(self)
+        function r = getProperties(obj)
             impl = libpointer('voidPtr');
-            Ice.Util.callMethod(self, 'getProperties', impl);
+            Ice.Util.callMethod(obj, 'getProperties', impl);
             r = Ice.Properties(impl);
         end
-        function destroy(self)
-            Ice.Util.callMethod(self, 'destroy');
+        function destroy(obj)
+            Ice.Util.callMethod(obj, 'destroy');
         end
     end
 end

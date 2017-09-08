@@ -14,16 +14,29 @@ classdef (Abstract) UserException < Ice.Exception
         function obj = UserException(id, msg)
             obj = obj@Ice.Exception(id, msg)
         end
-        function self = read_(self, is)
+    end
+    methods(Hidden=true)
+        function obj = read_(obj, is)
             is.startException();
-            self = self._readImpl(is);
+            if obj.usesClasses_()
+                obj.valueTable_ = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            end
+            obj = obj.readImpl_(is);
             is.endException();
         end
-        function r = usesClasses_(self)
-            r = false
+        function r = usesClasses_(obj)
+            r = false;
+        end
+        function obj = resolveValues_(obj)
+        end
+        function setValueMember_(obj, k, v)
+            obj.valueTable_(k) = v;
         end
     end
-    methods(Abstract)
-        self = readImpl_(self, is)
+    methods(Abstract,Access=protected)
+        obj = readImpl_(obj, is)
+    end
+    properties(Access=protected)
+        valueTable_
     end
 end

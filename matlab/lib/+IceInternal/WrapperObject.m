@@ -11,12 +11,12 @@ ICE_LICENSE file included in this distribution.
 
 classdef (Abstract) WrapperObject < handle
     methods
-        function self = WrapperObject(impl)
-            self.impl = impl;
+        function obj = WrapperObject(impl)
+            obj.impl = impl;
         end
-        function delete(self)
-            if ~isempty(self.impl)
-                Ice.Util.callMethod(self, '_release');
+        function delete(obj)
+            if ~isempty(obj.impl)
+                Ice.Util.callMethod(obj, '_release');
             end
         end
     end

@@ -41,9 +41,9 @@ classdef Util
         % Internal method - invoke a C function representing an object method.
         % The value for fn MUST be given in single quotes!
         %
-        function callMethod(self, fn, varargin)
-            name = replace(strcat(class(self), '.', fn), '.', '_');
-            ex = calllib('icematlab', name, self.impl, varargin{:});
+        function callMethod(obj, fn, varargin)
+            name = replace(strcat(class(obj), '.', fn), '.', '_');
+            ex = calllib('icematlab', name, obj.impl, varargin{:});
             if ~isempty(ex)
                 ex.throwAsCaller();
             end
@@ -53,9 +53,9 @@ classdef Util
         % Internal method - invoke a C function representing an object method.
         % The value for fn MUST be given in single quotes!
         %
-        function r = callMethodWithResult(self, fn, varargin)
-            name = replace(strcat(class(self), '.', fn), '.', '_');
-            result = calllib('icematlab', name, self.impl, varargin{:});
+        function r = callMethodWithResult(obj, fn, varargin)
+            name = replace(strcat(class(obj), '.', fn), '.', '_');
+            result = calllib('icematlab', name, obj.impl, varargin{:});
             if isempty(result)
                 r = result;
             elseif ~isempty(result.exception)
@@ -69,9 +69,9 @@ classdef Util
         % Internal method - invoke a C function representing an object method.
         % The value for fn MUST be given in single quotes!
         %
-        function callMethodOnType(self, type, fn, varargin)
+        function callMethodOnType(obj, type, fn, varargin)
             name = strcat(type, '_', fn);
-            ex = calllib('icematlab', name, self.impl, varargin{:});
+            ex = calllib('icematlab', name, obj.impl, varargin{:});
             if ~isempty(ex)
                 ex.throwAsCaller();
             end
@@ -81,9 +81,9 @@ classdef Util
         % Internal method - invoke a C function representing an object method.
         % The value for fn MUST be given in single quotes!
         %
-        function r = callMethodOnTypeWithResult(self, type, fn, varargin)
+        function r = callMethodOnTypeWithResult(obj, type, fn, varargin)
             name = strcat(type, '_', fn);
-            result = calllib('icematlab', name, self.impl, varargin{:});
+            result = calllib('icematlab', name, obj.impl, varargin{:});
             if isempty(result)
                 r = result;
             elseif ~isempty(result.exception)
@@ -91,6 +91,11 @@ classdef Util
             else
                 r = result.result;
             end
+        end
+
+        function r = idToClass(id)
+            assert(startsWith(id, '::'));
+            r = extractAfter(replace(id, '::', '.'), 1);
         end
 
         function r = strcmp(s1, s2)

@@ -9,13 +9,12 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef (Abstract) Exception < MException
-    methods(Abstract)
-        ice_id(obj)
-    end
-    methods
-        function obj = Exception(id, msg)
-            obj = obj@MException(id, msg)
-        end
+classdef Encaps < handle
+    properties
+        start
+        sz
+        encoding
+        decoder
+        previous
     end
 end

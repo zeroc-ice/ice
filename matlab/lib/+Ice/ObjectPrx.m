@@ -9,10 +9,10 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef ObjectPrx < Ice.WrapperObject
+classdef ObjectPrx < IceInternal.WrapperObject
     methods
         function self = ObjectPrx(impl)
-            self = self@Ice.WrapperObject(impl);
+            self = self@IceInternal.WrapperObject(impl);
         end
 
         function delete(self)
@@ -607,15 +607,43 @@ classdef ObjectPrx < Ice.WrapperObject
         end
 
         function fut = invokeAsync_(self, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, varargin)
+            isTwoway = self.ice_isTwoway();
+
+            % This nested function is invoked by Future.fetchOutputs()
             function varargout = fetch(f)
-                okPtr = libpointer('uint8Ptr', 0); % Output param
-                inStreamPtr = libpointer('voidPtr', 0); % Output param
-                Ice.Util.callMethodOnType(f, 'Ice_InvocationFuture', 'stream', okPtr, inStreamPtr);
-                ok = okPtr.Value == 1;
-                assert(~isNull(inStreamPtr));
-                inStream = Ice.InputStream(inStreamPtr);
-                [varargout{1:numOutArgs}] = unmarshalFunc(ok, inStream);
+                try
+                    if isTwoway
+                        %
+                        % Retrieve a boolean indicating whether the request completed successfully or returned
+                        % a user exception. The 'stream' function can also raise a local exception if necessary.
+                        %
+                        okPtr = libpointer('uint8Ptr', 0); % Output param
+                        inStreamPtr = libpointer('voidPtr', 0); % Output param
+                        Ice.Util.callMethodOnType(f, 'Ice_InvocationFuture', 'stream', okPtr, inStreamPtr);
+                        ok = okPtr.Value == 1;
+                        assert(~isNull(inStreamPtr));
+                        inStream = Ice.InputStream(inStreamPtr);
+                        if isempty(unmarshalFunc)
+                            if ~ok
+                                % Unexpected user exception
+                                self.throwUserException_(inStream);
+                            else
+                                inStream.skipEmptyEncapsulation();
+                            end
+                        else
+                            [varargout{1:numOutArgs}] = unmarshalFunc(ok, inStream);
+                        end
+                    else
+                        %
+                        % Check for a local exception.
+                        %
+                        Ice.Util.callMethodOnType(f, 'Ice_InvocationFuture', 'check');
+                    end
+                catch ex
+                    ex.throwAsCaller();
+                end
             end
+
             try
                 % Vararg accepted for optional context argument.
                 if length(varargin) > 1
@@ -644,9 +672,11 @@ classdef ObjectPrx < Ice.WrapperObject
 
         function throwUserException_(self, inStream, varargin) % Varargs are user exception type names
             try
-                inStream.throwUserException();
+                inStream.startEncapsulation();
+                inStream.throwException();
             catch ex
-                if isa(ex, Ice.UserException)
+                if isa(ex, 'Ice.UserException')
+                    inStream.endEncapsulation();
                     for i = 1:length(varargin)
                         if isa(ex, varargin{i})
                             ex.throwAsCaller();
@@ -655,7 +685,7 @@ classdef ObjectPrx < Ice.WrapperObject
                     uue = Ice.UnknownUserException('', '', ex.ice_id());
                     uue.throwAsCaller();
                 else
-                    ex.throwAsCaller();
+                    rethrow(ex);
                 end
             end
         end

@@ -18,6 +18,79 @@
 using namespace std;
 using namespace IceMatlab;
 
+namespace
+{
+
+typedef std::map<mxArray*, shared_ptr<Ice::Value>> ValueMap;
+
+//
+// A Closure instance is associated with an OutputStream whenever values are marshaled.
+//
+struct Closure
+{
+    ValueMap valueMap;
+    mxArray* stream;
+};
+
+//
+// ValueWriter wraps a Matlab object for marshaling.
+//
+class ValueWriter : public Ice::Value
+{
+public:
+
+    ValueWriter(mxArray*);
+
+    virtual void ice_preMarshal();
+
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
+
+protected:
+
+    virtual shared_ptr<Ice::Value> _iceCloneImpl() const;
+
+private:
+
+    mxArray* _value;
+};
+
+ValueWriter::ValueWriter(mxArray* v) :
+    _value(v)
+{
+}
+
+void
+ValueWriter::ice_preMarshal()
+{
+    mexCallMATLAB(0, 0, 1, &_value, "ice_preMarshal");
+}
+
+void
+ValueWriter::_iceWrite(Ice::OutputStream* os) const
+{
+    Closure* c = reinterpret_cast<Closure*>(os->getClosure());
+    assert(c);
+
+    mxArray* params[2];
+    params[0] = _value;
+    params[1] = c->stream;
+    mexCallMATLAB(0, 0, 2, params, "iceWrite_");
+}
+
+void
+ValueWriter::_iceRead(Ice::InputStream*)
+{
+    assert(false);
+}
+
+shared_ptr<Ice::Value>
+ValueWriter::_iceCloneImpl() const
+{
+    return nullptr;
+}
+
+}
 
 extern "C"
 {
@@ -25,6 +98,8 @@ extern "C"
 EXPORTED_FUNCTION mxArray*
 Ice_OutputStream__release(void* self)
 {
+    Closure* c = reinterpret_cast<Closure*>(SELF->getClosure());
+    delete c;
     delete SELF;
     return 0;
 }
@@ -498,7 +573,7 @@ Ice_OutputStream_writeStringSeq(void* self, mxArray* v)
             {
                 throw invalid_argument("cell array must be a 1xN matrix");
             }
-            SELF->writeSize(n);
+            SELF->writeSize(static_cast<int>(n));
             for(size_t i = 0; i < n; ++i)
             {
                 mxArray* e = mxGetCell(v, i);
@@ -596,6 +671,68 @@ Ice_OutputStream_writeEnum(void* self, int val, int maxValue)
     {
         return convertException(ex);
     }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_writeValue(void* self, mxArray* stream, mxArray* val)
+{
+    if(mxIsEmpty(val))
+    {
+        shared_ptr<Ice::Value> nil = nullptr;
+        SELF->write(nil);
+        return 0;
+    }
+
+    //
+    // Attach a Closure instance to the stream upon writing the first non-nil Value.
+    //
+    Closure* c = reinterpret_cast<Closure*>(SELF->getClosure());
+    if(!c)
+    {
+        c = new Closure;
+        c->stream = stream;
+        SELF->setClosure(c);
+    }
+
+    //
+    // We're assuming that a mxArray pointer uniquely identifies an object. We use the closure's map to
+    // track the instances.
+    //
+    shared_ptr<Ice::Value> w;
+    ValueMap::iterator p = c->valueMap.find(val);
+    if(p == c->valueMap.end())
+    {
+        w = make_shared<ValueWriter>(val);
+        c->valueMap.insert(ValueMap::value_type(val, w));
+    }
+    else
+    {
+        w = p->second;
+    }
+
+    try
+    {
+        SELF->write(w);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_writeValueOpt(void* self, int tag, mxArray* stream, mxArray* val)
+{
+    //
+    // We assume an empty value means an unset optional (as opposed to an optional set to a null value).
+    //
+    if(!mxIsEmpty(val) && SELF->writeOptional(tag, Ice::OptionalFormat::Class))
+    {
+        return Ice_OutputStream_writeValue(self, stream, val);
+    }
+
     return 0;
 }
 

@@ -34,12 +34,17 @@ Now you're ready to build Ice for MATLAB:
 
     msbuild msbuild\ice.proj
 
+To build in debug mode instead:
+
+    msbuild msbuild\ice.proj /p:Configuration=Debug
+
 Upon completion, an x64 build generates the following components:
 
  - Ice for C++11 library, located in `cpp\bin\x64\Release`
  - slice2matlab executable, located in `cpp\bin\x64\Release`
  - icematlab.mexw64 MEX file, located in `matlab\src\IceMatlab`
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
+ - MATLAB code for test Slice files, located in `matlab\test\Ice\*\generated`
 
 ## Using Ice for MATLAB
 
@@ -67,18 +72,25 @@ The Ice for MATLAB library can be loaded with this command:
 The MEX file depends on `bzip2.dll` and `ice37++11.dll`. The build copied
 these DLLs to `matlab\src\IceMatlab`.
 
-### Running the Test
+### Running the Tests
 
-One test has been ported to MATLAB so far, and the code is located in
-`matlab\test\Ice\operations`. Since Ice for MATLAB only supports client
-functionality, you will have to build and start a test server from a
-different language mapping.
+Two tests have been ported to MATLAB so far:
 
-In a Command Prompt, start the test server.
+ - `matlab\test\Ice\operations`
+ - `matlab\test\Ice\exceptions`
 
-In MATLAB, change to the test directory:
+Since Ice for MATLAB only supports client functionality, you will have to build
+and start a matching test server from a different language mapping.
+
+In a Command Prompt, start a test server.
+
+In MATLAB, change to a test directory:
 
     cd matlab\test\Ice\operations
+
+Or:
+
+    cd matlab\test\Ice\exceptions
 
 Now you can start the MATLAB test client. Assuming the server is running on
 the same host, use this command:
