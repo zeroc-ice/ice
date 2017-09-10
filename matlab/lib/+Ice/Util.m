@@ -42,7 +42,7 @@ classdef Util
         % The value for fn MUST be given in single quotes!
         %
         function callMethod(obj, fn, varargin)
-            name = replace(strcat(class(obj), '.', fn), '.', '_');
+            name = strrep(strcat(class(obj), '.', fn), '.', '_');
             ex = calllib('icematlab', name, obj.impl, varargin{:});
             if ~isempty(ex)
                 ex.throwAsCaller();
@@ -54,7 +54,7 @@ classdef Util
         % The value for fn MUST be given in single quotes!
         %
         function r = callMethodWithResult(obj, fn, varargin)
-            name = replace(strcat(class(obj), '.', fn), '.', '_');
+            name = strrep(strcat(class(obj), '.', fn), '.', '_');
             result = calllib('icematlab', name, obj.impl, varargin{:});
             if isempty(result)
                 r = result;
@@ -94,8 +94,9 @@ classdef Util
         end
 
         function r = idToClass(id)
-            assert(startsWith(id, '::'));
-            r = extractAfter(replace(id, '::', '.'), 1);
+            assert(length(id) > 2 && strcmp(id(1:2), '::'));
+            r = strrep(id, '::', '.');
+            r = r(2:end);
         end
 
         function r = strcmp(s1, s2)

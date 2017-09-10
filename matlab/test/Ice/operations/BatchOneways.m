@@ -65,7 +65,7 @@ classdef BatchOneways
             end
 
             identity = Ice.Identity();
-            identity.name = "invalid";
+            identity.name = 'invalid';
             batch3 = batch.ice_identity(identity);
             batch3.ice_ping();
             batch3.ice_flushBatchRequests();
