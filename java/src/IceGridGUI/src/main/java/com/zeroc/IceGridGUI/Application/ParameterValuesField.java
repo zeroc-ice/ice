@@ -124,18 +124,17 @@ public class ParameterValuesField extends JTable
             getCellEditor().stopCellEditing();
         }
 
-        java.util.Vector<java.util.Vector<String>> vector =
-            _model.getDataVector();
+        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
 
-        for(java.util.Vector<String> row : vector)
+        for(java.util.Vector row : vector)
         {
             //
             // Eliminate rows with null or empty names
             //
-            String name = row.elementAt(0);
+            String name = row.elementAt(0).toString();
             assert name != null;
 
-            String val = row.elementAt(1);
+            String val = row.elementAt(1).toString();
 
             //
             // Eliminate entries with default or not set value
