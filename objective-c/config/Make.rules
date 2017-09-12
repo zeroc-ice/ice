@@ -17,13 +17,16 @@
 supported-configs       = shared static arc-shared arc-static
 
 ifeq ($(os),Darwin)
-include         $(lang_srcdir)/config/Make.xcodesdk.rules
+include $(lang_srcdir)/config/Make.xcodesdk.rules
 endif
 
 ifneq ($(filter arc-%,$(CONFIGS)),)
 # Make sure that the non-ARC configuration is also enabled
 override CONFIGS := $(call unique,$(CONFIGS) $(patsubst arc-%,%,$(CONFIGS)))
 endif
+
+# Validate platforms and configs
+$(eval $(call validate-config))
 
 #
 # Build only few components with the static configuration (libraries)
@@ -84,11 +87,8 @@ endef
 define make-objc-test-project
 $1_slicecompiler        := slice2objc
 $1_sliceflags           := -I$(slicedir) $$($1_sliceflags)
-$1_cppflags             := -I$(includedir) -Itest/include -I$1 -I$1/generated $$($1_cppflags)
+$1_cppflags             += -Itest/Ice -I$1/generated -I$1 -Itest/include $(ice_objc_cppflags)
 $1_ldflags              += -framework Foundation
-ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
-$1_cppflags             += -I$(includedir)/generated
-endif
 $(make-project)
 tests:: $1
 endef
@@ -99,7 +99,6 @@ endef
 define create-objc-test-project
 $1_srcext               := m
 $1_dependencies         := $$(or $$($1_dependencies),TestCommonObjC IceObjC)
-$1_cppflags             += -Itest/Ice
 
 # Also link with IceSSL when compiling the project with the static configuration
 $1[static]_dependencies := IceSSL

@@ -35,7 +35,7 @@ python_ldflags          := -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 #
 # Python installation directory
 #
-install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
+install_pythondir       = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
 
 #
 # Rules to build a python module. We just compute the name of the python module

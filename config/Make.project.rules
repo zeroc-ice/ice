@@ -18,9 +18,9 @@ project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
 #
 # The platforms, configs and languages to build.
 #
-platforms               = $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(PLATFORMS)))
-configs                 = $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(CONFIGS)))
-languages               = $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(LANGUAGES)))
+platforms               = $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(filter $(supported-platforms),$(PLATFORMS))))
+configs                 = $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(filter $(supported-configs),$(CONFIGS))))
+languages               = $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(filter $(supported-languages),$(LANGUAGES))))
 build-platform          := $(or $(build-platform),$(firstword $(supported-platforms)))
 
 #
@@ -117,7 +117,7 @@ ifneq ($(filter %.ice $2/%.$7,$4),)
 $3/%.o: $2/%.$7
 $3/%.o: $2/%.$7
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.$7.d
 endif
@@ -127,7 +127,7 @@ ifneq ($(filter %.cpp,$4),)
 $3/%.o: $1/%.cpp
 $3/%.o: $1/%.cpp
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.cpp.d
 endif
@@ -137,7 +137,7 @@ ifneq ($(filter %.mm,$4),)
 $3/%.o: $1/%.mm
 $3/%.o: $1/%.mm
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.mm.d
 endif
@@ -147,7 +147,7 @@ ifneq ($(filter %.m,$4),)
 $3/%.o: $1/%.m
 $3/%.o: $1/%.m
 	$(E) "Compiling [$8-$9] $$<"
-	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@) \
+	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
 	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.m.d
 endif
@@ -688,6 +688,7 @@ endef
 # $(call make-project,$1=project)
 #
 define make-project
+
 ifeq ($(filter $(SKIP),$1),)
 $1_objdir               := $$(or $$($1_objdir),$1/build)
 $1_srcdir               := $$(or $$($1_srcdir),$1)
@@ -882,6 +883,18 @@ projects := $$(tmp_projects)
 endef
 
 #
+# Validate configs and platforms
+#
+define validate-config
+ifeq ($$(platforms),)
+$$(error invalid platforms $$(PLATFORMS))
+endif
+ifeq ($$(configs),)
+$$(error invalid configs $$(CONFIGS))
+endif
+endef
+
+#
 # Create the targets for the given projects and then make the project rules.
 #
 make-projects = $(foreach p,$1,$(eval $(call $(or $(if $($p_type),create-$($p_type)-project-targets),$3,create-project-targets),$p,$4)))\
@@ -923,6 +936,9 @@ files-to-dirs   = $(call unique,$(call dirname,$(filter $(if $2,$(addprefix %.,$
 empty           :=
 space           := $(empty) $(empty)
 comma           := ,
+
+escape-ldflags   ?= $1
+unescape-ldflags ?= $1
 
 mappings        = cpp objective-c python ruby php
 mappingdir3     = $(if $(filter $(mappings),$(notdir $1)),$1,$(if $1,$(call mappingdir3,$(call dirname,$1))))
@@ -1008,8 +1024,11 @@ else
 make-shared-dep-ldflags = $(if $($1_targetdir),-L$($1_targetdir)) -l$($1_targetname)
 endif
 
-make-static-dep-ldflags = $($1_targetdir)/$(call mklibname,$($1_targetname))
-make-system-lib-ldflags = $($1_system_libs)
+make-static-dep-ldflags = $(if $($1_targetdir),\
+    $($1_targetdir)/$(call mklibname,$($1_targetname)),\
+    $(system-install-dir)/lib$(call platform-var,installdir,$1,$($2_platform),$($2_config),$2)/$(call mklibname,$($1_targetname)))
+
+make-system-lib-ldflags = $(call escape-ldflags,$($1_system_libs))
 
 make-lib-cppflags       = $(foreach l,$($1_libs),$(if $($l_includedir),-I$(call $l_includedir,$l,$1)) $($l_cppflags))
 make-lib-ldflags        = $(foreach l,$($1_libs),$(if $($l_libdir),-L$(call $l_libdir,$l,$1)) $($l_ldflags))
@@ -1022,7 +1041,7 @@ make-lib-ldflags        = $(foreach l,$($1_libs),$(if $($l_libdir),-L$(call $l_l
 define make-lib
 ifneq ($($1_home),)
 # Check for 3rd party libraries either in home/lib<platform specific subdir> or home/lib
-$1_installdir   = $$($1_home)/lib$$(call platform-var,installdir,$1,$$($$2_platform),$$($$2_config),$$2,$$($1_home)/lib)
+$1_installdir   = $$($1_home)/lib$$(call platform-var,installdir,$1,$$($$2_platform),$$($$2_config),$$2)
 $1_libdir       ?= $$(strip $$(if $$(wildcard $$($1_installdir)),$$($1_installdir),$$($1_home)/lib))
 $1_includedir   ?= $$($1_home)/include
 endif
@@ -1087,18 +1106,20 @@ config_dependency       = $6
 # Static configuration for static builds
 static_targetrule       = $(if $(filter-out program,$($1_target)),static)
 static_cppflags         += $(strip $(call make-lib-cppflags,$4)) -DICE_STATIC_LIBS
-static_ldflags          += $$(call runique,$$(foreach d,$$(call get-all-deps,$4),$$(call make-static-dep-ldflags,$$d)))\
-                           $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-lib-ldflags,$$d)))\
-                           $$(strip $$(foreach d,$$(call get-all-deps,$4) $4,$$(call make-system-lib-ldflags,$$d)))
+static_ldflags          += $$(call make-ldflags,$$(call get-all-deps,$4),make-static-dep-ldflags,$4,runique)\
+                           $$(call make-ldflags,$$(call get-all-deps,$4),make-lib-ldflags,$4,runique)\
+                           $$(call make-ldflags,$$(call get-all-deps,$4),make-system-lib-ldflags,$4,runique)
 
 # Shared configuration for shared builds
 shared_projects         = %
 shared_objdir           = $(if $(filter-out program,$($1_target)),shared/pic,shared/pie)
 shared_targetrule       = $(if $(filter-out program,$($1_target)),shared)
 shared_cppflags         += $(strip $(call make-lib-cppflags,$4))
-shared_ldflags          += $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-shared-dep-ldflags,$$d,$4)))\
-                           $$(strip $$(call make-lib-ldflags,$4))\
-                           $$(strip $$(call make-system-lib-ldflags,$4))
+shared_ldflags          += $$(call make-ldflags,$($4_dependencies),make-shared-dep-ldflags,$4,unique)\
+                           $$(call make-ldflags,$4,make-lib-ldflags,$4,runique)\
+                           $$(call make-ldflags,$4,make-system-lib-ldflags,$4,runique)
+
+make-ldflags            = $(call unescape-ldflags,$(call $4,$(foreach d,$1,$(call $2,$d,$3))))
 
 #
 # Platform variables

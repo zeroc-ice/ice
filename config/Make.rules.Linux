@@ -33,6 +33,9 @@ $(target-platform)_objdir       = /$(target-platform)
 
 cppflags                        := $(if $(filter yes,$(OPTIMIZE)),-O2)
 
+# system install directory
+system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
+
 else ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
 #
@@ -185,3 +188,14 @@ IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libba
 Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
 IceSSL_system_libs                              = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
+
+#
+# On supported platforms and if Bluez and DBus are installed, we set the IceBT
+# system libraries. The build system checks for this variable to build or not
+# the IceBT plugin, demos, ...
+#
+ifneq ($(filter debian ubuntu yocto poky,$(linux_id)),)
+ifeq ($(shell pkg-config --exists bluez dbus-1 2> /dev/null && echo yes),yes)
+IceBT_system_libs                               = $(IceSSL_system_libs) $(shell pkg-config --libs dbus-1)
+endif
+endif

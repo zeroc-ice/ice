@@ -98,7 +98,7 @@ include $(top_srcdir)/config/Make.tests.rules
 #
 # Languages, platforms and configurations to build
 #
-supported-languages     ?= cpp java java-compat python js ruby php
+supported-languages     ?= cpp java java-compat python js ruby php $(if $(filter Darwin,$(os)),objective-c)
 supported-configs       ?= shared
 
 version                 = 3.7.0
@@ -159,6 +159,8 @@ $(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
 #
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 ice_cpp_cppflags := -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+ice_objc_cppflags := -I$(top_srcdir)/objective-c/include -I$(top_srcdir)/objective-c/include/generated
 else
 ice_cpp_cppflags := $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
+ice_objc_cppflags := $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
 endif

@@ -24,7 +24,7 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL Ic
 #
 projects :=
 include $(shell find $(lang_srcdir)/src -name Makefile.mk)
-$(call make-projects,$(projects),make-objc-src-project,,$(filter all cpp,$(ICE_BIN_DIST)))
+$(call make-projects,$(projects),make-objc-src-project,,$(filter all obj%c,$(ICE_BIN_DIST)))
 
 #
 # Now, create and load test projects.
