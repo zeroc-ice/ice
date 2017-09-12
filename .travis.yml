@@ -32,6 +32,9 @@ env:
     - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-shared"
     - WORK_DIR=${TRAVIS_BUILD_DIR}
 
+python:
+- "2.7"
+
 cache:
   directories:
   - $HOME/.gradle
