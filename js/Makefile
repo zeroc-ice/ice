@@ -29,4 +29,4 @@ test:
 	@python ./allTests.py
 
 npminstall:
-	$(NPM) install
+	$(NPM) install --no-optional
