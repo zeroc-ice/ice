@@ -85,6 +85,7 @@ namespace Ice
         /// <param name="signalPolicy">Determines how to respond to signals.</param>
         public Application(SignalPolicy signalPolicy = SignalPolicy.HandleSignals)
         {
+            iceSignalPolicy = signalPolicy;
         }
 
         /// <summary>
