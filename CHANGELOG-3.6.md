@@ -13,7 +13,7 @@ particular aspect of Ice.
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
-  - [C# Changes](#c-changes-2)
+  - [C# Changes](#csharp-changes)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
