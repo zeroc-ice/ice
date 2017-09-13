@@ -814,7 +814,7 @@ projects := $$(tmp_projects)
 endef
 
 #
-# $(call create-project-dependencies,$1=project,$2=home,$3=srcsubdir,$3=libs,$4=programs)
+# $(call create-project-dependencies,$1=project,$2=home,$3=srcbinsubdir,$4=srcmappingsubdir,$5=libs,$6=programs)
 #
 define create-project-dependencies
 $1_home           := $(or $2,$(system-install-dir))
@@ -822,14 +822,14 @@ $1_system_install := $$(call is-system-install,$$($1_home))
 $1_src_dist       := $$(wildcard $$($1_home)/$3)
 $1_bindir         := $$($1_home)$$(if $$($1_src_dist),/$3)/bin
 $1_slicedir       := $$($1_home)$$(if $$(or $$($1_system_install),$$(wildcard $$($1_home)/share/ice)),/share/ice)/slice
-$1_libdir         := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$3)/lib)
-$1_includedir     := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$3)/include)
+$1_libdir         := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$(or $4,$3))/lib)
+$1_includedir     := $$(if $$($1_system_install),,$$($1_home)$$(if $$($1_src_dist),/$(or $4,$3))/include)
 $1_install_bindir := $$($1_bindir)
 $1_install_libdir := $$($1_libdir)
 $1_targetdir      := $$($1_home)
-$1_libraries      := $4
-$1_programs       := $5
 $1_cppflags       := $$(if $$($1_includedir),-I$$($1_includedir) $$(if $$($1_src_dist),-I$$($1_includedir)/generated))
+$1_libraries      := $5
+$1_programs       := $6
 $$(eval $$(call create-project-targets,$1,nobuild))
 endef
 

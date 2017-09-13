@@ -113,17 +113,32 @@ soversion               = 37
 #
 compatversion           = $(version)
 
+ifneq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
+# NOTE: on macOS, if ICE_HOME isn't set we build against /usr/local/opt/ice because the
+# XCode SDK is not accessible through /usr/local
+$(eval $(call create-project-dependencies,ice,$(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice)),cpp))
+endif
+
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
+ice_cpp_cppflags        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+else
+bindir                  = $(ice_bindir)
+ice_cpp_cppflags        = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
+endif
+
+ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
+ice_objc_cppflags       = -I$(top_srcdir)/objective-c/include -I$(top_srcdir)/objective-c/include/generated
+else
+ice_objc_cppflags       = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
+endif
+
+ifeq ($(filter all,$(ICE_BIN_DIST)),)
 libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)
 slicedir                = $(top_srcdir)/slice
 includedir              = $(call mappingdir,$(or $1,$(currentdir)),include)
 sdkdir                  = $(top_srcdir)/sdk
 else
-# NOTE: on macOS, if ICE_HOME isn't set we build against /usr/local/opt/ice because the
-# XCode SDK is not accessible through /usr/local
-$(eval $(call create-project-dependencies,ice,$(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice)),cpp))
-bindir                  = $(ice_bindir)
 libdir                  = $(ice_libdir)
 slicedir                = $(ice_slicedir)
 includedir              = $(ice_includedir)
@@ -153,14 +168,3 @@ bz2_home                := $(BZ2_HOME)
 lmdb_home               := $(LMDB_HOME)
 
 $(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
-
-#
-# Flags used by mappings depending on the C++ mapping
-#
-ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
-ice_cpp_cppflags := -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
-ice_objc_cppflags := -I$(top_srcdir)/objective-c/include -I$(top_srcdir)/objective-c/include/generated
-else
-ice_cpp_cppflags := $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
-ice_objc_cppflags := $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
-endif
