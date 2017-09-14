@@ -2765,7 +2765,7 @@ IcePHP::ProxyInfo::define(zval* b, zval* i TSRMLS_DC)
 {
     if(b)
     {
-        TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b);
+        TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b TSRMLS_CC);
         const_cast<ProxyInfoPtr&>(base) = ProxyInfoPtr::dynamicCast(p);
         assert(base);
     }
@@ -3636,7 +3636,7 @@ extern "C"
 static void
 handleTypeInfoFreeStorage(void* p TSRMLS_DC)
 {
-    Wrapper<TypeInfoPtr>* obj = static_cast<Wrapper<TypeInfoPtr>*>(p);
+    Wrapper<TypeInfoPtr>* obj = static_cast<Wrapper<TypeInfoPtr>*>(p TSRMLS_CC);
     delete obj->ptr;
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
@@ -3886,7 +3886,7 @@ extern "C"
 static void
 handleExceptionInfoFreeStorage(void* p TSRMLS_DC)
 {
-    Wrapper<ExceptionInfoPtr>* obj = static_cast<Wrapper<ExceptionInfoPtr>*>(p);
+    Wrapper<ExceptionInfoPtr>* obj = static_cast<Wrapper<ExceptionInfoPtr>*>(p TSRMLS_CC);
     delete obj->ptr;
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
