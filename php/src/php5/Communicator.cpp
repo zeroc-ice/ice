@@ -2028,7 +2028,7 @@ IcePHP::DefaultValueFactory::destroy(TSRMLS_D)
 {
     if(_delegate)
     {
-        _delegate->destroy();
+        _delegate->destroy(TSRMLS_C);
         _delegate = 0;
     }
     _info = 0;

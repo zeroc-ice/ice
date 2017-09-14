@@ -31,6 +31,10 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.
 
+## PHP Changes
+
+- Fixed Ice for PHP build failure when build with PHP5 ZTS
+
 # Changes in Ice 3.7.0
 
 These are the changes since the Ice 3.6 release or snapshot described in
