@@ -46,6 +46,9 @@ vcproj
 *.swp
 .keychain
 
+# Eclipse
+.externalToolBuilders
+
 # macOS Keychain
 *.keychain
 .fl????????
