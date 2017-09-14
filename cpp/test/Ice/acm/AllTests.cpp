@@ -565,6 +565,7 @@ class SetACMTest : public TestCase
 {
 public:
 
+#ifndef ICE_CPP11_MAPPING
     class CloseCallback : public Ice::CloseCallback, private IceUtil::Monitor<IceUtil::Mutex>
     {
     public:
@@ -606,6 +607,7 @@ public:
         {
         }
     };
+#endif
 
     SetACMTest(const RemoteCommunicatorPrxPtr& com) : TestCase("setACM/getACM", com)
     {
@@ -639,6 +641,34 @@ public:
         proxy->startHeartbeatCount();
         proxy->waitForHeartbeatCount(2);
 
+#ifdef ICE_CPP11_MAPPING
+        auto p1 = promise<void>();
+        con->setCloseCallback([&p1](shared_ptr<Ice::Connection>)
+                              {
+                                  p1.set_value();
+                              });
+
+        con->close(Ice::ConnectionClose::Gracefully);
+        p1.get_future().wait();
+
+        try
+        {
+            con->throwException();
+            test(false);
+        }
+        catch(const Ice::ConnectionManuallyClosedException&)
+        {
+        }
+
+        auto p2 = promise<void>();
+        con->setCloseCallback([&p2](shared_ptr<Ice::Connection>)
+                              {
+                                  p2.set_value();
+                              });
+        p2.get_future().wait();
+
+        con->setHeartbeatCallback([](shared_ptr<Ice::Connection>) {});
+#else
         CloseCallbackPtr callback = new CloseCallback();
         con->setCloseCallback(callback);
 
@@ -659,6 +689,7 @@ public:
         callback2->waitCallback();
 
         con->setHeartbeatCallback(new HeartbeatCallback());
+#endif
     }
 };
 
