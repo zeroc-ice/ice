@@ -3636,7 +3636,7 @@ extern "C"
 static void
 handleTypeInfoFreeStorage(void* p TSRMLS_DC)
 {
-    Wrapper<TypeInfoPtr>* obj = static_cast<Wrapper<TypeInfoPtr>*>(p TSRMLS_CC);
+    Wrapper<TypeInfoPtr>* obj = static_cast<Wrapper<TypeInfoPtr>*>(p);
     delete obj->ptr;
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
@@ -3886,7 +3886,7 @@ extern "C"
 static void
 handleExceptionInfoFreeStorage(void* p TSRMLS_DC)
 {
-    Wrapper<ExceptionInfoPtr>* obj = static_cast<Wrapper<ExceptionInfoPtr>*>(p TSRMLS_CC);
+    Wrapper<ExceptionInfoPtr>* obj = static_cast<Wrapper<ExceptionInfoPtr>*>(p);
     delete obj->ptr;
     zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
     efree(p);
