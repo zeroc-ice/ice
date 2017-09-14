@@ -10,6 +10,7 @@
 package test.Ice.acm;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 import test.Ice.acm.Test.RemoteCommunicatorPrx;
 import test.Ice.acm.Test.RemoteCommunicatorPrxHelper;
@@ -611,23 +612,24 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
+            Ice.Connection con = proxy.ice_getConnection();
+
             Ice.ACM acm = new Ice.ACM();
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(null, null, null);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(null, null, null);
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(
-                new Ice.IntOptional(1),
-                new Ice.Optional<Ice.ACMClose>(Ice.ACMClose.CloseOnInvocationAndIdle),
-                new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(new Ice.IntOptional(1),
+                       new Ice.Optional<Ice.ACMClose>(Ice.ACMClose.CloseOnInvocationAndIdle),
+                       new Ice.Optional<Ice.ACMHeartbeat>(Ice.ACMHeartbeat.HeartbeatAlways));
+            acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
@@ -635,6 +637,50 @@ public class AllTests
             // Make sure the client sends few heartbeats to the server
             proxy.startHeartbeatCount();
             proxy.waitForHeartbeatCount(2);
+
+            final CompletableFuture<Void> f1 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f1.complete(null);
+                    });
+
+            con.close(Ice.ConnectionClose.Gracefully);
+            try
+            {
+                f1.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                con.throwException();
+                test(false);
+            }
+            catch(Ice.ConnectionManuallyClosedException ex)
+            {
+            }
+
+            final CompletableFuture<Void> f2 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f2.complete(null);
+                    });
+            try
+            {
+                f2.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            con.setHeartbeatCallback(c ->
+                    {
+                        test(false);
+                    });
         }
     }
 

@@ -145,7 +145,7 @@ class Platform:
 class Darwin(Platform):
 
     def getFilters(self, config):
-        if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
+        if config.buildPlatform in ["iphoneos", "iphonesimulator", "macosx"] and "xcodesdk" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",

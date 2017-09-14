@@ -441,27 +441,49 @@
 
         runTestCase(adapter, proxy)
         {
-            var acm = new Ice.ACM();
-            acm = proxy.ice_getCachedConnection().getACM();
+            var con = proxy.ice_getCachedConnection();
+
+            var acm;
+            acm = con.getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(undefined, undefined, undefined);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(undefined, undefined, undefined);
+            acm = con.getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(1,
-                                                   Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatAlways);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
+            acm = con.getACM();
             test(acm.timeout === 1);
             test(acm.close === Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatAlways);
 
-            return proxy.startHeartbeatCount().then(() => proxy.waitForHeartbeatCount(2));
+            var p = new Ice.Promise();
+            return proxy.startHeartbeatCount()
+            .then(() => proxy.waitForHeartbeatCount(2))
+            .then(() => {
+                con.setCloseCallback(c => p.resolve());
+                con.close(Ice.ConnectionClose.Gracefully);
+                return p;
+            }).then(() => {
+                try
+                {
+                    con.throwException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                }
+
+                p = new Ice.Promise();
+                con.setCloseCallback(c => p.resolve());
+                return p;
+            }).then(() => {
+                con.setHeartbeatCallback(c => test(false));
+            });
         }
     }
 

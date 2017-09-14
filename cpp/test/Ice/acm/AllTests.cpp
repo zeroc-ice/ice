@@ -565,6 +565,48 @@ class SetACMTest : public TestCase
 {
 public:
 
+    class CloseCallback : public Ice::CloseCallback, private IceUtil::Monitor<IceUtil::Mutex>
+    {
+    public:
+
+        CloseCallback() : _called(false)
+        {
+        }
+
+        virtual void
+        closed(const Ice::ConnectionPtr&)
+        {
+            Lock sync(*this);
+            _called = true;
+            notify();
+        }
+
+        void
+        waitCallback()
+        {
+            Lock sync(*this);
+            while(!_called)
+            {
+                wait();
+            }
+        }
+
+    private:
+
+        bool _called;
+    };
+    typedef IceUtil::Handle<CloseCallback> CloseCallbackPtr;
+
+    class HeartbeatCallback : public Ice::HeartbeatCallback
+    {
+    public:
+
+        virtual void
+        heartbeat(const Ice::ConnectionPtr&)
+        {
+        }
+    };
+
     SetACMTest(const RemoteCommunicatorPrxPtr& com) : TestCase("setACM/getACM", com)
     {
         setClientACM(15, 4, 0);
@@ -572,21 +614,23 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
+        Ice::ConnectionPtr con = proxy->ice_getConnection();
+
         Ice::ACM acm;
-        acm = proxy->ice_getCachedConnection()->getACM();
+        acm = con->getACM();
         test(acm.timeout == 15);
         test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
         test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
-        proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
-        acm = proxy->ice_getCachedConnection()->getACM();
+        con->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
+        acm = con->getACM();
         test(acm.timeout == 15);
         test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
         test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
-        proxy->ice_getCachedConnection()->setACM(1, Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle),
+        con->setACM(1, Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle),
                                                  Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
-        acm = proxy->ice_getCachedConnection()->getACM();
+        acm = con->getACM();
         test(acm.timeout == 1);
         test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle));
         test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
@@ -594,6 +638,27 @@ public:
         // Make sure the client sends a few heartbeats to the server.
         proxy->startHeartbeatCount();
         proxy->waitForHeartbeatCount(2);
+
+        CloseCallbackPtr callback = new CloseCallback();
+        con->setCloseCallback(callback);
+
+        con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        callback->waitCallback();
+
+        try
+        {
+            con->throwException();
+            test(false);
+        }
+        catch(const Ice::ConnectionManuallyClosedException&)
+        {
+        }
+
+        CloseCallbackPtr callback2 = new CloseCallback();
+        con->setCloseCallback(callback2);
+        callback2->waitCallback();
+
+        con->setHeartbeatCallback(new HeartbeatCallback());
     }
 };
 

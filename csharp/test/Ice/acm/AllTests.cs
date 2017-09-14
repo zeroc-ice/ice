@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
 
 class LoggerI : Ice.Logger
@@ -515,28 +516,51 @@ public class AllTests : TestCommon.AllTests
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
+            Ice.Connection con = proxy.ice_getCachedConnection();
+
             Ice.ACM acm;
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(1,
+            con.setACM(1,
                                                    Ice.ACMClose.CloseOnInvocationAndIdle,
                                                    Ice.ACMHeartbeat.HeartbeatAlways);
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
 
             proxy.startHeartbeatCount();
             proxy.waitForHeartbeatCount(2);
+
+            var t1 = new TaskCompletionSource<object>();
+            con.setCloseCallback(_ => { t1.SetResult(null); });
+
+            con.close(Ice.ConnectionClose.Gracefully);
+            test(t1.Task.Result == null);
+
+            try
+            {
+                con.throwException();
+                test(false);
+            }
+            catch(Ice.ConnectionManuallyClosedException)
+            {
+            }
+
+            var t2 = new TaskCompletionSource<object>();
+            con.setCloseCallback(_ => { t2.SetResult(null); });
+            test(t2.Task.Result == null);
+
+            con.setHeartbeatCallback(_ => { test(false); });
         }
     }
 

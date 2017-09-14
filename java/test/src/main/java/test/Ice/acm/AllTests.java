@@ -10,6 +10,7 @@
 package test.Ice.acm;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 import test.Ice.acm.Test.RemoteCommunicatorPrx;
 import test.Ice.acm.Test.RemoteObjectAdapterPrx;
@@ -597,23 +598,24 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
+            com.zeroc.Ice.Connection con = proxy.ice_getConnection();
+
             com.zeroc.Ice.ACM acm = new com.zeroc.Ice.ACM();
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(null, null, null);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(null, null, null);
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(
-                java.util.OptionalInt.of(1),
-                java.util.Optional.of(ACMClose.CloseOnInvocationAndIdle),
-                java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(java.util.OptionalInt.of(1),
+                       java.util.Optional.of(ACMClose.CloseOnInvocationAndIdle),
+                       java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
+            acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatAlways);
@@ -621,6 +623,50 @@ public class AllTests
             // Make sure the client sends few heartbeats to the server
             proxy.startHeartbeatCount();
             proxy.waitForHeartbeatCount(2);
+
+            final CompletableFuture<Void> f1 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f1.complete(null);
+                    });
+
+            con.close(com.zeroc.Ice.ConnectionClose.Gracefully);
+            try
+            {
+                f1.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                con.throwException();
+                test(false);
+            }
+            catch(com.zeroc.Ice.ConnectionManuallyClosedException ex)
+            {
+            }
+
+            final CompletableFuture<Void> f2 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f2.complete(null);
+                    });
+            try
+            {
+                f2.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            con.setHeartbeatCallback(c ->
+                    {
+                        test(false);
+                    });
         }
     }
 
