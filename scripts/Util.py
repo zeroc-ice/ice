@@ -2607,7 +2607,7 @@ class Driver:
     @classmethod
     def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "controller-app", "valgrind"])
+                         "controller-app", "valgrind", "languages="])
 
     @classmethod
     def usage(self):
@@ -2621,6 +2621,7 @@ class Driver:
         print("--driver=<driver>     Use the given driver (local, client, server or remote).")
         print("--filter=<regex>      Run all the tests that match the given regex.")
         print("--rfilter=<regex>     Run all the tests that do not match the given regex.")
+        print("--languages=l1,l2,... List of comma-separated language mappings to test.")
         print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
@@ -2637,6 +2638,7 @@ class Driver:
         self.hostBT = ""
         self.controllerApp = False
         self.valgrind = False
+        self.languages = []
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",
@@ -2650,6 +2652,8 @@ class Driver:
 
         self.filters = [re.compile(a) for a in self.filters]
         self.rfilters = [re.compile(a) for a in self.rfilters]
+        if self.languages:
+            self.languages = [i for sublist in [l.split(",") for l in self.languages] for i in sublist]
 
         self.communicator = None
         self.interface = ""
@@ -2704,6 +2708,9 @@ class Driver:
     def getMappings(self):
         ### Return additional mappings to load required by the driver
         return []
+
+    def getLanguages(self):
+        return self.languages
 
     def getCommunicator(self):
         self.initCommunicator()
@@ -3512,6 +3519,12 @@ def runTests(mappings=None, drivers=None):
         for mapping in Mapping.getAll():
             if mapping not in configs:
                 configs[mapping] = mapping.createConfig(opts[:])
+
+        #
+        # If the user specified --languages, only run matching mappings.
+        #
+        if driver.getLanguages():
+            mappings = [Mapping.getByName(l) for l in driver.getLanguages()]
 
         #
         # Provide the configurations to the driver and load the test suites for each mapping.
