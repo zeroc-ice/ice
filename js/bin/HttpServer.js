@@ -232,6 +232,14 @@ function Init()
             res.end(controller.render(TestData))
             console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
         }
+        else if(req.url.pathname === '/start')
+        {
+            res.writeHead(302,
+            {
+                "Location": "/test/Ice/acm/controller.html&port=15002"
+            });
+            res.end();
+        }
         else
         {
             var iceLib = libraries.indexOf(req.url.pathname) !== -1;

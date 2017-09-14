@@ -24,6 +24,7 @@
     var run = function(out, id, ready)
     {
         id.properties.setProperty("Ice.Warn.Dispatch", "0");
+        id.properties.setProperty("Ice.Warn.Connections", "0");
         var communicator = Ice.initialize(id);
         var adapter;
         var echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));

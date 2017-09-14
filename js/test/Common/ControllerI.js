@@ -97,7 +97,7 @@ class ProcessI extends Test.Common.Process
     }
 }
 
-class ProcessControllerI extends Test.Common.ProcessController
+class ProcessControllerI extends Test.Common.BrowserProcessController
 {
     constructor(clientOutput, serverOutput, useWorker, scripts)
     {
@@ -193,6 +193,12 @@ class ProcessControllerI extends Test.Common.ProcessController
     {
         return "127.0.0.1";
     }
+
+    redirect(url, current)
+    {
+        current.con.close(Ice.ConnectionClose.Gracefully);
+        window.location.href = url;
+    }
 }
 
 function runController(clientOutput, serverOutput, scripts)
@@ -272,7 +278,7 @@ function runController(clientOutput, serverOutput, scripts)
     };
 
     let comm = Ice.initialize(initData);
-    let str = "Util/ProcessControllerRegistry:" + protocol + " -h 127.0.0.1 -p " + port;
+    let str = "Util/ProcessControllerRegistry:" + protocol + " -h " + document.location.hostname + " -p " + port;
     let registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
     comm.createObjectAdapter("").then(
         adapter =>

@@ -1305,6 +1305,11 @@ class EchoServer(Server):
     def __init__(self):
         Server.__init__(self, mapping=Mapping.getByName("cpp"), quiet=True, waitForShutdown=False)
 
+    def getProps(self, current):
+        props = Server.getProps(self, current)
+        props["Ice.MessageSizeMax"] = 8192 # Don't limit the amount of data to transmit between client/server
+        return props
+
     def getCommandLine(self, current):
         current.push(self.mapping.findTestSuite("Ice/echo").findTestCase("server"))
         try:
@@ -2105,8 +2110,7 @@ class AndroidProcessController(RemoteProcessController):
 
     def __init__(self, current):
         run("adb kill-server")
-        RemoteProcessController.__init__(self, current,
-            "tcp -h 127.0.0.1 -p 15001" if current.config.androidemulator else None)
+        RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001" if current.config.androidemulator else None)
         self.device = current.config.device
         self.avd = current.config.avd
         self.androidemulator = current.config.androidemulator
@@ -2410,44 +2414,42 @@ class UWPProcessController(RemoteProcessController):
 class BrowserProcessController(RemoteProcessController):
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, "ws -h 127.0.0.1 -p 15002:wss -h 127.0.0.1 -p 15003")
+        self.host = current.driver.host or "127.0.0.1"
+        RemoteProcessController.__init__(self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host))
         self.httpServer = None
-        self.testcase = None
+        self.url = None
+        self.driver = None
         try:
-            from selenium import webdriver
-            if not hasattr(webdriver, current.config.browser):
-                raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
-
-            if current.config.browser == "Firefox":
-                #
-                # We need to specify a profile for Firefox. This profile only provides the cert8.db which
-                # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
-                # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
-                #
-                # capabilities = webdriver.DesiredCapabilities.FIREFOX.copy()
-                # capabilities["marionette"] = True
-                # capabilities["acceptInsecureCerts"] = True
-                # capabilities["moz:firefoxOptions"] = {}
-                # capabilities["moz:firefoxOptions"]["binary"] = "/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin"
-                if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "ubuntu":
-                    current.writeln("error: DISPLAY is unset, setting it to :1")
-                    os.environ["DISPLAY"] = ":1"
-
-                profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
-                self.driver = webdriver.Firefox(firefox_profile=profile)
-            else:
-                self.driver = getattr(webdriver, current.config.browser)()
-
             cmd = "node -e \"require('./bin/HttpServer')()\"";
             cwd = current.testcase.getMapping().getPath()
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
+
+            if current.config.browser != "Manual":
+                from selenium import webdriver
+                if not hasattr(webdriver, current.config.browser):
+                    raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
+
+                if current.config.browser == "Firefox":
+                    if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "ubuntu":
+                        current.writeln("error: DISPLAY is unset, setting it to :1")
+                        os.environ["DISPLAY"] = ":1"
+
+                    #
+                    # We need to specify a profile for Firefox. This profile only provides the cert8.db which
+                    # contains our Test CA cert. It should be possible to avoid this by setting the webdriver
+                    # acceptInsecureCerts capability but it's only supported by latest Firefox releases.
+                    #
+                    profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
+                    self.driver = webdriver.Firefox(firefox_profile=profile)
+                else:
+                    self.driver = getattr(webdriver, current.config.browser)()
         except:
             self.destroy(current.driver)
             raise
 
     def __str__(self):
-        return str(self.driver)
+        return str(self.driver) if self.driver else "Manual"
 
     def getControllerIdentity(self, current):
         #
@@ -2455,22 +2457,47 @@ class BrowserProcessController(RemoteProcessController):
         # another testcase, the controller page will connect to the process controller registry
         # to register itself with this script.
         #
-        if self.testcase != current.testcase:
-            self.testcase = current.testcase
-            testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
-            if current.config.protocol == "wss":
-                protocol = "https"
-                port = "9090"
-                cport = "15003"
+        testsuite = ("es5/" if current.config.es5 else "") + str(current.testsuite)
+        if current.config.protocol == "wss":
+            protocol = "https"
+            port = "9090"
+            cport = "15003"
+        else:
+            protocol = "http"
+            port = "8080"
+            cport = "15002"
+        url = "{0}://{5}:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
+                                                                                  port,
+                                                                                  testsuite,
+                                                                                  cport,
+                                                                                  current.config.worker,
+                                                                                  self.host)
+        if url != self.url:
+            self.url = url
+            if self.driver:
+                self.driver.get(url)
             else:
-                protocol = "http"
-                port = "8080"
-                cport = "15002"
-            self.driver.get("{0}://127.0.0.1:{1}/test/{2}/controller.html?port={3}&worker={4}".format(protocol,
-                                                                                                      port,
-                                                                                                      testsuite,
-                                                                                                      cport,
-                                                                                                      current.config.worker))
+                # If not process controller is registered, we request the user to load the controller
+                # page in the browser. Once loaded, the controller will register and we'll redirect to
+                # the correct testsuite page.
+                ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
+                prx = None
+                with self.cond:
+                    while True:
+                        if ident in self.processControllerProxies:
+                            prx = self.processControllerProxies[ident]
+                            break
+                        print("Please load http://{0}:8080/start".format(self.host))
+                        self.cond.wait(5)
+
+                try:
+                    import Test
+                    Test.Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(url)
+                except:
+                    pass
+                finally:
+                    self.clearProcessController(prx, prx.ice_getCachedConnection())
+
         return "Browser/ProcessController"
 
     def destroy(self, driver):

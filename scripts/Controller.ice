@@ -94,6 +94,11 @@ interface ProcessController
     string getHost(string protocol, bool ipv6);
 }
 
+interface BrowserProcessController extends ProcessController
+{
+    void redirect(string url);
+}
+
 interface ProcessControllerRegistry
 {
     void setProcessController(ProcessController* controller);

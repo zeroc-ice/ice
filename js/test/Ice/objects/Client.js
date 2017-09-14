@@ -526,6 +526,7 @@
 
     var run = function(out, id)
     {
+        id.properties.setProperty("Ice.Warn.Connections", "0");
         var c = Ice.initialize(id);
         return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
