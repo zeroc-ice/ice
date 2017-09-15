@@ -15,7 +15,7 @@
 -(void) sleep:(ICEInt)to current:(ICECurrent *)current;
 @end
 
-@interface ControllerI : TestTimeoutController<TestTimeoutController>
+@interface TimeoutControllerI : TestTimeoutController<TestTimeoutController>
 {
     id<ICEObjectAdapter> adapter_;
 }

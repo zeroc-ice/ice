@@ -85,7 +85,7 @@
 }
 @end
 
-@implementation ControllerI
+@implementation TimeoutControllerI
 -(id) init:(id<ICEObjectAdapter>)adapter
 {
     self = [super init];

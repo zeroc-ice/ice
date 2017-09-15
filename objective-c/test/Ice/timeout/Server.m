@@ -23,7 +23,7 @@ run(id<ICECommunicator> communicator)
     [adapter activate];
 
     id<ICEObjectAdapter> controllerAdapter = [communicator createObjectAdapter:@"ControllerAdapter"];
-    [controllerAdapter add:[ControllerI controller:adapter] identity:[ICEUtil stringToIdentity:@"controller"]];
+    [controllerAdapter add:[TimeoutControllerI controller:adapter] identity:[ICEUtil stringToIdentity:@"controller"]];
     [controllerAdapter activate];
 
     serverReady(communicator);
