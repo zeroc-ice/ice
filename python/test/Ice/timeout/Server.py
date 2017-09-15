@@ -40,19 +40,36 @@ class TimeoutI(Test.Timeout):
         if timeout != 0:
             time.sleep(timeout / 1000.0)
 
+class ControllerI(Test.Controller):
+
+    def __init__(self, adapter):
+        self.adapter = adapter
+
     def holdAdapter(self, to, current=None):
-        current.adapter.hold()
-        t = ActivateAdapterThread(current.adapter, to)
-        t.start()
+        self.adapter.hold()
+        if to >= 0:
+            t = ActivateAdapterThread(self.adapter, to)
+            t.start()
+
+    def resumeAdapter(self, current=None):
+        self.adapter.activate()
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
+    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
     adapter = communicator.createObjectAdapter("TestAdapter")
     adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
     adapter.activate()
+
+    controllerAdapter = communicator.createObjectAdapter("ControllerAdapter")
+    controllerAdapter.add(ControllerI(adapter), Ice.stringToIdentity("controller"))
+    controllerAdapter.activate()
+
     communicator.waitForShutdown()
     return True
 

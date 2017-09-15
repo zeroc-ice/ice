@@ -20,8 +20,7 @@ public class Client : TestCommon.Application
 {
     public override int run(string[] args)
     {
-        Test.TimeoutPrx timeout = AllTests.allTests(this);
-        timeout.shutdown();
+        AllTests.allTests(this);
         return 0;
     }
 

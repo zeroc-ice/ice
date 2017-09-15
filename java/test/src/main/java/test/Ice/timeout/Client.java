@@ -16,8 +16,7 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        TimeoutPrx timeout = AllTests.allTests(this);
-        timeout.shutdown();
+        AllTests.allTests(this);
         return 0;
     }
 

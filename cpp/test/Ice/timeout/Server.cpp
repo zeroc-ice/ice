@@ -19,10 +19,17 @@ int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(communicator, 1));
+    communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TimeoutI);
-    adapter->add(object, Ice::stringToIdentity("timeout"));
+    adapter->add(ICE_MAKE_SHARED(TimeoutI), Ice::stringToIdentity("timeout"));
     adapter->activate();
+
+    Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
+    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->activate();
+
     TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

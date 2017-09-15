@@ -25,7 +25,7 @@ internal class ActivateAdapterThread
     }
 
     private Ice.ObjectAdapter _adapter;
-    int _timeout;
+    private int _timeout;
 }
 
 internal class TimeoutI : Test.TimeoutDisp_
@@ -42,17 +42,35 @@ internal class TimeoutI : Test.TimeoutDisp_
     {
         Thread.Sleep(to);
     }
+}
+
+internal class ControllerI : Test.ControllerDisp_
+{
+    public ControllerI(Ice.ObjectAdapter adapter)
+    {
+        _adapter = adapter;
+    }
 
     public override void holdAdapter(int to, Ice.Current current)
     {
-        current.adapter.hold();
-        ActivateAdapterThread act = new ActivateAdapterThread(current.adapter, to);
-        Thread thread = new Thread(new ThreadStart(act.run));
-        thread.Start();
+        _adapter.hold();
+        if(to >= 0)
+        {
+            ActivateAdapterThread act = new ActivateAdapterThread(_adapter, to);
+            Thread thread = new Thread(new ThreadStart(act.run));
+            thread.Start();
+        }
+    }
+
+    public override void resumeAdapter(Ice.Current current)
+    {
+        _adapter.activate();
     }
 
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private Ice.ObjectAdapter _adapter;
 }

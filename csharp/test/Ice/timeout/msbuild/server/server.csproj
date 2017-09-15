@@ -42,8 +42,8 @@
     <Compile Include="..\..\Server.cs">
       <Link>Server.cs</Link>
     </Compile>
-    <Compile Include="..\..\TimeoutI.cs">
-      <Link>TimeoutI.cs</Link>
+    <Compile Include="..\..\TestI.cs">
+      <Link>TestI.cs</Link>
     </Compile>
     <Compile Include="generated\Test.cs" />
   </ItemGroup>

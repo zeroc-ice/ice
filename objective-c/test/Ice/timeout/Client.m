@@ -14,9 +14,8 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    id<TestTimeoutTimeoutPrx> timeoutAllTests(id<ICECommunicator>);
-    id<TestTimeoutTimeoutPrx> timeout = timeoutAllTests(communicator);
-    [timeout shutdown];
+    void timeoutAllTests(id<ICECommunicator>);
+    timeoutAllTests(communicator);
     return EXIT_SUCCESS;
 }
 

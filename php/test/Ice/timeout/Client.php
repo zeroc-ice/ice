@@ -75,6 +75,9 @@ function allTests($communicator)
     $timeout = $timeout->ice_checkedCast("::Test::Timeout");
     test($timeout);
 
+    $controller = $communicator->stringToProxy("controller:default -p 12011")->ice_checkedCast("::Test::Controller");
+    test($controller);
+
     echo("testing connect timeout... ");
     flush();
 
@@ -83,7 +86,7 @@ function allTests($communicator)
         // Expect ConnectTimeoutException.
         //
         $to = $timeout->ice_timeout(100);
-        $timeout->holdAdapter(500);
+        $controller->holdAdapter(-1);
         try
         {
             $to->op();
@@ -97,14 +100,15 @@ function allTests($communicator)
                 test(false);
             }
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
     }
     {
         //
         // Expect success.
         //
-        $timeout->op(); // Ensure adapter is active.
         $to =$timeout->ice_timeout(1000);
-        $timeout->holdAdapter(500);
+        $controller->holdAdapter(200);
         try
         {
             $to->op();
@@ -126,7 +130,7 @@ function allTests($communicator)
         //
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
+        $controller->holdAdapter(-1);
         try
         {
             $to->sendData($seq);
@@ -141,14 +145,15 @@ function allTests($communicator)
                 test(false);
             }
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
     }
     {
         //
         // Expect success.
         //
-        $timeout->op(); // Ensure adapter is active.
         $to = $timeout->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
-        $timeout->holdAdapter(500);
+        $controller->holdAdapter(200);
         try
         {
             $data = array_fill(0, 1000000, 0x01);
@@ -169,7 +174,7 @@ function allTests($communicator)
         test($connection == $to->ice_getConnection());
         try
         {
-            $to->sleep(750);
+            $to->sleep(500);
             test(false);
         }
         catch(Exception $ex)
@@ -203,7 +208,7 @@ function allTests($communicator)
         $con = connect($to);
         try
         {
-            $to->sleep(750);
+            $to->sleep(500);
             test(false);
         }
         catch(Exception $ex)
@@ -232,7 +237,7 @@ function allTests($communicator)
     {
         $to = $timeout->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         $connection = connect($to);
-        $timeout->holdAdapter(600);
+        $controller->holdAdapter(-1);
         $connection->close($CloseGracefullyAndWait);
         try
         {
@@ -242,17 +247,21 @@ function allTests($communicator)
         {
             test(false);
         }
-        usleep(650 * 1000);
-        try
+        while(true)
         {
-            $connection->getInfo();
-            test(false);
+            try
+            {
+                $connection->getInfo();
+                usleep(10);
+            }
+            catch(Exception $ex)
+            {
+                // Expected.
+                test($ex->graceful);
+                break;
+            }
         }
-        catch(Exception $ex)
-        {
-            // Expected.
-            test($ex->graceful);
-        }
+        $controller->resumeAdapter();
         $timeout->op(); // Ensure adapter is active.
     }
     echo("ok\n");
@@ -271,7 +280,7 @@ function allTests($communicator)
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
+        $controller->holdAdapter(-1); // Use larger value, marshalling of byte arrays is much slower in PHP
         try
         {
             $to->sendData($seq);
@@ -286,13 +295,14 @@ function allTests($communicator)
                 test(false);
             }
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
         //
         // Calling ice_timeout() should have no effect.
         //
-        $timeout->op(); // Ensure adapter is active.
         $to = $to->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
         connect($to);
-        $timeout->holdAdapter(1000);
+        $controller->holdAdapter(-1);
         try
         {
             $to->sendData($seq);
@@ -307,6 +317,8 @@ function allTests($communicator)
                 test(false);
             }
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
         $comm->destroy();
     }
     {
@@ -318,7 +330,7 @@ function allTests($communicator)
         $initData->properties->setProperty("Ice.Override.ConnectTimeout", "250");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
-        $timeout->holdAdapter(750);
+        $controller->holdAdapter(-1);
         try
         {
             $to->op();
@@ -333,11 +345,12 @@ function allTests($communicator)
                 test(false);
             }
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
         //
         // Calling ice_timeout() should have no effect on the connect timeout.
         //
-        $timeout->op(); // Ensure adapter is active.
-        $timeout->holdAdapter(750);
+        $controller->holdAdapter(-1);
         $to = $to->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
         try
         {
@@ -352,8 +365,9 @@ function allTests($communicator)
                 echo($ex);
                 test(false);
             }
-
         }
+        $controller->resumeAdapter();
+        $timeout->op(); // Ensure adapter is active.
         //
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
@@ -362,7 +376,7 @@ function allTests($communicator)
         // $timeout->op(); // Ensure adapter is active.
         // $to = $to->ice_timeout(250)->ice_uncheckedCast("::Test::Timeout");
         // connect($to);
-        // $timeout->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
+        // $controller->holdAdapter(1000); // Use larger value, marshalling of byte arrays is much slower in PHP
         // try
         // {
         //     $to->sendData($seq);
@@ -388,15 +402,16 @@ function allTests($communicator)
         $initData->properties->setProperty("Ice.Override.CloseTimeout", "100");
         $comm = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
         $to = $comm->stringToProxy($sref)->ice_uncheckedCast("::Test::Timeout");
-        $timeout->holdAdapter(800);
+        $controller->holdAdapter(-1);
 
         $begin = microtime(true);
         $comm->destroy();
         test(microtime(true) - $begin < 0.7);
+        $controller->resumeAdapter();
     }
     echo("ok\n");
 
-    $timeout->shutdown();
+    $controller->shutdown();
     $communicator->destroy();
 }
 
@@ -420,8 +435,7 @@ $initData->properties->setProperty("Ice.Warn.Connections", "0");
 //
 $initData->properties->setProperty("Ice.TCP.SndSize", "50000");
 
-$communicator = eval($NS ? "return Ice\\initialize(\$initData);" :
-                           "return Ice_initialize(\$initData);");
+$communicator = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
 
 allTests($communicator);
 

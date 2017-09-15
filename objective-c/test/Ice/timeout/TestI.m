@@ -84,3 +84,48 @@
     [[current.adapter getCommunicator] shutdown];
 }
 @end
+
+@implementation ControllerI
+-(id) init:(id<ICEObjectAdapter>)adapter
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    adapter_ = ICE_RETAIN(adapter);
+    return self;
+}
++(id) controller:(id<ICEObjectAdapter>)adapter
+{
+    return ICE_AUTORELEASE([[self alloc] init:adapter]);
+}
+
+#if defined(__clang__) && !__has_feature(objc_arc)
+-(void) dealloc
+{
+    [adapter_ release];
+    [super dealloc];
+}
+#endif
+
+-(void) holdAdapter:(ICEInt)to current:(ICECurrent*)current
+{
+    [adapter_ hold];
+    if(to >= 0)
+    {
+        ActivateAdapterThread* thread = [ActivateAdapterThread activateAdapterThread:adapter_ timeout:to];
+        [thread start];
+    }
+}
+
+-(void) resumeAdapter:(ICECurrent*)current
+{
+    [adapter_ activate];
+}
+
+-(void) shutdown:(ICECurrent*)current
+{
+    [[current.adapter getCommunicator] shutdown];
+}
+@end

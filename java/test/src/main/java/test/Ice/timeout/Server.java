@@ -15,9 +15,15 @@ public class Server extends test.Util.Application
     public int run(String[] args)
     {
         com.zeroc.Ice.Communicator communicator = communicator();
+
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new TimeoutI(), com.zeroc.Ice.Util.stringToIdentity("timeout"));
         adapter.activate();
+
+        com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+        controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
+        controllerAdapter.activate();
+
         return WAIT;
     }
 
@@ -27,6 +33,9 @@ public class Server extends test.Util.Application
         com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
         initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.

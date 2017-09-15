@@ -32,7 +32,7 @@
     var allTests = function(out, communicator)
     {
         var failCB = function() { test(false); };
-        var ref, obj, mult, timeout, to, connection, comm, now;
+        var ref, obj, mult, timeout, controller, to, connection, comm, now;
 
         var p = new Ice.Promise();
         var test = function(b, ex)
@@ -75,9 +75,13 @@
             {
                 timeout = obj;
                 test(timeout !== null);
+
+                controller = Test.ControllerPrx.uncheckedCast(communicator.stringToProxy("controller:default -p 12011"));
+                test(controller !== null);
+
                 out.write("testing connect timeout... ");
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
-                return timeout.holdAdapter(1000 * mult);
+                return controller.holdAdapter(-1);
             }
         ).then(() => to.ice_getConnection()
         ).then(() => to.op() // Expect ConnectTimeoutException.
@@ -86,12 +90,12 @@
             ex =>
             {
                 test(ex instanceof Ice.ConnectTimeoutException, ex);
-                return timeout.op(); // Ensure adapter is active.
+                return controller.resumeAdapter().then(() => timeout.op());
             }
         ).then(() =>
             {
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000 * mult));
-                return timeout.holdAdapter(500 * mult);
+                return controller.holdAdapter(200 * mult);
             }
         ).then(() => to.ice_getConnection()
         ).then(() => to.op() // Expect success.
@@ -105,20 +109,20 @@
         ).then(() =>
             {
                 seq = new Uint8Array(10000000);
-                return timeout.holdAdapter(1500 * mult);
+                return controller.holdAdapter(-1);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException
         ).then(() => test(false),
                ex =>
             {
                 test(ex instanceof Ice.TimeoutException, ex);
-                return timeout.op(); // Ensure adapter is active.
+                return controller.resumeAdapter().then(() => timeout.op());
             }
         ).then(() =>
             {
                 // NOTE: 30s timeout is necessary for Firefox/IE on Windows
                 to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(30000 * mult));
-                return timeout.holdAdapter(500 * mult);
+                return controller.holdAdapter(200 * mult);
             }
         ).then(() => to.sendData(new Uint8Array(5 * 1024)) // Expect success.
         ).then(() =>
@@ -136,7 +140,7 @@
         ).then(con =>
             {
                 test(to.ice_getCachedConnection() === obj.ice_getCachedConnection());
-                return to.sleep(750);
+                return to.sleep(500);
             }
         ).then(
             failCB,
@@ -165,7 +169,7 @@
         ).then(con =>
             {
                 connection = con;
-                return timeout.holdAdapter(1500);
+                return controller.holdAdapter(-1);
             }
         ).then(() => connection.close(Ice.ConnectionClose.GracefullyWithWait)
         ).then(() =>
@@ -179,18 +183,21 @@
                     test(false);
                 }
             }
-        ).delay(1000).then(() =>
+        ).then(() =>
             {
-                try
-                {
-                    connection.getInfo();
-                    test(false);
+                var loop = () => {
+                    try
+                    {
+                        connection.getInfo();
+                        return Ice.Promise.delay(10).then(loop);
+                    }
+                    catch(ex)
+                    {
+                        test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
+                        return controller.resumeAdapter().then(() => timeout.op());
+                    }
                 }
-                catch(ex)
-                {
-                    test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
-                }
-                return timeout.op();
+                return loop();
             }
         ).then(() =>
             {
@@ -218,7 +225,7 @@
             }
         ).then(c =>
             {
-                return timeout.holdAdapter(750 * 2 * mult);
+                return controller.holdAdapter(-1);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException.
         ).then(
@@ -226,7 +233,7 @@
             ex =>
             {
                 test(ex instanceof Ice.TimeoutException, ex);
-                return timeout.op(); // Ensure adapter is active.
+                return controller.resumeAdapter().then(() => timeout.op());
             }
         ).then(() =>
             {
@@ -235,7 +242,7 @@
             }
         ).then(c =>
             {
-                return timeout.holdAdapter(750 * 2 * mult);
+                return controller.holdAdapter(-1);
             }
         ).then(() => to.sendData(seq) // Expect TimeoutException.
         ).then(
@@ -243,7 +250,7 @@
             ex =>
             {
                 test(ex instanceof Ice.TimeoutException, ex);
-                return comm.destroy();
+                return controller.resumeAdapter().then(() => timeout.op()).then(() => comm.destroy());
             }
         ).then(() =>
             {
@@ -262,7 +269,7 @@
                 }
                 comm = Ice.initialize(initData);
                 to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
-                return timeout.holdAdapter(750 * mult);
+                return controller.holdAdapter(-1);
             }
         ).then(() => to.op()
         ).then(
@@ -270,9 +277,9 @@
             ex =>
             {
                 test(ex instanceof Ice.ConnectTimeoutException, ex);
-                return timeout.op(); // Ensure adapter is active.
+                return controller.resumeAdapter().then(() => timeout.op());
             }
-        ).then(() => timeout.holdAdapter(750 * mult)
+        ).then(() => controller.holdAdapter(-1)
         ).then(() =>
             {
                 //
@@ -285,21 +292,21 @@
                ex =>
             {
                 test(ex instanceof Ice.ConnectTimeoutException, ex);
-                return timeout.op(); // Ensure adapter is active.
+                return controller.resumeAdapter().then(() => timeout.op());
             }
         ).then(() =>
             {
                 to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(100 * mult));
                 return connect(to); // Force connection.
             }
-        ).then(obj => timeout.holdAdapter(750 * mult)
+        ).then(obj => controller.holdAdapter(-1)
         ).then(() => to.sendData(seq)
         ).then(
             failCB,
             ex =>
             {
                 test(ex instanceof Ice.TimeoutException, ex);
-                return comm.destroy();
+                return controller.resumeAdapter().then(() => timeout.op()).then(() => comm.destroy());
             }
         ).then(() =>
             {
@@ -312,7 +319,7 @@
                 comm = Ice.initialize(initData);
                 return comm.stringToProxy(ref).ice_getConnection();
             }
-        ).then(() => timeout.holdAdapter(500)
+        ).then(() => controller.holdAdapter(-1)
         ).then(() =>
             {
                 now = Date.now();
@@ -322,8 +329,12 @@
             {
                 var t = Date.now();
                 test(t - now < 400);
+                return controller.resumeAdapter();
+            }
+        ).then(() =>
+            {
                 out.writeLine("ok");
-                return timeout.shutdown();
+                return controller.shutdown();
             }
         ).then(p.resolve, p.reject);
         return p;
@@ -349,7 +360,7 @@
                 if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
                 {
                     out.writeLine("Test not supported with Safari web workers.");
-                    return Test.TimeoutPrx.uncheckedCast(c.stringToProxy("timeout:default -p 12010")).shutdown();
+                    return Test.TimeoutPrx.uncheckedCast(c.stringToProxy("controller:default -p 12010")).shutdown();
                 }
                 else
                 {

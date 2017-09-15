@@ -68,24 +68,29 @@ def allTests(communicator):
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout != None)
 
+    controller = Test.ControllerPrx.checkedCast(communicator.stringToProxy("controller:default -p 12011"))
+    test(controller != None)
+
     sys.stdout.write("testing connect timeout... ")
     sys.stdout.flush()
     #
     # Expect ConnectTimeoutException.
     #
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(500)
+    controller.holdAdapter(-1)
     try:
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
+
     #
     # Expect success.
     #
-    timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    timeout.holdAdapter(500)
+    controller.holdAdapter(200)
     try:
         to.op()
     except Ice.ConnectTimeoutException:
@@ -106,18 +111,19 @@ def allTests(communicator):
         seq = bytes([0 for x in range(0, 10000000)])
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
     connect(to)
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     try:
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     #
     # Expect success.
     #
-    timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    timeout.holdAdapter(500)
+    controller.holdAdapter(200)
     try:
         if sys.version_info[0] == 2:
             seq2 = []
@@ -137,7 +143,7 @@ def allTests(communicator):
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100))
     test(connection == to.ice_getConnection())
     try:
-        to.sleep(750)
+        to.sleep(500)
         test(False)
     except Ice.InvocationTimeoutException:
         pass
@@ -155,7 +161,7 @@ def allTests(communicator):
     # #
     # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(250))
     # cb = new Callback()
-    # to.begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx))
+    # to.begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback.responseEx, &Callback.exceptionEx))
     # cb.check()
 
     # #
@@ -171,19 +177,21 @@ def allTests(communicator):
     sys.stdout.flush()
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
     connection = connect(to)
-    timeout.holdAdapter(600)
+    controller.holdAdapter(-1)
     connection.close(Ice.ConnectionClose.GracefullyWithWait)
     try:
         connection.getInfo(); # getInfo() doesn't throw in the closing state.
     except Ice.LocalException:
         test(False)
-    time.sleep(0.65)
-    try:
-        connection.getInfo()
-        test(False)
-    except Ice.ConnectionManuallyClosedException as ex:
-        # Expected.
-        test(ex.graceful)
+    while True:
+        try:
+            connection.getInfo()
+            time.sleep(0.001)
+        except Ice.ConnectionManuallyClosedException as ex:
+            # Expected.
+            test(ex.graceful)
+            break
+    controller.resumeAdapter()
     timeout.op() # Ensure adapter is active.
     print("ok")
 
@@ -201,24 +209,28 @@ def allTests(communicator):
     comm = Ice.initialize(initData)
     to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
     connect(to)
-    timeout.holdAdapter(500)
+    controller.holdAdapter(-1)
     try:
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
+
     #
     # Calling ice_timeout() should have no effect.
     #
-    timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000))
     connect(to)
-    timeout.holdAdapter(500)
+    controller.holdAdapter(-1)
     try:
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     comm.destroy()
     #
     # Test Ice.Override.ConnectTimeout.
@@ -227,36 +239,40 @@ def allTests(communicator):
     initData.properties = communicator.getProperties().clone()
     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
     comm = Ice.initialize(initData)
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(sref))
     try:
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     #
     # Calling ice_timeout() should have no effect on the connect timeout.
     #
-    timeout.op() # Ensure adapter is active.
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(1000))
     try:
         to.op()
         test(False)
     except Ice.ConnectTimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     #
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
-    timeout.op() # Ensure adapter is active.
     to = Test.TimeoutPrx.uncheckedCast(to.ice_timeout(250))
     connect(to)
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     try:
         to.sendData(seq)
         test(False)
     except Ice.TimeoutException:
        pass # Expected.
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     comm.destroy()
 
     #
@@ -267,11 +283,12 @@ def allTests(communicator):
     initData.properties.setProperty("Ice.Override.CloseTimeout", "100")
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection()
-    timeout.holdAdapter(800)
+    controller.holdAdapter(-1)
     now = time.clock()
     comm.destroy()
     test((time.clock() - now) < 0.7)
+    controller.resumeAdapter()
 
     print("ok")
 
-    return timeout
+    controller.shutdown()

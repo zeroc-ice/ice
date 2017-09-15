@@ -19,9 +19,8 @@ using namespace Test;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    TimeoutPrxPtr allTests(const Ice::CommunicatorPtr&);
-    TimeoutPrxPtr timeout = allTests(communicator);
-    timeout->shutdown();
+    void allTests(const Ice::CommunicatorPtr&);
+    allTests(communicator);
     return EXIT_SUCCESS;
 }
 

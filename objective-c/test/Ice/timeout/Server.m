@@ -14,11 +14,17 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.ThreadPool.Size" value:@"1"];
+
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    ICEObject* object = [TimeoutI timeout];
-    [adapter add:object identity:[ICEUtil stringToIdentity:@"timeout"]];
+    [adapter add:[TimeoutI timeout] identity:[ICEUtil stringToIdentity:@"timeout"]];
     [adapter activate];
+
+    id<ICEObjectAdapter> controllerAdapter = [communicator createObjectAdapter:@"ControllerAdapter"];
+    [controllerAdapter add:[ControllerI controller:adapter] identity:[ICEUtil stringToIdentity:@"controller"]];
+    [controllerAdapter activate];
 
     serverReady(communicator);
 

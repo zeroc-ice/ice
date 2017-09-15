@@ -13,6 +13,14 @@
 -(void) op:(ICECurrent *)current;
 -(void) sendData:(TestTimeoutMutableByteSeq *)seq current:(ICECurrent *)current;
 -(void) sleep:(ICEInt)to current:(ICECurrent *)current;
+@end
+
+@interface ControllerI : TestTimeoutController<TestTimeoutController>
+{
+    id<ICEObjectAdapter> adapter_;
+}
++(id) controller:(id<ICEObjectAdapter>)adapter;
 -(void) holdAdapter:(ICEInt)to current:(ICECurrent *)current;
+-(void) resumeAdapter:(ICECurrent *)current;
 -(void) shutdown:(ICECurrent *)current;
 @end

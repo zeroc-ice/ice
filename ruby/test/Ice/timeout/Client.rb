@@ -25,9 +25,7 @@ def test(b)
 end
 
 def run(args, communicator)
-    myClass = allTests(communicator)
-
-    myClass.shutdown()
+    allTests(communicator)
     return true
 end
 
