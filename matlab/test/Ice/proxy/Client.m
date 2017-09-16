@@ -13,7 +13,7 @@ classdef Client < Application
     methods
         function r = run(obj, args)
             myClass = AllTests.allTests(obj);
-            %myClass.shutdown(); TODO
+            myClass.shutdown();
             r = 0;
         end
     end

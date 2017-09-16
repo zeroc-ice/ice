@@ -19,7 +19,7 @@ using namespace IceMatlab;
 void
 IceMatlab::Future::token(function<void()> t)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(_mutex);
     if(!isFinished())
     {
         _token = std::move(t);
@@ -29,27 +29,24 @@ IceMatlab::Future::token(function<void()> t)
 bool
 IceMatlab::Future::waitUntilFinished()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    while(!isFinished())
-    {
-        wait();
-    }
+    Lock sync(_mutex);
+    _cond.wait(sync, [this]{ return this->isFinished(); });
     return !_exception;
 }
 
 void
 IceMatlab::Future::exception(exception_ptr e)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(_mutex);
     _token = nullptr;
     _exception = e;
-    notifyAll();
+    _cond.notify_all();
 }
 
 exception_ptr
 IceMatlab::Future::getException() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(const_cast<mutex&>(_mutex));
     return _exception;
 }
 
@@ -61,7 +58,7 @@ IceMatlab::Future::sent()
 void
 IceMatlab::Future::cancel()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(_mutex);
     if(_token)
     {
         _token();
@@ -69,24 +66,27 @@ IceMatlab::Future::cancel()
     }
 }
 
-IceMatlab::SentFuture::SentFuture() :
-    _sent(false)
+//
+// SimpleFuture
+//
+IceMatlab::SimpleFuture::SimpleFuture() :
+    _done(false)
 {
 }
 
 void
-IceMatlab::SentFuture::sent()
+IceMatlab::SimpleFuture::done()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    _sent = true;
-    notifyAll();
+    Lock sync(_mutex);
+    _done = true;
+    _cond.notify_all();
 }
 
 string
-IceMatlab::SentFuture::state() const
+IceMatlab::SimpleFuture::state() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    if(_exception || _sent)
+    Lock sync(const_cast<mutex&>(_mutex));
+    if(_exception || _done)
     {
         return "finished";
     }
@@ -97,32 +97,32 @@ IceMatlab::SentFuture::state() const
 }
 
 bool
-IceMatlab::SentFuture::isFinished() const
+IceMatlab::SimpleFuture::isFinished() const
 {
-    return _sent || _exception;
+    return _done || _exception;
 }
 
-#define SFSELF (*(reinterpret_cast<shared_ptr<SentFuture>*>(self)))
+#define SFSELF (*(reinterpret_cast<shared_ptr<SimpleFuture>*>(self)))
 
 extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture__release(void* self)
+Ice_SimpleFuture__release(void* self)
 {
     delete &SFSELF;
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture_id(void* self, unsigned long long* id)
+Ice_SimpleFuture_id(void* self, unsigned long long* id)
 {
     *id = reinterpret_cast<unsigned long long>(self);
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture_wait(void* self, unsigned char* ok)
+Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
 
@@ -132,20 +132,20 @@ Ice_SentFuture_wait(void* self, unsigned char* ok)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture_state(void* self)
+Ice_SimpleFuture_state(void* self)
 {
     return createResultValue(createStringFromUTF8(SFSELF->state()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture_cancel(void* self)
+Ice_SimpleFuture_cancel(void* self)
 {
     SFSELF->cancel();
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SentFuture_check(void* self)
+Ice_SimpleFuture_check(void* self)
 {
     if(!SFSELF->waitUntilFinished())
     {

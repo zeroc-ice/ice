@@ -45,7 +45,7 @@ Ice_OutputStream_writeBool(void* self, unsigned char v)
 EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeBoolSeq(void* self, const unsigned char* v, int size)
 {
-    const bool* p = reinterpret_cast<const bool*>(v);
+    auto p = reinterpret_cast<const bool*>(v);
     try
     {
         SELF->write(p, p + size);
@@ -74,7 +74,7 @@ Ice_OutputStream_writeByte(void* self, unsigned char v)
 EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeByteSeq(void* self, const unsigned char* v, int size)
 {
-    const Ice::Byte* p = reinterpret_cast<const Ice::Byte*>(v);
+    auto p = reinterpret_cast<const Ice::Byte*>(v);
     try
     {
         SELF->write(p, p + size);
@@ -390,7 +390,7 @@ Ice_OutputStream_rewriteInt(void* self, int v, unsigned int pos)
 EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeBlob(void* self, const unsigned char* v, int size)
 {
-    const Ice::Byte* p = reinterpret_cast<const Ice::Byte*>(v);
+    auto p = reinterpret_cast<const Ice::Byte*>(v);
     try
     {
         SELF->writeBlob(p, size);

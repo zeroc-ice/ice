@@ -273,17 +273,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEndpointSelection(obj)
-            v = libpointer('int32Ptr', 0);
-            obj.call_('ice_getEndpointSelection', v);
-            r = Ice.EndpointSelectionType.ice_getValue(v.Value);
+            r = obj.callWithResult_('ice_getEndpointSelection');
         end
 
         function r = ice_endpointSelection(obj, t)
-            if ~isa(t, 'Ice.EndpointSelectionType')
-                throw(MException('Ice:ArgumentException', 'expected an Ice.EndpointSelectionType enumerator'));
-            end
             v = libpointer('voidPtr');
-            obj.call_('ice_endpointSelection', int32(t), v);
+            obj.call_('ice_endpointSelection', t, v);
             if isNull(v)
                 r = obj;
             else
@@ -543,7 +538,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('ice_flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SentFuture', []);
+            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', []);
         end
     end
 
@@ -577,7 +572,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function [ok, inStream] = invoke_(obj, op, mode, twowayOnly, os, varargin)
-            %try TODO
+            try
                 % Vararg accepted for optional context argument.
                 if length(varargin) > 1
                     throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
@@ -602,9 +597,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if ~isNull(inStreamPtr)
                     inStream = Ice.InputStream(inStreamPtr, obj.communicator);
                 end
-            %catch ex
-            %    ex.throwAsCaller();
-            %end
+            catch ex
+                ex.throwAsCaller();
+            end
         end
 
         function fut = invokeAsync_(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, varargin)

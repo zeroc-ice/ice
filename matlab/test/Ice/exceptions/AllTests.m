@@ -14,21 +14,16 @@ classdef AllTests
         function r = allTests(app)
             communicator = app.communicator();
 
-            %{
-                % TODO
-                fprintf('testing value factory registration exception... ");
-                com.zeroc.Ice.ValueFactory of = new ValueFactoryI();
-                communicator.getValueFactoryManager().add(of, "::x");
-                try
-                {
-                    communicator.getValueFactoryManager().add(of, "::x");
-                    test(false);
-                }
-                catch(com.zeroc.Ice.AlreadyRegisteredException ex)
-                {
-                }
-                fprintf('ok\n');
-            %}
+            fprintf('testing value factory registration exception... ');
+            of = @(id) [];
+            communicator.getValueFactoryManager().add(of, '::x');
+            try
+                communicator.getValueFactoryManager().add(of, '::x');
+                assert(false);
+            catch ex
+                assert(isa(ex, 'Ice.AlreadyRegisteredException'));
+            end
+            fprintf('ok\n');
 
             fprintf('testing stringToProxy... ');
             ref = ['thrower:', app.getTestEndpoint(0, '')];

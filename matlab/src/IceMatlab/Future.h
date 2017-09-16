@@ -12,7 +12,7 @@
 namespace IceMatlab
 {
 
-class Future : public IceUtil::Monitor<IceUtil::Mutex>
+class Future
 {
 public:
 
@@ -29,6 +29,10 @@ public:
 protected:
 
     virtual bool isFinished() const = 0;
+
+    std::mutex _mutex;
+    std::condition_variable _cond;
+    using Lock = std::unique_lock<std::mutex>;
 
     std::function<void()> _token;
     std::exception_ptr _exception; // If a local exception occurs.
@@ -53,6 +57,25 @@ protected:
 private:
 
     bool _sent;
+};
+
+class SimpleFuture : public Future
+{
+public:
+
+    SimpleFuture();
+
+    void done();
+
+    virtual std::string state() const;
+
+protected:
+
+    virtual bool isFinished() const;
+
+private:
+
+    bool _done;
 };
 
 }

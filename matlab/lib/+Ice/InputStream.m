@@ -517,7 +517,7 @@ classdef InputStream < IceInternal.WrapperObject
             end
 
             valueFactoryManager = obj.communicator.getValueFactoryManager();
-            compactIdResolver = []; % TODO
+            compactIdResolver = obj.communicator.getCompactIdResolver();
             if isempty(obj.currentEncaps.decoder)
                 if obj.currentEncaps.encoding.major == 1 && obj.currentEncaps.encoding.minor == 0
                     obj.currentEncaps.decoder = ...

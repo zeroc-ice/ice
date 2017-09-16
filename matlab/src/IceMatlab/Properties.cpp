@@ -38,7 +38,7 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
         {
             def = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(defaultsImpl));
         }
-        shared_ptr<Ice::Properties> props = Ice::createProperties(a, def);
+        auto props = Ice::createProperties(a, def);
         *r = new shared_ptr<Ice::Properties>(props);
         return createResultValue(createStringList(a));
     }
@@ -117,7 +117,7 @@ Ice_Properties_getPropertyAsList(void* self, const char* key)
 {
     try
     {
-        Ice::StringSeq l = SELF->getPropertyAsList(key);
+        auto l = SELF->getPropertyAsList(key);
         return createResultValue(createStringList(l));
     }
     catch(const std::exception& ex)
@@ -149,7 +149,7 @@ Ice_Properties_getPropertiesForPrefix(void* self, const char* prefix)
 {
     try
     {
-        Ice::PropertyDict d = SELF->getPropertiesForPrefix(prefix);
+        auto d = SELF->getPropertiesForPrefix(prefix);
         return createResultValue(createStringMap(d));
     }
     catch(const std::exception& ex)
@@ -178,7 +178,7 @@ Ice_Properties_getCommandLineOptions(void* self)
 {
     try
     {
-        Ice::StringSeq opts = SELF->getCommandLineOptions();
+        auto opts = SELF->getCommandLineOptions();
         return createResultValue(createStringList(opts));
     }
     catch(const std::exception& ex)
@@ -241,7 +241,7 @@ Ice_Properties_clone(void* self, void** r)
 {
     try
     {
-        shared_ptr<Ice::Properties> c = SELF->clone();
+        auto c = SELF->clone();
         *r = new shared_ptr<Ice::Properties>(c);
     }
     catch(const std::exception& ex)

@@ -21,6 +21,12 @@ classdef Connection < IceInternal.WrapperObject
         function close(obj, mode)
             obj.call_('close', mode);
         end
+        function f = closeAsync(obj)
+            future = libpointer('voidPtr');
+            obj.call_('closeAsync', future);
+            assert(~isNull(future));
+            f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', []);
+        end
         function r = createProxy(obj, id)
             proxy = libpointer('voidPtr');
             obj.call_('createProxy', id, proxy);
@@ -36,7 +42,7 @@ classdef Connection < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SentFuture', []);
+            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', []);
         end
         function heartbeat(obj)
             obj.call_('heartbeat');
@@ -45,13 +51,31 @@ classdef Connection < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('heartbeatAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SentFuture', []);
+            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', []);
         end
         function setACM(obj, timeout, close, heartbeat)
+            if timeout == Ice.Unset
+                timeout = [];
+            end
+            if close == Ice.Unset
+                close = [];
+            end
+            if heartbeat == Ice.Unset
+                heartbeat = [];
+            end
             obj.call_('setACM', timeout, close, heartbeat);
         end
         function r = getACM(obj)
             r = obj.callWithResult_('getACM');
+            if isempty(r.timeout)
+                r.timeout = Ice.Unset;
+            end
+            if isempty(r.close)
+                r.close = Ice.Unset;
+            end
+            if isempty(r.heartbeat)
+                r.heartbeat = Ice.Unset;
+            end
         end
         function r = type(obj)
             r = obj.callWithResult_('type');

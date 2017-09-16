@@ -168,11 +168,11 @@ Ice_stringToIdentity(mxArray* s)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_identityToString(mxArray* id, int mode)
+Ice_identityToString(mxArray* id, mxArray* mode)
 {
     try
     {
-        Ice::ToStringMode m = static_cast<Ice::ToStringMode>(mode);
+        Ice::ToStringMode m = static_cast<Ice::ToStringMode>(getEnumerator(mode, "Ice.ToStringMode"));
         Ice::Identity ident;
         getIdentity(id, ident);
         return createResultValue(createStringFromUTF8(Ice::identityToString(ident, m)));

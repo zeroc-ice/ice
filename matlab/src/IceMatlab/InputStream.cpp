@@ -58,7 +58,7 @@ void*
 IceMatlab::createInputStream(const shared_ptr<Ice::Communicator>& communicator, const Ice::EncodingVersion& encoding,
                              vector<Ice::Byte>& data)
 {
-    InputStreamData* p = new InputStreamData;
+    auto p = new InputStreamData;
     p->data.swap(data);
     p->in = new Ice::InputStream(communicator, encoding, p->data);
     return p;
@@ -408,7 +408,7 @@ Ice_InputStream_getBytes(void* self, unsigned int start, unsigned int end)
     {
         try
         {
-            mxArray* r = mxCreateUninitNumericMatrix(1, end - start, mxUINT8_CLASS, mxREAL);
+            auto r = mxCreateUninitNumericMatrix(1, end - start, mxUINT8_CLASS, mxREAL);
             memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), SELF->in->b.begin() + start, end - start);
             return createResultValue(r);
         }

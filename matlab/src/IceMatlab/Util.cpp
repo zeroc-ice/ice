@@ -23,8 +23,8 @@ namespace
 string
 replace(string s, string patt, string val)
 {
-    string r = s;
-    string::size_type pos = r.find(patt);
+    auto r = s;
+    auto pos = r.find(patt);
     while(pos != string::npos)
     {
         r.replace(pos, patt.size(), val);
@@ -37,14 +37,14 @@ replace(string s, string patt, string val)
 void
 getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
 {
-    mxArray* maj = mxGetProperty(p, 0, "major");
+    auto maj = mxGetProperty(p, 0, "major");
     assert(maj);
     if(!mxIsScalar(maj))
     {
         throw std::invalid_argument("major is not a scalar");
     }
     major = static_cast<Ice::Byte>(mxGetScalar(maj));
-    mxArray* min = mxGetProperty(p, 0, "minor");
+    auto min = mxGetProperty(p, 0, "minor");
     assert(min);
     if(!mxIsScalar(min))
     {
@@ -67,8 +67,8 @@ IceMatlab::createStringFromUTF8(const string& s)
     u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
 #endif
     mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
-    mxArray* r = mxCreateCharArray(2, dims);
-    mxChar* buf = mxGetChars(r);
+    auto r = mxCreateCharArray(2, dims);
+    auto buf = mxGetChars(r);
     int i = 0;
 #ifdef _MSC_VER
     for(wchar_t c : utf16)
@@ -84,7 +84,7 @@ IceMatlab::createStringFromUTF8(const string& s)
 string
 IceMatlab::getStringFromUTF16(mxArray* p)
 {
-    char* s = mxArrayToUTF8String(p);
+    auto s = mxArrayToUTF8String(p);
     if(!s)
     {
         throw std::invalid_argument("value is not a char array");
@@ -103,8 +103,8 @@ IceMatlab::createEmpty()
 mxArray*
 IceMatlab::createBool(bool v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxLOGICAL_CLASS, mxREAL);
-    bool* p = reinterpret_cast<bool*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxLOGICAL_CLASS, mxREAL);
+    auto p = reinterpret_cast<bool*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -112,8 +112,8 @@ IceMatlab::createBool(bool v)
 mxArray*
 IceMatlab::createByte(Ice::Byte v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
-    Ice::Byte* p = reinterpret_cast<Ice::Byte*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
+    auto p = reinterpret_cast<Ice::Byte*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -121,8 +121,8 @@ IceMatlab::createByte(Ice::Byte v)
 mxArray*
 IceMatlab::createShort(short v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxINT16_CLASS, mxREAL);
-    short* p = reinterpret_cast<short*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxINT16_CLASS, mxREAL);
+    auto p = reinterpret_cast<short*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -130,8 +130,8 @@ IceMatlab::createShort(short v)
 mxArray*
 IceMatlab::createInt(int v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
-    int* p = reinterpret_cast<int*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
+    auto p = reinterpret_cast<int*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -139,8 +139,8 @@ IceMatlab::createInt(int v)
 mxArray*
 IceMatlab::createLong(long long v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
-    long long* p = reinterpret_cast<long long*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+    auto p = reinterpret_cast<long long*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -148,8 +148,8 @@ IceMatlab::createLong(long long v)
 mxArray*
 IceMatlab::createFloat(float v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
-    float* p = reinterpret_cast<float*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxSINGLE_CLASS, mxREAL);
+    auto p = reinterpret_cast<float*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -157,8 +157,8 @@ IceMatlab::createFloat(float v)
 mxArray*
 IceMatlab::createDouble(double v)
 {
-    mxArray* r = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
-    double* p = reinterpret_cast<double*>(mxGetPr(r));
+    auto r = mxCreateNumericMatrix(1, 1, mxDOUBLE_CLASS, mxREAL);
+    auto p = reinterpret_cast<double*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -166,11 +166,12 @@ IceMatlab::createDouble(double v)
 mxArray*
 IceMatlab::createEnumerator(const string& type, int v)
 {
-    string func = type + ".ice_getValue";
-    mxArray* param = createInt(v);
+    auto func = type + ".ice_getValue";
+    auto param = createInt(v);
     mxArray* r;
     mexCallMATLAB(1, &r, 1, &param, func.c_str());
-    mxFree(param);
+    // Calling this causes MATLAB to crash:
+    //mxFree(param);
     return r;
 }
 
@@ -181,7 +182,15 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     {
         throw invalid_argument("expected enumerator of type " + type);
     }
-    return static_cast<int>(mxGetScalar(p));
+    //
+    // Convert the enumerator to an integer.
+    //
+    mxArray* i;
+    mexCallMATLAB(1, &i, 1, &p, "int32");
+    int r = static_cast<int>(mxGetScalar(i));
+    // Calling this causes MATLAB to crash:
+    //mxFree(i);
+    return r;
 }
 
 mxArray*
@@ -202,10 +211,10 @@ IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
     {
         throw std::invalid_argument("argument is not Ice.Identity");
     }
-    mxArray* name = mxGetProperty(p, 0, "name");
+    auto name = mxGetProperty(p, 0, "name");
     assert(name);
     id.name = getStringFromUTF16(name);
-    mxArray* category = mxGetProperty(p, 0, "category");
+    auto category = mxGetProperty(p, 0, "category");
     assert(category);
     id.category = getStringFromUTF16(category);
 }
@@ -222,10 +231,10 @@ IceMatlab::createStringMap(const map<string, string>& m)
     {
         mwSize dims[2] = {1, 0};
         dims[1] = m.size();
-        mxArray* keys = mxCreateCellArray(2, dims);
-        mxArray* values = mxCreateCellArray(2, dims);
+        auto keys = mxCreateCellArray(2, dims);
+        auto values = mxCreateCellArray(2, dims);
         int idx = 0;
-        for(map<string, string>::const_iterator p = m.begin(); p != m.end(); ++p)
+        for(auto p = m.begin(); p != m.end(); ++p)
         {
             mxSetCell(keys, idx, createStringFromUTF8(p->first));
             mxSetCell(values, idx, createStringFromUTF8(p->second));
@@ -265,8 +274,8 @@ IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
         {
             for(size_t i = 0; i < n; ++i)
             {
-                string k = getStringFromUTF16(mxGetCell(keys, i));
-                string v = getStringFromUTF16(mxGetCell(values, i));
+                auto k = getStringFromUTF16(mxGetCell(keys, i));
+                auto v = getStringFromUTF16(mxGetCell(values, i));
                 m[k] = v;
             }
             mxDestroyArray(keys);
@@ -329,21 +338,21 @@ IceMatlab::convertException(const std::exception& exc)
     mxArray* ex;
     if(dynamic_cast<const Ice::LocalException*>(&exc))
     {
-        const Ice::LocalException* iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
-        const string typeId = iceEx->ice_id();
+        auto iceEx = dynamic_cast<const Ice::LocalException*>(&exc);
+        auto typeId = iceEx->ice_id();
         //
         // The exception ID uses single colon separators.
         //
-        string id = typeId.substr(2); // Remove leading "::" from type ID
+        auto id = typeId.substr(2); // Remove leading "::" from type ID
         id = replace(id, "::", ":");
 
-        string cls = typeId.substr(2); // Remove leading "::" from type ID
+        auto cls = typeId.substr(2); // Remove leading "::" from type ID
         cls = replace(cls, "::", ".");
 
         mxArray* params[10];
         params[0] = createStringFromUTF8(id);
         int idx = 2;
-        string msg = typeId; // Use the type ID as the default exception message
+        auto msg = typeId; // Use the type ID as the default exception message
 
         try
         {
@@ -505,7 +514,7 @@ mxArray*
 IceMatlab::createResultValue(mxArray* result)
 {
     mwSize dims[2] = {1, 1};
-    mxArray* r = mxCreateStructArray(2, dims, 2, resultFields);
+    auto r = mxCreateStructArray(2, dims, 2, resultFields);
     mxSetFieldByNumber(r, 0, 1, result);
     return r;
 }
@@ -514,7 +523,7 @@ mxArray*
 IceMatlab::createResultException(mxArray* ex)
 {
     mwSize dims[2] = {1, 1};
-    mxArray* r = mxCreateStructArray(2, dims, 2, resultFields);
+    auto r = mxCreateStructArray(2, dims, 2, resultFields);
     mxSetFieldByNumber(r, 0, 0, ex);
     return r;
 }
@@ -522,9 +531,9 @@ IceMatlab::createResultException(mxArray* ex)
 mxArray*
 IceMatlab::createStringList(const vector<string>& v)
 {
-    mxArray* r = mxCreateCellMatrix(1, v.size());
+    auto r = mxCreateCellMatrix(1, v.size());
     mwIndex i = 0;
-    for(vector<string>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
+    for(auto p = v.begin(); p != v.end(); ++p, ++i)
     {
         mxSetCell(r, i, createStringFromUTF8(*p));
     }
@@ -544,33 +553,12 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     }
     size_t n = mxGetN(m);
     v.clear();
-    for(size_t i = 0; i < n; ++i)
+    for(auto i = 0; i < n; ++i)
     {
         mxArray* c = mxGetCell(m, i);
         v.push_back(getStringFromUTF16(c));
     }
 }
-
-#if 0
-void*
-IceMatlab::getImpl(mxArray* obj, const std::string& className)
-{
-    void* p = 0;
-    if(!mxIsEmpty(obj))
-    {
-        if(!mxIsClass(obj, className.c_str()))
-        {
-            throw std::invalid_argument("expecting object of type " + className);
-        }
-        mxArray* implProp = mxGetProperty(obj, 0, "impl");
-        assert(implProp);
-        mxArray* value = mxGetProperty(implProp, 0, "value");
-        assert(value);
-        p = mxGetData(value);
-    }
-    return p;
-}
-#endif
 
 namespace
 {
@@ -588,9 +576,9 @@ lookupKwd(const string& name)
         "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
         "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"
     };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
+    bool found = binary_search(&keywordList[0],
+                               &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                               name);
     return found ? "slice_" + name : name;
 }
 
@@ -634,10 +622,10 @@ splitScopedName(const string& scoped)
 string
 IceMatlab::idToClass(const string& id)
 {
-    vector<string> ids = splitScopedName(id);
+    auto ids = splitScopedName(id);
     transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
     stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for(auto i = ids.begin(); i != ids.end(); ++i)
     {
         if(i != ids.begin())
         {

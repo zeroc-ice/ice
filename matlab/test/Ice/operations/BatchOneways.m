@@ -22,7 +22,7 @@ classdef BatchOneways
             if ~isempty(batch.ice_getConnection())
                 batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
             end
-            %communicator.flushBatchRequests(com.zeroc.Ice.CompressBatch.BasedOnProxy);
+            communicator.flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
 
             p.opByteSOnewayCallCount(); % Reset the call count
 

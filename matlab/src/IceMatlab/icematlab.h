@@ -26,7 +26,7 @@ typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing me
 
 EXPORTED_FUNCTION mxArray* Ice_initialize(mxArray*, void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_stringToIdentity(mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_identityToString(mxArray*, int);
+EXPORTED_FUNCTION mxArray* Ice_identityToString(mxArray*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_stringVersion();
 EXPORTED_FUNCTION mxArray* Ice_intVersion(int*);
 EXPORTED_FUNCTION mxArray* Ice_currentEncoding();
@@ -34,14 +34,21 @@ EXPORTED_FUNCTION mxArray* Ice_currentProtocol();
 EXPORTED_FUNCTION mxArray* Ice_currentProtocolEncoding();
 
 EXPORTED_FUNCTION mxArray* Ice_Communicator__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_Communicator_identityToString(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_destroy(void*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_destroyAsync(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_stringToProxy(void*, const char*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToString(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_propertyToProxy(void*, const char*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToProperty(void*, void*, const char*);
-EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToString(void*, void*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_identityToString(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_getProperties(void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_getDefaultRouter(void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_setDefaultRouter(void*, void*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_getDefaultLocator(void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_setDefaultLocator(void*, void*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequests(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequestsAsync(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_createOutputStream(void*, mxArray*, void**);
-EXPORTED_FUNCTION mxArray* Ice_Communicator_destroy(void*);
 
 typedef enum 
 {
@@ -79,8 +86,8 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getConnectionId(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_connectionId(void*, const char*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_isConnectionCached(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_connectionCached(void*, unsigned char, void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpointSelection(void*, int*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpointSelection(void*, int, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpointSelection(void*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpointSelection(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEncodingVersion(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_encodingVersion(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getRouter(void*, void**);
@@ -125,12 +132,12 @@ EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_fetch(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_state(void*);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_cancel(void*);
 
-EXPORTED_FUNCTION mxArray* Ice_SentFuture__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_SentFuture_id(void*, unsigned long long*);
-EXPORTED_FUNCTION mxArray* Ice_SentFuture_wait(void*, unsigned char*);
-EXPORTED_FUNCTION mxArray* Ice_SentFuture_state(void*);
-EXPORTED_FUNCTION mxArray* Ice_SentFuture_cancel(void*);
-EXPORTED_FUNCTION mxArray* Ice_SentFuture_check(void*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture__release(void*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_id(void*, unsigned long long*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_wait(void*, unsigned char*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_state(void*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_cancel(void*);
+EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_check(void*);
 
 EXPORTED_FUNCTION mxArray* Ice_OutputStream__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBool(void*, unsigned char);
@@ -206,6 +213,7 @@ EXPORTED_FUNCTION mxArray* Ice_Properties_clone(void*, void**);
 
 EXPORTED_FUNCTION mxArray* Ice_Connection__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_close(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Connection_closeAsync(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_createProxy(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_flushBatchRequests(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_flushBatchRequestsAsync(void*, mxArray*, void**);

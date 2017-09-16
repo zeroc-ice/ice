@@ -22,7 +22,16 @@ function [communicator, args] = initialize(varargin)
         end
         initData = varargin{2};
     else
-        initData = [];
+        initData = Ice.InitializationData();
+    end
+
+    if isempty(initData.valueFactoryManager)
+        %
+        % Supply a default implementation of ValueFactoryManager.
+        %
+        initData.valueFactoryManager = Ice.ValueFactoryManagerI();
+    elseif ~isa(initData.valueFactoryManager, 'Ice.ValueFactoryManager')
+        throw(MException('Ice:ArgumentException', 'invalid value for valueFactoryManager member'));
     end
 
     %
@@ -34,29 +43,15 @@ function [communicator, args] = initialize(varargin)
     % The communicator wrapper holds the value factory manager.
     %
     props = libpointer('voidPtr');
-    vfm = [];
-    if ~isempty(initData)
-        if ~isempty(initData.properties_)
-            if ~isa(initData.properties_, 'Ice.Properties')
-                throw(MException('Ice:ArgumentException', 'invalid value for properties_ member'));
-            else
-                props = initData.properties_.impl_;
-            end
+    if ~isempty(initData.properties_)
+        if ~isa(initData.properties_, 'Ice.Properties')
+            throw(MException('Ice:ArgumentException', 'invalid value for properties_ member'));
+        else
+            props = initData.properties_.impl_;
         end
-        if ~isempty(initData.valueFactoryManager)
-            if ~isa(initData.valueFactoryManager, 'Ice.ValueFactoryManager')
-                throw(MException('Ice:ArgumentException', 'invalid value for valueFactoryManager member'));
-            else
-                vfm = initData.valueFactoryManager;
-            end
-        end
-    end
-
-    if isempty(vfm)
-        vfm = Ice.ValueFactoryManagerI();
     end
 
     impl = libpointer('voidPtr');
     args = IceInternal.Util.callWithResult('Ice_initialize', args, props, impl);
-    communicator = Ice.Communicator(impl, vfm);
+    communicator = Ice.Communicator(impl, initData);
 end

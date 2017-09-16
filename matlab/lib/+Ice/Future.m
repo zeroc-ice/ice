@@ -42,7 +42,9 @@ classdef Future < IceInternal.WrapperObject
             if obj.Read
                 throw(MException('Ice:InvalidStateException', 'outputs already read'));
             end
-            [varargout{1:obj.NumOutputArguments}] = obj.fetchFunc(obj);
+            if ~isempty(obj.fetchFunc)
+                [varargout{1:obj.NumOutputArguments}] = obj.fetchFunc(obj);
+            end
             obj.Read = true;
         end
         function cancel(obj)

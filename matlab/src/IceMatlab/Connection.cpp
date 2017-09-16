@@ -34,13 +34,38 @@ Ice_Connection_close(void* self, mxArray* m)
 {
     try
     {
-        Ice::ConnectionClose mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
+        auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
         SELF->close(mode);
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
+{
+    *future = 0;
+    auto c = SELF;
+    auto f = make_shared<SimpleFuture>();
+
+    thread t([m, c, f]
+        {
+            try
+            {
+                auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
+                c->close(mode);
+                f->done();
+            }
+            catch(const std::exception&)
+            {
+                f->exception(current_exception());
+            }
+        });
+    t.detach();
+    *future = new shared_ptr<SimpleFuture>(f);
     return 0;
 }
 
@@ -66,7 +91,7 @@ Ice_Connection_flushBatchRequests(void* self, mxArray* c)
 {
     try
     {
-        Ice::CompressBatch mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
+        auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
         SELF->flushBatchRequests(mode);
     }
     catch(const std::exception& ex)
@@ -80,11 +105,11 @@ EXPORTED_FUNCTION mxArray*
 Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
 {
     *future = 0;
-    auto f = make_shared<SentFuture>();
+    auto f = make_shared<SimpleFuture>();
 
     try
     {
-        Ice::CompressBatch mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
+        auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
         function<void()> token = SELF->flushBatchRequestsAsync(
             mode,
             [f](exception_ptr e)
@@ -93,10 +118,10 @@ Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
             },
             [f](bool /*sentSynchronously*/)
             {
-                f->sent();
+                f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SentFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(f);
     }
     catch(const std::exception& ex)
     {
@@ -123,7 +148,7 @@ EXPORTED_FUNCTION mxArray*
 Ice_Connection_heartbeatAsync(void* self, void** future)
 {
     *future = 0;
-    auto f = make_shared<SentFuture>();
+    auto f = make_shared<SimpleFuture>();
 
     try
     {
@@ -134,10 +159,10 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
             },
             [f](bool /*sentSynchronously*/)
             {
-                f->sent();
+                f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SentFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(f);
     }
     catch(const std::exception& ex)
     {
@@ -169,19 +194,11 @@ Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
         }
         if(!mxIsEmpty(c))
         {
-            if(!mxIsClass(c, "Ice.ACMClose"))
-            {
-                throw invalid_argument("ACMClose enumerator required for close");
-            }
-            close = static_cast<Ice::ACMClose>(static_cast<int>(mxGetScalar(c)));
+            close = static_cast<Ice::ACMClose>(getEnumerator(c, "Ice.ACMClose"));
         }
         if(!mxIsEmpty(h))
         {
-            if(!mxIsClass(c, "Ice.ACMHeartbeat"))
-            {
-                throw invalid_argument("ACMHeartbeat enumerator required for heartbeat");
-            }
-            heartbeat = static_cast<Ice::ACMHeartbeat>(static_cast<int>(mxGetScalar(h)));
+            heartbeat = static_cast<Ice::ACMHeartbeat>(getEnumerator(h, "Ice.ACMHeartbeat"));
         }
         SELF->setACM(timeout, close, heartbeat);
     }
@@ -197,7 +214,7 @@ Ice_Connection_getACM(void* self)
 {
     try
     {
-        Ice::ACM acm = SELF->getACM();
+        auto acm = SELF->getACM();
         mxArray* params[3];
         params[0] = createInt(acm.timeout);
         params[1] = createEnumerator("Ice.ACMClose", static_cast<int>(acm.close));
