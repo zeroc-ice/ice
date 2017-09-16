@@ -12,12 +12,6 @@
 namespace IceMatlab
 {
 
-struct InputStreamData
-{
-    std::vector<Ice::Byte> data;
-    Ice::InputStream* in;
-};
-
 //
 // Consumes the vector.
 //

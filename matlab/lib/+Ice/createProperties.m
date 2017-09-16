@@ -19,11 +19,11 @@ function [properties, remArgs] = createProperties(varargin)
         if ~isa(varargin{2}, 'Ice.Properties')
             throw(MException('Ice:ArgumentException', 'expecting Ice.Properties object'));
         end
-        defaults = varargin{2}.impl;
+        defaults = varargin{2}.impl_;
     else
         defaults = libpointer('voidPtr');
     end
     impl = libpointer('voidPtr');
-    remArgs = Ice.Util.callWithResult('Ice_createProperties', args, defaults, impl);
+    remArgs = IceInternal.Util.callWithResult('Ice_createProperties', args, defaults, impl);
     properties = Ice.Properties(impl);
 end

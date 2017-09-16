@@ -11,10 +11,48 @@ ICE_LICENSE file included in this distribution.
 
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder10(is, encaps)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps);
+        function obj = EncapsDecoder10(is, encaps, sliceValues, valueFactoryManager)
+            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager);
             obj.sliceType = IceInternal.SliceType.NoSlice;
         end
+
+        function readPendingValues(obj)
+            num = obj.is.readSize();
+            while num > 0
+                for k = 1:num
+                    obj.readInstance();
+                end
+                num = obj.is.readSize();
+            end
+
+            if ~isempty(obj.patchMap) && obj.patchMap.Count > 0
+                %
+                % If any entries remain in the patch map, the sender has sent an index for an object, but failed
+                % to supply the object.
+                %
+                throw(Ice.MarshalException('', '', 'index for class received, but no instance'));
+            end
+        end
+
+        function readValue(obj, cb)
+            assert(~isempty(cb));
+
+            %
+            % Object references are encoded as a negative integer in 1.0.
+            %
+            index = obj.is.readInt();
+            if index > 0
+                throw(Ice.MarshalException('', '', 'invalid object id'));
+            end
+            index = -index;
+
+            if index == 0
+                cb([]);
+            else
+                obj.addPatchEntry(index, cb);
+            end
+        end
+
         function throwException(obj)
             assert(obj.sliceType == IceInternal.SliceType.NoSlice);
 
@@ -39,7 +77,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 %
                 % Translate the type ID into a class name.
                 %
-                cls = Ice.Util.idToClass(obj.typeId);
+                cls = IceInternal.Util.idToClass(obj.typeId);
 
                 %
                 % Try to instantiate the class.
@@ -54,10 +92,13 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 end
 
                 if ~isempty(ex)
+                    %
+                    % Exceptions are value types so we have to replace 'ex' with its new value after calling read_().
+                    %
                     ex = ex.read_(obj.is);
-                    if usesClasses
-                        obj.readPendingValues();
-                    end
+                    %
+                    % Note that read_() takes care of calling readPendingValues if necessary.
+                    %
                     throw(ex);
                 else
                     %
@@ -83,24 +124,28 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                 end
             end
         end
+
         function startInstance(obj, sliceType)
             assert(obj.sliceType == sliceType);
             obj.skipFirstSlice = true;
         end
-        function endInstance(obj) % TODO: SlicedData
+
+        function r = endInstance(obj, preserve)
             %
             % Read the Ice::Value slice.
             %
             if obj.sliceType == IceInternal.SliceType.ValueSlice
                 obj.startSlice();
                 sz = obj.is.readSize(); % For compatibility with the old AFM.
-                if sz != 0
-                    throw(Ice.MarshalException('', '', "invalid Object slice"));
+                if sz ~= 0
+                    throw(Ice.MarshalException('', '', 'invalid Object slice'));
                 end
                 obj.endSlice();
             end
             obj.sliceType = IceInternal.SliceType.NoSlice;
+            r = [];
         end
+
         function r = startSlice(obj)
             %
             % If first slice, don't read the header, it was already read in
@@ -131,16 +176,75 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             end
             r = obj.typeId;
         end
+
         function endSlice(obj)
             % Nothing to do
         end
+
         function skipSlice(obj)
             %obj.is.traceSkipSlice(obj.typeId, obj.sliceType);
             assert(obj.sliceSize >= 4);
             obj.is.skip(obj.sliceSize - 4);
         end
-        function r = readOptional(obj, tag, format)
+
+        function r = readOptional(obj, readTag, expectedFormat)
             r = false;
+        end
+    end
+    methods(Access=private)
+        function readInstance(obj)
+            index = obj.is.readInt();
+
+            if index <= 0
+                throw(Ice.MarshalException('', '', 'invalid object id'));
+            end
+
+            obj.sliceType = IceInternal.SliceType.ValueSlice;
+            obj.skipFirstSlice = false;
+
+            %
+            % Read the first slice header.
+            %
+            obj.startSlice();
+            mostDerivedId = obj.typeId;
+            v = [];
+            while true
+                %
+                % For the 1.0 encoding, the type ID for the base Object class
+                % marks the last slice.
+                %
+                if strcmp(obj.typeId, Ice.Value.ice_staticId())
+                    throw(Ice.NoValueFactoryException('', '', '', mostDerivedId));
+                end
+
+                v = obj.newInstance(obj.typeId);
+
+                %
+                % We found a factory, we get out of this loop.
+                %
+                if ~isempty(v)
+                    break;
+                end
+
+                %
+                % If slicing is disabled, stop unmarshaling.
+                %
+                if ~obj.sliceValues
+                    throw(Ice.NoValueFactoryException('', '', 'no value factory found and slicing is disabled', ...
+                          obj.typeId));
+                end
+
+                %
+                % Slice off what we don't understand.
+                %
+                obj.skipSlice();
+                obj.startSlice(); % Read next Slice header for next iteration.
+            end
+
+            %
+            % Unmarshal the instance and add it to the map of unmarshaled instances.
+            %
+            obj.unmarshal(index, v);
         end
     end
     properties(Access=private)

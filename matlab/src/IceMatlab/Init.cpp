@@ -139,7 +139,6 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
             id.properties = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(propsImpl));
         }
 
-        //id.valueFactoryManager = make_shared<ValueFactoryManager>();
         //id.logger = make_shared<Logger>(""); // TODO
 
         shared_ptr<Ice::Communicator> c = Ice::initialize(a, id);
@@ -169,19 +168,51 @@ Ice_stringToIdentity(mxArray* s)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_identityToString(mxArray* id)
+Ice_identityToString(mxArray* id, int mode)
 {
     try
     {
+        Ice::ToStringMode m = static_cast<Ice::ToStringMode>(mode);
         Ice::Identity ident;
         getIdentity(id, ident);
-        return createResultValue(createStringFromUTF8(Ice::identityToString(ident)));
+        return createResultValue(createStringFromUTF8(Ice::identityToString(ident, m)));
     }
     catch(const std::exception& ex)
     {
         return createResultException(convertException(ex));
     }
     return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_stringVersion()
+{
+    return createResultValue(createStringFromUTF8(ICE_STRING_VERSION));
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_intVersion(int* v)
+{
+    *v = ICE_INT_VERSION;
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_currentEncoding()
+{
+    return createResultValue(createEncodingVersion(Ice::currentEncoding));
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_currentProtocol()
+{
+    return createResultValue(createProtocolVersion(Ice::currentProtocol));
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_currentProtocolEncoding()
+{
+    return createResultValue(createEncodingVersion(Ice::currentProtocolEncoding));
 }
 
 //

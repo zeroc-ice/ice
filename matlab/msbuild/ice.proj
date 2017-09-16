@@ -23,10 +23,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+        <Slice Include="$(sliceDir)\Ice\Communicator.ice" />
         <Slice Include="$(sliceDir)\Ice\Connection.ice" />
         <Slice Include="$(sliceDir)\Ice\Current.ice" />
+        <Slice Include="$(sliceDir)\Ice\EndpointTypes.ice" />
         <Slice Include="$(sliceDir)\Ice\Identity.ice" />
         <Slice Include="$(sliceDir)\Ice\LocalException.ice" />
+        <Slice Include="$(sliceDir)\Ice\Locator.ice" />
+        <Slice Include="$(sliceDir)\Ice\Router.ice" />
+        <Slice Include="$(sliceDir)\Ice\ValueFactory.ice" />
         <Slice Include="$(sliceDir)\Ice\Version.ice" />
   </ItemGroup>
 
@@ -43,8 +48,12 @@
 
   <Target Name="Build" DependsOnTargets="CppPrereqs">
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\exceptions\generated $(testDir)\Ice\exceptions\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\objects\generated $(testDir)\Ice\objects\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) -I$(testDir)\Ice\optional --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\ClientPrivate.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\proxy\generated $(testDir)\Ice\proxy\Test.ice"/>
         <Exec Command="mex -v -outdir $(srcDir) -output icematlab $(MexCompilerFlags) -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
         <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2$(DebugExt).dll $(srcDir)"/>
         <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11$(DebugExt).dll&quot; $(srcDir)"/>

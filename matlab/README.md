@@ -7,8 +7,7 @@ in a production application.*
 
 The build system currently requires Microsoft Visual Studio 2015.
 
-Ice for MATLAB is intended to support MATLAB 2016a or later but has only been
-tested with 2017a.
+Ice for MATLAB supports MATLAB 2016a or later.
 
 ## Build Instructions
 
@@ -74,10 +73,8 @@ these DLLs to `matlab\src\IceMatlab`.
 
 ### Running the Tests
 
-Two tests have been ported to MATLAB so far:
-
- - `matlab\test\Ice\operations`
- - `matlab\test\Ice\exceptions`
+Several tests have been ported to MATLAB so far. You can find them in
+`matlab\test\Ice\*`.
 
 Since Ice for MATLAB only supports client functionality, you will have to build
 and start a matching test server from a different language mapping.
@@ -86,11 +83,7 @@ In a Command Prompt, start a test server.
 
 In MATLAB, change to a test directory:
 
-    cd matlab\test\Ice\operations
-
-Or:
-
-    cd matlab\test\Ice\exceptions
+    cd matlab\test\Ice\...
 
 Now you can start the MATLAB test client. Assuming the server is running on
 the same host, use this command:

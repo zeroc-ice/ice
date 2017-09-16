@@ -19,11 +19,11 @@ function r = proxyIdentityCompare(lhs, rhs)
     else
         lhsIdentity = lhs.ice_getIdentity();
         rhsIdentity = rhs.ice_getIdentity();
-        n = Ice.Util.strcmp(lhsIdentity.name, rhsIdentity.name);
+        n = IceInternal.Util.strcmp(lhsIdentity.name, rhsIdentity.name);
         if n ~= 0
             r = n;
             return;
         end
-        r = Ice.Util.strcmp(lhsIdentity.category, rhsIdentity.category);
+        r = IceInternal.Util.strcmp(lhsIdentity.category, rhsIdentity.category);
     end
 end

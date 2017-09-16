@@ -9,14 +9,17 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef InstanceData < handle
+classdef EncapsDecoder11_InstanceData < handle
     methods
-        function obj = InstanceData(p)
+        function obj = EncapsDecoder11_InstanceData(p)
             if ~isempty(p)
                 obj.previous = p;
                 p.next = obj;
             end
+            obj.slices = {};
+            obj.indirectionTables = {};
             obj.sliceFlags = uint8(0);
+            obj.indirectPatchList = [];
         end
     end
     properties

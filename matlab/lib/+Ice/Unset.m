@@ -9,12 +9,9 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Encaps < handle
-    properties
-        start
-        sz
-        encoding
-        decoder
-        previous
-    end
+%
+% This function returns a singleton instance that we use as a sentinel value to indicate an unset optional value.
+%
+function r = Unset()
+    r = IceInternal.UnsetI.getInstance();
 end

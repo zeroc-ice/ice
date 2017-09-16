@@ -11,522 +11,523 @@ ICE_LICENSE file included in this distribution.
 
 classdef ObjectPrx < IceInternal.WrapperObject
     methods
-        function self = ObjectPrx(impl)
-            self = self@IceInternal.WrapperObject(impl);
+        function obj = ObjectPrx(impl, communicator)
+            obj = obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
+            obj.communicator = communicator;
         end
 
-        function delete(self)
-            self.callMethod('_release');
-            self.impl = [];
+        function delete(obj)
+            obj.call_('_release');
+            obj.impl_ = [];
         end
 
         %
         % Override == operator.
         %
-        function r = eq(self, other)
+        function r = eq(obj, other)
             if isempty(other) || ~isa(other, 'Ice.ObjectPrx')
                 r = false;
             else
                 v = libpointer('uint8Ptr', 0);
-                self.callMethod('equals', other.impl, v);
+                obj.call_('equals', other.impl_, v);
                 r = v.Value == 1;
             end
         end
 
-        function r = ice_createOutputStream(self)
+        function r = ice_createOutputStream(obj)
             stream = libpointer('voidPtr');
-            self.callMethod('ice_createOutputStream', stream);
-            r = Ice.OutputStream(stream);
+            obj.call_('ice_createOutputStream', stream);
+            r = Ice.OutputStream(stream, obj.communicator);
         end
 
-        function r = ice_toString(self)
-            r = self.callMethodWithResult('ice_toString');
+        function r = ice_toString(obj)
+            r = obj.callWithResult_('ice_toString');
         end
 
-        function r = ice_getCommunicator(self)
-            v = libpointer('voidPtr');
-            self.callMethod('ice_getCommunicator', v);
-            assert(~isNull(v));
-            r = Ice.Communicator(v);
+        function r = ice_getCommunicator(obj)
+            r = obj.communicator;
         end
 
-        function ice_ping(self, varargin)
-            [ok, inStream] = self.invoke_('ice_ping', 'Nonmutating', false, [], varargin{:});
-            self.checkNoResponse_(ok, inStream);
+        function ice_ping(obj, varargin)
+            [ok, inStream] = obj.invoke_('ice_ping', 'Nonmutating', false, [], varargin{:});
+            obj.checkNoResponse_(ok, inStream);
         end
 
-        function r = ice_pingAsync(self, varargin)
-            r = self.invokeAsync_('ice_ping', 'Nonmutating', false, [], 0, [], varargin{:});
+        function r = ice_pingAsync(obj, varargin)
+            r = obj.invokeAsync_('ice_ping', 'Nonmutating', false, [], 0, [], varargin{:});
         end
 
-        function r = ice_isA(self, id, varargin)
-            os = self.startWriteParams_();
+        function r = ice_isA(obj, id, varargin)
+            os = obj.startWriteParams_();
             os.writeString(id);
-            self.endWriteParams_(os);
-            [ok, inStream] = self.invoke_('ice_isA', 'Nonmutating', true, os, varargin{:});
+            obj.endWriteParams_(os);
+            [ok, inStream] = obj.invoke_('ice_isA', 'Nonmutating', true, os, varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readBool();
                 inStream.endEncapsulation();
             else
-                self.throwUserException_(inStream);
+                obj.throwUserException_(inStream);
             end
         end
 
-        function r = ice_isAAsync(self, id, varargin)
-            os = self.startWriteParams_();
+        function r = ice_isAAsync(obj, id, varargin)
+            os = obj.startWriteParams_();
             os.writeString(id);
-            self.endWriteParams_(os);
+            obj.endWriteParams_(os);
             function varargout = unmarshal(ok, is)
                 if ok
                     is.startEncapsulation();
                     varargout{1} = is.readBool();
                     is.endEncapsulation();
                 else
-                    self.throwUserException_(is);
+                    obj.throwUserException_(is);
                 end
             end
-            r = self.invokeAsync_('ice_isA', 'Nonmutating', true, os, 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_isA', 'Nonmutating', true, os, 1, @unmarshal, varargin{:});
         end
 
-        function r = ice_id(self, varargin)
-            [ok, inStream] = self.invoke_('ice_id', 'Nonmutating', true, [], varargin{:});
+        function r = ice_id(obj, varargin)
+            [ok, inStream] = obj.invoke_('ice_id', 'Nonmutating', true, [], varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readString();
                 inStream.endEncapsulation();
             else
-                self.throwUserException_(inStream);
+                obj.throwUserException_(inStream);
             end
         end
 
-        function r = ice_idAsync(self, varargin)
+        function r = ice_idAsync(obj, varargin)
             function varargout = unmarshal(ok, is)
                 if ok
                     is.startEncapsulation();
                     varargout{1} = is.readString();
                     is.endEncapsulation();
                 else
-                    self.throwUserException_(is);
+                    obj.throwUserException_(is);
                 end
             end
-            r = self.invokeAsync_('ice_id', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_id', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
         end
 
-        function r = ice_ids(self, varargin)
-            [ok, inStream] = self.invoke_('ice_ids', 'Nonmutating', true, [], varargin{:});
+        function r = ice_ids(obj, varargin)
+            [ok, inStream] = obj.invoke_('ice_ids', 'Nonmutating', true, [], varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readStringSeq();
                 inStream.endEncapsulation();
             else
-                self.throwUserException_(inStream);
+                obj.throwUserException_(inStream);
             end
         end
 
-        function r = ice_idsAsync(self, varargin)
+        function r = ice_idsAsync(obj, varargin)
             function varargout = unmarshal(ok, is)
                 if ok
                     is.startEncapsulation();
                     varargout{1} = is.readStringSeq();
                     is.endEncapsulation();
                 else
-                    self.throwUserException_(is);
+                    obj.throwUserException_(is);
                 end
             end
-            r = self.invokeAsync_('ice_ids', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_ids', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
         end
 
-        function r = ice_getIdentity(self)
-            r = self.callMethodWithResult('ice_getIdentity');
+        function r = ice_getIdentity(obj)
+            r = obj.callWithResult_('ice_getIdentity');
         end
 
-        function r = ice_identity(self, id)
+        function r = ice_identity(obj, id)
             v = libpointer('voidPtr');
-            self.callMethod('ice_identity', id, v);
+            obj.call_('ice_identity', id, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = Ice.ObjectPrx(v); % Don't use newInstance_ here
+                r = Ice.ObjectPrx(v, obj.communicator); % Don't use newInstance_ here
             end
         end
 
-        function r = ice_getContext(self)
-            r = self.callMethodWithResult('ice_getContext');
+        function r = ice_getContext(obj)
+            r = obj.callWithResult_('ice_getContext');
         end
 
-        function r = ice_context(self, ctx)
+        function r = ice_context(obj, ctx)
             v = libpointer('voidPtr');
-            self.callMethod('ice_context', ctx, v);
+            obj.call_('ice_context', ctx, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getFacet(self)
-            r = self.callMethodWithResult('ice_getFacet');
+        function r = ice_getFacet(obj)
+            r = obj.callWithResult_('ice_getFacet');
         end
 
-        function r = ice_facet(self, f)
+        function r = ice_facet(obj, f)
             v = libpointer('voidPtr');
-            self.callMethod('ice_facet', f, v);
+            obj.call_('ice_facet', f, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = Ice.ObjectPrx(v); % Don't use newInstance_ here
+                r = Ice.ObjectPrx(v, obj.communicator); % Don't use newInstance_ here
             end
         end
 
-        function r = ice_getAdapterId(self)
-            r = self.callMethodWithResult('ice_getAdapterId');
+        function r = ice_getAdapterId(obj)
+            r = obj.callWithResult_('ice_getAdapterId');
         end
 
-        function r = ice_adapterId(self, id)
+        function r = ice_adapterId(obj, id)
             v = libpointer('voidPtr');
-            self.callMethod('ice_adapterId', id, v);
+            obj.call_('ice_adapterId', id, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getEndpoints(self)
-            r = self.callMethodWithResult('ice_getEndpoints');
+        function r = ice_getEndpoints(obj)
+            r = obj.callWithResult_('ice_getEndpoints');
         end
 
-        function r = ice_endpoints(self, endpts)
+        function r = ice_endpoints(obj, endpts)
             v = libpointer('voidPtr');
-            self.callMethod('ice_endpoints', endpts, v);
+            obj.call_('ice_endpoints', endpts, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getLocatorCacheTimeout(self)
+        function r = ice_getLocatorCacheTimeout(obj)
             v = libpointer('int32Ptr', 0);
-            self.callMethod('ice_getLocatorCacheTimeout', v);
+            obj.call_('ice_getLocatorCacheTimeout', v);
             r = v.Value;
         end
 
-        function r = ice_locatorcacheTimeout(self, t)
+        function r = ice_locatorCacheTimeout(obj, t)
             v = libpointer('voidPtr');
-            self.callMethod('ice_locatorCacheTimeout', t, v);
+            obj.call_('ice_locatorCacheTimeout', t, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getInvocationTimeout(self)
+        function r = ice_getInvocationTimeout(obj)
             v = libpointer('int32Ptr', 0);
-            self.callMethod('ice_getInvocationTimeout', v);
+            obj.call_('ice_getInvocationTimeout', v);
             r = v.Value;
         end
 
-        function r = ice_invocationTimeout(self, t)
+        function r = ice_invocationTimeout(obj, t)
             v = libpointer('voidPtr');
-            self.callMethod('ice_invocationTimeout', t, v);
+            obj.call_('ice_invocationTimeout', t, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getConnectionId(self)
-            r = self.callMethodWithResult('ice_getConnectionId');
+        function r = ice_getConnectionId(obj)
+            r = obj.callWithResult_('ice_getConnectionId');
         end
 
-        function r = ice_connectionId(self, id)
+        function r = ice_connectionId(obj, id)
             v = libpointer('voidPtr');
-            self.callMethod('ice_connectionId', id, v);
+            obj.call_('ice_connectionId', id, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isConnectionCached(self)
+        function r = ice_isConnectionCached(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isConnectionCached', v);
+            obj.call_('ice_isConnectionCached', v);
             r = v.Value == 1;
         end
 
-        function r = ice_connectionCached(self, b)
+        function r = ice_connectionCached(obj, b)
             v = libpointer('voidPtr');
             if b
                 val = 1;
             else
                 val = 0;
             end
-            self.callMethod('ice_connectionCached', val, v);
+            obj.call_('ice_connectionCached', val, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getEndpointSelection(self)
-            v = libpointer('Ice_EndpointSelectionType', 'Random');
-            self.callMethod('ice_getEndpointSelection', v);
-            r = v.Value;
+        function r = ice_getEndpointSelection(obj)
+            v = libpointer('int32Ptr', 0);
+            obj.call_('ice_getEndpointSelection', v);
+            r = Ice.EndpointSelectionType.ice_getValue(v.Value);
         end
 
-        function r = ice_endpointSelection(self, t)
+        function r = ice_endpointSelection(obj, t)
+            if ~isa(t, 'Ice.EndpointSelectionType')
+                throw(MException('Ice:ArgumentException', 'expected an Ice.EndpointSelectionType enumerator'));
+            end
             v = libpointer('voidPtr');
-            self.callMethod('ice_endpointSelection', t, v);
+            obj.call_('ice_endpointSelection', int32(t), v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getEncodingVersion(self)
-            r = self.callMethodWithResult('ice_getEncodingVersion');
+        function r = ice_getEncodingVersion(obj)
+            r = obj.callWithResult_('ice_getEncodingVersion');
         end
 
-        function r = ice_encodingVersion(self, ver)
+        function r = ice_encodingVersion(obj, ver)
             v = libpointer('voidPtr');
-            self.callMethod('ice_encodingVersion', ver, v);
+            obj.call_('ice_encodingVersion', ver, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getRouter(self)
+        function r = ice_getRouter(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_getRouter', v);
+            obj.call_('ice_getRouter', v);
             if isNull(v)
                 r = [];
             else
-                r = Ice.RouterPrx(v);
+                r = Ice.RouterPrx(v, obj.communicator);
             end
         end
 
-        function r = ice_router(self, rtr)
+        function r = ice_router(obj, rtr)
             v = libpointer('voidPtr');
             if isempty(rtr)
                 impl = libpointer('voidPtr');
             else
-                impl = rtr.impl;
+                impl = rtr.impl_;
             end
-            self.callMethod('ice_router', impl, v);
+            obj.call_('ice_router', impl, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getLocator(self)
+        function r = ice_getLocator(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_getLocator', v);
+            obj.call_('ice_getLocator', v);
             if isNull(v)
                 r = [];
             else
-                r = Ice.LocatorPrx(v);
+                r = Ice.LocatorPrx(v, obj.communicator);
             end
         end
 
-        function r = ice_locator(self, loc)
+        function r = ice_locator(obj, loc)
             v = libpointer('voidPtr');
             if isempty(loc)
                 impl = libpointer('voidPtr');
             else
-                impl = loc.impl;
+                impl = loc.impl_;
             end
-            self.callMethod('ice_locator', impl, v);
+            obj.call_('ice_locator', impl, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isSecure(self)
+        function r = ice_isSecure(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isSecure', v);
+            obj.call_('ice_isSecure', v);
             r = v.Value == 1;
         end
 
-        function r = ice_secure(self, b)
+        function r = ice_secure(obj, b)
             v = libpointer('voidPtr');
             if b
                 val = 1;
             else
                 val = 0;
             end
-            self.callMethod('ice_secure', val, v);
+            obj.call_('ice_secure', val, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isPreferSecure(self)
+        function r = ice_isPreferSecure(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isPreferSecure', v);
+            obj.call_('ice_isPreferSecure', v);
             r = v.Value == 1;
         end
 
-        function r = ice_preferSecure(self, b)
+        function r = ice_preferSecure(obj, b)
             v = libpointer('voidPtr');
             if b
                 val = 1;
             else
                 val = 0;
             end
-            self.callMethod('ice_preferSecure', val, v);
+            obj.call_('ice_preferSecure', val, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isTwoway(self)
+        function r = ice_isTwoway(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isTwoway', v);
+            obj.call_('ice_isTwoway', v);
             r = v.Value == 1;
         end
 
-        function r = ice_twoway(self)
+        function r = ice_twoway(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_twoway', v);
+            obj.call_('ice_twoway', v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isOneway(self)
+        function r = ice_isOneway(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isOneway', v);
+            obj.call_('ice_isOneway', v);
             r = v.Value == 1;
         end
 
-        function r = ice_oneway(self)
+        function r = ice_oneway(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_oneway', v);
+            obj.call_('ice_oneway', v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isBatchOneway(self)
+        function r = ice_isBatchOneway(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isBatchOneway', v);
+            obj.call_('ice_isBatchOneway', v);
             r = v.Value == 1;
         end
 
-        function r = ice_batchOneway(self)
+        function r = ice_batchOneway(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_batchOneway', v);
+            obj.call_('ice_batchOneway', v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isDatagram(self)
+        function r = ice_isDatagram(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isDatagram', v);
+            obj.call_('ice_isDatagram', v);
             r = v.Value == 1;
         end
 
-        function r = ice_datagram(self)
+        function r = ice_datagram(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_datagram', v);
+            obj.call_('ice_datagram', v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_isBatchDatagram(self)
+        function r = ice_isBatchDatagram(obj)
             v = libpointer('uint8Ptr', 0);
-            self.callMethod('ice_isBatchDatagram', v);
+            obj.call_('ice_isBatchDatagram', v);
             r = v.Value == 1;
         end
 
-        function r = ice_batchDatagram(self)
+        function r = ice_batchDatagram(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_batchDatagram', v);
+            obj.call_('ice_batchDatagram', v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_compress(self, b)
+        function r = ice_compress(obj, b)
             v = libpointer('voidPtr');
             if b
                 val = 1;
             else
                 val = 0;
             end
-            self.callMethod('ice_compress', val, v);
+            obj.call_('ice_compress', val, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_timeout(self, t)
+        function r = ice_timeout(obj, t)
             v = libpointer('voidPtr');
-            self.callMethod('ice_timeout', t, v);
+            obj.call_('ice_timeout', t, v);
             if isNull(v)
-                r = self;
+                r = obj;
             else
-                r = self.newInstance_(v);
+                r = obj.newInstance_(v);
             end
         end
 
-        function r = ice_getConnection(self)
+        function r = ice_getConnection(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_getConnection', v);
+            obj.call_('ice_getConnection', v);
             if isNull(v)
                 r = [];
             else
-                r = Ice.Connection(v);
+                r = Ice.Connection(v, obj.communicator);
             end
         end
 
-        function r = ice_getConnectionAsync(self)
+        function r = ice_getConnectionAsync(obj)
             future = libpointer('voidPtr');
-            self.callMethod('ice_getConnectionAsync', future);
+            obj.call_('ice_getConnectionAsync', future);
             assert(~isNull(future));
             function varargout = fetch(f)
                 con = libpointer('voidPtr', 0); % Output param
-                Ice.Util.callMethodOnType(f, 'Ice_GetConnectionFuture', 'fetch', con);
+                f.call_('fetch', con);
                 assert(~isNull(con));
                 varargout{1} = Ice.Connection(con);
             end
             r = Ice.Future(future, 'ice_getConnection', 1, 'Ice_GetConnectionFuture', @fetch);
         end
 
-        function r = ice_getCachedConnection(self)
+        function r = ice_getCachedConnection(obj)
             v = libpointer('voidPtr');
-            self.callMethod('ice_getCachedConnection', v);
+            obj.call_('ice_getCachedConnection', v);
             if isNull(v)
                 r = [];
             else
@@ -534,24 +535,24 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function ice_flushBatchRequests(self)
-            self.callMethod('ice_flushBatchRequests');
+        function ice_flushBatchRequests(obj)
+            obj.call_('ice_flushBatchRequests');
         end
 
-        function r = ice_flushBatchRequestsAsync(self)
+        function r = ice_flushBatchRequestsAsync(obj)
             future = libpointer('voidPtr');
-            self.callMethod('ice_flushBatchRequestsAsync', future);
+            obj.call_('ice_flushBatchRequestsAsync', future);
             assert(~isNull(future));
             r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SentFuture', []);
         end
     end
 
     methods(Access=protected)
-        function checkNoResponse_(self, ok, inStream)
-            if self.ice_isTwoway()
+        function checkNoResponse_(obj, ok, inStream)
+            if obj.ice_isTwoway()
                 if ok == 0
                     try
-                        self.throwUserException_(inStream);
+                        obj.throwUserException_(inStream);
                     catch ex
                         ex.throwAsCaller();
                     end
@@ -561,53 +562,53 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function os = startWriteParams_(self)
-            os = self.ice_createOutputStream();
-            os.startEncapsulation();
+        function os = startWriteParams_(obj)
+            os = obj.ice_createOutputStream();
+            os.startEncapsulation([]);
         end
 
-        function os = startWriteParamsWithFormat_(self, format)
-            os = self.ice_createOutputStream();
-            os.startEncapsulationWithFormat(format);
+        function os = startWriteParamsWithFormat_(obj, format)
+            os = obj.ice_createOutputStream();
+            os.startEncapsulation(format);
         end
 
-        function endWriteParams_(self, os)
+        function endWriteParams_(obj, os)
             os.endEncapsulation();
         end
 
-        function [ok, inStream] = invoke_(self, op, mode, twowayOnly, os, varargin)
-            try
+        function [ok, inStream] = invoke_(obj, op, mode, twowayOnly, os, varargin)
+            %try TODO
                 % Vararg accepted for optional context argument.
                 if length(varargin) > 1
                     throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
-                if twowayOnly && ~self.ice_isTwoway()
+                if twowayOnly && ~obj.ice_isTwoway()
                     throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
                 end
                 if ~isempty(os)
-                    outStream = os.impl;
+                    outStream = os.impl_;
                 else
                     outStream = libpointer('voidPtr'); % Null pointer for output stream
                 end
                 okPtr = libpointer('uint8Ptr', 0); % Output param
                 inStreamPtr = libpointer('voidPtr'); % Output param
                 if length(varargin) == 1
-                    self.callMethod('ice_invoke', op, mode, outStream, varargin{1}, okPtr, inStreamPtr);
+                    obj.call_('ice_invoke', op, mode, outStream, varargin{1}, okPtr, inStreamPtr);
                 else
-                    self.callMethod('ice_invokeNC', op, mode, outStream, okPtr, inStreamPtr);
+                    obj.call_('ice_invokeNC', op, mode, outStream, okPtr, inStreamPtr);
                 end
                 ok = okPtr.Value == 1;
                 inStream = [];
                 if ~isNull(inStreamPtr)
-                    inStream = Ice.InputStream(inStreamPtr);
+                    inStream = Ice.InputStream(inStreamPtr, obj.communicator);
                 end
-            catch ex
-                ex.throwAsCaller();
-            end
+            %catch ex
+            %    ex.throwAsCaller();
+            %end
         end
 
-        function fut = invokeAsync_(self, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, varargin)
-            isTwoway = self.ice_isTwoway();
+        function fut = invokeAsync_(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, varargin)
+            isTwoway = obj.ice_isTwoway();
 
             % This nested function is invoked by Future.fetchOutputs()
             function varargout = fetch(f)
@@ -619,14 +620,14 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         %
                         okPtr = libpointer('uint8Ptr', 0); % Output param
                         inStreamPtr = libpointer('voidPtr', 0); % Output param
-                        Ice.Util.callMethodOnType(f, 'Ice_InvocationFuture', 'stream', okPtr, inStreamPtr);
+                        f.call_('stream', okPtr, inStreamPtr);
                         ok = okPtr.Value == 1;
                         assert(~isNull(inStreamPtr));
-                        inStream = Ice.InputStream(inStreamPtr);
+                        inStream = Ice.InputStream(inStreamPtr, obj.communicator);
                         if isempty(unmarshalFunc)
                             if ~ok
                                 % Unexpected user exception
-                                self.throwUserException_(inStream);
+                                obj.throwUserException_(inStream);
                             else
                                 inStream.skipEmptyEncapsulation();
                             end
@@ -637,7 +638,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         %
                         % Check for a local exception.
                         %
-                        Ice.Util.callMethodOnType(f, 'Ice_InvocationFuture', 'check');
+                        f.call_('check');
                     end
                 catch ex
                     ex.throwAsCaller();
@@ -649,19 +650,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if length(varargin) > 1
                     throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
-                if twowayOnly && ~self.ice_isTwoway()
+                if twowayOnly && ~obj.ice_isTwoway()
                     throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
                 end
                 if ~isempty(os)
-                    outStream = os.impl;
+                    outStream = os.impl_;
                 else
                     outStream = libpointer('voidPtr'); % Null pointer for output stream
                 end
                 futPtr = libpointer('voidPtr'); % Output param
                 if length(varargin) == 1
-                    self.callMethod('ice_invokeAsync', op, mode, outStream, varargin{1}, futPtr);
+                    obj.call_('ice_invokeAsync', op, mode, outStream, varargin{1}, futPtr);
                 else
-                    self.callMethod('ice_invokeAsyncNC', op, mode, outStream, futPtr);
+                    obj.call_('ice_invokeAsyncNC', op, mode, outStream, futPtr);
                 end
                 assert(~isNull(futPtr));
                 fut = Ice.Future(futPtr, op, numOutArgs, 'Ice_InvocationFuture', @fetch);
@@ -670,7 +671,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function throwUserException_(self, inStream, varargin) % Varargs are user exception type names
+        function throwUserException_(obj, inStream, varargin) % Varargs are user exception type names
             try
                 inStream.startEncapsulation();
                 inStream.throwException();
@@ -690,36 +691,43 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function r = newInstance_(self, impl)
-            constructor = str2func(class(self)); % Obtain the constructor for this class
-            r = constructor(impl); % Call the constructor
+        function r = newInstance_(obj, impl)
+            constructor = str2func(class(obj)); % Obtain the constructor for this class
+            r = constructor(impl, obj.communicator); % Call the constructor
         end
 
-        function r = clone_(self)
+        function r = clone_(obj)
             implPtr = libpointer('voidPtr'); % Output param
-            self.callMethod('clone', implPtr);
+            obj.call_('clone', implPtr);
             r = implPtr;
         end
     end
 
-    methods(Access=private)
-        % We don't use the functions in Ice.Util because they use the most-derived class name, whereas we always
-        % want to use Ice_ObjectPrx_xxx.
-        function callMethod(self, fn, varargin)
-            name = strcat('Ice_ObjectPrx_', fn);
-            ex = calllib('icematlab', name, self.impl, varargin{:});
-            if ~isempty(ex)
-                ex.throwAsCaller();
+    methods(Static)
+        function r = ice_staticId()
+            r = '::Ice::Object';
+        end
+
+        function r = checkedCast(p, varargin)
+            if length(varargin) == 0
+                r = p;
+            else
+                r = Ice.ObjectPrx.checkedCast(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
             end
         end
 
-        function r = callMethodWithResult(self, fn, varargin)
-            name = strcat('Ice_ObjectPrx_', fn);
-            result = calllib('icematlab', name, self.impl, varargin{:});
-            if ~isempty(result.exception)
-                result.exception.throwAsCaller();
+        function r = uncheckedCast(p, varargin)
+            if length(varargin) == 0
+                r = p;
+            elseif length(varargin) == 1
+                if ~isempty(p)
+                    r = p.ice_facet(varargin{1});
+                else
+                    r = p;
+                end
+            else
+                throw(MException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
             end
-            r = result.result;
         end
     end
 
@@ -728,23 +736,30 @@ classdef ObjectPrx < IceInternal.WrapperObject
             p = inStream.readProxy();
             if ~isempty(p)
                 constructor = str2func(cls);
-                r = constructor(p.clone_());
+                r = constructor(p.clone_(), inStream.getCommunicator());
             else
                 r = [];
             end
         end
 
         function r = checkedCast_(p, id, cls, varargin)
-            %try
+            try
                 hasFacet = false;
                 facet = [];
                 context = {};
                 if length(varargin) == 1
-                    facet = varargin{1};
-                    hasFacet = true;
+                    if isa(varargin{1}, 'containers.Map')
+                        context = { varargin{1} };
+                    elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
+                        hasFacet = true;
+                        facet = varargin{1};
+                    else
+                        throw(MException('Ice:ArgumentException', 'expecting string or containers.Map'));
+                    end
                 elseif length(varargin) == 2
+                    hasFacet = true;
                     facet = varargin{1};
-                    context = {varargin{2}};
+                    context = { varargin{2} };
                 elseif length(varargin) > 2
                     throw(MException('Ice:ArgumentException', 'too many arguments to checkedCast'));
                 end
@@ -756,16 +771,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         r = p;
                     elseif p.ice_isA(id, context{:})
                         constructor = str2func(cls);
-                        r = constructor(p.clone_());
+                        r = constructor(p.clone_(), p.communicator);
                     else
                         r = [];
                     end
                 else
                     r = p;
                 end
-            %catch ex
-            %    ex.throwAsCaller();
-            %end
+            catch ex
+                ex.throwAsCaller();
+            end
         end
 
         function r = uncheckedCast_(p, cls, varargin)
@@ -783,11 +798,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     r = p;
                 else
                     constructor = str2func(cls);
-                    r = constructor(p.clone_());
+                    r = constructor(p.clone_(), p.communicator);
                 end
             else
                 r = p;
             end
         end
+    end
+
+    properties(Access=private)
+        communicator % The communicator wrapper
     end
 end

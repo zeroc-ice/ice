@@ -18,88 +18,12 @@
 using namespace std;
 using namespace IceMatlab;
 
-namespace
-{
-
-typedef std::map<mxArray*, shared_ptr<Ice::Value>> ValueMap;
-
-//
-// A Closure instance is associated with an OutputStream whenever values are marshaled.
-//
-struct Closure
-{
-    ValueMap valueMap;
-    mxArray* stream;
-};
-
-//
-// ValueWriter wraps a Matlab object for marshaling.
-//
-class ValueWriter : public Ice::Value
-{
-public:
-
-    ValueWriter(mxArray*);
-
-    virtual void ice_preMarshal();
-
-    virtual void _iceWrite(Ice::OutputStream*) const;
-    virtual void _iceRead(Ice::InputStream*);
-
-protected:
-
-    virtual shared_ptr<Ice::Value> _iceCloneImpl() const;
-
-private:
-
-    mxArray* _value;
-};
-
-ValueWriter::ValueWriter(mxArray* v) :
-    _value(v)
-{
-}
-
-void
-ValueWriter::ice_preMarshal()
-{
-    mexCallMATLAB(0, 0, 1, &_value, "ice_preMarshal");
-}
-
-void
-ValueWriter::_iceWrite(Ice::OutputStream* os) const
-{
-    Closure* c = reinterpret_cast<Closure*>(os->getClosure());
-    assert(c);
-
-    mxArray* params[2];
-    params[0] = _value;
-    params[1] = c->stream;
-    mexCallMATLAB(0, 0, 2, params, "iceWrite_");
-}
-
-void
-ValueWriter::_iceRead(Ice::InputStream*)
-{
-    assert(false);
-}
-
-shared_ptr<Ice::Value>
-ValueWriter::_iceCloneImpl() const
-{
-    return nullptr;
-}
-
-}
-
 extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
 Ice_OutputStream__release(void* self)
 {
-    Closure* c = reinterpret_cast<Closure*>(SELF->getClosure());
-    delete c;
     delete SELF;
     return 0;
 }
@@ -110,20 +34,6 @@ Ice_OutputStream_writeBool(void* self, unsigned char v)
     try
     {
         SELF->write(v == 1);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeBoolOpt(void* self, int tag, unsigned char v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<bool>(v == 1));
     }
     catch(const std::exception& ex)
     {
@@ -148,43 +58,11 @@ Ice_OutputStream_writeBoolSeq(void* self, const unsigned char* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeBoolSeqOpt(void* self, int tag, const unsigned char* v, int size)
-{
-    const bool* p = reinterpret_cast<const bool*>(v);
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(p, p + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeByte(void* self, unsigned char v)
 {
     try
     {
         SELF->write(static_cast<Ice::Byte>(v));
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeByteOpt(void* self, int tag, unsigned char v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<Ice::Byte>(static_cast<Ice::Byte>(v)));
     }
     catch(const std::exception& ex)
     {
@@ -209,43 +87,11 @@ Ice_OutputStream_writeByteSeq(void* self, const unsigned char* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeByteSeqOpt(void* self, int tag, const unsigned char* v, int size)
-{
-    const Ice::Byte* p = reinterpret_cast<const Ice::Byte*>(v);
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(p, p + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeShort(void* self, short v)
 {
     try
     {
         SELF->write(v);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeShortOpt(void* self, int tag, short v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<short>(v));
     }
     catch(const std::exception& ex)
     {
@@ -269,42 +115,11 @@ Ice_OutputStream_writeShortSeq(void* self, const short* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeShortSeqOpt(void* self, int tag, const short* v, int size)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(v, v + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeInt(void* self, int v)
 {
     try
     {
         SELF->write(v);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeIntOpt(void* self, int tag, int v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<int>(v));
     }
     catch(const std::exception& ex)
     {
@@ -328,42 +143,11 @@ Ice_OutputStream_writeIntSeq(void* self, const int* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeIntSeqOpt(void* self, int tag, const int* v, int size)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(v, v + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeLong(void* self, long long v)
 {
     try
     {
         SELF->write(v);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeLongOpt(void* self, int tag, long long v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<long long>(v));
     }
     catch(const std::exception& ex)
     {
@@ -387,42 +171,11 @@ Ice_OutputStream_writeLongSeq(void* self, const long long* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeLongSeqOpt(void* self, int tag, const long long* v, int size)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(v, v + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeFloat(void* self, float v)
 {
     try
     {
         SELF->write(v);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeFloatOpt(void* self, int tag, float v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<float>(v));
     }
     catch(const std::exception& ex)
     {
@@ -446,42 +199,11 @@ Ice_OutputStream_writeFloatSeq(void* self, const float* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeFloatSeqOpt(void* self, int tag, const float* v, int size)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(v, v + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeDouble(void* self, double v)
 {
     try
     {
         SELF->write(v);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeDoubleOpt(void* self, int tag, double v)
-{
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<double>(v));
     }
     catch(const std::exception& ex)
     {
@@ -505,45 +227,11 @@ Ice_OutputStream_writeDoubleSeq(void* self, const double* v, int size)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeDoubleSeqOpt(void* self, int tag, const double* v, int size)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(v, v + size);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeString(void* self, mxArray* str)
 {
     try
     {
         SELF->write(getStringFromUTF16(str), false);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeStringOpt(void* self, int tag, mxArray* str)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::VSize))
-        {
-            SELF->write(getStringFromUTF16(str), false);
-        }
     }
     catch(const std::exception& ex)
     {
@@ -589,29 +277,6 @@ Ice_OutputStream_writeStringSeq(void* self, mxArray* v)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeStringSeqOpt(void* self, int tag, mxArray* v)
-{
-    try
-    {
-        if(SELF->writeOptional(tag, Ice::OptionalFormat::FSize))
-        {
-            Ice::OutputStream::size_type pos = SELF->startSize();
-            mxArray* ex = Ice_OutputStream_writeStringSeq(self, v);
-            if(ex)
-            {
-                return ex;
-            }
-            SELF->endSize(pos);
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeSize(void* self, int size)
 {
     try
@@ -645,175 +310,11 @@ Ice_OutputStream_writeProxy(void* self, void* proxy)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeProxyOpt(void* self, int tag, void* proxy)
-{
-    assert(proxy); // Wrapper only calls this function for a non-nil value.
-    shared_ptr<Ice::ObjectPrx> p = *(reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(proxy));
-    try
-    {
-        SELF->writeAll({tag}, IceUtil::Optional<shared_ptr<Ice::ObjectPrx>>(p));
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_OutputStream_writeEnum(void* self, int val, int maxValue)
 {
     try
     {
         SELF->writeEnum(val, maxValue);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeValue(void* self, mxArray* stream, mxArray* val)
-{
-    if(mxIsEmpty(val))
-    {
-        shared_ptr<Ice::Value> nil = nullptr;
-        SELF->write(nil);
-        return 0;
-    }
-
-    //
-    // Attach a Closure instance to the stream upon writing the first non-nil Value.
-    //
-    Closure* c = reinterpret_cast<Closure*>(SELF->getClosure());
-    if(!c)
-    {
-        c = new Closure;
-        c->stream = stream;
-        SELF->setClosure(c);
-    }
-
-    //
-    // We're assuming that a mxArray pointer uniquely identifies an object. We use the closure's map to
-    // track the instances.
-    //
-    shared_ptr<Ice::Value> w;
-    ValueMap::iterator p = c->valueMap.find(val);
-    if(p == c->valueMap.end())
-    {
-        w = make_shared<ValueWriter>(val);
-        c->valueMap.insert(ValueMap::value_type(val, w));
-    }
-    else
-    {
-        w = p->second;
-    }
-
-    try
-    {
-        SELF->write(w);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeValueOpt(void* self, int tag, mxArray* stream, mxArray* val)
-{
-    //
-    // We assume an empty value means an unset optional (as opposed to an optional set to a null value).
-    //
-    if(!mxIsEmpty(val) && SELF->writeOptional(tag, Ice::OptionalFormat::Class))
-    {
-        return Ice_OutputStream_writeValue(self, stream, val);
-    }
-
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_startEncapsulation(void* self)
-{
-    try
-    {
-        SELF->startEncapsulation();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_startEncapsulationWithFormat(void* self, Ice_FormatType t)
-{
-    Ice::FormatType type = static_cast<Ice::FormatType>(t);
-    try
-    {
-        SELF->startEncapsulation(SELF->getEncoding(), type);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_endEncapsulation(void* self)
-{
-    try
-    {
-        SELF->endEncapsulation();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_startSlice(void* self, const char* typeId, int compactId, unsigned char last)
-{
-    try
-    {
-        SELF->startSlice(typeId, compactId, last == 1);
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_endSlice(void* self)
-{
-    try
-    {
-        SELF->endSlice();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_OutputStream_writeOptional(void* self, int tag, Ice_OptionalFormat f, unsigned char* supportsOptionals)
-{
-    Ice::OptionalFormat fmt = static_cast<Ice::OptionalFormat>(f);
-    try
-    {
-        *supportsOptionals = SELF->writeOptional(tag, fmt);
     }
     catch(const std::exception& ex)
     {
@@ -846,6 +347,71 @@ Ice_OutputStream_endSize(void* self, unsigned int pos)
     catch(const std::exception& ex)
     {
         return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_pos(void* self, unsigned int* pos)
+{
+    try
+    {
+        *pos = SELF->pos();
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_rewriteByte(void* self, unsigned char v, unsigned int pos)
+{
+    Ice::Byte* dest = &(*(SELF->b.begin() + pos));
+    *dest = v;
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_rewriteInt(void* self, int v, unsigned int pos)
+{
+    try
+    {
+        SELF->rewrite(v, pos);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_writeBlob(void* self, const unsigned char* v, int size)
+{
+    const Ice::Byte* p = reinterpret_cast<const Ice::Byte*>(v);
+    try
+    {
+        SELF->writeBlob(p, size);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_getEncoding(void* self)
+{
+    try
+    {
+        return createResultValue(createEncodingVersion(SELF->getEncoding()));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
     }
     return 0;
 }

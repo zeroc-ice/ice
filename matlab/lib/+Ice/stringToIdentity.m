@@ -10,5 +10,5 @@ ICE_LICENSE file included in this distribution.
 %}
 
 function r = stringToIdentity(s)
-    r = Ice.Util.callWithResult('Ice_stringToIdentity', s);
+    r = IceInternal.Util.callWithResult('Ice_stringToIdentity', s);
 end

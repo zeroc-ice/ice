@@ -14,63 +14,68 @@ ICE_LICENSE file included in this distribution.
 
 classdef Connection < IceInternal.WrapperObject
     methods
-        function obj = Connection(impl)
+        function obj = Connection(impl, communicator)
             obj = obj@IceInternal.WrapperObject(impl);
+            obj.communicator = communicator;
         end
         function close(obj, mode)
-            Ice.Util.callMethod(obj, 'close', mode);
+            obj.call_('close', mode);
         end
         function r = createProxy(obj, id)
             proxy = libpointer('voidPtr');
-            Ice.Util.callMethod(obj, 'createProxy', id, proxy);
-            r = Ice.ObjectPrx(proxy);
+            obj.call_('createProxy', id, proxy);
+            r = Ice.ObjectPrx(proxy, obj.communicator);
         end
         function r = getEndpoint(obj)
             throw(Ice.FeatureNotSupportedException('', '', 'getEndpoint'));
         end
         function flushBatchRequests(obj, compress)
-            Ice.Util.callMethod(obj, 'flushBatchRequests', compress);
+            obj.call_('flushBatchRequests', compress);
         end
         function r = flushBatchRequestsAsync(obj)
             future = libpointer('voidPtr');
-            Ice.Util.callMethod(obj, 'flushBatchRequestsAsync', future);
+            obj.call_('flushBatchRequestsAsync', future);
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SentFuture', []);
         end
         function heartbeat(obj)
-            Ice.Util.callMethod(obj, 'heartbeat');
+            obj.call_('heartbeat');
         end
         function r = heartbeatAsync(obj)
             future = libpointer('voidPtr');
-            Ice.Util.callMethod(obj, 'heartbeatAsync', future);
+            obj.call_('heartbeatAsync', future);
             assert(~isNull(future));
             r = Ice.Future(future, 'heartbeat', 0, 'Ice_SentFuture', []);
         end
         function setACM(obj, timeout, close, heartbeat)
-            Ice.Util.callMethod(obj, 'setACM', timeout, close, heartbeat);
+            obj.call_('setACM', timeout, close, heartbeat);
         end
         function r = getACM(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'getACM');
+            r = obj.callWithResult_('getACM');
         end
         function r = type(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'type');
+            r = obj.callWithResult_('type');
         end
         function r = timeout(obj)
             t = libpointer('int32Ptr', 0);
-            r = Ice.Util.callMethod(obj, 'timeout', t);
+            r = obj.call_('timeout', t);
             r = t.Value;
         end
         function r = toString(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'toString');
+            r = obj.callWithResult_('toString');
         end
         function r = getInfo(obj)
             throw(Ice.FeatureNotSupportedException('', '', 'getInfo'));
         end
         function setBufferSize(obj, rcvSize, sndSize)
-            Ice.Util.callMethod(obj, 'setBufferSize', rcvSize, sndSize);
+            obj.call_('setBufferSize', rcvSize, sndSize);
         end
         function throwException(obj)
-            Ice.Util.callMethod(obj, 'throwException');
+            obj.call_('throwException');
         end
+    end
+
+    properties(Access=private)
+        communicator % The communicator wrapper
     end
 end

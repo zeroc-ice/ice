@@ -9,6 +9,13 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-function r = identityToString(id)
-    r = Ice.Util.callWithResult('Ice_identityToString', id);
+function r = identityToString(id, varargin)
+    if length(varargin) == 1
+        mode = varargin{1};
+    elseif length(varargin) == 0
+        mode = Ice.ToStringMode.Unicode;
+    elseif length(varargin) > 2
+        throw(MException('Ice:ArgumentException', 'too many arguments'));
+    end
+    r = IceInternal.Util.callWithResult('Ice_identityToString', id, int32(mode));
 end

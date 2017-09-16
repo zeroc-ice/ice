@@ -11,125 +11,200 @@ ICE_LICENSE file included in this distribution.
 
 classdef InputStream < IceInternal.WrapperObject
     methods
-        function obj = InputStream(impl)
+        function obj = InputStream(impl, communicator)
             obj = obj@IceInternal.WrapperObject(impl);
-            obj.encoding = Ice.Util.callMethodWithResult(obj, 'getEncoding');
+            obj.communicator = communicator;
+            obj.encoding = obj.callWithResult_('getEncoding');
+            obj.sliceValues = true;
+        end
+        function r = getCommunicator(obj)
+            r = obj.communicator;
         end
         function r = readBool(obj)
             v = libpointer('uint8Ptr', 0);
-            Ice.Util.callMethod(obj, 'readBool', v);
+            obj.call_('readBool', v);
             r = v.Value == 1;
         end
         function r = readBoolSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readBoolSeq');
+            r = obj.callWithResult_('readBoolSeq');
         end
         function r = readBoolOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readBoolOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F1)
+                r = obj.readBool();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readBoolSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readBoolSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                r = obj.readBoolSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readByte(obj)
             v = libpointer('uint8Ptr', 0);
-            Ice.Util.callMethod(obj, 'readByte', v);
+            obj.call_('readByte', v);
             r = v.Value;
         end
         function r = readByteSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readByteSeq');
+            r = obj.callWithResult_('readByteSeq');
         end
         function r = readByteOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readByteOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F1)
+                r = obj.readByte();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readByteSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readByteSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                r = obj.readByteSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readShort(obj)
             v = libpointer('int16Ptr', 0);
-            Ice.Util.callMethod(obj, 'readShort', v);
+            obj.call_('readShort', v);
             r = v.Value;
         end
         function r = readShortSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readShortSeq');
+            r = obj.callWithResult_('readShortSeq');
         end
         function r = readShortOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readShortOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F2)
+                r = obj.readShort();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readShortSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readShortSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                obj.skipSize();
+                r = obj.readShortSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readInt(obj)
             v = libpointer('int32Ptr', 0);
-            Ice.Util.callMethod(obj, 'readInt', v);
+            obj.call_('readInt', v);
             r = v.Value;
         end
         function r = readIntSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readIntSeq');
+            r = obj.callWithResult_('readIntSeq');
         end
         function r = readIntOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readIntOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F4)
+                r = obj.readInt();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readIntSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readIntSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                obj.skipSize();
+                r = obj.readIntSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readLong(obj)
             v = libpointer('int64Ptr', 0);
-            Ice.Util.callMethod(obj, 'readLong', v);
+            obj.call_('readLong', v);
             r = v.Value;
         end
         function r = readLongSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readLongSeq');
+            r = obj.callWithResult_('readLongSeq');
         end
         function r = readLongOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readLongOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F8)
+                r = obj.readLong();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readLongSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readLongSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                obj.skipSize();
+                r = obj.readLongSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readFloat(obj)
             v = libpointer('singlePtr', 0);
-            Ice.Util.callMethod(obj, 'readFloat', v);
+            obj.call_('readFloat', v);
             r = v.Value;
         end
         function r = readFloatSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readFloatSeq');
+            r = obj.callWithResult_('readFloatSeq');
         end
         function r = readFloatOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readFloatOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F4)
+                r = obj.readFloat();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readFloatSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readFloatSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                obj.skipSize();
+                r = obj.readFloatSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readDouble(obj)
             v = libpointer('doublePtr', 0);
-            Ice.Util.callMethod(obj, 'readDouble', v);
+            obj.call_('readDouble', v);
             r = v.Value;
         end
         function r = readDoubleSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readDoubleSeq');
+            r = obj.callWithResult_('readDoubleSeq');
         end
         function r = readDoubleOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readDoubleOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.F8)
+                r = obj.readDouble();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readDoubleSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readDoubleSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                obj.skipSize();
+                r = obj.readDoubleSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readString(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readString');
+            r = obj.callWithResult_('readString');
         end
         function r = readStringSeq(obj)
-            r = Ice.Util.callMethodWithResult(obj, 'readStringSeq');
+            r = obj.callWithResult_('readStringSeq');
         end
         function r = readStringOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readStringOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.VSize)
+                r = obj.readString();
+            else
+                r = Ice.Unset;
+            end
         end
         function r = readStringSeqOpt(obj, tag)
-            r = Ice.Util.callMethodWithResult(obj, 'readStringSeqOpt', tag);
+            if obj.readOptional(tag, Ice.OptionalFormat.FSize)
+                obj.skip(4);
+                r = obj.readStringSeq();
+            else
+                r = Ice.Unset;
+            end
         end
         function skip(obj, n)
-            Ice.Util.callMethod(obj, 'skip', n);
+            obj.call_('skip', n);
         end
         function skipSize(obj)
-            Ice.Util.callMethod(obj, 'skipSize');
+            obj.call_('skipSize');
         end
         function startException(obj)
             assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
@@ -137,14 +212,14 @@ classdef InputStream < IceInternal.WrapperObject
         end
         function endException(obj) % TODO: preserve
             assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.endInstance();
+            obj.currentEncaps.decoder.endInstance(false);
         end
         function startEncapsulation(obj)
             oldEncaps = obj.currentEncaps;
             if isempty(oldEncaps) % First allocated encaps?
-                obj.currentEncaps = IceInternal.Encaps();
+                obj.currentEncaps = IceInternal.ReadEncaps();
             else
-                obj.currentEncaps = IceInternal.Encaps();
+                obj.currentEncaps = IceInternal.ReadEncaps();
                 obj.currentEncaps.previous = oldEncaps;
             end
             obj.currentEncaps.start = obj.pos();
@@ -174,7 +249,7 @@ classdef InputStream < IceInternal.WrapperObject
         function endEncapsulation(obj)
             assert(~isempty(obj.currentEncaps));
 
-            if ~isequal(obj.currentEncaps.encoding, obj.Encoding_1_0)
+            if ~isequal(obj.currentEncaps.encoding, IceInternal.Protocol.Encoding_1_0)
                 obj.skipOptionals();
                 if obj.pos() ~= obj.currentEncaps.start + obj.currentEncaps.sz
                     throw(Ice.EncapsulationException());
@@ -207,7 +282,7 @@ classdef InputStream < IceInternal.WrapperObject
             encoding = Ice.EncodingVersion.ice_read(obj);
             %IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported % TODO
 
-            if isequal(encoding, obj.Encoding_1_0)
+            if isequal(encoding, IceInternal.Protocol.Encoding_1_0)
                 if sz ~= 6
                     throw(Ice.EncapsulationException());
                 end
@@ -219,7 +294,7 @@ classdef InputStream < IceInternal.WrapperObject
             r = encoding;
         end
         function skipEncapsulation(obj)
-            Ice.Util.callMethod(obj, 'skipEncapsulation');
+            obj.call_('skipEncapsulation');
         end
         function r = getEncoding(obj)
             if isempty(obj.currentEncaps)
@@ -242,7 +317,7 @@ classdef InputStream < IceInternal.WrapperObject
         end
         function r = readSize(obj)
             v = libpointer('int32Ptr', 0);
-            Ice.Util.callMethod(obj, 'readSize', v);
+            obj.call_('readSize', v);
             r = v.Value;
         end
         function r = readOptional(obj, tag, fmt)
@@ -250,7 +325,7 @@ classdef InputStream < IceInternal.WrapperObject
             if ~isempty(obj.currentEncaps.decoder)
                 r = obj.currentEncaps.decoder.readOptional(tag, fmt);
             else
-                r = obj.readOptImpl(tag, fmt);
+                r = obj.readOptionalImpl(tag, fmt);
             end
         end
         function skipOptionals(obj)
@@ -263,7 +338,7 @@ classdef InputStream < IceInternal.WrapperObject
                 end
 
                 v = obj.readByte();
-                if v == obj.OPTIONAL_END_MARKER
+                if v == IceInternal.Protocol.OPTIONAL_END_MARKER
                     return;
                 end
 
@@ -276,68 +351,95 @@ classdef InputStream < IceInternal.WrapperObject
         end
         function skipOptional(format)
             switch format
-                case obj.OptionalFormatF1
+                case Ice.OptionalFormat.F1
                     obj.skip(1);
-                case OptionalFormatF2
+                case Ice.OptionalFormat.F2
                     obj.skip(2);
-                case obj.OptionalFormatF4
+                case Ice.OptionalFormat.F4
                     obj.skip(4);
-                case obj.OptionalFormatF8
+                case Ice.OptionalFormat.F8
                     obj.skip(8);
-                case obj.OptionalFormatSize
+                case Ice.OptionalFormat.Size
                     obj.skipSize();
-                case obj.OptionalFormatVSize
+                case Ice.OptionalFormat.VSize
                     obj.skip(obj.readSize());
-                case obj.OptionalFormatFSize
+                case Ice.OptionalFormat.FSize
                     sz = obj.readInt();
                     if sz < 0
                         throw(Ice.UnmarshalOutOfBoundsException());
                     end
                     obj.skip(sz);
-                case obj.OptionalFormatClass
+                case Ice.OptionalFormat.Class
                     obj.readValue(); % TODO
             end
         end
         function r = readProxy(obj)
             v = libpointer('voidPtr');
-            Ice.Util.callMethod(obj, 'readProxy', v);
+            obj.call_('readProxy', v);
             if ~isNull(v)
-                r = Ice.ObjectPrx(v);
+                r = Ice.ObjectPrx(v, obj.communicator);
             else
                 r = [];
             end
         end
         function r = readProxyOpt(obj, tag)
-            v = libpointer('voidPtr');
-            Ice.Util.callMethod(obj, 'readProxyOpt', tag, v);
-            if ~isNull(v)
-                r = Ice.ObjectPrx(v);
+            if obj.readOptional(tag, Ice.OptionalFormat.FSize)
+                obj.skip(4);
+                r = obj.readProxy();
             else
-                r = [];
+                r = Ice.Unset;
             end
         end
         function r = readEnum(obj, maxValue)
             v = libpointer('int32Ptr', 0);
-            Ice.Util.callMethod(obj, 'readEnum', maxValue, v);
+            obj.call_('readEnum', maxValue, v);
             r = v.Value;
         end
-        function readValue(obj, func, formalType)
-            fprintf('About to call readValue\n');
-            if isempty(obj.valueFunctions)
-                obj.valueFunctions = {};
+        function readValue(obj, cb, formalType)
+            obj.initEncaps();
+            function check(v)
+                if isempty(v) || isa(v, formalType)
+                    cb(v);
+                else
+                    Ice.InputStream.throwUOE(formalType, v);
+                end
             end
-            obj.valueFunctions{end + 1} = func;
-            Ice.Util.callMethod(obj, 'readValue', obj, func, formalType);
+            if isempty(cb)
+                obj.currentEncaps.decoder.readValue([]);
+            else
+                obj.currentEncaps.decoder.readValue(@(v) check(v));
+            end
+        end
+        function readValueOpt(obj, tag, cb, formalType)
+            if obj.readOptional(tag, Ice.OptionalFormat.Class)
+                obj.readValue(cb, formalType);
+            elseif ~isempty(cb)
+                cb(Ice.Unset);
+            end
         end
         function readPendingValues(obj)
-            Ice.Util.callMethod(obj, 'readPendingValues');
-            obj.valueFunctions = {};
+            if ~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder)
+                obj.currentEncaps.decoder.readPendingValues();
+            elseif isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+                %
+                % If using the 1.0 encoding and no instances were read, we
+                % still read an empty sequence of pending instances if
+                % requested (i.e.: if this is called).
+                %
+                % This is required by the 1.0 encoding, even if no instances
+                % are written we do marshal an empty sequence if marshaled
+                % data types use classes.
+                %
+                obj.skipSize();
+            end
         end
         function startValue(obj)
-            Ice.Util.callMethod(obj, 'startValue');
+            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
+            obj.currentEncaps.decoder.startInstance(IceInternal.SliceType.ValueSlice);
         end
-        function endValue(obj, preserve)
-            Ice.Util.callMethod(obj, 'endValue');
+        function r = endValue(obj, preserve)
+            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
+            r = obj.currentEncaps.decoder.endInstance(preserve);
         end
         function throwException(obj)
             obj.initEncaps();
@@ -345,47 +447,110 @@ classdef InputStream < IceInternal.WrapperObject
         end
         function r = pos(obj)
             v = libpointer('uint32Ptr', 0);
-            Ice.Util.callMethod(obj, 'pos', v);
+            obj.call_('pos', v);
             r = v.Value;
+        end
+        function setPos(obj, pos)
+            obj.call_('setPos', pos);
         end
         function r = size(obj)
             v = libpointer('uint32Ptr', 0);
-            Ice.Util.callMethod(obj, 'size', v);
+            obj.call_('size', v);
             r = v.Value;
+        end
+        function r = readOptionalImpl(obj, readTag, expectedFormat)
+            if isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+                r = false; % Optional members aren't supported with the 1.0 encoding.
+                return;
+            end
+
+            while true
+                if obj.pos() >= obj.currentEncaps.start + obj.currentEncaps.sz
+                    r = false; % End of encapsulation also indicates end of optionals.
+                    return;
+                end
+
+                b = obj.readByte();
+                v = b;
+                if v == IceInternal.Protocol.OPTIONAL_END_MARKER
+                    obj.setPos(obj.pos() - 1); % Rewind.
+                    r = false;
+                    return;
+                end
+
+                format = bitand(v, 7); % First 3 bits.
+                tag = bitshift(v, -3);
+                if tag == 30
+                    tag = obj.readSize();
+                end
+
+                if tag > readTag
+                    offset = 0;
+                    if tag < 30
+                        offset = 1;
+                    elseif tag < 255
+                        offset = 2;
+                    else
+                        offset = 6;
+                    end
+                    obj.setPos(obj.pos() - offset); % Rewind
+                    r = false; % No optional data members with the requested tag.
+                    return;
+                elseif tag < readTag
+                    obj.skipOptional(format); % Skip optional data members
+                else
+                    if format ~= expectedFormat
+                        throw(Ice.MarshalException('', '', ...
+                                sprintf('invalid optional data member ''%d'': unexpected format', tag)));
+                    end
+                    r = true;
+                    return;
+                end
+            end
         end
     end
     methods(Access=private)
         function initEncaps(obj)
             if isempty(obj.currentEncaps)
-                obj.currentEncaps = IceInternal.Encaps();
+                obj.currentEncaps = IceInternal.ReadEncaps();
                 obj.currentEncaps.encoding = obj.encoding;
             end
 
+            valueFactoryManager = obj.communicator.getValueFactoryManager();
+            compactIdResolver = []; % TODO
             if isempty(obj.currentEncaps.decoder)
                 if obj.currentEncaps.encoding.major == 1 && obj.currentEncaps.encoding.minor == 0
-                    obj.currentEncaps.decoder = IceInternal.EncapsDecoder10(obj, obj.currentEncaps);
+                    obj.currentEncaps.decoder = ...
+                        IceInternal.EncapsDecoder10(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager);
                 else
-                    obj.currentEncaps.decoder = IceInternal.EncapsDecoder11(obj, obj.currentEncaps);
+                    obj.currentEncaps.decoder = ...
+                        IceInternal.EncapsDecoder11(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager, ...
+                                                    compactIdResolver);
                 end
             end
         end
     end
+    methods(Static,Access=private)
+        function throwUOE(expectedType, v)
+            %
+            % If the object is an unknown sliced object, we didn't find a
+            % value factory, in this case raise a NoValueFactoryException
+            % instead.
+            %
+            if isa(v, 'Ice.UnknownSlicedValue')
+                throw(Ice.NoValueFactoryException('', '', '', v.ice_id()));
+            end
+
+            type = class(v);
+            throw(Ice.UnexpectedObjectException('', '', ...
+                sprintf('expected element of type ''%s'' but received ''%s''', expectedType, type), type, ...
+                expectedType));
+        end
+    end
     properties(Access=private)
-        valueFunctions
+        communicator
         encoding
         currentEncaps
-    end
-    properties(Constant)
-        Encoding_1_0 = Ice.EncodingVersion(1, 0)
-        Encoding_1_1 = Ice.EncodingVersion(1, 1)
-        OPTIONAL_END_MARKER = hex2dec('ff')
-        OptionalFormatF1 = 0
-        OptionalFormatF2 = 1
-        OptionalFormatF4 = 2
-        OptionalFormatF8 = 3
-        OptionalFormatSize = 4
-        OptionalFormatVSize = 5
-        OptionalFormatFSize = 6
-        OptionalFormatClass = 7
+        sliceValues
     end
 end

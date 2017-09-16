@@ -13,6 +13,7 @@
 #include "icematlab.h"
 #include "Future.h"
 #include "InputStream.h"
+#include "ObjectPrx.h"
 #include "Util.h"
 
 #define DEREF(x) (*(reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(x)))
@@ -199,6 +200,12 @@ GetConnectionFuture::isFinished() const
     return _connection || _exception;
 }
 
+}
+
+shared_ptr<Ice::ObjectPrx>
+IceMatlab::getProxy(void* p)
+{
+    return DEREF(p);
 }
 
 extern "C"
@@ -388,13 +395,6 @@ EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_toString(void* self)
 {
     return createResultValue(createStringFromUTF8(SELF->ice_toString()));
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_getCommunicator(void* self, void** r)
-{
-    *r = new shared_ptr<Ice::Communicator>(SELF->ice_getCommunicator());
-    return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -601,14 +601,14 @@ Ice_ObjectPrx_ice_connectionCached(void* self, unsigned char v, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_getEndpointSelection(void* self, Ice_EndpointSelectionType* r)
+Ice_ObjectPrx_ice_getEndpointSelection(void* self, int* r)
 {
-    *r = SELF->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random ? Random : Ordered;
+    *r = static_cast<int>(SELF->ice_getEndpointSelection());
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_endpointSelection(void* self, Ice_EndpointSelectionType v, void** r)
+Ice_ObjectPrx_ice_endpointSelection(void* self, int v, void** r)
 {
     try
     {

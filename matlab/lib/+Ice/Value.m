@@ -15,8 +15,8 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         end
         function ice_postUnmarshal(obj)
         end
-        function id = ice_id(obj)
-            id = ice_staticId()
+        function r = ice_getSlicedData(obj)
+            r = [];
         end
         function iceWrite_(obj, os)
             os.startValue([]);
@@ -30,12 +30,16 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         end
     end
     methods(Abstract)
+        id = ice_id(obj)
         iceWriteImpl_(obj, os)
         obj = iceReadImpl_(obj, is)
     end
     methods(Static)
         function id = ice_staticId()
-            id = '::Ice::Object'
+            id = '::Ice::Object';
         end
+    end
+    properties(Hidden)
+        internal_ int32 = -1
     end
 end

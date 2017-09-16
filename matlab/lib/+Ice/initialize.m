@@ -26,22 +26,37 @@ function [communicator, args] = initialize(varargin)
     end
 
     %
-    % Implementation note: We need to extract and pass the libpointer object for properties to the C function.
-    % Passing the wrapper (Ice.Properties) object won't work because the C code has no way to obtain the
-    % inner pointer.
+    % Implementation notes:
+    %
+    % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
+    % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
+    %
+    % The communicator wrapper holds the value factory manager.
     %
     props = libpointer('voidPtr');
+    vfm = [];
     if ~isempty(initData)
         if ~isempty(initData.properties_)
             if ~isa(initData.properties_, 'Ice.Properties')
                 throw(MException('Ice:ArgumentException', 'invalid value for properties_ member'));
             else
-                props = initData.properties_.impl;
+                props = initData.properties_.impl_;
+            end
+        end
+        if ~isempty(initData.valueFactoryManager)
+            if ~isa(initData.valueFactoryManager, 'Ice.ValueFactoryManager')
+                throw(MException('Ice:ArgumentException', 'invalid value for valueFactoryManager member'));
+            else
+                vfm = initData.valueFactoryManager;
             end
         end
     end
 
+    if isempty(vfm)
+        vfm = Ice.ValueFactoryManagerI();
+    end
+
     impl = libpointer('voidPtr');
-    args = Ice.Util.callWithResult('Ice_initialize', args, props, impl);
-    communicator = Ice.Communicator(impl);
+    args = IceInternal.Util.callWithResult('Ice_initialize', args, props, impl);
+    communicator = Ice.Communicator(impl, vfm);
 end

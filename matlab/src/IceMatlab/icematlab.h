@@ -26,10 +26,19 @@ typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing me
 
 EXPORTED_FUNCTION mxArray* Ice_initialize(mxArray*, void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_stringToIdentity(mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_identityToString(mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_identityToString(mxArray*, int);
+EXPORTED_FUNCTION mxArray* Ice_stringVersion();
+EXPORTED_FUNCTION mxArray* Ice_intVersion(int*);
+EXPORTED_FUNCTION mxArray* Ice_currentEncoding();
+EXPORTED_FUNCTION mxArray* Ice_currentProtocol();
+EXPORTED_FUNCTION mxArray* Ice_currentProtocolEncoding();
 
 EXPORTED_FUNCTION mxArray* Ice_Communicator__release(void*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_identityToString(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_stringToProxy(void*, const char*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_propertyToProxy(void*, const char*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToProperty(void*, void*, const char*);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToString(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_getProperties(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_createOutputStream(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_destroy(void*);
@@ -40,12 +49,6 @@ typedef enum
     Nonmutating,
     Idempotent
 } Ice_OperationMode;
-
-typedef enum
-{
-    Random,
-    Ordered
-} Ice_EndpointSelectionType;
 
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_equals(void*, void*, unsigned char*);
@@ -58,7 +61,6 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsync(void*, const char*, Ice
                                                          void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsyncNC(void*, const char*, Ice_OperationMode, void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_toString(void*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getCommunicator(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getIdentity(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_identity(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getContext(void*);
@@ -77,8 +79,8 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getConnectionId(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_connectionId(void*, const char*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_isConnectionCached(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_connectionCached(void*, unsigned char, void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpointSelection(void*, Ice_EndpointSelectionType*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpointSelection(void*, Ice_EndpointSelectionType, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpointSelection(void*, int*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpointSelection(void*, int, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEncodingVersion(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_encodingVersion(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getRouter(void*, void**);
@@ -97,6 +99,8 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_isBatchOneway(void*, unsigned char*
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_batchOneway(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_isDatagram(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_datagram(void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_isBatchDatagram(void*, unsigned char*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_batchDatagram(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_compress(void*, unsigned char, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_timeout(void*, int, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getConnection(void*, void**);
@@ -128,114 +132,59 @@ EXPORTED_FUNCTION mxArray* Ice_SentFuture_state(void*);
 EXPORTED_FUNCTION mxArray* Ice_SentFuture_cancel(void*);
 EXPORTED_FUNCTION mxArray* Ice_SentFuture_check(void*);
 
-typedef enum 
-{
-    DefaultFormat,
-    CompactFormat,
-    SlicedFormat
-} Ice_FormatType;
-
-typedef enum
-{
-    OptionalFormatF1 = 0,
-    OptionalFormatF2 = 1,
-    OptionalFormatF4 = 2,
-    OptionalFormatF8 = 3,
-    OptionalFormatSize = 4,
-    OptionalFormatVSize = 5,
-    OptionalFormatFSize = 6,
-    OptionalFormatClass = 7
-} Ice_OptionalFormat;
-
 EXPORTED_FUNCTION mxArray* Ice_OutputStream__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBool(void*, unsigned char);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBoolOpt(void*, int, unsigned char);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBoolSeq(void*, const unsigned char*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBoolSeqOpt(void*, int, const unsigned char*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByte(void*, unsigned char);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByteOpt(void*, int, unsigned char);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByteSeq(void*, const unsigned char*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByteSeqOpt(void*, int, const unsigned char*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShort(void*, short);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShortOpt(void*, int, short);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShortSeq(void*, const short*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShortSeqOpt(void*, int, const short*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeInt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeIntOpt(void*, int, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeIntSeq(void*, const int*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeIntSeqOpt(void*, int, const int*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLong(void*, long long);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLongOpt(void*, int, long long);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLongSeq(void*, const long long*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLongSeqOpt(void*, int, const long long*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloat(void*, float);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloatOpt(void*, int, float);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloatSeq(void*, const float*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloatSeqOpt(void*, int, const float*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDouble(void*, double);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDoubleOpt(void*, int, double);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDoubleSeq(void*, const double*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDoubleSeqOpt(void*, int, const double*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeString(void*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeStringOpt(void*, int, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeStringSeq(void*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeStringSeqOpt(void*, int, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeSize(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeProxy(void*, void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeProxyOpt(void*, int, void*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeEnum(void*, int, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeValue(void*, mxArray*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeValueOpt(void*, int, mxArray*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_startEncapsulation(void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_startEncapsulationWithFormat(void*, Ice_FormatType);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_endEncapsulation(void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_startSlice(void*, const char*, int, unsigned char);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_endSlice(void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeOptional(void*, int, Ice_OptionalFormat, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_startSize(void*, unsigned int*);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_endSize(void*, unsigned int);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_pos(void*, unsigned int*);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteByte(void*, unsigned char, unsigned int);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteInt(void*, int, unsigned int);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBlob(void*, const unsigned char*, int);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_getEncoding(void*);
 
 EXPORTED_FUNCTION mxArray* Ice_InputStream__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readBool(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readBoolSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readBoolOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readBoolSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readByte(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readByteSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readByteOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readByteSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readShort(void*, short*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readShortSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readShortOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readShortSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readInt(void*, int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readIntSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readIntOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readIntSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readLong(void*, long long*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readLongSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readLongOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readLongSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloat(void*, float*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloatSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloatOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloatSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readDouble(void*, double*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readDoubleSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readDoubleOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readDoubleSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readString(void*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readStringSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readStringOpt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readStringSeqOpt(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_skip(void*, int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_skipSize(void*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_getEncoding(void*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readSize(void*, int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readProxy(void*, void**);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readProxyOpt(void*, int, void**);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readEnum(void*, int, int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_pos(void*, unsigned int*);
+EXPORTED_FUNCTION mxArray* Ice_InputStream_setPos(void*, unsigned int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_size(void*, unsigned int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_getBytes(void*, unsigned int, unsigned int);
 

@@ -120,6 +120,27 @@ fixIdent(const string& ident)
 }
 
 string
+fixExceptionMemberIdent(const string& ident)
+{
+    //
+    // User exceptions are subclasses of MATLAB's MException class. Subclasses cannot redefine a member that
+    // conflicts with MException's properties. Unfortunately MException also has some undocumented non-public
+    // properties that will cause run-time errors.
+    //
+    string s = fixIdent(ident);
+    if(s == "identifier" ||
+       s == "message" ||
+       s == "stack" ||
+       s == "cause" ||
+       s == "type") // Undocumented
+    {
+        s.push_back('_');
+    }
+
+    return s;
+}
+
+string
 replace(string s, string patt, string val)
 {
     string r = s;
@@ -382,7 +403,7 @@ defaultValue(const DataMemberPtr& m)
     }
     else if(m->optional())
     {
-        return "[]";
+        return "Ice.Unset";
     }
     else
     {
@@ -413,8 +434,7 @@ defaultValue(const DataMemberPtr& m)
         DictionaryPtr dict = DictionaryPtr::dynamicCast(m->type());
         if(dict)
         {
-            return "containers.Map('KeyType', '" + typeToString(dict->keyType()) + "', 'ValueType', '" +
-                typeToString(dict->valueType()) + "')";
+            return getAbsolute(dict) + ".new()";
         }
 
         return "[]";
@@ -479,7 +499,8 @@ private:
     };
     typedef list<ParamInfo> ParamInfoList;
 
-    ParamInfoList getInParams(const OperationPtr&);
+    ParamInfoList getAllInParams(const OperationPtr&);
+    void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
     ParamInfoList getAllOutParams(const OperationPtr&);
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
@@ -539,18 +560,69 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         const DataMemberList members = p->dataMembers();
         if(!members.empty())
         {
-            out << nl << "properties";
-            out.inc();
-            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            if(p->hasMetaData("protected"))
             {
-                out << nl << fixIdent((*q)->name());
-                if(declarePropertyType((*q)->type(), (*q)->optional()))
+                //
+                // All members are protected.
+                //
+                out << nl << "properties(Access=protected)";
+                out.inc();
+                for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
                 {
-                    out << " " << typeToString((*q)->type());
+                    out << nl << fixIdent((*q)->name());
+                    if(declarePropertyType((*q)->type(), (*q)->optional()))
+                    {
+                        out << " " << typeToString((*q)->type());
+                    }
+                }
+                out.dec();
+                out << nl << "end";
+            }
+            else
+            {
+                DataMemberList prot, pub;
+                for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+                {
+                    if((*q)->hasMetaData("protected"))
+                    {
+                        prot.push_back(*q);
+                    }
+                    else
+                    {
+                        pub.push_back(*q);
+                    }
+                }
+                if(!pub.empty())
+                {
+                    out << nl << "properties";
+                    out.inc();
+                    for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
+                    {
+                        out << nl << fixIdent((*q)->name());
+                        if(declarePropertyType((*q)->type(), (*q)->optional()))
+                        {
+                            out << " " << typeToString((*q)->type());
+                        }
+                    }
+                    out.dec();
+                    out << nl << "end";
+                }
+                if(!prot.empty())
+                {
+                    out << nl << "properties(Access=protected)";
+                    out.inc();
+                    for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
+                    {
+                        out << nl << fixIdent((*q)->name());
+                        if(declarePropertyType((*q)->type(), (*q)->optional()))
+                        {
+                            out << " " << typeToString((*q)->type());
+                        }
+                    }
+                    out.dec();
+                    out << nl << "end";
                 }
             }
-            out.dec();
-            out << nl << "end";
         }
 
         MemberInfoList allMembers;
@@ -632,7 +704,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "os.endSlice();";
             if(base)
             {
-                out << nl << "iceWriteImpl_@" << getAbsolute(base) << "(obj);";
+                out << nl << "iceWriteImpl_@" << getAbsolute(base) << "(obj, os);";
             }
             out.dec();
             out << nl << "end";
@@ -667,7 +739,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "is.endSlice();";
             if(base)
             {
-                out << nl << "obj = iceReadImpl_@" << getAbsolute(base) << "(obj);";
+                out << nl << "obj = iceReadImpl_@" << getAbsolute(base) << "(obj, is);";
             }
             out.dec();
             out << nl << "end";
@@ -719,6 +791,29 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl;
 
         out.close();
+
+        if(p->compactId() >= 0)
+        {
+            ostringstream ostr;
+            ostr << "::IceCompactId::TypeId_" << p->compactId();
+
+            openClass(ostr.str(), out);
+
+            out << nl << "classdef TypeId_" << p->compactId();
+            out.inc();
+
+            out << nl << "properties(Constant)";
+            out.inc();
+            out << nl << "typeId = '" << scoped << "'";
+            out.dec();
+            out << nl << "end";
+
+            out.dec();
+            out << nl << "end";
+            out << nl;
+
+            out.close();
+        }
     }
     else if(!p->isLocal())
     {
@@ -755,34 +850,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
 
         //
-        // Constructor.
-        //
-        out << nl << "function obj = " << prxName << "(impl)";
-        out.inc();
-        if(!bases.empty())
-        {
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-            {
-                out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(impl);";
-            }
-        }
-        else
-        {
-            out << nl << "obj = obj@Ice.ObjectPrx(impl);";
-        }
-        out.dec();
-        out << nl << "end";
-
-        //
         // Operations.
         //
         const OperationList ops = p->operations();
         for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            const ParamInfoList inParams = getInParams(op);
+            ParamInfoList requiredInParams, optionalInParams;
+            getInParams(op, requiredInParams, optionalInParams);
             ParamInfoList requiredOutParams, optionalOutParams;
             getOutParams(op, requiredOutParams, optionalOutParams);
+            const ParamInfoList allInParams = getAllInParams(op);
             const ParamInfoList allOutParams = getAllOutParams(op);
             const bool twowayOnly = op->returnsData();
 
@@ -813,7 +891,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     self = "obj_";
                 }
             }
-            for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
             {
                 if(r->fixedName == "obj")
                 {
@@ -845,7 +923,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << fixIdent(op->name()) << spar;
 
             out << self;
-            for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
             {
                 out << r->fixedName;
             }
@@ -853,7 +931,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << epar;
             out.inc();
 
-            if(!inParams.empty())
+            if(!allInParams.empty())
             {
                 if(op->format() == DefaultFormat)
                 {
@@ -864,16 +942,24 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << nl << "os_ = " << self << ".startWriteParamsWithFormat_(" << getFormatType(op->format())
                         << ");";
                 }
-                for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+                {
+                    marshal(out, "os_", r->fixedName, r->type, false, 0);
+                }
+                for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
                 {
                     marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
+                }
+                if(op->sendsClasses(false))
+                {
+                    out << nl << "os_.writePendingValues();";
                 }
                 out << nl << self << ".endWriteParams_(os_);";
             }
 
             out << nl << "[ok_, is_] = " << self << ".invoke_('" << op->name() << "', '"
                 << getOperationMode(op->sendMode()) << "', " << (twowayOnly ? "true" : "false")
-                << ", " << (inParams.empty() ? "[]" : "os_") << ", varargin{:});";
+                << ", " << (allInParams.empty() ? "[]" : "os_") << ", varargin{:});";
 
             if(!twowayOnly)
             {
@@ -988,7 +1074,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << nl << "function r_ = " << fixIdent(op->name()) << "Async" << spar;
             out << self;
-            for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+            for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
             {
                 out << r->fixedName;
             }
@@ -996,7 +1082,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << epar;
             out.inc();
 
-            if(!inParams.empty())
+            if(!allInParams.empty())
             {
                 if(op->format() == DefaultFormat)
                 {
@@ -1007,9 +1093,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << nl << "os_ = " << self << ".startWriteParamsWithFormat_(" << getFormatType(op->format())
                         << ");";
                 }
-                for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+                {
+                    marshal(out, "os_", r->fixedName, r->type, false, 0);
+                }
+                for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
                 {
                     marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
+                }
+                if(op->sendsClasses(false))
+                {
+                    out << nl << "os_.writePendingValues();";
                 }
                 out << nl << self << ".endWriteParams_(os_);";
             }
@@ -1131,7 +1225,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "r_ = " << self << ".invokeAsync_('" << op->name() << "', '"
                 << getOperationMode(op->sendMode()) << "', " << (twowayOnly ? "true" : "false") << ", "
-                << (inParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
+                << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
                 << (twowayOnly ? "@unmarshal" : "[]") << ", varargin{:});";
 
             out.dec();
@@ -1166,6 +1260,29 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.dec();
         out << nl << "end";
 
+        //
+        // Constructor.
+        //
+        out << nl << "methods(Hidden)";
+        out.inc();
+        out << nl << "function obj = " << prxName << "(impl, communicator)";
+        out.inc();
+        if(!bases.empty())
+        {
+            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(impl, communicator);";
+            }
+        }
+        else
+        {
+            out << nl << "obj = obj@Ice.ObjectPrx(impl, communicator);";
+        }
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
         out.dec();
         out << nl << "end";
         out << nl;
@@ -1182,7 +1299,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         openClass(scoped, out);
 
         out << nl << "classdef (Abstract) " << name;
-        if(!bases.empty())
+        if(bases.empty())
+        {
+            out << " < handle";
+        }
+        else
         {
             out << " < ";
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
@@ -1225,7 +1346,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 out << fixIdent(op->name()) << spar;
                 string self = "obj";
-                const ParamInfoList inParams = getInParams(op);
+                const ParamInfoList inParams = getAllInParams(op);
                 for(ParamInfoList::const_iterator r = outParams.begin(); r != outParams.end(); ++r)
                 {
                     if(r->fixedName == "obj")
@@ -1294,7 +1415,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            out << nl << fixIdent((*q)->name());
+            out << nl << fixExceptionMemberIdent((*q)->name());
             if(declarePropertyType((*q)->type(), (*q)->optional()))
             {
                 out << " " << typeToString((*q)->type());
@@ -1405,30 +1526,32 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "is.startSlice();";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
+            string m = fixExceptionMemberIdent((*q)->name());
             if(!(*q)->optional())
             {
                 if(isClass((*q)->type()))
                 {
-                    string func = "@(v) obj.setValueMember_('" + fixIdent((*q)->name()) + "', v)";
+                    string func = "@(v) obj.setValueMember_('" + m + "', v)";
                     unmarshal(out, "is", func, (*q)->type(), false, 0);
                 }
                 else
                 {
-                    unmarshal(out, "is", "obj." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+                    unmarshal(out, "is", "obj." + m, (*q)->type(), false, 0);
                 }
             }
         }
         const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
         for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
         {
+            string m = fixExceptionMemberIdent((*q)->name());
             if(isClass((*q)->type()))
             {
-                string func = "@(v) obj.setValueMember_('" + fixIdent((*q)->name()) + "', v)";
+                string func = "@(v) obj.setValueMember_('" + m + "', v)";
                 unmarshal(out, "is", func, (*q)->type(), true, (*q)->tag());
             }
             else
             {
-                unmarshal(out, "is", "obj." + fixIdent((*q)->name()), (*q)->type(), true, (*q)->tag());
+                unmarshal(out, "is", "obj." + m, (*q)->type(), true, (*q)->tag());
             }
         }
         out << nl << "is.endSlice();";
@@ -1447,9 +1570,17 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             out << nl << "methods(Hidden=true)";
             out.inc();
-            if(!base || (base && !base->usesClasses(false)))
+            if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
             {
                 out << nl << "function r = usesClasses_(obj)";
+                out.inc();
+                out << nl << "r = true;";
+                out.dec();
+                out << nl << "end";
+            }
+            if(!base || (base && !base->usesClasses(true)))
+            {
+                out << nl << "function r = usesAnyClasses_(obj)";
                 out.inc();
                 out << nl << "r = true;";
                 out.dec();
@@ -1459,14 +1590,14 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             out.inc();
             for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
             {
-                const string name = fixIdent((*q)->name());
-                out << nl << "if obj.valueTable_.isKey('" << name << "')";
+                string m = fixExceptionMemberIdent((*q)->name());
+                out << nl << "if obj.valueTable_.isKey('" << m << "')";
                 out.inc();
-                out << nl << "obj." << name << " = obj.valueTable_('" << name << "');";
+                out << nl << "obj." << m << " = obj.valueTable_('" << m << "');";
                 out.dec();
                 out << nl << "end";
             }
-            if(base && base->usesClasses(false))
+            if(base && base->usesClasses(true))
             {
                 out << nl << "obj = resolveValues_@" << getAbsolute(base) << "(obj);";
             }
@@ -1547,6 +1678,16 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
+    out << nl << "function r = eq(obj, other)";
+    out.inc();
+    out << nl << "r = isequal(obj, other);";
+    out.dec();
+    out << nl << "end";
+    out << nl << "function r = ne(obj, other)";
+    out.inc();
+    out << nl << "r = ~isequal(obj, other);";
+    out.dec();
+    out << nl << "end";
 
     out.dec();
     out << nl << "end";
@@ -1555,33 +1696,76 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         out << nl << "methods(Static)";
         out.inc();
-        out << nl << "function r = ice_read(is_)";
+        out << nl << "function r = ice_read(is)";
         out.inc();
         out << nl << "r = " << abs << "();";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             if(isClass((*q)->type()))
             {
-                unmarshal(out, "is_", "@r.set_" + fixIdent((*q)->name()) + "_", (*q)->type(), false, 0);
+                unmarshal(out, "is", "@r.set_" + fixIdent((*q)->name()) + "_", (*q)->type(), false, 0);
             }
             else
             {
-                unmarshal(out, "is_", "r." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+                unmarshal(out, "is", "r." + fixIdent((*q)->name()), (*q)->type(), false, 0);
             }
         }
         out.dec();
         out << nl << "end";
-        out << nl << "function ice_write(os_, v_)";
+
+        out << nl << "function r = ice_readOpt(is, tag)";
         out.inc();
-        out << nl << "if isempty(v_)";
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
         out.inc();
-        out << nl << "v_ = " << abs << "();";
+        if(p->isVariableLength())
+        {
+            out << nl << "is.skip(4);";
+        }
+        else
+        {
+            out << nl << "is.skipSize();";
+        }
+        out << nl << "r = " << abs << ".ice_read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
+        out << nl << "function ice_write(os, v)";
+        out.inc();
+        out << nl << "if isempty(v)";
+        out.inc();
+        out << nl << "v = " << abs << "();";
         out.dec();
         out << nl << "end";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            marshal(out, "os_", "v_." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+            marshal(out, "os", "v." + fixIdent((*q)->name()), (*q)->type(), false, 0);
         }
+        out.dec();
+        out << nl << "end";
+
+        out << nl << "function ice_writeOpt(os, tag, v)";
+        out.inc();
+        out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if(p->isVariableLength())
+        {
+            out << nl << "pos = os.startSize();";
+            out << nl << abs << ".ice_write(os, v);";
+            out << nl << "os.endSize(pos);";
+        }
+        else
+        {
+            out << nl << "os.writeSize(" << p->minWireSize() << ");";
+            out << nl << abs << ".ice_write(os, v);";
+        }
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
         out.dec();
@@ -1675,8 +1859,25 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "methods(Static)";
     out.inc();
 
+    if(cls)
+    {
+        out << nl << "function r = new()";
+        out.inc();
+        out << nl << "r = containers.Map('KeyType', 'int32', 'ValueType', 'any');";
+        out.dec();
+        out << nl << "end";
+    }
+
     out << nl << "function write(os, seq)";
     out.inc();
+    if(cls)
+    {
+        out << nl << "if ~isempty(seq) && ~isa(seq, 'containers.Map')";
+        out.inc();
+        out << nl << "throw(MException('Ice:ArgumentException', 'expecting a containers.Map'));";
+        out.dec();
+        out << nl << "end";
+    }
     out << nl << "sz = length(seq);";
     out << nl << "os.writeSize(sz);";
     out << nl << "for i = 1:sz";
@@ -1694,12 +1895,48 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.dec();
     out << nl << "end";
 
+    out << nl << "function writeOpt(os, tag, seq)";
+    out.inc();
+    out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+    out.inc();
+    if(p->type()->isVariableLength())
+    {
+        out << nl << "pos = os.startSize();";
+        out << nl << abs << ".write(os, seq);";
+        out << nl << "os.endSize(pos);";
+    }
+    else
+    {
+        //
+        // The element is a fixed-size type. If the element type is bool or byte, we do NOT write an extra size.
+        //
+        const size_t sz = p->type()->minWireSize();
+        if(sz > 1)
+        {
+            out << nl << "len = length(seq);";
+            out << nl << "if len > 254";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 5);";
+            out.dec();
+            out << nl << "else";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 1);";
+            out .dec();
+            out << nl << "end";
+        }
+        out << nl << abs << ".write(os, seq);";
+    }
+    out.dec();
+    out << nl << "end";
+    out.dec();
+    out << nl << "end";
+
     out << nl << "function r = read(is)";
     out.inc();
     out << nl << "sz = is.readSize();";
     if(cls)
     {
-        out << nl << "r = containers.Map('KeyType', 'int32', 'ValueType', 'any');";
+        out << nl << "r = " << abs << ".new();";
     }
     else
     {
@@ -1722,11 +1959,33 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     }
     out.dec();
     out << nl << "end";
+    out.dec();
+    out << nl << "end";
 
+    out << nl << "function r = readOpt(is, tag)";
+    out.inc();
+    out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+    out.inc();
+    if(p->type()->isVariableLength())
+    {
+        out << nl << "is.skip(4);";
+    }
+    else if(p->type()->minWireSize() > 1)
+    {
+        out << nl << "is.skipSize();";
+    }
+    out << nl << "r = " << abs << ".read(is);";
+    out.dec();
+    out << nl << "else";
+    out.inc();
+    out << nl << "r = Ice.Unset;";
     out.dec();
     out << nl << "end";
     out.dec();
     out << nl << "end";
+    out.dec();
+    out << nl << "end";
+
     if(cls)
     {
         out << nl << "methods(Static,Hidden=true)";
@@ -1861,6 +2120,43 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out.dec();
         out << nl << "end";
 
+        out << nl << "function writeOpt(os, tag, d)";
+        out.inc();
+        out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if(key->isVariableLength() || value->isVariableLength())
+        {
+            out << nl << "pos = os.startSize();";
+            out << nl << abs << ".write(os, d);";
+            out << nl << "os.endSize(pos);";
+        }
+        else
+        {
+            const size_t sz = key->minWireSize() + value->minWireSize();
+            if(cls)
+            {
+                out << nl << "len = length(d.array);";
+            }
+            else
+            {
+                out << nl << "len = length(d);";
+            }
+            out << nl << "if len > 254";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 5);";
+            out.dec();
+            out << nl << "else";
+            out.inc();
+            out << nl << "os.writeSize(len * " << sz << " + 1);";
+            out .dec();
+            out << nl << "end";
+            out << nl << abs << ".write(os, d);";
+        }
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
         out << nl << "function r = read(is)";
         out.inc();
         out << nl << "sz = is.readSize();";
@@ -1928,6 +2224,28 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "end";
         out.dec();
         out << nl << "end";
+
+        out << nl << "function r = readOpt(is, tag)";
+        out.inc();
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        if(key->isVariableLength() || value->isVariableLength())
+        {
+            out << nl << "is.skip(4);";
+        }
+        else
+        {
+            out << nl << "is.skipSize();";
+        }
+        out << nl << "r = " << abs << ".read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
     }
 
     out.dec();
@@ -1981,10 +2299,35 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         out << nl << "end";
         out.dec();
         out << nl << "end";
+
+        out << nl << "function ice_writeOpt(os, tag, v)";
+        out.inc();
+        out << nl << "if v ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        out << nl << abs << ".ice_write(os, v);";
+        out.dec();
+        out << nl << "end";
+        out.dec();
+        out << nl << "end";
+
         out << nl << "function r = ice_read(is)";
         out.inc();
         out << nl << "v = is.readEnum(" << p->maxValue() << ");";
         out << nl << "r = " << abs << ".ice_getValue(v);";
+        out.dec();
+        out << nl << "end";
+
+        out << nl << "function r = ice_readOpt(is, tag)";
+        out.inc();
+        out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
+        out.inc();
+        out << nl << "r = " << abs << ".ice_read(is);";
+        out.dec();
+        out << nl << "else";
+        out.inc();
+        out << nl << "r = Ice.Unset;";
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }
@@ -2142,7 +2485,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
-        m.fixedName = fixIdent((*q)->name());
+        m.fixedName = fixExceptionMemberIdent((*q)->name());
         m.inherited = inherited;
         m.dataMember = *q;
         allMembers.push_back(m);
@@ -2150,7 +2493,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 }
 
 CodeVisitor::ParamInfoList
-CodeVisitor::getInParams(const OperationPtr& op)
+CodeVisitor::getAllInParams(const OperationPtr& op)
 {
     const ParamDeclList l = op->inParameters();
     ParamInfoList r;
@@ -2165,6 +2508,36 @@ CodeVisitor::getInParams(const OperationPtr& op)
         r.push_back(info);
     }
     return r;
+}
+
+void
+CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
+{
+    const ParamInfoList params = getAllInParams(op);
+    for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    {
+        if(p->optional)
+        {
+            optional.push_back(*p);
+        }
+        else
+        {
+            required.push_back(*p);
+        }
+    }
+
+    //
+    // Sort optional parameters by tag.
+    //
+    class SortFn
+    {
+    public:
+        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs)
+        {
+            return lhs.tag < rhs.tag;
+        }
+    };
+    optional.sort(SortFn::compare);
 }
 
 CodeVisitor::ParamInfoList
@@ -2250,33 +2623,33 @@ CodeVisitor::getOptionalFormat(const TypePtr& type)
         case Builtin::KindByte:
         case Builtin::KindBool:
         {
-            return "'OptionalFormatF1'";
+            return "Ice.OptionalFormat.F1";
         }
         case Builtin::KindShort:
         {
-            return "'OptionalFormatF2'";
+            return "Ice.OptionalFormat.F2";
         }
         case Builtin::KindInt:
         case Builtin::KindFloat:
         {
-            return "'OptionalFormatF4'";
+            return "Ice.OptionalFormat.F4";
         }
         case Builtin::KindLong:
         case Builtin::KindDouble:
         {
-            return "'OptionalFormatF8'";
+            return "Ice.OptionalFormat.F8";
         }
         case Builtin::KindString:
         {
-            return "'OptionalFormatVSize'";
+            return "Ice.OptionalFormat.VSize";
         }
         case Builtin::KindObject:
         {
-            return "'OptionalFormatClass'";
+            return "Ice.OptionalFormat.Class";
         }
         case Builtin::KindObjectProxy:
         {
-            return "'OptionalFormatFSize'";
+            return "Ice.OptionalFormat.FSize";
         }
         case Builtin::KindLocalObject:
         {
@@ -2285,43 +2658,43 @@ CodeVisitor::getOptionalFormat(const TypePtr& type)
         }
         case Builtin::KindValue:
         {
-            return "'OptionalFormatClass'";
+            return "Ice.OptionalFormat.Class";
         }
         }
     }
 
     if(EnumPtr::dynamicCast(type))
     {
-        return "'OptionalFormatSize'";
+        return "Ice.OptionalFormat.Size";
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return seq->type()->isVariableLength() ? "'OptionalFormatFSize'" : "'OptionalFormatVSize'";
+        return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
-            "'OptionalFormatFSize'" : "'OptionalFormatVSize'";
+            "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->isVariableLength() ? "'OptionalFormatFSize'" : "'OptionalFormatVSize'";
+        return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     if(ProxyPtr::dynamicCast(type))
     {
-        return "'OptionalFormatFSize'";
+        return "Ice.OptionalFormat.FSize";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     assert(cl);
-    return "'OptionalFormatClass'";
+    return "Ice.OptionalFormat.Class";
 }
 
 string
@@ -2515,29 +2888,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         const string typeS = getAbsolute(st);
         if(optional)
         {
-            if(optional)
-            {
-                out << nl << "if ~isempty(" << v << ") && " << stream << ".writeOptional(" << tag << ", "
-                    << getOptionalFormat(type) << ")";
-                out.inc();
-            }
-
-            if(st->isVariableLength())
-            {
-                out << nl << "pos = " <<  stream << ".startSize();";
-                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-                out << nl << stream << ".endSize(pos);";
-            }
-            else
-            {
-                out << nl << stream << ".writeSize(" << st->minWireSize() << ");";
-                out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-            }
-            if(optional)
-            {
-                out.dec();
-                out << nl << "end";
-            }
+            out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
@@ -2552,11 +2903,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
         const string typeS = getAbsolute(en);
         if(optional)
         {
-            out << nl << "if " << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << ")";
-            out.inc();
-            out << nl << typeS << ".ice_write(" << stream << ", " << v << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
@@ -2570,11 +2917,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     {
         if(optional)
         {
-            out << nl << "if " << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(dict) << "))";
-            out.inc();
-            out << nl << getAbsolute(dict) << ".write(" << stream << ", " << v << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << getAbsolute(dict) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
@@ -2623,11 +2966,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
 
         if(optional)
         {
-            out << nl << "if " << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
-            out.inc();
-            out << nl << getAbsolute(seq) << ".write(" << stream << ", " << v << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << getAbsolute(seq) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
         else
         {
@@ -2750,7 +3089,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             {
                 if(optional)
                 {
-                    out << nl << stream << ".readValue(" << tag << ", " << v << ", 'Ice.Value');";
+                    out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", 'Ice.Value');";
                 }
                 else
                 {
@@ -2782,19 +3121,33 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        const string typeS = getAbsolute(prx->_class(), "", "Prx");
-        if(optional)
+        if(prx->_class()->isInterface())
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
-            out.inc();
-            out << nl << stream << ".skip(4);";
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-            out.dec();
-            out << nl << "end";
+            const string typeS = getAbsolute(prx->_class(), "", "Prx");
+            if(optional)
+            {
+                out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
+                out.inc();
+                out << nl << stream << ".skip(4);";
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
+                out.dec();
+                out << nl << "end";
+            }
+            else
+            {
+                out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
+            }
         }
         else
         {
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
+            if(optional)
+            {
+                out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
+            }
+            else
+            {
+                out << nl << v << " = " << stream << ".readProxy();";
+            }
         }
         return;
     }
@@ -2802,13 +3155,14 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
+        const string cls = cl->isInterface() ? "Ice.Value" : getAbsolute(cl);
         if(optional)
         {
-            out << nl << stream << ".readValue(" << tag << ", " << v << ", '" << getAbsolute(cl) << "');";
+            out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", '" << cls << "');";
         }
         else
         {
-            out << nl << stream << ".readValue(" << v << ", '" << getAbsolute(cl) << "');";
+            out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
         }
         return;
     }
@@ -2819,22 +3173,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         const string typeS = getAbsolute(st);
         if(optional)
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
-            out.inc();
-
-            if(st->isVariableLength())
-            {
-                out << nl << stream << ".skip(4);";
-            }
-            else
-            {
-                out << nl << stream << ".skipSize();";
-            }
-
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-
-            out.dec();
-            out << nl << "end";
+            out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
         else
         {
@@ -2849,11 +3188,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
         const string typeS = getAbsolute(en);
         if(optional)
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
-            out.inc();
-            out << nl << v << " = " << typeS << ".ice_read(" << stream << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
         else
         {
@@ -2867,11 +3202,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     {
         if(optional)
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(dict) << "))";
-            out.inc();
-            out << nl << v << " = " << getAbsolute(dict) << ".read(" << stream << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << v << " = " << getAbsolute(dict) << ".readOpt(" << stream << ", " << tag << ");";
         }
         else
         {
@@ -2919,11 +3250,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
 
         if(optional)
         {
-            out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
-            out.inc();
-            out << nl << v << " = " << getAbsolute(seq) << ".read(" << stream << ");";
-            out.dec();
-            out << nl << "end";
+            out << nl << v << " = " << getAbsolute(seq) << ".readOpt(" << stream << ", " << tag << ");";
         }
         else
         {

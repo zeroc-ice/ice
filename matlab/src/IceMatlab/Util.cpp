@@ -66,7 +66,7 @@ IceMatlab::createStringFromUTF8(const string& s)
 #else
     u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
 #endif
-    mwSize dims[2] = { 1, utf16.size() };
+    mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
     mxArray* r = mxCreateCharArray(2, dims);
     mxChar* buf = mxGetChars(r);
     int i = 0;
@@ -440,6 +440,7 @@ IceMatlab::convertException(const std::exception& exc)
         }
         catch(const Ice::UnsupportedEncodingException& e)
         {
+            params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createEncodingVersion(e.bad);
             params[idx++] = createEncodingVersion(e.supported);
         }

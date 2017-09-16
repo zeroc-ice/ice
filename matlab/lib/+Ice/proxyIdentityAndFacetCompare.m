@@ -19,12 +19,12 @@ function r = proxyIdentityAndFacetCompare(lhs, rhs)
     else
         lhsIdentity = lhs.ice_getIdentity();
         rhsIdentity = rhs.ice_getIdentity();
-        n = Ice.Util.strcmp(lhsIdentity.name, rhsIdentity.name);
+        n = IceInternal.Util.strcmp(lhsIdentity.name, rhsIdentity.name);
         if n ~= 0
             r = n;
             return;
         end
-        n = Ice.Util.strcmp(lhsIdentity.category, rhsIdentity.category);
+        n = IceInternal.Util.strcmp(lhsIdentity.category, rhsIdentity.category);
         if n ~= 0
             r = n;
             return;
@@ -39,7 +39,7 @@ function r = proxyIdentityAndFacetCompare(lhs, rhs)
         elseif isempty(rhsFacet)
             r = 1;
         else
-            r = Ice.Util.strcmp(lhsFacet, rhsFacet);
+            r = IceInternal.Util.strcmp(lhsFacet, rhsFacet);
         end
     end
 end

@@ -18,18 +18,46 @@ classdef (Abstract) UserException < Ice.Exception
     methods(Hidden=true)
         function obj = read_(obj, is)
             is.startException();
-            if obj.usesClasses_()
+            if obj.usesAnyClasses_()
+                %
+                % Exceptions are value types. We use a shared map (which is a handle type) to keep track of class
+                % instances as they are unmarshaled.
+                %
                 obj.valueTable_ = containers.Map('KeyType', 'char', 'ValueType', 'any');
             end
             obj = obj.readImpl_(is);
             is.endException();
+            if obj.usesClasses_()
+                is.readPendingValues();
+            end
+            if obj.usesAnyClasses_()
+                %
+                % Retrieve the value instances from the map and update our data members.
+                %
+                obj = obj.resolveValues_();
+            end
         end
         function r = usesClasses_(obj)
+            %
+            % Overridden by subclasses to indicate whether they contain any *required* data members that use classes.
+            %
+            r = false;
+        end
+        function r = usesAnyClasses_(obj)
+            %
+            % Overridden by subclasses to indicate whether they contain any data members that use classes.
+            %
             r = false;
         end
         function obj = resolveValues_(obj)
+            %
+            % Overridden by subclasses that have class members.
+            %
         end
         function setValueMember_(obj, k, v)
+            %
+            % Store an unmarshaled class instance in our map.
+            %
             obj.valueTable_(k) = v;
         end
     end
