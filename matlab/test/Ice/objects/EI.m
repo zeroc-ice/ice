@@ -9,10 +9,10 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef EI < Test.E
+classdef EI < test.Ice.objects.Test.E
     methods
         function obj = EI()
-            obj = obj@Test.E(1, 'hello');
+            obj = obj@test.Ice.objects.Test.E(1, 'hello');
         end
 
         function r = checkValues(obj)

@@ -9,13 +9,13 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef FI < Test.F
+classdef FI < test.Ice.objects.Test.F
     methods
         function obj = FI(e)
             if nargin == 0
                 e = [];
             end
-            obj = obj@Test.F(e, e);
+            obj = obj@test.Ice.objects.Test.F(e, e);
         end
 
         function r = checkValues(obj)

@@ -12,6 +12,8 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
+            import test.Ice.exceptions.Test.*;
+
             communicator = app.communicator();
 
             fprintf('testing value factory registration exception... ');
@@ -32,7 +34,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing checked cast... ');
-            thrower = Test.ThrowerPrx.checkedCast(base);
+            thrower = ThrowerPrx.checkedCast(base);
             assert(~isempty(thrower));
             assert(thrower == base);
             fprintf('ok\n');
@@ -43,7 +45,7 @@ classdef AllTests
                 thrower.throwAasA(1);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.A')
+                if isa(ex, 'test.Ice.exceptions.Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -54,7 +56,7 @@ classdef AllTests
                 thrower.throwAorDasAorD(1);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.A')
+                if isa(ex, 'test.Ice.exceptions.Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -65,7 +67,7 @@ classdef AllTests
                 thrower.throwAorDasAorD(-1);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.D')
+                if isa(ex, 'test.Ice.exceptions.Test.D')
                     assert(ex.dMem == -1);
                 else
                     rethrow(ex);
@@ -76,7 +78,7 @@ classdef AllTests
                 thrower.throwBasB(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.B')
+                if isa(ex, 'test.Ice.exceptions.Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -88,7 +90,7 @@ classdef AllTests
                 thrower.throwCasC(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -105,7 +107,7 @@ classdef AllTests
                 thrower.throwBasB(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.A')
+                if isa(ex, 'test.Ice.exceptions.Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -116,7 +118,7 @@ classdef AllTests
                 thrower.throwCasC(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.B')
+                if isa(ex, 'test.Ice.exceptions.Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -132,7 +134,7 @@ classdef AllTests
                 thrower.throwBasA(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.B')
+                if isa(ex, 'test.Ice.exceptions.Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -144,7 +146,7 @@ classdef AllTests
                 thrower.throwCasA(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -157,7 +159,7 @@ classdef AllTests
                 thrower.throwCasB(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -238,7 +240,7 @@ classdef AllTests
                 end
 
                 try
-                    thrower2 = Test.ThrowerPrx.uncheckedCast(...
+                    thrower2 = ThrowerPrx.uncheckedCast(...
                         communicator.stringToProxy(['thrower:', app.getTestEndpoint(1, '')]));
                     try
                         thrower2.throwMemoryLimitException(zeros(1, 2 * 1024 * 1024)); % 2MB (no limits)
@@ -247,7 +249,7 @@ classdef AllTests
                             rethrow(ex);
                         end
                     end
-                    thrower3 = Test.ThrowerPrx.uncheckedCast(...
+                    thrower3 = ThrowerPrx.uncheckedCast(...
                         communicator.stringToProxy(['thrower:', app.getTestEndpoint(2, '')]));
                     try
                         thrower3.throwMemoryLimitException(zeros(1, 1024)); % 1KB limit
@@ -270,7 +272,7 @@ classdef AllTests
 
             id = Ice.stringToIdentity('does not exist');
             try
-                thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
+                thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
                 thrower2.ice_ping();
                 assert(false);
             catch ex
@@ -285,7 +287,7 @@ classdef AllTests
 
             fprintf('catching facet not exist exception... ');
 
-            thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, 'no such facet');
+            thrower2 = ThrowerPrx.uncheckedCast(thrower, 'no such facet');
             try
                 thrower2.ice_ping();
                 assert(false);
@@ -302,7 +304,7 @@ classdef AllTests
             fprintf('catching operation not exist exception... ');
 
             try
-                thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
+                thrower2 = WrongOperationPrx.uncheckedCast(thrower);
                 thrower2.noSuchOperation();
                 assert(false);
             catch ex
@@ -362,7 +364,7 @@ classdef AllTests
                 thrower.throwAfterException();
                 assert(false);
             catch ex
-                if ~isa(ex, 'Test.A')
+                if ~isa(ex, 'test.Ice.exceptions.Test.A')
                     rethrow(ex);
                 end
             end
@@ -375,7 +377,7 @@ classdef AllTests
                 thrower.throwAasAAsync(1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.A')
+                if isa(ex, 'test.Ice.exceptions.Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -386,7 +388,7 @@ classdef AllTests
                 thrower.throwAorDasAorDAsync(1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.A')
+                if isa(ex, 'test.Ice.exceptions.Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -397,7 +399,7 @@ classdef AllTests
                 thrower.throwAorDasAorDAsync(-1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.D')
+                if isa(ex, 'test.Ice.exceptions.Test.D')
                     assert(ex.dMem == -1);
                 else
                     rethrow(ex);
@@ -408,7 +410,7 @@ classdef AllTests
                 thrower.throwBasBAsync(1, 2).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.B')
+                if isa(ex, 'test.Ice.exceptions.Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -420,7 +422,7 @@ classdef AllTests
                 thrower.throwCasCAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -437,7 +439,7 @@ classdef AllTests
                 thrower.throwBasAAsync(1, 2).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.B')
+                if isa(ex, 'test.Ice.exceptions.Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -449,7 +451,7 @@ classdef AllTests
                 thrower.throwCasAAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -462,7 +464,7 @@ classdef AllTests
                 thrower.throwCasBAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'Test.C')
+                if isa(ex, 'test.Ice.exceptions.Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -524,7 +526,7 @@ classdef AllTests
             fprintf('catching object not exist exception with AMI mapping... ');
 
             id = Ice.stringToIdentity('does not exist');
-            thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
+            thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
             try
                 thrower2.throwAasAAsync(1).fetchOutputs();
                 assert(false);
@@ -540,7 +542,7 @@ classdef AllTests
 
             fprintf('catching facet not exist exception with AMI mapping... ');
 
-            thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, 'no such facet');
+            thrower2 = ThrowerPrx.uncheckedCast(thrower, 'no such facet');
             try
                 thrower2.throwAasAAsync(1).fetchOutputs();
                 assert(false);
@@ -556,7 +558,7 @@ classdef AllTests
 
             fprintf('catching operation not exist exception with AMI mapping... ');
 
-            thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
+            thrower2 = WrongOperationPrx.uncheckedCast(thrower);
             try
                 thrower2.noSuchOperationAsync().fetchOutputs();
                 assert(false);

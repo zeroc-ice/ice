@@ -521,11 +521,12 @@ classdef InputStream < IceInternal.WrapperObject
             if isempty(obj.currentEncaps.decoder)
                 if obj.currentEncaps.encoding.major == 1 && obj.currentEncaps.encoding.minor == 0
                     obj.currentEncaps.decoder = ...
-                        IceInternal.EncapsDecoder10(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager);
+                        IceInternal.EncapsDecoder10(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager, ...]
+                                                    obj.communicator.getClassResolver());
                 else
                     obj.currentEncaps.decoder = ...
                         IceInternal.EncapsDecoder11(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager, ...
-                                                    compactIdResolver);
+                                                    obj.communicator.getClassResolver(), compactIdResolver);
                 end
             end
         end

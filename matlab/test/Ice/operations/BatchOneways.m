@@ -12,6 +12,8 @@ ICE_LICENSE file included in this distribution.
 classdef BatchOneways
     methods(Static)
         function batchOneways(app, p)
+            import test.Ice.operations.Test.*;
+
             communicator = app.communicator();
             properties = communicator.getProperties();
             bs1 = zeros(1, 10  * 1024);
@@ -80,9 +82,9 @@ classdef BatchOneways
             if ~isempty(p.ice_getConnection()) && isempty(properties.getProperty('Ice.Override.Compress'))
                 prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 
-                batchC1 = Test.MyClassPrx.uncheckedCast(prx.ice_compress(false));
-                batchC2 = Test.MyClassPrx.uncheckedCast(prx.ice_compress(true));
-                batchC3 = Test.MyClassPrx.uncheckedCast(prx.ice_identity(identity));
+                batchC1 = MyClassPrx.uncheckedCast(prx.ice_compress(false));
+                batchC2 = MyClassPrx.uncheckedCast(prx.ice_compress(true));
+                batchC3 = MyClassPrx.uncheckedCast(prx.ice_identity(identity));
 
                 batchC1.opByteSOneway(bs1);
                 batchC1.opByteSOneway(bs1);

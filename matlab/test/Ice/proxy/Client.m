@@ -17,6 +17,13 @@ classdef Client < Application
             r = 0;
         end
     end
+    methods(Access=protected)
+        function [r, remArgs] = getInitData(obj, args)
+            [initData, remArgs] = getInitData@Application(obj, args);
+            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.proxy');
+            r = initData;
+        end
+    end
     methods(Static)
         function start(args)
             addpath('generated');

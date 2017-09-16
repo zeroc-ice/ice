@@ -12,15 +12,17 @@ ICE_LICENSE file included in this distribution.
 classdef TwowaysAMI
     methods(Static)
         function twowaysAMI(app, p)
+            import test.Ice.operations.Test.*;
+
             communicator = app.communicator();
 
             call(p, 'ice_ping');
 
-            b = call(p, 'ice_isA', Test.MyClassPrx.ice_staticId());
+            b = call(p, 'ice_isA', MyClassPrx.ice_staticId());
             assert(b);
 
             id = call(p, 'ice_id');
-            assert(strcmp(id, Test.MyDerivedClassPrx.ice_staticId()));
+            assert(strcmp(id, MyDerivedClassPrx.ice_staticId()));
 
             ids = call(p, 'ice_ids');
             assert(length(ids) == 3);
@@ -50,32 +52,32 @@ classdef TwowaysAMI
             assert(strcmp(p3, 'world hello'));
             assert(strcmp(r, 'hello world'));
 
-            [r, p2] = call(p, 'opMyEnum', Test.MyEnum.enum2);
-            assert(p2 == Test.MyEnum.enum2);
-            assert(r == Test.MyEnum.enum3);
+            [r, p2] = call(p, 'opMyEnum', MyEnum.enum2);
+            assert(p2 == MyEnum.enum2);
+            assert(r == MyEnum.enum3);
 
             [r, p2, p3] = call(p, 'opMyClass', p);
             assert(isequal(p2.ice_getIdentity(), Ice.stringToIdentity('test')));
             assert(isequal(p3.ice_getIdentity(), Ice.stringToIdentity('noSuchIdentity')));
             assert(isequal(r.ice_getIdentity(), Ice.stringToIdentity('test')));
 
-            si1 = Test.Structure();
+            si1 = Structure();
             si1.p = p;
-            si1.e = Test.MyEnum.enum3;
-            si1.s = Test.AnotherStruct();
+            si1.e = MyEnum.enum3;
+            si1.s = AnotherStruct();
             si1.s.s = 'abc';
-            si2 = Test.Structure();
+            si2 = Structure();
             si2.p = [];
-            si2.e = Test.MyEnum.enum2;
-            si2.s = Test.AnotherStruct();
+            si2.e = MyEnum.enum2;
+            si2.s = AnotherStruct();
             si2.s.s = 'def';
 
             [r, p3] = call(p, 'opStruct', si1, si2);
             assert(isempty(r.p));
-            assert(r.e == Test.MyEnum.enum2);
+            assert(r.e == MyEnum.enum2);
             assert(strcmp(r.s.s, 'def'));
             assert(p3.p == p);
-            assert(p3.e == Test.MyEnum.enum3);
+            assert(p3.e == MyEnum.enum3);
             assert(strcmp(p3.s.s, 'a new string'));
             p3.p.opVoid();
 
@@ -423,10 +425,10 @@ classdef TwowaysAMI
             assert(strcmp(r{3}{1}(2), ''));
             assert(strcmp(r{3}{2}(1), 'abcd'));
 
-            di1 = Test.ByteBoolD.new();
+            di1 = ByteBoolD.new();
             di1(10) = true;
             di1(100) = false;
-            di2 = Test.ByteBoolD.new();
+            di2 = ByteBoolD.new();
             di2(10) = true;
             di2(11) = false;
             di2(101) = true;
@@ -440,10 +442,10 @@ classdef TwowaysAMI
             assert(~r(100));
             assert(r(101));
 
-            di1 = Test.ShortIntD.new();
+            di1 = ShortIntD.new();
             di1(110) = -1;
             di1(1100) = 123123;
-            di2 = Test.ShortIntD.new();
+            di2 = ShortIntD.new();
             di2(110) = -1;
             di2(111) = -100;
             di2(1101) = 0;
@@ -457,10 +459,10 @@ classdef TwowaysAMI
             assert(r(1100) == 123123);
             assert(r(1101) == 0);
 
-            di1 = Test.LongFloatD.new();
+            di1 = LongFloatD.new();
             di1(999999110) = -1.1;
             di1(999999111) = 123123.2;
-            di2 = Test.LongFloatD.new();
+            di2 = LongFloatD.new();
             di2(999999110) = -1.1;
             di2(999999120) = -100.4;
             di2(999999130) = 0.5;
@@ -474,10 +476,10 @@ classdef TwowaysAMI
             assert(r(999999111) == single(123123.2));
             assert(r(999999130) == single(0.5));
 
-            di1 = Test.StringStringD.new();
+            di1 = StringStringD.new();
             di1('foo') = 'abc -1.1';
             di1('bar') = 'abc 123123.2';
-            di2 = Test.StringStringD.new();
+            di2 = StringStringD.new();
             di2('foo') = 'abc -1.1';
             di2('FOO') = 'abc -100.4';
             di2('BAR') = 'abc 0.5';
@@ -491,54 +493,54 @@ classdef TwowaysAMI
             assert(strcmp(r('bar'), 'abc 123123.2'));
             assert(strcmp(r('BAR'), 'abc 0.5'));
 
-            di1 = Test.StringMyEnumD.new();
-            di1('abc') = Test.MyEnum.enum1;
-            di1('') = Test.MyEnum.enum2;
-            di2 = Test.StringMyEnumD.new();
-            di2('abc') = Test.MyEnum.enum1;
-            di2('qwerty') = Test.MyEnum.enum3;
-            di2('Hello!!') = Test.MyEnum.enum2;
+            di1 = StringMyEnumD.new();
+            di1('abc') = MyEnum.enum1;
+            di1('') = MyEnum.enum2;
+            di2 = StringMyEnumD.new();
+            di2('abc') = MyEnum.enum1;
+            di2('qwerty') = MyEnum.enum3;
+            di2('Hello!!') = MyEnum.enum2;
 
             [r, p3] = call(p, 'opStringMyEnumD', di1, di2);
 
             assert(isequal(p3, di1));
             assert(r.Count == 4);
-            assert(r('abc') == Test.MyEnum.enum1);
-            assert(r('qwerty') == Test.MyEnum.enum3);
-            assert(r('') == Test.MyEnum.enum2);
-            assert(r('Hello!!') == Test.MyEnum.enum2);
+            assert(r('abc') == MyEnum.enum1);
+            assert(r('qwerty') == MyEnum.enum3);
+            assert(r('') == MyEnum.enum2);
+            assert(r('Hello!!') == MyEnum.enum2);
 
-            di1 = Test.MyEnumStringD.new();
-            di1(int32(Test.MyEnum.enum1)) = 'abc';
-            di2 = Test.MyEnumStringD.new();
-            di2(int32(Test.MyEnum.enum2)) = 'Hello!!';
-            di2(int32(Test.MyEnum.enum3)) = 'qwerty';
+            di1 = MyEnumStringD.new();
+            di1(int32(MyEnum.enum1)) = 'abc';
+            di2 = MyEnumStringD.new();
+            di2(int32(MyEnum.enum2)) = 'Hello!!';
+            di2(int32(MyEnum.enum3)) = 'qwerty';
 
             [r, p3] = call(p, 'opMyEnumStringD', di1, di2);
 
             assert(isequal(p3, di1));
             assert(r.Count == 3);
-            assert(strcmp(r(int32(Test.MyEnum.enum1)), 'abc'));
-            assert(strcmp(r(int32(Test.MyEnum.enum2)), 'Hello!!'));
-            assert(strcmp(r(int32(Test.MyEnum.enum3)), 'qwerty'));
+            assert(strcmp(r(int32(MyEnum.enum1)), 'abc'));
+            assert(strcmp(r(int32(MyEnum.enum2)), 'Hello!!'));
+            assert(strcmp(r(int32(MyEnum.enum3)), 'qwerty'));
 
-            s11 = Test.MyStruct(1, 1);
-            s12 = Test.MyStruct(1, 2);
-            di1 = Test.MyStructMyEnumD.new();
+            s11 = MyStruct(1, 1);
+            s12 = MyStruct(1, 2);
+            di1 = MyStructMyEnumD.new();
             di1(1).key = s11;
-            di1(1).value = Test.MyEnum.enum1;
+            di1(1).value = MyEnum.enum1;
             di1(2).key = s12;
-            di1(2).value = Test.MyEnum.enum2;
+            di1(2).value = MyEnum.enum2;
 
-            s22 = Test.MyStruct(2, 2);
-            s23 = Test.MyStruct(2, 3);
-            di2 = Test.MyStructMyEnumD.new();
+            s22 = MyStruct(2, 2);
+            s23 = MyStruct(2, 3);
+            di2 = MyStructMyEnumD.new();
             di2(1).key = s11;
-            di2(1).value = Test.MyEnum.enum1;
+            di2(1).value = MyEnum.enum1;
             di2(2).key = s22;
-            di2(2).value = Test.MyEnum.enum3;
+            di2(2).value = MyEnum.enum3;
             di2(3).key = s23;
-            di2(3).value = Test.MyEnum.enum2;
+            di2(3).value = MyEnum.enum2;
 
             [r, p3] = call(p, 'opMyStructMyEnumD', di1, di2);
 
@@ -546,26 +548,26 @@ classdef TwowaysAMI
             assert(length(r) == 4);
             for i = 1:length(r)
                 if isequal(r(i).key, s11)
-                    assert(r(i).value == Test.MyEnum.enum1);
+                    assert(r(i).value == MyEnum.enum1);
                 elseif isequal(r(i).key, s12)
-                    assert(r(i).value == Test.MyEnum.enum2);
+                    assert(r(i).value == MyEnum.enum2);
                 elseif isequal(r(i).key, s22)
-                    assert(r(i).value == Test.MyEnum.enum3);
+                    assert(r(i).value == MyEnum.enum3);
                 elseif isequal(r(i).key, s23)
-                    assert(r(i).value == Test.MyEnum.enum2);
+                    assert(r(i).value == MyEnum.enum2);
                 else
                     assert(false);
                 end
             end
 
-            di1 = Test.ByteBoolD.new();
+            di1 = ByteBoolD.new();
             di1(10) = true;
             di1(100) = false;
-            di2 = Test.ByteBoolD.new();
+            di2 = ByteBoolD.new();
             di2(10) = true;
             di2(11) = false;
             di2(101) = true;
-            di3 = Test.ByteBoolD.new();
+            di3 = ByteBoolD.new();
             di3(100) = false;
             di3(101) = false;
 
@@ -595,14 +597,14 @@ classdef TwowaysAMI
             assert(~p3{3}(11));
             assert(p3{3}(101));
 
-            di1 = Test.ShortIntD.new();
+            di1 = ShortIntD.new();
             di1(110) = -1;
             di1(1100) = 123123;
-            di2 = Test.ShortIntD.new();
+            di2 = ShortIntD.new();
             di2(110) = -1;
             di2(111) = -100;
             di2(1101) = 0;
-            di3 = Test.ShortIntD.new();
+            di3 = ShortIntD.new();
             di3(100) = -1001;
 
             dsi1 = {di1, di2};
@@ -630,14 +632,14 @@ classdef TwowaysAMI
             assert(p3{3}(111) == -100);
             assert(p3{3}(1101) == 0);
 
-            di1 = Test.LongFloatD.new();
+            di1 = LongFloatD.new();
             di1(999999110) = -1.1;
             di1(999999111) = 123123.2;
-            di2 = Test.LongFloatD.new();
+            di2 = LongFloatD.new();
             di2(999999110) = -1.1;
             di2(999999120) = -100.4;
             di2(999999130) = 0.5;
-            di3 = Test.LongFloatD.new();
+            di3 = LongFloatD.new();
             di3(999999140) = 3.14;
 
             dsi1 = {di1, di2};
@@ -665,14 +667,14 @@ classdef TwowaysAMI
             assert(p3{3}(999999120) == single(-100.4));
             assert(p3{3}(999999130) == single(0.5));
 
-            di1 = Test.StringStringD.new();
+            di1 = StringStringD.new();
             di1('foo') = 'abc -1.1';
             di1('bar') = 'abc 123123.2';
-            di2 = Test.StringStringD.new();
+            di2 = StringStringD.new();
             di2('foo') = 'abc -1.1';
             di2('FOO') = 'abc -100.4';
             di2('BAR') = 'abc 0.5';
-            di3 = Test.StringStringD.new();
+            di3 = StringStringD.new();
             di3('f00') = 'ABC -3.14';
 
             dsi1 = {di1, di2};
@@ -700,15 +702,15 @@ classdef TwowaysAMI
             assert(strcmp(p3{3}('FOO'), 'abc -100.4'));
             assert(strcmp(p3{3}('BAR'), 'abc 0.5'));
 
-            di1 = Test.StringMyEnumD.new();
-            di1('abc') = Test.MyEnum.enum1;
-            di1('') = Test.MyEnum.enum2;
-            di2 = Test.StringMyEnumD.new();
-            di2('abc') = Test.MyEnum.enum1;
-            di2('qwerty') = Test.MyEnum.enum3;
-            di2('Hello!!') = Test.MyEnum.enum2;
-            di3 = Test.StringMyEnumD.new();
-            di3('Goodbye') = Test.MyEnum.enum1;
+            di1 = StringMyEnumD.new();
+            di1('abc') = MyEnum.enum1;
+            di1('') = MyEnum.enum2;
+            di2 = StringMyEnumD.new();
+            di2('abc') = MyEnum.enum1;
+            di2('qwerty') = MyEnum.enum3;
+            di2('Hello!!') = MyEnum.enum2;
+            di3 = StringMyEnumD.new();
+            di3('Goodbye') = MyEnum.enum1;
 
             dsi1 = {di1, di2};
             dsi2 = {di3};
@@ -717,31 +719,31 @@ classdef TwowaysAMI
 
             assert(length(r) == 2);
             assert(r{1}.Count == 3);
-            assert(r{1}('abc') == Test.MyEnum.enum1);
-            assert(r{1}('qwerty') == Test.MyEnum.enum3);
-            assert(r{1}('Hello!!') == Test.MyEnum.enum2);
+            assert(r{1}('abc') == MyEnum.enum1);
+            assert(r{1}('qwerty') == MyEnum.enum3);
+            assert(r{1}('Hello!!') == MyEnum.enum2);
             assert(r{2}.Count == 2);
-            assert(r{2}('abc') == Test.MyEnum.enum1);
-            assert(r{2}('') == Test.MyEnum.enum2);
+            assert(r{2}('abc') == MyEnum.enum1);
+            assert(r{2}('') == MyEnum.enum2);
 
             assert(length(p3) == 3);
             assert(p3{1}.Count == 1);
-            assert(p3{1}('Goodbye') == Test.MyEnum.enum1);
+            assert(p3{1}('Goodbye') == MyEnum.enum1);
             assert(p3{2}.Count == 2);
-            assert(p3{2}('abc') == Test.MyEnum.enum1);
-            assert(p3{2}('') == Test.MyEnum.enum2);
+            assert(p3{2}('abc') == MyEnum.enum1);
+            assert(p3{2}('') == MyEnum.enum2);
             assert(p3{3}.Count == 3);
-            assert(p3{3}('abc') == Test.MyEnum.enum1);
-            assert(p3{3}('qwerty') == Test.MyEnum.enum3);
-            assert(p3{3}('Hello!!') == Test.MyEnum.enum2);
+            assert(p3{3}('abc') == MyEnum.enum1);
+            assert(p3{3}('qwerty') == MyEnum.enum3);
+            assert(p3{3}('Hello!!') == MyEnum.enum2);
 
-            di1 = Test.MyEnumStringD.new();
-            di1(int32(Test.MyEnum.enum1)) = 'abc';
-            di2 = Test.MyEnumStringD.new();
-            di2(int32(Test.MyEnum.enum2)) = 'Hello!!';
-            di2(int32(Test.MyEnum.enum3)) = 'qwerty';
-            di3 = Test.MyEnumStringD.new();
-            di3(int32(Test.MyEnum.enum1)) = 'Goodbye';
+            di1 = MyEnumStringD.new();
+            di1(int32(MyEnum.enum1)) = 'abc';
+            di2 = MyEnumStringD.new();
+            di2(int32(MyEnum.enum2)) = 'Hello!!';
+            di2(int32(MyEnum.enum3)) = 'qwerty';
+            di3 = MyEnumStringD.new();
+            di3(int32(MyEnum.enum1)) = 'Goodbye';
 
             dsi1 = {di1, di2};
             dsi2 = {di3};
@@ -750,41 +752,41 @@ classdef TwowaysAMI
 
             assert(length(r) == 2);
             assert(r{1}.Count == 2);
-            assert(strcmp(r{1}(int32(Test.MyEnum.enum2)), 'Hello!!'));
-            assert(strcmp(r{1}(int32(Test.MyEnum.enum3)), 'qwerty'));
+            assert(strcmp(r{1}(int32(MyEnum.enum2)), 'Hello!!'));
+            assert(strcmp(r{1}(int32(MyEnum.enum3)), 'qwerty'));
             assert(r{2}.Count == 1);
-            assert(strcmp(r{2}(int32(Test.MyEnum.enum1)), 'abc'));
+            assert(strcmp(r{2}(int32(MyEnum.enum1)), 'abc'));
 
             assert(length(p3) == 3);
             assert(p3{1}.Count == 1);
-            assert(strcmp(p3{1}(int32(Test.MyEnum.enum1)), 'Goodbye'));
+            assert(strcmp(p3{1}(int32(MyEnum.enum1)), 'Goodbye'));
             assert(p3{2}.Count == 1);
-            assert(strcmp(p3{2}(int32(Test.MyEnum.enum1)), 'abc'));
+            assert(strcmp(p3{2}(int32(MyEnum.enum1)), 'abc'));
             assert(p3{3}.Count == 2);
-            assert(strcmp(p3{3}(int32(Test.MyEnum.enum2)), 'Hello!!'));
-            assert(strcmp(p3{3}(int32(Test.MyEnum.enum3)), 'qwerty'));
+            assert(strcmp(p3{3}(int32(MyEnum.enum2)), 'Hello!!'));
+            assert(strcmp(p3{3}(int32(MyEnum.enum3)), 'qwerty'));
 
-            s11 = Test.MyStruct(1, 1);
-            s12 = Test.MyStruct(1, 2);
-            di1 = Test.MyStructMyEnumD.new();
+            s11 = MyStruct(1, 1);
+            s12 = MyStruct(1, 2);
+            di1 = MyStructMyEnumD.new();
             di1(1).key = s11;
-            di1(1).value = Test.MyEnum.enum1;
+            di1(1).value = MyEnum.enum1;
             di1(2).key = s12;
-            di1(2).value = Test.MyEnum.enum2;
+            di1(2).value = MyEnum.enum2;
 
-            s22 = Test.MyStruct(2, 2);
-            s23 = Test.MyStruct(2, 3);
-            di2 = Test.MyStructMyEnumD.new();
+            s22 = MyStruct(2, 2);
+            s23 = MyStruct(2, 3);
+            di2 = MyStructMyEnumD.new();
             di2(1).key = s11;
-            di2(1).value = Test.MyEnum.enum1;
+            di2(1).value = MyEnum.enum1;
             di2(2).key = s22;
-            di2(2).value = Test.MyEnum.enum3;
+            di2(2).value = MyEnum.enum3;
             di2(3).key = s23;
-            di2(3).value = Test.MyEnum.enum2;
+            di2(3).value = MyEnum.enum2;
 
-            di3 = Test.MyStructMyEnumD.new();
+            di3 = MyStructMyEnumD.new();
             di3(1).key = s23;
-            di3(1).value = Test.MyEnum.enum2;
+            di3(1).value = MyEnum.enum2;
 
             dsi1 = {di1, di2};
             dsi2 = {di3};
@@ -792,15 +794,16 @@ classdef TwowaysAMI
             [r, p3] = call(p, 'opMyStructMyEnumDS', dsi1, dsi2);
 
             function checkStructDict(d)
+                import test.Ice.operations.Test.*;
                 for i = 1:length(d)
                     if isequal(d(i).key, s11)
-                        assert(d(i).value == Test.MyEnum.enum1);
+                        assert(d(i).value == MyEnum.enum1);
                     elseif isequal(d(i).key, s12)
-                        assert(d(i).value == Test.MyEnum.enum2);
+                        assert(d(i).value == MyEnum.enum2);
                     elseif isequal(d(i).key, s22)
-                        assert(d(i).value == Test.MyEnum.enum3);
+                        assert(d(i).value == MyEnum.enum3);
                     elseif isequal(d(i).key, s23)
-                        assert(d(i).value == Test.MyEnum.enum2);
+                        assert(d(i).value == MyEnum.enum2);
                     else
                         assert(false);
                     end
@@ -819,8 +822,8 @@ classdef TwowaysAMI
             assert(length(p3{3}) == 3);
             checkStructDict(p3{3});
 
-            sdi1 = Test.ByteByteSD.new();
-            sdi2 = Test.ByteByteSD.new();
+            sdi1 = ByteByteSD.new();
+            sdi2 = ByteByteSD.new();
 
             si1 = [hex2dec('01'), hex2dec('11')];
             si2 = [hex2dec('12')];
@@ -850,8 +853,8 @@ classdef TwowaysAMI
             assert(a(1) == hex2dec('f2'));
             assert(a(2) == hex2dec('f3'));
 
-            sdi1 = Test.BoolBoolSD.new();
-            sdi2 = Test.BoolBoolSD.new();
+            sdi1 = BoolBoolSD.new();
+            sdi2 = BoolBoolSD.new();
 
             si1 = [true, false];
             si2 = [false, true, true];
@@ -878,8 +881,8 @@ classdef TwowaysAMI
             assert(a(2));
             assert(a(3));
 
-            sdi1 = Test.ShortShortSD.new();
-            sdi2 = Test.ShortShortSD.new();
+            sdi1 = ShortShortSD.new();
+            sdi2 = ShortShortSD.new();
 
             si1 = [1, 2, 3];
             si2 = [4, 5];
@@ -911,8 +914,8 @@ classdef TwowaysAMI
             assert(a(1) == 6);
             assert(a(2) == 7);
 
-            sdi1 = Test.IntIntSD.new();
-            sdi2 = Test.IntIntSD.new();
+            sdi1 = IntIntSD.new();
+            sdi2 = IntIntSD.new();
 
             si1 = [100, 200, 300];
             si2 = [400, 500];
@@ -944,8 +947,8 @@ classdef TwowaysAMI
             assert(a(1) == 600);
             assert(a(2) == 700);
 
-            sdi1 = Test.LongLongSD.new();
-            sdi2 = Test.LongLongSD.new();
+            sdi1 = LongLongSD.new();
+            sdi2 = LongLongSD.new();
 
             si1 = [999999110, 999999111, 999999110];
             si2 = [999999120, 999999130];
@@ -977,8 +980,8 @@ classdef TwowaysAMI
             assert(a(1) == 999999110);
             assert(a(2) == 999999120);
 
-            sdi1 = Test.StringFloatSD.new();
-            sdi2 = Test.StringFloatSD.new();
+            sdi1 = StringFloatSD.new();
+            sdi2 = StringFloatSD.new();
 
             si1 = [-1.1, 123123.2, 100.0];
             si2 = [42.24, -1.61];
@@ -1010,8 +1013,8 @@ classdef TwowaysAMI
             assert(a(1) == single(-3.14));
             assert(a(2) == single(3.14));
 
-            sdi1 = Test.StringDoubleSD.new();
-            sdi2 = Test.StringDoubleSD.new();
+            sdi1 = StringDoubleSD.new();
+            sdi2 = StringDoubleSD.new();
 
             si1 = [ 1.1E10, 1.2E10, 1.3E10 ];
             si2 = [ 1.4E10, 1.5E10 ];
@@ -1043,8 +1046,8 @@ classdef TwowaysAMI
             assert(a(1) == 1.6E10);
             assert(a(2) == 1.7E10);
 
-            sdi1 = Test.StringStringSD.new();
-            sdi2 = Test.StringStringSD.new();
+            sdi1 = StringStringSD.new();
+            sdi2 = StringStringSD.new();
 
             si1 = { 'abc', 'de', 'fghi' };
             si2 = { 'xyz', 'or' };
@@ -1076,38 +1079,38 @@ classdef TwowaysAMI
             assert(strcmp(a(1), 'and'));
             assert(strcmp(a(2), 'xor'));
 
-            sdi1 = Test.MyEnumMyEnumSD.new();
-            sdi2 = Test.MyEnumMyEnumSD.new();
+            sdi1 = MyEnumMyEnumSD.new();
+            sdi2 = MyEnumMyEnumSD.new();
 
-            si1 = { Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2 };
-            si2 = { Test.MyEnum.enum1, Test.MyEnum.enum2 };
-            si3 = { Test.MyEnum.enum3, Test.MyEnum.enum3 };
+            si1 = { MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 };
+            si2 = { MyEnum.enum1, MyEnum.enum2 };
+            si3 = { MyEnum.enum3, MyEnum.enum3 };
 
-            sdi1(int32(Test.MyEnum.enum3)) = si1;
-            sdi1(int32(Test.MyEnum.enum2)) = si2;
-            sdi2(int32(Test.MyEnum.enum1)) = si3;
+            sdi1(int32(MyEnum.enum3)) = si1;
+            sdi1(int32(MyEnum.enum2)) = si2;
+            sdi2(int32(MyEnum.enum1)) = si3;
 
             [r, p3] = call(p, 'opMyEnumMyEnumSD', sdi1, sdi2);
 
             assert(p3.Count == 1);
-            a = p3(int32(Test.MyEnum.enum1)); % Need to use temp
+            a = p3(int32(MyEnum.enum1)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == Test.MyEnum.enum3);
-            assert(a{2} == Test.MyEnum.enum3);
+            assert(a{1} == MyEnum.enum3);
+            assert(a{2} == MyEnum.enum3);
             assert(r.Count== 3);
-            a = r(int32(Test.MyEnum.enum3)); % Need to use temp
+            a = r(int32(MyEnum.enum3)); % Need to use temp
             assert(length(a) == 3);
-            assert(a{1} == Test.MyEnum.enum1);
-            assert(a{2} == Test.MyEnum.enum1);
-            assert(a{3} == Test.MyEnum.enum2);
-            a = r(int32(Test.MyEnum.enum2)); % Need to use temp
+            assert(a{1} == MyEnum.enum1);
+            assert(a{2} == MyEnum.enum1);
+            assert(a{3} == MyEnum.enum2);
+            a = r(int32(MyEnum.enum2)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == Test.MyEnum.enum1);
-            assert(a{2} == Test.MyEnum.enum2);
-            a = r(int32(Test.MyEnum.enum1)); % Need to use temp
+            assert(a{1} == MyEnum.enum1);
+            assert(a{2} == MyEnum.enum2);
+            a = r(int32(MyEnum.enum1)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == Test.MyEnum.enum3);
-            assert(a{2} == Test.MyEnum.enum3);
+            assert(a{1} == MyEnum.enum3);
+            assert(a{2} == MyEnum.enum3);
 
             lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
 
@@ -1136,7 +1139,7 @@ classdef TwowaysAMI
             assert(p.ice_getContext().Count == 0);
             assert(isequal(r, ctx));
 
-            p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx));
+            p2 = MyClassPrx.checkedCast(p.ice_context(ctx));
             assert(isequal(p2.ice_getContext(), ctx));
             r = p2.opContext();
             assert(isequal(r, ctx));
@@ -1160,7 +1163,7 @@ classdef TwowaysAMI
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
 
-                p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy(['test:', app.getTestEndpoint(0)]));
+                p3 = MyClassPrx.uncheckedCast(ic.stringToProxy(['test:', app.getTestEndpoint(0)]));
 
                 ic.getImplicitContext().setContext(ctx);
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));
@@ -1225,8 +1228,8 @@ classdef TwowaysAMI
             empty = call(p, 'opByteBoolD2', []);
             assert(empty.Count == 0);
 
-            d = Test.MyDerivedClassPrx.uncheckedCast(p);
-            s = Test.MyStruct1();
+            d = MyDerivedClassPrx.uncheckedCast(p);
+            s = MyStruct1();
             s.tesT = 'Test.MyStruct1.s';
             s.myClass = [];
             s.myStruct1 = 'Test.MyStruct1.myStruct1';
@@ -1235,16 +1238,14 @@ classdef TwowaysAMI
             assert(isempty(s.myClass));
             assert(strcmp(s.myStruct1, 'Test.MyStruct1.myStruct1'));
 
-            %{
-            c = new MyClass1();
+            c = MyClass1();
             c.tesT = 'Test.MyClass1.testT';
-            c.myClass = null;
+            c.myClass = [];
             c.myClass1 = 'Test.MyClass1.myClass1';
-            c = d.opMyClass1(c);
-            assert(c.tesT.equals('Test.MyClass1.testT'));
-            assert(c.myClass == null);
-            assert(c.myClass1.equals('Test.MyClass1.myClass1'));
-            %}
+            c = call(d, 'opMyClass1', c);
+            assert(strcmp(c.tesT, 'Test.MyClass1.testT'));
+            assert(isempty(c.myClass));
+            assert(strcmp(c.myClass1, 'Test.MyClass1.myClass1'));
         end
     end
 end

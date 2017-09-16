@@ -12,11 +12,13 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
+            import test.Ice.operations.Test.*;
+
             communicator = app.communicator();
             ref = ['test:', app.getTestEndpoint(0, '')];
             base = communicator.stringToProxy(ref);
-            cl = Test.MyClassPrx.checkedCast(base);
-            derived = Test.MyDerivedClassPrx.checkedCast(cl);
+            cl = MyClassPrx.checkedCast(base);
+            derived = MyDerivedClassPrx.checkedCast(cl);
 
             fprintf('testing twoway operations... ');
             Twoways.twoways(app, cl);

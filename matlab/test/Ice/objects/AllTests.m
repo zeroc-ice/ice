@@ -12,10 +12,12 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
+            import test.Ice.objects.Test.*;
+
             communicator = app.communicator();
             ref = ['initial:', app.getTestEndpoint(0, '')];
             base = communicator.stringToProxy(ref);
-            initial = Test.InitialPrx.checkedCast(base);
+            initial = InitialPrx.checkedCast(base);
 
             fprintf('getting B1... ');
             b1 = initial.getB1();
@@ -41,10 +43,10 @@ classdef AllTests
             assert(b1 ~= b2);
             assert(b1.theB == b1);
             assert(isempty(b1.theC));
-            assert(isa(b1.theA, 'Test.B'));
+            assert(isa(b1.theA, 'test.Ice.objects.Test.B'));
             assert(b1.theA.theA == b1.theA);
             assert(b1.theA.theB == b1);
-            assert(isa(b1.theA.theC, 'Test.C'));
+            assert(isa(b1.theA.theC, 'test.Ice.objects.Test.C'));
             assert(b1.theA.theC.theB == b1.theA);
             assert(b1.preMarshalInvoked);
             assert(b1.postUnmarshalInvoked);
@@ -91,28 +93,28 @@ classdef AllTests
             fprintf('testing protected members... ');
             e = initial.getE();
             assert(e.checkValues());
-            em = ?Test.E;
+            em = ?test.Ice.objects.Test.E;
             assert(strcmp(em.PropertyList(1).GetAccess, 'protected'));
             assert(strcmp(em.PropertyList(2).GetAccess, 'protected'));
             f = initial.getF();
             assert(f.checkValues());
             assert(f.e2.checkValues());
-            fm = ?Test.F;
+            fm = ?test.Ice.objects.Test.F;
             assert(strcmp(fm.PropertyList(1).GetAccess, 'public'));
             assert(strcmp(fm.PropertyList(2).GetAccess, 'protected'));
             fprintf('ok\n');
 
             fprintf('getting I, J and H... ');
             i = initial.getI();
-            assert(~isempty(i) && strcmp(i.ice_id(), Test.IPrx.ice_staticId()));
+            assert(~isempty(i) && strcmp(i.ice_id(), IPrx.ice_staticId()));
             j = initial.getJ();
-            assert(~isempty(j) && strcmp(j.ice_id(), Test.JPrx.ice_staticId()));
+            assert(~isempty(j) && strcmp(j.ice_id(), JPrx.ice_staticId()));
             h = initial.getH();
-            assert(~isempty(h) && isa(h, 'Test.H'));
+            assert(~isempty(h) && isa(h, 'test.Ice.objects.Test.H'));
             fprintf('ok\n');
 
             fprintf('getting D1... ');
-            d1 = Test.D1(Test.A1('a1'), Test.A1('a2'), Test.A1('a3'), Test.A1('a4'));
+            d1 = D1(A1('a1'), A1('a2'), A1('a3'), A1('a4'));
             d1 = initial.getD1(d1);
             assert(strcmp(d1.a1.name, 'a1'));
             assert(strcmp(d1.a2.name, 'a2'));
@@ -125,7 +127,7 @@ classdef AllTests
                 initial.throwEDerived();
                 assert(false);
             catch ederived
-                assert(isa(ederived, 'Test.EDerived'));
+                assert(isa(ederived, 'test.Ice.objects.Test.EDerived'));
                 assert(strcmp(ederived.a1.name, 'a1'));
                 assert(strcmp(ederived.a2.name, 'a2'));
                 assert(strcmp(ederived.a3.name, 'a3'));
@@ -141,12 +143,12 @@ classdef AllTests
 
             fprintf('testing sequences... ');
             try
-                inS = Test.BaseSeq.new();
+                inS = BaseSeq.new();
                 [r, outS] = initial.opBaseSeq(inS);
                 assert(length(r) == 0 && length(outS) == 0);
 
-                inS = Test.BaseSeq.new();
-                inS(1) = Test.Base(Test.S(), '');
+                inS = BaseSeq.new();
+                inS(1) = Base(S(), '');
                 [r, outS] = initial.opBaseSeq(inS);
                 assert(length(r) == 1 && length(outS) == 1);
             catch ex
@@ -157,12 +159,12 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing recursive type... ');
-            top = Test.Recursive();
+            top = Recursive();
             p = top;
             depth = 0;
             try
                 for depth = 0:20000
-                    p.v = Test.Recursive();
+                    p.v = Recursive();
                     p = p.v;
                     if (depth < 10 && mod(depth, 10) == 0) || ...
                        (depth < 1000 && mod(depth, 100) == 0) || ...
@@ -181,7 +183,7 @@ classdef AllTests
                     rethrow(ex);
                 end
             end
-            initial.setRecursive(Test.Recursive());
+            initial.setRecursive(Recursive());
             fprintf('ok\n');
 
             fprintf('testing compact ID... ');
@@ -198,15 +200,15 @@ classdef AllTests
             ref = ['uoet:', app.getTestEndpoint(0, '')];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
-            uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
+            uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
             assert(~isempty(uoet));
             try
                 uoet.op();
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.UnexpectedObjectException')
-                    assert(strcmp(ex.type_, 'Test.AlsoEmpty'));
-                    assert(strcmp(ex.expectedType, 'Test.Empty'));
+                    assert(strcmp(ex.type_, 'test.Ice.objects.Test.AlsoEmpty'));
+                    assert(strcmp(ex.expectedType, 'test.Ice.objects.Test.Empty'));
                 else
                     rethrow(ex);
                 end

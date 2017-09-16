@@ -12,22 +12,24 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
+            import test.Ice.optional.Test.*;
+
             communicator = app.communicator();
 
             ref = ['initial:', app.getTestEndpoint(0, '')];
             base = communicator.stringToProxy(ref);
-            initial = Test.InitialPrx.checkedCast(base);
+            initial = InitialPrx.checkedCast(base);
 
             fprintf('testing optional data members... ');
 
-            oo1 = Test.OneOptional();
+            oo1 = OneOptional();
             assert(oo1.a == Ice.Unset);
             oo1.a = 15;
 
-            oo2 = Test.OneOptional(16);
+            oo2 = OneOptional(16);
             assert(oo2.a == 16);
 
-            mo1 = Test.MultiOptional();
+            mo1 = MultiOptional();
             assert(mo1.a == Ice.Unset);
             assert(mo1.b == Ice.Unset);
             assert(mo1.c == Ice.Unset);
@@ -61,29 +63,29 @@ classdef AllTests
 
             assert(mo1.bos == Ice.Unset);
 
-            ss = Test.SmallStruct();
-            fs = Test.FixedStruct(78);
-            vs = Test.VarStruct('hello');
-            iid = Test.IntIntDict.new();
+            ss = SmallStruct();
+            fs = FixedStruct(78);
+            vs = VarStruct('hello');
+            iid = IntIntDict.new();
             iid(4) = 3;
-            sid = Test.StringIntDict.new();
+            sid = StringIntDict.new();
             sid('test') = 10;
-            ied = Test.IntEnumDict.new();
-            ied(4) = Test.MyEnum.MyEnumMember;
-            oos = Test.OneOptionalSeq.new();
+            ied = IntEnumDict.new();
+            ied(4) = MyEnum.MyEnumMember;
+            oos = OneOptionalSeq.new();
             oos(1) = oo1;
-            ifsd = Test.IntFixedStructDict.new();
+            ifsd = IntFixedStructDict.new();
             ifsd(4) = fs;
-            ivsd = Test.IntVarStructDict.new();
+            ivsd = IntVarStructDict.new();
             ivsd(5) = vs;
-            iood = Test.IntOneOptionalDict.new();
-            iood(5) = Test.OneOptional(15);
-            ioopd = Test.IntOneOptionalPrxDict.new();
+            iood = IntOneOptionalDict.new();
+            iood(5) = OneOptional(15);
+            ioopd = IntOneOptionalPrxDict.new();
             ioopd(5) = communicator.stringToProxy('test');
-            mo1 = Test.MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', Test.MyEnum.MyEnumMember, ...
+            mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
                                      communicator.stringToProxy('test'), ...
                                      [], [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
-                                     {Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember}, ...
+                                     {MyEnum.MyEnumMember, MyEnum.MyEnumMember}, ...
                                      { fs }, { vs }, oos, { communicator.stringToProxy('test') }, ...
                                      ied, ifsd, ivsd, iood, ioopd, [false, true, false], []);
 
@@ -95,26 +97,26 @@ classdef AllTests
             assert(mo1.f == 5.5);
             assert(mo1.g == 1.0);
             assert(strcmp(mo1.h, 'test'));
-            assert(mo1.i == Test.MyEnum.MyEnumMember);
+            assert(mo1.i == MyEnum.MyEnumMember);
             assert(mo1.j == communicator.stringToProxy('test'));
             assert(isempty(mo1.k));
             assert(mo1.bs == [5])
             assert(isequal(mo1.ss, {'test', 'test2'}));
             assert(mo1.iid(4) == 3);
             assert(mo1.sid('test') == 10);
-            assert(isequal(mo1.fs, Test.FixedStruct(78)));
-            assert(isequal(mo1.vs, Test.VarStruct('hello')));
+            assert(isequal(mo1.fs, FixedStruct(78)));
+            assert(isequal(mo1.vs, VarStruct('hello')));
 
             assert(mo1.shs(1) == 1);
-            assert(mo1.es{1} == Test.MyEnum.MyEnumMember && mo1.es{2} == Test.MyEnum.MyEnumMember);
-            assert(isequal(mo1.fss{1}, Test.FixedStruct(78)));
-            assert(isequal(mo1.vss{1}, Test.VarStruct('hello')));
+            assert(mo1.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
+            assert(isequal(mo1.fss{1}, FixedStruct(78)));
+            assert(isequal(mo1.vss{1}, VarStruct('hello')));
             assert(isequal(mo1.oos(1), oo1));
             assert(mo1.oops{1} == communicator.stringToProxy('test'));
 
-            assert(mo1.ied(4) == Test.MyEnum.MyEnumMember);
-            assert(isequal(mo1.ifsd(4), Test.FixedStruct(78)));
-            assert(isequal(mo1.ivsd(5), Test.VarStruct('hello')));
+            assert(mo1.ied(4) == MyEnum.MyEnumMember);
+            assert(isequal(mo1.ifsd(4), FixedStruct(78)));
+            assert(isequal(mo1.ivsd(5), VarStruct('hello')));
             assert(mo1.iood(5).a == 15);
             assert(mo1.ioopd(5) == communicator.stringToProxy('test'));
 
@@ -132,13 +134,13 @@ classdef AllTests
 
             fprintf('testing marshaling... ');
 
-            oo4 = initial.pingPong(Test.OneOptional());
+            oo4 = initial.pingPong(OneOptional());
             assert(oo4.a == Ice.Unset);
 
             oo5 = initial.pingPong(oo1);
             assert(oo1.a == oo5.a);
 
-            mo4 = initial.pingPong(Test.MultiOptional());
+            mo4 = initial.pingPong(MultiOptional());
             assert(mo4.a == Ice.Unset);
             assert(mo4.b == Ice.Unset);
             assert(mo4.c == Ice.Unset);
@@ -191,22 +193,22 @@ classdef AllTests
             assert(mo5.fs == mo1.fs);
             assert(mo5.vs == mo1.vs);
             assert(isequal(mo5.shs, mo1.shs));
-            assert(mo5.es{1} == Test.MyEnum.MyEnumMember && mo1.es{2} == Test.MyEnum.MyEnumMember);
-            assert(mo5.fss{1} == Test.FixedStruct(78));
-            assert(mo5.vss{1} == Test.VarStruct('hello'));
+            assert(mo5.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
+            assert(mo5.fss{1} == FixedStruct(78));
+            assert(mo5.vss{1} == VarStruct('hello'));
             assert(mo5.oos(1).a == 15);
             assert(mo5.oops{1} == communicator.stringToProxy('test'));
 
-            assert(mo5.ied(4) == Test.MyEnum.MyEnumMember);
-            assert(mo5.ifsd(4) == Test.FixedStruct(78));
-            assert(mo5.ivsd(5) == Test.VarStruct('hello'));
+            assert(mo5.ied(4) == MyEnum.MyEnumMember);
+            assert(mo5.ifsd(4) == FixedStruct(78));
+            assert(mo5.ivsd(5) == VarStruct('hello'));
             assert(mo5.iood(5).a == 15);
             assert(mo5.ioopd(5) == communicator.stringToProxy('test'));
 
             assert(isequal(mo5.bos, mo1.bos));
 
             % Clear the first half of the optional members
-            mo6 = Test.MultiOptional();
+            mo6 = MultiOptional();
             mo6.b = mo5.b;
             mo6.d = mo5.d;
             mo6.f = mo5.f;
@@ -243,13 +245,13 @@ classdef AllTests
 
             assert(isequal(mo7.shs, mo1.shs));
             assert(mo7.es == Ice.Unset);
-            assert(mo7.fss{1} == Test.FixedStruct(78));
+            assert(mo7.fss{1} == FixedStruct(78));
             assert(mo7.vss == Ice.Unset);
             assert(mo7.oos(1).a == 15);
             assert(mo7.oops == Ice.Unset);
 
             assert(mo7.ied == Ice.Unset);
-            assert(mo7.ifsd(4) == Test.FixedStruct(78));
+            assert(mo7.ifsd(4) == FixedStruct(78));
             assert(mo7.ivsd == Ice.Unset);
             assert(mo7.iood(5).a == 15);
             assert(mo7.ioopd == Ice.Unset);
@@ -257,7 +259,7 @@ classdef AllTests
             assert(isequal(mo7.bos, [false, true, false]));
 
             % Clear the second half of the optional members
-            mo8 = Test.MultiOptional();
+            mo8 = MultiOptional();
             mo8.a = mo5.a;
             mo8.c = mo5.c;
             mo8.e = mo5.e;
@@ -296,15 +298,15 @@ classdef AllTests
             assert(mo9.vs == mo1.vs);
 
             assert(mo9.shs == Ice.Unset);
-            assert(mo9.es{1} == Test.MyEnum.MyEnumMember && mo1.es{2} == Test.MyEnum.MyEnumMember);
+            assert(mo9.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
             assert(mo9.fss == Ice.Unset);
-            assert(mo9.vss{1} == Test.VarStruct('hello'));
+            assert(mo9.vss{1} == VarStruct('hello'));
             assert(mo9.oos == Ice.Unset);
             assert(mo9.oops{1} == communicator.stringToProxy('test'));
 
-            assert(mo9.ied(4) == Test.MyEnum.MyEnumMember);
+            assert(mo9.ied(4) == MyEnum.MyEnumMember);
             assert(mo9.ifsd == Ice.Unset);
-            assert(mo9.ivsd(5) == Test.VarStruct('hello'));
+            assert(mo9.ivsd(5) == VarStruct('hello'));
             assert(mo9.iood == Ice.Unset);
             assert(mo9.ioopd(5) == communicator.stringToProxy('test'));
 
@@ -313,57 +315,57 @@ classdef AllTests
             %
             % Use the 1.0 encoding with operations whose only class parameters are optional.
             %
-            initial.sendOptionalClass(true, Test.OneOptional(53));
-            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalClass(true, Test.OneOptional(53));
+            initial.sendOptionalClass(true, OneOptional(53));
+            initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).sendOptionalClass(true, OneOptional(53));
 
             r = initial.returnOptionalClass(true);
             assert(r ~= Ice.Unset)
             r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalClass(true);
             assert(r == Ice.Unset);
 
-            recursive1 = Test.RecursiveSeq.new();
-            recursive2 = Test.RecursiveSeq.new();
-            r1 = Test.Recursive();
-            r2 = Test.Recursive();
+            recursive1 = RecursiveSeq.new();
+            recursive2 = RecursiveSeq.new();
+            r1 = Recursive();
+            r2 = Recursive();
             r1.value = recursive2;
             recursive1(1) = r1;
             recursive2(1) = r2;
 
-            outer = Test.Recursive();
+            outer = Recursive();
             outer.value = recursive1;
             initial.pingPong(outer);
 
-            g = Test.G();
-            g.gg1Opt = Test.G1('gg1Opt');
-            g.gg2 = Test.G2(10);
-            g.gg2Opt = Test.G2(20);
-            g.gg1 = Test.G1('gg1');
+            g = G();
+            g.gg1Opt = G1('gg1Opt');
+            g.gg2 = G2(10);
+            g.gg2Opt = G2(20);
+            g.gg1 = G1('gg1');
             r = initial.opG(g);
             assert(strcmp(r.gg1Opt.a, 'gg1Opt'));
             assert(r.gg2.a == 10);
             assert(r.gg2Opt.a == 20);
             assert(strcmp(r.gg1.a, 'gg1'));
 
-            initial2 = Test.Initial2Prx.uncheckedCast(base);
+            initial2 = Initial2Prx.uncheckedCast(base);
             initial2.opVoid(15, 'test');
 
             fprintf('ok\n');
 
             fprintf('testing marshaling of large containers with fixed size elements... ');
 
-            mc = Test.MultiOptional();
+            mc = MultiOptional();
 
             mc.bs = uint8(zeros(1, 1000));
             mc.shs = int16(zeros(1, 300));
 
             mc.fss = cell(1, 300);
             for i = 1:300
-                mc.fss{i} = Test.FixedStruct();
+                mc.fss{i} = FixedStruct();
             end
 
-            mc.ifsd = Test.IntFixedStructDict.new();
+            mc.ifsd = IntFixedStructDict.new();
             for i = 1:300
-                mc.ifsd(i) = Test.FixedStruct();
+                mc.ifsd(i) = FixedStruct();
             end
 
             mc = initial.pingPong(mc);
@@ -376,7 +378,7 @@ classdef AllTests
 
             fprintf('testing tag marshaling... ');
 
-            b = Test.B();
+            b = B();
             b2 = initial.pingPong(b);
             assert(b2.ma == Ice.Unset);
             assert(b2.mb == Ice.Unset);
@@ -397,9 +399,9 @@ classdef AllTests
 
             fprintf('testing marshalling of objects with optional objects... ');
 
-            f = Test.F();
+            f = F();
 
-            f.af = Test.A();
+            f.af = A();
             f.ae = f.af;
 
             rf = initial.pingPong(f);
@@ -409,7 +411,7 @@ classdef AllTests
 
             fprintf('testing optional with default values... ');
 
-            wd = initial.pingPong(Test.WD());
+            wd = initial.pingPong(WD());
             assert(wd.a == 5);
             assert(strcmp(wd.s, 'test'));
             wd.a = Ice.Unset;
@@ -423,7 +425,7 @@ classdef AllTests
             if communicator.getProperties().getPropertyAsInt('Ice.Default.SlicedFormat') > 0
                 fprintf('testing marshaling with unknown class slices... ');
 
-                c = Test.C();
+                c = C();
                 c.ss = 'test';
                 c.ms = 'testms';
                 c = initial.pingPong(c);
@@ -438,14 +440,14 @@ classdef AllTests
 
                 fprintf('testing optionals with unknown classes... ');
 
-                initial2 = Test.Initial2Prx.uncheckedCast(base);
-                d = Test.D();
+                initial2 = Initial2Prx.uncheckedCast(base);
+                d = D();
                 d.ds = 'test';
                 d.seq = {'test1', 'test2', 'test3', 'test4'};
-                d.ao = Test.A(18);
+                d.ao = A(18);
                 d.requiredB = 14;
                 d.requiredA = 14;
-                initial2.opClassAndUnknownOptional(Test.A(), d);
+                initial2.opClassAndUnknownOptional(A(), d);
 
                 fprintf('ok\n');
             end
@@ -518,15 +520,15 @@ classdef AllTests
 
             [p2, p3] = initial.opMyEnum(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            [p2, p3] = initial.opMyEnum(Test.MyEnum.MyEnumMember);
-            assert(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
-            f = initial.opMyEnumAsync(Test.MyEnum.MyEnumMember);
+            [p2, p3] = initial.opMyEnum(MyEnum.MyEnumMember);
+            assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
+            f = initial.opMyEnumAsync(MyEnum.MyEnumMember);
             [p2, p3] = f.fetchOutputs();
-            assert(p2 == Test.MyEnum.MyEnumMember && p3 == Test.MyEnum.MyEnumMember);
+            assert(p2 == MyEnum.MyEnumMember && p3 == MyEnum.MyEnumMember);
 
             [p2, p3] = initial.opSmallStruct(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.SmallStruct(56);
+            p1 = SmallStruct(56);
             [p2, p3] = initial.opSmallStruct(p1);
             assert(p2 == p1 && p3 == p1);
             [p2, p3] = initial.opSmallStruct([]); % Test null struct
@@ -537,7 +539,7 @@ classdef AllTests
 
             [p2, p3] = initial.opFixedStruct(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.FixedStruct(56);
+            p1 = FixedStruct(56);
             [p2, p3] = initial.opFixedStruct(p1);
             assert(p2 == p1 && p3 == p1);
             f = initial.opFixedStructAsync(p1);
@@ -546,7 +548,7 @@ classdef AllTests
 
             [p2, p3] = initial.opVarStruct(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.VarStruct('test');
+            p1 = VarStruct('test');
             [p2, p3] = initial.opVarStruct(p1);
             assert(p2 == p1 && p3 == p1);
             f = initial.opVarStructAsync(p1);
@@ -559,7 +561,7 @@ classdef AllTests
                 [p2, p3] = initial.opOneOptional([]);
                 assert(isempty(p2) && isempty(p3));
             end
-            p1 = Test.OneOptional(58);
+            p1 = OneOptional(58);
             [p2, p3] = initial.opOneOptional(p1);
             assert(p2.a == p1.a && p3.a == p1.a);
             f = initial.opOneOptionalAsync(p1);
@@ -665,7 +667,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
             p1 = cell(1, 100);
             for i = 1:length(p1)
-                p1{i} = Test.SmallStruct(1);
+                p1{i} = SmallStruct(1);
             end
             [p2, p3] = initial.opSmallStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -677,7 +679,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
             p1 = cell(1, 100);
             for i = 1:length(p1)
-                p1{i} = Test.SmallStruct(1);
+                p1{i} = SmallStruct(1);
             end
             [p2, p3] = initial.opSmallStructList(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -689,7 +691,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
             p1 = cell(1, 100);
             for i = 1:length(p1)
-                p1{i} = Test.FixedStruct(1);
+                p1{i} = FixedStruct(1);
             end
             [p2, p3] = initial.opFixedStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -701,7 +703,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
             p1 = cell(1, 100);
             for i = 1:length(p1)
-                p1{i} = Test.FixedStruct(1);
+                p1{i} = FixedStruct(1);
             end
             [p2, p3] = initial.opFixedStructList(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -713,7 +715,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
             p1 = cell(1, 100);
             for i = 1:length(p1)
-                p1{i} = Test.VarStruct('test');
+                p1{i} = VarStruct('test');
             end
             [p2, p3] = initial.opVarStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -723,7 +725,7 @@ classdef AllTests
 
             [p2, p3] = initial.opIntIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.IntIntDict.new();
+            p1 = IntIntDict.new();
             p1(1) = 2;
             p1(2) = 3;
             [p2, p3] = initial.opIntIntDict(p1);
@@ -734,7 +736,7 @@ classdef AllTests
 
             [p2, p3] = initial.opStringIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.StringIntDict.new();
+            p1 = StringIntDict.new();
             p1('1') = 2;
             p1('2') = 3;
             [p2, p3] = initial.opStringIntDict(p1);
@@ -745,9 +747,9 @@ classdef AllTests
 
             [p2, p3] = initial.opIntOneOptionalDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = Test.IntOneOptionalDict.new();
-            p1(1) = Test.OneOptional(58);
-            p1(2) = Test.OneOptional(59);
+            p1 = IntOneOptionalDict.new();
+            p1(1) = OneOptional(58);
+            p1(2) = OneOptional(59);
             [p2, p3] = initial.opIntOneOptionalDict(p1);
             assert(p2(1).a == 58 && p3(1).a == 58);
             f = initial.opIntOneOptionalDictAsync(p1);
@@ -761,16 +763,16 @@ classdef AllTests
             try
                 initial.opOptionalException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'Test.OptionalException'));
+                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
             end
 
             try
-                initial.opOptionalException(30, 'test', Test.OneOptional(53));
+                initial.opOptionalException(30, 'test', OneOptional(53));
             catch ex
-                assert(isa(ex, 'Test.OptionalException'));
+                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test'));
                 assert(ex.o.a == 53);
@@ -780,9 +782,9 @@ classdef AllTests
                 %
                 % Use the 1.0 encoding with an exception whose only class members are optional.
                 %
-                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', Test.OneOptional(53));
+                initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', OneOptional(53));
             catch ex
-                assert(isa(ex, 'Test.OptionalException'));
+                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -791,7 +793,7 @@ classdef AllTests
             try
                 initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'Test.DerivedException'));
+                assert(isa(ex, 'test.Ice.optional.Test.DerivedException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -800,9 +802,9 @@ classdef AllTests
             end
 
             try
-                initial.opDerivedException(30, 'test2', Test.OneOptional(53));
+                initial.opDerivedException(30, 'test2', OneOptional(53));
             catch ex
-                assert(isa(ex, 'Test.DerivedException'));
+                assert(isa(ex, 'test.Ice.optional.Test.DerivedException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
                 assert(ex.o.a == 53);
@@ -813,7 +815,7 @@ classdef AllTests
             try
                 initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'Test.RequiredException'));
+                assert(isa(ex, 'test.Ice.optional.Test.RequiredException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -822,9 +824,9 @@ classdef AllTests
             end
 
             try
-                initial.opRequiredException(30, 'test2', Test.OneOptional(53));
+                initial.opRequiredException(30, 'test2', OneOptional(53));
             catch ex
-                assert(isa(ex, 'Test.RequiredException'));
+                assert(isa(ex, 'test.Ice.optional.Test.RequiredException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
                 assert(ex.o.a == 53);

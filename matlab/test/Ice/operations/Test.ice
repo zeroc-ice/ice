@@ -11,6 +11,8 @@
 
 #include <Ice/Current.ice>
 
+[["matlab:package:test.Ice.operations"]]
+
 module Test
 {
 

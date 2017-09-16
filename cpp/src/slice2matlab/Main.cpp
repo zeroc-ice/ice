@@ -68,6 +68,29 @@ lookupKwd(const string& name)
 }
 
 //
+// Split an absolute name into its components and return the components as a list of identifiers.
+//
+vector<string>
+splitAbsoluteName(const string& abs)
+{
+    vector<string> ids;
+    string::size_type start = 0;
+    string::size_type pos;
+    while((pos = abs.find(".", start)) != string::npos)
+    {
+        assert(pos > start);
+        ids.push_back(abs.substr(start, pos - start));
+        start = pos + 1;
+    }
+    if(start != abs.size())
+    {
+        ids.push_back(abs.substr(start));
+    }
+
+    return ids;
+}
+
+//
 // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
 //
 vector<string>
@@ -168,6 +191,33 @@ scopedToName(const string& scoped)
     return fixIdent(str);
 }
 
+map<string, string> _filePackagePrefix;
+
+string
+getPackagePrefix(const ContainedPtr& cont)
+{
+    UnitPtr unit = cont->container()->unit();
+    string file = cont->file();
+    assert(!file.empty());
+
+    map<string, string>::const_iterator p = _filePackagePrefix.find(file);
+    if(p != _filePackagePrefix.end())
+    {
+        return p->second;
+    }
+
+    static const string prefix = "matlab:package:";
+    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    assert(dc);
+    string q = dc->findMetaData(prefix);
+    if(!q.empty())
+    {
+        q = q.substr(prefix.size());
+    }
+    _filePackagePrefix[file] = q;
+    return q;
+}
+
 //
 // Get the fully-qualified name of the given definition. If a suffix is provided,
 // it is prepended to the definition's unqualified name. If the nameSuffix
@@ -176,7 +226,12 @@ scopedToName(const string& scoped)
 string
 getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
 {
-    return scopedToName(cont->scope() + pfx + cont->name() + suffix);
+    string pkg = getPackagePrefix(cont);
+    if(!pkg.empty())
+    {
+        pkg += ".";
+    }
+    return pkg + scopedToName(cont->scope() + pfx + cont->name() + suffix);
 }
 
 void
@@ -524,15 +579,16 @@ CodeVisitor::CodeVisitor(const string& dir) :
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const ClassList bases = p->bases();
-    const string self = name == "obj" ? "this" : "obj";
-
     if(p->hasMetaData("matlab:internal"))
     {
         return false;
     }
+
+    const string name = fixIdent(p->name());
+    const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
+    const ClassList bases = p->bases();
+    const string self = name == "obj" ? "this" : "obj";
 
     if(!p->isInterface())
     {
@@ -543,7 +599,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         IceUtilInternal::Output out;
-        openClass(scoped, out);
+        openClass(abs, out);
 
         out << nl << "classdef " << name;
         if(base)
@@ -795,7 +851,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(p->compactId() >= 0)
         {
             ostringstream ostr;
-            ostr << "::IceCompactId::TypeId_" << p->compactId();
+            ostr << "IceCompactId.TypeId_" << p->compactId();
 
             openClass(ostr.str(), out);
 
@@ -821,11 +877,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Generate proxy class.
         //
 
-        IceUtilInternal::Output out;
-        openClass(scoped + "Prx", out);
-
         const string prxName = name + "Prx";
-        const string abs = getAbsolute(p, "", "Prx");
+        const string prxAbs = getAbsolute(p, "", "Prx");
+
+        IceUtilInternal::Output out;
+        openClass(prxAbs, out);
 
         out << nl << "classdef " << prxName << " < ";
         if(!bases.empty())
@@ -1244,17 +1300,18 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "end";
         out << nl << "function r = ice_read(is_)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.read_(is_, '" << abs << "');";
+        out << nl << "r = Ice.ObjectPrx.read_(is_, '" << prxAbs << "');";
         out.dec();
         out << nl << "end";
         out << nl << "function r = checkedCast(p, varargin)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.checkedCast_(p, " << abs << ".ice_staticId(), '" << abs << "', varargin{:});";
+        out << nl << "r = Ice.ObjectPrx.checkedCast_(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
+            << "', varargin{:});";
         out.dec();
         out << nl << "end";
         out << nl << "function r = uncheckedCast(p, varargin)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.uncheckedCast_(p, '" << abs << "', varargin{:});";
+        out << nl << "r = Ice.ObjectPrx.uncheckedCast_(p, '" << prxAbs << "', varargin{:});";
         out.dec();
         out << nl << "end";
         out.dec();
@@ -1296,7 +1353,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
 
         IceUtilInternal::Output out;
-        openClass(scoped, out);
+        openClass(abs, out);
 
         out << nl << "classdef (Abstract) " << name;
         if(bases.empty())
@@ -1387,9 +1444,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     ExceptionPtr base = p->base();
 
@@ -1443,8 +1501,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     out << nl << "function " << self << " = " << name << spar << "ice_exid" << "ice_exmsg" << allNames << epar;
     out.inc();
-    string exid = getAbsolute(p);
-    const string exmsg = getAbsolute(p); // TODO: Allow a message to be specified via metadata?
+    string exid = abs;
+    const string exmsg = abs; // TODO: Allow a message to be specified via metadata?
     //
     // The ID argument must use colon separators.
     //
@@ -1625,7 +1683,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
@@ -1852,7 +1910,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const bool cls = isClass(content);
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     out << nl << "classdef " << name;
     out.inc();
@@ -2020,7 +2078,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const string self = name == "obj" ? "this" : "obj";
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     out << nl << "classdef " << name;
     out.inc();
@@ -2266,7 +2324,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     out << nl << "classdef " << name << " < int32";
 
@@ -2365,9 +2423,10 @@ CodeVisitor::visitConst(const ConstPtr& p)
 {
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(scoped, out);
+    openClass(abs, out);
 
     out << nl << "classdef " << name;
 
@@ -2387,9 +2446,9 @@ CodeVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-CodeVisitor::openClass(const string& scoped, IceUtilInternal::Output& out)
+CodeVisitor::openClass(const string& abs, IceUtilInternal::Output& out)
 {
-    vector<string> v = splitScopedName(scoped);
+    vector<string> v = splitAbsoluteName(abs);
     assert(v.size() > 1);
 
     string path;
@@ -2399,7 +2458,7 @@ CodeVisitor::openClass(const string& scoped, IceUtilInternal::Output& out)
     }
 
     //
-    // Create a package directory corresponding to each Slice module.
+    // Create a package directory corresponding to each component.
     //
     for(vector<string>::size_type i = 0; i < v.size() - 1; i++)
     {

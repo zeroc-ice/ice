@@ -11,11 +11,12 @@ ICE_LICENSE file included in this distribution.
 
 classdef (Abstract) EncapsDecoder < handle
     methods
-        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager)
+        function obj = EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver)
             obj.is = is;
             obj.encaps = encaps;
             obj.sliceValues = sliceValues;
             obj.valueFactoryManager = valueFactoryManager;
+            obj.classResolver = classResolver;
             obj.patchMap = [];
             obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.typeIdMap = [];
@@ -80,18 +81,21 @@ classdef (Abstract) EncapsDecoder < handle
             end
 
             %
-            % Last chance: try to instantiate the class dynamically.
+            % Last chance: ask the class resolver to find it.
             %
             if isempty(v)
-                %
-                % Translate the type ID into a class name.
-                %
-                cls = IceInternal.Util.idToClass(typeId);
+                cls = obj.classResolver.resolve(typeId);
+                if isempty(cls)
+                    reason = sprintf('no value factory for %s', typeId);
+                    throw(Ice.NoValueFactoryException('', reason, reason, typeId));
+                end
 
                 try
-                    v = eval(cls);
+                    constructor = str2func(cls); % Get the constructor.
+                    v = constructor(); % Invoke the constructor.
                 catch e
-                    throw(Ice.NoValueFactoryException('', 'no value factory', typeId));
+                    reason = sprintf('constructor failed for %s', cls);
+                    throw(Ice.NoValueFactoryException('', reason, reason, typeId));
                 end
             end
 
@@ -211,6 +215,7 @@ classdef (Abstract) EncapsDecoder < handle
         encaps
         sliceValues
         valueFactoryManager
+        classResolver
         patchMap
     end
     properties(Access=private)

@@ -118,11 +118,18 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', []);
         end
+        function r = getClassResolver(obj) 
+            if isempty(obj.classResolver) % Lazy initialization.
+                obj.classResolver = IceInternal.ClassResolver(obj.getProperties());
+            end
+            r = obj.classResolver;
+        end
         function r = getCompactIdResolver(obj)
             r = obj.initData.compactIdResolver;
         end
     end
     properties(Access=private)
         initData
+        classResolver
     end
 end

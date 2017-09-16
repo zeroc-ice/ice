@@ -12,6 +12,8 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
+            import test.Ice.proxy.Test.*;
+
             communicator = app.communicator();
 
             fprintf('testing stringToProxy... ');
@@ -624,10 +626,10 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing checked cast... ');
-            cl = Test.MyClassPrx.checkedCast(base);
+            cl = MyClassPrx.checkedCast(base);
             assert(~isempty(cl));
 
-            derived = Test.MyDerivedClassPrx.checkedCast(cl);
+            derived = MyDerivedClassPrx.checkedCast(cl);
             assert(~isempty(derived));
             assert(cl == base);
             assert(derived == base);
@@ -639,7 +641,7 @@ classdef AllTests
             %
             % Upcasting
             %
-            cl2 = Test.MyClassPrx.checkedCast(derived);
+            cl2 = MyClassPrx.checkedCast(derived);
             obj = Ice.ObjectPrx.checkedCast(derived);
             assert(~isempty(cl2));
             assert(~isempty(obj));
@@ -649,21 +651,21 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing checked cast with context... ');
-            tccp = Test.MyClassPrx.checkedCast(base);
+            tccp = MyClassPrx.checkedCast(base);
             c = tccp.getContext();
             assert(isempty(c));
 
             c = Ice.Context.new();
             c('one') = 'hello';
             c('two') = 'world';
-            tccp = Test.MyClassPrx.checkedCast(base, c);
+            tccp = MyClassPrx.checkedCast(base, c);
             c2 = tccp.getContext();
             assert(isequal(c, c2));
             fprintf('ok\n');
 
             fprintf('testing encoding versioning... ');
             ref20 = 'test -e 2.0:default -p 12010';
-            cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+            cl20 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
             try
                 cl20.ice_ping();
                 assert(false);
@@ -673,7 +675,7 @@ classdef AllTests
             end
 
             ref10 = 'test -e 1.0:default -p 12010';
-            cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
+            cl10 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
             cl10.ice_ping();
             cl10.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
             cl.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_ping();
@@ -681,7 +683,7 @@ classdef AllTests
             % 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
             % call will use the 1.1 encoding
             ref13 = 'test -e 1.3:default -p 12010';
-            cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
+            cl13 = MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
             cl13.ice_ping();
 
             fprintf('ok\n');

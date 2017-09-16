@@ -20,6 +20,7 @@ classdef Client < Application
     methods(Access=protected)
         function [r, remArgs] = getInitData(obj, args)
             [initData, remArgs] = getInitData@Application(obj, args);
+            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.exceptions');
             initData.properties_.setProperty('Ice.Warn.Connections', '0');
             initData.properties_.setProperty('Ice.MessageSizeMax', '10'); % 10KB max
             r = initData;

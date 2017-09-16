@@ -11,8 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, compactIdResolver)
-            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager);
+        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, compactIdResolver)
+            obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver);
             obj.compactIdResolver = compactIdResolver;
             obj.current = [];
             obj.valueIdIndex = 1;
@@ -62,20 +62,23 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             mostDerivedId = obj.current.typeId;
             while true
                 %
-                % Translate the type ID into a class name.
+                % Use the class resolver to convert the type ID into a class name.
                 %
-                cls = IceInternal.Util.idToClass(obj.current.typeId);
+                cls = obj.classResolver.resolve(obj.current.typeId);
 
                 %
                 % Try to instantiate the class.
                 %
                 ex = [];
-                try
-                    ex = eval(cls);
-                catch e
-                    %
-                    % Instantiation failed.
-                    %
+                if ~isempty(cls)
+                    try
+                        constructor = str2func(cls); % Get the constructor.
+                        ex = constructor(); % Invoke the constructor.
+                    catch e
+                        %
+                        % Instantiation failed.
+                        %
+                    end
                 end
 
                 if ~isempty(ex)
@@ -226,9 +229,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 obj.is.skip(obj.current.sliceSize - 4);
             else
                 if obj.current.sliceType == IceInternal.SliceType.ValueSlice
-                    throw(Ice.NoValueFactoryException('', '', ...
-                            ['no value factory found and compact format prevents ', ...
-                            'slicing (the sender should use the sliced format instead)'], obj.current.typeId));
+                    reason = ['no value factory found and compact format prevents ', ...
+                              'slicing (the sender should use the sliced format instead)'];
+                    throw(Ice.NoValueFactoryException('', reason, reason, obj.current.typeId));
                 else
                     throw(Ice.UnknownUserException('', '', obj.current.typeId));
                 end
@@ -334,11 +337,13 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         if obj.compactIdCache.isKey(obj.current.compactId)
                             cls = obj.compactIdCache(obj.current.compactId);
                             try
-                                v = eval(cls);
+                                constructor = str2func(cls); % Get the constructor.
+                                v = constructor(); % Invoke the constructor.
                                 updateCache = false;
                             catch e
-                                throw(Ice.NoValueFactoryException('', 'no value factory', ...
-                                        sprintf('compact ID %d', obj.current.compactId)));
+                                reason = sprintf('constructor failed for class %s with compact id %d', cls, ...
+                                                 obj.current.compactId);
+                                throw(Ice.NoValueFactoryException('', reason, reason, ''));
                             end
                         end
                     end
@@ -389,8 +394,8 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % If slicing is disabled, stop unmarshaling.
                 %
                 if ~obj.sliceValues
-                    throw(Ice.NoValueFactoryException('', '', 'no value factory found and slicing is disabled', ...
-                                                      obj.current.typeId));
+                    reason = 'no value factory found and slicing is disabled';
+                    throw(Ice.NoValueFactoryException('', reason, reason, obj.current.typeId));
                 end
 
                 %

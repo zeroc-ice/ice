@@ -33,6 +33,7 @@ classdef Client < Application
     methods(Access=protected)
         function [r, remArgs] = getInitData(obj, args)
             [initData, remArgs] = getInitData@Application(obj, args);
+            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.operations');
             initData.properties_.setProperty('Ice.ThreadPool.Client.Size', '2');
             initData.properties_.setProperty('Ice.ThreadPool.Client.SizeWarn', '0');
             initData.properties_.setProperty('Ice.BatchAutoFlushSize', '100');

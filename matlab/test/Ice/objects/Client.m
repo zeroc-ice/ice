@@ -14,18 +14,25 @@ classdef Client < Application
         function r = run(obj, args)
             communicator = obj.communicator();
             vfm = communicator.getValueFactoryManager();
-            vfm.add(@(id) BI(), Test.B.ice_staticId());
-            vfm.add(@(id) CI(), Test.C.ice_staticId());
-            vfm.add(@(id) DI(), Test.D.ice_staticId());
-            vfm.add(@(id) EI(), Test.E.ice_staticId());
-            vfm.add(@(id) FI(), Test.F.ice_staticId());
-            vfm.add(@(id) II(), Test.IPrx.ice_staticId());
-            vfm.add(@(id) JI(), Test.JPrx.ice_staticId());
-            vfm.add(@(id) HI(), Test.H.ice_staticId());
+            vfm.add(@(id) BI(), test.Ice.objects.Test.B.ice_staticId());
+            vfm.add(@(id) CI(), test.Ice.objects.Test.C.ice_staticId());
+            vfm.add(@(id) DI(), test.Ice.objects.Test.D.ice_staticId());
+            vfm.add(@(id) EI(), test.Ice.objects.Test.E.ice_staticId());
+            vfm.add(@(id) FI(), test.Ice.objects.Test.F.ice_staticId());
+            vfm.add(@(id) II(), test.Ice.objects.Test.IPrx.ice_staticId());
+            vfm.add(@(id) JI(), test.Ice.objects.Test.JPrx.ice_staticId());
+            vfm.add(@(id) HI(), test.Ice.objects.Test.H.ice_staticId());
 
             initial = AllTests.allTests(obj);
             initial.shutdown();
             r = 0;
+        end
+    end
+    methods(Access=protected)
+        function [r, remArgs] = getInitData(obj, args)
+            [initData, remArgs] = getInitData@Application(obj, args);
+            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.objects');
+            r = initData;
         end
     end
     methods(Static)

@@ -12,12 +12,14 @@ ICE_LICENSE file included in this distribution.
 classdef OnewaysAMI
     methods(Static)
         function onewaysAMI(app, p)
+            import test.Ice.operations.Test.*;
+
             p = p.ice_oneway();
 
             call(p, 'ice_ping');
 
             try
-                p.ice_isAAsync(Test.MyClassPrx.ice_staticId());
+                p.ice_isAAsync(MyClassPrx.ice_staticId());
             catch ex
                 assert(isa(ex, 'Ice.TwowayOnlyException'));
             end

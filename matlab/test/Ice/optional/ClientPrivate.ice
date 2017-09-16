@@ -11,6 +11,7 @@
 
 #include <Test.ice>
 
+[["matlab:package:test.Ice.optional"]]
 module Test
 {
 
