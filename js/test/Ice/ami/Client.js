@@ -7,11 +7,6 @@
 //
 // **********************************************************************
 
-/* global
-    isSafari : false,
-    isWorker : false
-*/
-
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
@@ -371,19 +366,7 @@
     exports._test = function(out, id)
     {
         var communicator = Ice.initialize(id);
-        return Ice.Promise.try(() =>
-            {
-                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
-                {
-                    out.writeLine("Test not supported with Safari web workers.");
-                    return Test.TestIntfPrx.uncheckedCast(
-                        communicator.stringToProxy("test:default -p 12010")).shutdown();
-                }
-                else
-                {
-                    return allTests(communicator, out);
-                }
-            }).finally(() => communicator.destroy());
+        return Ice.Promise.try(() => allTests(communicator, out)).finally(() => communicator.destroy());
     };
     exports._runServer = true;
 }

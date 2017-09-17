@@ -29,7 +29,10 @@ const IceSSL = Ice._ModuleRegistry.module("IceSSL");
 // We need to check for Edge browser as it might include Chrome in its user agent.
 //
 const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 &&
-               navigator.userAgent.indexOf("Chrome/") !== -1;
+                 navigator.userAgent.indexOf("Chrome/") !== -1;
+const IsSafari = /^((?!chrome).)*safari/i.test(navigator.userAgent);
+
+const IsWorker = typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope;
 
 const Debug = Ice.Debug;
 const ExUtil = Ice.ExUtil;
@@ -153,7 +156,7 @@ class WSTransceiver
         // NOTE: when this workaround is no longer necessary, don't forget removing the
         // StateClosePending state.
         //
-        if(IsChrome && this._fd.readyState === WebSocket.CONNECTING)
+        if((IsChrome || IsSafari) && this._fd.readyState === WebSocket.CONNECTING)
         {
             this._state = StateClosePending;
             return;
@@ -206,7 +209,6 @@ class WSTransceiver
             }
         };
 
-        var i = byteBuffer.position;
         while(true)
         {
             var packetSize = (this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize) ?
@@ -225,6 +227,17 @@ class WSTransceiver
             var slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
             this._fd.send(slice);
             byteBuffer.position = byteBuffer.position + packetSize;
+
+            //
+            // TODO: WORKAROUND for Safari issue with WebWorkers. The websocket accepts all the
+            // data with WebWorkers (bufferedAmount is always 0). We relinquish the control here
+            // to ensure timeouts work properly.
+            //
+            if(IsSafari && IsWorker && byteBuffer.remaining > 0)
+            {
+                Timer.setTimeout(cb, this.writeReadyTimeout());
+                return false;
+            }
         }
         return true;
     }

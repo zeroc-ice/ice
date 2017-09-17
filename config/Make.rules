@@ -138,13 +138,14 @@ bindir                  = $(ice_bindir)
 endif
 
 # Use the bin distribution if ICE_BIN_DIST=all or if ICE_BIN_DIST=cpp and processing a file from the cpp directory.
-use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),$(and $(filter cpp,$(ICE_BIN_DIST)),$(filter %/cpp,$(mappingdir))))
+use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),\
+                    $(and $(filter cpp,$(ICE_BIN_DIST)),$(filter %/cpp/,$(call mappingdir,$(or $1,$(currentdir))))))
 
-bindir                  = $(if use-bin-dist,$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
-libdir                  = $(if use-bin-dist,$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
-includedir              = $(if use-bin-dist,$(ice_slicedir),$(call mappingdir,$(or $1,$(currentdir)),include))
-slicedir                = $(if use-bin-dist,$(ice_slicedir),$(top_srcdir)/slice)
-sdkdir                  = $(if use-bin-dist,$(ice_home)/sdk,$(top_srcdir)/sdk)
+bindir                  = $(if $(use-bin-dist),$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
+libdir                  = $(if $(use-bin-dist),$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
+includedir              = $(if $(use-bin-dist),$(ice_slicedir),$(call mappingdir,$(or $1,$(currentdir)),include))
+slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(top_srcdir)/slice)
+sdkdir                  = $(if $(use-bin-dist),$(ice_home)/sdk,$(top_srcdir)/sdk)
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 
 usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))

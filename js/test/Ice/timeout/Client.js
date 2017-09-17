@@ -7,11 +7,6 @@
 //
 // **********************************************************************
 
-/* global
-    isSafari : false,
-    isWorker : false
-*/
-
 (function(module, require, exports)
 {
     var Ice = require("ice").Ice;
@@ -355,19 +350,7 @@
         id.properties.setProperty("Ice.PrintStackTraces", "1");
 
         var c = Ice.initialize(id);
-        return Ice.Promise.try(() =>
-            {
-                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
-                {
-                    out.writeLine("Test not supported with Safari web workers.");
-                    return Test.TimeoutPrx.uncheckedCast(c.stringToProxy("controller:default -p 12010")).shutdown();
-                }
-                else
-                {
-                    return allTests(out, c);
-                }
-            }
-        ).finally(() => c.destroy());
+        return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
     };
     exports._test = run;
     exports._runServer = true;
