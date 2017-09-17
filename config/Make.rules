@@ -120,10 +120,8 @@ $(eval $(call create-project-dependencies,ice,$(or $(ICE_HOME),$(if $(filter Dar
 endif
 
 ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
-bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
 ice_cpp_cppflags        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
 else
-bindir                  = $(ice_bindir)
 ice_cpp_cppflags        = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
 endif
 
@@ -133,18 +131,20 @@ else
 ice_objc_cppflags       = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
 endif
 
-ifeq ($(filter all,$(ICE_BIN_DIST)),)
-libdir                  = $(call mappingdir,$(or $1,$(currentdir)),lib)
-slicedir                = $(top_srcdir)/slice
-includedir              = $(call mappingdir,$(or $1,$(currentdir)),include)
-sdkdir                  = $(top_srcdir)/sdk
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
+bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
 else
-libdir                  = $(ice_libdir)
-slicedir                = $(ice_slicedir)
-includedir              = $(ice_includedir)
-sdkdir                  = $(ice_home)/sdk
+bindir                  = $(ice_bindir)
 endif
 
+# Use the bin distribution if ICE_BIN_DIST=all or if ICE_BIN_DIST=cpp and processing a file from the cpp directory.
+use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),$(and $(filter cpp,$(ICE_BIN_DIST)),$(filter %/cpp,$(mappingdir))))
+
+bindir                  = $(if use-bin-dist,$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
+libdir                  = $(if use-bin-dist,$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
+includedir              = $(if use-bin-dist,$(ice_slicedir),$(call mappingdir,$(or $1,$(currentdir)),include))
+slicedir                = $(if use-bin-dist,$(ice_slicedir),$(top_srcdir)/slice)
+sdkdir                  = $(if use-bin-dist,$(ice_home)/sdk,$(top_srcdir)/sdk)
 srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
 
 usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
