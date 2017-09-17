@@ -194,6 +194,7 @@ EXPORTED_FUNCTION mxArray* Ice_InputStream_pos(void*, unsigned int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_setPos(void*, unsigned int);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_size(void*, unsigned int*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_getBytes(void*, unsigned int, unsigned int);
+EXPORTED_FUNCTION mxArray* Ice_InputStream_readAndCheckSeqSize(void*, int, int*);
 
 EXPORTED_FUNCTION mxArray* Ice_createProperties(mxArray*, void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Properties__release(void*);

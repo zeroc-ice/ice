@@ -420,4 +420,18 @@ Ice_InputStream_getBytes(void* self, unsigned int start, unsigned int end)
     return 0;
 }
 
+EXPORTED_FUNCTION mxArray*
+Ice_InputStream_readAndCheckSeqSize(void* self, int minSize, int* r)
+{
+    try
+    {
+        *r = SELF->in->readAndCheckSeqSize(minSize);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
 }

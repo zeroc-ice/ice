@@ -31,6 +31,8 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     end
     methods(Abstract)
         id = ice_id(obj)
+    end
+    methods(Access=protected)
         iceWriteImpl_(obj, os)
         obj = iceReadImpl_(obj, is)
     end

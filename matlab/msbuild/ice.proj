@@ -54,6 +54,8 @@
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) -I$(testDir)\Ice\optional --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\ClientPrivate.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\proxy\generated $(testDir)\Ice\proxy\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\exceptions\generated $(testDir)\Ice\slicing\exceptions\ClientPrivate.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\objects\generated $(testDir)\Ice\slicing\objects\ClientPrivate.ice"/>
         <Exec Command="mex -v -outdir $(srcDir) -output icematlab $(MexCompilerFlags) -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
         <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2$(DebugExt).dll $(srcDir)"/>
         <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11$(DebugExt).dll&quot; $(srcDir)"/>

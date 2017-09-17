@@ -14,6 +14,9 @@ classdef (Abstract) UserException < Ice.Exception
         function obj = UserException(id, msg)
             obj = obj@Ice.Exception(id, msg)
         end
+        function r = ice_getSlicedData(obj)
+            r = obj.slicedData_;
+        end
     end
     methods(Hidden=true)
         function obj = read_(obj, is)
@@ -26,7 +29,7 @@ classdef (Abstract) UserException < Ice.Exception
                 obj.valueTable_ = containers.Map('KeyType', 'char', 'ValueType', 'any');
             end
             obj = obj.readImpl_(is);
-            is.endException();
+            obj.slicedData_ = is.endException(obj.preserve_());
             if obj.usesClasses_()
                 is.readPendingValues();
             end
@@ -36,6 +39,14 @@ classdef (Abstract) UserException < Ice.Exception
                 %
                 obj = obj.resolveValues_();
             end
+        end
+    end
+    methods(Access=protected)
+        function r = preserve_(obj)
+            %
+            % Overridden by subclasses that have the "preserve-slice" metadata.
+            %
+            r = false;
         end
         function r = usesClasses_(obj)
             %
@@ -66,5 +77,6 @@ classdef (Abstract) UserException < Ice.Exception
     end
     properties(Access=protected)
         valueTable_
+        slicedData_
     end
 end

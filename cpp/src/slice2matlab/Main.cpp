@@ -688,60 +688,70 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "methods";
             out.inc();
-        }
 
-        if(!allMembers.empty())
-        {
-            vector<string> allNames;
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-            {
-                allNames.push_back(q->fixedName);
-            }
             //
             // Constructor
             //
-            out << nl << "function " << self << " = " << name << spar << allNames << epar;
-            out.inc();
-            out << nl << "if nargin == 0";
-            out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            if(!allMembers.empty())
             {
-                out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
-            }
-            out.dec();
-            out << nl << "end";
-            if(base || !p->isLocal())
-            {
-                out << nl << self << " = " << self << "@" << (base ? getAbsolute(base) : "Ice.Value") << spar;
+                vector<string> allNames;
                 for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                 {
-                    if(q->inherited)
+                    allNames.push_back(q->fixedName);
+                }
+                out << nl << "function " << self << " = " << name << spar << allNames << epar;
+                out.inc();
+                out << nl << "if nargin == 0";
+                out.inc();
+                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                {
+                    out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
+                }
+                out.dec();
+                out << nl << "end";
+                if(base)
+                {
+                    out << nl << self << " = " << self << "@" << getAbsolute(base) << spar;
+                    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
                     {
-                        out << q->fixedName;
+                        if(q->inherited)
+                        {
+                            out << q->fixedName;
+                        }
+                    }
+                    out << epar << ';';
+                }
+                for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+                {
+                    if(!q->inherited)
+                    {
+                        out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                     }
                 }
-                out << epar << ';';
+                out.dec();
+                out << nl << "end";
             }
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+
+            if(!p->isLocal())
             {
-                if(!q->inherited)
-                {
-                    out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
-                }
+                out << nl << "function id = ice_id(obj)";
+                out.inc();
+                out << nl << "id = obj.ice_staticId();";
+                out.dec();
+                out << nl << "end";
             }
+
             out.dec();
             out << nl << "end";
         }
 
-        if(!p->isLocal())
+        if(!p->isLocal() && !members.empty())
         {
+            out << nl << "methods(Access=protected)";
+            out.inc();
+
             const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-            out << nl << "function id = ice_id(obj)";
-            out.inc();
-            out << nl << "id = obj.ice_staticId();";
-            out.dec();
-            out << nl << "end";
             out << nl << "function iceWriteImpl_(obj, os)";
             out.inc();
             out << nl << "os.startSlice(obj.ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false")
@@ -799,21 +809,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out.dec();
             out << nl << "end";
-        }
 
-        if(!allMembers.empty() || !p->isLocal())
-        {
-            out.dec();
-            out << nl << "end";
-        }
-
-        if(!p->isLocal())
-        {
             DataMemberList classMembers = p->classDataMembers();
             if(!classMembers.empty())
             {
-                out << nl << "methods(Access=protected)";
-                out.inc();
                 //
                 // For each class data member, we generate a "set_<name>_" method that is called when the instance
                 // is eventually unmarshaled.
@@ -827,10 +826,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.dec();
                     out << nl << "end";
                 }
-                out.dec();
-                out << nl << "end";
             }
 
+            out.dec();
+            out << nl << "end";
+        }
+
+        if(!p->isLocal())
+        {
             out << nl << "methods(Static)";
             out.inc();
             out << nl << "function id = ice_staticId()";
@@ -1445,6 +1448,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
+    const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
 
     IceUtilInternal::Output out;
     openClass(abs, out);
@@ -1620,14 +1625,18 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.dec();
         out << nl << "end";
 
-        out.dec();
-        out << nl << "end";
+        if(preserved && !basePreserved)
+        {
+            out << nl << "function r = preserve_(obj)";
+            out.inc();
+            out << nl << "r = true;";
+            out.dec();
+            out << nl << "end";
+        }
 
         const DataMemberList classMembers = p->classDataMembers();
         if(!classMembers.empty())
         {
-            out << nl << "methods(Hidden=true)";
-            out.inc();
             if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
             {
                 out << nl << "function r = usesClasses_(obj)";
@@ -1661,9 +1670,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             out.dec();
             out << nl << "end";
-            out.dec();
-            out << nl << "end";
         }
+
+        out.dec();
+        out << nl << "end";
     }
 
     out.dec();

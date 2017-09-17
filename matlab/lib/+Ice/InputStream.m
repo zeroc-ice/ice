@@ -210,9 +210,9 @@ classdef InputStream < IceInternal.WrapperObject
             assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
             obj.currentEncaps.decoder.startInstance(IceInternal.SliceType.ExceptionSlice);
         end
-        function endException(obj) % TODO: preserve
+        function r = endException(obj, preserve)
             assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.endInstance(false);
+            r = obj.currentEncaps.decoder.endInstance(preserve);
         end
         function startEncapsulation(obj)
             oldEncaps = obj.currentEncaps;
@@ -507,6 +507,14 @@ classdef InputStream < IceInternal.WrapperObject
                     return;
                 end
             end
+        end
+        function r = getBytes(obj, startPos, endPos)
+            r = obj.callWithResult_('getBytes', startPos, endPos);
+        end
+        function r = readAndCheckSeqSize(obj, minSize)
+            v = libpointer('int32Ptr', 0);
+            obj.call_('readAndCheckSeqSize', minSize, v);
+            r = v.Value;
         end
     end
     methods(Access=private)

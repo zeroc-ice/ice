@@ -85,17 +85,16 @@ classdef (Abstract) EncapsDecoder < handle
             %
             if isempty(v)
                 cls = obj.classResolver.resolve(typeId);
-                if isempty(cls)
-                    reason = sprintf('no value factory for %s', typeId);
-                    throw(Ice.NoValueFactoryException('', reason, reason, typeId));
-                end
-
-                try
-                    constructor = str2func(cls); % Get the constructor.
-                    v = constructor(); % Invoke the constructor.
-                catch e
-                    reason = sprintf('constructor failed for %s', cls);
-                    throw(Ice.NoValueFactoryException('', reason, reason, typeId));
+                if ~isempty(cls)
+                    try
+                        constructor = str2func(cls); % Get the constructor.
+                        v = constructor(); % Invoke the constructor.
+                    catch e
+                        reason = sprintf('constructor failed for %s', cls);
+                        ex = Ice.NoValueFactoryException('', reason, reason, typeId);
+                        ex.addCause(e);
+                        throw(ex);
+                    end
                 end
             end
 

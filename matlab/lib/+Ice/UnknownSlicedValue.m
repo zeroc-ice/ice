@@ -20,9 +20,6 @@ classdef UnknownSlicedValue < Ice.Value
         function r = ice_getSlicedData(obj)
             r = obj.slicedData;
         end
-        function id = ice_id(obj)
-            id = obj.unknownTypeId;
-        end
         function iceWrite_(obj, os)
             os.startValue(obj.slicedData);
             os.endValue();
@@ -31,8 +28,17 @@ classdef UnknownSlicedValue < Ice.Value
             is.startValue();
             obj.slicedData = is.endValue(true);
         end
+        function id = ice_id(obj)
+            id = obj.unknownTypeId;
+        end
     end
-    properties(Accses=private)
+    methods(Access=protected)
+        function iceWriteImpl_(obj, os)
+        end
+        function obj = iceReadImpl_(obj, is)
+        end
+    end
+    properties(Access=private)
         unknownTypeId
         slicedData
     end

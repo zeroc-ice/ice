@@ -215,7 +215,9 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 return;
             end
 
-            for info = slicedData.slices
+            for i = 1:length(slicedData.slices)
+                info = slicedData.slices{i};
+
                 obj.startSlice(info.typeId, info.compactId, info.isLastSlice);
 
                 %
@@ -231,8 +233,8 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 % Make sure to also re-write the instance indirection table.
                 %
                 if ~isempty(info.instances)
-                    for o = info.instances
-                        obj.current.indirectionTable{end + 1} = o;
+                    for j = 1:length(info.instances)
+                        obj.current.indirectionTable{end + 1} = info.instances{j};
                     end
                 end
 

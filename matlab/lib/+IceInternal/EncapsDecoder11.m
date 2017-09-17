@@ -40,9 +40,15 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % at the end of the slice.
                 %
                 if ~isempty(cb)
+                    if isempty(obj.current.indirectPatchList) % Lazy initialization
+                        obj.current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+                    end
+                    e = IceInternal.IndirectPatchEntry();
+                    %e.index = index - 1;
+                    e.index = index; % MATLAB indexing starts at 1
+                    e.cb = cb;
                     sz = length(obj.current.indirectPatchList);
-                    obj.current.indirectPatchList(sz + 1).index = index - 1;
-                    obj.current.indirectPatchList(sz + 1).cb = cb;
+                    obj.current.indirectPatchList(sz) = e;
                 end
             else
                 obj.readInstance(index, cb);
@@ -114,6 +120,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
             obj.current.slices = {};
             obj.current.indirectionTables = {};
+            obj.current.indirectPatchList = [];
             obj.current = obj.current.previous;
             r = slicedData;
         end
@@ -206,9 +213,11 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % Convert indirect references into direct references.
                 %
                 if ~isempty(obj.current.indirectPatchList)
-                    for e = obj.current.indirectPatchList
-                        assert(e.index >= 0);
-                        if e.index >= length(indirectionTable)
+                    keys = obj.current.indirectPatchList.keys();
+                    for i = 1:length(keys)
+                        e = obj.current.indirectPatchList(keys{i});
+                        assert(e.index > 0); % MATLAB starts indexing at 1
+                        if e.index > length(indirectionTable)
                             throw(Ice.MarshalException('', '', 'indirection out of range'));
                         end
                         obj.addPatchEntry(indirectionTable{e.index}, e.cb);
@@ -220,7 +229,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function skipSlice(obj)
             import IceInternal.Protocol;
-            %obj.is.traceSkipSlice(obj.current.typeId, obj.current.sliceType);
+            %obj.is.traceSkipSlice(obj.current.typeId, obj.current.sliceType); TODO
 
             start = obj.is.pos();
 
@@ -257,7 +266,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
             %
             % Read the indirect instance table. We read the instances or their
-            % IDs if the instance is a reference to an already un-marhsaled
+            % IDs if the instance is a reference to an already unmarshaled
             % object.
             %
             % The SliceInfo object sequence is initialized only if
@@ -343,7 +352,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                             catch e
                                 reason = sprintf('constructor failed for class %s with compact id %d', cls, ...
                                                  obj.current.compactId);
-                                throw(Ice.NoValueFactoryException('', reason, reason, ''));
+                                ex = Ice.NoValueFactoryException('', reason, reason, '');
+                                ex.addCause(e);
+                                throw(ex);
                             end
                         end
                     end
@@ -472,7 +483,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 end
             end
 
-            r = obj.current.slices; % Makes a copy
+            r = Ice.SlicedData(obj.current.slices); % Makes a shallow copy
         end
 
         function r = resolveCompactId(obj, id)
