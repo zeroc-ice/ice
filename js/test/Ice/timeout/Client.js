@@ -247,7 +247,10 @@
                 test(ex instanceof Ice.TimeoutException, ex);
                 return controller.resumeAdapter().then(() => timeout.op()).then(() => comm.destroy());
             }
-        ).then(() =>
+        ).then(() => {
+            // Small delay is useful for IE which doesn't like too many connection failures in a row
+            return Ice.Promise.delay(100)
+        }).then(() =>
             {
                 //
                 // Test Ice.Override.ConnectTimeout.
@@ -303,7 +306,10 @@
                 test(ex instanceof Ice.TimeoutException, ex);
                 return controller.resumeAdapter().then(() => timeout.op()).then(() => comm.destroy());
             }
-        ).then(() =>
+        ).then(() => {
+            // Small delay is useful for IE which doesn't like too many connection failures in a row
+            return Ice.Promise.delay(100)
+        }).then(() =>
             {
                 //
                 // Test Ice.Override.CloseTimeout.
