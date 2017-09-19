@@ -10,18 +10,24 @@ ICE_LICENSE file included in this distribution.
 %}
 
 function [communicator, args] = initialize(varargin)
-    if length(varargin) >= 1 && ~isempty(varargin{1})
-        args = varargin{1};
-    else
-        args = {};
+    if length(varargin) > 2
+        throw(MException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
     end
 
-    if length(varargin) >= 2 && ~isempty(varargin{2})
-        if ~isa(varargin{2}, 'Ice.InitializationData')
-            throw(MException('Ice:ArgumentException', 'initData argument must be an Ice.InitializationData object'));
+    args = {};
+    initData = [];
+
+    for i = 1:length(varargin)
+        if isa(varargin{i}, 'cell') && isempty(args)
+            args = varargin{i};
+        elseif isa(varargin{i}, 'Ice.InitializationData') && isempty(initData)
+            initData = varargin{i};
+        else
+            throw(MException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
         end
-        initData = varargin{2};
-    else
+    end
+            
+    if isempty(initData)
         initData = Ice.InitializationData();
     end
 
@@ -39,8 +45,6 @@ function [communicator, args] = initialize(varargin)
     %
     % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
     % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
-    %
-    % The communicator wrapper holds the value factory manager.
     %
     props = libpointer('voidPtr');
     if ~isempty(initData.properties_)

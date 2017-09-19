@@ -3290,6 +3290,22 @@ class PhpMapping(CppBasedClientMapping):
     def getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]
 
+class MatlabMapping(CppBasedClientMapping):
+
+    class Config(CppBasedClientMapping.Config):
+        mappingName = "matlab"
+        mappingDesc = "MATLAB"
+
+    def getEnv(self, process, current):
+        return {}
+
+    def getCommandLine(self, current, process, exe):
+        dir = self.getTestCwd(process, current)
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '" + dir + "';" + exe
+
+    def getDefaultSource(self, processType):
+        return { "client" : "runTest" }[processType]
+
 class JavaScriptMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3419,6 +3435,8 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, RubyMapping())
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping())
+    elif m == "matlab" or re.match("matlab-.*", m):
+        Mapping.add(m, MatlabMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
     elif m == "csharp" or re.match("csharp-.*", m):

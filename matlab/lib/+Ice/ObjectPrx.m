@@ -58,7 +58,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isA(obj, id, varargin)
-            os = obj.startWriteParams_();
+            os = obj.startWriteParams_([]);
             os.writeString(id);
             obj.endWriteParams_(os);
             [ok, inStream] = obj.invoke_('ice_isA', 'Nonmutating', true, os, varargin{:});
@@ -72,7 +72,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isAAsync(obj, id, varargin)
-            os = obj.startWriteParams_();
+            os = obj.startWriteParams_([]);
             os.writeString(id);
             obj.endWriteParams_(os);
             function varargout = unmarshal(ok, is)
@@ -557,12 +557,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function os = startWriteParams_(obj)
-            os = obj.ice_createOutputStream();
-            os.startEncapsulation([]);
-        end
-
-        function os = startWriteParamsWithFormat_(obj, format)
+        function os = startWriteParams_(obj, format)
             os = obj.ice_createOutputStream();
             os.startEncapsulation(format);
         end

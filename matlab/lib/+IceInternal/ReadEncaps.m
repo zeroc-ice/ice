@@ -14,7 +14,17 @@ classdef ReadEncaps < handle
         start
         sz
         encoding
+        encoding_1_0
         decoder
-        previous
+        next
+    end
+    methods
+        function reset(obj)
+            obj.decoder = [];
+        end
+        function setEncoding(obj, encoding)
+            obj.encoding = encoding;
+            obj.encoding_1_0 = encoding == IceInternal.Protocol.Encoding_1_0;
+        end
     end
 end

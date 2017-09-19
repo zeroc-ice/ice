@@ -20,6 +20,12 @@ classdef (Abstract) EncapsEncoder < handle
         function r = writeOptional(obj, tag, format)
             r = false;
         end
+
+        function writePendingValues(obj)
+            %
+            % Overridden for the 1.0 encoding, not necessary for subsequent encodings.
+            %
+        end
     end
     methods(Abstract)
         writeValue(obj, v)
@@ -27,7 +33,6 @@ classdef (Abstract) EncapsEncoder < handle
         endInstance(obj)
         startSlice(obj, typeId, compactId, last)
         endSlice(obj)
-        writePendingValues(obj)
     end
     methods(Access=protected)
         function r = registerTypeId(obj, typeId)

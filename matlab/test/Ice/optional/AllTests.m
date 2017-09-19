@@ -429,12 +429,12 @@ classdef AllTests
                 c.ss = 'test';
                 c.ms = 'testms';
                 c = initial.pingPong(c);
-                test(c.ma == Ice.Unset);
-                test(c.mb == Ice.Unset);
-                test(c.mc == Ice.Unset);
-                test(c.md == Ice.Unset);
-                test(strcmp(c.ss, 'test'));
-                test(strcmp(c.ms, 'testms'));
+                assert(c.ma == Ice.Unset);
+                assert(c.mb == Ice.Unset);
+                assert(c.mc == Ice.Unset);
+                assert(c.md == Ice.Unset);
+                assert(strcmp(c.ss, 'test'));
+                assert(strcmp(c.ms, 'testms'));
 
                 fprintf('ok\n');
 
@@ -444,7 +444,7 @@ classdef AllTests
                 d = D();
                 d.ds = 'test';
                 d.seq = {'test1', 'test2', 'test3', 'test4'};
-                d.ao = A(18);
+                d.ao = A(18, Ice.Unset, Ice.Unset, Ice.Unset);
                 d.requiredB = 14;
                 d.requiredA = 14;
                 initial2.opClassAndUnknownOptional(A(), d);

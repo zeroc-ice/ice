@@ -113,14 +113,6 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
                 end
             end
             obj.os.writeSize(0); % Zero marker indicates end of sequence of sequences of instances.
-
-            %
-            % Clear the identifier from all instances.
-            %
-            values = obj.marshaledMap.values();
-            for i = 1:length(values)
-                values{i}.internal_ = -1;
-            end
         end
     end
     methods(Access=protected)
@@ -128,29 +120,21 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             assert(~isempty(v));
 
             %
-            % We can't use object identity in MATLAB so we assign each value a unique identifier.
+            % Use the identifier assigned by the Value constructor.
             %
-            if v.internal_ == -1
-                %
-                % We haven't seen this value yet.
-                %
-                obj.valueIdIndex = obj.valueIdIndex + 1;
-                v.internal_ = obj.valueIdIndex;
-            end
-
-            r = v.internal_;
+            r = v.iceInternal_;
 
             %
             % Look for this instance in the to-be-marshaled map.
             %
-            if obj.toBeMarshaledMap.isKey(v.internal_)
+            if obj.toBeMarshaledMap.isKey(r)
                 return;
             end
 
             %
             % Didn't find it, try the marshaled map next.
             %
-            if obj.marshaledMap.isKey(v.internal_)
+            if obj.marshaledMap.isKey(r)
                 return;
             end
 
@@ -158,7 +142,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             % We haven't seen this instance previously, create a new
             % index, and insert it into the to-be-marshaled map.
             %
-            obj.toBeMarshaledMap(v.internal_) = v;
+            obj.toBeMarshaledMap(r) = v;
         end
     end
     properties(Access=private)

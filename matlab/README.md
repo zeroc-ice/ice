@@ -77,9 +77,12 @@ Several tests have been ported to MATLAB so far. You can find them in
 `matlab\test\Ice\*`.
 
 Since Ice for MATLAB only supports client functionality, you will have to build
-and start a matching test server from a different language mapping.
+test servers from a different language mapping.
 
-In a Command Prompt, start a test server.
+#### Running the Tests Manually
+
+In a Command Prompt, start a test server from your chosen server language
+mapping.
 
 In MATLAB, change to a test directory:
 
@@ -95,3 +98,22 @@ If you started the server on a different host, use this command instead:
     Client.start({'--Ice.Default.Host=<addr>'})
 
 Replace `<addr>` with the host name or IP address of the server host.
+
+#### Running the Automated Tests
+
+Start the test controller on your server host (which may be the same host as
+the MATLAB clients). For example, let's assume you want to use the C++11
+servers on Windows in Debug mode:
+
+    python scripts\Controller.py --id=server --cpp-config=Debug
+
+On the client host, change to the top-level `matlab` directory and run the
+`allTests.py` script:
+
+    cd matlab
+    python allTests.py --server=server --cross=cpp
+
+Note that the Python script requires an installation of Ice for Python. The
+script coordinates the launching of the appropriate test server by communicating
+with the test controller. Each MATLAB client is executed using a minimized
+MATLAB interepreter and the test output is copied to the Command Prompt window.

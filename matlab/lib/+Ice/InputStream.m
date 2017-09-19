@@ -207,29 +207,30 @@ classdef InputStream < IceInternal.WrapperObject
             obj.call_('skipSize');
         end
         function startException(obj)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.startInstance(IceInternal.SliceType.ExceptionSlice);
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            obj.encapsStack.decoder.startInstance(IceInternal.SliceType.ExceptionSlice);
         end
         function r = endException(obj, preserve)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            r = obj.currentEncaps.decoder.endInstance(preserve);
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            r = obj.encapsStack.decoder.endInstance(preserve);
         end
         function startEncapsulation(obj)
-            oldEncaps = obj.currentEncaps;
-            if isempty(oldEncaps) % First allocated encaps?
-                obj.currentEncaps = IceInternal.ReadEncaps();
+            curr = obj.encapsCache;
+            if ~isempty(curr)
+                curr.reset();
+                obj.encapsCache = obj.encapsCache.next;
             else
-                obj.currentEncaps = IceInternal.ReadEncaps();
-                obj.currentEncaps.previous = oldEncaps;
+                curr = IceInternal.ReadEncaps();
             end
-            obj.currentEncaps.start = obj.pos();
+            curr.next = obj.encapsStack;
+            obj.encapsStack = curr;
+
+            obj.encapsStack.start = obj.pos();
 
             %
-            % I don't use readSize() and writeSize() for encapsulations,
-            % because when creating an encapsulation, I must know in advance
-            % how many bytes the size information will require in the data
-            % stream. If I use an Int, it is always 4 bytes. For
-            % readSize()/writeSize(), it could be 1 or 5 bytes.
+            % I don't use readSize() for encapsulations, because when creating an encapsulation,
+            % I must know in advance how many bytes the size information will require in the data
+            % stream. If I use an Int, it is always 4 bytes. For readSize(), it could be 1 or 5 bytes.
             %
             sz = uint32(obj.readInt());
             if sz < 6
@@ -238,24 +239,25 @@ classdef InputStream < IceInternal.WrapperObject
             if obj.pos() - 4 + sz > obj.size()
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
-            obj.currentEncaps.sz = sz;
+            obj.encapsStack.sz = sz;
 
-            obj.currentEncaps.encoding = Ice.EncodingVersion.ice_read(obj);
+            encoding = Ice.EncodingVersion.ice_read(obj);
             % TODO
-            %IceInternal::checkSupportedEncoding(_currentEncaps->encoding); // Make sure the encoding is supported
+            %IceInternal::checkSupportedEncoding(encapsStack.encoding); // Make sure the encoding is supported
+            obj.encapsStack.setEncoding(encoding);
 
-            r = obj.currentEncaps.encoding;
+            r = obj.encapsStack.encoding;
         end
         function endEncapsulation(obj)
-            assert(~isempty(obj.currentEncaps));
+            assert(~isempty(obj.encapsStack));
 
-            if ~isequal(obj.currentEncaps.encoding, IceInternal.Protocol.Encoding_1_0)
+            if ~obj.encapsStack.encoding_1_0
                 obj.skipOptionals();
-                if obj.pos() ~= obj.currentEncaps.start + obj.currentEncaps.sz
+                if obj.pos() ~= obj.encapsStack.start + obj.encapsStack.sz
                     throw(Ice.EncapsulationException());
                 end
-            elseif obj.pos() ~= obj.currentEncaps.start + obj.currentEncaps.sz
-                if obj.pos() + 1 ~= obj.currentEncaps.start + obj.currentEncaps.sz
+            elseif obj.pos() ~= obj.encapsStack.start + obj.encapsStack.sz
+                if obj.pos() + 1 ~= obj.encapsStack.start + obj.encapsStack.sz
                     throw(Ice.EncapsulationException());
                 end
 
@@ -268,8 +270,11 @@ classdef InputStream < IceInternal.WrapperObject
                 obj.skip(1);
             end
 
-            oldEncaps = obj.currentEncaps;
-            obj.currentEncaps = obj.currentEncaps.previous;
+            curr = obj.encapsStack;
+            obj.encapsStack = curr.next;
+            curr.next = obj.encapsCache;
+            obj.encapsCache = curr;
+            obj.encapsCache.reset();
         end
         function r = skipEmptyEncapsulation(obj)
             sz = uint32(obj.readInt());
@@ -282,7 +287,7 @@ classdef InputStream < IceInternal.WrapperObject
             encoding = Ice.EncodingVersion.ice_read(obj);
             %IceInternal::checkSupportedEncoding(encoding); // Make sure the encoding is supported % TODO
 
-            if isequal(encoding, IceInternal.Protocol.Encoding_1_0)
+            if encoding == IceInternal.Protocol.Encoding_1_0
                 if sz ~= 6
                     throw(Ice.EncapsulationException());
                 end
@@ -297,23 +302,23 @@ classdef InputStream < IceInternal.WrapperObject
             obj.call_('skipEncapsulation');
         end
         function r = getEncoding(obj)
-            if isempty(obj.currentEncaps)
+            if isempty(obj.encapsStack)
                 r = obj.encoding;
             else
-                r = obj.currentEncaps.encoding;
+                r = obj.encapsStack.encoding;
             end
         end
         function r = startSlice(obj)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            r = obj.currentEncaps.decoder.startSlice();
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            r = obj.encapsStack.decoder.startSlice();
         end
         function endSlice(obj)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.endSlice();
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            obj.encapsStack.decoder.endSlice();
         end
         function skipSlice(obj)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.skipSlice();
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            obj.encapsStack.decoder.skipSlice();
         end
         function r = readSize(obj)
             v = libpointer('int32Ptr', 0);
@@ -321,9 +326,9 @@ classdef InputStream < IceInternal.WrapperObject
             r = v.Value;
         end
         function r = readOptional(obj, tag, fmt)
-            assert(~isempty(obj.currentEncaps));
-            if ~isempty(obj.currentEncaps.decoder)
-                r = obj.currentEncaps.decoder.readOptional(tag, fmt);
+            assert(~isempty(obj.encapsStack));
+            if ~isempty(obj.encapsStack.decoder)
+                r = obj.encapsStack.decoder.readOptional(tag, fmt);
             else
                 r = obj.readOptionalImpl(tag, fmt);
             end
@@ -333,7 +338,7 @@ classdef InputStream < IceInternal.WrapperObject
             % Skip remaining un-read optional members.
             %
             while true
-                if obj.pos() >= obj.currentEncaps.start + obj.currentEncaps.sz
+                if obj.pos() >= obj.encapsStack.start + obj.encapsStack.sz
                     return; % End of encapsulation also indicates end of optionals.
                 end
 
@@ -349,7 +354,7 @@ classdef InputStream < IceInternal.WrapperObject
                 obj.skipOptional(format);
             end
         end
-        function skipOptional(format)
+        function skipOptional(obj, format)
             switch format
                 case Ice.OptionalFormat.F1
                     obj.skip(1);
@@ -405,9 +410,9 @@ classdef InputStream < IceInternal.WrapperObject
                 end
             end
             if isempty(cb)
-                obj.currentEncaps.decoder.readValue([]);
+                obj.encapsStack.decoder.readValue([]);
             else
-                obj.currentEncaps.decoder.readValue(@(v) check(v));
+                obj.encapsStack.decoder.readValue(@(v) check(v));
             end
         end
         function readValueOpt(obj, tag, cb, formalType)
@@ -418,9 +423,9 @@ classdef InputStream < IceInternal.WrapperObject
             end
         end
         function readPendingValues(obj)
-            if ~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder)
-                obj.currentEncaps.decoder.readPendingValues();
-            elseif isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+            if ~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder)
+                obj.encapsStack.decoder.readPendingValues();
+            elseif obj.getEncoding() == IceInternal.Protocol.Encoding_1_0
                 %
                 % If using the 1.0 encoding and no instances were read, we
                 % still read an empty sequence of pending instances if
@@ -434,16 +439,16 @@ classdef InputStream < IceInternal.WrapperObject
             end
         end
         function startValue(obj)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            obj.currentEncaps.decoder.startInstance(IceInternal.SliceType.ValueSlice);
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            obj.encapsStack.decoder.startInstance(IceInternal.SliceType.ValueSlice);
         end
         function r = endValue(obj, preserve)
-            assert(~isempty(obj.currentEncaps) && ~isempty(obj.currentEncaps.decoder));
-            r = obj.currentEncaps.decoder.endInstance(preserve);
+            assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.decoder));
+            r = obj.encapsStack.decoder.endInstance(preserve);
         end
         function throwException(obj)
             obj.initEncaps();
-            obj.currentEncaps.decoder.throwException();
+            obj.encapsStack.decoder.throwException();
         end
         function r = pos(obj)
             v = libpointer('uint32Ptr', 0);
@@ -459,13 +464,13 @@ classdef InputStream < IceInternal.WrapperObject
             r = v.Value;
         end
         function r = readOptionalImpl(obj, readTag, expectedFormat)
-            if isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+            if obj.getEncoding() == IceInternal.Protocol.Encoding_1_0
                 r = false; % Optional members aren't supported with the 1.0 encoding.
                 return;
             end
 
             while true
-                if obj.pos() >= obj.currentEncaps.start + obj.currentEncaps.sz
+                if obj.pos() >= obj.encapsStack.start + obj.encapsStack.sz
                     r = false; % End of encapsulation also indicates end of optionals.
                     return;
                 end
@@ -519,21 +524,27 @@ classdef InputStream < IceInternal.WrapperObject
     end
     methods(Access=private)
         function initEncaps(obj)
-            if isempty(obj.currentEncaps)
-                obj.currentEncaps = IceInternal.ReadEncaps();
-                obj.currentEncaps.encoding = obj.encoding;
+            if isempty(obj.encapsStack) % Lazy initialization
+                obj.encapsStack = obj.encapsCache;
+                if ~isempty(obj.encapsStack)
+                    obj.encapsCache = obj.encapsCache.next;
+                else
+                    obj.encapsStack = IceInternal.ReadEncaps();
+                end
+                obj.encapsStack.setEncoding(obj.encoding);
+                obj.encapsStack.sz = obj.size();
             end
 
             valueFactoryManager = obj.communicator.getValueFactoryManager();
             compactIdResolver = obj.communicator.getCompactIdResolver();
-            if isempty(obj.currentEncaps.decoder)
-                if obj.currentEncaps.encoding.major == 1 && obj.currentEncaps.encoding.minor == 0
-                    obj.currentEncaps.decoder = ...
-                        IceInternal.EncapsDecoder10(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager, ...]
+            if isempty(obj.encapsStack.decoder) % Lazy initialization
+                if obj.encapsStack.encoding_1_0
+                    obj.encapsStack.decoder = ...
+                        IceInternal.EncapsDecoder10(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...]
                                                     obj.communicator.getClassResolver());
                 else
-                    obj.currentEncaps.decoder = ...
-                        IceInternal.EncapsDecoder11(obj, obj.currentEncaps, obj.sliceValues, valueFactoryManager, ...
+                    obj.encapsStack.decoder = ...
+                        IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
                                                     obj.communicator.getClassResolver(), compactIdResolver);
                 end
             end
@@ -559,7 +570,8 @@ classdef InputStream < IceInternal.WrapperObject
     properties(Access=private)
         communicator
         encoding
-        currentEncaps
+        encapsStack
+        encapsCache
         sliceValues
     end
 end

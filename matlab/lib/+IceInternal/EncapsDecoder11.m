@@ -76,7 +76,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % Try to instantiate the class.
                 %
                 ex = [];
-                if ~isempty(cls)
+                if ~isempty(cls) && exist(cls)
                     try
                         constructor = str2func(cls); % Get the constructor.
                         ex = constructor(); % Invoke the constructor.
@@ -84,11 +84,20 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                         %
                         % Instantiation failed.
                         %
+                        reason = ['exception in constructor for ', cls];
+                        me = Ice.MarshalException('', reason, reason);
+                        me.addCause(e);
+                        throw(me);
                     end
                 end
 
                 if ~isempty(ex)
+                    %
+                    % Exceptions are value types so we have to replace 'ex' with its new value after calling methods.
+                    %
+                    ex = ex.preUnmarshal_();
                     ex = ex.read_(obj.is);
+                    ex = ex.postUnmarshal_();
                     throw(ex);
                 else
                     %

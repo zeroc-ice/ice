@@ -681,10 +681,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
 
+        const bool basePreserved = p->inheritsMetaData("preserve-slice");
+        const bool preserved = p->hasMetaData("preserve-slice");
+
         MemberInfoList allMembers;
         collectClassMembers(p, allMembers, false);
 
-        if(!allMembers.empty() || !p->isLocal())
+        if(!allMembers.empty() || !p->isLocal() || (preserved && !basePreserved))
         {
             out << nl << "methods";
             out.inc();
@@ -739,13 +742,36 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "id = obj.ice_staticId();";
                 out.dec();
                 out << nl << "end";
+
+                if(preserved && !basePreserved)
+                {
+                    out << nl << "function r = ice_getSlicedData(obj)";
+                    out.inc();
+                    out << nl << "r = obj.iceSlicedData_;";
+                    out.dec();
+                    out << nl << "end";
+                    out << nl << "function iceWrite_(obj, os)";
+                    out.inc();
+                    out << nl << "os.startValue(obj.iceSlicedData_);";
+                    out << nl << "obj.iceWriteImpl_(os);";
+                    out << nl << "os.endValue();";
+                    out.dec();
+                    out << nl << "end";
+                    out << nl << "function iceRead_(obj, is)";
+                    out.inc();
+                    out << nl << "is.startValue();";
+                    out << nl << "obj.iceReadImpl_(is);";
+                    out << nl << "obj.iceSlicedData_ = is.endValue(true);";
+                    out.dec();
+                    out << nl << "end";
+                }
             }
 
             out.dec();
             out << nl << "end";
         }
 
-        if(!p->isLocal() && !members.empty())
+        if(!p->isLocal())
         {
             out << nl << "methods(Access=protected)";
             out.inc();
@@ -754,7 +780,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "function iceWriteImpl_(obj, os)";
             out.inc();
-            out << nl << "os.startSlice(obj.ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false")
+            out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
                 << ");";
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
             {
@@ -774,7 +800,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out.dec();
             out << nl << "end";
-            out << nl << "function obj = iceReadImpl_(obj, is)"; // TODO: Need "obj = ..." here?
+            out << nl << "function iceReadImpl_(obj, is)";
             out.inc();
             out << nl << "is.startSlice();";
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -805,7 +831,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "is.endSlice();";
             if(base)
             {
-                out << nl << "obj = iceReadImpl_@" << getAbsolute(base) << "(obj, is);";
+                out << nl << "iceReadImpl_@" << getAbsolute(base) << "(obj, is);";
             }
             out.dec();
             out << nl << "end";
@@ -830,10 +856,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out.dec();
             out << nl << "end";
-        }
 
-        if(!p->isLocal())
-        {
             out << nl << "methods(Static)";
             out.inc();
             out << nl << "function id = ice_staticId()";
@@ -843,6 +866,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "end";
             out.dec();
             out << nl << "end";
+
+            if(preserved && !basePreserved)
+            {
+                out << nl << "properties(Access=protected)";
+                out.inc();
+                out << nl << "iceSlicedData_";
+                out.dec();
+                out << nl << "end";
+            }
         }
 
         out.dec();
@@ -994,12 +1026,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(op->format() == DefaultFormat)
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_();";
+                    out << nl << "os_ = " << self << ".startWriteParams_([]);";
                 }
                 else
                 {
-                    out << nl << "os_ = " << self << ".startWriteParamsWithFormat_(" << getFormatType(op->format())
-                        << ");";
+                    out << nl << "os_ = " << self << ".startWriteParams_(" << getFormatType(op->format()) << ");";
                 }
                 for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
                 {
@@ -1145,12 +1176,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(op->format() == DefaultFormat)
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_();";
+                    out << nl << "os_ = " << self << ".startWriteParams_([]);";
                 }
                 else
                 {
-                    out << nl << "os_ = " << self << ".startWriteParamsWithFormat_(" << getFormatType(op->format())
-                        << ");";
+                    out << nl << "os_ = " << self << ".startWriteParams_(" << getFormatType(op->format()) << ");";
                 }
                 for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
                 {
@@ -1323,7 +1353,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Constructor.
         //
-        out << nl << "methods(Hidden)";
+        out << nl << "methods(Hidden=true)";
         out.inc();
         out << nl << "function obj = " << prxName << "(impl, communicator)";
         out.inc();
@@ -1576,11 +1606,81 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
+    if(!p->isLocal() && preserved && !basePreserved)
+    {
+        out << nl << "function r = ice_getSlicedData(obj)";
+        out.inc();
+        out << nl << "r = obj.iceSlicedData_;";
+        out.dec();
+        out << nl << "end";
+    }
+
     out.dec();
     out << nl << "end";
 
     if(!p->isLocal())
     {
+        const DataMemberList classMembers = p->classDataMembers();
+        if(!classMembers.empty() || (preserved && !basePreserved))
+        {
+            out << nl << "methods(Hidden=true)";
+            out.inc();
+
+            if(preserved && !basePreserved)
+            {
+                //
+                // Override read_ for the first exception in the hierarchy that has the "preserve-slice" metadata.
+                //
+                out << nl << "function obj = read_(obj, is)";
+                out.inc();
+                out << nl << "is.startException();";
+                out << nl << "obj = obj.readImpl_(is);";
+                out << nl << "obj.iceSlicedData_ = is.endException(true);";
+                out.dec();
+                out << nl << "end";
+            }
+
+            if(!classMembers.empty())
+            {
+                //
+                // Only define preUnmarshal_ for the first exception in the hierarchy that defines a class members.
+                //
+                if(!base || (base && !base->usesClasses(true)))
+                {
+                    //
+                    // Exceptions are value types. If it has class members, we use a shared map (which is a handle
+                    // type) to keep track of class instances as they are unmarshaled.
+                    //
+                    out << nl << "function obj = preUnmarshal_(obj)";
+                    out.inc();
+                    out << nl << "obj.iceValueTable_ = containers.Map('KeyType', 'char', 'ValueType', 'any');";
+                    out.dec();
+                    out << nl << "end";
+                }
+
+                out << nl << "function obj = postUnmarshal_(obj)";
+                out.inc();
+                for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
+                {
+                    string m = fixExceptionMemberIdent((*q)->name());
+                    out << nl << "if obj.iceValueTable_.isKey('" << m << "')";
+                    out.inc();
+                    out << nl << "obj." << m << " = obj.iceValueTable_('" << m << "');";
+                    out.dec();
+                    out << nl << "end";
+                }
+                if(base && base->usesClasses(true))
+                {
+                    out << nl << "obj = postUnmarshal_@" << getAbsolute(base) << "(obj);";
+                }
+                out.dec();
+                out << nl << "end";
+            }
+
+            out.dec();
+            out << nl << "end";
+        }
+
         out << nl << "methods(Access=protected)";
         out.inc();
 
@@ -1625,55 +1725,33 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.dec();
         out << nl << "end";
 
-        if(preserved && !basePreserved)
+        if(p->usesClasses(true) && (!base || (base && !base->usesClasses(true))))
         {
-            out << nl << "function r = preserve_(obj)";
+            out << nl << "function setValueMember_(obj, k, v)";
             out.inc();
-            out << nl << "r = true;";
-            out.dec();
-            out << nl << "end";
-        }
-
-        const DataMemberList classMembers = p->classDataMembers();
-        if(!classMembers.empty())
-        {
-            if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
-            {
-                out << nl << "function r = usesClasses_(obj)";
-                out.inc();
-                out << nl << "r = true;";
-                out.dec();
-                out << nl << "end";
-            }
-            if(!base || (base && !base->usesClasses(true)))
-            {
-                out << nl << "function r = usesAnyClasses_(obj)";
-                out.inc();
-                out << nl << "r = true;";
-                out.dec();
-                out << nl << "end";
-            }
-            out << nl << "function obj = resolveValues_(obj)";
-            out.inc();
-            for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
-            {
-                string m = fixExceptionMemberIdent((*q)->name());
-                out << nl << "if obj.valueTable_.isKey('" << m << "')";
-                out.inc();
-                out << nl << "obj." << m << " = obj.valueTable_('" << m << "');";
-                out.dec();
-                out << nl << "end";
-            }
-            if(base && base->usesClasses(true))
-            {
-                out << nl << "obj = resolveValues_@" << getAbsolute(base) << "(obj);";
-            }
+            out << nl << "obj.iceValueTable_(k) = v;";
             out.dec();
             out << nl << "end";
         }
 
         out.dec();
         out << nl << "end";
+
+        if((p->usesClasses(true) && (!base || (base && !base->usesClasses(true)))) || (preserved && !basePreserved))
+        {
+            out << nl << "properties(Access=protected)";
+            out.inc();
+            if(p->usesClasses(true) && (!base || (base && !base->usesClasses(true))))
+            {
+                out << nl << "iceValueTable_";
+            }
+            if(preserved && !basePreserved)
+            {
+                out << nl << "iceSlicedData_";
+            }
+            out.dec();
+            out << nl << "end";
+        }
     }
 
     out.dec();
@@ -1940,26 +2018,36 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.inc();
     if(cls)
     {
+        //
+        // Map for class elements
+        //
         out << nl << "if ~isempty(seq) && ~isa(seq, 'containers.Map')";
         out.inc();
         out << nl << "throw(MException('Ice:ArgumentException', 'expecting a containers.Map'));";
         out.dec();
         out << nl << "end";
-    }
-    out << nl << "sz = length(seq);";
-    out << nl << "os.writeSize(sz);";
-    out << nl << "for i = 1:sz";
-    out.inc();
-    if(cls)
-    {
-        marshal(out, "os", "seq(i)", content, false, 0);
+        out << nl << "keys = seq.keys();";
+        out << nl << "sz = length(keys);";
+        out << nl << "os.writeSize(sz);";
+        out << nl << "for i = 1:sz";
+        out.inc();
+        marshal(out, "os", "seq(keys{i})", content, false, 0);
+        out.dec();
+        out << nl << "end";
     }
     else
     {
+        //
+        // Cell array
+        //
+        out << nl << "sz = length(seq);";
+        out << nl << "os.writeSize(sz);";
+        out << nl << "for i = 1:sz";
+        out.inc();
         marshal(out, "os", "seq{i}", content, false, 0);
+        out.dec();
+        out << nl << "end";
     }
-    out.dec();
-    out << nl << "end";
     out.dec();
     out << nl << "end";
 

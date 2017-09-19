@@ -15,25 +15,13 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             obj = obj@IceInternal.EncapsEncoder(os, encaps);
             obj.current = [];
             obj.valueIdIndex = 1;
-            obj.internalIdIndex = 0;
             obj.marshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
-            obj.values = {};
         end
 
         function writeValue(obj, v)
             if isempty(v)
                 obj.os.writeSize(0);
             else
-                %
-                % We can't index by object identity in MATLAB, so we assign a unique ID to each value.
-                % We clear this setting in writePendingValues().
-                %
-                if v.internal_ == -1
-                    v.internal_ = obj.internalIdIndex;
-                    obj.internalIdIndex = obj.internalIdIndex + 1;
-                    obj.values{end + 1} = v;
-                end
-
                 if ~isempty(obj.current) && obj.encaps.format == Ice.FormatType.SlicedFormat
                     %
                     % If writing an instance within a slice and using the sliced
@@ -42,13 +30,13 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                     % each slice and is always read (even if the Slice is
                     % unknown).
                     %
-                    if ~obj.current.indirectionMap.isKey(v.internal_)
+                    if ~obj.current.indirectionMap.isKey(v.iceInternal_)
                         obj.current.indirectionTable{end + 1} = v;
                         idx = length(obj.current.indirectionTable); % 0 is reserved for nil
-                        obj.current.indirectionMap(v.internal_) = idx;
+                        obj.current.indirectionMap(v.iceInternal_) = idx;
                         obj.os.writeSize(idx);
                     else
-                        obj.os.writeSize(obj.current.indirectionMap(v.internal_));
+                        obj.os.writeSize(obj.current.indirectionMap(v.iceInternal_));
                     end
                 else
                     obj.writeInstance(v); % Write the instance or a reference if already marshaled.
@@ -98,13 +86,12 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
 
             %
             % For instance slices, encode the flag and the type ID either as a
-            % string or index. For exception slices, always encode the type
-            % ID a string.
+            % string or index. For exception slices, always encode the type ID
+            % as a string.
             %
             if obj.current.sliceType == IceInternal.SliceType.ValueSlice
                 %
-                % Encode the type ID (only in the first slice for the compact
-                % encoding).
+                % Encode the type ID (only in the first slice for the compact encoding).
                 %
                 if obj.encaps.format == Ice.FormatType.SlicedFormat || obj.current.firstSlice
                     if compactId >= 0
@@ -189,16 +176,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 end
             end
         end
-
-        function writePendingValues(obj)
-            %
-            % Clear the identifier from all instances.
-            %
-            for i = 1:length(obj.values)
-                obj.values{i}.internal_ = -1;
-            end
-            obj.values = {};
-        end
     end
     methods(Access=private)
         function writeSlicedData(obj, slicedData)
@@ -234,7 +211,8 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 %
                 if ~isempty(info.instances)
                     for j = 1:length(info.instances)
-                        obj.current.indirectionTable{end + 1} = info.instances{j};
+                        v = info.instances{j};
+                        obj.current.indirectionTable{end + 1} = v;
                     end
                 end
 
@@ -244,13 +222,12 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
 
         function writeInstance(obj, v)
             assert(~isempty(v));
-            assert(v.internal_ ~= -1);
 
             %
             % If the instance was already marshaled, just write its ID.
             %
-            if obj.marshaledMap.isKey(v.internal_)
-                obj.os.writeSize(obj.marshaledMap(v.internal_));
+            if obj.marshaledMap.isKey(v.iceInternal_)
+                obj.os.writeSize(obj.marshaledMap(v.iceInternal_));
                 return;
             end
 
@@ -259,7 +236,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             % insert it into the marshaled map, and write the instance.
             %
             obj.valueIdIndex = obj.valueIdIndex + 1;
-            obj.marshaledMap(v.internal_) = obj.valueIdIndex;
+            obj.marshaledMap(v.iceInternal_) = obj.valueIdIndex;
 
             try
                 v.ice_preMarshal();
@@ -276,8 +253,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
     properties(Access=private)
         current
         valueIdIndex
-        internalIdIndex
         marshaledMap
-        values
     end
 end
