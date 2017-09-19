@@ -10,7 +10,7 @@
 package test.Ice.acm;
 
 import java.io.PrintWriter;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 import test.Ice.acm.Test.RemoteCommunicatorPrx;
 import test.Ice.acm.Test.RemoteCommunicatorPrxHelper;
@@ -638,16 +638,20 @@ public class AllTests
             proxy.startHeartbeatCount();
             proxy.waitForHeartbeatCount(2);
 
-            final CompletableFuture<Void> f1 = new CompletableFuture<>();
-            con.setCloseCallback(c ->
+            final CountDownLatch f1 = new CountDownLatch(1);
+            con.setCloseCallback(new Ice.CloseCallback()
+                {
+                    @Override
+                    public void closed(Ice.Connection con)
                     {
-                        f1.complete(null);
-                    });
+                        f1.countDown();
+                    }
+                });
 
             con.close(Ice.ConnectionClose.Gracefully);
             try
             {
-                f1.get();
+                f1.await();
             }
             catch(Exception ex)
             {
@@ -663,24 +667,32 @@ public class AllTests
             {
             }
 
-            final CompletableFuture<Void> f2 = new CompletableFuture<>();
-            con.setCloseCallback(c ->
+            final CountDownLatch f2 = new CountDownLatch(1);
+            con.setCloseCallback(new Ice.CloseCallback()
+                {
+                    @Override
+                    public void closed(Ice.Connection con)
                     {
-                        f2.complete(null);
-                    });
+                        f2.countDown();
+                    }
+                });
             try
             {
-                f2.get();
+                f2.await();
             }
             catch(Exception ex)
             {
                 test(false);
             }
 
-            con.setHeartbeatCallback(c ->
+            con.setHeartbeatCallback(new Ice.HeartbeatCallback()
+                {
+                    @Override
+                    public void heartbeat(Ice.Connection con)
                     {
                         test(false);
-                    });
+                    }
+                });
         }
     }
 
