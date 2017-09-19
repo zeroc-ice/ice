@@ -329,7 +329,7 @@
         ).then(() =>
             {
                 var t = Date.now();
-                test(t - now < 400);
+                test(t - now < 700);
                 return controller.resumeAdapter();
             }
         ).then(() =>

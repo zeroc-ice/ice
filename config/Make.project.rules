@@ -397,10 +397,15 @@ $2_configs      := $$(filter $(configs) $$($2_always_enable_configs),$$(call uni
 # Install files necessary for development.
 $2_devinstall   := $$(call var-with-default,$2_devinstall,yes)
 
+# Set default target directory if we're not building the component, this is used
+# when building against the component binary distribution.
+ifneq ($4,)
+$2_targetdir    := $$(call var-with-default,$2_targetdir,$$(if $$(filter program,$$($2_target)),$$($1_bindir),$$($1_libdir)))
+endif
+
 #
 # The installation directory (install_bindir if program, install_libdir otherwise)
 #
-$2_targetdir    := $$(call var-with-default,$2_targetdir,$$(if $$(filter program,$$($2_target)),$$($1_bindir),$$($1_libdir)))
 $2_installdir   := $$(call var-with-default,$2_installdir,$$(if $$(filter program,$$($2_target)),$$($1_install_bindir),$$($1_install_libdir)))
 
 $$(foreach p,$$($2_platforms),\
