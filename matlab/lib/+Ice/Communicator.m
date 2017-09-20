@@ -127,6 +127,11 @@ classdef Communicator < IceInternal.WrapperObject
         function r = getCompactIdResolver(obj)
             r = obj.initData.compactIdResolver;
         end
+        function r = createOutputStream(obj, encoding)
+            stream = libpointer('voidPtr');
+            obj.call_('createOutputStream', encoding, stream);
+            r = Ice.OutputStream(stream, obj);
+        end
     end
     properties(Access=private)
         initData

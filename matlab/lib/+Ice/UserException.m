@@ -24,11 +24,6 @@ classdef (Abstract) UserException < Ice.Exception
             obj = obj.readImpl_(is);
             is.endException(false);
         end
-        function obj = preUnmarshal_(obj)
-            %
-            % Overridden by subclasses that have class members.
-            %
-        end
         function obj = postUnmarshal_(obj)
             %
             % Overridden by subclasses that have class members.

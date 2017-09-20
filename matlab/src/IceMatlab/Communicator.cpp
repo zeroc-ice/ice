@@ -13,14 +13,22 @@
 #include <Ice/Proxy.h>
 #include <Ice/OutputStream.h>
 #include "icematlab.h"
+#include "Communicator.h"
 #include "Future.h"
 #include "ObjectPrx.h"
 #include "Util.h"
 
-#define SELF (*(reinterpret_cast<shared_ptr<Ice::Communicator>*>(self)))
+#define DEREF(x) (*(reinterpret_cast<shared_ptr<Ice::Communicator>*>(x)))
+#define SELF DEREF(self)
 
 using namespace std;
 using namespace IceMatlab;
+
+shared_ptr<Ice::Communicator>
+IceMatlab::getCommunicator(void* p)
+{
+    return DEREF(p);
+}
 
 extern "C"
 {

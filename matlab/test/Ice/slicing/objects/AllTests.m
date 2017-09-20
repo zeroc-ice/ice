@@ -823,29 +823,29 @@ classdef AllTests
             ss2d3.pd3 = ss1d1;
 
             ss1 = SS1();
-            ss1.s = BSeq.new();
-            ss1.s(0) = ss1b;
-            ss1.s(1) = ss1d1;
-            ss1.s(2) = ss1d3;
+            ss1.s = {};
+            ss1.s{1} = ss1b;
+            ss1.s{2} = ss1d1;
+            ss1.s{3} = ss1d3;
 
             ss2 = SS2();
-            ss2.s = BSeq.new();
-            ss2.s(0) = ss2b;
-            ss2.s(1) = ss2d1;
-            ss2.s(2) = ss2d3;
+            ss2.s = {};
+            ss2.s{1} = ss2b;
+            ss2.s{2} = ss2d1;
+            ss2.s{3} = ss2d3;
 
             ss = proxy.sequenceTest(ss1, ss2);
 
             assert(~isempty(ss.c1));
-            ss1b = ss.c1.s(1);
-            ss1d1 = ss.c1.s(2);
+            ss1b = ss.c1.s{1};
+            ss1d1 = ss.c1.s{2};
             assert(~isempty(ss.c2));
-            ss1d3 = ss.c1.s(3);
+            ss1d3 = ss.c1.s{3};
 
             assert(~isempty(ss.c2));
-            ss2b = ss.c2.s(1);
-            ss2d1 = ss.c2.s(2);
-            ss2d3 = ss.c2.s(3);
+            ss2b = ss.c2.s{1};
+            ss2d1 = ss.c2.s{2};
+            ss2d3 = ss.c2.s{3};
 
             assert(ss1b.pb == ss1b);
             assert(ss1d1.pb == ss1b);
@@ -902,29 +902,29 @@ classdef AllTests
             ss2d3.pd3 = ss1d1;
 
             ss1 = SS1();
-            ss1.s = BSeq.new();
-            ss1.s(0) = ss1b;
-            ss1.s(1) = ss1d1;
-            ss1.s(2) = ss1d3;
+            ss1.s = {};
+            ss1.s{1} = ss1b;
+            ss1.s{2} = ss1d1;
+            ss1.s{3} = ss1d3;
 
             ss2 = SS2();
-            ss2.s = BSeq.new();
-            ss2.s(0) = ss2b;
-            ss2.s(1) = ss2d1;
-            ss2.s(2) = ss2d3;
+            ss2.s = {};
+            ss2.s{1} = ss2b;
+            ss2.s{2} = ss2d1;
+            ss2.s{3} = ss2d3;
 
             ss = proxy.sequenceTestAsync(ss1, ss2).fetchOutputs();
 
             assert(~isempty(ss.c1));
-            ss1b = ss.c1.s(1);
-            ss1d1 = ss.c1.s(2);
+            ss1b = ss.c1.s{1};
+            ss1d1 = ss.c1.s{2};
             assert(~isempty(ss.c2));
-            ss1d3 = ss.c1.s(3);
+            ss1d3 = ss.c1.s{3};
 
             assert(~isempty(ss.c2));
-            ss2b = ss.c2.s(1);
-            ss2d1 = ss.c2.s(2);
-            ss2d3 = ss.c2.s(3);
+            ss2b = ss.c2.s{1};
+            ss2d1 = ss.c2.s{2};
+            ss2d3 = ss.c2.s{3};
 
             assert(ss1b.pb == ss1b);
             assert(ss1d1.pb == ss1b);
@@ -1266,8 +1266,8 @@ classdef AllTests
                 %
                 pcd = PCDerived();
                 pcd.pi = 3;
-                pcd.pbs = PBaseSeq.new();
-                pcd.pbs(1) = pcd;
+                pcd.pbs = {};
+                pcd.pbs{1} = pcd;
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1276,7 +1276,7 @@ classdef AllTests
                 else
                     p2 = r;
                     assert(p2.pi == 3);
-                    assert(p2.pbs(1) == p2);
+                    assert(p2.pbs{1} == p2);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1293,8 +1293,8 @@ classdef AllTests
                 %
                 pcd = CompactPCDerived();
                 pcd.pi = 3;
-                pcd.pbs = PBaseSeq.new();
-                pcd.pbs(1) = pcd;
+                pcd.pbs = {};
+                pcd.pbs{1} = pcd;
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1303,7 +1303,7 @@ classdef AllTests
                 else
                     p2 = r;
                     assert(p2.pi == 3);
-                    assert(p2.pbs(1) == p2);
+                    assert(p2.pbs{1} == p2);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1323,17 +1323,17 @@ classdef AllTests
                 %
                 % Sending more than 254 objects exercises the encoding for object ids.
                 %
-                pcd.pbs = PBaseSeq.new();
+                pcd.pbs = {};
                 for i = 1:300
                     p2 = PCDerived2();
                     p2.pi = i;
-                    p2.pbs = PBaseSeq.new();
-                    p2.pbs(1) = []; % Nil reference. This slice should not have an indirection table.
+                    p2.pbs = {};
+                    p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
                     p2.pcd2 = i;
-                    pcd.pbs(i) = p2;
+                    pcd.pbs{i} = p2;
                 end
                 pcd.pcd2 = pcd.pi;
-                pcd.pcd3 = pcd.pbs(10);
+                pcd.pcd3 = pcd.pbs{10};
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1344,14 +1344,14 @@ classdef AllTests
                     p3 = r;
                     assert(p3.pi == 3);
                     for i = 1:300
-                        p2 = p3.pbs(i);
+                        p2 = p3.pbs{i};
                         assert(p2.pi == i);
                         assert(length(p2.pbs) == 1);
-                        assert(isempty(p2.pbs(1)));
+                        assert(isempty(p2.pbs{1}));
                         assert(p2.pcd2 == i);
                     end
                     assert(p3.pcd2 == p3.pi);
-                    assert(p3.pcd3 == p3.pbs(10));
+                    assert(p3.pcd3 == p3.pbs{10});
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1439,8 +1439,8 @@ classdef AllTests
                 %
                 pcd = PCDerived();
                 pcd.pi = 3;
-                pcd.pbs = PBaseSeq.new();
-                pcd.pbs(1) = pcd;
+                pcd.pbs = {};
+                pcd.pbs{1} = pcd;
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1449,7 +1449,7 @@ classdef AllTests
                 else
                     p2 = r;
                     assert(p2.pi == 3);
-                    assert(p2.pbs(1) == p2);
+                    assert(p2.pbs{1} == p2);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1466,8 +1466,8 @@ classdef AllTests
                 %
                 pcd = CompactPCDerived();
                 pcd.pi = 3;
-                pcd.pbs = PBaseSeq.new();
-                pcd.pbs(1) = pcd;
+                pcd.pbs = {};
+                pcd.pbs{1} = pcd;
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1476,7 +1476,7 @@ classdef AllTests
                 else
                     p2 = r;
                     assert(p2.pi == 3);
-                    assert(p2.pbs(1) == p2);
+                    assert(p2.pbs{1} == p2);
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1496,17 +1496,17 @@ classdef AllTests
                 %
                 % Sending more than 254 objects exercises the encoding for object ids.
                 %
-                pcd.pbs = PBaseSeq.new();
+                pcd.pbs = {};
                 for i = 1:300
                     p2 = PCDerived2();
                     p2.pi = i;
-                    p2.pbs = PBaseSeq.new();
-                    p2.pbs(1) = []; % Nil reference. This slice should not have an indirection table.
+                    p2.pbs = {};
+                    p2.pbs{1} = []; % Nil reference. This slice should not have an indirection table.
                     p2.pcd2 = i;
-                    pcd.pbs(i) = p2;
+                    pcd.pbs{i} = p2;
                 end
                 pcd.pcd2 = pcd.pi;
-                pcd.pcd3 = pcd.pbs(10);
+                pcd.pcd3 = pcd.pbs{10};
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
@@ -1517,14 +1517,14 @@ classdef AllTests
                     p3 = r;
                     assert(p3.pi == 3);
                     for i = 1:300
-                        p2 = p3.pbs(i);
+                        p2 = p3.pbs{i};
                         assert(p2.pi == i);
                         assert(length(p2.pbs) == 1);
-                        assert(isempty(p2.pbs(1)));
+                        assert(isempty(p2.pbs{1}));
                         assert(p2.pcd2 == i);
                     end
                     assert(p3.pcd2 == p3.pi);
-                    assert(p3.pcd3 == p3.pbs(10));
+                    assert(p3.pcd3 == p3.pbs{10});
                 end
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')

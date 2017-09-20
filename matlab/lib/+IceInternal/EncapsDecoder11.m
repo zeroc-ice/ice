@@ -95,7 +95,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     %
                     % Exceptions are value types so we have to replace 'ex' with its new value after calling methods.
                     %
-                    ex = ex.preUnmarshal_();
                     ex = ex.read_(obj.is);
                     ex = ex.postUnmarshal_();
                     throw(ex);

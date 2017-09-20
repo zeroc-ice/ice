@@ -13,6 +13,10 @@ classdef Client < Application
     methods
         function r = run(obj, args)
             communicator = obj.communicator();
+
+            %
+            % Remote tests
+            %
             vfm = communicator.getValueFactoryManager();
             vfm.add(@(id) BI(), test.Ice.objects.Test.B.ice_staticId());
             vfm.add(@(id) CI(), test.Ice.objects.Test.C.ice_staticId());
@@ -25,6 +29,20 @@ classdef Client < Application
 
             initial = AllTests.allTests(obj);
             initial.shutdown();
+
+            %
+            % Local tests
+            %
+            vfm.add(@(id) CB1I(), test.Ice.objects.LocalTest.CB1.ice_staticId());
+            vfm.add(@(id) CB2I(), test.Ice.objects.LocalTest.CB2.ice_staticId());
+            vfm.add(@(id) CB3I(), test.Ice.objects.LocalTest.CB3.ice_staticId());
+            vfm.add(@(id) CB4I(), test.Ice.objects.LocalTest.CB4.ice_staticId());
+            vfm.add(@(id) CB5I(), test.Ice.objects.LocalTest.CB5.ice_staticId());
+            vfm.add(@(id) CB6I(), test.Ice.objects.LocalTest.CB6.ice_staticId());
+            vfm.add(@(id) CB7I(), test.Ice.objects.LocalTest.CB7.ice_staticId());
+            vfm.add(@(id) CB8I(), test.Ice.objects.LocalTest.CB8.ice_staticId());
+            LocalTests.localTests(obj);
+
             r = 0;
         end
     end
@@ -32,6 +50,7 @@ classdef Client < Application
         function [r, remArgs] = getInitData(obj, args)
             [initData, remArgs] = getInitData@Application(obj, args);
             initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.objects');
+            initData.properties_.setProperty('Ice.Package.LocalTest', 'test.Ice.objects');
             r = initData;
         end
     end

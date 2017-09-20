@@ -330,6 +330,12 @@ classdef OutputStream < IceInternal.WrapperObject
         function writeBlob(obj, bytes)
             obj.call_('writeBlob', bytes, length(bytes));
         end
+        function r = createInputStream(obj)
+            is = libpointer('voidPtr');
+            obj.call_('createInputStream', obj.communicator.impl_, is);
+            assert(~isNull(is));
+            r = Ice.InputStream(is, obj.communicator);
+        end
     end
     methods(Access=private)
         function r = isEncoding_1_0(obj)

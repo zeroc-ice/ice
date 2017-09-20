@@ -72,8 +72,8 @@ classdef AllTests
             sid('test') = 10;
             ied = IntEnumDict.new();
             ied(4) = MyEnum.MyEnumMember;
-            oos = OneOptionalSeq.new();
-            oos(1) = oo1;
+            oos = {};
+            oos{1} = oo1;
             ifsd = IntFixedStructDict.new();
             ifsd(4) = fs;
             ivsd = IntVarStructDict.new();
@@ -111,7 +111,7 @@ classdef AllTests
             assert(mo1.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
             assert(isequal(mo1.fss{1}, FixedStruct(78)));
             assert(isequal(mo1.vss{1}, VarStruct('hello')));
-            assert(isequal(mo1.oos(1), oo1));
+            assert(isequal(mo1.oos{1}, oo1));
             assert(mo1.oops{1} == communicator.stringToProxy('test'));
 
             assert(mo1.ied(4) == MyEnum.MyEnumMember);
@@ -196,7 +196,7 @@ classdef AllTests
             assert(mo5.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
             assert(mo5.fss{1} == FixedStruct(78));
             assert(mo5.vss{1} == VarStruct('hello'));
-            assert(mo5.oos(1).a == 15);
+            assert(mo5.oos{1}.a == 15);
             assert(mo5.oops{1} == communicator.stringToProxy('test'));
 
             assert(mo5.ied(4) == MyEnum.MyEnumMember);
@@ -247,7 +247,7 @@ classdef AllTests
             assert(mo7.es == Ice.Unset);
             assert(mo7.fss{1} == FixedStruct(78));
             assert(mo7.vss == Ice.Unset);
-            assert(mo7.oos(1).a == 15);
+            assert(mo7.oos{1}.a == 15);
             assert(mo7.oops == Ice.Unset);
 
             assert(mo7.ied == Ice.Unset);
@@ -323,13 +323,13 @@ classdef AllTests
             r = initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).returnOptionalClass(true);
             assert(r == Ice.Unset);
 
-            recursive1 = RecursiveSeq.new();
-            recursive2 = RecursiveSeq.new();
+            recursive1 = {};
+            recursive2 = {};
             r1 = Recursive();
             r2 = Recursive();
             r1.value = recursive2;
-            recursive1(1) = r1;
-            recursive2(1) = r2;
+            recursive1{1} = r1;
+            recursive2{1} = r2;
 
             outer = Recursive();
             outer.value = recursive1;

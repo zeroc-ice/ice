@@ -143,14 +143,26 @@ classdef AllTests
 
             fprintf('testing sequences... ');
             try
-                inS = BaseSeq.new();
+                inS = {};
                 [r, outS] = initial.opBaseSeq(inS);
                 assert(length(r) == 0 && length(outS) == 0);
 
-                inS = BaseSeq.new();
-                inS(1) = Base(S(), '');
+                %
+                % The MATLAB version of this test is a little more thorough.
+                %
+                inS = cell(1, 20);
+                for i = 1:length(inS)
+                    inS{i} = Base(S(num2str(i)), num2str(i));
+                end
                 [r, outS] = initial.opBaseSeq(inS);
-                assert(length(r) == 1 && length(outS) == 1);
+                assert(length(r) == length(inS) && length(outS) == length(inS));
+                assert(isa(r, 'cell') && isa(outS, 'cell'));
+                for i = 1:length(inS)
+                    assert(r{i} == outS{i});
+                    s = num2str(i);
+                    assert(strcmp(r{i}.str, s));
+                    assert(strcmp(r{i}.theS.str, s));
+                end
             catch ex
                 if ~isa(ex, 'Ice.OperationNotExistException')
                     rethrow(ex);

@@ -11,6 +11,8 @@
 
 #include <Ice/Ice.h>
 #include "icematlab.h"
+#include "Communicator.h"
+#include "InputStream.h"
 #include "Util.h"
 
 #define SELF (reinterpret_cast<Ice::OutputStream*>(self))
@@ -412,6 +414,23 @@ Ice_OutputStream_getEncoding(void* self)
     catch(const std::exception& ex)
     {
         return createResultException(convertException(ex));
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_OutputStream_createInputStream(void* self, void* communicator, void** stream)
+{
+    try
+    {
+        vector<Ice::Byte> data;
+        SELF->finished(data);
+        auto c = getCommunicator(communicator);
+        *stream = createInputStream(c, SELF->getEncoding(), data);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
     }
     return 0;
 }

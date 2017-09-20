@@ -166,6 +166,7 @@ EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteByte(void*, unsigned char, un
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteInt(void*, int, unsigned int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBlob(void*, const unsigned char*, int);
 EXPORTED_FUNCTION mxArray* Ice_OutputStream_getEncoding(void*);
+EXPORTED_FUNCTION mxArray* Ice_OutputStream_createInputStream(void*, void*, void**);
 
 EXPORTED_FUNCTION mxArray* Ice_InputStream__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_InputStream_readBool(void*, unsigned char*);

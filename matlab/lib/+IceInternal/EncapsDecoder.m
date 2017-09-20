@@ -22,6 +22,7 @@ classdef (Abstract) EncapsDecoder < handle
             obj.typeIdMap = [];
             obj.typeIdIndex = 0;
             obj.valueList = {};
+            obj.delayedPostUnmarshal = {};
         end
 
         function r = readOptional(obj, readTag, expectedFormat)
@@ -29,6 +30,38 @@ classdef (Abstract) EncapsDecoder < handle
         end
 
         function readPendingValues(obj)
+        end
+
+        function finish(obj)
+            %
+            % This is our opportunity for unmarshaled values to do some post processing after the initial round
+            % of unmarshaling is complete.
+            %
+            if ~isempty(obj.delayedPostUnmarshal)
+                %
+                % First call icePostUnmarshal_ on every instance. This allows the generated code to finish its tasks.
+                %
+                for i = 1:length(obj.delayedPostUnmarshal)
+                    v = obj.delayedPostUnmarshal{i};
+                    v.icePostUnmarshal_();
+                end
+                %
+                % Then call ice_postUnmarshal on every instance. This is the application's interception point.
+                %
+                for i = 1:length(obj.delayedPostUnmarshal)
+                    v = obj.delayedPostUnmarshal{i};
+                    try
+                        v.ice_postUnmarshal();
+                    catch ex
+                        % TODO: logger?
+                        %String s = "exception raised by ice_postUnmarshal:\n" +
+                            %com.zeroc.IceInternal.Ex.toString(ex);
+                        %_stream.instance().initializationData().logger.warning(s);
+                    end
+                end
+
+                obj.delayedPostUnmarshal = {};
+            end
         end
     end
     methods(Abstract)
@@ -176,12 +209,16 @@ classdef (Abstract) EncapsDecoder < handle
             end
 
             if (isempty(obj.patchMap) || obj.patchMap.Count == 0) && isempty(obj.valueList)
-                try
-                    v.ice_postUnmarshal();
-                catch ex
-                    % TODO: logger?
-                    %String s = "exception raised by ice_postUnmarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
-                    %_stream.instance().initializationData().logger.warning(s);
+                if v.iceDelayPostUnmarshal_()
+                    obj.delayedPostUnmarshal{end + 1} = v; % See finish()
+                else
+                    try
+                        v.ice_postUnmarshal();
+                    catch ex
+                        % TODO: logger?
+                        %String s = "exception raised by ice_postUnmarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
+                        %_stream.instance().initializationData().logger.warning(s);
+                    end
                 end
             else
                 obj.valueList{end + 1} = v;
@@ -195,13 +232,17 @@ classdef (Abstract) EncapsDecoder < handle
                     %
                     for i = 1:length(obj.valueList)
                         p = obj.valueList{i};
-                        try
-                            p.ice_postUnmarshal();
-                        catch ex
-                            % TODO: logger?
-                            %String s = "exception raised by ice_postUnmarshal:\n" +
-                                %com.zeroc.IceInternal.Ex.toString(ex);
-                            %_stream.instance().initializationData().logger.warning(s);
+                        if p.iceDelayPostUnmarshal_()
+                            obj.delayedPostUnmarshal{end + 1} = p; % See finish()
+                        else
+                            try
+                                p.ice_postUnmarshal();
+                            catch ex
+                                % TODO: logger?
+                                %String s = "exception raised by ice_postUnmarshal:\n" +
+                                    %com.zeroc.IceInternal.Ex.toString(ex);
+                                %_stream.instance().initializationData().logger.warning(s);
+                            end
                         end
                     end
                     obj.valueList = {};
@@ -222,5 +263,6 @@ classdef (Abstract) EncapsDecoder < handle
         typeIdMap
         typeIdIndex
         valueList
+        delayedPostUnmarshal
     end
 end

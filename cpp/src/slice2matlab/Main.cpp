@@ -504,6 +504,75 @@ isClass(const TypePtr& type)
     return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
 }
 
+bool
+needsConversion(const TypePtr& type)
+{
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return isClass(seq->type()) || needsConversion(seq->type());
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        const DataMemberList members = st->dataMembers();
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            if(needsConversion((*q)->type()) || isClass((*q)->type()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        return needsConversion(d->valueType()) || isClass(d->valueType());
+    }
+
+    return false;
+}
+
+void
+convertValueType(IceUtilInternal::Output& out, const string& dest, const string& src, const TypePtr& type,
+                 bool optional)
+{
+    assert(needsConversion(type));
+
+    if(optional)
+    {
+        out << nl << "if " << src << " ~= Ice.Unset";
+        out.inc();
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        out << nl << dest << " = " << getAbsolute(seq) << ".convert(" << src << ");";
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        out << nl << dest << " = " << getAbsolute(d) << ".convert(" << src << ");";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        out << nl << dest << " = " << src << ".ice_convert();";
+    }
+
+    if(optional)
+    {
+        out.dec();
+        out << nl << "end";
+    }
+}
+
 }
 
 //
@@ -750,6 +819,31 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out << nl << "r = obj.iceSlicedData_;";
                     out.dec();
                     out << nl << "end";
+                }
+            }
+
+            out.dec();
+            out << nl << "end";
+        }
+
+        if(!p->isLocal())
+        {
+            DataMemberList convertMembers;
+            for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+            {
+                if(needsConversion((*d)->type()))
+                {
+                    convertMembers.push_back(*d);
+                }
+            }
+
+            if((preserved && !basePreserved) || !convertMembers.empty())
+            {
+                out << nl << "methods(Hidden=true)";
+                out.inc();
+
+                if(preserved && !basePreserved)
+                {
                     out << nl << "function iceWrite_(obj, os)";
                     out.inc();
                     out << nl << "os.startValue(obj.iceSlicedData_);";
@@ -765,14 +859,33 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.dec();
                     out << nl << "end";
                 }
+
+                if(!convertMembers.empty())
+                {
+                    out << nl << "function r = iceDelayPostUnmarshal_(obj)";
+                    out.inc();
+                    out << nl << "r = true;";
+                    out.dec();
+                    out << nl << "end";
+                    out << nl << "function icePostUnmarshal_(obj)";
+                    out.inc();
+                    for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
+                    {
+                        string m = "obj." + fixIdent((*d)->name());
+                        convertValueType(out, m, m, (*d)->type(), (*d)->optional());
+                    }
+                    if(base)
+                    {
+                        out << nl << "icePostUnmarshal_@" << getAbsolute(base) << "(obj);";
+                    }
+                    out.dec();
+                    out << nl << "end";
+                }
+
+                out.dec();
+                out << nl << "end";
             }
 
-            out.dec();
-            out << nl << "end";
-        }
-
-        if(!p->isLocal())
-        {
             out << nl << "methods(Access=protected)";
             out.inc();
 
@@ -809,7 +922,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     if(isClass((*d)->type()))
                     {
-                        unmarshal(out, "is", "@obj.set_" + fixIdent((*d)->name()) + "_", (*d)->type(), false, 0);
+                        unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()) + "_", (*d)->type(), false,
+                                  0);
                     }
                     else
                     {
@@ -821,7 +935,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(isClass((*d)->type()))
                 {
-                    unmarshal(out, "is", "@obj.set_" + fixIdent((*d)->name()) + "_", (*d)->type(), true, (*d)->tag());
+                    unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()) + "_", (*d)->type(), true,
+                              (*d)->tag());
                 }
                 else
                 {
@@ -845,10 +960,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
                 {
-                    string name = fixIdent((*d)->name());
-                    out << nl << "function set_" << name << "_(obj, v)";
+                    string m = fixIdent((*d)->name());
+                    out << nl << "function iceSetMember_" << m << "_(obj, v)";
                     out.inc();
-                    out << nl << "obj." << name << " = v;";
+                    out << nl << "obj." << m << " = v;";
                     out.dec();
                     out << nl << "end";
                 }
@@ -1074,6 +1189,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     // * unmarshal all optional out parameters (this includes an optional return value)
                     //
                     ParamInfoList classParams;
+                    ParamInfoList convertParams;
                     for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
                     {
                         if(r->param)
@@ -1082,7 +1198,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                             if(isClass(r->type))
                             {
                                 out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
-                                name = "@" + r->fixedName + "_h_.set";
+                                name = "@(v) " + r->fixedName + "_h_.set(v)";
                                 classParams.push_back(*r);
                             }
                             else
@@ -1090,6 +1206,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                                 name = r->fixedName;
                             }
                             unmarshal(out, "is_", name, r->type, false, -1);
+
+                            if(needsConversion(r->type))
+                            {
+                                convertParams.push_back(*r);
+                            }
                         }
                     }
                     //
@@ -1102,7 +1223,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         if(isClass(r->type))
                         {
                             out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
-                            name = "@" + r->fixedName + "_h_.set";
+                            name = "@(v) " + r->fixedName + "_h_.set(v)";
                             classParams.push_back(*r);
                         }
                         else
@@ -1110,6 +1231,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                             name = r->fixedName;
                         }
                         unmarshal(out, "is_", name, r->type, false, -1);
+
+                        if(needsConversion(r->type))
+                        {
+                            convertParams.push_back(*r);
+                        }
                     }
                     //
                     // Now unmarshal all optional out parameters. They are already sorted by tag.
@@ -1120,7 +1246,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         if(isClass(r->type))
                         {
                             out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
-                            name = "@" + r->fixedName + "_h_.set";
+                            name = "@(v) " + r->fixedName + "_h_.set(v)";
                             classParams.push_back(*r);
                         }
                         else
@@ -1128,6 +1254,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                             name = r->fixedName;
                         }
                         unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+
+                        if(needsConversion(r->type))
+                        {
+                            convertParams.push_back(*r);
+                        }
                     }
                     if(op->returnsClasses(false))
                     {
@@ -1141,6 +1272,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
                     {
                         out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
+                    }
+
+                    for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
+                    {
+                        convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
                     }
                 }
                 out.dec();
@@ -1225,7 +1361,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                             if(isClass(r->type))
                             {
                                 out << nl << r->fixedName << " = Ice.ValueHolder();";
-                                name = "@" + r->fixedName + ".set";
+                                name = "@(v) " + r->fixedName + ".set(v)";
                             }
                             else
                             {
@@ -1244,7 +1380,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         if(isClass(r->type))
                         {
                             out << nl << r->fixedName << " = Ice.ValueHolder();";
-                            name = "@" + r->fixedName + ".set";
+                            name = "@(v) " + r->fixedName + ".set(v)";
                         }
                         else
                         {
@@ -1261,7 +1397,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         if(isClass(r->type))
                         {
                             out << nl << r->fixedName << " = Ice.ValueHolder();";
-                            name = "@" + r->fixedName + ".set";
+                            name = "@(v) " + r->fixedName + ".set(v)";
                         }
                         else
                         {
@@ -1280,6 +1416,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
                         }
+                        else if(needsConversion(r->type))
+                        {
+                            ostringstream dest;
+                            dest << "varargout{" << r->pos << "}";
+                            convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
+                        }
                         else
                         {
                             out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
@@ -1290,6 +1432,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         if(isClass(r->type))
                         {
                             out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
+                        }
+                        else if(needsConversion(r->type))
+                        {
+                            ostringstream dest;
+                            dest << "varargout{" << r->pos << "}";
+                            convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
                         }
                         else
                         {
@@ -1522,9 +1670,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     collectExceptionMembers(p, allMembers, false);
 
     vector<string> allNames;
+    MemberInfoList convertMembers;
     for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
     {
         allNames.push_back(q->fixedName);
+
+        if(!q->inherited && needsConversion(q->dataMember->type()))
+        {
+            convertMembers.push_back(*q);
+        }
     }
     out << nl << "methods";
     out.inc();
@@ -1621,7 +1775,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!p->isLocal())
     {
         const DataMemberList classMembers = p->classDataMembers();
-        if(!classMembers.empty() || (preserved && !basePreserved))
+        if(!classMembers.empty() || !convertMembers.empty() || (preserved && !basePreserved))
         {
             out << nl << "methods(Hidden=true)";
             out.inc();
@@ -1640,34 +1794,19 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 out << nl << "end";
             }
 
-            if(!classMembers.empty())
+            if(!classMembers.empty() || !convertMembers.empty())
             {
-                //
-                // Only define preUnmarshal_ for the first exception in the hierarchy that defines a class members.
-                //
-                if(!base || (base && !base->usesClasses(true)))
-                {
-                    //
-                    // Exceptions are value types. If it has class members, we use a shared map (which is a handle
-                    // type) to keep track of class instances as they are unmarshaled.
-                    //
-                    out << nl << "function obj = preUnmarshal_(obj)";
-                    out.inc();
-                    out << nl << "obj.iceValueTable_ = containers.Map('KeyType', 'char', 'ValueType', 'any');";
-                    out.dec();
-                    out << nl << "end";
-                }
-
                 out << nl << "function obj = postUnmarshal_(obj)";
                 out.inc();
                 for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
                 {
                     string m = fixExceptionMemberIdent((*q)->name());
-                    out << nl << "if obj.iceValueTable_.isKey('" << m << "')";
-                    out.inc();
-                    out << nl << "obj." << m << " = obj.iceValueTable_('" << m << "');";
-                    out.dec();
-                    out << nl << "end";
+                    out << nl << "obj." << m << " = obj." << m << ".value;";
+                }
+                for(MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
+                {
+                    string m = "obj." + q->fixedName;
+                    convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
                 }
                 if(base && base->usesClasses(true))
                 {
@@ -1694,8 +1833,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 if(isClass((*q)->type()))
                 {
-                    string func = "@(v) obj.setValueMember_('" + m + "', v)";
-                    unmarshal(out, "is", func, (*q)->type(), false, 0);
+                    out << nl << "obj." << m << " = Ice.ValueHolder();";
+                    unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), false, 0);
                 }
                 else
                 {
@@ -1709,8 +1848,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             string m = fixExceptionMemberIdent((*q)->name());
             if(isClass((*q)->type()))
             {
-                string func = "@(v) obj.setValueMember_('" + m + "', v)";
-                unmarshal(out, "is", func, (*q)->type(), true, (*q)->tag());
+                out << nl << "obj." << m << " = Ice.ValueHolder();";
+                unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), true, (*q)->tag());
             }
             else
             {
@@ -1725,30 +1864,14 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.dec();
         out << nl << "end";
 
-        if(p->usesClasses(true) && (!base || (base && !base->usesClasses(true))))
-        {
-            out << nl << "function setValueMember_(obj, k, v)";
-            out.inc();
-            out << nl << "obj.iceValueTable_(k) = v;";
-            out.dec();
-            out << nl << "end";
-        }
-
         out.dec();
         out << nl << "end";
 
-        if((p->usesClasses(true) && (!base || (base && !base->usesClasses(true)))) || (preserved && !basePreserved))
+        if(preserved && !basePreserved)
         {
             out << nl << "properties(Access=protected)";
             out.inc();
-            if(p->usesClasses(true) && (!base || (base && !base->usesClasses(true))))
-            {
-                out << nl << "iceValueTable_";
-            }
-            if(preserved && !basePreserved)
-            {
-                out << nl << "iceSlicedData_";
-            }
+            out << nl << "iceSlicedData_";
             out.dec();
             out << nl << "end";
         }
@@ -1777,18 +1900,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList classMembers = p->classDataMembers();
 
     out << nl << "classdef " << name;
-    if(!classMembers.empty())
-    {
-        //
-        // A struct becomes a "handle" type when it has at least one class data member.
-        //
-        out << " < matlab.mixin.Copyable";
-    }
 
     out.inc();
     out << nl << "properties";
     out.inc();
     vector<string> memberNames;
+    DataMemberList convertMembers;
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         const string m = fixIdent((*q)->name());
@@ -1797,6 +1914,11 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         if(declarePropertyType((*q)->type(), false))
         {
             out << " " << typeToString((*q)->type());
+        }
+
+        if(needsConversion((*q)->type()))
+        {
+            convertMembers.push_back(*q);
         }
     }
     out.dec();
@@ -1835,6 +1957,24 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.dec();
     out << nl << "end";
 
+    if(!convertMembers.empty() || !classMembers.empty())
+    {
+        out << nl << "function obj = ice_convert(obj)";
+        out.inc();
+        for(DataMemberList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
+        {
+            string m = "obj." + fixIdent((*q)->name());
+            convertValueType(out, m, m, (*q)->type(), (*q)->optional());
+        }
+        for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
+        {
+            string m = "obj." + fixIdent((*q)->name());
+            out << nl << m << " = " << m << ".value;";
+        }
+        out.dec();
+        out << nl << "end";
+    }
+
     out.dec();
     out << nl << "end";
 
@@ -1849,7 +1989,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         {
             if(isClass((*q)->type()))
             {
-                unmarshal(out, "is", "@r.set_" + fixIdent((*q)->name()) + "_", (*q)->type(), false, 0);
+                string m = fixIdent((*q)->name());
+                out << nl << "r." << m << " = Ice.ValueHolder();";
+                unmarshal(out, "is", "@(v) r." + m + ".set(v)", (*q)->type(), false, 0);
             }
             else
             {
@@ -1916,27 +2058,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         out << nl << "end";
         out.dec();
         out << nl << "end";
-
-        if(!classMembers.empty())
-        {
-            out << nl << "methods(Access=protected)";
-            out.inc();
-            //
-            // For each class data member, we generate a "set_<name>_" method that is called when the instance
-            // is eventually unmarshaled.
-            //
-            for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
-            {
-                string name = fixIdent((*d)->name());
-                out << nl << "function set_" << name << "_(obj, v)";
-                out.inc();
-                out << nl << "obj." << name << " = v;";
-                out.dec();
-                out << nl << "end";
-            }
-            out.dec();
-            out << nl << "end";
-        }
     }
 
     out.dec();
@@ -1990,12 +2111,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
-
-    //
-    // We map a sequence of values to a containers.Map because it's a handle class and therefore we can
-    // update it as the values are unmarshaled.
-    //
     const bool cls = isClass(content);
+    const bool convert = needsConversion(content);
 
     IceUtilInternal::Output out;
     openClass(abs, out);
@@ -2005,49 +2122,15 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "methods(Static)";
     out.inc();
 
-    if(cls)
-    {
-        out << nl << "function r = new()";
-        out.inc();
-        out << nl << "r = containers.Map('KeyType', 'int32', 'ValueType', 'any');";
-        out.dec();
-        out << nl << "end";
-    }
-
     out << nl << "function write(os, seq)";
     out.inc();
-    if(cls)
-    {
-        //
-        // Map for class elements
-        //
-        out << nl << "if ~isempty(seq) && ~isa(seq, 'containers.Map')";
-        out.inc();
-        out << nl << "throw(MException('Ice:ArgumentException', 'expecting a containers.Map'));";
-        out.dec();
-        out << nl << "end";
-        out << nl << "keys = seq.keys();";
-        out << nl << "sz = length(keys);";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        marshal(out, "os", "seq(keys{i})", content, false, 0);
-        out.dec();
-        out << nl << "end";
-    }
-    else
-    {
-        //
-        // Cell array
-        //
-        out << nl << "sz = length(seq);";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        marshal(out, "os", "seq{i}", content, false, 0);
-        out.dec();
-        out << nl << "end";
-    }
+    out << nl << "sz = length(seq);";
+    out << nl << "os.writeSize(sz);";
+    out << nl << "for i = 1:sz";
+    out.inc();
+    marshal(out, "os", "seq{i}", content, false, 0);
+    out.dec();
+    out << nl << "end";
     out.dec();
     out << nl << "end";
 
@@ -2092,22 +2175,25 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "sz = is.readSize();";
     if(cls)
     {
-        out << nl << "r = " << abs << ".new();";
+        //
+        // For a sequence<class>, read() returns an instance of Ice.CellArrayHandle that we later replace with
+        // the cell array. See convert().
+        //
+        out << nl << "r = Ice.CellArrayHandle();";
+        out << nl << "r.array = cell(1, sz);";
     }
     else
     {
-        out << nl << "r = {};";
+        out << nl << "r = cell(1, sz);";
     }
     out << nl << "for i = 1:sz";
     out.inc();
     if(cls)
     {
         //
-        // It would be nice if we could use the anonymous function "@(v) r(i) = v", but MATLAB doesn't
-        // allow assignment expressions as anonymous functions. So we have to call a static method
-        // that adds the value to the map.
+        // Ice.CellArrayHandle defines a set() method that we call from the lambda.
         //
-        unmarshal(out, "is", "@(v) " + abs + ".setValue_(r, i, v)", content, false, 0);
+        unmarshal(out, "is", "@(v) r.set(i, v)", content, false, 0);
     }
     else
     {
@@ -2139,21 +2225,31 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
-    out.dec();
-    out << nl << "end";
 
-    if(cls)
+    if(cls || convert)
     {
-        out << nl << "methods(Static,Hidden=true)";
+        out << nl << "function r = convert(seq)";
         out.inc();
-        out << nl << "function setValue_(map, i, v)";
-        out.inc();
-        out << nl << "map(i) = v;";
-        out.dec();
-        out << nl << "end";
+        if(cls)
+        {
+            out << nl << "r = seq.array;";
+        }
+        else
+        {
+            out << nl << "r = cell(1, length(seq));";
+            out << nl << "for i = 1:length(seq)";
+            out.inc();
+            convertValueType(out, "r{i}", "seq{i}", content, false);
+            out.dec();
+            out << nl << "end";
+        }
         out.dec();
         out << nl << "end";
     }
+
+    out.dec();
+    out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl;
@@ -2167,6 +2263,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const TypePtr key = p->keyType();
     const TypePtr value = p->valueType();
     const bool cls = isClass(value);
+    const bool convert = needsConversion(value);
 
     const StructPtr st = StructPtr::dynamicCast(key);
 
@@ -2199,19 +2296,9 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     if(st)
     {
         //
-        // We can't use containers.Map for a structure key.
+        // We use a struct array when the key is a structure type because we can't use containers.Map.
         //
-        // If the value type is a Value, we map to an instance of StructArrayHandle so that we can correctly
-        // handle the staged nature of value unmarshaling. Otherwise we map to a struct array.
-        //
-        if(cls)
-        {
-            out << nl << "r = Ice.StructArrayHandle();";
-        }
-        else
-        {
-            out << nl << "r = [];";
-        }
+        out << nl << "r = [];";
     }
     else
     {
@@ -2233,28 +2320,14 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out.inc();
         if(st)
         {
-            if(cls)
-            {
-                out << nl << "sz = length(d.array);";
-                out << nl << "os.writeSize(sz);";
-                out << nl << "for i = 1:sz";
-                out.inc();
-                marshal(out, "os", "d.array(i).key", key, false, 0);
-                marshal(out, "os", "d.array(i).value", value, false, 0);
-                out.dec();
-                out << nl << "end";
-            }
-            else
-            {
-                out << nl << "sz = length(d);";
-                out << nl << "os.writeSize(sz);";
-                out << nl << "for i = 1:sz";
-                out.inc();
-                marshal(out, "os", "d(i).key", key, false, 0);
-                marshal(out, "os", "d(i).value", value, false, 0);
-                out.dec();
-                out << nl << "end";
-            }
+            out << nl << "sz = length(d);";
+            out << nl << "os.writeSize(sz);";
+            out << nl << "for i = 1:sz";
+            out.inc();
+            marshal(out, "os", "d(i).key", key, false, 0);
+            marshal(out, "os", "d(i).value", value, false, 0);
+            out.dec();
+            out << nl << "end";
         }
         else
         {
@@ -2317,65 +2390,35 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out.inc();
         out << nl << "sz = is.readSize();";
         out << nl << "r = " << abs << ".new();";
-        if(cls)
-        {
-            if(st)
-            {
-                out << nl << "function setValue(ah_, i_, k_, v_)";
-                out.inc();
-                out << nl << "ah_.array(i_).key = k_;";
-                out << nl << "ah_.array(i_).value = v_;";
-                out.dec();
-                out << nl << "end";
-            }
-            else if(EnumPtr::dynamicCast(key))
-            {
-                out << nl << "function setValue(m_, k_, v_)";
-                out.inc();
-                out << nl << "m_(int32(k_)) = v_;";
-                out.dec();
-                out << nl << "end";
-            }
-            else
-            {
-                out << nl << "function setValue(m_, k_, v_)";
-                out.inc();
-                out << nl << "m_(k_) = v_;";
-                out.dec();
-                out << nl << "end";
-            }
-        }
         out << nl << "for i = 1:sz";
         out.inc();
+
         unmarshal(out, "is", "k", key, false, 0);
+
         if(cls)
         {
-            if(st)
-            {
-                unmarshal(out, "is", "@(v) setValue(r, i, k, v)", value, false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "@(v) setValue(r, k, v)", value, false, 0);
-            }
+            out << nl << "v = Ice.ValueHolder();";
+            unmarshal(out, "is", "@(v_) v.set(v_)", value, false, 0);
         }
         else
         {
             unmarshal(out, "is", "v", value, false, 0);
-            if(st)
-            {
-                out << nl << "r(i).key = k;";
-                out << nl << "r(i).value = v;";
-            }
-            else if(EnumPtr::dynamicCast(key))
-            {
-                out << nl << "r(int32(k)) = v;";
-            }
-            else
-            {
-                out << nl << "r(k) = v;";
-            }
         }
+
+        if(st)
+        {
+            out << nl << "r(i).key = k;";
+            out << nl << "r(i).value = v;";
+        }
+        else if(EnumPtr::dynamicCast(key))
+        {
+            out << nl << "r(int32(k)) = v;";
+        }
+        else
+        {
+            out << nl << "r(k) = v;";
+        }
+
         out.dec();
         out << nl << "end";
         out.dec();
@@ -2402,6 +2445,55 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "end";
         out.dec();
         out << nl << "end";
+
+        if(cls || convert)
+        {
+            out << nl << "function r = convert(d, obj)";
+            out.inc();
+            if(st)
+            {
+                out << nl << "for i = 1:length(d)";
+                out.inc();
+                if(cls)
+                {
+                    //
+                    // Each entry has a temporary Ice.ValueHolder that we need to replace with the actual value.
+                    //
+                    out << nl << "d(i).value = d(i).value.value;";
+                }
+                else
+                {
+                    convertValueType(out, "d(i).value", "d(i).value", value, false);
+                }
+                out.dec();
+                out << nl << "end";
+            }
+            else
+            {
+                out << nl << "keys = d.keys();";
+                out << nl << "values = d.values();";
+                out << nl << "for i = 1:d.Count";
+                out.inc();
+                out << nl << "k = keys{i};";
+                out << nl << "v = values{i};";
+                if(cls)
+                {
+                    //
+                    // Each entry has a temporary Ice.ValueHolder that we need to replace with the actual value.
+                    //
+                    out << nl << "d(k) = v.value;";
+                }
+                else
+                {
+                    convertValueType(out, "d(k)", "v", value, false);
+                }
+                out.dec();
+                out << nl << "end";
+            }
+            out << nl << "r = d;";
+            out.dec();
+            out << nl << "end";
+        }
     }
 
     out.dec();
@@ -3134,7 +3226,6 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
 
     assert(false);
 }
-
 
 void
 CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,

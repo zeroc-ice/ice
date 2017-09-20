@@ -9,12 +9,13 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-%
-% A dictionary<struct-type, Value-type> is mapped to a StructArrayHandle object. This is necessary to support
-% the staged nature of Value unmarshaling.
-%
-classdef StructArrayHandle < handle
+classdef CB5I < test.Ice.objects.LocalTest.CB5
+    methods
+        function ice_postUnmarshal(obj)
+            obj.postUnmarshalInvoked = true;
+        end
+    end
     properties
-        array
+        postUnmarshalInvoked = false
     end
 end

@@ -270,6 +270,13 @@ classdef InputStream < IceInternal.WrapperObject
                 obj.skip(1);
             end
 
+            %
+            % Give the decoder a chance to clean up.
+            %
+            if ~isempty(obj.encapsStack.decoder)
+                obj.encapsStack.decoder.finish();
+            end
+
             curr = obj.encapsStack;
             obj.encapsStack = curr.next;
             curr.next = obj.encapsCache;
@@ -375,7 +382,7 @@ classdef InputStream < IceInternal.WrapperObject
                     end
                     obj.skip(sz);
                 case Ice.OptionalFormat.Class
-                    obj.readValue(); % TODO
+                    obj.readValue([], '');
             end
         end
         function r = readProxy(obj)
