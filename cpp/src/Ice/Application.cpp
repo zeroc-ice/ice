@@ -91,6 +91,12 @@ Ice::Application::main(int argc, const char* const argv[], ICE_CONFIG_FILE_STRIN
             initData.properties = createProperties();
             initData.properties->load(configFile);
         }
+        catch(const Ice::Exception& ex)
+        {
+            Error out(getProcessLogger());
+            out << ex;
+            return EXIT_FAILURE;
+        }
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
@@ -153,6 +159,12 @@ Ice::Application::main(int argc, const char* const argv[], const InitializationD
     try
     {
         initData.properties = createProperties(av.argc, av.argv, initData.properties);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << ex;
+        return EXIT_FAILURE;
     }
     catch(const std::exception& ex)
     {
@@ -427,6 +439,12 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
 
         status = run(argc, argv);
     }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << ex;
+        status = EXIT_FAILURE;
+    }
     catch(const std::exception& ex)
     {
         Error out(getProcessLogger());
@@ -613,6 +631,11 @@ Ice::Application::callbackOnInterruptCallback(int signal)
     {
         assert(_application != 0);
         _application->interruptCallback(signal);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Error out(getProcessLogger());
+        out << "(while interrupting in response to signal " << signal << "): Ice::Exception: " << ex;
     }
     catch(const std::exception& ex)
     {

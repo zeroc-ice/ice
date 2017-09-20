@@ -507,6 +507,11 @@ Ice::Service::shutdown()
             // Expected if the service communicator is being destroyed.
             //
         }
+        catch(const Ice::Exception& ex)
+        {
+            ServiceWarning warn(this);
+            warn << "exception during shutdown:\n" << ex;
+        }
         catch(const std::exception& ex)
         {
             ServiceWarning warn(this);
@@ -836,6 +841,11 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
                 status = EXIT_SUCCESS;
             }
         }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        ServiceError err(this);
+        err << "service terminating after catching exception:\n" << ex;
     }
     catch(const std::exception& ex)
     {
@@ -1359,6 +1369,11 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
             status = tmpStatus;
         }
     }
+    catch(const Ice::Exception& ex)
+    {
+        ServiceError err(this);
+        err << "service terminating after catching exception:\n" << ex;
+    }
     catch(const std::exception& ex)
     {
         ServiceError err(this);
@@ -1792,6 +1807,12 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 status = EXIT_SUCCESS;
             }
         }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        ServiceError err(this);
+        err << "service terminating after catching exception:\n" << ex;
+        errMsg = err.str();
     }
     catch(const std::exception& ex)
     {
