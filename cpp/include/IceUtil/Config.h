@@ -238,6 +238,8 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <exception>
+#include <stdexcept>
 
 #ifndef _WIN32
 #   include <pthread.h>
