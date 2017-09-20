@@ -599,9 +599,7 @@ Ice::stringToIdentity(const string& s)
                 //
                 // Extra unescaped slash found.
                 //
-                IdentityParseException ex(__FILE__, __LINE__);
-                ex.str = "unescaped '/' in identity `" + s + "'";
-                throw ex;
+                throw IdentityParseException(__FILE__, __LINE__, "unescaped '/' in identity `" + s + "'");
             }
         }
         pos++;
@@ -613,11 +611,9 @@ Ice::stringToIdentity(const string& s)
         {
             ident.name = unescapeString(s, 0, s.size(), "/");
         }
-        catch(const IceUtil::IllegalArgumentException& e)
+        catch(const IceUtil::IllegalArgumentException& ex)
         {
-            IdentityParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid identity name `" + s + "': " + e.reason();
-            throw ex;
+            throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.reason());
         }
     }
     else
@@ -626,11 +622,10 @@ Ice::stringToIdentity(const string& s)
         {
             ident.category = unescapeString(s, 0, slash, "/");
         }
-        catch(const IceUtil::IllegalArgumentException& e)
+        catch(const IceUtil::IllegalArgumentException& ex)
         {
-            IdentityParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid category in identity `" + s + "': " + e.reason();
-            throw ex;
+            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " +
+                                         ex.reason());
         }
 
         if(slash + 1 < s.size())
@@ -639,11 +634,10 @@ Ice::stringToIdentity(const string& s)
             {
                 ident.name = unescapeString(s, slash + 1, s.size(), "/");
             }
-            catch(const IceUtil::IllegalArgumentException& e)
+            catch(const IceUtil::IllegalArgumentException& ex)
             {
-                IdentityParseException ex(__FILE__, __LINE__);
-                ex.str = "invalid name in identity `" + s + "': " + e.reason();
-                throw ex;
+                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " +
+                                             ex.reason());
             }
         }
     }

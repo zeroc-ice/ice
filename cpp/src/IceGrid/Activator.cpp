@@ -310,17 +310,14 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
 
     if(_hIntr == ICE_NULLPTR)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+
     }
 #else
     int fds[2];
     if(pipe(fds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -362,13 +359,13 @@ Activator::activate(const string& name,
 
     if(_deactivating)
     {
-        throw string("The node is being shutdown.");
+        throw runtime_error("The node is being shutdown.");
     }
 
     string path = exePath;
     if(path.empty())
     {
-        throw string("The server executable path is empty.");
+        throw invalid_argument("The server executable path is empty.");
     }
 
     string pwd = IcePatch2Internal::simplify(pwdPath);
@@ -395,7 +392,7 @@ Activator::activate(const string& name,
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
                     out << "couldn't find `" << path << "' executable.";
                 }
-                throw string("Couldn't find `" + path + "' executable.");
+                throw runtime_error("Couldn't find `" + path + "' executable.");
             }
             path = wstringToString(absbuf);
         }
@@ -422,7 +419,7 @@ Activator::activate(const string& name,
                 Trace out(_traceLevels->logger, _traceLevels->activatorCat);
                 out << "cannot convert `" << pwd << "' into an absolute path";
             }
-            throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
+            throw runtime_error("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -597,7 +594,7 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        throw IceUtilInternal::lastErrorToString();
+        throw runtime_error(IceUtilInternal::lastErrorToString());
     }
 
     //
@@ -640,15 +637,13 @@ Activator::activate(const string& name,
     }
     if(err != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, err);
     }
     else if(pw == 0)
     {
         ostringstream os;
         os << uid;
-        throw string("unknown user id `" + os.str() + "'");
+        throw runtime_error("unknown user id `" + os.str() + "'");
     }
 
     vector<gid_t> groups;
@@ -671,17 +666,13 @@ Activator::activate(const string& name,
     int fds[2];
     if(pipe(fds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     int errorFds[2];
     if(pipe(errorFds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     //
@@ -698,9 +689,7 @@ Activator::activate(const string& name,
     pid_t pid = fork();
     if(pid == -1)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     if(pid == 0) // Child process.
@@ -839,7 +828,7 @@ Activator::activate(const string& name,
             close(fds[0]);
             close(errorFds[0]);
             waitPid(pid);
-            throw message;
+            throw runtime_error(message);
         }
 
         //
@@ -990,9 +979,7 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
     }
     else if(signal == SIGKILL)
@@ -1000,9 +987,7 @@ Activator::sendSignal(const string& name, int signal)
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
         if(hnd == ICE_NULLPTR)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
 
         TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
@@ -1023,9 +1008,7 @@ Activator::sendSignal(const string& name, int signal)
     int ret = ::kill(static_cast<pid_t>(pid), signal);
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     if(_traceLevels->activator > 1)
@@ -1186,9 +1169,7 @@ Activator::terminationListener()
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if(ret == WAIT_FAILED)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
         clearInterrupt();
 
@@ -1291,9 +1272,7 @@ Activator::terminationListener()
             }
 #endif
 
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
 
         vector<Process> terminated;
@@ -1345,9 +1324,7 @@ Activator::terminationListener()
                 {
                     if(errno != EAGAIN || message.empty())
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     ++p;
@@ -1433,9 +1410,7 @@ Activator::setInterrupt()
     ssize_t sz = write(_fdIntrWrite, &c, 1);
     if(sz == -1)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
     }
 #endif
 }
@@ -1467,9 +1442,7 @@ Activator::waitPid(pid_t processPid)
                     ++nRetry;
                     continue;
                 }
-                SyscallException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
-                throw ex;
+                throw SyscallException(__FILE__, __LINE__, getSystemErrno());
             }
             assert(pid == processPid);
             break;
@@ -1478,9 +1451,7 @@ Activator::waitPid(pid_t processPid)
         pid_t pid = waitpid(processPid, &status, 0);
         if(pid < 0)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
         assert(pid == processPid);
 #endif

@@ -454,9 +454,9 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     //
     if(::fcntl(_fd, F_SETLK, &lock) == -1)
     {
-        IceUtil::FileLockException ex(__FILE__, __LINE__, errno, _path);
+        int err = errno;
         close(_fd);
-        throw ex;
+        throw IceUtil::FileLockException(__FILE__, __LINE__, err, _path);
     }
 
     //
@@ -473,9 +473,9 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
 
     if(write(_fd, os.str().c_str(), os.str().size()) == -1)
     {
-        IceUtil::FileLockException ex(__FILE__, __LINE__, errno, _path);
+        int err = errno;
         close(_fd);
-        throw ex;
+        throw IceUtil::FileLockException(__FILE__, __LINE__, err, _path);
     }
 }
 

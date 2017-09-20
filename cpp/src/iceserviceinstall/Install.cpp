@@ -145,14 +145,9 @@ Install::run(int argc, char* argv[])
             installer.install(properties);
         }
     }
-    catch(const string& msg)
+    catch(const exception& ex)
     {
-        consoleErr << "Error: " << msg << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const Ice::Exception& ex)
-    {
-        consoleErr << "Error: " << ex << endl;
+        consoleErr << "Error: " << ex.what() << endl;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

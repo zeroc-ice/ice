@@ -980,10 +980,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
                     if(file == 0)
                     {
-                        FileException ex(__FILE__, __LINE__);
-                        ex.path = stdOutFilename;
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdOutFilename);
                     }
                 }
 
@@ -992,10 +989,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
                     if(file == 0)
                     {
-                        FileException ex(__FILE__, __LINE__);
-                        ex.path = stdErrFilename;
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdErrFilename);
                     }
                 }
 
@@ -1030,36 +1024,26 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     }
                     if(err != 0)
                     {
-                        Ice::SyscallException ex(__FILE__, __LINE__);
-                        ex.error = err;
-                        throw ex;
+                        throw Ice::SyscallException(__FILE__, __LINE__, err);
                     }
                     else if(pw == 0)
                     {
-                        InitializationException ex(__FILE__, __LINE__);
-                        ex.reason ="unknown user account `" + newUser + "'";
-                        throw ex;
+                        throw InitializationException(__FILE__, __LINE__, "unknown user account `" + newUser + "'");
                     }
 
                     if(setgid(pw->pw_gid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     if(initgroups(pw->pw_name, pw->pw_gid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     if(setuid(pw->pw_uid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
                 }
 #endif
@@ -1073,9 +1057,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 WSADATA data;
                 if(WSAStartup(version, &data) != 0)
                 {
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
+                    throw SocketException(__FILE__, __LINE__, getSocketErrno());
                 }
 #endif
 

@@ -25,9 +25,7 @@ IceBT::ConnectorI::connect()
     //
     if(!_instance->initialized())
     {
-        PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceBT: plug-in is not initialized";
-        throw ex;
+        throw PluginInitializationException(__FILE__, __LINE__, "IceBT: plug-in is not initialized");
     }
 
     //

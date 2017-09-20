@@ -426,9 +426,8 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "`-h *' not valid for proxy endpoint `" + toString() + "'";
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__, "`-h *' not valid for proxy endpoint `" + toString() +
+                                              "'");
         }
     }
 
@@ -436,9 +435,9 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     {
         if(oaEndpoint)
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "`--sourceAddress' not valid for object adapter endpoint `" + toString() + "'";
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__,
+                                              "`--sourceAddress' not valid for object adapter endpoint `" + toString() +
+                                              "'");
         }
     }
     else if(!oaEndpoint)
@@ -454,9 +453,8 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
     {
         if(argument.empty())
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -h option in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__, "no argument provided for -h option in endpoint " +
+                                              endpoint);
         }
         const_cast<string&>(_host) = argument;
     }
@@ -464,39 +462,36 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
     {
         if(argument.empty())
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -p option in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__, "no argument provided for -p option in endpoint " +
+                                              endpoint);
         }
         istringstream p(argument);
         if(!(p >> const_cast<Ice::Int&>(_port)) || !p.eof())
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid port value `" + argument + "' in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__, "invalid port value `" + argument + "' in endpoint " +
+                                              endpoint);
         }
         else if(_port < 0 || _port > 65535)
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "port value `" + argument + "' out of range in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__, "port value `" + argument +
+                                              "' out of range in endpoint " + endpoint);
         }
     }
     else if(option == "--sourceAddress")
     {
         if(argument.empty())
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for --sourceAddress option in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__,
+                                              "no argument provided for --sourceAddress option in endpoint " +
+                                              endpoint);
         }
 #ifndef ICE_OS_UWP
         const_cast<Address&>(_sourceAddr) = getNumericAddress(argument);
         if(!isAddressValid(_sourceAddr))
         {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid IP address provided for --sourceAddress option in endpoint " + endpoint;
-            throw ex;
+            throw Ice::EndpointParseException(__FILE__, __LINE__,
+                                              "invalid IP address provided for --sourceAddress option in endpoint " +
+                                              endpoint);
         }
 #endif
     }

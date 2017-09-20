@@ -127,9 +127,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
         if(!bio)
         {
-            SecurityException ex(__FILE__, __LINE__);
-            ex.reason = "openssl failure";
-            throw ex;
+            throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
 
         _ssl = SSL_new(_engine->context());
@@ -140,9 +138,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             BIO_free(_iocpBio);
             _iocpBio = 0;
 #endif
-            SecurityException ex(__FILE__, __LINE__);
-            ex.reason = "openssl failure";
-            throw ex;
+            throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
         SSL_set_bio(_ssl, bio, bio);
 
@@ -239,9 +235,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             }
             case SSL_ERROR_ZERO_RETURN:
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             case SSL_ERROR_WANT_READ:
             {
@@ -287,23 +281,17 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
                 if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = IceInternal::getSocketErrno();
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 }
 #endif
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             case SSL_ERROR_SSL:
             {
                 ostringstream ostr;
                 ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
                      << " connection:\nremote address = " << _delegate->toString() << "\n" << _engine->sslErrors();
-                ProtocolException ex(__FILE__, __LINE__);
-                ex.reason = ostr.str();
-                throw ex;
+                throw ProtocolException(__FILE__, __LINE__, ostr.str());
             }
             }
         }
@@ -325,14 +313,12 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         {
             ostringstream ostr;
             ostr << "IceSSL: certificate verification failed:\n" << X509_verify_cert_error_string(result);
-            string msg = ostr.str();
+            const string msg = ostr.str();
             if(_engine->securityTraceLevel() >= 1)
             {
                 _instance->logger()->trace(_instance->traceCategory(), msg);
             }
-            SecurityException ex(__FILE__, __LINE__);
-            ex.reason = msg;
-            throw ex;
+            throw SecurityException(__FILE__, __LINE__,  msg);
         }
     }
     else
@@ -473,9 +459,7 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
                 break;
             case SSL_ERROR_ZERO_RETURN:
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             case SSL_ERROR_WANT_READ:
             {
@@ -515,22 +499,17 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
 #endif
                 if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = IceInternal::getSocketErrno();
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 }
                 else
                 {
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = IceInternal::getSocketErrno();
-                    throw ex;
+                    throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 }
             }
             case SSL_ERROR_SSL:
             {
-                ProtocolException ex(__FILE__, __LINE__);
-                ex.reason = "SSL protocol error during write:\n" + _engine->sslErrors();
-                throw ex;
+                throw ProtocolException(__FILE__, __LINE__,
+                                        "SSL protocol error during write:\n" + _engine->sslErrors());
             }
             }
         }
@@ -595,9 +574,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_ZERO_RETURN:
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = 0;
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
             case SSL_ERROR_WANT_READ:
             {
@@ -636,22 +613,17 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
 #endif
                 if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = IceInternal::getSocketErrno();
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 }
                 else
                 {
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = IceInternal::getSocketErrno();
-                    throw ex;
+                    throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 }
             }
             case SSL_ERROR_SSL:
             {
-                ProtocolException ex(__FILE__, __LINE__);
-                ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
-                throw ex;
+                throw ProtocolException(__FILE__, __LINE__,
+                                        "SSL protocol error during read:\n" + _engine->sslErrors());
             }
             }
         }
@@ -758,9 +730,7 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
         int n = BIO_write(_iocpBio, _readBuffer.b.begin(), static_cast<int>(_readBuffer.b.size()));
         if(n < 0) // Expected if the transceiver was closed.
         {
-            SecurityException ex(__FILE__, __LINE__);
-            ex.reason = "SSL bio write failed";
-            throw ex;
+            throw SecurityException(__FILE__, __LINE__, "SSL bio write failed");
         }
 
         assert(n == static_cast<int>(_readBuffer.b.size()));
@@ -778,9 +748,7 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
                 }
                 case SSL_ERROR_ZERO_RETURN:
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
                 case SSL_ERROR_WANT_READ:
                 {
@@ -790,22 +758,17 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
                 {
                     if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                     {
-                        ConnectionLostException ex(__FILE__, __LINE__);
-                        ex.error = IceInternal::getSocketErrno();
-                        throw ex;
+                        throw ConnectionLostException(__FILE__, __LINE__,  IceInternal::getSocketErrno());
                     }
                     else
                     {
-                        SocketException ex(__FILE__, __LINE__);
-                        ex.error = IceInternal::getSocketErrno();
-                        throw ex;
+                        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
                     }
                 }
                 case SSL_ERROR_SSL:
                 {
-                    ProtocolException ex(__FILE__, __LINE__);
-                    ex.reason = "SSL protocol error during read:\n" + _engine->sslErrors();
-                    throw ex;
+                    throw ProtocolException(__FILE__, __LINE__,
+                                            "SSL protocol error during read:\n" + _engine->sslErrors());
                 }
             }
         }

@@ -49,7 +49,7 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
         int value;
         if(!(istr >> value))
         {
-            throw string("expected number");
+            throw invalid_argument("expected number");
         }
         ws(istr);
         if(!istr.eof())
@@ -68,11 +68,11 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                     ws(istr);
                     if(istr.eof())
                     {
-                        throw string("Unterminated range");
+                        throw invalid_argument("Unterminated range");
                     }
                     if(!(istr >> value))
                     {
-                        throw string("expected number");
+                        throw invalid_argument("expected number");
                     }
                     r.end = value;
                     ws(istr);
@@ -81,14 +81,14 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                         istr >> c;
                         if(c != ',')
                         {
-                            throw string("expected comma separator");
+                            throw invalid_argument("expected comma separator");
                         }
                     }
                     ranges.push_back(r);
                 }
                 else if(!istr.eof())
                 {
-                    throw string("unexpected trailing character");
+                    throw invalid_argument("unexpected trailing character");
                 }
             }
         }
@@ -679,7 +679,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     string::size_type closeBracket = port.find(']', openBracket);
                     if(closeBracket == string::npos)
                     {
-                        throw string("unclosed group");
+                        throw invalid_argument("unclosed group");
                     }
                     port = port.substr(openBracket, closeBracket-openBracket);
                 }
@@ -701,7 +701,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
             if(current == addr.size())
             {
-                throw string("expected address information before ':'");
+                throw invalid_argument("expected address information before ':'");
             }
 
             //
@@ -735,7 +735,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(inGroup)
                         {
-                            throw string("wildcards not permitted in groups");
+                            throw invalid_argument("wildcards not permitted in groups");
                         }
                         //
                         // current == mark when the wildcard is at the head of a
@@ -763,12 +763,12 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(!inGroup)
                         {
-                            throw string("group close without group start");
+                            throw invalid_argument("group close without group start");
                         }
                         inGroup = false;
                         if(mark == current)
                         {
-                            throw string("empty group");
+                            throw invalid_argument("empty group");
                         }
                         string group = addr.substr(mark, current - mark);
                         vector<int> numbers;
@@ -783,7 +783,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
                 if(inGroup)
                 {
-                    throw string("unclosed group");
+                    throw invalid_argument("unclosed group");
                 }
                 if(mark != current)
                 {
@@ -834,11 +834,11 @@ public:
         istringstream s(count);
         if(!(s >> _count) || !s.eof())
         {
-            throw string("Error parsing ProxySizeMax property");
+            throw invalid_argument("Error parsing ProxySizeMax property");
         }
         if(_count <= 0)
         {
-            throw string("ProxySizeMax must be greater than 1");
+            throw invalid_argument("ProxySizeMax must be greater than 1");
         }
     }
 
@@ -879,11 +879,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
         {
             Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.Address.Accept' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.Address.Accept' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 
@@ -894,11 +894,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
         {
             Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.Address.Reject' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.Address.Reject' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 
@@ -910,11 +910,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
             _rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
 
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.ProxySizeMax' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 }

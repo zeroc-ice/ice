@@ -54,11 +54,10 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
             }
         }
     }
-    catch(const ParseException& e)
+    catch(const ParseException& ex)
     {
-        Ice::PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: invalid property " + key  + ":\n" + e.reason;
-        throw ex;
+        throw Ice::PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid property " + key  + ":\n" +
+                                                 ex.reason);
     }
 }
 

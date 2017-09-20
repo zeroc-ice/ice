@@ -72,9 +72,7 @@ IceSSL::AcceptorI::accept()
     //
     if(!_instance->initialized())
     {
-        PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: plug-in is not initialized";
-        throw ex;
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: plug-in is not initialized");
     }
 
     return _instance->engine()->createTransceiver(_instance, _delegate->accept(), _adapterName, true);

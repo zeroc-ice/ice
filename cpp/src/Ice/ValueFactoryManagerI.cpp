@@ -23,10 +23,7 @@ IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factor
     if((_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
        || _factoryMap.find(id) != _factoryMap.end())
     {
-        AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "value factory";
-        ex.id = id;
-        throw ex;
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
     }
 
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_DELEGATE(ValueFactory)>(id, factory));

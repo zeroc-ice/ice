@@ -228,9 +228,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     size_t sz = sizeof(_nProcessorThreads);
     if(sysctl(ncpu, 2, &_nProcessorThreads, &sz, 0, 0) == -1)
     {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw Ice::SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
     }
 #else
     _nProcessorThreads = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
@@ -392,7 +390,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     string cwd;
     if(IceUtilInternal::getcwd(cwd) != 0)
     {
-        throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+        throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
     }
     _cwd = string(cwd);
 

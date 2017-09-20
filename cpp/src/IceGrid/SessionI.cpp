@@ -89,9 +89,7 @@ BaseSessionI::keepAlive(const Ice::Current& current)
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
@@ -340,9 +338,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
             Ice::Warning out(_database->getTraceLevels()->logger);
             out << "Failed to callback Glacier2 session control object:\n" << e;
 
-            Glacier2::CannotCreateSessionException ex;
-            ex.reason = "internal server error";
-            throw ex;
+            throw Glacier2::CannotCreateSessionException("internal server error");
         }
     }
 
@@ -395,9 +391,7 @@ ClientSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
             Ice::Error out(_factory->getTraceLevels()->logger);
             out << "SSL session manager couldn't decode SSL certificates:\n" << e;
 
-            Glacier2::CannotCreateSessionException ex;
-            ex.reason = "internal server error";
-            throw ex;
+            throw Glacier2::CannotCreateSessionException("internal server error");
         }
     }
 

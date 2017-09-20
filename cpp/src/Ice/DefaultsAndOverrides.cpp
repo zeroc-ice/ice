@@ -43,9 +43,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         const_cast<Address&>(defaultSourceAddress) = getNumericAddress(value);
         if(!isAddressValid(defaultSourceAddress))
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'";
-            throw ex;
+            throw InitializationException(__FILE__, __LINE__, "invalid IP address set for Ice.Default.SourceAddress: `" +
+                                          value + "'");
         }
     }
 #endif
@@ -120,9 +119,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
-        ex.str = "illegal value `" + value + "'; expected `Random' or `Ordered'";
-        throw ex;
+        throw EndpointSelectionTypeParseException(__FILE__, __LINE__, "illegal value `" + value +
+                                                  "'; expected `Random' or `Ordered'");
     }
 
     const_cast<int&>(defaultTimeout) =

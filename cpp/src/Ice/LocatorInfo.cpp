@@ -673,10 +673,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
             out << "adapter = " << ref->getAdapterId();
         }
 
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object adapter";
-        ex.id = ref->getAdapterId();
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "object adapter", ref->getAdapterId());
     }
     catch(const ObjectNotFoundException&)
     {
@@ -689,10 +686,8 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
                                                         ref->getInstance()->toStringMode());
         }
 
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object";
-        ex.id = Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode());
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "object",
+                                     Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode()));
     }
     catch(const NotRegisteredException&)
     {

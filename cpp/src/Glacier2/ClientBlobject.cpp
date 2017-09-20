@@ -80,18 +80,13 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
     ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
     {
-        ObjectNotExistException ex(__FILE__, __LINE__);
-
         //
         // We use a special operation name indicate to the client that
         // the proxy for the Ice object has not been found in our
         // routing table. This can happen if the proxy was evicted
         // from the routing table.
         //
-        ex.id = current.id;
-        ex.facet = current.facet;
-        ex.operation = "ice_add_proxy";
-        throw ex;
+        throw ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, "ice_add_proxy");
     }
 
     string adapterId = proxy->ice_getAdapterId();
@@ -123,9 +118,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
             out << "identity: " << _instance->communicator()->identityToString(current.id);
         }
 
-        ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
     invoke(proxy, amdCB, inParams, current);
 }

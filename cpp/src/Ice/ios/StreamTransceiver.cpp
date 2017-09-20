@@ -374,9 +374,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if(ret == 0)
         {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
 
         if(ret == SOCKET_ERROR)
@@ -521,27 +519,19 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
         else if(connectionLost())
         {
-            ConnectionLostException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionLostException(file, line, getSocketErrno());
         }
         else if(connectionRefused())
         {
-            ConnectionRefusedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException(file, line, getSocketErrno());
         }
         else if(connectFailed())
         {
-            ConnectFailedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException(file, line, getSocketErrno());
         }
         else
         {
-            SocketException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(file, line, getSocketErrno());
         }
     }
 
@@ -558,14 +548,7 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
                 CFNumberGetValue(d, kCFNumberSInt32Type, &rs);
             }
         }
-        DNSException ex(file, line);
-        ex.error = rs;
-        ex.host = _host;
-        throw ex;
+        throw DNSException(file, line, rs, _host);
     }
-
-    CFNetworkException ex(file, line);
-    ex.domain = fromCFString(domain);
-    ex.error = CFErrorGetCode(err.get());
-    throw ex;
+    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), domain);
 }

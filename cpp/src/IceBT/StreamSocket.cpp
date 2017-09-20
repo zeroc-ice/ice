@@ -128,9 +128,7 @@ IceBT::StreamSocket::read(char* buf, size_t length)
         ssize_t ret = ::recv(_fd, buf, packetSize, 0);
         if(ret == 0)
         {
-            Ice::ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
         else if(ret == SOCKET_ERROR)
         {
@@ -152,15 +150,11 @@ IceBT::StreamSocket::read(char* buf, size_t length)
 
             if(IceInternal::connectionLost())
             {
-                Ice::ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                Ice::SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 
@@ -189,9 +183,7 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
         ssize_t ret = ::send(_fd, buf, packetSize, 0);
         if(ret == 0)
         {
-            Ice::ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw Ice::ConnectionLostException(__FILE__, __LINE__, 0);
         }
         else if(ret == SOCKET_ERROR)
         {
@@ -213,15 +205,11 @@ IceBT::StreamSocket::write(const char* buf, size_t length)
 
             if(IceInternal::connectionLost())
             {
-                Ice::ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             else
             {
-                Ice::SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
         }
 

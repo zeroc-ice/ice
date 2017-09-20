@@ -52,9 +52,7 @@ Selector::setup(int sizeIO)
     _handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, ICE_NULLPTR, 0, sizeIO);
     if(_handle == ICE_NULLPTR)
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = GetLastError();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
 }
 #endif
@@ -78,9 +76,7 @@ Selector::initialize(EventHandler* handler)
     HANDLE socket = reinterpret_cast<HANDLE>(handler->getNativeInfo()->fd());
     if(CreateIoCompletionPort(socket, _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == ICE_NULLPTR)
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = GetLastError();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
     handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
 #else
@@ -227,9 +223,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
     }
     if(!PostQueuedCompletionStatus(_handle, 0, reinterpret_cast<ULONG_PTR>(handler), info))
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = GetLastError();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
 #else
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
@@ -253,9 +247,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     _queueFd = epoll_create(1);
     if(_queueFd < 0)
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSocketErrno();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
     }
 
     epoll_event event;
@@ -272,9 +264,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     _queueFd = kqueue();
     if(_queueFd < 0)
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     struct kevent ev;
@@ -527,9 +517,7 @@ Selector::wakeup()
                     continue;
                 }
 
-                Ice::SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             break;
         }
@@ -552,9 +540,7 @@ Selector::startSelect()
                 {
                     continue;
                 }
-                Ice::SocketException ex(__FILE__, __LINE__);
-                ex.error = IceInternal::getSocketErrno();
-                throw ex;
+                throw Ice::SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             break;
         }

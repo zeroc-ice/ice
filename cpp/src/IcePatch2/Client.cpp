@@ -333,9 +333,9 @@ Client::run(int argc, char* argv[])
             patcher->finish();
         }
     }
-    catch(const string& ex)
+    catch(const exception& ex)
     {
-        consoleErr << argv[0] << ": " << ex << endl;
+        consoleErr << argv[0] << ": " << ex.what() << endl;
         return EXIT_FAILURE;
     }
 

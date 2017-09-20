@@ -1651,9 +1651,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     _readStream.readBlob(m, static_cast<Int>(sizeof(magic)));
                     if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
-                        BadMagicException ex(__FILE__, __LINE__);
-                        ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
-                        throw ex;
+                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
                     }
                     ProtocolVersion pv;
                     _readStream.read(pv);
@@ -2722,9 +2720,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
             _readStream.read(m[3]);
             if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
             {
-                BadMagicException ex(__FILE__, __LINE__);
-                ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
-                throw ex;
+                throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
             }
             ProtocolVersion pv;
             _readStream.read(pv);
@@ -3138,9 +3134,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
                                            _compressionLevel, 0, 0);
     if(bzError != BZ_OK)
     {
-        CompressionException ex(__FILE__, __LINE__);
-        ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
-        throw ex;
+        throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
     }
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
 
@@ -3201,9 +3195,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
                                              0, 0);
     if(bzError != BZ_OK)
     {
-        CompressionException ex(__FILE__, __LINE__);
-        ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
-        throw ex;
+        throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
@@ -3253,9 +3245,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
 #else
-            FeatureNotSupportedException ex(__FILE__, __LINE__);
-            ex.unsupportedFeature = "Cannot uncompress compressed message";
-            throw ex;
+            throw FeatureNotSupportedException(__FILE__, __LINE__, "Cannot uncompress compressed message");
 #endif
         }
         stream.i = stream.b.begin() + headerSize;

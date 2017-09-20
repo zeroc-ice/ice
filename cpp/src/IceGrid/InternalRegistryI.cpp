@@ -90,9 +90,9 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
                 throw PermissionDeniedException("node certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException& ex)
+        catch(const PermissionDeniedException&)
         {
-            throw ex;
+            throw;
         }
         catch(const IceUtil::Exception&)
         {
@@ -157,9 +157,9 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
                 throw PermissionDeniedException("replica certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException& ex)
+        catch(const PermissionDeniedException&)
         {
-            throw ex;
+            throw;
         }
         catch(const IceUtil::Exception&)
         {

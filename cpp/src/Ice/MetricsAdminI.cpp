@@ -84,7 +84,7 @@ parseRule(const PropertiesPtr& properties, const string& name)
         }
         catch(const std::exception&)
         {
-            throw "invalid regular expression `" + p->second + "' for `" + p->first + "'";
+            throw invalid_argument("invalid regular expression `" + p->second + "' for `" + p->first + "'");
         }
     }
     return regexps;
@@ -314,11 +314,6 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
     {
         ::Ice::Warning warn(logger);
         warn << "unexpected exception while creating metrics map:\n" << ex;
-    }
-    catch(const string& msg)
-    {
-        ::Ice::Warning warn(logger);
-        warn << msg;
     }
     return true;
 }

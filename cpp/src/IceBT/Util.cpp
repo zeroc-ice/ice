@@ -104,9 +104,7 @@ fdToLocalAddress(SOCKET fd, SocketAddress& addr)
     if(::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
     {
         IceInternal::closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
     }
 }
 
@@ -123,9 +121,7 @@ fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
         else
         {
             IceInternal::closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
         }
     }
 

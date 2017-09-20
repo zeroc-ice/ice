@@ -652,9 +652,7 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     if(p != _subscribers.end())
     {
         string name = IceStormInternal::identityToTopicName(id);
-        LinkExists ex;
-        ex.name = name;
-        throw ex;
+        throw LinkExists(name);
     }
 
     LogUpdate llu;
@@ -708,9 +706,7 @@ TopicImpl::unlink(const TopicPrx& topic)
             out << _name << ": unlink " << name << " failed - not linked";
         }
 
-        NoSuchLink ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchLink(name);
     }
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();

@@ -1315,9 +1315,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 }
                 else
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
             }
             case OP_PING:
@@ -1620,9 +1618,7 @@ IceInternal::WSTransceiver::postWrite(Buffer& buf)
                 }
                 else
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
             }
             else if(_state == StateClosed)

@@ -172,10 +172,7 @@ ServiceI::start(
             LoggerOutputBase s;
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
-
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
         topicAdapter->activate();
         publishAdapter->activate();
@@ -201,9 +198,7 @@ ServiceI::start(
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
     else
@@ -396,9 +391,7 @@ ServiceI::start(
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
 
@@ -440,9 +433,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
         s << "exception while starting IceStorm service " << name << ":\n";
         s << ex;
 
-        IceBox::FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
+        throw IceBox::FailureException(__FILE__, __LINE__, s.str());
     }
 }
 

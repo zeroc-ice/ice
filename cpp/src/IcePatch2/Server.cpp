@@ -107,7 +107,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
             string cwd;
             if(IceUtilInternal::getcwd(cwd) != 0)
             {
-                throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+                throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
             }
 
             dataDir = cwd + '/' + dataDir;
@@ -115,14 +115,9 @@ IcePatch2::PatcherService::start(int argc, char* argv[], int& status)
 
         loadFileInfoSeq(dataDir, infoSeq);
     }
-    catch(const string& ex)
+    catch(const exception& ex)
     {
-        error(ex);
-        return false;
-    }
-    catch(const char* ex)
-    {
-        error(ex);
+        error(ex.what());
         return false;
     }
 

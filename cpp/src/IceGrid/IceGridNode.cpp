@@ -98,23 +98,17 @@ private:
 
 #ifdef _WIN32
 void
-setNoIndexingAttribute(const string& pa)
+setNoIndexingAttribute(const string& path)
 {
-    wstring path = Ice::stringToWstring(pa);
-    DWORD attrs = GetFileAttributesW(path.c_str());
+    wstring wpath = Ice::stringToWstring(path);
+    DWORD attrs = GetFileAttributesW(wpath.c_str());
     if(attrs == INVALID_FILE_ATTRIBUTES)
     {
-        FileException ex(__FILE__, __LINE__);
-        ex.path = pa;
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
     }
-    if(!SetFileAttributesW(path.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
+    if(!SetFileAttributesW(wpath.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
     {
-        FileException ex(__FILE__, __LINE__);
-        ex.path = pa;
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
     }
 }
 #endif
@@ -339,10 +333,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         if(!IceUtilInternal::directoryExists(dataPath))
         {
-            FileException ex(__FILE__, __LINE__);
-            ex.path = dataPath;
-            ex.error = IceInternal::getSystemErrno();
-
+            FileException ex(__FILE__, __LINE__, IceInternal::getSystemErrno(), dataPath);
             ServiceError err(this);
             err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;
@@ -427,9 +418,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
                 mapper = UserAccountMapperPrx::uncheckedCast(object);
             }
-            catch(const std::string& msg)
+            catch(const exception& ex)
             {
-                error(msg);
+                error(ex.what());
                 return false;
             }
         }
@@ -559,7 +550,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             RegistryPrx registry = RegistryPrx::checkedCast(communicator()->getDefaultLocator()->findObjectById(regId));
             if(!registry)
             {
-                throw "invalid registry";
+                throw runtime_error("invalid registry");
             }
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
@@ -618,12 +609,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch(const std::exception& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << ex;
-        }
-        catch(const string& reason)
-        {
-            ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << reason;
+            warn << "failed to deploy application `" << desc << "':\n" << ex.what();
         }
     }
 

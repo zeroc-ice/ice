@@ -1177,9 +1177,7 @@ SessionRouterI::startCreateSession(const CreateSessionPtr& cb, const ConnectionP
 
     if(_destroy)
     {
-        CannotCreateSessionException exc;
-        exc.reason = "router is shutting down";
-        throw exc;
+        throw CannotCreateSessionException("router is shutting down");
     }
 
     //
@@ -1199,9 +1197,7 @@ SessionRouterI::startCreateSession(const CreateSessionPtr& cb, const ConnectionP
 
         if(p != _routersByConnection.end())
         {
-            CannotCreateSessionException exc;
-            exc.reason = "session exists";
-            throw exc;
+            throw CannotCreateSessionException("session exists");
         }
     }
 
@@ -1248,9 +1244,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const Route
     {
         router->destroy(_sessionDestroyCallback);
 
-        CannotCreateSessionException exc;
-        exc.reason = "router is shutting down";
-        throw exc;
+        throw CannotCreateSessionException("router is shutting down");
     }
 
     _routersByConnectionHint = _routersByConnection.insert(

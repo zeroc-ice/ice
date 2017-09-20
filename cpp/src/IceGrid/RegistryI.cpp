@@ -346,9 +346,7 @@ RegistryI::startImpl()
     {
         if(!IceUtilInternal::directoryExists(dbPath))
         {
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSystemErrno();
-
+            Ice::SyscallException ex(__FILE__, __LINE__, IceInternal::getSystemErrno());
             Ice::Error out(_communicator->getLogger());
             out << "property `IceGrid.Registry.LMDB.Path' is set to an invalid path:\n" << ex;
             return false;
@@ -937,27 +935,21 @@ RegistryI::createSession(const string& user, const string& password, const Curre
 {
     if(!_master)
     {
-        PermissionDeniedException ex;
-        ex.reason = "client session creation is only allowed with the master registry.";
-        throw ex;
+        throw PermissionDeniedException("client session creation is only allowed with the master registry.");
     }
 
     assert(_reaper && _clientSessionFactory);
 
     if(!_clientVerifier)
     {
-        PermissionDeniedException ex;
-        ex.reason = "no permissions verifier configured, use the property\n";
-        ex.reason += "`IceGrid.Registry.PermissionsVerifier' to configure\n";
-        ex.reason += "a permissions verifier.";
-        throw ex;
+        throw PermissionDeniedException("no permissions verifier configured, use the property\n"
+                                        "`IceGrid.Registry.PermissionsVerifier' to configure\n"
+                                        "a permissions verifier.");
     }
 
     if(user.empty())
     {
-        PermissionDeniedException ex;
-        ex.reason = "empty user id";
-        throw ex;
+        throw PermissionDeniedException("empty user id");
     }
 
     try
@@ -965,16 +957,12 @@ RegistryI::createSession(const string& user, const string& password, const Curre
         string reason;
         if(!_clientVerifier->checkPermissions(user, password, reason, current.ctx))
         {
-            PermissionDeniedException exc;
-            exc.reason = reason;
-            throw exc;
+            throw PermissionDeniedException(reason);
         }
     }
     catch(const Glacier2::PermissionDeniedException& ex)
     {
-        PermissionDeniedException exc;
-        exc.reason = ex.reason;
-        throw exc;
+        throw PermissionDeniedException(ex.reason);
     }
     catch(const LocalException& ex)
     {
@@ -984,9 +972,7 @@ RegistryI::createSession(const string& user, const string& password, const Curre
             out << "exception while verifying password with client permission verifier:\n" << ex;
         }
 
-        PermissionDeniedException exc;
-        exc.reason = "internal server error";
-        throw exc;
+        throw PermissionDeniedException("internal server error");
     }
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(user, 0);
@@ -1003,18 +989,14 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
 
     if(!_adminVerifier)
     {
-        PermissionDeniedException ex;
-        ex.reason = "no admin permissions verifier configured, use the property\n";
-        ex.reason += "`IceGrid.Registry.AdminPermissionsVerifier' to configure\n";
-        ex.reason += "a permissions verifier.";
-        throw ex;
+        throw PermissionDeniedException("no admin permissions verifier configured, use the property\n"
+                                        "`IceGrid.Registry.AdminPermissionsVerifier' to configure\n"
+                                        "a permissions verifier.");
     }
 
     if(user.empty())
     {
-        PermissionDeniedException ex;
-        ex.reason = "empty user id";
-        throw ex;
+        throw PermissionDeniedException("empty user id");
     }
 
     try
@@ -1022,16 +1004,12 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
         string reason;
         if(!_adminVerifier->checkPermissions(user, password, reason, current.ctx))
         {
-            PermissionDeniedException exc;
-            exc.reason = reason;
-            throw exc;
+            throw PermissionDeniedException(reason);
         }
     }
     catch(const Glacier2::PermissionDeniedException& ex)
     {
-        PermissionDeniedException exc;
-        exc.reason = ex.reason;
-        throw exc;
+        throw PermissionDeniedException(ex.reason);
     }
     catch(const LocalException& ex)
     {
@@ -1041,9 +1019,7 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
             out << "exception while verifying password with admin permission verifier:\n" << ex;
         }
 
-        PermissionDeniedException exc;
-        exc.reason = "internal server error";
-        throw exc;
+        throw PermissionDeniedException("internal server error");
     }
 
     AdminSessionIPtr session = _adminSessionFactory->createSessionServant(user);
@@ -1058,29 +1034,23 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
 {
     if(!_master)
     {
-        PermissionDeniedException ex;
-        ex.reason = "client session creation is only allowed with the master registry.";
-        throw ex;
+        throw PermissionDeniedException("client session creation is only allowed with the master registry.");
     }
 
     assert(_reaper && _clientSessionFactory);
 
     if(!_sslClientVerifier)
     {
-        PermissionDeniedException ex;
-        ex.reason = "no ssl permissions verifier configured, use the property\n";
-        ex.reason += "`IceGrid.Registry.SSLPermissionsVerifier' to configure\n";
-        ex.reason += "a permissions verifier.";
-        throw ex;
+        throw PermissionDeniedException("no ssl permissions verifier configured, use the property\n"
+                                        "`IceGrid.Registry.SSLPermissionsVerifier' to configure\n"
+                                        "a permissions verifier.");
     }
 
     string userDN;
     Glacier2::SSLInfo info = getSSLInfo(current.con, userDN);
     if(userDN.empty())
     {
-        PermissionDeniedException ex;
-        ex.reason = "empty user DN";
-        throw ex;
+        throw PermissionDeniedException("empty user DN");
     }
 
     try
@@ -1088,16 +1058,12 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
         string reason;
         if(!_sslClientVerifier->authorize(info, reason, current.ctx))
         {
-            PermissionDeniedException exc;
-            exc.reason = reason;
-            throw exc;
+            throw PermissionDeniedException(reason);
         }
     }
     catch(const Glacier2::PermissionDeniedException& ex)
     {
-        PermissionDeniedException exc;
-        exc.reason = ex.reason;
-        throw exc;
+        throw PermissionDeniedException(ex.reason);
     }
     catch(const LocalException& ex)
     {
@@ -1107,9 +1073,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
             out << "exception while verifying password with SSL client permission verifier:\n" << ex;
         }
 
-        PermissionDeniedException exc;
-        exc.reason = "internal server error";
-        throw exc;
+        throw PermissionDeniedException("internal server error");
     }
 
     SessionIPtr session = _clientSessionFactory->createSessionServant(userDN, 0);
@@ -1126,11 +1090,9 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 
     if(!_sslAdminVerifier)
     {
-        PermissionDeniedException ex;
-        ex.reason = "no ssl admin permissions verifier configured, use the property\n";
-        ex.reason += "`IceGrid.Registry.AdminSSLPermissionsVerifier' to configure\n";
-        ex.reason += "a permissions verifier.";
-        throw ex;
+        throw PermissionDeniedException("no ssl admin permissions verifier configured, use the property\n"
+                                        "`IceGrid.Registry.AdminSSLPermissionsVerifier' to configure\n"
+                                        "a permissions verifier.");
     }
 
     string userDN;
@@ -1140,16 +1102,12 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
         string reason;
         if(!_sslAdminVerifier->authorize(info, reason, current.ctx))
         {
-            PermissionDeniedException exc;
-            exc.reason = reason;
-            throw exc;
+            throw PermissionDeniedException(reason);
         }
     }
     catch(const Glacier2::PermissionDeniedException& ex)
     {
-        PermissionDeniedException exc;
-        exc.reason = ex.reason;
-        throw exc;
+        throw PermissionDeniedException(ex.reason);
     }
     catch(const LocalException& ex)
     {
@@ -1159,9 +1117,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
             out << "exception while verifying password with SSL admin permission verifier:\n" << ex;
         }
 
-        PermissionDeniedException exc;
-        exc.reason = "internal server error";
-        throw exc;
+        throw PermissionDeniedException("internal server error");
     }
 
     //
@@ -1346,9 +1302,7 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
         IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(connection->getInfo());
         if(!info)
         {
-            PermissionDeniedException exc;
-            exc.reason = "not ssl connection";
-            throw exc;
+            throw PermissionDeniedException("not ssl connection");
         }
 
         Ice::IPConnectionInfoPtr ipInfo = getIPConnectionInfo(info);
@@ -1368,15 +1322,11 @@ RegistryI::getSSLInfo(const ConnectionPtr& connection, string& userDN)
     }
     catch(const IceSSL::CertificateEncodingException&)
     {
-        PermissionDeniedException exc;
-        exc.reason = "certificate encoding exception";
-        throw exc;
+        throw PermissionDeniedException("certificate encoding exception");
     }
     catch(const Ice::LocalException&)
     {
-        PermissionDeniedException exc;
-        exc.reason = "connection exception";
-        throw exc;
+        throw PermissionDeniedException("connection exception");
     }
 
     return sslinfo;

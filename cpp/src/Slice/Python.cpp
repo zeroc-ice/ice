@@ -356,9 +356,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 
                 if(s.size() < 8)
                 {
-                    ostringstream os;
-                    os << "invalid line '" << s << "' in '" << initPath << "'";
-                    throw os.str();
+                    throw runtime_error("invalid line '" + s + "' in '" + initPath + "'");
                 }
 
                 string name = s.substr(7);
@@ -388,16 +386,12 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
             {
                 if(state != InSubmodules)
                 {
-                    ostringstream os;
-                    os << "invalid line '" << s << "' in '" << initPath << "'";
-                    throw os.str();
+                    throw runtime_error("invalid line '" + s + "' in '" + initPath + "'");
                 }
 
                 if(s.size() < 15)
                 {
-                    ostringstream os;
-                    os << "invalid line '" << s << "' in '" << initPath << "'";
-                    throw os.str();
+                    throw runtime_error("invalid line '" + s + "' in '" + initPath + "'");
                 }
 
                 submodules.push_back(s.substr(14));
@@ -406,9 +400,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
 
         if(state == InModules)
         {
-            ostringstream os;
-            os << "invalid format in '" << initPath << "'" << endl;
-            throw os.str();
+            throw runtime_error("invalid format in '" + initPath + "'\n");
         }
     }
 }
@@ -807,10 +799,10 @@ Slice::Python::compile(const vector<string>& argv)
                         consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
-                    catch(const string& err)
+                    catch(const exception& ex)
                     {
                         FileTracker::instance()->cleanup();
-                        consoleErr << argv[0] << ": error: " << err << endl;
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         status = EXIT_FAILURE;
                     }
                 }

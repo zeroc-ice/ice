@@ -499,7 +499,7 @@ Parser::checkInterrupted()
         Lock sync(*this);
         if(_interrupted)
         {
-            throw "interrupted with Ctrl-C";
+            throw runtime_error("interrupted with Ctrl-C");
         }
     }
 }

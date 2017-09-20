@@ -994,9 +994,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
         //
         if(router == 0 && noProps)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "object adapter `" + _name + "' requires configuration";
-            throw ex;
+            throw InitializationException(__FILE__, __LINE__, "object adapter `" + _name + "' requires configuration");
         }
 
         const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
@@ -1013,9 +1011,8 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
         }
         catch(const ProxyParseException&)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid proxy options `" + proxyOptions + "' for object adapter `" + _name + "'";
-            throw ex;
+            throw InitializationException(__FILE__, __LINE__, "invalid proxy options `" + proxyOptions +
+                                          "' for object adapter `" + _name + "'");
         }
 
         const_cast<ACMConfig&>(_acm) =
@@ -1223,9 +1220,7 @@ Ice::ObjectAdapterI::checkForDeactivation() const
 {
     if(_state >= StateDeactivating)
     {
-        ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-        ex.name = getName();
-        throw ex;
+        throw ObjectAdapterDeactivatedException(__FILE__, __LINE__, getName());
     }
 }
 
@@ -1397,10 +1392,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             out << "the object adapter is not known to the locator registry";
         }
 
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object adapter";
-        ex.id = _id;
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "object adapter", _id);
     }
     catch(const InvalidReplicaGroupIdException&)
     {
@@ -1411,10 +1403,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             out << "the replica group `" << _replicaGroupId << "' is not known to the locator registry";
         }
 
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "replica group";
-        ex.id = _replicaGroupId;
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "replica group", _replicaGroupId);
     }
     catch(const AdapterAlreadyActiveException&)
     {
@@ -1425,9 +1414,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
             out << "the object adapter endpoints are already set";
         }
 
-        ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-        ex.id = _id;
-        throw ex;
+        throw ObjectAdapterIdInUseException(__FILE__, __LINE__, _id);
     }
     catch(const ObjectAdapterDeactivatedException&)
     {

@@ -203,7 +203,7 @@ main(int argc, char* argv[])
         string cwd;
         if(IceUtilInternal::getcwd(cwd) != 0)
         {
-            throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
         }
 
         if(!IceUtilInternal::isAbsolutePath(absDataDir))
@@ -230,7 +230,7 @@ main(int argc, char* argv[])
         {
             if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
             {
-                throw "`" + *p + "' is not a path in `" + dataDir + "'";
+                throw runtime_error("`" + *p + "' is not a path in `" + dataDir + "'");
             }
 
             p->erase(0, absDataDirWithSlash.size());
@@ -290,31 +290,29 @@ main(int argc, char* argv[])
         {
             LargeFileInfoSeq newInfoSeq = infoSeq;
             sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
-
-            string ex;
+            string reason;
             LargeFileInfoSeq::iterator p = newInfoSeq.begin();
             while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
             {
                 do
                 {
-                    ex += '\n' + dataDir + '/' + p->path;
+                    reason += '\n' + dataDir + '/' + p->path;
                     ++p;
                 }
                 while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
             }
 
-            if(!ex.empty())
+            if(!reason.empty())
             {
-                ex = "duplicate files:" + ex;
-                throw ex;
+                throw runtime_error("duplicate files:" + reason);
             }
         }
 
         saveFileInfoSeq(absDataDir, infoSeq);
     }
-    catch(const string& ex)
+    catch(const exception& ex)
     {
-        consoleErr << appName << ": " << ex << endl;
+        consoleErr << appName << ": " << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const char* ex)

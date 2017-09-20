@@ -173,9 +173,7 @@ AdminSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     const int t = _timeout * 1000;
@@ -242,9 +240,7 @@ AdminSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     setupObserverSubscription(RegistryObserverTopicName, addForwarder(registryObserver, current), true);
@@ -260,9 +256,7 @@ AdminSessionI::startUpdate(const Ice::Current& current)
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     int serial = _database->lock(this, _id);
@@ -275,9 +269,7 @@ AdminSessionI::finishUpdate(const Ice::Current& current)
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = current.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     _database->unlock(this);
@@ -424,14 +416,13 @@ AdminSessionI::addForwarder(const Ice::ObjectPrx& prx)
 }
 
 FileIteratorPrx
-AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, int nLines, const Ice::Current& c)
+AdminSessionI::addFileIterator(const FileReaderPrx& reader, const string& filename, int nLines,
+                               const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = c.id;
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
     //
@@ -542,9 +533,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
             Ice::Warning out(_database->getTraceLevels()->logger);
             out << "Failed to callback Glacier2 session control object:\n" << e;
 
-            Glacier2::CannotCreateSessionException ex;
-            ex.reason = "internal server error";
-            throw ex;
+            throw Glacier2::CannotCreateSessionException("internal server error");
         }
     }
 
@@ -591,15 +580,12 @@ AdminSSLSessionManagerI::create(const Glacier2::SSLInfo& info,
             IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
             userDN = cert->getSubjectDN();
         }
-        catch(const Ice::Exception& e)
+        catch(const Ice::Exception& ex)
         {
             // This shouldn't happen, the SSLInfo is supposed to be encoded by Glacier2.
             Ice::Error out(_factory->getTraceLevels()->logger);
-            out << "SSL session manager couldn't decode SSL certificates:\n" << e;
-
-            Glacier2::CannotCreateSessionException ex;
-            ex.reason = "internal server error";
-            throw ex;
+            out << "SSL session manager couldn't decode SSL certificates:\n" << ex;
+            throw Glacier2::CannotCreateSessionException("internal server error");
         }
     }
 

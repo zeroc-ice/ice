@@ -155,9 +155,7 @@ ReplicaCache::get(const string& name) const
     ReplicaEntryPtr entry = getImpl(name);
     if(!entry)
     {
-        RegistryNotExistException ex;
-        ex.name = name;
-        throw ex;
+        throw RegistryNotExistException(name);
     }
     return entry;
 }

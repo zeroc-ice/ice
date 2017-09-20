@@ -85,7 +85,7 @@ readFile(const string& file, vector<char>& buffer)
     ifstream is(file.c_str(), ios::in | ios::binary);
     if(!is.good())
     {
-        throw "error opening file " + file;
+        throw runtime_error("error opening file " + file);
     }
 
     is.seekg(0, is.end);
@@ -96,7 +96,7 @@ readFile(const string& file, vector<char>& buffer)
 
     if(!is.good())
     {
-        throw "error reading file " + file;
+        throw runtime_error("error reading file " + file);
     }
 }
 

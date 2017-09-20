@@ -457,9 +457,8 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "a device address must be specified using the -a option or Ice.Default.Host";
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__,
+                                         "a device address must be specified using the -a option or Ice.Default.Host");
         }
     }
 
@@ -479,9 +478,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "a UUID must be specified using the -u option";
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "a UUID must be specified using the -u option");
         }
     }
 
@@ -492,9 +489,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 
     if(!oaEndpoint && _channel != 0)
     {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "the -c option can only be used for object adapter endpoints";
-        throw ex;
+        throw EndpointParseException(__FILE__, __LINE__, "the -c option can only be used for object adapter endpoints");
     }
 
     hashInit();
@@ -527,15 +522,13 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if(arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -a option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -a option in endpoint " +
+                                         endpoint);
         }
         if(arg != "*" && !isValidDeviceAddress(arg))
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid argument provided for -a option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "invalid argument provided for -a option in endpoint " +
+                                         endpoint);
         }
         const_cast<string&>(_addr) = arg;
     }
@@ -543,9 +536,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if(arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -u option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -u option in endpoint " +
+                                         endpoint);
         }
         const_cast<string&>(_uuid) = arg;
     }
@@ -553,26 +545,23 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if(arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -c option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -c option in endpoint " +
+                                         endpoint);
         }
 
         istringstream t(argument);
         if(!(t >> const_cast<Int&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid channel value `" + arg + "' in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "invalid channel value `" + arg + "' in endpoint " +
+                                         endpoint);
         }
     }
     else if(option == "-t")
     {
         if(arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -t option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -t option in endpoint " +
+                                         endpoint);
         }
 
         if(arg == "infinite")
@@ -584,9 +573,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
             istringstream t(argument);
             if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "invalid timeout value `" + arg + "' in endpoint " + endpoint;
-                throw ex;
+                throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + arg + "' in endpoint " +
+                                             endpoint);
             }
         }
     }
@@ -594,9 +582,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if(!arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "unexpected argument `" + arg + "' provided for -z option in " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "unexpected argument `" + arg +
+                                         "' provided for -z option in " + endpoint);
         }
         const_cast<bool&>(_compress) = true;
     }
@@ -604,9 +591,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if(arg.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for --name option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for --name option in endpoint " +
+                                         endpoint);
         }
         const_cast<string&>(_name) = arg;
     }

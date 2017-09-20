@@ -122,9 +122,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
     }
     else
     {
-        AdapterNotActiveException ex;
-        ex.activatable = _enabled && _server->isAdapterActivatable(_id);
-        throw ex;
+        throw AdapterNotActiveException(_enabled && _server->isAdapterActivatable(_id));
     }
 }
 

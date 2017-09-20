@@ -216,9 +216,7 @@ repeat:
         else
         {
             // No peer has sent a datagram yet.
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, 0);
         }
 
 #   ifdef _WIN32
@@ -242,9 +240,7 @@ repeat:
             return SocketOperationWrite;
         }
 
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     assert(ret == static_cast<ssize_t>(buf.b.size()));
@@ -318,15 +314,11 @@ repeat:
 
             if(connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
     }
@@ -487,9 +479,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
         else
         {
             // No peer has sent a datagram yet.
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, 0);
         }
         err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa,
                         len, &_write, ICE_NULLPTR);
@@ -501,15 +491,11 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
         {
             if(connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
     }
@@ -601,15 +587,11 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         WSASetLastError(_write.error);
         if(connectionLost())
         {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionLostException(__FILE__, __LINE__ ,getSocketErrno());
         }
         else
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
 #else
         checkErrorCode(__FILE__, __LINE__, _write.error);
@@ -654,15 +636,11 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         {
             if(connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
     }
@@ -730,15 +708,11 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         {
             if(connectionLost())
             {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
     }

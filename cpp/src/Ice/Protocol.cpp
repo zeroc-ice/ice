@@ -68,34 +68,26 @@ stringToMajorMinor(const std::string& str, Ice::Byte& major, Ice::Byte& minor)
     std::string::size_type pos = str.find_first_of(".");
     if(pos == std::string::npos)
     {
-        Ice::VersionParseException ex(__FILE__, __LINE__);
-        ex.str = "malformed version value `" + str + "'";
-        throw ex;
+        throw Ice::VersionParseException(__FILE__, __LINE__, "malformed version value `" + str + "'");
     }
 
     std::istringstream majStr(str.substr(0, pos));
     Ice::Int majVersion;
     if(!(majStr >> majVersion) || !majStr.eof())
     {
-        Ice::VersionParseException ex(__FILE__, __LINE__);
-        ex.str = "invalid major version value `" + str + "'";
-        throw ex;
+        throw Ice::VersionParseException(__FILE__, __LINE__, "invalid major version value `" + str + "'");
     }
 
     std::istringstream minStr(str.substr(pos + 1, std::string::npos));
     Ice::Int minVersion;
     if(!(minStr >> minVersion) || !minStr.eof())
     {
-        Ice::VersionParseException ex(__FILE__, __LINE__);
-        ex.str = "invalid minor version value `" + str + "'";
-        throw ex;
+        throw Ice::VersionParseException(__FILE__, __LINE__, "invalid minor version value `" + str + "'");
     }
 
     if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
     {
-        Ice::VersionParseException ex(__FILE__, __LINE__);
-        ex.str = "range error in version `" + str + "'";
-        throw ex;
+        throw Ice::VersionParseException(__FILE__, __LINE__, "range error in version `" + str + "'");
     }
 
     major = static_cast<Ice::Byte>(majVersion);

@@ -162,9 +162,7 @@ ServerCache::get(const string& id) const
     ServerEntryPtr entry = getImpl(id);
     if(!entry)
     {
-        ServerNotExistException ex;
-        ex.id = id;
-        throw ex;
+        throw ServerNotExistException(id);
     }
     return entry;
 }

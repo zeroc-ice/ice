@@ -40,9 +40,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
 
     if(_topics.find(name) != _topics.end())
     {
-        TopicExists ex;
-        ex.name = name;
-        throw ex;
+        throw TopicExists(name);
     }
 
     Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
@@ -82,9 +80,7 @@ TransientTopicManagerImpl::retrieve(const string& name, const Ice::Current&) con
     map<string, TransientTopicImplPtr>::const_iterator p = _topics.find(name);
     if(p == _topics.end())
     {
-        NoSuchTopic ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchTopic(name);
     }
 
     // Here we cannot just reconstruct the identity since the

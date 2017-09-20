@@ -89,13 +89,13 @@ IceBT::AcceptorI::listen()
     }
     catch(const BluetoothException& ex)
     {
-        InitializationException e(__FILE__, __LINE__);
-        e.reason = "unable to register Bluetooth profile";
+        ostringstream os;
+        os << "unable to register Bluetooth profile";
         if(!ex.reason.empty())
         {
-            e.reason += "\n" + ex.reason;
+            os << "\n" << ex.reason;
         }
-        throw e;
+        throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
     _endpoint = _endpoint->endpoint(this);
@@ -110,9 +110,7 @@ IceBT::AcceptorI::accept()
     //
     if(!_instance->initialized())
     {
-        PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceBT: plug-in is not initialized";
-        throw ex;
+        throw PluginInitializationException(__FILE__, __LINE__, "IceBT: plug-in is not initialized");
     }
 
     IceInternal::TransceiverPtr t;
@@ -215,15 +213,13 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint, const InstancePtr& ins
     DeviceAddress da;
     if(!parseDeviceAddress(s, da))
     {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "invalid address value `" + s + "' in endpoint " + endpoint->toString();
-        throw ex;
+        throw EndpointParseException(__FILE__, __LINE__, "invalid address value `" + s + "' in endpoint " +
+                                     endpoint->toString());
     }
     if(!_instance->engine()->adapterExists(s))
     {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "no device found for `" + s + "' in endpoint " + endpoint->toString();
-        throw ex;
+        throw EndpointParseException(__FILE__, __LINE__, "no device found for `" + s + "' in endpoint " +
+                                     endpoint->toString());
     }
 
     const_cast<string&>(_addr) = s;

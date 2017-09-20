@@ -327,9 +327,7 @@ NodeCache::get(const string& name, bool create) const
     }
     if(!entry)
     {
-        NodeNotExistException ex;
-        ex.name = name;
-        throw ex;
+        throw NodeNotExistException(name);
     }
     return entry;
 }

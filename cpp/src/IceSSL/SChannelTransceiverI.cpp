@@ -663,21 +663,20 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
     else if(cert) // Verify the remote certificate
     {
-        try
+        CERT_CHAIN_PARA chainP;
+        memset(&chainP, 0, sizeof(chainP));
+        chainP.cbSize = sizeof(chainP);
+
+        string trustError;
+        PCCERT_CHAIN_CONTEXT certChain;
+        if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
+                                    CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
         {
-            CERT_CHAIN_PARA chainP;
-            memset(&chainP, 0, sizeof(chainP));
-            chainP.cbSize = sizeof(chainP);
-
-            PCCERT_CHAIN_CONTEXT certChain;
-            if(!CertGetCertificateChain(_engine->chainEngine(), cert, 0, 0, &chainP,
-                                        CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY, 0, &certChain))
-            {
-                CertFreeCertificateContext(cert);
-                throw IceUtilInternal::lastErrorToString();
-            }
-
-            string trustError;
+            CertFreeCertificateContext(cert);
+            trustError = IceUtilInternal::lastErrorToString();
+        }
+        else
+        {
             if(certChain->TrustStatus.dwErrorStatus != CERT_TRUST_NO_ERROR)
             {
                 trustError = trustStatusToString(certChain->TrustStatus.dwErrorStatus);
@@ -699,36 +698,29 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
                 {
                     CertFreeCertificateChain(certChain);
                     CertFreeCertificateContext(cert);
-                    throw SecurityException(__FILE__, __LINE__,
-                                            "IceSSL: error decoding peer certificate chain:\n" +
+                    throw SecurityException(__FILE__, __LINE__, "IceSSL: error decoding peer certificate chain:\n" +
                                             IceUtilInternal::lastErrorToString());
                 }
-
                 _certs.push_back(SChannel::Certificate::create(cc));
             }
 
             CertFreeCertificateChain(certChain);
             CertFreeCertificateContext(cert);
-            if(!trustError.empty())
-            {
-                throw trustError;
-            }
         }
-        catch(const string& reason)
+
+        if(!trustError.empty())
         {
             if(_engine->getVerifyPeer() == 0)
             {
                 if(_instance->traceLevel() >= 1)
                 {
                     _instance->logger()->trace(_instance->traceCategory(),
-                                               "IceSSL: ignoring certificate verification failure:\n" + reason);
+                                               "IceSSL: ignoring certificate verification failure:\n" + trustError);
                 }
             }
             else
             {
-                ostringstream os;
-                os << "IceSSL: certificate verification failure:\n" << reason;
-                string msg = os.str();
+                string msg = "IceSSL: certificate verification failure:\n" + trustError;
                 if(_instance->traceLevel() >= 1)
                 {
                     _instance->logger()->trace(_instance->traceCategory(), msg);

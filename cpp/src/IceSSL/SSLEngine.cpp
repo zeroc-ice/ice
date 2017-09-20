@@ -128,9 +128,8 @@ IceSSL::SSLEngine::initialize()
 
     if(_verifyPeer < 0 || _verifyPeer > 2)
     {
-        PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: invalid value for " + propPrefix + "VerifyPeer";
-        throw ex;
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value for " + propPrefix +
+                                            "VerifyPeer");
     }
 
     _securityTraceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
@@ -218,9 +217,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
 
             if(_verifyPeer > 0)
             {
-                SecurityException ex(__FILE__, __LINE__);
-                ex.reason = msg;
-                throw ex;
+                throw SecurityException(__FILE__, __LINE__, msg);
             }
         }
     }
@@ -241,9 +238,7 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& in
         {
             _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = msg;
-        throw ex;
+        throw SecurityException(__FILE__, __LINE__, msg);
     }
 
     if(!_trustManager->verify(info, desc))
@@ -253,9 +248,7 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& in
         {
             _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = msg;
-        throw ex;
+        throw SecurityException(__FILE__, __LINE__, msg);
     }
 
     if(verifier && !verifier->verify(info))
@@ -265,9 +258,7 @@ IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& in
         {
             _logger->trace(_securityTraceCategory, msg + "\n" + desc);
         }
-        SecurityException ex(__FILE__, __LINE__);
-        ex.reason = msg;
-        throw ex;
+        throw SecurityException(__FILE__, __LINE__, msg);
     }
 }
 

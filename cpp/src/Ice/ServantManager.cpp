@@ -42,15 +42,14 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
     {
         if(p->second.find(facet) != p->second.end())
         {
-            AlreadyRegisteredException ex(__FILE__, __LINE__);
-            ex.kindOfObject = "servant";
             ToStringMode toStringMode = _instance->toStringMode();
-            ex.id = Ice::identityToString(ident, toStringMode);
+            ostringstream os;
+            os << Ice::identityToString(ident, toStringMode);
             if(!facet.empty())
             {
-                ex.id += " -f " + escapeString(facet, "", toStringMode);
+                os << " -f " << escapeString(facet, "", toStringMode);
             }
-            throw ex;
+            throw AlreadyRegisteredException(__FILE__, __LINE__, "servant", os.str());
         }
     }
 
@@ -69,10 +68,7 @@ IceInternal::ServantManager::addDefaultServant(const ObjectPtr& object, const st
     DefaultServantMap::iterator p = _defaultServantMap.find(category);
     if(p != _defaultServantMap.end())
     {
-        AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "default servant";
-        ex.id = category;
-        throw ex;
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
     _defaultServantMap.insert(pair<const string, ObjectPtr>(category, object));
@@ -102,15 +98,14 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 
     if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "servant";
         ToStringMode toStringMode = _instance->toStringMode();
-        ex.id = Ice::identityToString(ident, toStringMode);
+        ostringstream os;
+        os << Ice::identityToString(ident, toStringMode);
         if(!facet.empty())
         {
-            ex.id += " -f " + escapeString(facet, "", toStringMode);
+            os << " -f " + escapeString(facet, "", toStringMode);
         }
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "servant", os.str());
     }
 
     servant = q->second;
@@ -148,10 +143,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
     DefaultServantMap::iterator p = _defaultServantMap.find(category);
     if(p == _defaultServantMap.end())
     {
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "default servant";
-        ex.id = category;
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
 
     servant = p->second;
@@ -176,10 +168,8 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 
     if(p == _servantMapMap.end())
     {
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "servant";
-        ex.id = Ice::identityToString(ident, _instance->toStringMode());
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "servant",
+                                     Ice::identityToString(ident, _instance->toStringMode()));
     }
 
     FacetMap result = p->second;
@@ -333,10 +323,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
     if((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == category)
        || _locatorMap.find(category) != _locatorMap.end())
     {
-        AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "servant locator";
-        ex.id = category;
-        throw ex;
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
     _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(category, locator));
@@ -365,10 +352,7 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
 
     if(p == _locatorMap.end())
     {
-        NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "servant locator";
-        ex.id = category;
-        throw ex;
+        throw NotRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
     ServantLocatorPtr locator = p->second;

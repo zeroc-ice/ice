@@ -473,9 +473,8 @@ loadCerts(const string& file)
                 endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
                 if(endpos == string::npos)
                 {
-                    InitializationException ex(__FILE__, __LINE__);
-                    ex.reason = "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate";
-                    throw ex;
+                    throw InitializationException(__FILE__, __LINE__, "IceSSL: certificate " + file +
+                                                  " is not a valid PEM-encoded certificate");
                 }
                 size = endpos - startpos;
             }
@@ -495,9 +494,8 @@ loadCerts(const string& file)
             UniqueRef<SecCertificateRef> cert(SecCertificateCreateWithData(0, certdata.get()));
             if(!cert)
             {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate";
-                throw ex;
+                throw InitializationException(__FILE__, __LINE__, "IceSSL: certificate " + file +
+                                              " is not a valid PEM-encoded certificate");
             }
             CFArrayAppendValue(const_cast<CFMutableArrayRef>(certs.get()), cert.get());
             first = false;
@@ -509,9 +507,8 @@ loadCerts(const string& file)
         UniqueRef<SecCertificateRef> cert(SecCertificateCreateWithData(0, data.get()));
         if(!cert)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "IceSSL: certificate " + file + " is not a valid DER-encoded certificate";
-            throw ex;
+            throw InitializationException(__FILE__, __LINE__, "IceSSL: certificate " + file +
+                                          " is not a valid DER-encoded certificate");
         }
         CFArrayAppendValue(const_cast<CFMutableArrayRef>(certs.get()), cert.get());
     }
