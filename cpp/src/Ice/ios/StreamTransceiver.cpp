@@ -550,5 +550,5 @@ IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFRea
         }
         throw DNSException(file, line, rs, _host);
     }
-    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), domain);
+    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), fromCFString(domain));
 }
