@@ -95,9 +95,6 @@
     </IceBuilder>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\TestI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Win32\Debug\Test.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
