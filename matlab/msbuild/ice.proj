@@ -5,7 +5,7 @@
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <MexCompilerFlags Condition="'$(Configuration)' == 'Debug'">-g COMPFLAGS=&quot;/MDd /EHsc&quot;</MexCompilerFlags>
-    <MexCompilerFlags Condition="'$(Configuration)' == 'Release'">COMPFLAGS=&quot;/EHsc&quot;</MexCompilerFlags>
+    <MexCompilerFlags Condition="'$(Configuration)' == 'Release'">COMPFLAGS=&quot;/MD /EHsc&quot;</MexCompilerFlags>
     <DebugExt Condition="'$(Configuration)' == 'Debug'">d</DebugExt>
   </PropertyGroup>
 
