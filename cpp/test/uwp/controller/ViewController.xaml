@@ -11,6 +11,7 @@
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -20,7 +21,9 @@
                        Margin="5"
                        VerticalAlignment="Bottom" TextWrapping="Wrap"/>
         </StackPanel>
-        <ListBox Margin="5" Grid.Row="1" x:Name="Output" Background="LightGray"></ListBox>
+        <ComboBox Grid.Row="1" Header="IPv4 Address" Name="ipv4Addresses " HorizontalAlignment="Stretch"
+                  SelectionChanged="Hostname_SelectionChanged"></ComboBox>
+        <ListBox Margin="5" Grid.Row="2" x:Name="Output" Background="LightGray"></ListBox>
         <StackPanel Grid.Row="3" VerticalAlignment="Bottom">
             <TextBlock Text="Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved."
                        Style="{StaticResource FooterStyle}"

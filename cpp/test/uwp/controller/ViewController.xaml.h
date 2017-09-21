@@ -43,6 +43,7 @@ private:
     friend class ControllerHelper;
     HINSTANCE loadDll(const std::string&);
     void println(const std::string&);
+    std::string getHost() const;
     void Hostname_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 
     std::map<std::string, HINSTANCE> _dlls;

@@ -101,14 +101,14 @@ class ProcessControllerI : public ProcessController
 {
 public:
 
-    ProcessControllerI(ViewController^, string);
-    virtual shared_ptr<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
+    ProcessControllerI(ViewController^);
+    shared_ptr<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
     virtual string getHost(string, bool, const Ice::Current&);
 
 private:
 
     ViewController^ _controller;
-    string _hostname;
+    string _host;
 };
 
 class ControllerHelper
@@ -315,9 +315,9 @@ ProcessI::terminate(const Ice::Current& current)
     return _helper->getOutput();
 }
 
-ProcessControllerI::ProcessControllerI(ViewController^ controller, string hostname) :
+ProcessControllerI::ProcessControllerI(ViewController^ controller) :
     _controller(controller),
-    _hostname(hostname)
+    _host(_controller->getHost())
 {
 }
 
@@ -337,7 +337,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
 string
 ProcessControllerI::getHost(string, bool, const Ice::Current&)
 {
-    return _hostname;
+    return _host;
 }
 
 ControllerHelper::ControllerHelper(ViewController^ controller)
@@ -357,8 +357,8 @@ ControllerHelper::ControllerHelper(ViewController^ controller)
         _communicator->stringToProxy("Util/ProcessControllerRegistry:tcp -h 127.0.0.1 -p 15001"));
     Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "");
     Ice::Identity ident = { "ProcessController", "UWP"};
-    auto processController = Ice::uncheckedCast<ProcessControllerPrx>(
-        adapter->add(make_shared<ProcessControllerI>(controller, "127.0.0.1"), ident));
+    auto processController =
+        Ice::uncheckedCast<ProcessControllerPrx>(adapter->add(make_shared<ProcessControllerI>(controller), ident));
     adapter->activate();
 
     registerProcessController(controller, adapter, registry, processController);
@@ -390,6 +390,9 @@ ControllerHelper::registerProcessController(ViewController^ controller,
                     {
                         rethrow_exception(e);
                     }
+                    catch(const Ice::CommunicatorDestroyedException&)
+                    {
+                    }
                     catch(const std::exception& ex)
                     {
                         ostringstream os;
@@ -408,6 +411,14 @@ ControllerHelper::registerProcessController(ViewController^ controller,
             {
                 std::this_thread::sleep_for(2s);
                 registerProcessController(controller, adapter, registry, processController);
+            }
+            catch(const Ice::TimeoutException&)
+            {
+                std::this_thread::sleep_for(2s);
+                registerProcessController(controller, adapter, registry, processController);
+            }
+            catch(const Ice::CommunicatorDestroyedException&)
+            {
             }
             catch(const std::exception& ex)
             {
@@ -428,10 +439,38 @@ static ControllerHelper* controllerHelper = 0;
 ViewController::ViewController()
 {
     InitializeComponent();
+    auto hostnames = NetworkInformation::GetHostNames();
+    ipv4Addresses->Items->Append("127.0.0.1");
+    for(unsigned int i = 0; i < hostnames->Size; ++i)
+    {
+        auto hostname = hostnames->GetAt(i);
+        if(hostname->Type == Windows::Networking::HostNameType::Ipv4)
+        {
+            ipv4Addresses->Items->Append(hostname->RawName);
+        }
+    }
+    ipv4Addresses->SelectedIndex = 0;
+}
+
+string
+ViewController::getHost() const
+{
+    return Ice::wstringToString(ipv4Addresses->SelectedItem->ToString()->Data());
 }
 
 void
 ViewController::OnNavigatedTo(NavigationEventArgs^)
+{
+    if(controllerHelper)
+    {
+        delete controllerHelper;
+        controllerHelper = 0;
+    }
+    controllerHelper = new ControllerHelper(this);
+}
+
+void
+ViewController::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^)
 {
     if(controllerHelper)
     {
