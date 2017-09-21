@@ -66,7 +66,6 @@
             ).finally(() => c.destroy().then(() => c.destroy()).then(() => c.destroy())); // Test multiple destroy calls
     };
     exports._test = run;
-    exports._clientAllTests = allTests;
     exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

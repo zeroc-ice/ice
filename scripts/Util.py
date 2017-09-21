@@ -3368,9 +3368,9 @@ class JavaScriptMapping(Mapping):
 
     def getCommandLine(self, current, process, exe):
         if current.config.es5:
-            return "node --trace-warnings {0}/test/Common/run.js --es5 {1}".format(self.path, exe)
+            return "node {0}/test/Common/run.js --es5 {1}".format(self.path, exe)
         else:
-            return "node --trace-warnings {0}/test/Common/run.js {1}".format(self.path, exe)
+            return "node {0}/test/Common/run.js {1}".format(self.path, exe)
 
     def getDefaultSource(self, processType):
         return { "client" : "Client.js", "serveramd" : "ServerAMD.js", "server" : "Server.js" }[processType]

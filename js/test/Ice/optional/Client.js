@@ -1091,7 +1091,6 @@
         var c = Ice.initialize(id);
         return Ice.Promise.try(() => allTests(out, c, Test)).finally(() => c.destroy());
     };
-    exports._clientAllTests = allTests;
     exports._test = run;
     exports._runServer = true;
 }

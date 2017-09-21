@@ -116,6 +116,16 @@
     {
         "files": ["Test.js", "Client.js"]
     },
+    "Ice/servantLocator":
+    {
+        "files": ["Test.js", "Client.js", "TestI.js", "ServantLocatorI.js", "TestActivationI.js", "Server.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server"
+            }
+        ]
+    },
     "Ice/slicing/exceptions":
     {
         "files": ["Test.js", "Client.js"],

@@ -265,7 +265,6 @@
         );
     };
     exports._test = run;
-    exports._clientAllTests = allTests;
     exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

@@ -233,7 +233,10 @@
             ).then((a) =>
                 {
                     activation = a;
-                    activation.activateServantLocator(false);
+                    return activation.activateServantLocator(false);
+                }
+            ).then(() =>
+                {
                     return obj.ice_ping();
                 }
             ).then(() => test(false),
