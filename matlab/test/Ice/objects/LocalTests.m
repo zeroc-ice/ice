@@ -78,7 +78,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             % Prior to conversion, the result is a CellArrayHandle
-            assert(isa(r, 'Ice.CellArrayHandle'));
+            assert(isa(r, 'IceInternal.CellArrayHandle'));
             r = C1Seq.convert(r);
             % Now the result should be a cell arary
             assert(isa(r, 'cell'));
@@ -93,9 +93,9 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            seq = {};
+            seq = S1();
             for i = 1:10
-                seq{i} = S1(C1(i));
+                seq(i) = S1(C1(i));
             end
             S1Seq.write(out, seq);
             out.writePendingValues();
@@ -106,15 +106,15 @@ classdef LocalTests
             r = S1Seq.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a cell array
-            assert(isa(r, 'cell'));
+            % The result should be an array of S1
+            assert(isa(r, symbol('S1')));
             assert(length(r) == length(seq));
             % The structures haven't been converted yet
-            assert(isa(r{1}.c1, 'Ice.ValueHolder'));
+            assert(isa(r(1).c1, 'Ice.ValueHolder'));
             r = S1Seq.convert(r);
-            assert(isa(r{1}.c1, symbol('C1')));
+            assert(isa(r(1).c1, symbol('C1')));
             for i = 1:10
-                assert(r{i}.c1.i == i);
+                assert(r(i).c1.i == i);
             end
 
             %
@@ -201,7 +201,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             assert(isa(r, 'cell'));
-            assert(isa(r{1}, 'Ice.CellArrayHandle'));
+            assert(isa(r{1}, 'IceInternal.CellArrayHandle'));
             r = C1SeqSeq.convert(r);
             assert(isa(r{1}, 'cell'));
             assert(length(r) == length(seq));
@@ -221,8 +221,9 @@ classdef LocalTests
             out.startEncapsulation(format);
             seq = {};
             for i = 1:10
+                seq{i} = S1();
                 for j = 1:5
-                    seq{i}{j} = S1(C1(i * 10 + j));
+                    seq{i}(j) = S1(C1(i * 10 + j));
                 end
             end
             S1SeqSeq.write(out, seq);
@@ -235,16 +236,16 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             assert(isa(r, 'cell'));
-            assert(isa(r{1}, 'cell'));
+            assert(isa(r{1}, symbol('S1')));
             assert(length(r) == length(seq));
             % The structures haven't been converted yet
-            assert(isa(r{1}{1}.c1, 'Ice.ValueHolder'));
+            assert(isa(r{1}(1).c1, 'Ice.ValueHolder'));
             r = S1SeqSeq.convert(r);
-            assert(isa(r{1}{1}.c1, symbol('C1')));
+            assert(isa(r{1}(1).c1, symbol('C1')));
             for i = 1:10
                 assert(length(r{i}) == 5);
                 for j = 1:5
-                    assert(r{i}{j}.c1.i == i * 10 + j);
+                    assert(r{i}(j).c1.i == i * 10 + j);
                 end
             end
 
@@ -290,7 +291,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             % Prior to conversion, the sequence is a CellArrayHandle
-            assert(isa(r.c1seq, 'Ice.CellArrayHandle'));
+            assert(isa(r.c1seq, 'IceInternal.CellArrayHandle'));
             r = r.ice_convert();
             % Now the result should be a cell arary
             assert(isa(r.c1seq, 'cell'));
@@ -307,9 +308,9 @@ classdef LocalTests
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
             s4 = S4();
-            s4.s1seq = {};
+            s4.s1seq = S1();
             for i = 1:10
-                s4.s1seq{i} = S1(C1(i));
+                s4.s1seq(i) = S1(C1(i));
             end
             S4.ice_write(out, s4);
             out.writePendingValues();
@@ -320,15 +321,15 @@ classdef LocalTests
             r = S4.ice_read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The sequence should be a cell array
-            assert(isa(r.s1seq, 'cell'));
+            % The sequence should be an array of S1
+            assert(isa(r.s1seq, symbol('S1')));
             assert(length(r.s1seq) == length(s4.s1seq));
             % The structures haven't been converted yet
-            assert(isa(r.s1seq{1}.c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1seq(1).c1, 'Ice.ValueHolder'));
             r = r.ice_convert();
-            assert(isa(r.s1seq{1}.c1, symbol('C1')));
+            assert(isa(r.s1seq(1).c1, symbol('C1')));
             for i = 1:10
-                assert(r.s1seq{i}.c1.i == i);
+                assert(r.s1seq(i).c1.i == i);
             end
 
             %
@@ -416,7 +417,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             assert(isa(r.c1seqseq, 'cell'));
-            assert(isa(r.c1seqseq{1}, 'Ice.CellArrayHandle'));
+            assert(isa(r.c1seqseq{1}, 'IceInternal.CellArrayHandle'));
             r = r.ice_convert();
             assert(isa(r.c1seqseq{1}, 'cell'));
             assert(length(r.c1seqseq) == length(s7.c1seqseq));
@@ -436,8 +437,9 @@ classdef LocalTests
             out.startEncapsulation(format);
             s8 = S8();
             for i = 1:10
+                s8.s1seqseq{i} = S1();
                 for j = 1:5
-                    s8.s1seqseq{i}{j} = S1(C1(i * 10 + j));
+                    s8.s1seqseq{i}(j) = S1(C1(i * 10 + j));
                 end
             end
             S8.ice_write(out, s8);
@@ -450,16 +452,16 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             assert(isa(r.s1seqseq, 'cell'));
-            assert(isa(r.s1seqseq{1}, 'cell'));
+            assert(isa(r.s1seqseq{1}, symbol('S1')));
             assert(length(r.s1seqseq) == length(s8.s1seqseq));
             % The structures haven't been converted yet
-            assert(isa(r.s1seqseq{1}{1}.c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1seqseq{1}(1).c1, 'Ice.ValueHolder'));
             r = r.ice_convert();
-            assert(isa(r.s1seqseq{1}{1}.c1, symbol('C1')));
+            assert(isa(r.s1seqseq{1}(1).c1, symbol('C1')));
             for i = 1:10
                 assert(length(r.s1seqseq{i}) == 5);
                 for j = 1:5
-                    assert(r.s1seqseq{i}{j}.c1.i == i * 10 + j);
+                    assert(r.s1seqseq{i}(j).c1.i == i * 10 + j);
                 end
             end
 
@@ -520,7 +522,7 @@ classdef LocalTests
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
             % Prior to conversion, the member is a CellArrayHandle
-            assert(isa(h.value.c1seq, 'Ice.CellArrayHandle'));
+            assert(isa(h.value.c1seq, 'IceInternal.CellArrayHandle'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -541,9 +543,9 @@ classdef LocalTests
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
             cb = CB3();
-            cb.s1seq = {};
+            cb.s1seq = S1();
             for i = 1:10
-                cb.s1seq{i} = S1(C1(i));
+                cb.s1seq(i) = S1(C1(i));
             end
             out.writeValue(cb);
             out.writePendingValues();
@@ -557,14 +559,14 @@ classdef LocalTests
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
-            % The sequence should be a cell array
-            assert(isa(h.value.s1seq, 'cell'));
+            % The sequence should be an array of S1
+            assert(isa(h.value.s1seq, symbol('S1')));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
             assert(length(h.value.s1seq) == length(cb.s1seq));
             for i = 1:10
-                assert(h.value.s1seq{i}.c1.i == i);
+                assert(h.value.s1seq(i).c1.i == i);
             end
 
             %
@@ -673,7 +675,7 @@ classdef LocalTests
             % The member should be a cell array
             assert(isa(h.value.c1seqseq, 'cell'));
             % The entry values haven't been converted yet
-            assert(isa(h.value.c1seqseq{1}, 'Ice.CellArrayHandle'));
+            assert(isa(h.value.c1seqseq{1}, 'IceInternal.CellArrayHandle'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -697,8 +699,9 @@ classdef LocalTests
             out.startEncapsulation(format);
             cb = CB7();
             for i = 1:10
+                cb.s1seqseq{i} = S1();
                 for j = 1:5
-                    cb.s1seqseq{i}{j} = S1(C1(i * 10 + j));
+                    cb.s1seqseq{i}(j) = S1(C1(i * 10 + j));
                 end
             end
             out.writeValue(cb);
@@ -715,16 +718,16 @@ classdef LocalTests
             assert(~h.value.postUnmarshalInvoked);
             % The member should be a cell array
             assert(isa(h.value.s1seqseq, 'cell'));
-            assert(isa(h.value.s1seqseq{1}, 'cell'));
+            assert(isa(h.value.s1seqseq{1}, symbol('S1')));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
-            assert(isa(h.value.s1seqseq{1}{1}.c1, symbol('C1')));
+            assert(isa(h.value.s1seqseq{1}(1).c1, symbol('C1')));
             assert(length(h.value.s1seqseq) == length(cb.s1seqseq));
             for i = 1:10
                 assert(length(h.value.s1seqseq{i}) == 5);
                 for j = 1:5
-                    assert(h.value.s1seqseq{i}{j}.c1.i == i * 10 + j);
+                    assert(h.value.s1seqseq{i}(j).c1.i == i * 10 + j);
                 end
             end
 
@@ -756,7 +759,7 @@ classdef LocalTests
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
             assert(isa(h.value.s1.c1, 'Ice.ValueHolder'));
-            assert(isa(h.value.c1seq, 'Ice.CellArrayHandle'));
+            assert(isa(h.value.c1seq, 'IceInternal.CellArrayHandle'));
             assert(isa(h.value.s1dict(1).c1, 'Ice.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();

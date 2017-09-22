@@ -505,6 +505,14 @@ isClass(const TypePtr& type)
 }
 
 bool
+isProxy(const TypePtr& type)
+{
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    ProxyPtr p = ProxyPtr::dynamicCast(type);
+    return (b && b->kind() == Builtin::KindObjectProxy) || p;
+}
+
+bool
 needsConversion(const TypePtr& type)
 {
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -633,6 +641,9 @@ private:
 
     void marshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
     void unmarshal(IceUtilInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
+
+    void unmarshalStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
+    void convertStruct(IceUtilInternal::Output&, const StructPtr&, const string&);
 
     const string _dir;
 };
@@ -1961,16 +1972,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         out << nl << "function obj = ice_convert(obj)";
         out.inc();
-        for(DataMemberList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
-        {
-            string m = "obj." + fixIdent((*q)->name());
-            convertValueType(out, m, m, (*q)->type(), (*q)->optional());
-        }
-        for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
-        {
-            string m = "obj." + fixIdent((*q)->name());
-            out << nl << m << " = " << m << ".value;";
-        }
+        convertStruct(out, p, "obj");
         out.dec();
         out << nl << "end";
     }
@@ -1985,19 +1987,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         out << nl << "function r = ice_read(is)";
         out.inc();
         out << nl << "r = " << abs << "();";
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            if(isClass((*q)->type()))
-            {
-                string m = fixIdent((*q)->name());
-                out << nl << "r." << m << " = Ice.ValueHolder();";
-                unmarshal(out, "is", "@(v) r." + m + ".set(v)", (*q)->type(), false, 0);
-            }
-            else
-            {
-                unmarshal(out, "is", "r." + fixIdent((*q)->name()), (*q)->type(), false, 0);
-            }
-        }
+        unmarshalStruct(out, p, "r");
         out.dec();
         out << nl << "end";
 
@@ -2079,10 +2069,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 
     const TypePtr content = p->type();
 
-    const BuiltinPtr bp = BuiltinPtr::dynamicCast(content);
-    if(bp)
+    const BuiltinPtr b = BuiltinPtr::dynamicCast(content);
+    if(b)
     {
-        switch(bp->kind())
+        switch(b->kind())
         {
             case Builtin::KindBool:
             case Builtin::KindByte:
@@ -2108,10 +2098,16 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         }
     }
 
+    EnumPtr enumContent = EnumPtr::dynamicCast(content);
+    SequencePtr seqContent = SequencePtr::dynamicCast(content);
+    StructPtr structContent = StructPtr::dynamicCast(content);
+    DictionaryPtr dictContent = DictionaryPtr::dynamicCast(content);
+
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
     const bool cls = isClass(content);
+    const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
 
     IceUtilInternal::Output out;
@@ -2128,7 +2124,18 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "os.writeSize(sz);";
     out << nl << "for i = 1:sz";
     out.inc();
-    marshal(out, "os", "seq{i}", content, false, 0);
+    //
+    // Aside from the primitive types, only enum and struct sequences are mapped to arrays. The rest are mapped
+    // to cell arrays. We can't use the same subscript syntax for both.
+    //
+    if(enumContent || structContent)
+    {
+        marshal(out, "os", "seq(i)", content, false, 0);
+    }
+    else
+    {
+        marshal(out, "os", "seq{i}", content, false, 0);
+    }
     out.dec();
     out << nl << "end";
     out.dec();
@@ -2176,31 +2183,60 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     if(cls)
     {
         //
-        // For a sequence<class>, read() returns an instance of Ice.CellArrayHandle that we later replace with
-        // the cell array. See convert().
+        // For a sequence<class>, read() returns an instance of IceInternal.CellArrayHandle that we later replace
+        // with the cell array. See convert().
         //
-        out << nl << "r = Ice.CellArrayHandle();";
+        out << nl << "r = IceInternal.CellArrayHandle();";
         out << nl << "r.array = cell(1, sz);";
-    }
-    else
-    {
-        out << nl << "r = cell(1, sz);";
-    }
-    out << nl << "for i = 1:sz";
-    out.inc();
-    if(cls)
-    {
+        out << nl << "for i = 1:sz";
+        out.inc();
         //
         // Ice.CellArrayHandle defines a set() method that we call from the lambda.
         //
         unmarshal(out, "is", "@(v) r.set(i, v)", content, false, 0);
+        out.dec();
+        out << nl << "end";
+    }
+    else if((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
+    {
+        //
+        // These types require a cell array.
+        //
+        out << nl << "r = cell(1, sz);";
+        out << nl << "for i = 1:sz";
+        out.inc();
+        unmarshal(out, "is", "r{i}", content, false, 0);
+        out.dec();
+        out << nl << "end";
+    }
+    else if(enumContent)
+    {
+        const EnumeratorList enumerators = enumContent->enumerators();
+        out << nl << "r(1, sz) = " << getAbsolute(*enumerators.begin()) << ";";
+        out << nl << "for i = 1:sz";
+        out.inc();
+        unmarshal(out, "is", "r(i)", content, false, 0);
+        out.dec();
+        out << nl << "end";
+    }
+    else if(structContent)
+    {
+        //
+        // The most efficient way to build a sequence of structs is to pre-allocate the array using the
+        // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
+        // the struct members.
+        //
+        out << nl << "r(1, sz) = " << getAbsolute(structContent) << "();";
+        out << nl << "for i = 1:sz";
+        out.inc();
+        unmarshalStruct(out, structContent, "r(i)");
+        out.dec();
+        out << nl << "end";
     }
     else
     {
-        unmarshal(out, "is", "r{i}", content, false, 0);
+        assert(false);
     }
-    out.dec();
-    out << nl << "end";
     out.dec();
     out << nl << "end";
 
@@ -2236,12 +2272,28 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         }
         else
         {
-            out << nl << "r = cell(1, length(seq));";
-            out << nl << "for i = 1:length(seq)";
-            out.inc();
-            convertValueType(out, "r{i}", "seq{i}", content, false);
-            out.dec();
-            out << nl << "end";
+            assert(structContent || seqContent || dictContent);
+            if(structContent)
+            {
+                //
+                // Inline the conversion.
+                //
+                out << nl << "r = seq;";
+                out << nl << "for i = 1:length(seq)";
+                out.inc();
+                convertStruct(out, structContent, "r(i)");
+                out.dec();
+                out << nl << "end";
+            }
+            else
+            {
+                out << nl << "r = cell(1, length(seq));";
+                out << nl << "for i = 1:length(seq)";
+                out.inc();
+                convertValueType(out, "r{i}", "seq{i}", content, false);
+                out.dec();
+                out << nl << "end";
+            }
         }
         out.dec();
         out << nl << "end";
@@ -3508,6 +3560,45 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     assert(false);
+}
+
+void
+CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
+{
+    const DataMemberList members = p->dataMembers();
+
+    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    {
+        if(isClass((*q)->type()))
+        {
+            string m = fixIdent((*q)->name());
+            out << nl << v << "." << m << " = Ice.ValueHolder();";
+            unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
+        }
+        else
+        {
+            unmarshal(out, "is", v + "." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+        }
+    }
+}
+
+void
+CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, const string& v)
+{
+    const DataMemberList members = p->dataMembers();
+
+    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    {
+        string m = fixIdent((*q)->name());
+        if(needsConversion((*q)->type()))
+        {
+            convertValueType(out, v + "." + m, v + "." + m, (*q)->type(), false);
+        }
+        else if(isClass((*q)->type()))
+        {
+            out << nl << v << "." << m << " = " << v << "." << m << ".value;";
+        }
+    }
 }
 
 static void

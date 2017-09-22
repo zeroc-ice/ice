@@ -1241,9 +1241,9 @@ classdef Twoways
             sdi1 = MyEnumMyEnumSD.new();
             sdi2 = MyEnumMyEnumSD.new();
 
-            si1 = { MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 };
-            si2 = { MyEnum.enum1, MyEnum.enum2 };
-            si3 = { MyEnum.enum3, MyEnum.enum3 };
+            si1 = [ MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 ];
+            si2 = [ MyEnum.enum1, MyEnum.enum2 ];
+            si3 = [ MyEnum.enum3, MyEnum.enum3 ];
 
             sdi1(int32(MyEnum.enum3)) = si1;
             sdi1(int32(MyEnum.enum2)) = si2;
@@ -1254,22 +1254,22 @@ classdef Twoways
             assert(p3.Count == 1);
             a = p3(int32(MyEnum.enum1)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == MyEnum.enum3);
-            assert(a{2} == MyEnum.enum3);
+            assert(a(1) == MyEnum.enum3);
+            assert(a(2) == MyEnum.enum3);
             assert(r.Count== 3);
             a = r(int32(MyEnum.enum3)); % Need to use temp
             assert(length(a) == 3);
-            assert(a{1} == MyEnum.enum1);
-            assert(a{2} == MyEnum.enum1);
-            assert(a{3} == MyEnum.enum2);
+            assert(a(1) == MyEnum.enum1);
+            assert(a(2) == MyEnum.enum1);
+            assert(a(3) == MyEnum.enum2);
             a = r(int32(MyEnum.enum2)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == MyEnum.enum1);
-            assert(a{2} == MyEnum.enum2);
+            assert(a(1) == MyEnum.enum1);
+            assert(a(2) == MyEnum.enum2);
             a = r(int32(MyEnum.enum1)); % Need to use temp
             assert(length(a) == 2);
-            assert(a{1} == MyEnum.enum3);
-            assert(a{2} == MyEnum.enum3);
+            assert(a(1) == MyEnum.enum3);
+            assert(a(2) == MyEnum.enum3);
 
             lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
 

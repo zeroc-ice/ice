@@ -85,8 +85,8 @@ classdef AllTests
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
                                      communicator.stringToProxy('test'), ...
                                      [], [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
-                                     {MyEnum.MyEnumMember, MyEnum.MyEnumMember}, ...
-                                     { fs }, { vs }, oos, { communicator.stringToProxy('test') }, ...
+                                     [MyEnum.MyEnumMember, MyEnum.MyEnumMember], ...
+                                     [ fs ], [ vs ], oos, { communicator.stringToProxy('test') }, ...
                                      ied, ifsd, ivsd, iood, ioopd, [false, true, false], []);
 
             assert(mo1.a == 15);
@@ -108,9 +108,9 @@ classdef AllTests
             assert(isequal(mo1.vs, VarStruct('hello')));
 
             assert(mo1.shs(1) == 1);
-            assert(mo1.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
-            assert(isequal(mo1.fss{1}, FixedStruct(78)));
-            assert(isequal(mo1.vss{1}, VarStruct('hello')));
+            assert(mo1.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
+            assert(isequal(mo1.fss(1), FixedStruct(78)));
+            assert(isequal(mo1.vss(1), VarStruct('hello')));
             assert(isequal(mo1.oos{1}, oo1));
             assert(mo1.oops{1} == communicator.stringToProxy('test'));
 
@@ -193,9 +193,9 @@ classdef AllTests
             assert(mo5.fs == mo1.fs);
             assert(mo5.vs == mo1.vs);
             assert(isequal(mo5.shs, mo1.shs));
-            assert(mo5.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
-            assert(mo5.fss{1} == FixedStruct(78));
-            assert(mo5.vss{1} == VarStruct('hello'));
+            assert(mo5.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
+            assert(mo5.fss(1) == FixedStruct(78));
+            assert(mo5.vss(1) == VarStruct('hello'));
             assert(mo5.oos{1}.a == 15);
             assert(mo5.oops{1} == communicator.stringToProxy('test'));
 
@@ -245,7 +245,7 @@ classdef AllTests
 
             assert(isequal(mo7.shs, mo1.shs));
             assert(mo7.es == Ice.Unset);
-            assert(mo7.fss{1} == FixedStruct(78));
+            assert(mo7.fss(1) == FixedStruct(78));
             assert(mo7.vss == Ice.Unset);
             assert(mo7.oos{1}.a == 15);
             assert(mo7.oops == Ice.Unset);
@@ -298,9 +298,9 @@ classdef AllTests
             assert(mo9.vs == mo1.vs);
 
             assert(mo9.shs == Ice.Unset);
-            assert(mo9.es{1} == MyEnum.MyEnumMember && mo1.es{2} == MyEnum.MyEnumMember);
+            assert(mo9.es(1) == MyEnum.MyEnumMember && mo1.es(2) == MyEnum.MyEnumMember);
             assert(mo9.fss == Ice.Unset);
-            assert(mo9.vss{1} == VarStruct('hello'));
+            assert(mo9.vss(1) == VarStruct('hello'));
             assert(mo9.oos == Ice.Unset);
             assert(mo9.oops{1} == communicator.stringToProxy('test'));
 
@@ -358,9 +358,9 @@ classdef AllTests
             mc.bs = uint8(zeros(1, 1000));
             mc.shs = int16(zeros(1, 300));
 
-            mc.fss = cell(1, 300);
+            mc.fss = FixedStruct();
             for i = 1:300
-                mc.fss{i} = FixedStruct();
+                mc.fss(i) = FixedStruct();
             end
 
             mc.ifsd = IntFixedStructDict.new();
@@ -665,9 +665,10 @@ classdef AllTests
 
             [p2, p3] = initial.opSmallStructSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = cell(1, 100);
+            clear p1;
+            p1(1, 100) = SmallStruct();
             for i = 1:length(p1)
-                p1{i} = SmallStruct(1);
+                p1(i) = SmallStruct(1);
             end
             [p2, p3] = initial.opSmallStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -677,9 +678,10 @@ classdef AllTests
 
             [p2, p3] = initial.opSmallStructList(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = cell(1, 100);
+            clear p1;
+            p1(1, 100) = SmallStruct();
             for i = 1:length(p1)
-                p1{i} = SmallStruct(1);
+                p1(i) = SmallStruct(1);
             end
             [p2, p3] = initial.opSmallStructList(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -689,9 +691,10 @@ classdef AllTests
 
             [p2, p3] = initial.opFixedStructSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = cell(1, 100);
+            clear p1;
+            p1(1, 100) = FixedStruct();
             for i = 1:length(p1)
-                p1{i} = FixedStruct(1);
+                p1(i) = FixedStruct(1);
             end
             [p2, p3] = initial.opFixedStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -701,9 +704,10 @@ classdef AllTests
 
             [p2, p3] = initial.opFixedStructList(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = cell(1, 100);
+            clear p1;
+            p1(1, 100) = FixedStruct();
             for i = 1:length(p1)
-                p1{i} = FixedStruct(1);
+                p1(i) = FixedStruct(1);
             end
             [p2, p3] = initial.opFixedStructList(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
@@ -713,9 +717,10 @@ classdef AllTests
 
             [p2, p3] = initial.opVarStructSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = cell(1, 100);
+            clear p1;
+            p1(1, 100) = VarStruct();
             for i = 1:length(p1)
-                p1{i} = VarStruct('test');
+                p1(i) = VarStruct('test');
             end
             [p2, p3] = initial.opVarStructSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));

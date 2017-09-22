@@ -9,10 +9,10 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef FormatType
+classdef FormatType < uint32
     enumeration
-        DefaultFormat
-        CompactFormat
-        SlicedFormat
+        DefaultFormat (0)
+        CompactFormat (1)
+        SlicedFormat (2)
     end
 end
