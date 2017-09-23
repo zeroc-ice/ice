@@ -208,7 +208,7 @@ function allTests($communicator)
         $con = connect($to);
         try
         {
-            $to->sleep(500);
+            $to->sleep(750);
             test(false);
         }
         catch(Exception $ex)

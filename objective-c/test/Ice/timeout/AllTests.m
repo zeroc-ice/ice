@@ -248,7 +248,7 @@ timeoutAllTests(id<ICECommunicator> communicator)
         id<ICEConnection> con = connectPrx(to);
         @try
         {
-            [to sleep:500];
+            [to sleep:750];
             test(NO);
         }
         @catch(ICETimeoutException*)
