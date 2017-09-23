@@ -2186,6 +2186,12 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // For a sequence<class>, read() returns an instance of IceInternal.CellArrayHandle that we later replace
         // with the cell array. See convert().
         //
+        out << nl << "if sz == 0";
+        out.inc();
+        out << nl << "r = {};";
+        out.dec();
+        out << nl << "else";
+        out.inc();
         out << nl << "r = IceInternal.CellArrayHandle();";
         out << nl << "r.array = cell(1, sz);";
         out << nl << "for i = 1:sz";
@@ -2196,26 +2202,41 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         unmarshal(out, "is", "@(v) r.set(i, v)", content, false, 0);
         out.dec();
         out << nl << "end";
+        out.dec();
+        out << nl << "end";
     }
     else if((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
     {
         //
         // These types require a cell array.
         //
+        out << nl << "if sz == 0";
+        out.inc();
+        out << nl << "r = {};";
+        out.dec();
+        out << nl << "else";
+        out.inc();
         out << nl << "r = cell(1, sz);";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshal(out, "is", "r{i}", content, false, 0);
         out.dec();
         out << nl << "end";
+        out.dec();
+        out << nl << "end";
     }
     else if(enumContent)
     {
         const EnumeratorList enumerators = enumContent->enumerators();
+        out << nl << "r = " << getAbsolute(enumContent) << ".empty();";
+        out << nl << "if sz > 0";
+        out.inc();
         out << nl << "r(1, sz) = " << getAbsolute(*enumerators.begin()) << ";";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshal(out, "is", "r(i)", content, false, 0);
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }
@@ -2226,10 +2247,15 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
         // the struct members.
         //
+        out << nl << "r = " << getAbsolute(structContent) << ".empty();";
+        out << nl << "if sz > 0";
+        out.inc();
         out << nl << "r(1, sz) = " << getAbsolute(structContent) << "();";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshalStruct(out, structContent, "r(i)");
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }
