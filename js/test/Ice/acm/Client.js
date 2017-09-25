@@ -504,7 +504,6 @@
             navigator.userAgent.indexOf("Edge/13") != -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
-            tests.push(new HeartbeatAlwaysTest(com, out));
             tests.push(new SetACMTest(com, out));
         }
         else
