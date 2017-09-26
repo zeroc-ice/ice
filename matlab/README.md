@@ -5,7 +5,8 @@ in a production application.*
 
 ## Prerequisites
 
-The build system currently requires Microsoft Visual Studio 2015.
+The build system requires Microsoft Visual Studio 2015 and the [Ice Builder for 
+Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=ZeroCInc.IceBuilder).
 
 Ice for MATLAB supports MATLAB 2016a or later.
 
