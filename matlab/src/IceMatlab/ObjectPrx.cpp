@@ -11,8 +11,8 @@
 
 #include <Ice/Ice.h>
 #include "icematlab.h"
+#include "Communicator.h"
 #include "Future.h"
-#include "InputStream.h"
 #include "ObjectPrx.h"
 #include "Util.h"
 
@@ -30,7 +30,6 @@ class InvocationFuture : public Future
 public:
 
     InvocationFuture(bool, bool);
-    ~InvocationFuture();
 
     virtual void exception(exception_ptr);
     virtual void sent();
@@ -38,7 +37,7 @@ public:
 
     void finished(const std::shared_ptr<Ice::Communicator>&, const Ice::EncodingVersion&, bool,
                   std::pair<const Ice::Byte*, const Ice::Byte*>);
-    void getResults(bool&, void*&);
+    void getResults(bool&, pair<const Ice::Byte*, const Ice::Byte*>&);
 
 protected:
 
@@ -50,7 +49,7 @@ private:
     enum State { Running, Sent, Finished };
     State _state;
     bool _ok; // True for success, false for user exception.
-    void* _stream; // The InputStream for reading the results.
+    vector<Ice::Byte> _data;
 };
 
 #define IFSELF (*(reinterpret_cast<shared_ptr<InvocationFuture>*>(self)))
@@ -58,17 +57,8 @@ private:
 InvocationFuture::InvocationFuture(bool twoway, bool batch) :
     _twoway(twoway),
     _state(batch ? State::Finished : State::Running),
-    _ok(false),
-    _stream(0)
+    _ok(false)
 {
-}
-
-InvocationFuture::~InvocationFuture()
-{
-    if(_stream)
-    {
-        Ice_InputStream__release(_stream);
-    }
 }
 
 void
@@ -101,8 +91,8 @@ InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& communicato
     _token = nullptr;
     if(p.second > p.first)
     {
-        vector<Ice::Byte> data(p.first, p.second);
-        _stream = createInputStream(communicator, encoding, data);
+        vector<Ice::Byte> data(p.first, p.second); // Makes a copy.
+        _data.swap(data); // Avoids another copy.
     }
     _cond.notify_all();
 }
@@ -128,14 +118,20 @@ InvocationFuture::state() const
 }
 
 void
-InvocationFuture::getResults(bool& ok, void*& stream)
+InvocationFuture::getResults(bool& ok, pair<const Ice::Byte*, const Ice::Byte*>& p)
 {
     Lock sync(_mutex);
     assert(_twoway);
     ok = _ok;
-    assert(_stream);
-    stream = _stream;
-    _stream = 0;
+    if(!_data.empty())
+    {
+        p.first = &_data[0];
+        p.second = p.first + _data.size();
+    }
+    else
+    {
+        p.first = p.second = 0;
+    }
 }
 
 bool
@@ -200,6 +196,18 @@ GetConnectionFuture::isFinished() const
     return _connection || _exception;
 }
 
+static const char* invokeResultFields[] = {"ok", "params"};
+
+mxArray*
+createInvokeResultValue(mxArray* ok, mxArray* params)
+{
+    mwSize dims[2] = {1, 1};
+    auto r = mxCreateStructArray(2, dims, 2, invokeResultFields);
+    mxSetFieldByNumber(r, 0, 0, ok);
+    mxSetFieldByNumber(r, 0, 1, params);
+    return r;
+}
+
 }
 
 void*
@@ -240,86 +248,145 @@ Ice_ObjectPrx_equals(void* self, void* other, unsigned char* r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_createOutputStream(void* self, void** stream)
+Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int start, int size, void** r, int* used)
 {
-    *stream = new Ice::OutputStream(SELF->ice_getCommunicator(), SELF->ice_getEncodingVersion());
+    assert(!mxIsEmpty(buf));
+
+    pair<const Ice::Byte*, const Ice::Byte*> p;
+    p.first = reinterpret_cast<Ice::Byte*>(mxGetData(buf)) + start;
+    p.second = p.first + size;
+
+    try
+    {
+        Ice::EncodingVersion ev;
+        getEncodingVersion(encoding, ev);
+
+        Ice::InputStream in(getCommunicator(communicator), ev, p);
+        shared_ptr<Ice::ObjectPrx> proxy;
+        in.read(proxy);
+        if(proxy)
+        {
+            *r = createProxy(proxy);
+        }
+        else
+        {
+            *r = 0;
+        }
+        *used = static_cast<int>(in.pos());
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_invoke(void* self, const char* op, Ice_OperationMode m, void* inParams, mxArray* context,
-                         unsigned char* result, void** outParams)
+Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
 {
-    auto out = reinterpret_cast<Ice::OutputStream*>(inParams);
-    auto mode = static_cast<Ice::OperationMode>(m);
-    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    if(out)
+    //
+    // Marshal a proxy into a stream and return the encoded bytes.
+    //
+    try
     {
-        params = out->finished();
-    }
-    vector<Ice::Byte> v;
+        shared_ptr<Ice::ObjectPrx> prx;
+        if(proxy)
+        {
+            prx = DEREF(proxy);
+        }
 
-    *outParams = 0;
+        assert(communicator);
+        shared_ptr<Ice::Communicator> comm = getCommunicator(communicator);
+
+        Ice::EncodingVersion enc;
+        getEncodingVersion(encoding, enc);
+
+        Ice::OutputStream out(comm, enc);
+        out.write(prx);
+        pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
+
+        assert(p.second > p.first);
+        return createResultValue(createByteArray(p.first, p.second));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, unsigned int size, mxArray* context)
+{
+    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    if(!mxIsEmpty(inParams))
+    {
+        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.second = params.first + size;
+    }
+    auto mode = static_cast<Ice::OperationMode>(m);
+    vector<Ice::Byte> v;
 
     try
     {
         Ice::Context ctx;
         getStringMap(context, ctx);
-        *result = SELF->ice_invoke(op, mode, params, v, ctx) ? 1 : 0;
+        auto ok = SELF->ice_invoke(op, mode, params, v, ctx);
+        mxArray* results = 0;
         if(!v.empty())
         {
-            *outParams = createInputStream(SELF->ice_getCommunicator(), SELF->ice_getEncodingVersion(), v);
+            results = createByteArray(&v[0], &v[0] + v.size());
         }
+        return createResultValue(createInvokeResultValue(createBool(ok), results));
     }
     catch(const std::exception& ex)
     {
-        return convertException(ex);
+        return createResultException(convertException(ex));
     }
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, Ice_OperationMode m, void* inParams, unsigned char* result,
-                           void** outParams)
+Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size)
 {
-    auto out = reinterpret_cast<Ice::OutputStream*>(inParams);
-    auto mode = static_cast<Ice::OperationMode>(m);
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    if(out)
+    if(!mxIsEmpty(inParams))
     {
-        params = out->finished();
+        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.second = params.first + size;
     }
+    auto mode = static_cast<Ice::OperationMode>(m);
     vector<Ice::Byte> v;
-
-    *outParams = 0;
 
     try
     {
-        *result = SELF->ice_invoke(op, mode, params, v) ? 1 : 0;
+        auto ok = SELF->ice_invoke(op, mode, params, v);
+        mxArray* results = 0;
         if(!v.empty())
         {
-            *outParams = createInputStream(SELF->ice_getCommunicator(), SELF->ice_getEncodingVersion(), v);
+            results = createByteArray(&v[0], &v[0] + v.size());
         }
+        return createResultValue(createInvokeResultValue(createBool(ok), results));
     }
     catch(const std::exception& ex)
     {
-        return convertException(ex);
+        return createResultException(convertException(ex));
     }
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, Ice_OperationMode m, void* inParams, mxArray* context,
-                              void** future)
+Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inParams, unsigned int size,
+                              mxArray* context, void** future)
 {
     const shared_ptr<Ice::ObjectPrx> proxy = SELF;
-    auto out = reinterpret_cast<Ice::OutputStream*>(inParams);
-    auto mode = static_cast<Ice::OperationMode>(m);
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    if(out)
+    if(!mxIsEmpty(inParams))
     {
-        params = out->finished();
+        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.second = params.first + size;
     }
+    auto mode = static_cast<Ice::OperationMode>(m);
 
     *future = 0;
     auto f = make_shared<InvocationFuture>(proxy->ice_isTwoway(),
@@ -355,16 +422,16 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, Ice_OperationMode m, v
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, Ice_OperationMode m, void* inParams, void** future)
+Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size, void** future)
 {
     const shared_ptr<Ice::ObjectPrx> proxy = SELF;
-    auto out = reinterpret_cast<Ice::OutputStream*>(inParams);
-    auto mode = static_cast<Ice::OperationMode>(m);
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    if(out)
+    if(!mxIsEmpty(inParams))
     {
-        params = out->finished();
+        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.second = params.first + size;
     }
+    auto mode = static_cast<Ice::OperationMode>(m);
 
     *future = 0;
     auto f = make_shared<InvocationFuture>(proxy->ice_isTwoway(),
@@ -1040,7 +1107,7 @@ Ice_InvocationFuture_wait(void* self, unsigned char* ok)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_InvocationFuture_stream(void* self, unsigned char* ok, void** stream)
+Ice_InvocationFuture_results(void* self)
 {
     // TBD: Timeout?
 
@@ -1053,14 +1120,29 @@ Ice_InvocationFuture_stream(void* self, unsigned char* ok, void** stream)
         }
         catch(const std::exception& ex)
         {
-            return convertException(ex);
+            //
+            // The C++ object won't be used after this.
+            //
+            delete &IFSELF;
+            return createResultException(convertException(ex));
         }
     }
 
-    bool b;
-    IFSELF->getResults(b, *stream);
-    *ok = b ? 1 : 0;
-    return 0;
+    bool ok;
+    pair<const Ice::Byte*, const Ice::Byte*> p;
+    IFSELF->getResults(ok, p);
+    mxArray* params = 0;
+    if(p.second > p.first)
+    {
+        params = createByteArray(p.first, p.second);
+    }
+
+    //
+    // The C++ object won't be used after this.
+    //
+    delete &IFSELF;
+
+    return createResultValue(createInvokeResultValue(createBool(ok), params));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -1084,6 +1166,10 @@ Ice_InvocationFuture_check(void* self)
         assert(IFSELF->getException());
         try
         {
+            //
+            // The C++ object won't be used after this.
+            //
+            delete &IFSELF;
             rethrow_exception(IFSELF->getException());
         }
         catch(const std::exception& ex)
@@ -1091,6 +1177,11 @@ Ice_InvocationFuture_check(void* self)
             return convertException(ex);
         }
     }
+
+    //
+    // The C++ object won't be used after this.
+    //
+    delete &IFSELF;
 
     return 0;
 }
@@ -1133,12 +1224,22 @@ Ice_GetConnectionFuture_fetch(void* self, void** con)
         }
         catch(const std::exception& ex)
         {
+            //
+            // The C++ object won't be used after this.
+            //
+            delete &IFSELF;
             return convertException(ex);
         }
     }
 
     assert(GCFSELF->getConnection());
     *con = new shared_ptr<Ice::Connection>(GCFSELF->getConnection());
+
+    //
+    // The C++ object won't be used after this.
+    //
+    delete &IFSELF;
+
     return 0;
 }
 

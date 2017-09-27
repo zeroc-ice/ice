@@ -115,13 +115,6 @@ Ice_SimpleFuture__release(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_SimpleFuture_id(void* self, unsigned long long* id)
-{
-    *id = reinterpret_cast<unsigned long long>(self);
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
 Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
@@ -156,9 +149,18 @@ Ice_SimpleFuture_check(void* self)
         }
         catch(const std::exception& ex)
         {
+            //
+            // The C++ object won't be used after this.
+            //
+            delete &SFSELF;
             return convertException(ex);
         }
     }
+
+    //
+    // The C++ object won't be used after this.
+    //
+    delete &SFSELF;
 
     return 0;
 }

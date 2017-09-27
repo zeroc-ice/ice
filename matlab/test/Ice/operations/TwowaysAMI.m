@@ -425,10 +425,10 @@ classdef TwowaysAMI
             assert(strcmp(r{3}{1}(2), ''));
             assert(strcmp(r{3}{2}(1), 'abcd'));
 
-            di1 = ByteBoolD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'logical');
             di1(10) = true;
             di1(100) = false;
-            di2 = ByteBoolD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'logical');
             di2(10) = true;
             di2(11) = false;
             di2(101) = true;
@@ -442,10 +442,10 @@ classdef TwowaysAMI
             assert(~r(100));
             assert(r(101));
 
-            di1 = ShortIntD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             di1(110) = -1;
             di1(1100) = 123123;
-            di2 = ShortIntD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             di2(110) = -1;
             di2(111) = -100;
             di2(1101) = 0;
@@ -459,10 +459,10 @@ classdef TwowaysAMI
             assert(r(1100) == 123123);
             assert(r(1101) == 0);
 
-            di1 = LongFloatD.new();
+            di1 = containers.Map('KeyType', 'int64', 'ValueType', 'single');
             di1(999999110) = -1.1;
             di1(999999111) = 123123.2;
-            di2 = LongFloatD.new();
+            di2 = containers.Map('KeyType', 'int64', 'ValueType', 'single');
             di2(999999110) = -1.1;
             di2(999999120) = -100.4;
             di2(999999130) = 0.5;
@@ -476,10 +476,10 @@ classdef TwowaysAMI
             assert(r(999999111) == single(123123.2));
             assert(r(999999130) == single(0.5));
 
-            di1 = StringStringD.new();
+            di1 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             di1('foo') = 'abc -1.1';
             di1('bar') = 'abc 123123.2';
-            di2 = StringStringD.new();
+            di2 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             di2('foo') = 'abc -1.1';
             di2('FOO') = 'abc -100.4';
             di2('BAR') = 'abc 0.5';
@@ -493,10 +493,10 @@ classdef TwowaysAMI
             assert(strcmp(r('bar'), 'abc 123123.2'));
             assert(strcmp(r('BAR'), 'abc 0.5'));
 
-            di1 = StringMyEnumD.new();
+            di1 = containers.Map('KeyType', 'char', 'ValueType', 'any');
             di1('abc') = MyEnum.enum1;
             di1('') = MyEnum.enum2;
-            di2 = StringMyEnumD.new();
+            di2 = containers.Map('KeyType', 'char', 'ValueType', 'any');
             di2('abc') = MyEnum.enum1;
             di2('qwerty') = MyEnum.enum3;
             di2('Hello!!') = MyEnum.enum2;
@@ -510,9 +510,9 @@ classdef TwowaysAMI
             assert(r('') == MyEnum.enum2);
             assert(r('Hello!!') == MyEnum.enum2);
 
-            di1 = MyEnumStringD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             di1(int32(MyEnum.enum1)) = 'abc';
-            di2 = MyEnumStringD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             di2(int32(MyEnum.enum2)) = 'Hello!!';
             di2(int32(MyEnum.enum3)) = 'qwerty';
 
@@ -526,7 +526,7 @@ classdef TwowaysAMI
 
             s11 = MyStruct(1, 1);
             s12 = MyStruct(1, 2);
-            di1 = MyStructMyEnumD.new();
+            di1 = struct.empty();
             di1(1).key = s11;
             di1(1).value = MyEnum.enum1;
             di1(2).key = s12;
@@ -534,7 +534,7 @@ classdef TwowaysAMI
 
             s22 = MyStruct(2, 2);
             s23 = MyStruct(2, 3);
-            di2 = MyStructMyEnumD.new();
+            di2 = struct.empty();
             di2(1).key = s11;
             di2(1).value = MyEnum.enum1;
             di2(2).key = s22;
@@ -560,14 +560,14 @@ classdef TwowaysAMI
                 end
             end
 
-            di1 = ByteBoolD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'logical');
             di1(10) = true;
             di1(100) = false;
-            di2 = ByteBoolD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'logical');
             di2(10) = true;
             di2(11) = false;
             di2(101) = true;
-            di3 = ByteBoolD.new();
+            di3 = containers.Map('KeyType', 'int32', 'ValueType', 'logical');
             di3(100) = false;
             di3(101) = false;
 
@@ -597,14 +597,14 @@ classdef TwowaysAMI
             assert(~p3{3}(11));
             assert(p3{3}(101));
 
-            di1 = ShortIntD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             di1(110) = -1;
             di1(1100) = 123123;
-            di2 = ShortIntD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             di2(110) = -1;
             di2(111) = -100;
             di2(1101) = 0;
-            di3 = ShortIntD.new();
+            di3 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             di3(100) = -1001;
 
             dsi1 = {di1, di2};
@@ -632,14 +632,14 @@ classdef TwowaysAMI
             assert(p3{3}(111) == -100);
             assert(p3{3}(1101) == 0);
 
-            di1 = LongFloatD.new();
+            di1 = containers.Map('KeyType', 'int64', 'ValueType', 'single');
             di1(999999110) = -1.1;
             di1(999999111) = 123123.2;
-            di2 = LongFloatD.new();
+            di2 = containers.Map('KeyType', 'int64', 'ValueType', 'single');
             di2(999999110) = -1.1;
             di2(999999120) = -100.4;
             di2(999999130) = 0.5;
-            di3 = LongFloatD.new();
+            di3 = containers.Map('KeyType', 'int64', 'ValueType', 'single');
             di3(999999140) = 3.14;
 
             dsi1 = {di1, di2};
@@ -667,14 +667,14 @@ classdef TwowaysAMI
             assert(p3{3}(999999120) == single(-100.4));
             assert(p3{3}(999999130) == single(0.5));
 
-            di1 = StringStringD.new();
+            di1 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             di1('foo') = 'abc -1.1';
             di1('bar') = 'abc 123123.2';
-            di2 = StringStringD.new();
+            di2 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             di2('foo') = 'abc -1.1';
             di2('FOO') = 'abc -100.4';
             di2('BAR') = 'abc 0.5';
-            di3 = StringStringD.new();
+            di3 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             di3('f00') = 'ABC -3.14';
 
             dsi1 = {di1, di2};
@@ -702,14 +702,14 @@ classdef TwowaysAMI
             assert(strcmp(p3{3}('FOO'), 'abc -100.4'));
             assert(strcmp(p3{3}('BAR'), 'abc 0.5'));
 
-            di1 = StringMyEnumD.new();
+            di1 = containers.Map('KeyType', 'char', 'ValueType', 'any');
             di1('abc') = MyEnum.enum1;
             di1('') = MyEnum.enum2;
-            di2 = StringMyEnumD.new();
+            di2 = containers.Map('KeyType', 'char', 'ValueType', 'any');
             di2('abc') = MyEnum.enum1;
             di2('qwerty') = MyEnum.enum3;
             di2('Hello!!') = MyEnum.enum2;
-            di3 = StringMyEnumD.new();
+            di3 = containers.Map('KeyType', 'char', 'ValueType', 'any');
             di3('Goodbye') = MyEnum.enum1;
 
             dsi1 = {di1, di2};
@@ -737,12 +737,12 @@ classdef TwowaysAMI
             assert(p3{3}('qwerty') == MyEnum.enum3);
             assert(p3{3}('Hello!!') == MyEnum.enum2);
 
-            di1 = MyEnumStringD.new();
+            di1 = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             di1(int32(MyEnum.enum1)) = 'abc';
-            di2 = MyEnumStringD.new();
+            di2 = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             di2(int32(MyEnum.enum2)) = 'Hello!!';
             di2(int32(MyEnum.enum3)) = 'qwerty';
-            di3 = MyEnumStringD.new();
+            di3 = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             di3(int32(MyEnum.enum1)) = 'Goodbye';
 
             dsi1 = {di1, di2};
@@ -768,7 +768,7 @@ classdef TwowaysAMI
 
             s11 = MyStruct(1, 1);
             s12 = MyStruct(1, 2);
-            di1 = MyStructMyEnumD.new();
+            di1 = struct.empty();
             di1(1).key = s11;
             di1(1).value = MyEnum.enum1;
             di1(2).key = s12;
@@ -776,7 +776,7 @@ classdef TwowaysAMI
 
             s22 = MyStruct(2, 2);
             s23 = MyStruct(2, 3);
-            di2 = MyStructMyEnumD.new();
+            di2 = struct.empty();
             di2(1).key = s11;
             di2(1).value = MyEnum.enum1;
             di2(2).key = s22;
@@ -784,7 +784,7 @@ classdef TwowaysAMI
             di2(3).key = s23;
             di2(3).value = MyEnum.enum2;
 
-            di3 = MyStructMyEnumD.new();
+            di3 = struct.empty();
             di3(1).key = s23;
             di3(1).value = MyEnum.enum2;
 
@@ -822,8 +822,8 @@ classdef TwowaysAMI
             assert(length(p3{3}) == 3);
             checkStructDict(p3{3});
 
-            sdi1 = ByteByteSD.new();
-            sdi2 = ByteByteSD.new();
+            sdi1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
 
             si1 = [hex2dec('01'), hex2dec('11')];
             si2 = [hex2dec('12')];
@@ -853,8 +853,8 @@ classdef TwowaysAMI
             assert(a(1) == hex2dec('f2'));
             assert(a(2) == hex2dec('f3'));
 
-            sdi1 = BoolBoolSD.new();
-            sdi2 = BoolBoolSD.new();
+            sdi1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
 
             si1 = [true, false];
             si2 = [false, true, true];
@@ -881,8 +881,8 @@ classdef TwowaysAMI
             assert(a(2));
             assert(a(3));
 
-            sdi1 = ShortShortSD.new();
-            sdi2 = ShortShortSD.new();
+            sdi1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
 
             si1 = [1, 2, 3];
             si2 = [4, 5];
@@ -914,8 +914,8 @@ classdef TwowaysAMI
             assert(a(1) == 6);
             assert(a(2) == 7);
 
-            sdi1 = IntIntSD.new();
-            sdi2 = IntIntSD.new();
+            sdi1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
 
             si1 = [100, 200, 300];
             si2 = [400, 500];
@@ -947,8 +947,8 @@ classdef TwowaysAMI
             assert(a(1) == 600);
             assert(a(2) == 700);
 
-            sdi1 = LongLongSD.new();
-            sdi2 = LongLongSD.new();
+            sdi1 = containers.Map('KeyType', 'int64', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int64', 'ValueType', 'any');
 
             si1 = [999999110, 999999111, 999999110];
             si2 = [999999120, 999999130];
@@ -980,8 +980,8 @@ classdef TwowaysAMI
             assert(a(1) == 999999110);
             assert(a(2) == 999999120);
 
-            sdi1 = StringFloatSD.new();
-            sdi2 = StringFloatSD.new();
+            sdi1 = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
             si1 = [-1.1, 123123.2, 100.0];
             si2 = [42.24, -1.61];
@@ -1013,8 +1013,8 @@ classdef TwowaysAMI
             assert(a(1) == single(-3.14));
             assert(a(2) == single(3.14));
 
-            sdi1 = StringDoubleSD.new();
-            sdi2 = StringDoubleSD.new();
+            sdi1 = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
             si1 = [ 1.1E10, 1.2E10, 1.3E10 ];
             si2 = [ 1.4E10, 1.5E10 ];
@@ -1046,8 +1046,8 @@ classdef TwowaysAMI
             assert(a(1) == 1.6E10);
             assert(a(2) == 1.7E10);
 
-            sdi1 = StringStringSD.new();
-            sdi2 = StringStringSD.new();
+            sdi1 = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
             si1 = { 'abc', 'de', 'fghi' };
             si2 = { 'xyz', 'or' };
@@ -1079,8 +1079,8 @@ classdef TwowaysAMI
             assert(strcmp(a(1), 'and'));
             assert(strcmp(a(2), 'xor'));
 
-            sdi1 = MyEnumMyEnumSD.new();
-            sdi2 = MyEnumMyEnumSD.new();
+            sdi1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            sdi2 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
 
             si1 = [ MyEnum.enum1, MyEnum.enum1, MyEnum.enum2 ];
             si2 = [ MyEnum.enum1, MyEnum.enum2 ];
@@ -1126,7 +1126,7 @@ classdef TwowaysAMI
                 end
             end
 
-            ctx = Ice.Context.new();
+            ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
             ctx('one') = 'ONE';
             ctx('two') = 'TWO';
             ctx('three') = 'THREE';
@@ -1158,7 +1158,7 @@ classdef TwowaysAMI
 
                 ic = app.initialize(initData);
 
-                ctx = Ice.Context.new();
+                ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
                 ctx('one') = 'ONE';
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
@@ -1178,11 +1178,11 @@ classdef TwowaysAMI
                 ctx = ic.getImplicitContext().getContext();
                 assert(isequal(p3.opContext(), ctx));
 
-                prxContext = Ice.Context.new();
+                prxContext = containers.Map('KeyType', 'char', 'ValueType', 'char');
                 prxContext('one') = 'UN';
                 prxContext('four') = 'QUATRE';
 
-                combined = Ice.Context.new(ctx);
+                combined = containers.Map(ctx.keys(), ctx.values());
                 keys = prxContext.keys();
                 for j = 1:prxContext.Count
                     combined(keys{j}) = prxContext(keys{j});

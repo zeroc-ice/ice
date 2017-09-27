@@ -14,6 +14,7 @@ classdef (Abstract) EncapsEncoder < handle
         function obj = EncapsEncoder(os, encaps)
             obj.os = os;
             obj.encaps = encaps;
+            obj.typeIdMap = containers.Map('KeyType', 'char', 'ValueType', 'int32');
             obj.typeIdIndex = 0;
         end
 
@@ -36,13 +37,12 @@ classdef (Abstract) EncapsEncoder < handle
     end
     methods(Access=protected)
         function r = registerTypeId(obj, typeId)
-            if isempty(obj.typeIdMap) % Lazy initialization
-                obj.typeIdMap = containers.Map('KeyType', 'char', 'ValueType', 'int32');
-            end
-
-            if obj.typeIdMap.isKey(typeId)
+            %
+            % The map raises an exception if the key isn't present.
+            %
+            try
                 r = obj.typeIdMap(typeId);
-            else
+            catch ex
                 obj.typeIdIndex = obj.typeIdIndex + 1;
                 obj.typeIdMap(typeId) = obj.typeIdIndex;
                 r = -1;

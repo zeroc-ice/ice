@@ -41,6 +41,7 @@ mxArray* createResultValue(mxArray*);
 mxArray* createResultException(mxArray*);
 mxArray* createStringList(const std::vector<std::string>&);
 void getStringList(mxArray*, std::vector<std::string>&);
+mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);
 
 std::string idToClass(const std::string&);
 

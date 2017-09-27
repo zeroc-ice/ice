@@ -11,7 +11,6 @@
 
 #include <Ice/Communicator.h>
 #include <Ice/Proxy.h>
-#include <Ice/OutputStream.h>
 #include "icematlab.h"
 #include "Communicator.h"
 #include "Future.h"
@@ -309,15 +308,6 @@ Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** futur
     {
         return convertException(ex);
     }
-    return 0;
-}
-
-EXPORTED_FUNCTION mxArray*
-Ice_Communicator_createOutputStream(void* self, mxArray* encoding, void** stream)
-{
-    Ice::EncodingVersion v;
-    getEncodingVersion(encoding, v);
-    *stream = new Ice::OutputStream(SELF, v);
     return 0;
 }
 

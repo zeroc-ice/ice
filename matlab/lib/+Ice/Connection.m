@@ -15,6 +15,9 @@ ICE_LICENSE file included in this distribution.
 classdef Connection < IceInternal.WrapperObject
     methods
         function obj = Connection(impl, communicator)
+            if ~isa(impl, 'lib.pointer')
+                throw(MException('Ice:ArgumentException', 'invalid argument'));
+            end
             obj = obj@IceInternal.WrapperObject(impl);
             obj.communicator = communicator;
         end
@@ -25,7 +28,7 @@ classdef Connection < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('closeAsync', future);
             assert(~isNull(future));
-            f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', []);
+            f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
         function r = createProxy(obj, id)
             proxy = libpointer('voidPtr');
@@ -42,7 +45,7 @@ classdef Connection < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', []);
+            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
         function heartbeat(obj)
             obj.call_('heartbeat');
@@ -51,7 +54,7 @@ classdef Connection < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('heartbeatAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', []);
+            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
         function setACM(obj, timeout, close, heartbeat)
             if timeout == Ice.Unset

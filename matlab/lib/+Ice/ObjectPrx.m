@@ -12,8 +12,17 @@ ICE_LICENSE file included in this distribution.
 classdef ObjectPrx < IceInternal.WrapperObject
     methods
         function obj = ObjectPrx(impl, communicator)
+            if ~isa(impl, 'lib.pointer')
+                throw(MException('Ice:ArgumentException', 'invalid argument'));
+            end
             obj = obj@IceInternal.WrapperObject(impl, 'Ice_ObjectPrx');
             obj.communicator = communicator;
+            obj.encoding = obj.callWithResult_('ice_getEncodingVersion');
+
+            % Cache this value
+            v = libpointer('uint8Ptr', 0);
+            obj.call_('ice_isTwoway', v);
+            obj.isTwoway = v.Value == 1;
         end
 
         function delete(obj)
@@ -35,9 +44,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_createOutputStream(obj)
-            stream = libpointer('voidPtr');
-            obj.call_('ice_createOutputStream', stream);
-            r = Ice.OutputStream(stream, obj.communicator);
+            r = Ice.OutputStream(obj.communicator, obj.encoding);
         end
 
         function r = ice_toString(obj)
@@ -49,19 +56,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function ice_ping(obj, varargin)
-            [ok, inStream] = obj.invoke_('ice_ping', 'Nonmutating', false, [], varargin{:});
+            [ok, inStream] = obj.invoke_('ice_ping', 1, false, [], varargin{:});
             obj.checkNoResponse_(ok, inStream);
         end
 
         function r = ice_pingAsync(obj, varargin)
-            r = obj.invokeAsync_('ice_ping', 'Nonmutating', false, [], 0, [], varargin{:});
+            r = obj.invokeAsync_('ice_ping', 1, false, [], 0, [], varargin{:});
         end
 
         function r = ice_isA(obj, id, varargin)
             os = obj.startWriteParams_([]);
             os.writeString(id);
             obj.endWriteParams_(os);
-            [ok, inStream] = obj.invoke_('ice_isA', 'Nonmutating', true, os, varargin{:});
+            [ok, inStream] = obj.invoke_('ice_isA', 1, true, os, varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readBool();
@@ -84,11 +91,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     obj.throwUserException_(is);
                 end
             end
-            r = obj.invokeAsync_('ice_isA', 'Nonmutating', true, os, 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_isA', 1, true, os, 1, @unmarshal, varargin{:});
         end
 
         function r = ice_id(obj, varargin)
-            [ok, inStream] = obj.invoke_('ice_id', 'Nonmutating', true, [], varargin{:});
+            [ok, inStream] = obj.invoke_('ice_id', 1, true, [], varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readString();
@@ -108,11 +115,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     obj.throwUserException_(is);
                 end
             end
-            r = obj.invokeAsync_('ice_id', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_id', 1, true, [], 1, @unmarshal, varargin{:});
         end
 
         function r = ice_ids(obj, varargin)
-            [ok, inStream] = obj.invoke_('ice_ids', 'Nonmutating', true, [], varargin{:});
+            [ok, inStream] = obj.invoke_('ice_ids', 1, true, [], varargin{:});
             if ok
                 inStream.startEncapsulation();
                 r = inStream.readStringSeq();
@@ -132,7 +139,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     obj.throwUserException_(is);
                 end
             end
-            r = obj.invokeAsync_('ice_ids', 'Nonmutating', true, [], 1, @unmarshal, varargin{:});
+            r = obj.invokeAsync_('ice_ids', 1, true, [], 1, @unmarshal, varargin{:});
         end
 
         function r = ice_getIdentity(obj)
@@ -287,7 +294,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEncodingVersion(obj)
-            r = obj.callWithResult_('ice_getEncodingVersion');
+            r = obj.encoding;
         end
 
         function r = ice_encodingVersion(obj, ver)
@@ -393,9 +400,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isTwoway(obj)
-            v = libpointer('uint8Ptr', 0);
-            obj.call_('ice_isTwoway', v);
-            r = v.Value == 1;
+            r = obj.isTwoway;
         end
 
         function r = ice_twoway(obj)
@@ -538,13 +543,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('ice_flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', []);
+            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
     end
 
     methods(Access=protected)
         function checkNoResponse_(obj, ok, inStream)
-            if obj.ice_isTwoway()
+            if obj.isTwoway
                 if ok == 0
                     try
                         obj.throwUserException_(inStream);
@@ -572,25 +577,42 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if length(varargin) > 1
                     throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
-                if twowayOnly && ~obj.ice_isTwoway()
+                if twowayOnly && ~obj.isTwoway
                     throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
                 end
-                if ~isempty(os)
-                    outStream = os.impl_;
+                if isempty(os)
+                    buf = [];
+                    size = 0;
                 else
-                    outStream = libpointer('voidPtr'); % Null pointer for output stream
+                    buf = os.buf.buf;
+                    size = os.buf.size;
                 end
-                okPtr = libpointer('uint8Ptr', 0); % Output param
-                inStreamPtr = libpointer('voidPtr'); % Output param
                 if length(varargin) == 1
-                    obj.call_('ice_invoke', op, mode, outStream, varargin{1}, okPtr, inStreamPtr);
+                    %
+                    % Avoid the string concatenation
+                    %
+                    % res = obj.callWithResult_('ice_invoke', op, mode, buf, size, varargin{1});
+                    %
+                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, ...
+                                                          size, varargin{1});
                 else
-                    obj.call_('ice_invokeNC', op, mode, outStream, okPtr, inStreamPtr);
+                    %
+                    % Avoid the string concatenation
+                    %
+                    % res = obj.callWithResult_('ice_invokeNC', op, mode, buf, size);
+                    %
+                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invokeNC', obj.impl_, op, mode, buf, size);
                 end
-                ok = okPtr.Value == 1;
+                ok = res.ok;
                 inStream = [];
-                if ~isNull(inStreamPtr)
-                    inStream = Ice.InputStream(inStreamPtr, obj.communicator);
+                if ~isempty(res.params)
+                    if isempty(obj.cachedInputStream)
+                        inStream = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
+                        obj.cachedInputStream = inStream;
+                    else
+                        inStream = obj.cachedInputStream;
+                        inStream.reset(res.params);
+                    end
                 end
             catch ex
                 ex.throwAsCaller();
@@ -598,22 +620,25 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function fut = invokeAsync_(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, varargin)
-            isTwoway = obj.ice_isTwoway();
+            isTwoway = obj.isTwoway;
 
             % This nested function is invoked by Future.fetchOutputs()
             function varargout = fetch(f)
                 try
                     if isTwoway
                         %
-                        % Retrieve a boolean indicating whether the request completed successfully or returned
-                        % a user exception. The 'stream' function can also raise a local exception if necessary.
+                        % Call 'results' to obtain a boolean indicating whether the request completed successfully
+                        % or returned a user exception, and the encoded out parameters. The function can also raise
+                        % a local exception if necessary.
                         %
-                        okPtr = libpointer('uint8Ptr', 0); % Output param
-                        inStreamPtr = libpointer('voidPtr', 0); % Output param
-                        f.call_('stream', okPtr, inStreamPtr);
-                        ok = okPtr.Value == 1;
-                        assert(~isNull(inStreamPtr));
-                        inStream = Ice.InputStream(inStreamPtr, obj.communicator);
+                        % Avoid the string concatenation
+                        %
+                        % res = f.callWithResult_('results');
+                        %
+                        res = IceInternal.Util.callWithResult('Ice_InvocationFuture_results', f.impl_);
+                        ok = res.ok;
+                        assert(~isempty(res.params));
+                        inStream = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
                         if isempty(unmarshalFunc)
                             if ~ok
                                 % Unexpected user exception
@@ -628,7 +653,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         %
                         % Check for a local exception.
                         %
-                        f.call_('check');
+                        % Avoid the string concatenation
+                        %
+                        % f.call_('check');
+                        %
+                        IceInternal.Util.call('Ice_InvocationFuture_check', f.impl_);
                     end
                 catch ex
                     ex.throwAsCaller();
@@ -640,19 +669,32 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if length(varargin) > 1
                     throw(MException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
-                if twowayOnly && ~obj.ice_isTwoway()
+                if twowayOnly && ~isTwoway
                     throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
                 end
-                if ~isempty(os)
-                    outStream = os.impl_;
+                if isempty(os)
+                    buf = [];
+                    size = 0;
                 else
-                    outStream = libpointer('voidPtr'); % Null pointer for output stream
+                    buf = os.buf.buf;
+                    size = os.buf.size;
                 end
                 futPtr = libpointer('voidPtr'); % Output param
                 if length(varargin) == 1
-                    obj.call_('ice_invokeAsync', op, mode, outStream, varargin{1}, futPtr);
+                    %
+                    % Avoid the string concatenation
+                    %
+                    % obj.call_('ice_invokeAsync', op, mode, buf, size, varargin{1}, futPtr);
+                    %
+                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ...
+                                          varargin{1}, futPtr);
                 else
-                    obj.call_('ice_invokeAsyncNC', op, mode, outStream, futPtr);
+                    %
+                    % Avoid the string concatenation
+                    %
+                    % obj.call_('ice_invokeAsyncNC', op, mode, buf, size, futPtr);
+                    %
+                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsyncNC', obj.impl_, op, mode, buf, size, futPtr);
                 end
                 assert(~isNull(futPtr));
                 fut = Ice.Future(futPtr, op, numOutArgs, 'Ice_InvocationFuture', @fetch);
@@ -798,5 +840,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     properties(Access=private)
         communicator % The communicator wrapper
+        encoding
+        isTwoway
+        cachedInputStream % Only used for synchronous invocations
     end
 end

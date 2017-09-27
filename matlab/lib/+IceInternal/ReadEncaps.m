@@ -11,8 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef ReadEncaps < handle
     properties
-        start
-        sz
+        start int32
+        sz int32
         encoding
         encoding_1_0
         decoder
@@ -24,7 +24,7 @@ classdef ReadEncaps < handle
         end
         function setEncoding(obj, encoding)
             obj.encoding = encoding;
-            obj.encoding_1_0 = encoding == IceInternal.Protocol.Encoding_1_0;
+            obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
         end
     end
 end

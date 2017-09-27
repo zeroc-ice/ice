@@ -9,14 +9,15 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef OutputStream < IceInternal.WrapperObject
+classdef OutputStream < handle
     methods
-        function obj = OutputStream(impl, communicator)
-            obj = obj@IceInternal.WrapperObject(impl);
+        function obj = OutputStream(communicator, encoding)
             obj.communicator = communicator;
-            obj.encoding = obj.callWithResult_('getEncoding');
+            obj.encoding = encoding;
+            obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
             obj.encapsStack = [];
             obj.encapsCache = [];
+            obj.buf = IceInternal.Buffer();
         end
         function r = getCommunicator(obj)
             r = obj.communicator;
@@ -32,145 +33,276 @@ classdef OutputStream < IceInternal.WrapperObject
             obj.format = format;
         end
         function writeBool(obj, v)
-            obj.call_('writeBool', v);
+            sz = obj.buf.size;
+            newSz = sz + 1;
+            if newSz <= obj.buf.capacity
+                obj.buf.buf(newSz) = uint8(v);
+                obj.buf.size = newSz;
+            else
+                obj.buf.pushByte(uint8(v));
+            end
         end
         function writeBoolOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F1)
-                obj.call_('writeBool', v);
+                obj.buf.pushByte(uint8(v));
             end
         end
         function writeBoolSeq(obj, v)
-            obj.call_('writeBoolSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                obj.buf.push(v);
+            end
         end
         function writeBoolSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.VSize)
-                obj.call_('writeBoolSeq', v, length(v));
+                obj.writeBoolSeq(v);
             end
         end
         function writeByte(obj, v)
-            obj.call_('writeByte', v);
+            sz = obj.buf.size;
+            newSz = sz + 1;
+            if newSz <= obj.buf.capacity
+                obj.buf.buf(newSz) = v;
+                obj.buf.size = newSz;
+            else
+                obj.buf.pushByte(uint8(v));
+            end
         end
         function writeByteOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F1)
-                obj.call_('writeByte', v);
+                obj.buf.pushByte(v);
             end
         end
         function writeByteSeq(obj, v)
-            obj.call_('writeByteSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                obj.buf.push(v);
+            end
         end
         function writeByteSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.VSize)
-                obj.call_('writeByteSeq', v, length(v));
+                obj.writeByteSeq(v);
             end
         end
         function writeShort(obj, v)
-            obj.call_('writeShort', v);
+            sz = obj.buf.size;
+            newSz = sz + 2;
+            if newSz <= obj.buf.capacity
+                obj.buf.size = newSz;
+            else
+                obj.buf.resize(newSz);
+            end
+            obj.buf.buf(sz + 1:newSz) = typecast(int16(v), 'uint8');
         end
         function writeShortOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F2)
-                obj.call_('writeShort', v);
+                obj.writeShort(v);
             end
         end
         function writeShortSeq(obj, v)
-            obj.call_('writeShortSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                nbytes = len * 2;
+                sz = obj.buf.size;
+                obj.buf.resize(sz + nbytes);
+                obj.buf.buf(sz + 1:sz + nbytes) = typecast(int16(v), 'uint8');
+            end
         end
         function writeShortSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptionalVSize(tag, length(v), 2)
-                obj.call_('writeShortSeq', v, length(v));
+                obj.writeShortSeq(v);
             end
         end
         function writeInt(obj, v)
-            obj.call_('writeInt', v);
+            sz = obj.buf.size;
+            newSz = sz + 4;
+            if newSz <= obj.buf.capacity
+                obj.buf.size = newSz;
+            else
+                obj.buf.resize(newSz);
+            end
+            obj.buf.buf(sz + 1:newSz) = typecast(int32(v), 'uint8');
         end
         function writeIntOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F4)
-                obj.call_('writeInt', v);
+                obj.writeInt(v);
             end
         end
         function writeIntSeq(obj, v)
-            obj.call_('writeIntSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                nbytes = len * 4;
+                sz = obj.buf.size;
+                obj.buf.resize(sz + nbytes);
+                obj.buf.buf(sz + 1:sz + nbytes) = typecast(int32(v), 'uint8');
+            end
         end
         function writeIntSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptionalVSize(tag, length(v), 4)
-                obj.call_('writeIntSeq', v, length(v));
+                obj.writeIntSeq(v);
             end
         end
         function writeLong(obj, v)
-            obj.call_('writeLong', v);
+            sz = obj.buf.size;
+            newSz = sz + 8;
+            if newSz <= obj.buf.capacity
+                obj.buf.size = newSz;
+            else
+                obj.buf.resize(newSz);
+            end
+            obj.buf.buf(sz + 1:newSz) = typecast(int64(v), 'uint8');
         end
         function writeLongOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F8)
-                obj.call_('writeLong', v);
+                obj.writeLong(v);
             end
         end
         function writeLongSeq(obj, v)
-            obj.call_('writeLongSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                nbytes = len * 8;
+                sz = obj.buf.size;
+                obj.buf.resize(sz + nbytes);
+                obj.buf.buf(sz + 1:sz + nbytes) = typecast(int64(v), 'uint8');
+            end
         end
         function writeLongSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptionalVSize(tag, length(v), 8)
-                obj.call_('writeLongSeq', v, length(v));
+                obj.writeLongSeq(v);
             end
         end
         function writeFloat(obj, v)
-            obj.call_('writeFloat', v);
+            sz = obj.buf.size;
+            newSz = sz + 4;
+            if newSz <= obj.buf.capacity
+                obj.buf.size = newSz;
+            else
+                obj.buf.resize(newSz);
+            end
+            obj.buf.buf(sz + 1:newSz) = typecast(single(v), 'uint8');
         end
         function writeFloatOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F4)
-                obj.call_('writeFloat', v);
+                obj.writeFloat(v);
             end
         end
         function writeFloatSeq(obj, v)
-            obj.call_('writeFloatSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                nbytes = len * 4;
+                sz = obj.buf.size;
+                obj.buf.resize(sz + nbytes);
+                obj.buf.buf(sz + 1:sz + nbytes) = typecast(single(v), 'uint8');
+            end
         end
         function writeFloatSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptionalVSize(tag, length(v), 4)
-                obj.call_('writeFloatSeq', v, length(v));
+                obj.writeFloatSeq(v);
             end
         end
         function writeDouble(obj, v)
-            obj.call_('writeDouble', v);
+            sz = obj.buf.size;
+            newSz = sz + 8;
+            if newSz <= obj.buf.capacity
+                obj.buf.size = newSz;
+            else
+                obj.buf.resize(newSz);
+            end
+            obj.buf.buf(sz + 1:newSz) = typecast(double(v), 'uint8');
         end
         function writeDoubleOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.F8)
-                obj.call_('writeDouble', v);
+                obj.writeDouble(v);
             end
         end
         function writeDoubleSeq(obj, v)
-            obj.call_('writeDoubleSeq', v, length(v));
+            len = length(v);
+            obj.writeSize(len);
+            if len > 0
+                nbytes = len * 8;
+                sz = obj.buf.size;
+                obj.buf.resize(sz + nbytes);
+                obj.buf.buf(sz + 1:sz + nbytes) = typecast(double(v), 'uint8');
+            end
         end
         function writeDoubleSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptionalVSize(tag, length(v), 8)
-                obj.call_('writeDoubleSeq', v, length(v));
+                obj.writeDoubleSeq(v);
             end
         end
         function writeString(obj, v)
-            obj.call_('writeString', v);
+            len = length(v);
+            if len == 0
+                sz = obj.buf.size;
+                newSz = sz + 1;
+                if newSz <= obj.buf.capacity
+                    obj.buf.buf(newSz) = uint8(0);
+                    obj.buf.size = newSz;
+                else
+                    obj.buf.pushByte(uint8(0));
+                end
+            else
+                bytes = unicode2native(v, 'utf-8');
+                obj.writeSize(length(bytes));
+                obj.buf.push(bytes);
+            end
         end
         function writeStringOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.VSize)
-                obj.call_('writeString', v);
+                obj.writeString(v);
             end
         end
         function writeStringSeq(obj, v)
-            obj.call_('writeStringSeq', v);
+            sz = length(v);
+            obj.writeSize(sz);
+            for i = 1:sz
+                obj.writeString(v{i});
+            end
         end
         function writeStringSeqOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.FSize)
                 pos = obj.startSize();
-                obj.call_('writeStringSeq', v);
+                obj.writeStringSeq(v);
                 obj.endSize(pos);
             end
         end
         function writeSize(obj, size)
-            obj.call_('writeSize', size);
+            if size > 254
+                sz = obj.buf.size;
+                newSz = sz + 5;
+                if newSz <= obj.buf.capacity
+                    obj.buf.size = newSz;
+                else
+                    obj.buf.resize(newSz);
+                end
+                obj.buf.buf(sz + 1) = 255;
+                obj.buf.buf(sz + 2:newSz) = typecast(int32(size), 'uint8');
+            else
+                sz = obj.buf.size;
+                newSz = sz + 1;
+                if newSz <= obj.buf.capacity
+                    obj.buf.buf(newSz) = uint8(size);
+                    obj.buf.size = newSz;
+                else
+                    obj.buf.pushByte(uint8(size));
+                end
+            end
         end
         function writeProxy(obj, v)
             if isempty(v)
-                impl = libpointer;
+                impl = libpointer('voidPtr');
             else
                 impl = v.impl_;
             end
-            obj.call_('writeProxy', impl);
+            bytes = IceInternal.Util.callWithResult('Ice_ObjectPrx_write', impl, obj.communicator.impl_, ...
+                                                    obj.getEncoding());
+            obj.buf.push(bytes);
         end
         function writeProxyOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.FSize)
@@ -180,7 +312,17 @@ classdef OutputStream < IceInternal.WrapperObject
             end
         end
         function writeEnum(obj, v, maxValue)
-            obj.call_('writeEnum', v, maxValue);
+            if obj.encoding_1_0
+                if maxValue < 127
+                    obj.writeByte(uint8(v));
+                elseif maxValue < 32767
+                    obj.writeShort(int16(v));
+                else
+                    obj.writeInt(v);
+                end
+            else
+                obj.writeSize(v);
+            end
         end
         function writeValue(obj, v)
             if isempty(obj.format)
@@ -240,24 +382,42 @@ classdef OutputStream < IceInternal.WrapperObject
 
             obj.encapsStack.format = format;
             obj.encapsStack.encoding = encoding;
-            obj.encapsStack.start = obj.pos();
+            obj.encapsStack.start = obj.buf.size + 1; % Starting position of the encapsulation size
 
-            obj.writeInt(0); % Placeholder for the encapsulation length.
-            Ice.EncodingVersion.ice_write(obj, obj.encapsStack.encoding);
+            obj.encoding_1_0 = encoding.major == 1 && encoding.minor == 0;
+
+            %obj.writeInt(0); % Placeholder for the encapsulation length.
+            sz = obj.buf.size;
+            if sz + 6 <= obj.buf.capacity % Allocate enough for the size and the encoding
+                obj.buf.size = sz + 6;
+            else
+                obj.buf.resize(sz + 6);
+            end
+
+            %Ice.EncodingVersion.ice_write(obj, obj.encapsStack.encoding);
+            obj.buf.buf(sz + 5) = encoding.major;
+            obj.buf.buf(sz + 6) = encoding.minor;
         end
         function endEncapsulation(obj)
             assert(~isempty(obj.encapsStack));
 
             % Size includes size and version.
             start = obj.encapsStack.start;
-            sz = obj.pos() - start;
-            obj.rewriteInt(sz, start);
+            sz = obj.buf.size - start + 1;
+            %obj.rewriteInt(sz, start);
+            obj.buf.buf(start:start + 3) = typecast(int32(sz), 'uint8');
 
             curr = obj.encapsStack;
             obj.encapsStack = curr.next;
             curr.next = obj.encapsCache;
             obj.encapsCache = curr;
             obj.encapsCache.encoder = [];
+
+            if isempty(obj.encapsStack)
+                obj.encoding_1_0 = obj.encoding.major == 1 && obj.encoding.minor == 0;
+            else
+                obj.encoding_1_0 = obj.encapsStack.encoding.major == 1 && obj.encapsStack.encoding.minor == 0;
+            end
         end
         function startSlice(obj, typeId, compactId, last)
             assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));
@@ -270,7 +430,7 @@ classdef OutputStream < IceInternal.WrapperObject
         function writePendingValues(obj)
             if ~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder)
                 obj.encapsStack.encoder.writePendingValues();
-            elseif isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+            elseif obj.encoding_1_0
                 %
                 % If using the 1.0 encoding and no instances were written, we
                 % still write an empty sequence for pending instances if
@@ -292,7 +452,7 @@ classdef OutputStream < IceInternal.WrapperObject
             end
         end
         function r = writeOptionalImpl(obj, tag, format)
-            if isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+            if obj.encoding_1_0
                 r = false; % Optional members aren't supported with the 1.0 encoding.
                 return;
             end
@@ -309,42 +469,32 @@ classdef OutputStream < IceInternal.WrapperObject
             r = true;
         end
         function r = startSize(obj)
-            pos = libpointer('uint32Ptr', 0);
-            obj.call_('startSize', pos);
-            r = pos.Value;
+            r = obj.buf.size + 1;
+            %obj.writeInt(0); % Placeholder for 32-bit size
+            obj.buf.resize(obj.buf.size + 4);
         end
         function endSize(obj, pos)
-            obj.call_('endSize', pos);
+            sz = obj.buf.size + 1;
+            obj.buf.buf(pos:pos + 3) = typecast(int32(sz - pos - 4), 'uint8');
         end
-        function r = pos(obj)
-            p = libpointer('uint32Ptr', 0);
-            obj.call_('pos', p);
-            r = p.Value;
+        function r = getPos(obj)
+            r = obj.buf.size;
         end
         function rewriteByte(obj, v, pos)
-            obj.call_('rewriteByte', v, pos);
+            obj.buf.buf(pos) = v;
         end
         function rewriteInt(obj, v, pos)
-            obj.call_('rewriteInt', v, pos);
+            obj.buf.buf(pos:pos + 3) = typecast(int32(v), 'uint8');
         end
         function writeBlob(obj, bytes)
-            obj.call_('writeBlob', bytes, length(bytes));
+            obj.buf.push(bytes);
         end
         function r = createInputStream(obj)
-            is = libpointer('voidPtr');
-            obj.call_('createInputStream', obj.communicator.impl_, is);
-            assert(~isNull(is));
-            r = Ice.InputStream(is, obj.communicator);
+            buf = copy(obj.buf);
+            r = Ice.InputStream(obj.communicator, obj.getEncoding(), buf);
         end
     end
     methods(Access=private)
-        function r = isEncoding_1_0(obj)
-            if ~isempty(obj.encapsStack)
-                r = isequal(obj.encapsStack.encoding, IceInternal.Protocol.Encoding_1_0);
-            else
-                r = isequal(obj.encoding, IceInternal.Protocol.Encoding_1_0);
-            end
-        end
         function initEncaps(obj)
             if isempty(obj.encapsStack) % Lazy initialization
                 obj.encapsStack = obj.encapsCache;
@@ -361,7 +511,7 @@ classdef OutputStream < IceInternal.WrapperObject
             end
 
             if isempty(obj.encapsStack.encoder) % Lazy initialization.
-                if isequal(obj.getEncoding(), IceInternal.Protocol.Encoding_1_0)
+                if obj.encoding_1_0
                     obj.encapsStack.encoder = IceInternal.EncapsEncoder10(obj, obj.encapsStack);
                 else
                     obj.encapsStack.encoder = IceInternal.EncapsEncoder11(obj, obj.encapsStack);
@@ -390,8 +540,12 @@ classdef OutputStream < IceInternal.WrapperObject
     properties(Access=private)
         communicator
         encoding
+        encoding_1_0 logical
         format
         encapsStack
         encapsCache
+    end
+    properties
+        buf
     end
 end

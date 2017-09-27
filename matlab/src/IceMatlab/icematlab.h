@@ -48,25 +48,16 @@ EXPORTED_FUNCTION mxArray* Ice_Communicator_getDefaultLocator(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_setDefaultLocator(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequests(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequestsAsync(void*, mxArray*, void**);
-EXPORTED_FUNCTION mxArray* Ice_Communicator_createOutputStream(void*, mxArray*, void**);
-
-typedef enum 
-{
-    Normal,
-    Nonmutating,
-    Idempotent
-} Ice_OperationMode;
 
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx__release(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_equals(void*, void*, unsigned char*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_createOutputStream(void*, void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invoke(void*, const char*, Ice_OperationMode, void*, mxArray*,
-                                                    unsigned char*, void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeNC(void*, const char*, Ice_OperationMode, void*, unsigned char*,
-                                                      void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsync(void*, const char*, Ice_OperationMode, void*, mxArray*,
-                                                         void**);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsyncNC(void*, const char*, Ice_OperationMode, void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_read(void*, mxArray*, mxArray*, int, int, void**, int*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_write(void*, void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invoke(void*, const char*, int, mxArray*, unsigned int, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeNC(void*, const char*, int, mxArray*, unsigned int);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsync(void*, const char*, int, mxArray*, unsigned int,
+                                                         mxArray*, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invokeAsyncNC(void*, const char*, int, mxArray*, unsigned int, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_toString(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getIdentity(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_identity(void*, mxArray*, void**);
@@ -118,84 +109,23 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_flushBatchRequestsAsync(void*, void
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_clone(void*, void**);
 
 EXPORTED_FUNCTION mxArray* Ice_InvocationFuture__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_id(void*, unsigned long long*);
 EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_wait(void*, unsigned char*);
-EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_stream(void*, unsigned char*, void**);
+EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_results(void*);
 EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_state(void*);
 EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_cancel(void*);
 EXPORTED_FUNCTION mxArray* Ice_InvocationFuture_check(void*);
 
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_id(void*, unsigned long long*);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_wait(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_fetch(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_state(void*);
 EXPORTED_FUNCTION mxArray* Ice_GetConnectionFuture_cancel(void*);
 
 EXPORTED_FUNCTION mxArray* Ice_SimpleFuture__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_id(void*, unsigned long long*);
 EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_wait(void*, unsigned char*);
 EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_state(void*);
 EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_cancel(void*);
 EXPORTED_FUNCTION mxArray* Ice_SimpleFuture_check(void*);
-
-EXPORTED_FUNCTION mxArray* Ice_OutputStream__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBool(void*, unsigned char);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBoolSeq(void*, const unsigned char*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByte(void*, unsigned char);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeByteSeq(void*, const unsigned char*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShort(void*, short);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeShortSeq(void*, const short*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeInt(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeIntSeq(void*, const int*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLong(void*, long long);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeLongSeq(void*, const long long*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloat(void*, float);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeFloatSeq(void*, const float*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDouble(void*, double);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeDoubleSeq(void*, const double*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeString(void*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeStringSeq(void*, mxArray*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeSize(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeProxy(void*, void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeEnum(void*, int, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_startSize(void*, unsigned int*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_endSize(void*, unsigned int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_pos(void*, unsigned int*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteByte(void*, unsigned char, unsigned int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_rewriteInt(void*, int, unsigned int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_writeBlob(void*, const unsigned char*, int);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_getEncoding(void*);
-EXPORTED_FUNCTION mxArray* Ice_OutputStream_createInputStream(void*, void*, void**);
-
-EXPORTED_FUNCTION mxArray* Ice_InputStream__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readBool(void*, unsigned char*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readBoolSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readByte(void*, unsigned char*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readByteSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readShort(void*, short*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readShortSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readInt(void*, int*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readIntSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readLong(void*, long long*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readLongSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloat(void*, float*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readFloatSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readDouble(void*, double*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readDoubleSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readString(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readStringSeq(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_skip(void*, int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_skipSize(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_getEncoding(void*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readSize(void*, int*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readProxy(void*, void**);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readEnum(void*, int, int*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_pos(void*, unsigned int*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_setPos(void*, unsigned int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_size(void*, unsigned int*);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_getBytes(void*, unsigned int, unsigned int);
-EXPORTED_FUNCTION mxArray* Ice_InputStream_readAndCheckSeqSize(void*, int, int*);
 
 EXPORTED_FUNCTION mxArray* Ice_createProperties(mxArray*, void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Properties__release(void*);

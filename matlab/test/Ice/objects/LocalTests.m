@@ -124,7 +124,7 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = C1Dict.new();
+            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
                 d(i) = C1(i);
             end
@@ -155,7 +155,7 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = S1Dict.new();
+            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
                 d(i) = S1(C1(i));
             end
@@ -781,7 +781,7 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = StructDict1.new();
+            d = struct.empty();
             for i = 1:10
                 d(i).key = StructKey(i, i);
                 d(i).value = C1(i);
@@ -813,7 +813,7 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = StructDict2.new();
+            d = struct.empty();
             for i = 1:10
                 d(i).key = StructKey(i, i);
                 d(i).value = S1(C1(i));
@@ -845,9 +845,9 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = C1DictDict.new();
+            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
-                inner = C1Dict.new();
+                inner = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 d(i) = inner;
                 for j = 1:5
                     inner(j) = C1(i);
@@ -886,9 +886,9 @@ classdef LocalTests
 
             out = communicator.createOutputStream(encoding);
             out.startEncapsulation(format);
-            d = S1DictDict.new();
+            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:10
-                inner = S1Dict.new();
+                inner = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 d(i) = inner;
                 for j = 1:5
                     inner(j) = S1(C1(i));
@@ -951,7 +951,7 @@ classdef LocalTests
                 cb = Opt();
                 cb.s1 = S1(C1(3));
                 cb.c1seq = {};
-                cb.s1dict = S1Dict.new();
+                cb.s1dict = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                 for i = 1:10
                     cb.c1seq{i} = C1(i);
                     cb.s1dict(i) = S1(C1(i));

@@ -559,14 +559,15 @@ classdef AllTests
             %assert(compObj.ice_router(rtr1) < compObj.ice_router(rtr2));
             %assert(~(compObj.ice_router(rtr2) < compObj.ice_router(rtr1)));
 
-            ctx1 = Ice.Context.new();
+            ctx1 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             ctx1('ctx1') = 'v1';
-            ctx2 = Ice.Context.new();
+            ctx2 = containers.Map('KeyType', 'char', 'ValueType', 'char');
             ctx2('ctx2') = 'v2';
-            assert(compObj.ice_context(Ice.Context.new()) == compObj.ice_context(Ice.Context.new()));
+            empty = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            assert(compObj.ice_context(empty) == compObj.ice_context(empty));
             assert(compObj.ice_context(ctx1) == compObj.ice_context(ctx1));
-            assert(compObj.ice_context(ctx1) ~= compObj.ice_context(Ice.Context.new()));
-            assert(compObj.ice_context(Ice.Context.new()) ~= compObj.ice_context(ctx2));
+            assert(compObj.ice_context(ctx1) ~= compObj.ice_context(empty));
+            assert(compObj.ice_context(empty) ~= compObj.ice_context(ctx2));
             assert(compObj.ice_context(ctx1) ~= compObj.ice_context(ctx2));
             %assert(compObj.ice_context(ctx1) < compObj.ice_context(ctx2));
             %assert(~(compObj.ice_context(ctx2) < compObj.ice_context(ctx1)));
@@ -655,7 +656,7 @@ classdef AllTests
             c = tccp.getContext();
             assert(isempty(c));
 
-            c = Ice.Context.new();
+            c = containers.Map('KeyType', 'char', 'ValueType', 'char');
             c('one') = 'hello';
             c('two') = 'world';
             tccp = MyClassPrx.checkedCast(base, c);

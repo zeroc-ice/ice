@@ -12,6 +12,9 @@ ICE_LICENSE file included in this distribution.
 classdef Communicator < IceInternal.WrapperObject
     methods
         function obj = Communicator(impl, initData)
+            if ~isa(impl, 'lib.pointer')
+                throw(MException('Ice:ArgumentException', 'invalid argument'));
+            end
             obj = obj@IceInternal.WrapperObject(impl);
             obj.initData = initData;
         end
@@ -22,7 +25,7 @@ classdef Communicator < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('destroyAsync', future);
             assert(~isNull(future));
-            f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', []);
+            f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
         function r = stringToProxy(obj, str)
             impl = libpointer('voidPtr');
@@ -116,7 +119,7 @@ classdef Communicator < IceInternal.WrapperObject
             future = libpointer('voidPtr');
             obj.call_('flushBatchRequestsAsync', mode, future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', []);
+            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
         end
         function r = getClassResolver(obj) 
             if isempty(obj.classResolver) % Lazy initialization.
@@ -128,9 +131,7 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.initData.compactIdResolver;
         end
         function r = createOutputStream(obj, encoding)
-            stream = libpointer('voidPtr');
-            obj.call_('createOutputStream', encoding, stream);
-            r = Ice.OutputStream(stream, obj);
+            r = Ice.OutputStream(obj, encoding);
         end
     end
     properties(Access=private)

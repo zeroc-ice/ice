@@ -14,7 +14,7 @@ classdef ClassResolver < handle
         function obj = ClassResolver(props)
             obj.defaultPrefix = props.getProperty('Ice.Default.Package');
             obj.prefixMap = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            obj.typeToClassMap = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            obj.typeToConstructorMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
             dict = props.getPropertiesForPrefix('Ice.Package.');
             keys = dict.keys();
@@ -26,6 +26,8 @@ classdef ClassResolver < handle
         end
         function r = resolve(obj, typeId)
             %
+            % NOTE: The return value is the constructor function.
+            %
             % To convert a Slice type id into a class, we do the following:
             %
             % 1. Convert the Slice type id into a classname (e.g., ::M::X -> M.X).
@@ -35,27 +37,26 @@ classdef ClassResolver < handle
             % 3. If that fails, check for a default package. If defined,
             %    prepend the property value to the classname.
             %
-            className = '';
-            updateMap = false;
 
             %
             % See if we've already translated this type ID before.
             %
-            if obj.typeToClassMap.isKey(typeId)
+            try
                 %
-                % A class is only added to this map if it exists, so we're done.
+                % A type is only added to this map if its class exists, so we're done.
                 %
-                r = obj.typeToClassMap(typeId);
+                r = obj.typeToConstructorMap(typeId);
                 return;
+            catch ex
+                %
+                % The map raises an exception if a key doesn't exist.
+                %
             end
 
             %
             % If it's a new type ID, first convert it into a class name.
             %
-            if isempty(className)
-                className = IceInternal.Util.idToClass(typeId);
-                updateMap = true;
-            end
+            className = IceInternal.Util.idToClass(typeId);
 
             %
             % See if we can find the class without any prefix.
@@ -79,7 +80,7 @@ classdef ClassResolver < handle
             %
             % See if the application defined a default package.
             %
-            if ~isempty(obj.defaultPrefix)
+            if ~found && ~isempty(obj.defaultPrefix)
                 cls = [obj.defaultPrefix, '.', className];
                 if exist(cls, 'class')
                     found = true;
@@ -90,20 +91,18 @@ classdef ClassResolver < handle
             %
             % If we found the class, update our map so we don't have to translate this type ID again.
             %
-            if found && updateMap
-                obj.typeToClassMap(typeId) = className;
-            end
-
             if found
-                r = className;
+                constructor = str2func(className);
+                obj.typeToConstructorMap(typeId) = constructor;
+                r = constructor;
             else
-                r = '';
+                r = [];
             end
         end
     end
     properties(Access=private)
         defaultPrefix
         prefixMap
-        typeToClassMap
+        typeToConstructorMap
     end
 end

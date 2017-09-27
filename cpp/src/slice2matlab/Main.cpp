@@ -489,7 +489,22 @@ defaultValue(const DataMemberPtr& m)
         DictionaryPtr dict = DictionaryPtr::dynamicCast(m->type());
         if(dict)
         {
-            return getAbsolute(dict) + ".new()";
+            const TypePtr key = dict->keyType();
+            const TypePtr value = dict->valueType();
+            if(StructPtr::dynamicCast(key))
+            {
+                //
+                // We use a struct array when the key is a structure type because we can't use containers.Map.
+                //
+                return "struct('key', {}, 'value', {})";
+            }
+            else
+            {
+                ostringstream ostr;
+                ostr << "containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
+                    << dictionaryTypeToString(value, false) << "')";
+                return ostr.str();
+            }
         }
 
         return "[]";
@@ -1173,8 +1188,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << self << ".endWriteParams_(os_);";
             }
 
-            out << nl << "[ok_, is_] = " << self << ".invoke_('" << op->name() << "', '"
-                << getOperationMode(op->sendMode()) << "', " << (twowayOnly ? "true" : "false")
+            out << nl << "[ok_, is_] = " << self << ".invoke_('" << op->name() << "', "
+                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
                 << ", " << (allInParams.empty() ? "[]" : "os_") << ", varargin{:});";
 
             if(!twowayOnly)
@@ -1471,8 +1486,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "end";
             }
 
-            out << nl << "r_ = " << self << ".invokeAsync_('" << op->name() << "', '"
-                << getOperationMode(op->sendMode()) << "', " << (twowayOnly ? "true" : "false") << ", "
+            out << nl << "r_ = " << self << ".invokeAsync_('" << op->name() << "', "
+                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false") << ", "
                 << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
                 << (twowayOnly ? "@unmarshal" : "[]") << ", varargin{:});";
 
@@ -2294,7 +2309,15 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.inc();
         if(cls)
         {
+            out << nl << "if isempty(seq)";
+            out.inc();
+            out << nl << "r = seq;";
+            out.dec();
+            out << nl << "else";
+            out.inc();
             out << nl << "r = seq.array;";
+            out.dec();
+            out << nl << "end";
         }
         else
         {
@@ -2313,10 +2336,19 @@ CodeVisitor::visitSequence(const SequencePtr& p)
             }
             else
             {
-                out << nl << "r = cell(1, length(seq));";
-                out << nl << "for i = 1:length(seq)";
+                out << nl << "sz = length(seq);";
+                out << nl << "if sz > 0";
+                out.inc();
+                out << nl << "r = cell(1, sz);";
+                out << nl << "for i = 1:sz";
                 out.inc();
                 convertValueType(out, "r{i}", "seq{i}", content, false);
+                out << nl << "end";
+                out.dec();
+                out.dec();
+                out << nl << "else";
+                out.inc();
+                out << nl << "r = seq;";
                 out.dec();
                 out << nl << "end";
             }
@@ -2362,29 +2394,12 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     //
     out << nl << "function " << self << " = " << name << "()";
     out.inc();
-    out << nl << "% Use new()";
     out.dec();
     out << nl << "end";
     out.dec();
     out << nl << "end";
     out << nl << "methods(Static)";
     out.inc();
-    out << nl << "function r = new()";
-    out.inc();
-    if(st)
-    {
-        //
-        // We use a struct array when the key is a structure type because we can't use containers.Map.
-        //
-        out << nl << "r = [];";
-    }
-    else
-    {
-        out << nl << "r = containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-            << dictionaryTypeToString(value, false) << "');";
-    }
-    out.dec();
-    out << nl << "end";
 
     if(!p->isLocal())
     {
@@ -2467,7 +2482,18 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "function r = read(is)";
         out.inc();
         out << nl << "sz = is.readSize();";
-        out << nl << "r = " << abs << ".new();";
+        if(st)
+        {
+            //
+            // We use a struct array when the key is a structure type because we can't use containers.Map.
+            //
+            out << nl << "r = struct('key', {}, 'value', {});";
+        }
+        else
+        {
+            out << nl << "r = containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
+                << dictionaryTypeToString(value, false) << "');";
+        }
         out << nl << "for i = 1:sz";
         out.inc();
 
@@ -2767,11 +2793,11 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     switch(mode)
     {
         case Operation::Normal:
-            return "Normal";
+            return "0";
         case Operation::Nonmutating:
-            return "Nonmutating";
+            return "1";
         case Operation::Idempotent:
-            return "Idempotent";
+            return "2";
         default:
             return "???";
     }

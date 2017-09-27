@@ -65,16 +65,17 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
                 obj.os.writeString(typeId);
             end
 
-            obj.os.writeInt(0); % Placeholder for the slice length.
+            %obj.os.writeInt(0); % Placeholder for the slice length.
+            obj.os.buf.resize(obj.os.buf.size + 4);
 
-            obj.writeSlice = obj.os.pos();
+            obj.writeSlice = obj.os.getPos() + 1;
         end
 
         function endSlice(obj)
             %
             % Write the slice length.
             %
-            sz = obj.os.pos() - obj.writeSlice + 4;
+            sz = obj.os.getPos() - obj.writeSlice + 4 + 1;
             obj.os.rewriteInt(sz, obj.writeSlice - 4);
         end
 

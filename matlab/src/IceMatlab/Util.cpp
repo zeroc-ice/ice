@@ -560,6 +560,14 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
     }
 }
 
+mxArray*
+IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
+{
+    mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
+    memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), begin, end - begin);
+    return r;
+}
+
 namespace
 {
 

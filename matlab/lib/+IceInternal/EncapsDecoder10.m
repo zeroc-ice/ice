@@ -75,23 +75,22 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             mostDerivedId = obj.typeId;
             while true
                 %
-                % Use the class resolver to convert the type ID into a class name.
+                % Use the class resolver to convert the type ID into a constructor.
                 %
-                cls = obj.classResolver.resolve(obj.typeId);
+                constructor = obj.classResolver.resolve(obj.typeId);
 
                 %
                 % Try to instantiate the class.
                 %
                 ex = [];
-                if ~isempty(cls) && exist(cls)
+                if ~isempty(constructor)
                     try
-                        constructor = str2func(cls); % Get the constructor.
                         ex = constructor(); % Invoke the constructor.
                     catch e
                         %
                         % Instantiation failed.
                         %
-                        reason = ['exception in constructor for ', cls];
+                        reason = sprintf('exception in constructor for %s', obj.typeId);
                         me = Ice.MarshalException('', reason, reason);
                         me.addCause(e);
                         throw(me);
@@ -180,7 +179,6 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
 
             obj.sliceSize = obj.is.readInt();
             if obj.sliceSize < 4
-fprintf('\n\nsliceSize = %d\n', obj.sliceSize);
                 throw(Ice.UnmarshalOutOfBoundsException());
             end
 

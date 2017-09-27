@@ -66,21 +66,21 @@ classdef AllTests
             ss = SmallStruct();
             fs = FixedStruct(78);
             vs = VarStruct('hello');
-            iid = IntIntDict.new();
+            iid = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             iid(4) = 3;
-            sid = StringIntDict.new();
+            sid = containers.Map('KeyType', 'char', 'ValueType', 'int32');
             sid('test') = 10;
-            ied = IntEnumDict.new();
+            ied = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ied(4) = MyEnum.MyEnumMember;
             oos = {};
             oos{1} = oo1;
-            ifsd = IntFixedStructDict.new();
+            ifsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ifsd(4) = fs;
-            ivsd = IntVarStructDict.new();
+            ivsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ivsd(5) = vs;
-            iood = IntOneOptionalDict.new();
+            iood = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             iood(5) = OneOptional(15);
-            ioopd = IntOneOptionalPrxDict.new();
+            ioopd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             ioopd(5) = communicator.stringToProxy('test');
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
                                      communicator.stringToProxy('test'), ...
@@ -363,7 +363,7 @@ classdef AllTests
                 mc.fss(i) = FixedStruct();
             end
 
-            mc.ifsd = IntFixedStructDict.new();
+            mc.ifsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 1:300
                 mc.ifsd(i) = FixedStruct();
             end
@@ -730,7 +730,7 @@ classdef AllTests
 
             [p2, p3] = initial.opIntIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = IntIntDict.new();
+            p1 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
             p1(1) = 2;
             p1(2) = 3;
             [p2, p3] = initial.opIntIntDict(p1);
@@ -741,7 +741,7 @@ classdef AllTests
 
             [p2, p3] = initial.opStringIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = StringIntDict.new();
+            p1 = containers.Map('KeyType', 'char', 'ValueType', 'int32');
             p1('1') = 2;
             p1('2') = 3;
             [p2, p3] = initial.opStringIntDict(p1);
@@ -752,7 +752,7 @@ classdef AllTests
 
             [p2, p3] = initial.opIntOneOptionalDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = IntOneOptionalDict.new();
+            p1 = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             p1(1) = OneOptional(58);
             p1(2) = OneOptional(59);
             [p2, p3] = initial.opIntOneOptionalDict(p1);

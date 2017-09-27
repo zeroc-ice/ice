@@ -17,9 +17,9 @@ classdef (Abstract) EncapsDecoder < handle
             obj.sliceValues = sliceValues;
             obj.valueFactoryManager = valueFactoryManager;
             obj.classResolver = classResolver;
-            obj.patchMap = [];
+            obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             obj.unmarshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            obj.typeIdMap = [];
+            obj.typeIdMap = containers.Map('KeyType', 'int32', 'ValueType', 'char');
             obj.typeIdIndex = 0;
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
@@ -75,15 +75,14 @@ classdef (Abstract) EncapsDecoder < handle
     end
     methods(Access=protected)
         function r = readTypeId(obj, isIndex)
-            if isempty(obj.typeIdMap) % Lazy initialization
-                obj.typeIdMap = containers.Map('KeyType', 'int32', 'ValueType', 'char');
-            end
-
             if isIndex
                 index = obj.is.readSize();
-                if obj.typeIdMap.isKey(index)
+                %
+                % The map raises an exception if the key isn't present.
+                %
+                try
                     r = obj.typeIdMap(index);
-                else
+                catch ex
                     throw(Ice.UnmarshalOutOfBoundsException());
                 end
             else
@@ -117,13 +116,12 @@ classdef (Abstract) EncapsDecoder < handle
             % Last chance: ask the class resolver to find it.
             %
             if isempty(v)
-                cls = obj.classResolver.resolve(typeId);
-                if ~isempty(cls)
+                constructor = obj.classResolver.resolve(typeId);
+                if ~isempty(constructor)
                     try
-                        constructor = str2func(cls); % Get the constructor.
                         v = constructor(); % Invoke the constructor.
                     catch e
-                        reason = sprintf('constructor failed for %s', cls);
+                        reason = sprintf('constructor failed for %s', typeId);
                         ex = Ice.NoValueFactoryException('', reason, reason, typeId);
                         ex.addCause(e);
                         throw(ex);
@@ -145,10 +143,6 @@ classdef (Abstract) EncapsDecoder < handle
                 v = obj.unmarshaledMap(index);
                 cb(v);
                 return;
-            end
-
-            if isempty(obj.patchMap) % Lazy initialization
-                obj.patchMap = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             end
 
             %

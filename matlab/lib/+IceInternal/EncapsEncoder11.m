@@ -70,7 +70,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             import IceInternal.Protocol;
             assert(isempty(obj.current.indirectionTable) && isempty(obj.current.indirectionMap));
 
-            obj.current.sliceFlagsPos = obj.os.pos();
+            obj.current.sliceFlagsPos = obj.os.getPos() + 1;
 
             obj.current.sliceFlags = uint8(0);
             if obj.encaps.format == Ice.FormatType.SlicedFormat
@@ -82,7 +82,8 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                 obj.current.sliceFlags = bitor(obj.current.sliceFlags, Protocol.FLAG_IS_LAST_SLICE);
             end
 
-            obj.os.writeByte(0); % Placeholder for the slice flags
+            %obj.os.writeByte(0); % Placeholder for the slice flags
+            obj.os.buf.resize(obj.os.buf.size + 1);
 
             %
             % For instance slices, encode the flag and the type ID either as a
@@ -113,10 +114,11 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             end
 
             if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                obj.os.writeInt(0); % Placeholder for the slice length.
+                %obj.os.writeInt(0); % Placeholder for the slice length.
+                obj.os.buf.resize(obj.os.buf.size + 4);
             end
 
-            obj.current.writeSlice = obj.os.pos();
+            obj.current.writeSlice = obj.os.getPos() + 1;
             obj.current.firstSlice = false;
         end
 
@@ -135,7 +137,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             % Write the slice length if necessary.
             %
             if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
-                sz = obj.os.pos() - obj.current.writeSlice + 4;
+                sz = obj.os.getPos() - obj.current.writeSlice + 4 + 1;
                 obj.os.rewriteInt(sz, obj.current.writeSlice - 4);
             end
 

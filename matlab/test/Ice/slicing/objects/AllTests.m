@@ -946,7 +946,7 @@ classdef AllTests
 
             fprintf('dictionary slicing... ');
 
-            bin = BDict.new();
+            bin = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 0:9
                 s = ['D1.', num2str(i)];
                 d1 = D1();
@@ -991,7 +991,7 @@ classdef AllTests
 
             fprintf('dictionary slicing (AMI)... ');
 
-            bin = BDict.new();
+            bin = containers.Map('KeyType', 'int32', 'ValueType', 'any');
             for i = 0:9
                 s = ['D1.', num2str(i)];
                 d1 = D1();

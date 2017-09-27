@@ -59,7 +59,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             import IceInternal.Protocol;
             assert(isempty(obj.current));
 
-            obj.push(IceInternal.SliceType.ExceptionSlice);
+            % Inlining push()
+            obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
+            obj.current.sliceType = IceInternal.SliceType.ExceptionSlice;
+            obj.current.skipFirstSlice = false;
 
             %
             % Read the first slice header.
@@ -68,23 +71,22 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             mostDerivedId = obj.current.typeId;
             while true
                 %
-                % Use the class resolver to convert the type ID into a class name.
+                % Use the class resolver to convert the type ID into a class constructor.
                 %
-                cls = obj.classResolver.resolve(obj.current.typeId);
+                constructor = obj.classResolver.resolve(obj.current.typeId);
 
                 %
                 % Try to instantiate the class.
                 %
                 ex = [];
-                if ~isempty(cls) && exist(cls)
+                if ~isempty(constructor)
                     try
-                        constructor = str2func(cls); % Get the constructor.
                         ex = constructor(); % Invoke the constructor.
                     catch e
                         %
                         % Instantiation failed.
                         %
-                        reason = ['exception in constructor for ', cls];
+                        reason = sprintf('exception in constructor for %s', obj.current.typeId);
                         me = Ice.MarshalException('', reason, reason);
                         me.addCause(e);
                         throw(me);
@@ -239,7 +241,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             import IceInternal.Protocol;
             %obj.is.traceSkipSlice(obj.current.typeId, obj.current.sliceType); TODO
 
-            start = obj.is.pos();
+            start = obj.is.getPos();
 
             if bitand(obj.current.sliceFlags, Protocol.FLAG_HAS_SLICE_SIZE)
                 assert(obj.current.sliceSize >= 4);
@@ -267,9 +269,9 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % Don't include the optional member end marker. It will be re-written by
                 % endSlice when the sliced data is re-written.
                 %
-                info.bytes = obj.is.getBytes(start, obj.is.pos() - 1);
+                info.bytes = obj.is.getBytes(start, obj.is.getPos() - 2);
             else
-                info.bytes = obj.is.getBytes(start, obj.is.pos());
+                info.bytes = obj.is.getBytes(start, obj.is.getPos() - 1);
             end
 
             %
@@ -320,7 +322,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 return;
             end
 
-            obj.push(IceInternal.SliceType.ValueSlice);
+            % Inlining push()
+            obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
+            obj.current.sliceType = IceInternal.SliceType.ValueSlice;
+            obj.current.skipFirstSlice = false;
 
             %
             % Get the instance ID before we start reading slices. If some
@@ -346,15 +351,14 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     % Translate a compact (numeric) type ID into a class.
                     %
                     if isempty(obj.compactIdCache) % Lazy initialization.
-                        obj.compactIdCache = containers.Map('KeyType', 'int32', 'ValueType', 'char');
+                        obj.compactIdCache = containers.Map('KeyType', 'int32', 'ValueType', 'any');
                     else
                         %
-                        % Check the cache to see if we've already translated the compact type ID into a class.
+                        % Check the cache to see if we've already translated the compact type ID into a constructor.
                         %
                         if obj.compactIdCache.isKey(obj.current.compactId)
-                            cls = obj.compactIdCache(obj.current.compactId);
+                            constructor = obj.compactIdCache(obj.current.compactId);
                             try
-                                constructor = str2func(cls); % Get the constructor.
                                 v = constructor(); % Invoke the constructor.
                                 updateCache = false;
                             catch e
@@ -400,7 +404,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 if ~isempty(v)
                     if updateCache
                         assert(obj.current.compactId >= 0);
-                        obj.compactIdCache(obj.current.compactId) = class(v);
+                        obj.compactIdCache(obj.current.compactId) = str2func(class(v));
                     end
 
                     %
@@ -518,12 +522,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
 
             r = type;
-        end
-
-        function push(obj, sliceType)
-            obj.current = IceInternal.EncapsDecoder11_InstanceData(obj.current);
-            obj.current.sliceType = sliceType;
-            obj.current.skipFirstSlice = false;
         end
     end
     properties(Access=private)
