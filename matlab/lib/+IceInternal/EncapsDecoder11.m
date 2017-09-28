@@ -239,7 +239,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
 
         function skipSlice(obj)
             import IceInternal.Protocol;
-            %obj.is.traceSkipSlice(obj.current.typeId, obj.current.sliceType); TODO
 
             start = obj.is.getPos();
 

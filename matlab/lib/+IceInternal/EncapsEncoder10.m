@@ -105,9 +105,8 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
                     try
                         v.ice_preMarshal();
                     catch ex
-                        % TODO: logger
-                        %String s = "exception raised by ice_preMarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
-                        %obj.os.instance().initializationData().logger.warning(s);
+                        msg = sprintf('exception raised by ice_preMarshal:\n%s', getReport(ex, 'extended'));
+                        obj.os.getCommunicator().getLogger().warning(msg);
                     end
 
                     v.iceWrite_(obj.os);

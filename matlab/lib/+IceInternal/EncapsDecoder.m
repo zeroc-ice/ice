@@ -53,10 +53,8 @@ classdef (Abstract) EncapsDecoder < handle
                     try
                         v.ice_postUnmarshal();
                     catch ex
-                        % TODO: logger?
-                        %String s = "exception raised by ice_postUnmarshal:\n" +
-                            %com.zeroc.IceInternal.Ex.toString(ex);
-                        %_stream.instance().initializationData().logger.warning(s);
+                        msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
+                        obj.is.getCommunicator().getLogger().warning(msg);
                     end
                 end
 
@@ -209,9 +207,8 @@ classdef (Abstract) EncapsDecoder < handle
                     try
                         v.ice_postUnmarshal();
                     catch ex
-                        % TODO: logger?
-                        %String s = "exception raised by ice_postUnmarshal:\n" + com.zeroc.IceInternal.Ex.toString(ex);
-                        %_stream.instance().initializationData().logger.warning(s);
+                        msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
+                        obj.is.getCommunicator().getLogger().warning(msg);
                     end
                 end
             else
@@ -232,10 +229,8 @@ classdef (Abstract) EncapsDecoder < handle
                             try
                                 p.ice_postUnmarshal();
                             catch ex
-                                % TODO: logger?
-                                %String s = "exception raised by ice_postUnmarshal:\n" +
-                                    %com.zeroc.IceInternal.Ex.toString(ex);
-                                %_stream.instance().initializationData().logger.warning(s);
+                                msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
+                                obj.is.getCommunicator().getLogger().warning(msg);
                             end
                         end
                     end
