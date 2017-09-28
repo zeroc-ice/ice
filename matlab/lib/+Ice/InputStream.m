@@ -452,6 +452,31 @@ classdef InputStream < handle
                 obj.pos = obj.pos + sz - 6; % No need to validate the size again.
             end
         end
+        function skipEncapsulation(obj)
+            sz = obj.readInt();
+            if sz < 6
+                throw(Ice.EncapsulationException());
+            end
+            if obj.pos - 4 + sz > obj.size + 1
+                throw(Ice.UnmarshalOutOfBoundsException());
+            end
+
+            obj.pos = obj.pos + sz - 4;
+        end
+        function r = readEncapsulation(obj)
+            start = obj.pos;
+            sz = obj.readInt();
+            if sz < 6
+                throw(Ice.EncapsulationException());
+            end
+
+            if obj.pos - 4 + sz > obj.size + 1
+                throw(Ice.UnmarshalOutOfBoundsException());
+            end
+
+            data = obj.buf.buf(start + 1:start + sz); % Include the size & encoding version
+            obj.pos = obj.pos + sz - 4;
+        end
         function r = getEncoding(obj)
             if isempty(obj.encapsStack)
                 r = obj.encoding;
@@ -543,23 +568,59 @@ classdef InputStream < handle
                     obj.readValue([], '');
             end
         end
-        function r = readProxy(obj)
+        function r = readProxy(obj, cls)
             %
-            % Call into C++ to construct a proxy. We pass the data buffer and start position (adjusted for
-            % C-style pointers), along with the size of the entire buffer. The C++ implementation reads what
-            % it needs and returns the new proxy object as well as number of bytes it consumed.
+            % Manually unmarshal a proxy just to discover how many bytes it consumes.
             %
-            impl = libpointer('voidPtr');
-            used = libpointer('int32Ptr', 0);
-            encoding = obj.getEncoding();
-            start = obj.pos - 1; % Starting position for a C-style pointer.
-            IceInternal.Util.call('Ice_ObjectPrx_read', obj.communicator.impl_, encoding, obj.buf.buf, ...
-                                  start, obj.buf.size, impl, used);
-            obj.pos = obj.pos + used.Value;
-            if isNull(impl)
-                r = Ice.ObjectPrx.empty();
+
+            start = obj.pos;
+
+            id = Ice.Identity.ice_read(obj);
+
+            %
+            % A nil proxy is marshaled as an identity with empty category and name.
+            %
+            if isempty(id.category) && isempty(id.name)
+                r = [];
+                return;
+            end
+
+            facet = obj.readStringSeq();
+            mode = obj.readByte();
+            secure = obj.readBool();
+
+            %
+            % The versions are only included in encoding >= 1.1.
+            %
+            if ~obj.encoding_1_0
+                protocolVersion = Ice.ProtocolVersion.ice_read(obj);
+                encodingVersion = Ice.EncodingVersion.ice_read(obj);
+            end
+
+            numEndpoints = obj.readSize();
+
+            if numEndpoints > 0
+                for i = 1:numEndpoints
+                    type = obj.readShort();
+                    obj.skipEncapsulation();
+                end
             else
-                r = Ice.ObjectPrx(impl, obj.communicator);
+                adapterId = obj.readString();
+            end
+
+            %
+            % Now that we've reached the end, extract all of the bytes representing the marshaled form of the proxy.
+            %
+            bytes = obj.buf.buf(start:obj.pos - 1);
+
+            if nargin == 2
+                %
+                % Instantiate a proxy of the requested type.
+                %
+                constructor = str2func(cls);
+                r = constructor(obj.communicator, obj.getEncoding(), [], bytes);
+            else
+                r = Ice.ObjectPrx(obj.communicator, obj.getEncoding(), [], bytes);
             end
         end
         function r = readProxyOpt(obj, tag)

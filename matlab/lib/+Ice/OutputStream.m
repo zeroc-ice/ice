@@ -296,13 +296,13 @@ classdef OutputStream < handle
         end
         function writeProxy(obj, v)
             if isempty(v)
-                impl = libpointer('voidPtr');
+                %
+                % A nil proxy is represented by an Identity with empty name and category fields.
+                %
+                Ice.Identity.ice_write(obj, []);
             else
-                impl = v.impl_;
+                v.write_(obj, obj.getEncoding());
             end
-            bytes = IceInternal.Util.callWithResult('Ice_ObjectPrx_write', impl, obj.communicator.impl_, ...
-                                                    obj.getEncoding());
-            obj.buf.push(bytes);
         end
         function writeProxyOpt(obj, tag, v)
             if v ~= Ice.Unset && obj.writeOptional(tag, Ice.OptionalFormat.FSize)
@@ -418,6 +418,12 @@ classdef OutputStream < handle
             else
                 obj.encoding_1_0 = obj.encapsStack.encoding.major == 1 && obj.encapsStack.encoding.minor == 0;
             end
+        end
+        function writeEncapsulation(obj, data)
+            if length(data) < 6
+                throw(Ice.EncapsulationException());
+            end
+            obj.buf.push(data);
         end
         function startSlice(obj, typeId, compactId, last)
             assert(~isempty(obj.encapsStack) && ~isempty(obj.encapsStack.encoder));

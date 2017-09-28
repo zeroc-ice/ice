@@ -1084,6 +1084,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Operations.
         //
+        bool hasExceptions = false;
         const OperationList ops = p->operations();
         for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
@@ -1095,22 +1096,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             const ParamInfoList allInParams = getAllInParams(op);
             const ParamInfoList allOutParams = getAllOutParams(op);
             const bool twowayOnly = op->returnsData();
+            const ExceptionList exceptions = op->throws();
 
-            ExceptionList exceptions = op->throws();
-            exceptions.sort();
-            exceptions.unique();
-
-            //
-            // Arrange exceptions into most-derived to least-derived order. If we don't
-            // do this, a base exception handler can appear before a derived exception
-            // handler, causing compiler warnings and resulting in the base exception
-            // being marshaled instead of the derived exception.
-            //
-#if defined(__SUNPRO_CC)
-            exceptions.sort(Slice::derivedToBaseCompare);
-#else
-            exceptions.sort(Slice::DerivedToBaseCompare());
-#endif
+            if(!exceptions.empty())
+            {
+                hasExceptions = true;
+            }
 
             //
             // Ensure no parameter is named "obj".
@@ -1188,63 +1179,40 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << self << ".endWriteParams_(os_);";
             }
 
-            out << nl << "[ok_, is_] = " << self << ".invoke_('" << op->name() << "', "
-                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
-                << ", " << (allInParams.empty() ? "[]" : "os_") << ", varargin{:});";
-
-            if(!twowayOnly)
+            out << nl;
+            if(!allOutParams.empty())
             {
-                out << nl << self << ".checkNoResponse_(ok_, is_);";
+                out << "is_ = ";
+            }
+            out << self << ".invoke_('" << op->name() << "', "
+                << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
+                << ", " << (allInParams.empty() ? "[]" : "os_") << ", " << (!allOutParams.empty() ? "true" : "false");
+            if(exceptions.empty())
+            {
+                out << ", {}";
             }
             else
             {
-                out << nl << "if ok_";
-                out.inc();
-                if(allOutParams.empty())
-                {
-                    out << nl << "is_.skipEmptyEncapsulation();";
-                }
-                else
-                {
-                    out << nl << "is_.startEncapsulation();";
-                    //
-                    // To unmarshal results:
-                    //
-                    // * unmarshal all required out parameters
-                    // * unmarshal the required return value (if any)
-                    // * unmarshal all optional out parameters (this includes an optional return value)
-                    //
-                    ParamInfoList classParams;
-                    ParamInfoList convertParams;
-                    for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                    {
-                        if(r->param)
-                        {
-                            string name;
-                            if(isClass(r->type))
-                            {
-                                out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
-                                name = "@(v) " + r->fixedName + "_h_.set(v)";
-                                classParams.push_back(*r);
-                            }
-                            else
-                            {
-                                name = r->fixedName;
-                            }
-                            unmarshal(out, "is_", name, r->type, false, -1);
+                out << ", " << prxAbs << "." << op->name() << "__ex";
+            }
+            out << ", varargin{:});";
 
-                            if(needsConversion(r->type))
-                            {
-                                convertParams.push_back(*r);
-                            }
-                        }
-                    }
-                    //
-                    // Now do the required return value if necessary.
-                    //
-                    if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
+            if(twowayOnly && !allOutParams.empty())
+            {
+                out << nl << "is_.startEncapsulation();";
+                //
+                // To unmarshal results:
+                //
+                // * unmarshal all required out parameters
+                // * unmarshal the required return value (if any)
+                // * unmarshal all optional out parameters (this includes an optional return value)
+                //
+                ParamInfoList classParams;
+                ParamInfoList convertParams;
+                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+                {
+                    if(r->param)
                     {
-                        ParamInfoList::const_iterator r = requiredOutParams.begin();
                         string name;
                         if(isClass(r->type))
                         {
@@ -1263,59 +1231,72 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                             convertParams.push_back(*r);
                         }
                     }
-                    //
-                    // Now unmarshal all optional out parameters. They are already sorted by tag.
-                    //
-                    for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
-                    {
-                        string name;
-                        if(isClass(r->type))
-                        {
-                            out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
-                            name = "@(v) " + r->fixedName + "_h_.set(v)";
-                            classParams.push_back(*r);
-                        }
-                        else
-                        {
-                            name = r->fixedName;
-                        }
-                        unmarshal(out, "is_", name, r->type, r->optional, r->tag);
-
-                        if(needsConversion(r->type))
-                        {
-                            convertParams.push_back(*r);
-                        }
-                    }
-                    if(op->returnsClasses(false))
-                    {
-                        out << nl << "is_.readPendingValues();";
-                    }
-                    out << nl << "is_.endEncapsulation();";
-                    //
-                    // After calling readPendingValues(), all callback functions have been invoked.
-                    // Now we need to collect the values.
-                    //
-                    for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
-                    {
-                        out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
-                    }
-
-                    for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
-                    {
-                        convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
-                    }
                 }
-                out.dec();
-                out << nl << "else";
-                out.inc();
-                out << nl << self << ".throwUserException_" << spar << "is_";
-                for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
+                //
+                // Now do the required return value if necessary.
+                //
+                if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
                 {
-                    out << "'" + getAbsolute(*e) + "'";
+                    ParamInfoList::const_iterator r = requiredOutParams.begin();
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
+                        name = "@(v) " + r->fixedName + "_h_.set(v)";
+                        classParams.push_back(*r);
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, false, -1);
+
+                    if(needsConversion(r->type))
+                    {
+                        convertParams.push_back(*r);
+                    }
                 }
-                out << epar << ';';
-                out.dec();
-                out << nl << "end";
+                //
+                // Now unmarshal all optional out parameters. They are already sorted by tag.
+                //
+                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                {
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
+                        name = "@(v) " + r->fixedName + "_h_.set(v)";
+                        classParams.push_back(*r);
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+
+                    if(needsConversion(r->type))
+                    {
+                        convertParams.push_back(*r);
+                    }
+                }
+                if(op->returnsClasses(false))
+                {
+                    out << nl << "is_.readPendingValues();";
+                }
+                out << nl << "is_.endEncapsulation();";
+                //
+                // After calling readPendingValues(), all callback functions have been invoked.
+                // Now we need to collect the values.
+                //
+                for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
+                {
+                    out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
+                }
+
+                for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
+                {
+                    convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
+                }
             }
 
             out.dec();
@@ -1359,65 +1340,21 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << self << ".endWriteParams_(os_);";
             }
 
-            if(twowayOnly)
+            if(twowayOnly && !allOutParams.empty())
             {
-                out << nl << "function varargout = unmarshal(ok_, is_)";
+                out << nl << "function varargout = unmarshal(is_)";
                 out.inc();
-                out << nl << "if ok_";
-                out.inc();
-                if(allOutParams.empty())
+                out << nl << "is_.startEncapsulation();";
+                //
+                // To unmarshal results:
+                //
+                // * unmarshal all required out parameters
+                // * unmarshal the required return value (if any)
+                // * unmarshal all optional out parameters (this includes an optional return value)
+                //
+                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
                 {
-                    out << nl << "is_.skipEmptyEncapsulation();";
-                }
-                else
-                {
-                    out << nl << "is_.startEncapsulation();";
-                    //
-                    // To unmarshal results:
-                    //
-                    // * unmarshal all required out parameters
-                    // * unmarshal the required return value (if any)
-                    // * unmarshal all optional out parameters (this includes an optional return value)
-                    //
-                    for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                    {
-                        if(r->param)
-                        {
-                            string name;
-                            if(isClass(r->type))
-                            {
-                                out << nl << r->fixedName << " = Ice.ValueHolder();";
-                                name = "@(v) " + r->fixedName + ".set(v)";
-                            }
-                            else
-                            {
-                                name = r->fixedName;
-                            }
-                            unmarshal(out, "is_", name, r->type, r->optional, r->tag);
-                        }
-                    }
-                    //
-                    // Now do the required return value if necessary.
-                    //
-                    if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
-                    {
-                        ParamInfoList::const_iterator r = requiredOutParams.begin();
-                        string name;
-                        if(isClass(r->type))
-                        {
-                            out << nl << r->fixedName << " = Ice.ValueHolder();";
-                            name = "@(v) " + r->fixedName + ".set(v)";
-                        }
-                        else
-                        {
-                            name = r->fixedName;
-                        }
-                        unmarshal(out, "is_", name, r->type, false, -1);
-                    }
-                    //
-                    // Now unmarshal all optional out parameters. They are already sorted by tag.
-                    //
-                    for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                    if(r->param)
                     {
                         string name;
                         if(isClass(r->type))
@@ -1431,57 +1368,81 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                         unmarshal(out, "is_", name, r->type, r->optional, r->tag);
                     }
-                    if(op->returnsClasses(false))
-                    {
-                        out << nl << "is_.readPendingValues();";
-                    }
-                    out << nl << "is_.endEncapsulation();";
-                    for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
-                    {
-                        if(isClass(r->type))
-                        {
-                            out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
-                        }
-                        else if(needsConversion(r->type))
-                        {
-                            ostringstream dest;
-                            dest << "varargout{" << r->pos << "}";
-                            convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
-                        }
-                        else
-                        {
-                            out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
-                        }
-                    }
-                    for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
-                    {
-                        if(isClass(r->type))
-                        {
-                            out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
-                        }
-                        else if(needsConversion(r->type))
-                        {
-                            ostringstream dest;
-                            dest << "varargout{" << r->pos << "}";
-                            convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
-                        }
-                        else
-                        {
-                            out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
-                        }
-                    }
                 }
-                out.dec();
-                out << nl << "else";
-                out.inc();
-                out << nl << self << ".throwUserException_" << spar << "is_";
-                for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
+                //
+                // Now do the required return value if necessary.
+                //
+                if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
                 {
-                    out << "'" + getAbsolute(*e) + "'";
+                    ParamInfoList::const_iterator r = requiredOutParams.begin();
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << " = Ice.ValueHolder();";
+                        name = "@(v) " + r->fixedName + ".set(v)";
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, false, -1);
                 }
-                out << epar << ';';
-                out.dec();
-                out << nl << "end";
+                //
+                // Now unmarshal all optional out parameters. They are already sorted by tag.
+                //
+                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                {
+                    string name;
+                    if(isClass(r->type))
+                    {
+                        out << nl << r->fixedName << " = Ice.ValueHolder();";
+                        name = "@(v) " + r->fixedName + ".set(v)";
+                    }
+                    else
+                    {
+                        name = r->fixedName;
+                    }
+                    unmarshal(out, "is_", name, r->type, r->optional, r->tag);
+                }
+                if(op->returnsClasses(false))
+                {
+                    out << nl << "is_.readPendingValues();";
+                }
+                out << nl << "is_.endEncapsulation();";
+                for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+                {
+                    if(isClass(r->type))
+                    {
+                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
+                    }
+                    else if(needsConversion(r->type))
+                    {
+                        ostringstream dest;
+                        dest << "varargout{" << r->pos << "}";
+                        convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
+                    }
+                    else
+                    {
+                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
+                    }
+                }
+                for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+                {
+                    if(isClass(r->type))
+                    {
+                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
+                    }
+                    else if(needsConversion(r->type))
+                    {
+                        ostringstream dest;
+                        dest << "varargout{" << r->pos << "}";
+                        convertValueType(out, dest.str(), r->fixedName, r->type, r->optional);
+                    }
+                    else
+                    {
+                        out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
+                    }
+                }
                 out.dec();
                 out << nl << "end";
             }
@@ -1489,7 +1450,16 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "r_ = " << self << ".invokeAsync_('" << op->name() << "', "
                 << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false") << ", "
                 << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
-                << (twowayOnly ? "@unmarshal" : "[]") << ", varargin{:});";
+                << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
+            if(exceptions.empty())
+            {
+                out << ", {}";
+            }
+            else
+            {
+                out << ", " << prxAbs << "." << op->name() << "__ex";
+            }
+            out << ", varargin{:});";
 
             out.dec();
             out << nl << "end";
@@ -1505,9 +1475,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "id = '" << scoped << "';";
         out.dec();
         out << nl << "end";
-        out << nl << "function r = ice_read(is_)";
+        out << nl << "function r = ice_read(is)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.read_(is_, '" << prxAbs << "');";
+        out << nl << "r = is.readProxy('" << prxAbs << "');";
         out.dec();
         out << nl << "end";
         out << nl << "function r = checkedCast(p, varargin)";
@@ -1529,23 +1499,68 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         out << nl << "methods(Hidden=true)";
         out.inc();
-        out << nl << "function obj = " << prxName << "(impl, communicator)";
+        out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
         out.inc();
         if(!bases.empty())
         {
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
             {
-                out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(impl, communicator);";
+                out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
             }
         }
         else
         {
-            out << nl << "obj = obj@Ice.ObjectPrx(impl, communicator);";
+            out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
         }
         out.dec();
         out << nl << "end";
         out.dec();
         out << nl << "end";
+
+        if(hasExceptions)
+        {
+            //
+            // Generate a constant property for each operation that throws user exceptions. The property is
+            // a cell array containing the class names of the exceptions.
+            //
+            out << nl << "properties(Constant,Access=private)";
+            out.inc();
+            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            {
+                OperationPtr op = *q;
+                ExceptionList exceptions = op->throws();
+                exceptions.sort();
+                exceptions.unique();
+
+                //
+                // Arrange exceptions into most-derived to least-derived order. If we don't
+                // do this, a base exception handler can appear before a derived exception
+                // handler, causing compiler warnings and resulting in the base exception
+                // being marshaled instead of the derived exception.
+                //
+#if defined(__SUNPRO_CC)
+                exceptions.sort(Slice::derivedToBaseCompare);
+#else
+                exceptions.sort(Slice::DerivedToBaseCompare());
+#endif
+
+                if(!exceptions.empty())
+                {
+                    out << nl << op->name() << "__ex = { ";
+                    for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
+                    {
+                        if(e != exceptions.begin())
+                        {
+                            out << ", ";
+                        }
+                        out << "'" + getAbsolute(*e) + "'";
+                    }
+                    out << " }";
+                }
+            }
+            out.dec();
+            out << nl << "end";
+        }
 
         out.dec();
         out << nl << "end";

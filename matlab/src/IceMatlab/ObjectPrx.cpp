@@ -248,7 +248,7 @@ Ice_ObjectPrx_equals(void* self, void* other, unsigned char* r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int start, int size, void** r, int* used)
+Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int start, int size, void** r)
 {
     assert(!mxIsEmpty(buf));
 
@@ -272,7 +272,6 @@ Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int star
         {
             *r = 0;
         }
-        *used = static_cast<int>(in.pos());
     }
     catch(const std::exception& ex)
     {
@@ -477,7 +476,7 @@ Ice_ObjectPrx_ice_getIdentity(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_identity(void* self, mxArray* id, void** r)
+Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
 {
     try
     {
@@ -500,7 +499,7 @@ Ice_ObjectPrx_ice_getContext(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_context(void* self, mxArray* c, void** r)
+Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
 {
     try
     {
@@ -519,12 +518,12 @@ Ice_ObjectPrx_ice_context(void* self, mxArray* c, void** r)
 EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_getFacet(void* self)
 {
-    const string f = SELF->ice_getFacet();
-    return createResultValue(createStringFromUTF8(f));
+    auto s = SELF->ice_getFacet();
+    return createResultValue(createStringFromUTF8(s));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_facet(void* self, const char* f, void** r)
+Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
 {
     try
     {
@@ -541,12 +540,12 @@ Ice_ObjectPrx_ice_facet(void* self, const char* f, void** r)
 EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_getAdapterId(void* self)
 {
-    auto f = SELF->ice_getAdapterId();
-    return createResultValue(createStringFromUTF8(f));
+    auto s = SELF->ice_getAdapterId();
+    return createResultValue(createStringFromUTF8(s));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_adapterId(void* self, const char* id, void** r)
+Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
 {
     try
     {
@@ -568,7 +567,7 @@ Ice_ObjectPrx_ice_getEndpoints(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_endpoints(void* self, mxArray* endpts, void** r)
+Ice_ObjectPrx_ice_endpoints(void* self, void** r, mxArray* endpts)
 {
     // TBD
 #if 0
@@ -586,14 +585,13 @@ Ice_ObjectPrx_ice_endpoints(void* self, mxArray* endpts, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self, int* t)
+Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self)
 {
-    *t = SELF->ice_getLocatorCacheTimeout();
-    return 0;
+    return createResultValue(createInt(SELF->ice_getLocatorCacheTimeout()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, int t, void** r)
+Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
 {
     try
     {
@@ -608,14 +606,13 @@ Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, int t, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_getInvocationTimeout(void* self, int* t)
+Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
 {
-    *t = SELF->ice_getInvocationTimeout();
-    return 0;
+    return createResultValue(createInt(SELF->ice_getInvocationTimeout()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_invocationTimeout(void* self, int t, void** r)
+Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
 {
     try
     {
@@ -632,12 +629,12 @@ Ice_ObjectPrx_ice_invocationTimeout(void* self, int t, void** r)
 EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_getConnectionId(void* self)
 {
-    auto f = SELF->ice_getConnectionId();
-    return createResultValue(createStringFromUTF8(f));
+    auto s = SELF->ice_getConnectionId();
+    return createResultValue(createStringFromUTF8(s));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_connectionId(void* self, const char* id, void** r)
+Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
 {
     try
     {
@@ -652,14 +649,13 @@ Ice_ObjectPrx_ice_connectionId(void* self, const char* id, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isConnectionCached(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isConnectionCached(void* self)
 {
-    *r = SELF->ice_isConnectionCached() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isConnectionCached()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_connectionCached(void* self, unsigned char v, void** r)
+Ice_ObjectPrx_ice_connectionCached(void* self, void** r, unsigned char v)
 {
     try
     {
@@ -689,7 +685,7 @@ Ice_ObjectPrx_ice_getEndpointSelection(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_endpointSelection(void* self, mxArray* type, void** r)
+Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
 {
     try
     {
@@ -711,7 +707,7 @@ Ice_ObjectPrx_ice_getEncodingVersion(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_encodingVersion(void* self, mxArray* v, void** r)
+Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
 {
     try
     {
@@ -736,7 +732,7 @@ Ice_ObjectPrx_ice_getRouter(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_router(void* self, void* rtr, void** r)
+Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
 {
     try
     {
@@ -764,7 +760,7 @@ Ice_ObjectPrx_ice_getLocator(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_locator(void* self, void* loc, void** r)
+Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
 {
     try
     {
@@ -784,14 +780,13 @@ Ice_ObjectPrx_ice_locator(void* self, void* loc, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isSecure(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isSecure(void* self)
 {
-    *r = SELF->ice_isSecure() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isSecure()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_secure(void* self, unsigned char b, void** r)
+Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
 {
     try
     {
@@ -806,14 +801,13 @@ Ice_ObjectPrx_ice_secure(void* self, unsigned char b, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isPreferSecure(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isPreferSecure(void* self)
 {
-    *r = SELF->ice_isPreferSecure() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isPreferSecure()));
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_preferSecure(void* self, unsigned char b, void** r)
+Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
 {
     try
     {
@@ -828,10 +822,9 @@ Ice_ObjectPrx_ice_preferSecure(void* self, unsigned char b, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isTwoway(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isTwoway(void* self)
 {
-    *r = SELF->ice_isTwoway() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isTwoway()));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -850,10 +843,9 @@ Ice_ObjectPrx_ice_twoway(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isOneway(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isOneway(void* self)
 {
-    *r = SELF->ice_isOneway() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isOneway()));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -872,10 +864,9 @@ Ice_ObjectPrx_ice_oneway(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isBatchOneway(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isBatchOneway(void* self)
 {
-    *r = SELF->ice_isBatchOneway() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isBatchOneway()));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -894,10 +885,9 @@ Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isDatagram(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isDatagram(void* self)
 {
-    *r = SELF->ice_isDatagram() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isDatagram()));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -916,10 +906,9 @@ Ice_ObjectPrx_ice_datagram(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_isBatchDatagram(void* self, unsigned char* r)
+Ice_ObjectPrx_ice_isBatchDatagram(void* self)
 {
-    *r = SELF->ice_isBatchDatagram() ? 1 : 0;
-    return 0;
+    return createResultValue(createBool(SELF->ice_isBatchDatagram()));
 }
 
 EXPORTED_FUNCTION mxArray*
@@ -938,7 +927,7 @@ Ice_ObjectPrx_ice_batchDatagram(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_compress(void* self, unsigned char b, void** r)
+Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
 {
     try
     {
@@ -953,7 +942,7 @@ Ice_ObjectPrx_ice_compress(void* self, unsigned char b, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_timeout(void* self, int t, void** r)
+Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
 {
     try
     {

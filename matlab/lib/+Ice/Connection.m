@@ -33,7 +33,7 @@ classdef Connection < IceInternal.WrapperObject
         function r = createProxy(obj, id)
             proxy = libpointer('voidPtr');
             obj.call_('createProxy', id, proxy);
-            r = Ice.ObjectPrx(proxy, obj.communicator);
+            r = Ice.ObjectPrx(obj.communicator, obj.communicator.getEncoding(), proxy);
         end
         function r = getEndpoint(obj)
             throw(Ice.FeatureNotSupportedException('', '', 'getEndpoint'));

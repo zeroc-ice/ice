@@ -17,6 +17,17 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj = obj@IceInternal.WrapperObject(impl);
             obj.initData = initData;
+
+            enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
+            if isempty(enc)
+                obj.encoding = Ice.currentEncoding();
+            else
+                arr = sscanf(enc, '%u.%u');
+                if length(arr) ~= 2
+                    throw(MException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
+                end
+                obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
+            end
         end
         function destroy(obj)
             obj.call_('destroy');
@@ -33,7 +44,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(impl, obj);
+                r = Ice.ObjectPrx(obj, obj.encoding, impl);
             end
         end
         function r = proxyToString(obj, proxy)
@@ -42,7 +53,7 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.ObjectPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a proxy'));
             else
-                r = obj.callWithResult_('proxyToString', proxy.impl_);
+                r = proxy.ice_toString();
             end
         end
         function r = propertyToProxy(obj, prop)
@@ -51,7 +62,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isNull(impl)
                 r = [];
             else
-                r = Ice.ObjectPrx(impl, obj);
+                r = Ice.ObjectPrx(obj, obj.encoding, impl);
             end
         end
         function r = proxyToProperty(obj, proxy, prop)
@@ -60,7 +71,7 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.ObjectPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a proxy'));
             else
-                r = obj.callWithResult_('proxyToProperty', proxy.impl_, prop);
+                r = obj.callWithResult_('proxyToProperty', proxy.getImpl_(), prop);
             end
         end
         function r = identityToString(obj, id)
@@ -86,9 +97,9 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.RouterPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a router proxy'));
             else
-                impl = proxy.impl_;
+                impl = proxy.getImpl_();
             end
-            obj.call_('setDefaultRouter', impl_);
+            obj.call_('setDefaultRouter', impl);
         end
         function r = getDefaultLocator(obj)
             impl = libpointer('voidPtr');
@@ -105,9 +116,9 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.LocatorPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a locator proxy'));
             else
-                impl = proxy.impl_;
+                impl = proxy.getImpl_();
             end
-            obj.call_('setDefaultLocator', impl_);
+            obj.call_('setDefaultLocator', impl);
         end
         function r = getValueFactoryManager(obj)
             r = obj.initData.valueFactoryManager;
@@ -130,6 +141,9 @@ classdef Communicator < IceInternal.WrapperObject
         function r = getCompactIdResolver(obj)
             r = obj.initData.compactIdResolver;
         end
+        function r = getEncoding(obj)
+            r = obj.encoding;
+        end
         function r = createOutputStream(obj, encoding)
             r = Ice.OutputStream(obj, encoding);
         end
@@ -137,5 +151,6 @@ classdef Communicator < IceInternal.WrapperObject
     properties(Access=private)
         initData
         classResolver
+        encoding
     end
 end
