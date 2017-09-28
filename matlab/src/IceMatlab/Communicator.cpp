@@ -14,6 +14,7 @@
 #include "icematlab.h"
 #include "Communicator.h"
 #include "Future.h"
+#include "Logger.h"
 #include "ObjectPrx.h"
 #include "Util.h"
 
@@ -177,6 +178,21 @@ Ice_Communicator_getProperties(void* self, void** props)
     {
         auto p = SELF->getProperties();
         *props = new shared_ptr<Ice::Properties>(p);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_Communicator_getLogger(void* self, void** logger)
+{
+    try
+    {
+        auto l = SELF->getLogger();
+        *logger = createLogger(l);
     }
     catch(const std::exception& ex)
     {

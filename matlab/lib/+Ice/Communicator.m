@@ -82,6 +82,11 @@ classdef Communicator < IceInternal.WrapperObject
             obj.call_('getProperties', impl);
             r = Ice.Properties(impl);
         end
+        function r = getLogger(obj)
+            impl = libpointer('voidPtr');
+            obj.call_('getLogger', impl);
+            r = Ice.Logger(impl);
+        end
         function r = getDefaultRouter(obj)
             impl = libpointer('voidPtr');
             obj.call_('getDefaultRouter', impl);

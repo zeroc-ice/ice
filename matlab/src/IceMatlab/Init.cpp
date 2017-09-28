@@ -18,103 +18,6 @@
 using namespace std;
 using namespace IceMatlab;
 
-namespace
-{
-
-class Logger : public Ice::Logger
-{
-public:
-
-    Logger(const string&);
-
-    virtual void print(const string&);
-    virtual void trace(const string&, const string&);
-    virtual void warning(const string&);
-    virtual void error(const string&);
-    virtual string getPrefix();
-    virtual shared_ptr<Ice::Logger> cloneWithPrefix(const string&);
-
-private:
-
-    void write(const string&, bool);
-
-    const string _prefix;
-    string _formattedPrefix;
-};
-
-Logger::Logger(const string& prefix) :
-    _prefix(prefix)
-{
-    if(!prefix.empty())
-    {
-        _formattedPrefix = prefix + ": ";
-    }
-}
-
-void
-Logger::print(const string& message)
-{
-    write(message, false);
-}
-
-void
-Logger::trace(const string& category, const string& message)
-{
-    string s = "-- " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix;
-    if(!category.empty())
-    {
-        s += category + ": ";
-    }
-    s += message;
-
-    write(s, true);
-}
-
-void
-Logger::warning(const string& message)
-{
-    write("-! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "warning: " + message, true);
-}
-
-void
-Logger::error(const string& message)
-{
-    write("!! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "error: " + message, true);
-}
-
-string
-Logger::getPrefix()
-{
-    return _prefix;
-}
-
-shared_ptr<Ice::Logger>
-Logger::cloneWithPrefix(const string& prefix)
-{
-    return make_shared<Logger>(prefix);
-}
-
-void
-Logger::write(const string& message, bool indent)
-{
-    string s = message;
-
-    if(indent)
-    {
-        string::size_type idx = 0;
-        while((idx = s.find("\n", idx)) != string::npos)
-        {
-            s.insert(idx + 1, "   ");
-            ++idx;
-        }
-    }
-
-    mexPrintf("%s\n", message.c_str());
-    mexEvalString("pause(.001);"); // Hack to flush output.
-}
-
-}
-
 extern "C"
 {
 
@@ -138,8 +41,6 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
         {
             id.properties = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(propsImpl));
         }
-
-        //id.logger = make_shared<Logger>(""); // TODO
 
         shared_ptr<Ice::Communicator> c = Ice::initialize(a, id);
         *r = new shared_ptr<Ice::Communicator>(c);

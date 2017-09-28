@@ -14,14 +14,12 @@ classdef (Sealed) InitializationData
         function r = clone(obj)
             r = Ice.InitializationData();
             r.properties_ = obj.properties_;
-            r.logger = obj.logger;
             r.compactIdResolver = obj.compactIdResolver;
             r.valueFactoryManager = obj.valueFactoryManager;
         end
     end
     properties
         properties_
-        logger
         compactIdResolver
         valueFactoryManager
     end

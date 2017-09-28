@@ -42,6 +42,7 @@ EXPORTED_FUNCTION mxArray* Ice_Communicator_propertyToProxy(void*, const char*, 
 EXPORTED_FUNCTION mxArray* Ice_Communicator_proxyToProperty(void*, void*, const char*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_identityToString(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_getProperties(void*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Communicator_getLogger(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_getDefaultRouter(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_setDefaultRouter(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_getDefaultLocator(void*, void**);
@@ -158,6 +159,14 @@ EXPORTED_FUNCTION mxArray* Ice_Connection_timeout(void*, int*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_toString(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_setBufferSize(void*, int, int);
 EXPORTED_FUNCTION mxArray* Ice_Connection_throwException(void*);
+
+EXPORTED_FUNCTION mxArray* Ice_Logger__release(void*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_print(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_trace(void*, mxArray*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_warning(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_error(void*, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_getPrefix(void*);
+EXPORTED_FUNCTION mxArray* Ice_Logger_cloneWithPrefix(void*, mxArray*, void**);
 
 #ifdef __cplusplus
 }
