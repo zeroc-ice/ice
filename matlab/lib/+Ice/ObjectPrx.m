@@ -410,7 +410,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if isempty(obj.bytes)
                 obj.bytes = obj.callWithResult_('write', obj.communicator.impl_, encoding);
             end
-            os.writeEncapsulation(obj.bytes);
+            os.writeBlob(obj.bytes);
         end
         function r = getImpl_(obj)
             obj.instantiate_();
