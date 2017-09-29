@@ -9,16 +9,16 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class ThrowerI extends Test.Thrower
     {
@@ -39,25 +39,18 @@
 
         throwAasA(a, current)
         {
-            var ex = new Test.A();
-            ex.aMem = a;
-            throw ex;
+            throw new Test.A(a);
         }
 
         throwAorDasAorD(a, current)
         {
-            var ex;
             if(a > 0)
             {
-                ex = new Test.A();
-                ex.aMem = a;
-                throw ex;
+                throw new Test.A(a);
             }
             else
             {
-                ex = new Test.D();
-                ex.dMem = a;
-                throw ex;
+                throw new Test.D(a);
             }
         }
 
@@ -68,10 +61,7 @@
 
         throwBasB(a, b, current)
         {
-            var ex = new Test.B();
-            ex.aMem = a;
-            ex.bMem = b;
-            throw ex;
+            throw new Test.B(a, b);
         }
 
         throwCasA(a, b, c, current)
@@ -86,35 +76,22 @@
 
         throwCasC(a, b, c, current)
         {
-            var ex = new Test.C();
-            ex.aMem = a;
-            ex.bMem = b;
-            ex.cMem = c;
-            throw ex;
+            throw new Test.C(a, b, c);
         }
 
         throwUndeclaredA(a, current)
         {
-            var ex = new Test.A();
-            ex.aMem = a;
-            throw ex;
+            throw new Test.A(a);
         }
 
         throwUndeclaredB(a, b, current)
         {
-            var ex = new Test.B();
-            ex.aMem = a;
-            ex.bMem = b;
-            throw ex;
+            throw new Test.B(a, b);
         }
 
         throwUndeclaredC(a, b, c, current)
         {
-            var ex = new Test.C();
-            ex.aMem = a;
-            ex.bMem = b;
-            ex.cMem = c;
-            throw ex;
+            throw new Test.C(a, b, c);
         }
 
         throwLocalException(current)

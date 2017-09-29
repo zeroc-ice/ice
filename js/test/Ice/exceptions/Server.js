@@ -9,46 +9,42 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var ThrowerI = require("ThrowerI").ThrowerI;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
+    const ThrowerI = require("ThrowerI").ThrowerI;
 
-    var run = function(out, id, ready)
+    async function run(out, initData, ready)
     {
-        id.properties.setProperty("Ice.MessageSizeMax", "10");
-        id.properties.setProperty("Ice.Warn.Dispatch", "0");
-        id.properties.setProperty("Ice.Warn.Connections", "0");
-        var communicator = Ice.initialize(id);
-        var adapter;
-        var echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-        return Ice.Promise.try(() =>
-            {
-                return communicator.createObjectAdapter("");
-            }
-        ).then(adpt =>
-            {
-                adapter = adpt;
-                adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
-                return echo.setConnection();
-            }
-        ).then(() =>
-            {
-                var connection = echo.ice_getCachedConnection();
-                connection.setCloseCallback((con) => {
+        initData.properties.setProperty("Ice.MessageSizeMax", "10");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        let communicator;
+        try
+        {
+            communicator = Ice.initialize(initData);
+            let echo = await Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
+            let adapter = await communicator.createObjectAdapter("");
+            adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
+            await echo.setConnection();
+            let connection = echo.ice_getCachedConnection();
+            connection.setCloseCallback(con => {
                     // Re-establish connection if it fails (necessary for MemoryLimitException test)
                     echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter));
                 });
-                connection.setAdapter(adapter);
-                adapter.activate();
-                ready.resolve();
-                return communicator.waitForShutdown();
-            }
-        ).then(() =>
+            connection.setAdapter(adapter);
+            adapter.activate();
+            ready.resolve();
+            await communicator.waitForShutdown();
+            await echo.shutdown();
+        }
+        finally
+        {
+            if(communicator)
             {
-                return echo.shutdown();
+                await communicator.destroy();
             }
-        ).finally(() => communicator.destroy());
-    };
+        }
+    }
     exports._server = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

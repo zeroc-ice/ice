@@ -9,16 +9,16 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class MyDerivedClassI extends Test.MyDerivedClass
     {
@@ -73,13 +73,13 @@
 
         opBoolS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
+            const p3 = p1.concat(p2);
             return [p1.reverse(), p3];
         }
 
         opBoolSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
+            const p3 = p1.concat(p2);
             return [p1.reverse(), p3];
         }
 
@@ -90,20 +90,20 @@
 
         opByteBoolD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
 
         opByteS(p1, p2, current)
         {
-            var p3 = new Uint8Array(p1.length);
+            const p3 = new Uint8Array(p1.length);
             for(let i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
-            var r = new Uint8Array(p1.length + p2.length);
+            const r = new Uint8Array(p1.length + p2.length);
             for(let i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];
@@ -117,7 +117,7 @@
 
         opByteSS(p1, p2, current)
         {
-            var r = p1.concat(p2);
+            const r = p1.concat(p2);
             return [r, p1.reverse()];
         }
 
@@ -128,31 +128,31 @@
 
         opFloatDoubleS(p1, p2, current)
         {
-            var r = p2.concat(p1);
-            var p4 = p2.reverse();
+            const r = p2.concat(p1);
+            const p4 = p2.reverse();
             return [r, p1, p4];
         }
 
         opFloatDoubleSS(p1, p2, current)
         {
-            var r = p2.concat(p2);
-            var p4 = p2.reverse();
+            const r = p2.concat(p2);
+            const p4 = p2.reverse();
             return [r, p1, p4];
         }
 
         opLongFloatD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
 
         opMyClass(p1, current)
         {
-            var p2 = p1;
-            var p3 = Test.MyClassPrx.uncheckedCast(
+            const p2 = p1;
+            const p3 = Test.MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
-            var r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+            const r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
             return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
         }
 
@@ -163,7 +163,7 @@
 
         opShortIntD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
@@ -190,149 +190,149 @@
 
         opStringMyEnumD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
 
         opMyEnumStringD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
 
         opMyStructMyEnumD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }
 
         opByteBoolDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opShortIntDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opLongFloatDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opStringStringDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opStringMyEnumDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opMyEnumStringDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opMyStructMyEnumDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opByteByteSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opBoolBoolSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opShortShortSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opIntIntSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opLongLongSD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Ice.HashMap(p2);
+            const p3 = new Ice.HashMap(p2);
             return [r, p3];
         }
 
         opStringFloatSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opStringDoubleSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opStringStringSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opMyEnumMyEnumSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
+            const p3 = new Map(p2);
             return [r, p3];
         }
 
         opIntS(s, current)
         {
-            return s.map(function(v, i, arr) { return -v; });
+            return s.map(v => -v);
         }
 
         opByteSOneway(s, current)
@@ -342,7 +342,7 @@
 
         opByteSOnewayCallCount(current)
         {
-            var count = this._opByteSOnewayCount;
+            const count = this._opByteSOnewayCount;
             this._opByteSOnewayCount = 0;
             return count;
         }
@@ -354,9 +354,9 @@
 
         opDoubleMarshaling(p1, p2, current)
         {
-            var d = 1278312346.0 / 13.0;
+            const d = 1278312346.0 / 13.0;
             test(p1 === d);
-            for(var i = 0; i < p2.length; ++i)
+            for(let i = 0; i < p2.length; ++i)
             {
                 test(p2[i] === d);
             }
@@ -364,28 +364,28 @@
 
         opStringS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p1.reverse();
+            const p3 = p1.concat(p2);
+            const r = p1.reverse();
             return [r, p3];
         }
 
         opStringSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p2.reverse();
+            const p3 = p1.concat(p2);
+            const r = p2.reverse();
             return [r, p3];
         }
 
         opStringSSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p2.reverse();
+            const p3 = p1.concat(p2);
+            const r = p2.reverse();
             return [r, p3];
         }
 
         opStringStringD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
             return [r, p1];
         }

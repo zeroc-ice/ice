@@ -9,8 +9,8 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
     class CAI extends Test.MA.CADisp
     {
@@ -151,7 +151,7 @@
         constructor(adapter, obj)
         {
             super();
-            var endpts = obj.ice_getEndpoints();
+            const endpts = obj.ice_getEndpoints();
             this._ca = Test.MA.CAPrx.uncheckedCast(adapter.addWithUUID(new CAI()).ice_endpoints(endpts));
             this._cb = Test.MB.CBPrx.uncheckedCast(adapter.addWithUUID(new CBI()).ice_endpoints(endpts));
             this._cc = Test.MA.CCPrx.uncheckedCast(adapter.addWithUUID(new CCI()).ice_endpoints(endpts));

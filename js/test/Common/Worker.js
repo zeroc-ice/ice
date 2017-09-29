@@ -12,65 +12,60 @@
     runTest : false
 */
 
-var Output =
+class Output
 {
-    write: function(msg)
+    static write(msg)
     {
         self.postMessage({type:"Write", message:msg});
-    },
-    writeLine: function(msg)
+    }
+
+    static writeLine(msg)
     {
         self.postMessage({type:"WriteLine", message:msg});
     }
-};
+}
 
-self.onmessage = function(e)
+self.onmessage = (e) =>
 {
     try
     {
-        var test = e.data.test;
+        let test = e.data.test;
         if(test.es5)
         {
-            self.importScripts("/node_modules/babel-polyfill/dist/polyfill.js");
             self.importScripts("/lib/es5/Ice.js");
             self.importScripts("/test/es5/Common/Controller.js");
-            test.files = test.files.map(function(f)
-                {
-                    return f.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js");
-                });
+            test.files = test.files.map(file => file.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js"));
+            self.importScripts("/test/es5/Common/TestRunner.js");
         }
         else
         {
             self.importScripts("/lib/Ice.js");
             self.importScripts("/test/Common/Controller.js");
+            self.importScripts("/test/Common/TestRunner.js");
         }
-        self.importScripts("/test/Common/TestRunner.js");
 
-        for(var i = 0; i < test.files.length; ++i)
+        for(let file of test.files)
         {
-            var f = test.files[i];
-            if(f.indexOf("/") === -1)
+            if(file.indexOf("/") === -1)
             {
-                f = "/test/" + test.name + "/" + f;
-                if(test.es5)
-                {
-                    f = f.replace("/test/", "/test/es5/");
-                }
+                self.importScripts(test.es5 ? `/test/es5/${test.name}/${file}` : `/test/${test.name}/${file}`);
             }
-            self.importScripts(f);
+            else
+            {
+                self.importScripts(file);
+            }
         }
 
         runTest(test.name, test.language, test.defaultHost, test.protocol, test.testcases, Output).then(
-            function(r)
-            {
-                self.postMessage({type:"TestFinished", success:r});
-            }
-        ).catch(
-            function(ex)
-            {
-                Output.writeLine(ex.toString());
-                self.postMessage({type:"TestFinished", success:false});
-            });
+            result =>
+                {
+                    self.postMessage({type:"TestFinished", success:result});
+                },
+            ex =>
+                {
+                    Output.writeLine(ex.toString());
+                    self.postMessage({type:"TestFinished", success:false});
+                });
     }
     catch(ex)
     {

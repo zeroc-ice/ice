@@ -229,11 +229,11 @@ class WSTransceiver
             byteBuffer.position = byteBuffer.position + packetSize;
 
             //
-            // TODO: WORKAROUND for Safari issue with WebWorkers. The websocket accepts all the
-            // data with WebWorkers (bufferedAmount is always 0). We relinquish the control here
+            // TODO: WORKAROUND for Safari issue. The websocket accepts all the
+            // data (bufferedAmount is always 0). We relinquish the control here
             // to ensure timeouts work properly.
             //
-            if(IsSafari && IsWorker && byteBuffer.remaining > 0)
+            if(IsSafari && byteBuffer.remaining > 0)
             {
                 Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;

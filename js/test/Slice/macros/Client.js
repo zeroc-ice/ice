@@ -9,37 +9,36 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
     };
 
-    var run = function(out)
+    async function run(out)
     {
-        return Ice.Promise.try(() =>
-            {
-                out.write("testing Slice predefined macros... ");
+        out.write("testing Slice predefined macros... ");
 
-                let d = new Test._Default();
-                test(d.x == 10);
-                test(d.y == 10);
+        let d = new Test._Default();
+        test(d.x == 10);
+        test(d.y == 10);
 
-                let nd = new Test.NoDefault();
-                test(nd.x != 10);
-                test(nd.y != 10);
+        let nd = new Test.NoDefault();
+        test(nd.x != 10);
+        test(nd.y != 10);
 
-                let c = new Test.JsOnly();
-                test(c.lang == "js");
-                test(c.version == Ice.intVersion());
-            }
-        ).then(() => out.writeLine("ok"));
-    };
+        let c = new Test.JsOnly();
+        test(c.lang == "js");
+        test(c.version == Ice.intVersion());
+
+        out.writeLine("ok");
+    }
+
     exports._test = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

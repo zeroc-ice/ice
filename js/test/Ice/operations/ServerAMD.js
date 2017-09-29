@@ -9,39 +9,38 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
+    const AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
 
-    var run = function(out, id, ready)
+    async function run(out, initData, ready)
     {
-        id.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        var communicator = Ice.initialize(id);
-        var adapter;
-        var echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-        return Ice.Promise.try(() =>
+        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        let communicator;
+        try
+        {
+            communicator = Ice.initialize(initData);
+            let echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
+            let adapter = await communicator.createObjectAdapter("");
+            adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+            await echo.setConnection();
+            echo.ice_getCachedConnection().setAdapter(adapter);
+            adapter.activate();
+            ready.resolve();
+
+            await communicator.waitForShutdown();
+
+            await echo.shutdown();
+        }
+        finally
+        {
+            if(communicator)
             {
-                return communicator.createObjectAdapter("");
+                await communicator.destroy();
             }
-        ).then(adpt =>
-            {
-                adapter = adpt;
-                adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
-                return echo.setConnection();
-            }
-        ).then(() =>
-            {
-                echo.ice_getCachedConnection().setAdapter(adapter);
-                adapter.activate();
-                ready.resolve();
-                return communicator.waitForShutdown();
-            }
-        ).then(() =>
-            {
-                return echo.shutdown();
-            }
-        ).finally(() => communicator.destroy());
-    };
+        };
+    }
+
     exports._serveramd = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

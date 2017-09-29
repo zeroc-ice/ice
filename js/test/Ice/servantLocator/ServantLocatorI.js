@@ -9,19 +9,21 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var TestI = require("TestI").TestI;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
+    const TestI = require("TestI").TestI;
 
     class MyError
     {
-    };
+    }
 
-    var test = function test(b) {
-        if (!b) {
+    function test(value)
+    {
+        if(!value)
+        {
             throw new Error("test failed");
         }
-    };
+    }
 
     class CookieI
     {
@@ -29,7 +31,7 @@
         {
             return "blahblah";
         }
-    };
+    }
 
     class ServantLocatorI
     {

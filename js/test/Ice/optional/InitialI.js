@@ -9,16 +9,16 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class InitialI extends Test.Initial
     {
@@ -34,7 +34,7 @@
 
         opOptionalException(a, b, o, current)
         {
-            var ex = new Test.OptionalException();
+            const ex = new Test.OptionalException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -56,7 +56,7 @@
 
         opDerivedException(a, b, o, current)
         {
-            var ex = new Test.DerivedException();
+            const ex = new Test.DerivedException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -84,7 +84,7 @@
 
         opRequiredException(a, b, o, current)
         {
-            var ex = new Test.RequiredException();
+            const ex = new Test.RequiredException();
             if(a !== undefined)
             {
                 ex.a = a;

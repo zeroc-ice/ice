@@ -9,231 +9,121 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var allTests = function(out, communicator)
+    async function allTests(out, communicator)
     {
-        var p = new Ice.Promise();
-        var test = function(b)
+        function test(value)
         {
-            if(!b)
+            if(!value)
             {
-                try
-                {
-                    throw new Error("test failed");
-                }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
+                throw new Error("test failed");
             }
-        };
+        }
 
-        var failCB = function(){ test(false); };
+        out.write("testing stringToProxy... ");
+        let ref = "d:default -p 12010";
+        let db = communicator.stringToProxy(ref);
+        test(db !== null);
+        out.writeLine("ok");
 
-        var ref, db, prx, prx2, prx3, d, df, df2, df3, ff, gf, hf;
+        out.write("testing unchecked cast... ");
+        let prx = Ice.ObjectPrx.uncheckedCast(db);
+        test(prx.ice_getFacet().length === 0);
+        prx = Ice.ObjectPrx.uncheckedCast(db, "facetABCD");
+        test(prx.ice_getFacet() == "facetABCD");
+        let prx2 = Ice.ObjectPrx.uncheckedCast(prx);
+        test(prx2.ice_getFacet() == "facetABCD");
+        let prx3 = Ice.ObjectPrx.uncheckedCast(prx, "");
+        test(prx3.ice_getFacet().length === 0);
+        let d = Test.DPrx.uncheckedCast(db);
+        test(d.ice_getFacet().length === 0);
+        let df = Test.DPrx.uncheckedCast(db, "facetABCD");
+        test(df.ice_getFacet() == "facetABCD");
+        let df2 = Test.DPrx.uncheckedCast(df);
+        test(df2.ice_getFacet() == "facetABCD");
+        let df3 = Test.DPrx.uncheckedCast(df, "");
+        test(df3.ice_getFacet().length === 0);
+        out.writeLine("ok");
 
-        Ice.Promise.try(
-            function()
-            {
-                out.write("testing stringToProxy... ");
-                ref = "d:default -p 12010";
-                db = communicator.stringToProxy(ref);
-                test(db !== null);
-                out.writeLine("ok");
+        out.write("testing checked cast... ");
+        prx = await Ice.ObjectPrx.checkedCast(db);
+        test(prx.ice_getFacet().length === 0);
+        prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
+        test(prx.ice_getFacet() == "facetABCD");
+        prx2 = await Ice.ObjectPrx.checkedCast(prx);
+        test(prx2.ice_getFacet() == "facetABCD");
+        prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
+        test(prx3.ice_getFacet().length === 0);
+        d = await Test.DPrx.checkedCast(db);
+        test(d.ice_getFacet().length === 0);
+        df = await Test.DPrx.checkedCast(db, "facetABCD");
+        test(df.ice_getFacet() == "facetABCD");
+        df2 = await Test.DPrx.checkedCast(df);
+        test(df2.ice_getFacet() == "facetABCD");
+        def3 = await Test.DPrx.checkedCast(df, "");
+        test(df3.ice_getFacet().length === 0);
+        out.writeLine("ok");
 
-                out.write("testing unchecked cast... ");
-                prx = Ice.ObjectPrx.uncheckedCast(db);
-                test(prx.ice_getFacet().length === 0);
-                prx = Ice.ObjectPrx.uncheckedCast(db, "facetABCD");
-                test(prx.ice_getFacet() == "facetABCD");
-                prx2 = Ice.ObjectPrx.uncheckedCast(prx);
-                test(prx2.ice_getFacet() == "facetABCD");
-                prx3 = Ice.ObjectPrx.uncheckedCast(prx, "");
-                test(prx3.ice_getFacet().length === 0);
-                d = Test.DPrx.uncheckedCast(db);
-                test(d.ice_getFacet().length === 0);
-                df = Test.DPrx.uncheckedCast(db, "facetABCD");
-                test(df.ice_getFacet() == "facetABCD");
-                df2 = Test.DPrx.uncheckedCast(df);
-                test(df2.ice_getFacet() == "facetABCD");
-                df3 = Test.DPrx.uncheckedCast(df, "");
-                test(df3.ice_getFacet().length === 0);
-                out.writeLine("ok");
-                out.write("testing checked cast... ");
-                return Ice.ObjectPrx.checkedCast(db);
-            }
-        ).then(
-            function(obj)
-            {
-                prx = obj;
-                test(prx.ice_getFacet().length === 0);
-                return Ice.ObjectPrx.checkedCast(db, "facetABCD");
-            }
-        ).then(
-            function(obj)
-            {
-                prx = obj;
-                test(prx.ice_getFacet() == "facetABCD");
-                return Ice.ObjectPrx.checkedCast(prx);
-            }
-        ).then(
-            function(obj)
-            {
-                prx2 = obj;
-                test(prx2.ice_getFacet() == "facetABCD");
-                return Ice.ObjectPrx.checkedCast(prx, "");
-            }
-        ).then(
-            function(obj)
-            {
-                prx3 = obj;
-                test(prx3.ice_getFacet().length === 0);
-                return Test.DPrx.checkedCast(db);
-            }
-        ).then(
-            function(obj)
-            {
-                d = obj;
-                test(d.ice_getFacet().length === 0);
-                return Test.DPrx.checkedCast(db, "facetABCD");
-            }
-        ).then(
-            function(obj)
-            {
-                df = obj;
-                test(df.ice_getFacet() == "facetABCD");
-                return Test.DPrx.checkedCast(df);
-            }
-        ).then(
-            function(obj)
-            {
-                df2 = obj;
-                test(df2.ice_getFacet() == "facetABCD");
-                return Test.DPrx.checkedCast(df, "");
-            }
-        ).then(
-            function(obj)
-            {
-                df3 = obj;
-                test(df3.ice_getFacet().length === 0);
-                out.writeLine("ok");
-                out.write("testing non-facets A, B, C, and D... ");
-                return Test.DPrx.checkedCast(db);
-            }
-        ).then(
-            function(obj)
-            {
-                d = obj;
-                test(d !== null);
-                test(d.equals(db));
+        out.write("testing non-facets A, B, C, and D... ");
+        d = await Test.DPrx.checkedCast(db);
+        test(d !== null);
+        test(d.equals(db));
+        test(await d.callA() == "A");
+        test(await d.callB() == "B");
+        test(await d.callC() == "C");
+        test(await d.callD() == "D");
+        out.writeLine("ok");
 
-                return Ice.Promise.all([d.callA(), d.callB(), d.callC(), d.callD()]);
-            }
-        ).then(
-            function(r)
-            {
-                var [r1, r2, r3, r4] = r;
-                test(r1 == "A");
-                test(r2 == "B");
-                test(r3 == "C");
-                test(r4 == "D");
-                out.writeLine("ok");
-                out.write("testing facets A, B, C, and D... ");
-                return Test.DPrx.checkedCast(d, "facetABCD");
-            }
-        ).then(
-            function(obj)
-            {
-                df = obj;
-                test(df !== null);
+        out.write("testing facets A, B, C, and D... ");
+        df = await Test.DPrx.checkedCast(d, "facetABCD");
+        test(df !== null);
+        test(await df.callA() == "A");
+        test(await df.callB() == "B");
+        test(await df.callC() == "C");
+        test(await df.callD() == "D");
+        out.writeLine("ok");
 
-                return Ice.Promise.all([df.callA(), df.callB(), df.callC(), df.callD()]);
-            }
-        ).then(
-            function(r)
-            {
-                var [r1, r2, r3, r4] = r;
-                test(r1 == "A");
-                test(r2 == "B");
-                test(r3 == "C");
-                test(r4 == "D");
-                out.writeLine("ok");
-                out.write("testing facets E and F... ");
-                return Test.FPrx.checkedCast(d, "facetEF");
-            }
-        ).then(
-            function(obj)
-            {
-                ff = obj;
-                test(ff !== null);
+        out.write("testing facets E and F... ");
+        let ff = await Test.FPrx.checkedCast(d, "facetEF");
+        test(await ff.callE() == "E");
+        test(await ff.callF() == "F");
+        out.writeLine("ok");
 
-                return Ice.Promise.all([ff.callE(), ff.callF()]);
-            }
-        ).then(
-            function(r)
-            {
-                var [r1, r2] = r;
-                test(r1 == "E");
-                test(r2 == "F");
-                out.writeLine("ok");
-                out.write("testing facet G... ");
-                return Test.GPrx.checkedCast(ff, "facetGH");
-            }
-        ).then(
-            function(obj)
-            {
-                gf = obj;
-                test(gf !== null);
-                return gf.callG();
-            }
-        ).then(
-            function(v)
-            {
-                test(v == "G");
-                out.writeLine("ok");
-                out.write("testing whether casting preserves the facet... ");
-                return Test.HPrx.checkedCast(gf);
-            }
-        ).then(
-            function(obj)
-            {
-                hf = obj;
-                test(hf !== null);
+        out.write("testing facet G... ");
+        let gf = await Test.GPrx.checkedCast(ff, "facetGH");
+        test(gf !== null);
+        test(await gf.callG() == "G");
+        out.writeLine("ok");
 
-                return Ice.Promise.all([hf.callG(), hf.callH()]);
-            }
-        ).then(
-            function(r)
-            {
-                var [r1, r2] = r;
-                test(r1 == "G");
-                test(r2 == "H");
-                out.writeLine("ok");
-                return gf.shutdown();
-            }
-        ).then(p.resolve, p.reject);
+        out.write("testing whether casting preserves the facet... ");
+        let hf = await Test.HPrx.checkedCast(gf);
+        test(hf !== null);
+        test(await hf.callG() == "G");
+        test(await hf.callH() == "H");
+        out.writeLine("ok");
 
-        return p;
-    };
+        await gf.shutdown();
+    }
 
-    var run = function(out, id)
+    async function run(out, initData)
     {
-        var c = Ice.initialize(id);
-        return Ice.Promise.try(
-            function()
+        let communicator;
+        try
+        {
+            communicator = Ice.initialize(initData);
+            await allTests(out, communicator);
+        }
+        finally
+        {
+            if(communicator)
             {
-                return allTests(out, c);
+                await communicator.destroy();
             }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
-    };
+        }
+    }
+
     exports._test = run;
     exports._runServer = true;
 }

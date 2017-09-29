@@ -9,16 +9,16 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class LoggerI
     {
@@ -81,9 +81,9 @@
             this._closed = false;
         }
 
-        init()
+        async init()
         {
-            var initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = this._com.ice_getCommunicator().getProperties().clone();
             initData.logger = this._logger;
             initData.properties.setProperty("Ice.ACM.Timeout", "2");
@@ -103,17 +103,15 @@
             //initData.properties.setProperty("Ice.Trace.Network", "2");
             this._communicator = Ice.initialize(initData);
 
-            return this._com.createObjectAdapter(this._serverACMTimeout,
-                                                 this._serverACMClose,
-                                                 this._serverACMHeartbeat).then(adapter =>
-                                                                                {
-                                                                                    this._adapter = adapter;
-                                                                                });
+            this._adapter = await this._com.createObjectAdapter(this._serverACMTimeout,
+                                                                this._serverACMClose,
+                                                                this._serverACMHeartbeat);
         }
 
-        destroy()
+        async destroy()
         {
-            return this._adapter.deactivate().then(() => this._communicator.destroy());
+            await this._adapter.deactivate();
+            await this._communicator.destroy();
         }
 
         join(out)
@@ -131,48 +129,35 @@
             }
         }
 
-        start()
+        async start()
         {
-            return this._adapter.getTestIntf().then(prx =>
-                {
-                    prx = Test.TestIntfPrx.uncheckedCast(this._communicator.stringToProxy(prx.toString()));
-                    return prx.ice_getConnection().then(con =>
-                        {
-                            con.setCloseCallback(connection => this._closed = true);
+            try
+            {
+                let prx = await this._adapter.getTestIntf();
+                prx = Test.TestIntfPrx.uncheckedCast(this._communicator.stringToProxy(prx.toString()));
+                let con = await prx.ice_getConnection();
+                con.setCloseCallback(connection => this._closed = true);
+                con.setHeartbeatCallback(connection => ++this._heartbeat);
 
-                            con.setHeartbeatCallback(connection => ++this._heartbeat);
-
-                            return this.runTestCase(this._adapter, prx);
-                        }).catch(ex =>
-                            {
-                                this._msg = "unexpected exception:\n" + ex.toString() + "\n" + ex.stack;
-                            });
-                });
+                await this.runTestCase(this._adapter, prx);
+            }
+            catch(ex)
+            {
+                this._msg = "unexpected exception:\n" + ex.toString() + "\n" + ex.stack;
+            }
         }
 
-        waitForClosed()
+        async waitForClosed()
         {
-            if(!this._closed)
+            const now = Date.now();
+            while(!this._closed)
             {
-                var now = Date.now();
-                var promise = Ice.Promise.delay(100);
-                var p = promise.then(() => {
-                        if(this._closed)
-                        {
-                            return;
-                        }
-                        else if(Date.now() - now >= 2000)
-                        {
-                            test(false);
-                        }
-                        else
-                        {
-                            return Ice.Promise.delay(100);
-                        }
-                    });
-                return p;
+                await Ice.Promise.delay(100);
+                if(Date.now() - now >= 2000)
+                {
+                    test(false); // Waited for more than 2s for close, something's wrong.
+                }
             }
-            return Ice.Promise.resolve();
         }
 
         runTestCase(adapter, proxy)
@@ -203,12 +188,10 @@
             this.setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            return proxy.sleep(4).then(() =>
-                {
-                    test(this._heartbeat >= 6);
-                });
+            await proxy.sleep(4);
+            test(this._heartbeat >= 6);
         }
     }
 
@@ -220,16 +203,22 @@
             // Use default ACM configuration.
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
             // When the OA is put on hold, connections shouldn't
             // send heartbeats, the invocation should therefore
             // fail.
-            return proxy.sleepAndHold(10).then(
-                () => test(false),
-                ex => adapter.activate())
-                    .then(() => proxy.interruptSleep())
-                    .then(() => this.waitForClosed());
+            try
+            {
+                await proxy.sleepAndHold(10);
+                test(false);
+            }
+            catch(ex)
+            {
+                await adapter.activate();
+                await proxy.interruptSleep();
+                await this.waitForClosed();
+            }
         }
     }
 
@@ -241,20 +230,22 @@
             this.setServerACM(2, 2, 0); // Disable heartbeat on invocations
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
             // Heartbeats are disabled on the server, the
             // invocation should fail since heartbeats are
             // expected.
-            return proxy.sleep(10).then(
-                () => test(false),
-                ex =>
-                {
-                    return proxy.interruptSleep();
-                }).then(() => this.waitForClosed())
-            .then(() => {
+            try
+            {
+                await proxy.sleep(10);
+                test(false);
+            }
+            catch(ex)
+            {
+                await proxy.interruptSleep();
+                await this.waitForClosed();
                 test(this._heartbeat === 0);
-            });
+            }
         }
     }
 
@@ -267,15 +258,13 @@
             this.setServerACM(1, 2, 0); // Disable heartbeat on invocations
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
             // No close on invocation, the call should succeed this
             // time.
-            return proxy.sleep(3).then(() =>
-                                       {
-                                           test(this._heartbeat === 0);
-                                           test(!this._closed);
-                                       });
+            await proxy.sleep(3);
+            test(this._heartbeat === 0);
+            test(!this._closed);
         }
     }
 
@@ -287,13 +276,11 @@
             this.setClientACM(1, 1, 0); // Only close on idle
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(3000).then(() => this.waitForClosed()).then(() =>
-                                                {
-                                                    test(this._heartbeat === 0);
-                                                    test(this._closed);
-                                                });
+            await Ice.Promise.delay(3000);
+            await this.waitForClosed();
+            test(this._heartbeat === 0);
         }
     }
 
@@ -305,13 +292,11 @@
             this.setClientACM(1, 2, 0); // Only close on invocation
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(3000).then(() =>
-                                                {
-                                                    test(this._heartbeat === 0);
-                                                    test(!this._closed);
-                                                });
+            await Ice.Promise.delay(3000);
+            test(this._heartbeat === 0);
+            test(!this._closed);
         }
     }
 
@@ -323,20 +308,20 @@
             this.setClientACM(1, 3, 0); // Only close on idle and invocation
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
             //
             // Put the adapter on hold. The server will not respond to
             // the graceful close. This allows to test whether or not
             // the close is graceful or forceful.
             //
-            return adapter.hold().delay(3000).then(
-                () =>
-                {
-                    test(this._heartbeat === 0);
-                    test(!this._closed); // Not closed yet because of graceful close.
-                    return adapter.activate();
-                }).delay(500).then(() => this.waitForClosed()); // Connection should be closed this time.
+            await adapter.hold();
+            await Ice.Promise.delay(3000);
+            test(this._heartbeat === 0);
+            test(!this._closed); // Not closed yet because of graceful close.
+            await adapter.activate();
+            await Ice.Promise.delay(1000);
+            await this.waitForClosed(); // Connection should be closed this time.
         }
     }
 
@@ -348,14 +333,13 @@
             this.setClientACM(1, 4, 0); // Only close on idle and invocation
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            return adapter.hold().delay(3000).then(() => this.waitForClosed()).then(
-                () =>
-                {
-                    test(this._heartbeat === 0);
-                    test(this._closed); // Connection closed forcefully by ACM
-                });
+            await adapter.hold();
+            await Ice.Promise.delay(3000);
+            await this.waitForClosed();
+
+            test(this._heartbeat === 0);
         }
     }
 
@@ -367,9 +351,10 @@
             this.setServerACM(1, -1, 2); // Enable server heartbeats.
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            return Ice.Promise.delay(3000).then(() => test(this._heartbeat >= 3));
+            await Ice.Promise.delay(3000);
+            await this._heartbeat >= 3;
         }
     }
 
@@ -381,22 +366,15 @@
             this.setServerACM(1, -1, 3); // Enable server heartbeats.
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            var p = Ice.Promise.resolve();
-
-            // Use this function so we don't have a function defined
-            // inside of a loop
-            function icePing(prx)
+            for(let i = 0; i < 10; i++)
             {
-                return proxy.ice_ping();
+                await proxy.ice_ping();
+                await Ice.Promise.delay(300);
             }
 
-            for(var i = 0; i < 10; ++i)
-            {
-                p = p.then(icePing(proxy)).delay(300);
-            }
-            return p.then(() => test(this._heartbeat >= 3));
+            test(this._heartbeat >= 3);
         }
     }
 
@@ -412,22 +390,16 @@
             this.setServerACM(10, -1, 0);
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            function sendHeartbeats(con)
-            {
-                var p = Ice.Promise.resolve();
-                for(var i = 0; i < 5; ++i)
-                {
-                    p = p.then(con.heartbeat());
-                }
-                return p;
-            }
-
-            return proxy.startHeartbeatCount().then(
-                () => proxy.ice_getConnection()).then(
-                    con => sendHeartbeats(con)).then(
-                        () => proxy.waitForHeartbeatCount(5));
+            await proxy.startHeartbeatCount();
+            const con = await proxy.ice_getConnection();
+            await con.heartbeat();
+            await con.heartbeat();
+            await con.heartbeat();
+            await con.heartbeat();
+            await con.heartbeat();
+            await proxy.waitForHeartbeatCount(5);
         }
     }
 
@@ -439,12 +411,11 @@
             this.setClientACM(15, 4, 0);
         }
 
-        runTestCase(adapter, proxy)
+        async runTestCase(adapter, proxy)
         {
-            var con = proxy.ice_getCachedConnection();
+            let con = proxy.ice_getCachedConnection();
 
-            var acm;
-            acm = con.getACM();
+            let acm = con.getACM();
             test(acm.timeout === 15);
             test(acm.close === Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatOff);
@@ -461,47 +432,43 @@
             test(acm.close === Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat === Ice.ACMHeartbeat.HeartbeatAlways);
 
-            var p = new Ice.Promise();
-            return proxy.startHeartbeatCount()
-            .then(() => proxy.waitForHeartbeatCount(2))
-            .then(() => {
-                con.setCloseCallback(c => p.resolve());
-                con.close(Ice.ConnectionClose.Gracefully);
-                return p;
-            }).then(() => {
-                try
-                {
-                    con.throwException();
-                    test(false);
-                }
-                catch(ex)
-                {
-                }
+            await proxy.startHeartbeatCount();
+            await proxy.waitForHeartbeatCount(2);
 
-                p = new Ice.Promise();
-                con.setCloseCallback(c => p.resolve());
-                return p;
-            }).then(() => {
+            {
+                const p = new Promise(
+                    (resolve, reject) =>
+                        {
+                            con.setCloseCallback(() => resolve());
+                        });
+                con.close(Ice.ConnectionClose.Gracefully);
+                await p;
+            }
+
+            {
+                const p = new Promise(
+                    (resolve, reject) =>
+                        {
+                            con.setCloseCallback(() => resolve());
+                        });
+                await p;
                 con.setHeartbeatCallback(c => test(false));
-            });
+            }
         }
     }
 
-    var allTests = function(out, communicator)
+    async function allTests(out, communicator)
     {
-        var ref = "communicator:default -p 12010";
-        var com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        const ref = "communicator:default -p 12010";
+        const com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
-        var tests = [];
+        const tests = [];
         //
         // Skip some tests with IE it opens too many connections and
         // IE doesn't allow more than 6 connections.
         //
         if(typeof(navigator) !== "undefined" &&
-           (navigator.userAgent.indexOf("MSIE") != -1 ||
-            navigator.userAgent.indexOf("Trident/7.0") != -1 ||
-            navigator.userAgent.indexOf("Edge/12") != -1 ||
-            navigator.userAgent.indexOf("Edge/13") != -1))
+           ["MSIE", "Trident/7.0", "Edge/12", "Edge/13"].some(value => navigator.userAgent.indexOf(value) !== -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
             tests.push(new SetACMTest(com, out));
@@ -524,24 +491,38 @@
             tests.push(new SetACMTest(com, out));
         }
 
-        return Ice.Promise.all(tests.map(test => test.init())
-            ).then(() => Ice.Promise.all(tests.map(test => test.start()))
-            ).then(() => tests.forEach(test => test.join(out))
-            ).then(() => Ice.Promise.all(tests.map(test => test.destroy()))
-            ).then(() =>
-                {
-                    out.write("shutting down... ");
-                    return com.shutdown();
-                }
-            ).then(() => out.writeLine("ok"));
-    };
+        await Promise.all(tests.map(test => test.init()));
+        await Promise.all(tests.map(test => test.start()));
+        for(let test of tests)
+        {
+            test.join(out);
+        }
+        await Promise.all(tests.map(test => test.destroy()));
 
-    var run = function(out, id)
+        out.write("shutting down... ");
+        await com.shutdown();
+        out.writeLine("ok");
+    }
+
+    async function run(out, initData)
     {
-        id.properties.setProperty("Ice.Warn.Connections", "0");
-        var c = Ice.initialize(id);
-        return Ice.Promise.try(() => allTests(out, c)).finally(() => c.destroy());
-    };
+        let communicator;
+        try
+        {
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            communicator = Ice.initialize(initData);
+
+            await allTests(out, communicator);
+        }
+        finally
+        {
+            if(communicator)
+            {
+                await communicator.destroy();
+            }
+        }
+    }
+
     exports._test = run;
     exports._runServer = true;
 }

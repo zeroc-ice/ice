@@ -9,1260 +9,510 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var allTests = function(out, communicator)
+    async function allTests(out, communicator)
     {
-        var p = new Ice.Promise();
-        var test = function(b)
+        function test(value)
         {
-            if(!b)
+            if(!value)
             {
-                try
-                {
-                    throw new Error("test failed");
-                }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
+                throw new Error("test failed");
             }
-        };
+        }
 
-        var manager, locator, anotherLocator, registry, base, base2, base3,
-            base4, base5, base6, bases, obj, obj2, obj3,
-            obj4, obj5, obj6, hello, anotherRouter, router;
+        let manager = Test.ServerManagerPrx.uncheckedCast(communicator.stringToProxy("ServerManager:default -p 12010"));
+        test(manager !== null);
 
-        Ice.Promise.try(
-            function()
-            {
-                manager = Test.ServerManagerPrx.uncheckedCast(
-                            communicator.stringToProxy("ServerManager:default -p 12010"));
-                test(manager !== null);
+        let locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
+        test(locator !== null);
 
-                locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
-                test(locator !== null);
+        let registry = Test.TestLocatorRegistryPrx.uncheckedCast(await locator.getRegistry());
+        test(registry !== null);
 
-                return locator.getRegistry();
-            }
-        ).then(
-            function(obj)
-            {
-                registry = Test.TestLocatorRegistryPrx.uncheckedCast(obj);
-                test(registry !== null);
+        out.write("testing stringToProxy... ");
+        let base = communicator.stringToProxy("test @ TestAdapter");
+        let base2 = communicator.stringToProxy("test @ TestAdapter");
+        let base3 = communicator.stringToProxy("test");
+        let base4 = communicator.stringToProxy("ServerManager");
+        let base5 = communicator.stringToProxy("test2");
+        let base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+        out.writeLine("ok");
 
-                out.write("testing stringToProxy... ");
-                base = communicator.stringToProxy("test @ TestAdapter");
-                base2 = communicator.stringToProxy("test @ TestAdapter");
-                base3 = communicator.stringToProxy("test");
-                base4 = communicator.stringToProxy("ServerManager");
-                base5 = communicator.stringToProxy("test2");
-                base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
-                bases = [base, base2, base3, base4, base5, base6];
-                out.writeLine("ok");
+        out.write("testing ice_locator and ice_getLocator... ");
+        test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
+        let anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+        base = base.ice_locator(anotherLocator);
+        test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
+        communicator.setDefaultLocator(null);
+        base = communicator.stringToProxy("test @ TestAdapter");
+        test(base.ice_getLocator() === null);
+        base = base.ice_locator(anotherLocator);
+        test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
+        communicator.setDefaultLocator(locator);
+        base = communicator.stringToProxy("test @ TestAdapter");
+        test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
 
-                out.write("testing ice_locator and ice_getLocator... ");
-                test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
-                anotherLocator =
-                    Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
-                base = base.ice_locator(anotherLocator);
-                test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
-                communicator.setDefaultLocator(null);
-                base = communicator.stringToProxy("test @ TestAdapter");
-                test(base.ice_getLocator() === null);
-                base = base.ice_locator(anotherLocator);
-                test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
-                communicator.setDefaultLocator(locator);
-                base = communicator.stringToProxy("test @ TestAdapter");
-                test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
+        //
+        // We also test ice_router/ice_getRouter (perhaps we should add a
+        // test/Ice/router test?)
+        //
+        test(base.ice_getRouter() === null);
+        anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+        base = base.ice_router(anotherRouter);
+        test(Ice.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) === 0);
+        router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+        communicator.setDefaultRouter(router);
+        base = communicator.stringToProxy("test @ TestAdapter");
+        test(Ice.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) === 0);
+        communicator.setDefaultRouter(null);
+        base = communicator.stringToProxy("test @ TestAdapter");
+        test(base.ice_getRouter() === null);
+        out.writeLine("ok");
 
-                //
-                // We also test ice_router/ice_getRouter (perhaps we should add a
-                // test/Ice/router test?)
-                //
-                test(base.ice_getRouter() === null);
-                anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
-                base = base.ice_router(anotherRouter);
-                test(Ice.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) === 0);
-                router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
-                communicator.setDefaultRouter(router);
-                base = communicator.stringToProxy("test @ TestAdapter");
-                test(Ice.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) === 0);
-                communicator.setDefaultRouter(null);
-                base = communicator.stringToProxy("test @ TestAdapter");
-                test(base.ice_getRouter() === null);
-                out.writeLine("ok");
+        out.write("starting server... ");
+        await manager.startServer();
+        out.writeLine("ok");
 
-                out.write("starting server... ");
-                return manager.startServer();
+        out.write("testing checked cast... ");
+        let obj = await Test.TestIntfPrx.checkedCast(base);
+        test(obj !== null);
 
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing checked cast... ");
-                return Test.TestIntfPrx.checkedCast(base);
-            }
-        ).then(
-            function(o)
-            {
-                obj = o;
-                test(obj !== null);
-                return Test.TestIntfPrx.checkedCast(base2);
-            }
-        ).then(
-            function(o)
-            {
-                obj2 = o;
-                test(obj2 !== null);
-                return Test.TestIntfPrx.checkedCast(base3);
-            }
-        ).then(
-            function(o)
-            {
-                obj3 = o;
-                test(obj3 !== null);
-                return Test.ServerManagerPrx.checkedCast(base4);
-            }
-        ).then(
-            function(o)
-            {
-                obj4 = o;
-                test(obj4 !== null);
-                return Test.TestIntfPrx.checkedCast(base5);
-            }
-        ).then(
-            function(o)
-            {
-                obj5 = o;
-                test(obj !== null);
-                return Test.TestIntfPrx.checkedCast(base6);
-            }
-        ).then(
-            function(o)
-            {
-                obj6 = o;
-                test(obj6 !== null);
-                out.writeLine("ok");
-                out.write("testing id@AdapterId indirect proxy... ");
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj2.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing id@ReplicaGroupId indirect proxy... ");
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj6.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing identity indirect proxy... ");
-                obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj3.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj2.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj2.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj3.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj2.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj3.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj2.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return obj5.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing proxy with unknown identity... ");
-                base = communicator.stringToProxy("unknown/unknown");
-                return base.ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                test(ex instanceof Ice.NotRegisteredException);
-                test(ex.kindOfObject == "object");
-                test(ex.id == "unknown/unknown");
-                out.writeLine("ok");
-                out.write("testing proxy with unknown adapter... ");
-                base = communicator.stringToProxy("test @ TestAdapterUnknown");
-                return base.ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                test(ex instanceof Ice.NotRegisteredException);
-                test(ex.kindOfObject == "object adapter");
-                test(ex.id == "TestAdapterUnknown");
-                out.writeLine("ok");
-                out.write("testing locator cache timeout... ");
-                return locator.getRequestCount();
-            }
-        ).then(
-            function(count)
-            {
-                return Ice.Promise.try(
-                    function()
+        let obj2 = await Test.TestIntfPrx.checkedCast(base2);
+        test(obj2 !== null);
+
+        let obj3 = await Test.TestIntfPrx.checkedCast(base3);
+        test(obj3 !== null);
+
+        let obj4 = await Test.ServerManagerPrx.checkedCast(base4);
+        test(obj4 !== null);
+
+        let obj5 = await Test.TestIntfPrx.checkedCast(base5);
+        test(obj5 !== null);
+
+        let obj6 = await Test.TestIntfPrx.checkedCast(base6);
+        test(obj6 !== null);
+        out.writeLine("ok");
+
+        out.write("testing id@AdapterId indirect proxy... ");
+        await obj.shutdown();
+        await manager.startServer();
+        await obj2.ice_ping();
+        out.writeLine("ok");
+
+        out.write("testing id@ReplicaGroupId indirect proxy... ");
+        await obj.shutdown();
+        await manager.startServer();
+        await obj6.ice_ping();
+        out.writeLine("ok");
+
+        out.write("testing identity indirect proxy... ");
+        await obj.shutdown();
+        await manager.startServer();
+        await obj3.ice_ping();
+        await obj2.ice_ping();
+        await obj.shutdown();
+        await manager.startServer();
+        await obj2.ice_ping();
+        await obj3.ice_ping();
+        await obj.shutdown();
+        await manager.startServer();
+        await obj2.ice_ping();
+        await obj.shutdown();
+        await manager.startServer();
+        await obj3.ice_ping();
+        await obj.shutdown();
+        await manager.startServer();
+        await obj2.ice_ping();
+        await obj.shutdown();
+        await manager.startServer();
+        await obj5.ice_ping();
+        out.writeLine("ok");
+
+        out.write("testing proxy with unknown identity... ");
+        base = communicator.stringToProxy("unknown/unknown");
+        try
+        {
+            await base.ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.NotRegisteredException);
+            test(ex.kindOfObject == "object");
+            test(ex.id == "unknown/unknown");
+        }
+        out.writeLine("ok");
+
+        out.write("testing proxy with unknown adapter... ");
+        base = communicator.stringToProxy("test @ TestAdapterUnknown");
+        try
+        {
+            await base.ice_ping();
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.NotRegisteredException);
+            test(ex.kindOfObject == "object adapter");
+            test(ex.id == "TestAdapterUnknown");
+        }
+        out.writeLine("ok");
+
+        out.write("testing locator cache timeout... ");
+        let count = await locator.getRequestCount();
+        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        test(++count == await locator.getRequestCount());
+        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        test(++count == await locator.getRequestCount());
+        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        test(count == await locator.getRequestCount());
+        await Ice.Promise.delay(1200); // 1200ms
+        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        test(++count == await locator.getRequestCount());
+
+        await communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        count += 2;
+        test(count == await locator.getRequestCount());
+        await communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        test(count == await locator.getRequestCount());
+        await Ice.Promise.delay(1200); // 1200ms
+        await communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        count += 2;
+        test(count == await locator.getRequestCount());
+
+        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
+        test(count == await locator.getRequestCount());
+        await communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
+        test(count == await locator.getRequestCount());
+        await communicator.stringToProxy("test@TestAdapter").ice_ping();
+        test(count == await locator.getRequestCount());
+        await communicator.stringToProxy("test").ice_ping();
+        test(count == await locator.getRequestCount());
+
+        test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() === 99);
+        out.writeLine("ok");
+
+        out.write("testing proxy from server... ");
+        obj = await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("test@TestAdapter"));
+        let hello = await obj.getHello();
+        test(hello.ice_getAdapterId() == "TestAdapter");
+        await hello.sayHello();
+        hello = await obj.getReplicatedHello();
+        test(hello.ice_getAdapterId() == "ReplicatedAdapter");
+        await hello.sayHello();
+        out.writeLine("ok");
+
+        out.write("testing locator request queuing... ");
+        hello = await obj.getReplicatedHello();
+        hello = hello.ice_locatorCacheTimeout(0).ice_connectionCached(false);
+        count = await locator.getRequestCount();
+        await hello.ice_ping();
+        test(++count == await locator.getRequestCount());
+
+        let results = [];
+        for(let i = 0; i < 1000; i++)
+        {
+            results.push(hello.sayHello().catch(
+                (ex) =>
                     {
-                        // No locator cache.
-                        return communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping();
-                    }
-                ).then(
-                    function()
+                        test(false);
+                    }));
+        }
+        await Promise.all(results);
+
+        results = [];
+        test(await locator.getRequestCount() > count &&
+             await locator.getRequestCount() < count + 999);
+
+        if(await locator.getRequestCount() > count + 800)
+        {
+            out.write("queuing = " + (await locator.getRequestCount() - count));
+        }
+        count = await locator.getRequestCount();
+        hello = hello.ice_adapterId("unknown");
+        for(let i = 0; i < 1000; i++)
+        {
+            results.push(hello.sayHello().then(
+                () =>
                     {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                return Ice.Promise.try(
-                    function()
-                    {
-                        // No locator cache.
-                        return communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                Ice.Promise.try(
-                    function()
-                    {
-                        // 1s timeout.
-                        return communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        Ice.Timer.setTimeout(
-                            function(){
-                                p.resolve(count);
-                            }, 1200);
+                        test(false);
                     },
-                    p.reject);
-                return p;
-            }
-        ).then(
-            function(count)
+                (ex) =>
+                    {
+                        test(ex instanceof Ice.NotRegisteredException);
+                    }));
+        }
+        await Promise.all(results);
+        results = [];
+        // XXX:
+        // Take into account the retries.
+        test(await locator.getRequestCount() > count && await locator.getRequestCount() < count + 1999);
+        if(await locator.getRequestCount() > count + 800)
+        {
+            out.write("queuing = " + (await locator.getRequestCount() - count));
+        }
+        out.writeLine("ok");
+
+        out.write("testing adapter locator cache... ");
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.NotRegisteredException);
+            test(ex.kindOfObject == "object adapter");
+            test(ex.id == "TestAdapter3");
+        }
+        await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            await registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:default"));
+            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+        }
+        catch(ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.LocalException);
+        }
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.LocalException);
+        }
+        await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+        }
+        catch(ex)
+        {
+            test(false);
+        }
+
+        out.writeLine("ok");
+
+        out.write("testing well-known object locator cache... ");
+        await registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex.kindOfObject == "object adapter");
+            test(ex.id == "TestUnknown");
+        }
+        await registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
+        await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.LocalException);
+        }
+
+        await registry.setAdapterDirectProxy("TestAdapter4", await locator.findAdapterById("TestAdapter"));
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+        }
+        catch(ex)
+        {
+            test(false);
+        }
+
+        await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+        }
+        catch(ex)
+        {
+            test(false);
+        }
+
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.LocalException);
+        }
+
+        try
+        {
+            await communicator.stringToProxy("test@TestAdapter4").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+        }
+
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.LocalException);
+        }
+
+        await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+        try
+        {
+            await communicator.stringToProxy("test3").ice_ping();
+        }
+        catch(ex)
+        {
+            test(false);
+        }
+
+        await registry.addObject(communicator.stringToProxy("test4"));
+        try
+        {
+            await communicator.stringToProxy("test4").ice_ping();
+            test(false);
+        }
+        catch(ex)
+        {
+        }
+        out.writeLine("ok");
+
+        out.write("testing locator cache background updates... ");
+        {
+            let initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties().clone();
+            initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
+            let ic = Ice.initialize(initData);
+
+            await registry.setAdapterDirectProxy("TestAdapter5", await locator.findAdapterById("TestAdapter"));
+            await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+
+            count = await locator.getRequestCount();
+            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+            await ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+            count += 3;
+            test(count == await locator.getRequestCount());
+            await registry.setAdapterDirectProxy("TestAdapter5", null);
+            await registry.addObject(communicator.stringToProxy("test3:default"));
+            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            await ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            test(count == await locator.getRequestCount());
+            await Ice.Promise.delay(1200);
+
+            // The following request should trigger the background
+            // updates but still use the cached endpoints and
+            // therefore succeed.
+            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            await ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+
+            try
             {
-                return Ice.Promise.try(
-                    function()
-                    {
-                        // 1s timeout.
-                        return communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                return Ice.Promise.try(
-                    function()
-                    {
-                        // No locator cache.
-                        return communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        count += 2;
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                // 1s timeout.
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        p.resolve(count);
-                    }
-                ).catch(
-                    function(ex)
-                    {
-                        Ice.Timer.setTimeout(
-                            function(){
-                                p.reject(ex);
-                            }, 1200);
-                    });
-                return p;
-            }
-        ).then(
-            function(count)
-            {
-                return Ice.Promise.try(
-                    function()
-                    {
-                        // No locator cache.
-                        return communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        count += 2;
-                        test(count == newCount);
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                return Ice.Promise.try(
-                    function()
-                    {
-                        // 1s timeout.
-                        return communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        return count;
-                    });
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                // 1s timeout.
-                communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        p.resolve(count);
-                    }
-                ).catch(p.reject);
-                return p;
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                // 1s timeout.
-                communicator.stringToProxy("test@TestAdapter").ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        p.resolve(count);
-                    }
-                ).catch(p.reject);
-                return p;
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                // 1s timeout.
-                communicator.stringToProxy("test").ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        p.resolve(count);
-                    }
-                ).catch(p.reject);
-                return p;
-            }
-        ).then(
-            function()
-            {
-                test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() === 99);
-                out.writeLine("ok");
-                out.write("testing proxy from server... ");
-                return Test.TestIntfPrx.checkedCast(communicator.stringToProxy("test@TestAdapter"));
-            }
-        ).then(
-            function(o)
-            {
-                obj = o;
-                return Ice.Promise.all([obj.getHello(), obj.getReplicatedHello()]);
-            }
-        ).then(
-            function(r)
-            {
-                hello = r[0];
-                test(hello.ice_getAdapterId() == "TestAdapter");
-                hello = r[1];
-                test(hello.ice_getAdapterId() == "ReplicatedAdapter");
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing proxy from server after shutdown... ");
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing locator request queuing... ");
-                return obj.getReplicatedHello();
-            }
-        ).then(
-            function(o)
-            {
-                hello = o.ice_locatorCacheTimeout(0).ice_connectionCached(false);
-                return locator.getRequestCount();
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-                hello.ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        p.resolve(count);
-                    }
-                ).catch(p.reject);
-                return p;
-            }
-        ).then(
-            function(count)
-            {
-                var all = [];
-                for(var i = 0; i < 1000; ++i)
+                while(true)
                 {
-                    all.push(hello.sayHello());
+                    await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                    await Ice.Promise.delay(10);
                 }
-
-                var p = new Ice.Promise();
-
-                Ice.Promise.all(all).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count < newCount);
-                        test(newCount < count + 999);
-                        if(newCount > count + 800)
-                        {
-                            out.write("queuing = " + (newCount - count));
-                        }
-                        hello = hello.ice_adapterId("unknown");
-                        count = newCount;
-                        p.resolve(count);
-                    }
-                ).catch(p.reject);
-                return p;
             }
-        ).then(
-            function(count)
+            catch(ex)
             {
-                var p = new Ice.Promise();
-
-                var all = 0;
-                var exCB = function(ex)
+                // Expected to fail once they endpoints have been updated in the background.
+                test(ex instanceof Ice.LocalException);
+            }
+            try
+            {
+                while(true)
                 {
-                    if(!(ex instanceof Ice.NotRegisteredException))
-                    {
-                        p.reject(ex);
-                    }
-
-                    if(all < 999)
-                    {
-                        all++;
-                    }
-                    else
-                    {
-                        p.resolve();
-                    }
-                };
-
-                var okCB = function()
-                {
-                    p.reject("test failed");
-                };
-
-                for(var i = 0; i < 1000; ++i)
-                {
-                    hello.sayHello().then(okCB, exCB);
+                    await ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                    await Ice.Promise.delay(10);
                 }
+            }
+            catch(ex)
+            {
+                // Expected to fail once they endpoints have been updated in the background.
+                test(ex instanceof Ice.LocalException);
+            }
+            await ic.destroy();
+        }
+        out.writeLine("ok");
 
-                return p;
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing adapter locator cache... ");
-                return communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.NotRegisteredException))
-                {
-                    throw ex;
-                }
-                test(ex.kindOfObject == "object adapter");
-                test(ex.id == "TestAdapter3");
+        out.write("testing proxy from server after shutdown... ");
+        hello = await obj.getReplicatedHello();
+        await obj.shutdown();
+        await manager.startServer();
+        await hello.sayHello();
+        out.writeLine("ok");
 
-                return locator.findAdapterById("TestAdapter");
-            }
-        ).then(
-            function(adapter)
-            {
-                return registry.setAdapterDirectProxy("TestAdapter3", adapter);
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:default"));
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return locator.findAdapterById("TestAdapter");
-            }
-        ).then(
-            function(adapter)
-            {
-                return registry.setAdapterDirectProxy("TestAdapter3", adapter);
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing well-known object locator cache... ");
-                return registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
-            },
-            function(ex)
-            {
-                console.log(ex);
-                test(false);
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.NotRegisteredException))
-                {
-                    throw ex;
-                }
-                test(ex.kindOfObject == "object adapter");
-                test(ex.id == "TestUnknown");
-            }
-        ).then(
-            function()
-            {
-                return registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
-            }
-        ).then(
-            function()
-            {
-                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return locator.findAdapterById("TestAdapter");
-            }
-        ).then(
-            function(adapter)
-            {
-                return registry.setAdapterDirectProxy("TestAdapter4", adapter);
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return communicator.stringToProxy("test@TestAdapter4").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test3").ice_ping();
-            }
-        ).then(
-            function()
-            {
-                return registry.addObject(communicator.stringToProxy("test4"));
-            }
-        ).then(
-            function()
-            {
-                return communicator.stringToProxy("test4").ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.NoEndpointException))
-                {
-                    throw ex;
-                }
-                out.writeLine("ok");
-                out.write("testing locator cache background updates... ");
+        out.write("testing object migration... ");
+        hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
+        await obj.migrateHello();
+        let conn = await hello.ice_getConnection();
+        await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+        await hello.sayHello();
+        await obj.migrateHello();
+        await hello.sayHello();
+        await obj.migrateHello();
+        await hello.sayHello();
+        out.writeLine("ok");
 
-                var initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().clone();
-                initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-                var ic = Ice.initialize(initData);
+        out.write("testing locator encoding resolution... ");
+        hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
+        count = await locator.getRequestCount();
+        await communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Encoding_1_1).ice_ping();
+        test(count == await locator.getRequestCount());
+        await communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
+        test(++count == await locator.getRequestCount());
+        await communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
+        test(++count == await locator.getRequestCount());
+        out.writeLine("ok");
 
-                var p = new Ice.Promise();
+        out.write("shutdown server manager... ");
+        await manager.shutdown();
+        out.writeLine("ok");
+    }
 
-                locator.findAdapterById("TestAdapter").then(
-                    function(adapter)
-                    {
-                        return registry.setAdapterDirectProxy("TestAdapter5", adapter);
-                    }
-                ).then(
-                    function()
-                    {
-                        return registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(count)
-                    {
-                        var p1 = new Ice.Promise();
-                        // No locator cache.
-                        ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping().then(
-                            function()
-                            {
-                                // No locator cache.
-                                return ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping();
-                            }
-                        ).then(
-                            function()
-                            {
-                                return locator.getRequestCount();
-                            }
-                        ).then(
-                            function(newCount)
-                            {
-                                count += 3;
-                                test(count === newCount);
-                                p1.resolve(count);
-                            }
-                        ).catch(p1.reject);
-
-                        return p1;
-                    }
-                ).then(
-                    function(count)
-                    {
-                        var p1 = new Ice.Promise();
-                        registry.setAdapterDirectProxy("TestAdapter5", null).then(
-                            function()
-                            {
-                                return registry.addObject(communicator.stringToProxy("test3:default"));
-                            }
-                        ).then(
-                            function()
-                            {
-                                // 10s timeout.
-                                return ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping();
-                            }
-                        ).then(
-                            function()
-                            {
-                                // 10s timeout.
-                                return ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping();
-                            }
-                        ).then(
-                            function()
-                            {
-                                return locator.getRequestCount();
-                            }
-                        ).then(
-                            function(newCount)
-                            {
-                                test(count = newCount);
-                                Ice.Timer.setTimeout(
-                                    function(){
-                                        p1.resolve(count);
-                                    }, 1200);
-                            }
-                        ).catch(p1.reject);
-                        return p1;
-                    }
-                ).then(
-                    function(count)
-                    {
-                        var p1 = new Ice.Promise();
-                        // The following request should trigger the background updates but still use the cached endpoints
-                        // and therefore succeed.
-
-                        // 1s timeout.
-                        ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping().then(
-                            function()
-                            {
-                                // 1s timeout.
-                                return ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping();
-                            }
-                        ).then(p1.resolve, p1.reject);
-                        return p1;
-                    }
-                ).then(
-                    function(){
-                        var p1 = new Ice.Promise();
-
-                        var f1 = function()
-                        {
-                            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping().then(
-                                function()
-                                {
-                                    Ice.Timer.setTimeout(function(){ f1(); }, 10000);
-                                },
-                                function(ex)
-                                {
-                                    if(ex instanceof Ice.LocalException)
-                                    {
-                                        p1.resolve();
-                                    }
-                                    else
-                                    {
-                                        p1.reject(ex);
-                                    }
-                                }
-                            ).catch(p1.reject);
-                        };
-
-                        f1();
-
-                        return p1;
-                    }
-                ).then(
-                    function()
-                    {
-                        var p1 = new Ice.Promise();
-
-                        var f1 = function()
-                        {
-                            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping().then(
-                                function()
-                                {
-                                    Ice.Timer.setTimeout(f1, 10000);
-                                },
-                                function(ex)
-                                {
-                                    if(ex instanceof Ice.LocalException)
-                                    {
-                                        p1.resolve();
-                                    }
-                                    else
-                                    {
-                                        p1.reject(ex);
-                                    }
-                                }
-                            ).catch(p1.reject);
-                        };
-
-                        f1();
-                        return p1;
-                    }
-                ).then(
-                    function()
-                    {
-                        return ic.destroy();
-                    }
-                ).then(p.resolve, p.reject);
-                return p;
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing proxy from server after shutdown... ");
-                return obj.getReplicatedHello();
-            }
-        ).then(
-            function(o)
-            {
-                hello = o;
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                return manager.startServer();
-            }
-        ).then(
-            function()
-            {
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing object migration...");
-                return Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
-            }
-        ).then(
-            function(o)
-            {
-                hello = o;
-                return obj.migrateHello();
-            }
-        ).then(
-            function()
-            {
-                return hello.ice_getConnection();
-            }
-        ).then(
-            function(con)
-            {
-                return con.close(Ice.ConnectionClose.GracefullyWithWait);
-            }
-        ).then(
-            function()
-            {
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                return obj.migrateHello();
-            }
-        ).then(
-            function()
-            {
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                return obj.migrateHello();
-            }
-        ).then(
-            function()
-            {
-                return hello.sayHello();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing locator encoding resolution... ");
-                return Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
-            }
-        ).then(
-            function(o)
-            {
-                return locator.getRequestCount();
-            }
-        ).then(
-            function(count)
-            {
-                var p = new Ice.Promise();
-
-                var prx = communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(
-                                                                                        Ice.Encoding_1_1);
-                prx.ice_ping().then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(count == newCount);
-                        return communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(
-                                                                            Ice.Encoding_1_0).ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        return communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return locator.getRequestCount();
-                    }
-                ).then(
-                    function(newCount)
-                    {
-                        test(++count == newCount);
-                        p.resolve();
-                    }
-                ).catch(p.reject);
-
-                return p;
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("shutdown server... ");
-                return obj.shutdown();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                out.write("testing whether server is gone... ");
-                return obj2.ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return obj3.ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                return obj5.ice_ping();
-            }
-        ).then(
-            function() { test(false); },
-            function(ex)
-            {
-                if(!(ex instanceof Ice.LocalException))
-                {
-                    throw ex;
-                }
-                out.writeLine("ok");
-                out.write("shutdown server manager... ");
-                return manager.shutdown();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-            }
-        ).then(p.resolve, p.reject);
-        return p;
-    };
-
-    var run = function(out, id)
+    async function run(out, initData)
     {
-        id.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
-        var c = Ice.initialize(id);
-        return Ice.Promise.try(
-            function()
+        let communicator;
+        try
+        {
+            initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+            communicator = Ice.initialize(initData);
+            await allTests(out, communicator);
+        }
+        finally
+        {
+            if(communicator)
             {
-                return allTests(out, c);
+                await communicator.destroy();
             }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
-    };
+        }
+    }
+
     exports._test = run;
     exports._runServer = true;
 }

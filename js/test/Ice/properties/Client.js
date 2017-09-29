@@ -9,93 +9,86 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
+    const Ice = require("ice").Ice;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
-    var run = function(out)
+    async function run(out)
     {
-        return Ice.Promise.try(() =>
+        out.write("testing configuration file escapes... ");
+        const props = new Map();
+        props.set("Foo\tBar", "3");
+        props.set("Foo\\tBar", "4");
+        props.set("Escape\\ Space", "2");
+        props.set("Prop1", "1");
+        props.set("Prop2", "2");
+        props.set("Prop3", "3");
+        props.set("My Prop1", "1");
+        props.set("My Prop2", "2");
+        props.set("My.Prop1", "a property");
+        props.set("My.Prop2", "a     property");
+        props.set("My.Prop3", "  a     property  ");
+        props.set("My.Prop4", "  a     property  ");
+        props.set("My.Prop5", "a \\ property");
+        props.set("foo=bar", "1");
+        props.set("foo#bar", "2");
+        props.set("foo bar", "3");
+        props.set("A", "1");
+        props.set("B", "2 3 4");
+        props.set("C", "5=#6");
+        props.set("AServer", "\\\\server\\dir");
+        props.set("BServer", "\\server\\dir");
+
+        let properties = Ice.createProperties();
+        if(typeof(require("fs").readFileSync) == "function")
+        {
+            //
+            // We are runing with NodeJS we load the properties file from the file system.
+            //
+            properties.parse(require("fs").readFileSync(process.argv[3] + "/config/escapes.cfg", {encoding: "utf8"}));
+            for(let [key, value] of props)
             {
-                out.write("testing configuration file escapes... ");
-                var props =
-                    {
-                        "Foo\tBar": "3",
-                        "Foo\\tBar": "4",
-                        "Escape\\ Space": "2",
-                        "Prop1": "1",
-                        "Prop2": "2",
-                        "Prop3": "3",
-                        "My Prop1": "1",
-                        "My Prop2": "2",
-                        "My.Prop1": "a property",
-                        "My.Prop2": "a     property",
-                        "My.Prop3": "  a     property  ",
-                        "My.Prop4": "  a     property  ",
-                        "My.Prop5": "a \\ property",
-                        "foo=bar": "1",
-                        "foo#bar": "2",
-                        "foo bar": "3",
-                        "A": "1",
-                        "B": "2 3 4",
-                        "C": "5=#6",
-                        "AServer": "\\\\server\\dir",
-                        "BServer": "\\server\\dir"
-                    };
+                test(properties.getProperty(key) == value);
+            }
+        }
+        else if(typeof window !== 'undefined')
+        {
+            //
+            //Skiped when running in a worker, we don't load JQuery in the workers
+            //
 
-                var properties = Ice.createProperties();
-                if(typeof(require("fs").readFileSync) == "function")
-                {
-                    //
-                    // We are runing with NodeJS we load the properties file from the file system.
-                    //
-                    properties.parse(require("fs").readFileSync(process.argv[3] + "/config/escapes.cfg", {encoding: "utf8"}));
-                    for(var key in props)
+            //
+            // We are runing in a web browser load the properties file from the web server.
+            //
+            await new Promise(
+                (resolve, reject) =>
                     {
-                        test(props[key] == properties.getProperty(key));
-                    }
-                }
-                else
-                {
-                    if(typeof window !== 'undefined')
-                    {
-                        //
-                        //Skiped when running in a worker, we don't load JQuery in the workers
-                        //
-
-                        //
-                        // We are runing in a web browser load the properties file from the web server.
-                        //
-                        var p = new Ice.Promise();
                         /*jshint jquery: true */
-                        $.ajax(
-                            {
-                                url: "config/escapes.cfg",
-                                //
-                                // Use text data type to avoid problems interpreting the data.
-                                //
-                                dataType: "text"
-                            }).done(data =>
+
+                        //
+                        // Use text data type to avoid problems interpreting the data.
+                        //
+                        $.ajax({url: "config/escapes.cfg", dataType: "text"}).done(
+                            data =>
                                 {
                                     properties.parse(data);
-                                    for(var key in props)
+                                    for(let [key, value] of props)
                                     {
-                                        test(props[key] == properties.getProperty(key));
+                                            test(properties.getProperty(key) == value);
                                     }
-                                    p.resolve();
-                                }).fail(p.reject);
-                        return p;
-                    }
-                }
-            }
-        ).then(() => out.writeLine("ok"));
-    };
+                                    resolve();
+                                }).fail(reject);
+                    });
+        }
+        out.writeLine("ok");
+    }
+
     exports._test = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

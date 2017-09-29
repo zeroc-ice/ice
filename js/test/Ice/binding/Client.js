@@ -14,1146 +14,604 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var ArrayUtil = Ice.ArrayUtil;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
+    const ArrayUtil = Ice.ArrayUtil;
 
-    var forEach = function(array, fn)
-    {
-        if(array.length === 0)
-        {
-            return Ice.Promise.resolve();
-        }
-        var p = null;
-        array.forEach(e => p = p ? p.then(fn(e)) : fn(e));
-        return p;
-    };
-
-    var isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
-    var isConnectionFailed = ex => (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+    const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
+    const isConnectionFailed = ex => (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
                                    (isBrowser && ex instanceof Ice.ConnectFailedException) ||
                                    (ex instanceof Ice.ConnectTimeoutException);
 
-    var communicator;
-    var com;
-    var allTests = function(out, initData)
+    async function allTests(out, initData)
     {
-        var initialize = function()
+        function test(value, ex)
         {
-            return Ice.Promise.try(
-                function()
-                {
-                    if(communicator)
-                    {
-                        return communicator.destroy().then(
-                            function()
-                            {
-                                communicator = Ice.initialize(initData);
-                                com = Test.RemoteCommunicatorPrx.uncheckedCast(
-                                    communicator.stringToProxy("communicator:default -p 12010"));
-                            });
-                    }
-                    else
-                    {
-                        communicator = Ice.initialize(initData);
-                    }
-                });
-        };
-
-        var createTestIntfPrx = function(adapters)
-        {
-            var endpoints = [];
-            var p = null;
-
-            return Ice.Promise.all(adapters.map(function(adapter){ return adapter.getTestIntf(); })).then(
-                function(results)
-                {
-                    results.forEach(
-                        function(r)
-                        {
-                            p = r;
-                            endpoints = endpoints.concat(p.ice_getEndpoints());
-                        });
-                    return Test.TestIntfPrx.uncheckedCast(p.ice_endpoints(endpoints));
-                });
-        };
-
-        var deactivate = function(communicator, adapters)
-        {
-            var f1 = function(adapters)
+            if(!value)
             {
-                var adapter = adapters.shift();
-                communicator.deactivateObjectAdapter(adapter).then(
-                    function()
-                    {
-                        if(adapters.length > 0)
-                        {
-                            return f1(adapters);
-                        }
-                    }).catch(
-                        ex =>
-                        {
-                            test(ex instanceof Ice.CommunicatorDestroyedException, ex);
-                        });
-            };
-            return f1(ArrayUtil.clone(adapters));
-        };
+                let message = "test failed\n";
+                if(ex)
+                {
+                    message += ex.toString();
+                }
+                throw new Error(message);
+            }
+        }
 
-        var p = new Ice.Promise();
-        var test = function(b, ex)
+        async function createTestIntfPrx(adapters)
         {
-            if(!b)
+            let endpoints = [];
+            let obj = null;
+            for(let adapter of adapters)
             {
+                obj = await adapter.getTestIntf();
+                endpoints = endpoints.concat(obj.ice_getEndpoints());
+            }
+            return Test.TestIntfPrx.uncheckedCast(obj.ice_endpoints(endpoints));
+        }
+
+        async function deactivate(communicator, adapters)
+        {
+            for(let adapter of adapters)
+            {
+                await communicator.deactivateObjectAdapter(adapter);
+            }
+        }
+
+        let communicator;
+        try
+        {
+            communicator = Ice.initialize(initData);
+
+            out.write("testing stringToProxy... ");
+            ref = "communicator:default -p 12010";
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+            test(com !== null);
+            out.writeLine("ok");
+
+            out.write("testing binding with single endpoint... ");
+            {
+                let adapter = await com.createObjectAdapter("Adapter", "default");
+
+                let test1 = await adapter.getTestIntf();
+                let test2 = await adapter.getTestIntf();
+                test(await test1.ice_getConnection() === await test2.ice_getConnection());
+
+                await test1.ice_ping();
+                await test2.ice_ping();
+
+                await com.deactivateObjectAdapter(adapter);
+
+                let test3 = Test.TestIntfPrx.uncheckedCast(test1);
+                test(await test3.ice_getConnection() === await test1.ice_getConnection());
+                test(await test3.ice_getConnection() === await test2.ice_getConnection());
+
                 try
                 {
-                    var msg = "test failed";
-                    if(ex)
+                    await test3.ice_ping();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(isConnectionFailed(ex), ex);
+                }
+
+            }
+            out.writeLine("ok")
+
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            out.write("testing binding with multiple endpoints... ");
+            {
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("Adapter11", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter12", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter13", "default"));
+
+                //
+                // Ensure that when a connection is opened it's reused for new
+                // proxies and that all endpoints are eventually tried.
+                //
+                let names = ["Adapter11", "Adapter12", "Adapter13"];
+
+                while(names.length > 0)
+                {
+                    let adpts = ArrayUtil.clone(adapters);
+
+                    let test1 = await createTestIntfPrx(adpts);
+                    ArrayUtil.shuffle(adpts)
+                    let test2 = await createTestIntfPrx(adpts);
+                    ArrayUtil.shuffle(adpts)
+                    let test3 = await createTestIntfPrx(adpts);
+                    await test1.ice_ping();
+                    test(await test1.ice_getConnection() == await test2.ice_getConnection());
+                    test(await test2.ice_getConnection() == await test3.ice_getConnection());
+
+                    let name = await test1.getAdapterName();
+                    let index = names.indexOf(name);
+                    if(index !== -1)
                     {
-                        msg += ex.toString();
+                        names.splice(index, 1);
                     }
-                    throw new Error(msg);
+
+                    let conn = await test1.ice_getConnection();
+                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                 }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
-            }
-        };
 
-        var ref, adapter, test1, test2, test3, conn1, conn2, conn3, adapters, names, prx;
-
-        Ice.Promise.try(
-            function()
-            {
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                out.write("testing stringToProxy... ");
-                ref = "communicator:default -p 12010";
-                com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
-                test(com !== null);
-                out.writeLine("ok");
-
-                out.write("testing binding with single endpoint... ");
-                var adapter, test1, test2, test3, conn1, conn2, conn3;
-                adapters = [];
-                names = ["Adapter11", "Adapter12", "Adapter13"];
-
-                return com.createObjectAdapter("Adapter", "default");
-            }
-        ).then(
-            function(obj)
-            {
-                adapter = obj;
-                return Promise.all([adapter.getTestIntf(), adapter.getTestIntf()]);
-            }
-        ).then(
-            function(r)
-            {
-                [test1, test2] = r;
-                return Ice.Promise.all([test1.ice_getConnection(), test2.ice_getConnection()]);
-            }
-        ).then(
-            function(r)
-            {
-                [conn1, conn2] = r;
-                test(conn1 === conn2);
-                return Ice.Promise.all([test1.ice_ping(), test2.ice_ping()]);
-            }
-        ).then(
-            function(r)
-            {
-                let [r1, r2] = r;
-                return com.deactivateObjectAdapter(adapter);
-            }
-        ).then(
-            function()
-            {
-                test3 = Test.TestIntfPrx.uncheckedCast(test1);
-                return Ice.Promise.all([test3.ice_getConnection(), test1.ice_getConnection()]);
-            }
-        ).then(
-            function(r)
-            {
-                [conn3, conn1] = r;
-                test(conn3 === conn1);
-                return Ice.Promise.all([test3.ice_getConnection(), test2.ice_getConnection()]);
-            }
-        ).then(
-            function(r)
-            {
-                [conn3, conn2] = r;
-                test(conn3 === conn2);
-                return test3.ice_ping();
-            }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
-            {
-                test(isConnectionFailed(ex), ex);
-                out.writeLine("ok");
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                out.write("testing binding with multiple endpoints... ");
-
-                return Ice.Promise.all([
-                    com.createObjectAdapter("Adapter11", "default"),
-                    com.createObjectAdapter("Adapter12", "default"),
-                    com.createObjectAdapter("Adapter13", "default")]);
-            }
-        ).then(
-            //
-            // Ensure that when a connection is opened it's reused for new
-            // proxies and that all endpoints are eventually tried.
-            //
-            function(r)
-            {
-                adapters.push(...r);
-
-                var f1 = function(names)
-                {
-                    var adpts = ArrayUtil.clone(adapters);
-                    return createTestIntfPrx(adpts).then(
-                        function(obj)
-                        {
-                            test1 = obj;
-                            ArrayUtil.shuffle(adpts);
-                            return createTestIntfPrx(adpts);
-                        }
-                    ).then(
-                        function(obj)
-                        {
-                            test2 = obj;
-                            ArrayUtil.shuffle(adpts);
-                            return createTestIntfPrx(adpts);
-                        }
-                    ).then(
-                        function(obj)
-                        {
-                            test3 = obj;
-                            return Ice.Promise.all([test1.ice_getConnection(), test2.ice_getConnection()]);
-                        }
-                    ).then(
-                        function(r)
-                        {
-                            let [r1, r2] = r;
-                            test(r1[0] === r2[0]);
-                            return Ice.Promise.all([test2.ice_getConnection(), test3.ice_getConnection()]);
-                        }
-                    ).then(
-                        function(r)
-                        {
-                            let [r1, r2] = r;
-                            test(r1[0] === r2[0]);
-                            return test1.getAdapterName();
-                        }
-                    ).then(
-                        function(name)
-                        {
-                            if(names.indexOf(name) !== -1)
-                            {
-                                names.splice(names.indexOf(name), 1);
-                            }
-                            return test1.ice_getConnection();
-                        }
-                    ).then(
-                        function(conn)
-                        {
-                            return conn.close(Ice.ConnectionClose.GracefullyWithWait);
-                        }
-                    ).then(
-                        function()
-                        {
-                            if(names.length > 0)
-                            {
-                                return f1(names);
-                            }
-                        }
-                    );
-                };
-                return f1(ArrayUtil.clone(names));
-            }
-        ).then(
-            function()
-            {
                 //
                 // Ensure that the proxy correctly caches the connection (we
                 // always send the request over the same connection.)
                 //
-                return Ice.Promise.all(adapters.map(function(adapter)
-                                                {
-                                                    return adapter.getTestIntf().then(
-                                                        function(p)
-                                                        {
-                                                            return p.ice_ping();
-                                                        });
-                                                }));
-            }
-        ).then(
-            function()
-            {
-                return createTestIntfPrx(adapters).then(
-                    function(test1)
+                {
+                    for(let adpt of adapters)
                     {
-                        var i = 0;
-                        var nRetry = 10;
-                        var adapterName;
+                        let prx = await adpt.getTestIntf();
+                        await prx.ice_ping();
+                    }
 
-                        var f1 = function()
-                        {
-                            return test1.getAdapterName().then(
-                                function(name)
-                                {
-                                    test(adapterName === name);
-                                    if(++i < nRetry)
-                                    {
-                                        return f1();
-                                    }
-                                    else
-                                    {
-                                        test(i == nRetry);
-                                    }
-                                }
-                            );
-                        };
+                    let t = await createTestIntfPrx(adapters);
+                    let name = await t.getAdapterName();
+                    let nRetry = 10;
+                    let i;
+                    for(i = 0; i < nRetry && await t.getAdapterName() == name; i++);
+                    test(i == nRetry);
 
-                        return test1.getAdapterName().then(
-                            function(name)
-                            {
-                                adapterName = name;
-                                return f1();
-                            }
-                        );
-                    });
-            }
-        ).then(
-            function()
-            {
-                return Ice.Promise.all(adapters.map(function(adapter)
-                                                {
-                                                    return adapter.getTestIntf().then(
-                                                        function(p)
-                                                        {
-                                                            return p.ice_getConnection();
-                                                        }).then(
-                                                            function(c)
-                                                            {
-                                                                return c.close(Ice.ConnectionClose.GracefullyWithWait);
-                                                            }
-                                                        );
-                                                }));
-            }
-        ).then(
-            function()
-            {
+                    for(let adpt of adapters)
+                    {
+                        let prx = await adpt.getTestIntf();
+                        let conn = await prx.ice_getConnection();
+                        await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                    }
+                }
+
+                //
+                // Deactivate an adapter and ensure that we can still
+                // establish the connection to the remaining adapters.
+                //
+                await com.deactivateObjectAdapter(adapters[0]);
                 names = ["Adapter12", "Adapter13"];
-                return com.deactivateObjectAdapter(adapters[0]);
-            }
-        ).then(
-            function()
-            {
-                var f1 = function(names)
+                while(names.length > 0)
                 {
-                    var adpts = ArrayUtil.clone(adapters);
-                    return createTestIntfPrx(adpts).then(
-                        function(obj)
-                        {
-                            test1 = obj;
-                            ArrayUtil.shuffle(adpts);
-                            return createTestIntfPrx(adpts);
-                        }
-                    ).then(
-                        function(obj)
-                        {
-                            test2 = obj;
-                            ArrayUtil.shuffle(adpts);
-                            return createTestIntfPrx(adpts);
-                        }
-                    ).then(
-                        function(obj)
-                        {
-                            test3 = obj;
-                            var conn1, conn2;
-                            return test1.ice_getConnection().then(
-                                function(conn)
-                                {
-                                    conn1 = conn;
-                                    return test2.ice_getConnection();
-                                }
-                            ).then(
-                                function(conn)
-                                {
-                                    conn2 = conn;
-                                    test(conn1 === conn2);
-                                });
-                        }
-                    ).then(
-                        function()
-                        {
-                            var conn1, conn2;
-                            return test2.ice_getConnection().then(
-                                function(conn)
-                                {
-                                    conn1 = conn;
-                                    return test3.ice_getConnection();
-                                }
-                            ).then(
-                                function(conn)
-                                {
-                                    conn2 = conn;
-                                    test(conn1 === conn2);
-                                });
-                        }
-                    ).then(
-                        function()
-                        {
-                            return test1.getAdapterName();
-                        }
-                    ).then(
-                        function(name)
-                        {
-                            if(names.indexOf(name) !== -1)
-                            {
-                                names.splice(names.indexOf(name), 1);
-                            }
-                            return test1.ice_getConnection();
-                        }
-                    ).then(
-                        function(conn)
-                        {
-                            return conn.close(Ice.ConnectionClose.GracefullyWithWait);
-                        }
-                    ).then(
-                        function()
-                        {
-                            if(names.length > 0)
-                            {
-                                return f1(names);
-                            }
-                        });
-                };
-                return f1(ArrayUtil.clone(names));
-            }
-        ).then(
-            function()
-            {
-                return com.deactivateObjectAdapter(adapters[2]);
-            }
-        ).then(
-            function()
-            {
-                return createTestIntfPrx(adapters);
-            }
-        ).then(
-            function(prx)
-            {
-                return prx.getAdapterName();
-            }
-        ).then(
-            function(name)
-            {
-                test(name == "Adapter12");
-                return deactivate(com, adapters);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                //
-                // Skip this test with IE it open too many connections IE doesn't allow more
-                // than 6 connections. Firefox has a configuration that causes failed connections
-                // to be delayed on retry (network.websocket.delay-failed-reconnects=true by
-                // default), so we prefer to also disable this test with Firefox.
-                //
-                if(typeof(navigator) !== "undefined" &&
-                   (navigator.userAgent.indexOf("MSIE") !== -1 ||
-                    navigator.userAgent.indexOf("Trident/7.0") ||
-                    navigator.userAgent.indexOf("Firefox") !== -1))
-                {
-                    return;
+                    let adpts = ArrayUtil.clone(adapters);
+
+                    let test1 = await createTestIntfPrx(adpts);
+                    ArrayUtil.shuffle(adpts);
+                    let test2 = await createTestIntfPrx(adpts);
+                    ArrayUtil.shuffle(adpts);
+                    let test3 = await createTestIntfPrx(adpts);
+
+                    test(await test1.ice_getConnection() == await test2.ice_getConnection());
+                    test(await test2.ice_getConnection() == await test3.ice_getConnection());
+
+                    let name = await test1.getAdapterName();
+                    let index = names.indexOf(name);
+                    if(index !== -1)
+                    {
+                        names.splice(index, 1);
+                    }
+                    let conn = await test1.ice_getConnection();
+                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
+                //
+                // Deactivate an adapter and ensure that we can still
+                // establish the connection to the remaining adapter.
+                //
+                await com.deactivateObjectAdapter(adapters[2]);
+                let obj = await createTestIntfPrx(adapters);
+                test(await obj.getAdapterName() == "Adapter12");
+
+                await deactivate(com, adapters);
+            }
+            out.writeLine("ok");
+
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            //
+            // Skip this test with IE it open too many connections IE doesn't allow more
+            // than 6 connections. Firefox has a configuration that causes failed connections
+            // to be delayed on retry (network.websocket.delay-failed-reconnects=true by
+            // default), so we prefer to also disable this test with Firefox.
+            //
+            if(typeof(navigator) === "undefined" ||
+               ["MSIE", "Trident/7.0", "Firefox"].every(value => navigator.userAgent.indexOf(value) === -1))
+            {
                 out.write("testing binding with multiple random endpoints... ");
-                names = ["AdapterRandom11", "AdapterRandom12", "AdapterRandom13", "AdapterRandom14", "AdapterRandom15"];
 
-                return Ice.Promise.all(
-                    names.map(function(name)
-                              {
-                                  return com.createObjectAdapter(name, "default");
-                              })
-                ).then(
-                    function(r)
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("AdapterRandom11", "default"));
+                adapters.push(await com.createObjectAdapter("AdapterRandom12", "default"));
+                adapters.push(await com.createObjectAdapter("AdapterRandom13", "default"));
+                adapters.push(await com.createObjectAdapter("AdapterRandom14", "default"));
+                adapters.push(await com.createObjectAdapter("AdapterRandom15", "default"));
+
+                let count = 20;
+                let adapterCount = adapters.length;
+                while(--count > 0)
+                {
+                    let proxies = [];
+                    if(count == 1)
                     {
-                        adapters = r;
-                        var count = 20;
-                        var adapterCount = adapters.length;
-                        var proxies = new Array(10);
-                        var nextInt = function(n) { return Math.floor((Math.random() * n)); };
+                        await com.deactivateObjectAdapter(adapters[4]);
+                        --adapterCount;
+                    }
+                    proxies = new Array(!0);
 
-                        var f1 = function(count, adapterCount, proxies)
-                        {
-                            var p1 = count === 10 ? com.deactivateObjectAdapter(adapters[2]) : Ice.Promise.resolve();
-                            return p1.then(
-                                function()
-                                {
-                                    if(count === 10)
-                                    {
-                                        adapterCount--;
-                                    }
-
-                                    var f2 = function(i)
-                                    {
-                                        var adpts = new Array(nextInt(adapters.length) + 1);
-                                        for(var j = 0; j < adpts.length; ++j)
-                                        {
-                                            adpts[j] = adapters[nextInt(adapters.length)];
-                                        }
-
-                                        return createTestIntfPrx(adpts).then(
-                                            function(prx)
-                                            {
-                                                proxies[i] = prx;
-                                                if(i < 10)
-                                                {
-                                                    return f2(++i);
-                                                }
-                                                else
-                                                {
-                                                    return proxies;
-                                                }
-                                            });
-                                    };
-
-                                    return f2(0);
-                                }
-                            ).then(
-                                function(proxies)
-                                {
-                                    return Ice.Promise.try(
-                                        function()
-                                        {
-                                            return forEach(proxies,
-                                                           function(p)
-                                                           {
-                                                               p.getAdapterName().catch(ex => test(ex instanceof Ice.LocalException, ex));
-                                                           });
-                                        }
-                                    ).then(
-                                        function()
-                                        {
-                                            return forEach(proxies,
-                                                           function(proxy)
-                                                           {
-                                                               return proxy.ice_ping().catch(
-                                                                   function(ex)
-                                                                   {
-                                                                       test(ex instanceof Ice.LocalException, ex);
-                                                                   });
-                                                           });
-                                        }
-                                    ).then(
-                                        function()
-                                        {
-                                            var connections = [];
-                                            proxies.forEach(
-                                                function(p)
-                                                {
-                                                    var conn = p.ice_getCachedConnection();
-                                                    if(conn !== null)
-                                                    {
-                                                        if(connections.indexOf(conn) !== -1)
-                                                        {
-                                                            connections.push(conn);
-                                                        }
-                                                    }
-                                                });
-                                            test(connections.length <= adapters.length);
-
-                                            return Ice.Promise.all(adapters.map(
-                                                function(adapter)
-                                                {
-                                                    return adapter.getTestIntf().then(
-                                                        function(p)
-                                                        {
-                                                            return p.ice_getConnection();
-                                                        }).then(
-                                                            function(c)
-                                                            {
-                                                                return c.close(Ice.ConnectionClose.GracefullyWithWait);
-                                                            },
-                                                            function(ex)
-                                                            {
-                                                                // Expected if adapter is down.
-                                                                test(ex instanceof Ice.LocalException, ex);
-                                                            }
-                                                        );
-                                                }));
-                                        }
-                                    );
-                                }
-                            ).then(
-                                function()
-                                {
-                                    if(count > 0)
-                                    {
-                                        return f1(--count, adapterCount, proxies);
-                                    }
-                                });
-                        };
-                        return f1(count, adapterCount, proxies);
-                    }).then(
-                        function()
-                        {
-                            out.writeLine("ok");
-                        });
-            }
-        ).then(
-            function()
-            {
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                out.write("testing random endpoint selection... ");
-                names = ["Adapter21", "Adapter22", "Adapter23"];
-                return Ice.Promise.all(names.map(function(name) { return com.createObjectAdapter(name, "default"); }));
-            }
-        ).then(
-            function(r)
-            {
-                adapters = r;
-                return createTestIntfPrx(adapters);
-            },
-            function(ex)
-            {
-                test(false, ex);
-            }
-        ).then(
-            function(prx)
-            {
-                test(prx.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
-
-                var f1 = function()
-                {
-                    return prx.getAdapterName().then(name =>
-                        {
-                            if(names.indexOf(name) !== -1)
-                            {
-                                names.splice(names.indexOf(name), 1);
-                            }
-                            return prx.ice_getConnection();
-                        }
-                    ).then(conn => conn.close(Ice.ConnectionClose.GracefullyWithWait)
-                    ).then(() => names.length > 0 ? f1() : prx);
-                };
-
-                return f1();
-            }
-        ).then(
-            function(obj)
-            {
-                prx = obj;
-                prx = Test.TestIntfPrx.uncheckedCast(prx.ice_endpointSelection(Ice.EndpointSelectionType.Random));
-                test(prx.ice_getEndpointSelection() === Ice.EndpointSelectionType.Random);
-                names = ["Adapter21", "Adapter22", "Adapter23"];
-                var f1 = function()
-                {
-                    return prx.getAdapterName().then(
-                        function(name)
-                        {
-                            if(names.indexOf(name) !== -1)
-                            {
-                                names.splice(names.indexOf(name), 1);
-                            }
-                            return prx.ice_getConnection();
-                        }
-                    ).then(
-                        function(conn)
-                        {
-                            return conn.close(Ice.ConnectionClose.GracefullyWithWait);
-                        }
-                    ).then(
-                        function()
-                        {
-                            if(names.length > 0)
-                            {
-                                return f1();
-                            }
-                            else
-                            {
-                                return prx;
-                            }
-                        }
-                    );
-                };
-                return f1();
-            },
-            function(ex)
-            {
-                test(false, ex);
-            }
-        ).then(
-            function()
-            {
-                return  deactivate(com, adapters);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                out.write("testing ordered endpoint selection... ");
-                names = ["Adapter31", "Adapter32", "Adapter33"];
-                return Ice.Promise.all(names.map(function(name) { return com.createObjectAdapter(name, "default"); }));
-            }
-        ).then(
-            function(r)
-            {
-                adapters = r;
-                return createTestIntfPrx(adapters);
-            }
-        ).then(
-            function(obj)
-            {
-                prx = obj;
-                prx = Test.TestIntfPrx.uncheckedCast(prx.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
-                test(prx.ice_getEndpointSelection() === Ice.EndpointSelectionType.Ordered);
-                var i, nRetry = 5;
-                var f1 = function(i, idx, names)
-                {
-                    return prx.getAdapterName().then(
-                        function(name)
-                        {
-                            test(name === names[0]);
-                        }
-                    ).then(
-                        function()
-                        {
-                            if(i < nRetry)
-                            {
-                                return f1(++i, idx, names);
-                            }
-                            else
-                            {
-                                return com.deactivateObjectAdapter(adapters[idx]).then(
-                                    function()
-                                    {
-                                        if(names.length > 1)
-                                        {
-                                            names.shift();
-                                            return f1(0, ++idx, names);
-                                        }
-                                    });
-                            }
-                        });
-                };
-
-                return f1(0, 0, ArrayUtil.clone(names));
-            }
-        ).then(
-            function()
-            {
-                return prx.getAdapterName();
-            }
-        ).then(
-            function()
-            {
-                test(false);
-            },
-            function(ex)
-            {
-                test(isConnectionFailed(ex), ex);
-                return prx.ice_getEndpoints();
-            }
-        ).then(
-            function(endpoints)
-            {
-                var nRetry = 5;
-                var j = 2;
-                var f1 = function(i, names)
-                {
-                    return com.createObjectAdapter(names[0], endpoints[j--].toString()).then(
-                        function(obj)
-                        {
-                            return obj.getTestIntf();
-                        }
-                    ).then(
-                        function(prx)
-                        {
-                            var f2 = function(j, names)
-                            {
-                                return prx.getAdapterName().then(
-                                    function(name)
-                                    {
-                                        test(name === names[0]);
-                                        if(j < nRetry)
-                                        {
-                                            return f2(++j, names);
-                                        }
-                                        else if(names.length > 1)
-                                        {
-                                            names.shift();
-                                            return f1(0, names);
-                                        }
-                                    });
-                            };
-                            return f2(0, names);
-                        });
-                };
-
-                return f1(0, ["Adapter36", "Adapter35", "Adapter34"]);
-            }
-        ).then(
-            function()
-            {
-                return deactivate(com, adapters);
-            }
-        ).then(
-            function(){
-                out.writeLine("ok");
-                return initialize;
-            }
-        ).then(
-            function()
-            {
-                out.write("testing per request binding with single endpoint... ");
-                return com.createObjectAdapter("Adapter41", "default");
-            }
-        ).then(
-            function(adapter)
-            {
-                var f1 = function()
-                {
-                    return adapter.getTestIntf().then(
-                        function(obj)
-                        {
-                            test1 = Test.TestIntfPrx.uncheckedCast(obj.ice_connectionCached(false));
-                            return adapter.getTestIntf();
-                        }
-                    ).then(
-                        function(obj)
-                        {
-                            test2 = Test.TestIntfPrx.uncheckedCast(obj.ice_connectionCached(false));
-                            test(!test1.ice_isConnectionCached());
-                            test(!test2.ice_isConnectionCached());
-                            return Ice.Promise.all([test1.ice_getConnection(),
-                                               test2.ice_getConnection()]);
-                        }
-                    ).then(
-                        function(r)
-                        {
-                            let [r1, r2] = r;
-                            test(r1 && r2);
-                            test(r1 == r2);
-                            return test1.ice_ping();
-                        }
-                    ).then(
-                        function()
-                        {
-                            return com.deactivateObjectAdapter(adapter);
-                        }
-                    ).then(
-                        function()
-                        {
-                            let test3 = Test.TestIntfPrx.uncheckedCast(test1);
-                            return Ice.Promise.all([test3.ice_getConnection(),
-                                                    test1.ice_getConnection()]);
-                        }
-                    ).then(
-                        function()
-                        {
-                            test(false);
-                        },
-                        function(ex)
-                        {
-                            test(isConnectionFailed(ex), ex);
-                        });
-                };
-                return f1();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                out.write("testing per request binding with multiple endpoints... ");
-                names = ["Adapter51", "Adapter52", "Adapter53"];
-                return Ice.Promise.all(names.map(function(name) { return com.createObjectAdapter(name, "default"); }));
-            }
-        ).then(
-            function(r)
-            {
-                adapters = r;
-
-                var f2 = function(prx)
-                {
-                    return prx.getAdapterName().then(
-                        function(name)
-                        {
-                            if(names.indexOf(name) !== -1)
-                            {
-                                names.splice(names.indexOf(name), 1);
-                            }
-                            if(names.length > 0)
-                            {
-                                return f2(prx);
-                            }
-                            else
-                            {
-                                return prx;
-                            }
-                        });
-                };
-
-                var f1 = function()
-                {
-                    return createTestIntfPrx(adapters).then(
-                        function(prx)
-                        {
-                            prx = Test.TestIntfPrx.uncheckedCast(prx.ice_connectionCached(false));
-                            test(!prx.ice_isConnectionCached());
-                            return f2(prx);
-                        });
-
-                };
-
-                return f1().then(
-                    function(prx)
+                    let i;
+                    for(i = 0; i < proxies.length; ++i)
                     {
-                       return com.deactivateObjectAdapter(adapters[0]).then(
-                            function()
+                        let adpts = new Array(Math.floor(Math.random() * adapters.length));
+                        if(adpts.length == 0)
+                        {
+                            adpts = new Array(1);
+                        }
+                        for(let j = 0; j < adpts.length; ++j)
+                        {
+                            adpts[j] = adapters[Math.floor(Math.random() * adapters.length)];
+                        }
+                        proxies[i] = await createTestIntfPrx(ArrayUtil.clone(adpts));
+                    }
+
+                    for(i = 0; i < proxies.length; i++)
+                    {
+                        await proxies[i].getAdapterName();
+                    }
+
+                    for(i = 0; i < proxies.Length; i++)
+                    {
+                        try
+                        {
+                            await proxies[i].ice_ping();
+                        }
+                        catch(ex)
+                        {
+                            test(ex instanceof Ice.LocalException, ex);
+                        }
+                    }
+
+                    let connections = [];
+                    for(i = 0; i < proxies.length; i++)
+                    {
+                        if(proxies[i].ice_getCachedConnection() !== null)
+                        {
+                            if(connections.indexOf(proxies[i].ice_getCachedConnection()) === -1)
                             {
-                                names = ["Adapter52", "Adapter53"];
-                                return f2(prx);
+                                connections.push(proxies[i].ice_getCachedConnection());
                             }
-                        ).then(
-                            function()
-                            {
-                                return com.deactivateObjectAdapter(adapters[0]);
-                            }
-                        ).then(
-                            function()
-                            {
-                                names = ["Adapter52"];
-                                return f2(prx);
-                            }
-                        );
-                    });
-            }
-        ).then(
-            function()
-            {
-                return deactivate(com, adapters);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return initialize();
-            }
-        ).then(
-            function()
-            {
-                if(typeof(navigator) !== "undefined" &&
-                   (navigator.userAgent.indexOf("Firefox") !== -1 ||
-                    navigator.userAgent.indexOf("MSIE") !== -1 ||
-                    navigator.userAgent.indexOf("Trident/7.0") !== -1))
-                {
-                    //
-                    // Firefox adds a delay on websocket failed reconnects that causes this test to take too
-                    // much time to complete.
-                    //
-                    // You can set network.websocket.delay-failed-reconnects to false in Firefox about:config
-                    // to disable this behaviour
-                    //
-                    return;
+                        }
+                    }
+                    test(connections.length <= adapterCount);
+
+                    for(let a of adapters)
+                    {
+                        try
+                        {
+                            let prx = await a.getTestIntf();
+                            let conn = await prx.ice_getConnection();
+                            await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                        }
+                        catch(ex)
+                        {
+                            // Expected if adapter is down.
+                            test(ex instanceof Ice.LocalException, ex);
+                        }
+                    }
                 }
-                out.write("testing per request binding and ordered endpoint selection... ");
-                names = ["Adapter61", "Adapter62", "Adapter63"];
-                return Ice.Promise.all(names.map(function(name) { return com.createObjectAdapter(name, "default"); })).then(
-                    function(a)
-                    {
-                        adapters = a;
-                        return createTestIntfPrx(adapters);
-                    }
-                ).then(
-                    function(obj)
-                    {
-                        prx = obj;
-                        prx = Test.TestIntfPrx.uncheckedCast(prx.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
-                        test(prx.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
-                        prx = Test.TestIntfPrx.uncheckedCast(prx.ice_connectionCached(false));
-                        test(!prx.ice_isConnectionCached());
-                        var nRetry = 5;
-                        var f1 = function(i, idx, names)
-                        {
-                            return prx.getAdapterName().then(
-                                function(name)
-                                {
-                                    test(name === names[0]);
-                                }
-                            ).then(
-                                function()
-                                {
-                                    if(i < nRetry)
-                                    {
-                                        return f1(++i, idx, names);
-                                    }
-                                    else
-                                    {
-                                        return com.deactivateObjectAdapter(adapters[idx]).then(
-                                            function()
-                                            {
-                                                if(names.length > 1)
-                                                {
-                                                    names.shift();
-                                                    return f1(0, ++idx, names);
-                                                }
-                                            }
-                                        );
-                                    }
-                                });
-                        };
-
-                        return f1(0, 0, ArrayUtil.clone(names));
-                    }
-                ).then(
-                    function()
-                    {
-                        return prx.getAdapterName();
-                    }
-                ).then(
-                    function()
-                    {
-                        test(false);
-                    },
-                    function(ex)
-                    {
-                        test(isConnectionFailed(ex), ex);
-                        return prx.ice_getEndpoints();
-                    }
-                ).then(
-                    function(endpoints)
-                    {
-                        var nRetry = 5;
-                        var j = 2;
-                        var f1 = function(i, names)
-                        {
-                            return com.createObjectAdapter(names[0], endpoints[j--].toString()).then(
-                                function()
-                                {
-                                    var f2 = function(i, names)
-                                    {
-                                        return prx.getAdapterName().then(
-                                            function(name)
-                                            {
-                                                test(name === names[0]);
-                                                if(i < nRetry)
-                                                {
-                                                    return f2(++i, names);
-                                                }
-                                                else if(names.length > 1)
-                                                {
-                                                    names.shift();
-                                                    return f1(0, names);
-                                                }
-                                            }
-                                        );
-                                    };
-                                    return f2(0, names);
-                                }
-                            );
-                        };
-                        return f1(0, ["Adapter66", "Adapter65", "Adapter64"]);
-                    }
-                ).then(
-                    function()
-                    {
-                        out.writeLine("ok");
-                    });
+                out.writeLine("ok");
             }
-        ).then(
-            function()
-            {
-                return com.shutdown();
-            }
-        ).then(p.resolve, p.reject);
-        return p;
-    };
 
-    var run = function(out, id)
-    {
-        //id.properties.setProperty("Ice.Trace.Protocol", "1");
-        //id.properties.setProperty("Ice.Trace.Network", "2");
-        var p = new Ice.Promise();
-        setTimeout(
-            function()
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            out.write("testing random endpoint selection... ");
             {
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("Adapter21", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter22", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter23", "default"));
+
+                let obj = await createTestIntfPrx(adapters);
+                test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
+
+                let names = ["Adapter21", "Adapter22", "Adapter23"];
+                while(names.length > 0)
+                {
+                    let index = names.indexOf(await obj.getAdapterName());
+                    if(index !== -1)
+                    {
+                        names.splice(index, 1);
+                    }
+                    let conn = await obj.ice_getConnection();
+                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                }
+
+                obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
+                test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
+
+                names = ["Adapter21", "Adapter22", "Adapter23"]
+                while(names.length > 0)
+                {
+                    let index = names.indexOf(await obj.getAdapterName());
+                    if(index !== -1)
+                    {
+                        names.splice(index, 1);
+                    }
+                    let conn = await obj.ice_getConnection();
+                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                }
+
+                await deactivate(com, adapters);
+            }
+            out.writeLine("ok");
+
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            out.write("testing ordered endpoint selection... ");
+            {
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("Adapter31", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter32", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter33", "default"));
+
+                let obj = await createTestIntfPrx(adapters);
+                obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+                test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+                let nRetry = 3;
+                let i;
+
+                //
+                // Ensure that endpoints are tried in order by deactiving the adapters
+                // one after the other.
+                //
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter31"; i++);
+                test(i == nRetry);
+                await com.deactivateObjectAdapter(adapters[0]);
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter32"; i++);
+                test(i == nRetry);
+                await com.deactivateObjectAdapter(adapters[1]);
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter33"; i++);
+                test(i == nRetry);
+                await com.deactivateObjectAdapter(adapters[2]);
+
                 try
                 {
-                    allTests(out, id).then(function(){
-                            return communicator.destroy();
-                        }).then(function(){
-                            p.resolve();
-                        }).catch(function(ex){
-                            p.reject(ex);
-                        });
+                    await obj.getAdapterName();
                 }
                 catch(ex)
                 {
-                    p.reject(ex);
+                    test(isConnectionFailed(ex), ex);
                 }
-            });
-        return p;
-    };
 
-    exports._test = function(out, id)
-    {
-        return Ice.Promise.try(() =>
+                let endpoints = obj.ice_getEndpoints();
+
+                adapters = [];
+
+                //
+                // Now, re-activate the adapters with the same endpoints in the opposite
+                // order.
+                //
+                adapters.push(await com.createObjectAdapter("Adapter36", endpoints[2].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter36"; i++);
+                test(i == nRetry);
+                let conn = await obj.ice_getConnection();
+                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                adapters.push(await com.createObjectAdapter("Adapter35", endpoints[1].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter35"; i++);
+                test(i == nRetry);
+                conn = await obj.ice_getConnection();
+                await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                adapters.push(await com.createObjectAdapter("Adapter34", endpoints[0].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter34"; i++);
+                test(i == nRetry);
+
+                await deactivate(com, adapters);
+            }
+            out.writeLine("ok");
+
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            out.write("testing per request binding with single endpoint... ");
             {
-                if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+                let adapter = await com.createObjectAdapter("Adapter41", "default");
+
+                let test1 = Test.TestIntfPrx.uncheckedCast((await adapter.getTestIntf()).ice_connectionCached(false));
+                let test2 = Test.TestIntfPrx.uncheckedCast((await adapter.getTestIntf()).ice_connectionCached(false));
+                test(!test1.ice_isConnectionCached());
+                test(!test2.ice_isConnectionCached());
+                test(await test1.ice_getConnection() !== null && await test2.ice_getConnection() !== null);
+                test(await test1.ice_getConnection() == await test2.ice_getConnection());
+
+                await test1.ice_ping();
+
+                await com.deactivateObjectAdapter(adapter);
+
+                let test3 = Test.TestIntfPrx.uncheckedCast(test1);
+                try
                 {
-                    var communicator = Ice.initialize(id);
-                    //
-                    // BUGFIX:
-                    //
-                    // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
-                    // web socket send() method never returns for the sending of close connection message.
-                    //
-                    out.writeLine("Test not supported with Safari web workers.");
-                    return Test.RemoteCommunicatorPrx.uncheckedCast(
-                                    communicator.stringToProxy("communicator:default -p 12010")).shutdown().finally(
-                        () => communicator.destroy());
+                    test(await test3.ice_getConnection() == await test1.ice_getConnection());
+                    test(false);
                 }
-                else
+                catch(ex)
                 {
-                    return allTests(out, id);
+                    test(isConnectionFailed(ex), ex);
                 }
-            });
-    };
+            }
+            out.writeLine("ok");
+
+            await communicator.destroy();
+            communicator = Ice.initialize(initData);
+            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+            out.write("testing per request binding with multiple endpoints... ");
+            {
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("Adapter51", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter52", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter53", "default"));
+
+                let obj = Test.TestIntfPrx.uncheckedCast((await createTestIntfPrx(adapters)).ice_connectionCached(false));
+                test(!obj.ice_isConnectionCached());
+
+                let names = ["Adapter51", "Adapter52", "Adapter53"];
+                while(names.length > 0)
+                {
+                    const name = await obj.getAdapterName();
+                    const index = names.indexOf(name);
+                    if(index !== -1)
+                    {
+                        names.splice(index, 1);
+                    }
+                }
+
+                await com.deactivateObjectAdapter(adapters[0]);
+
+                names = ["Adapter52", "Adapter53"];
+                while(names.length > 0)
+                {
+                    const name = await obj.getAdapterName();
+                    const index = names.indexOf(name);
+                    if(index !== -1)
+                    {
+                        names.splice(index, 1);
+                    }
+                }
+
+                await com.deactivateObjectAdapter(adapters[2]);
+
+                test(await obj.getAdapterName() == "Adapter52");
+
+                await deactivate(com, adapters);
+            }
+            out.writeLine("ok");
+
+            if(typeof(navigator) === "undefined" ||
+               ["Firefox", "MSIE", "Trident/7.0"].every(value => navigator.userAgent.indexOf(value) === -1))
+            {
+                //
+                // Firefox adds a delay on websocket failed reconnects that causes this test to take too
+                // much time to complete.
+                //
+                // You can set network.websocket.delay-failed-reconnects to false in Firefox about:config
+                // to disable this behaviour
+                //
+
+                await communicator.destroy();
+                communicator = Ice.initialize(initData);
+                com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+
+                out.write("testing per request binding and ordered endpoint selection... ");
+                let adapters = [];
+                adapters.push(await com.createObjectAdapter("Adapter61", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter62", "default"));
+                adapters.push(await com.createObjectAdapter("Adapter63", "default"));
+
+                let obj = await createTestIntfPrx(adapters);
+                obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
+                test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
+                obj = Test.TestIntfPrx.uncheckedCast(obj.ice_connectionCached(false));
+                test(!obj.ice_isConnectionCached());
+                let nRetry = 3;
+                let i;
+
+                //
+                // Ensure that endpoints are tried in order by deactiving the adapters
+                // one after the other.
+                //
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter61"; i++);
+                test(i == nRetry);
+                await com.deactivateObjectAdapter(adapters[0]);
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter62"; i++);
+                test(i == nRetry);
+                await com.deactivateObjectAdapter(adapters[1]);
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter63"; i++);
+                test(i == nRetry);
+                com.deactivateObjectAdapter(adapters[2]);
+
+                try
+                {
+                    await obj.getAdapterName();
+                }
+                catch(ex)
+                {
+                    test(isConnectionFailed(ex), ex);
+                }
+
+                let endpoints = obj.ice_getEndpoints();
+
+                adapters = [];
+
+                //
+                // Now, re-activate the adapters with the same endpoints in the opposite
+                // order.
+                //
+                adapters.push(await com.createObjectAdapter("Adapter66", endpoints[2].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter66"; i++);
+                test(i == nRetry);
+                adapters.push(await com.createObjectAdapter("Adapter65", endpoints[1].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter65"; i++);
+                test(i == nRetry);
+                adapters.push(await com.createObjectAdapter("Adapter64", endpoints[0].toString()));
+                for(i = 0; i < nRetry && await obj.getAdapterName() == "Adapter64"; i++);
+                test(i == nRetry);
+
+                await deactivate(com, adapters);
+                out.writeLine("ok");
+            }
+
+            await com.shutdown();
+        }
+        finally
+        {
+            if(communicator)
+            {
+                await communicator.destroy();
+            }
+        }
+    }
+
+    async function run(out, initData)
+    {
+        if(typeof(navigator) !== 'undefined' && isSafari() && isWorker())
+        {
+            let communicator;
+            try
+            {
+                communicator = Ice.initialize(initData);
+                //
+                // BUGFIX:
+                //
+                // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
+                // web socket send() method never returns for the sending of close connection message.
+                //
+                out.writeLine("Test not supported with Safari web workers.");
+                let obj = communicator.stringToProxy("communicator:default -p 12010");
+                let prx = await Test.RemoteCommunicatorPrx.uncheckedCast(obj);
+                await prx.shutdown();
+            }
+            finally
+            {
+                if(communicator)
+                {
+                    await communicator.destroy();
+                }
+            }
+        }
+        else
+        {
+            await allTests(out, initData);
+        }
+    }
+
+    exports._test = run;
     exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

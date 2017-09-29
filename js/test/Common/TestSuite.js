@@ -7,50 +7,41 @@
 //
 // **********************************************************************
 
- /* global
-    _runEchoServerOptions : false,
-    _test : false,
-    Test : false,
-    URI : false,
-    current : false,
-    TestSuites : false,
-    runTest: false
+/* global
+   _runEchoServerOptions : false,
+   _test : false,
+   Test : false,
+   URI : false,
+   current : false,
+   TestSuites : false,
+   runTest: false
 */
 
 $(document).foundation();
 $(document).ready(
-    function() {
-
-        var worker;
+    function()
+    {
+        const es5 = document.location.pathname.indexOf("/es5/") !== -1;
+        let worker;
 
         $("#console").height(120);
 
-        var out =
+        class Output
         {
-            write: function(msg)
+            static write(msg)
             {
-                var text = $("#console").val();
-                $("#console").val((text === "") ? msg : (text + msg));
-            },
-            writeLine: function(msg)
+                const text = $("#console").val();
+                $("#console").val(text + msg);
+            }
+
+            static writeLine(msg)
             {
-                out.write(msg + "\n");
+                Output.write(msg + "\n");
                 $("#console").scrollTop($("#console").get(0).scrollHeight);
             }
-        };
+        }
 
-        window.onerror = function(msg, url, line, column, err)
-        {
-            var e = msg + " at " + url + ":" + line + ":" + column;
-            if(err)
-            {
-                e += "\n" + err.stack;
-            }
-            out.writeLine(e);
-            return false;
-        };
-
-        var query = new URI(document.location.href).search(true);
+        let query = new URI(document.location.href).search(true);
 
         $("#language").val(query.language !== undefined ? query.language : "cpp");
         $("#protocol").val(document.location.protocol == "http:" ? "ws" : "wss");
@@ -60,22 +51,22 @@ $(document).ready(
 
         function nextTest()
         {
-            var path = $("#test").val();
+            let path = $("#test").val();
             if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
                 path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
-                .host(document.location.host)
-                .pathname(path)
-                .search(
-                    {
-                        language: $("#language").val(),
-                        worker: $("#worker").is(":checked"),
-                        loop: $("#loop").is(":checked"),
-                        next:"true"
-                    }).toString());
+                                     .host(document.location.host)
+                                     .pathname(path)
+                                     .search(
+                                         {
+                                             language: $("#language").val(),
+                                             worker: $("#worker").is(":checked"),
+                                             loop: $("#loop").is(":checked"),
+                                             next:"true"
+                                         }).toString());
         }
 
         function next(success)
@@ -116,90 +107,94 @@ $(document).ready(
 
         function updateLocation()
         {
-            var path = $("#test").val();
+            let path = $("#test").val();
             if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
                 path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
-                .host(document.location.host)
-                .pathname(path)
-                .search(
-                    {
-                        language: $("#language").val(),
-                        worker: $("#worker").is(":checked"),
-                        loop: $("#loop").is(":checked")
-                    }).toString());
+                                     .host(document.location.host)
+                                     .pathname(path)
+                                     .search(
+                                         {
+                                             language: $("#language").val(),
+                                             worker: $("#worker").is(":checked"),
+                                             loop: $("#loop").is(":checked")
+                                         }).toString());
         }
 
-        $("#run").click(function(){
-            if(!$(this).hasClass("disabled"))
+        $("#run").click(
+            function()
             {
-                setRunning(true);
-                if($("#worker").is(":checked"))
+                if(!$(this).hasClass("disabled"))
                 {
-                    worker = new Worker("/test/Common/Worker.js");
-                    worker.onmessage = function(e)
+                    setRunning(true);
+                    if($("#worker").is(":checked"))
                     {
-                        if(e.data.type == "Write")
+                        worker = new Worker(es5 ? "/test/es5/Common/Worker.js" : "/test/Common/Worker.js");
+                        worker.onmessage = function(e)
                         {
-                            out.write(e.data.message);
-                        }
-                        else if(e.data.type == "WriteLine")
-                        {
-                            out.writeLine(e.data.message);
-                        }
-                        else if(e.data.type == "TestFinished")
-                        {
-                            worker.terminate();
-                            setRunning(false);
-                            next(e.data.success);
-                        }
-                    };
-
-                    worker.postMessage(
-                        {
-                            type: "RunTest",
-                            test:
+                            if(e.data.type == "Write")
                             {
-                                name: current,
-                                language: $("#language").val(),
-                                defaultHost: document.location.hostname || "127.0.0.1",
-                                protocol: $("#protocol").val(),
-                                testcases: TestSuites[current].testcases,
-                                files: TestSuites[current].files,
-                                es5: document.location.pathname.indexOf("/es5/") !== -1
+                                Output.write(e.data.message);
                             }
-                        });
+                            else if(e.data.type == "WriteLine")
+                            {
+                                Output.writeLine(e.data.message);
+                            }
+                            else if(e.data.type == "TestFinished")
+                            {
+                                worker.terminate();
+                                setRunning(false);
+                                next(e.data.success);
+                            }
+                        };
 
-                    worker.onerror = function(e)
+                        worker.postMessage(
+                            {
+                                type: "RunTest",
+                                test:
+                                {
+                                    name: current,
+                                    language: $("#language").val(),
+                                    defaultHost: document.location.hostname || "127.0.0.1",
+                                    protocol: $("#protocol").val(),
+                                    testcases: TestSuites[current].testcases,
+                                    files: TestSuites[current].files,
+                                    es5: document.location.pathname.indexOf("/es5/") !== -1
+                                }
+                            });
+
+                        worker.onerror = function(e)
+                        {
+                            console.log(e);
+                        };
+                    }
+                    else
                     {
-                        console.log(e);
-                    };
+                        (async function()
+                         {
+                             let success;
+                             try
+                             {
+                                 success = await runTest(current,
+                                                         $("#language").val(),
+                                                         document.location.hostname || "127.0.0.1",
+                                                         $("#protocol").val(),
+                                                         TestSuites[current].testcases,
+                                                         Output);
+                             }
+                             finally
+                             {
+                                 setRunning(false);
+                             }
+                             next(success);
+                         }());
+                    }
                 }
-                else
-                {
-                    runTest(current,
-                            $("#language").val(),
-                            document.location.hostname || "127.0.0.1",
-                            $("#protocol").val(),
-                            TestSuites[current].testcases,
-                            out
-                    ).finally(
-                        function()
-                        {
-                            setRunning(false);
-                        }
-                    ).then(
-                        function(success)
-                        {
-                            next(success);
-                        });
-                }
-            }
-            return false;
-        });
+                return false;
+            });
 
         $("#test").on("change",
                       function(e)
@@ -216,11 +211,11 @@ $(document).ready(
                           });
 
         $("#worker").on("change",
-                          function(e)
-                          {
-                              updateLocation();
-                              return false;
-                          });
+                        function(e)
+                        {
+                            updateLocation();
+                            return false;
+                        });
 
         $("#protocol").on("change",
                           function(e)
@@ -230,14 +225,14 @@ $(document).ready(
                               {
                                   document.location.assign(
                                       new URI()
-                                        .protocol($(this).val() == "ws" ? "http" : "https")
-                                        .hostname(document.location.hostname)
-                                        .port($(this).val() == "ws" ? 8080 : 9090)
-                                        .search(
-                                            {
-                                                language: $("#language").val(),
-                                                worker: $("#worker").is(":checked")
-                                            }));
+                                          .protocol($(this).val() == "ws" ? "http" : "https")
+                                          .hostname(document.location.hostname)
+                                          .port($(this).val() == "ws" ? 8080 : 9090)
+                                          .search(
+                                              {
+                                                  language: $("#language").val(),
+                                                  worker: $("#worker").is(":checked")
+                                              }));
                                   return false;
                               }
                           });

@@ -9,16 +9,8 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-
-    var test = function(b)
-    {
-        if(!b)
-        {
-            throw new Error("test failed");
-        }
-    };
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
     class BI extends Test.B
     {

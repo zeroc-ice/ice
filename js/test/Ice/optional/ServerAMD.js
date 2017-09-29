@@ -9,38 +9,35 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var AMDInitialI = require("AMDInitialI").AMDInitialI;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
+    const AMDInitialI = require("AMDInitialI").AMDInitialI;
 
-    var run = function(out, id, ready)
+    async function run(out, initData, ready)
     {
-        var communicator = Ice.initialize(id);
-        var adapter;
-        var echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-        return Ice.Promise.try(() =>
+        let communicator;
+        try
+        {
+            communicator = Ice.initialize(initData);
+            let echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
+            let adapter = await communicator.createObjectAdapter("");
+            adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
+            await echo.setConnection();
+            echo.ice_getCachedConnection().setAdapter(adapter);
+            adapter.activate();
+            ready.resolve();
+            await communicator.waitForShutdown();
+            await echo.shutdown();
+        }
+        finally
+        {
+            if(communicator)
             {
-                return communicator.createObjectAdapter("");
+                communicator.destroy();
             }
-        ).then(adpt =>
-            {
-                adapter = adpt;
-                adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
-                return echo.setConnection();
-            }
-        ).then(() =>
-            {
-                echo.ice_getCachedConnection().setAdapter(adapter);
-                adapter.activate();
-                ready.resolve();
-                return communicator.waitForShutdown();
-            }
-        ).then(() =>
-            {
-                return echo.shutdown();
-            }
-        ).finally(() => communicator.destroy());
-    };
+        }
+    }
+
     exports._serveramd = run;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,

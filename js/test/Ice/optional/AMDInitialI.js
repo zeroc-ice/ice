@@ -9,33 +9,32 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class AMDInitialI extends Test.Initial
     {
-        shutdown(current)
+        async shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-            return Promise.resolve();
         }
 
-        pingPong(obj, current)
+        async pingPong(obj, current)
         {
-            return Promise.resolve(obj);
+            return obj;
         }
 
-        opOptionalException(a, b, o, current)
+        async opOptionalException(a, b, o, current)
         {
-            var ex = new Test.OptionalException();
+            let ex = new Test.OptionalException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -52,12 +51,12 @@
             {
                 ex.o = o;
             }
-            return Promise.reject(ex);
+            throw ex;
         }
 
-        opDerivedException(a, b, o, current)
+        async opDerivedException(a, b, o, current)
         {
-            var ex = new Test.DerivedException();
+            let ex = new Test.DerivedException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -80,12 +79,12 @@
                 ex.o = o;
                 ex.o2 = o;
             }
-            return Promise.reject(ex);
+            throw ex;
         }
 
-        opRequiredException(a, b, o, current)
+        async opRequiredException(a, b, o, current)
         {
-            var ex = new Test.RequiredException();
+            let ex = new Test.RequiredException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -104,252 +103,249 @@
                 ex.o = o;
                 ex.o2 = o;
             }
-            return Promise.reject(ex);
+            throw ex;
         }
 
-        opByte(p1, current)
+        async opByte(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opBool(p1, current)
+        async opBool(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opShort(p1, current)
+        async opShort(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opInt(p1, current)
+        async opInt(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opLong(p1, current)
+        async opLong(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opFloat(p1, current)
+        async opFloat(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opDouble(p1, current)
+        async opDouble(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opString(p1, current)
+        async opString(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMyEnum(p1, current)
+        async opMyEnum(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opSmallStruct(p1, current)
+        async opSmallStruct(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opFixedStruct(p1, current)
+        async opFixedStruct(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opVarStruct(p1, current)
+        async opVarStruct(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opOneOptional(p1, current)
+        async opOneOptional(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opOneOptionalProxy(p1, current)
+        async opOneOptionalProxy(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opByteSeq(p1, current)
+        async opByteSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opBoolSeq(p1, current)
+        async opBoolSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opShortSeq(p1, current)
+        async opShortSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opIntSeq(p1, current)
+        async opIntSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opLongSeq(p1, current)
+        async opLongSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opFloatSeq(p1, current)
+        async opFloatSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opDoubleSeq(p1, current)
+        async opDoubleSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opStringSeq(p1, current)
+        async opStringSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opSmallStructSeq(p1, current)
+        async opSmallStructSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opSmallStructList(p1, current)
+        async opSmallStructList(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opFixedStructSeq(p1, current)
+        async opFixedStructSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opFixedStructList(p1, current)
+        async opFixedStructList(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opVarStructSeq(p1, current)
+        async opVarStructSeq(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opSerializable(p1, current)
+        async opSerializable(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opIntIntDict(p1, current)
+        async opIntIntDict(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opStringIntDict(p1, current)
+        async opStringIntDict(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opIntOneOptionalDict(p1, current)
+        async opIntOneOptionalDict(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opClassAndUnknownOptional(p, current)
+        async opClassAndUnknownOptional(p, current)
         {
-            return Promise.resolve();
         }
 
-        sendOptionalClass(req, current)
+        async sendOptionalClass(req, current)
         {
-            return Promise.resolve();
         }
 
-        returnOptionalClass(req, current)
+        async returnOptionalClass(req, current)
         {
-            return Promise.resolve(new Test.OneOptional(53));
+            return new Test.OneOptional(53);
         }
 
-        opG(g, current)
+        async opG(g, current)
         {
-            return Promise.resolve(g);
+            return g;
         }
 
-        opVoid(current)
+        async opVoid(current)
         {
-            return Promise.resolve();
         }
 
-        opMStruct1(current)
+        async opMStruct1(current)
         {
-            return Promise.resolve(new Test.SmallStruct());
+            return new Test.SmallStruct();
         }
 
-        opMStruct2(p1, current)
+        async opMStruct2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMSeq1(current)
+        async opMSeq1(current)
         {
-            return Promise.resolve([]);
+            return [];
         }
 
-        opMSeq2(p1, current)
+        async opMSeq2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMDict1(current)
+        async opMDict1(current)
         {
-            return Promise.resolve(new Map());
+            return new Map();
         }
 
-        opMDict2(p1, current)
+        async opMDict2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMG1(current)
+        async opMG1(current)
         {
-            return Promise.resolve(new Test.G());
+            return new Test.G();
         }
 
-        opMG2(p1, current)
+        async opMG2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        supportsRequiredParams(current)
-        {
-            return Promise.resolve(false);
-        }
-
-        supportsJavaSerializable(current)
-        {
-            return Promise.resolve(false);
-        }
-
-        supportsCsharpSerializable(current)
-        {
-            return Promise.resolve(false);
-        }
-
-        supportsCppStringView(current)
+        async supportsRequiredParams(current)
         {
             return false;
         }
 
-        supportsNullOptional(current)
+        async supportsJavaSerializable(current)
         {
-            return Promise.resolve(true);
+            return false;
+        }
+
+        async supportsCsharpSerializable(current)
+        {
+            return false;
+        }
+
+        async supportsCppStringView(current)
+        {
+            return false;
+        }
+
+        async supportsNullOptional(current)
+        {
+            return true;
         }
     }
 

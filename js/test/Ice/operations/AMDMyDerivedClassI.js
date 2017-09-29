@@ -9,16 +9,16 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var test = function(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class AMDMyDerivedClassI extends Test.MyDerivedClass
     {
@@ -56,56 +56,54 @@
             return Ice.Object.prototype.ice_id.call(this, current);
         }
 
-        shutdown(current)
+        async shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
-            return Promise.resolve();
         }
 
-        opVoid(current)
+        async opVoid(current)
         {
             test(current.mode === Ice.OperationMode.Normal);
-            return Promise.resolve();
         }
 
-        opBool(p1, p2, current)
+        async opBool(p1, p2, current)
         {
-            return Promise.resolve([p2, p1]);
+            return [p2, p1];
         }
 
-        opBoolS(p1, p2, current)
+        async opBoolS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            return Promise.resolve([p1.reverse(), p3]);
+            const p3 = p1.concat(p2);
+            return [p1.reverse(), p3];
         }
 
-        opBoolSS(p1, p2, current)
+        async opBoolSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            return Promise.resolve([p1.reverse(), p3]);
+            const p3 = p1.concat(p2);
+            return [p1.reverse(), p3];
         }
 
-        opByte(p1, p2, current)
+        async opByte(p1, p2, current)
         {
-            return Promise.resolve([p1, (p1 ^ p2) & 0xff]);
+            return [p1, (p1 ^ p2) & 0xff];
         }
 
-        opByteBoolD(p1, p2, current)
+        async opByteBoolD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opByteS(p1, p2, current)
+        async opByteS(p1, p2, current)
         {
-            var p3 = new Uint8Array(p1.length);
+            const p3 = new Uint8Array(p1.length);
             for(let i = 0; i < p1.length; i++)
             {
                 p3[i] = p1[p1.length - (i + 1)];
             }
 
-            var r = new Uint8Array(p1.length + p2.length);
+            const r = new Uint8Array(p1.length + p2.length);
             for(let i = 0; i < p1.length; ++i)
             {
                 r[i] = p1[i];
@@ -114,381 +112,376 @@
             {
                 r[i + p1.length] = p2[i];
             }
-            return Promise.resolve([r, p3]);
+            return [r, p3];
         }
 
-        opByteSS(p1, p2, current)
+        async opByteSS(p1, p2, current)
         {
-            var r = p1.concat(p2);
-            return Promise.resolve([r, p1.reverse()]);
+            const r = p1.concat(p2);
+            return [r, p1.reverse()];
         }
 
-        opFloatDouble(p1, p2, current)
+        async opFloatDouble(p1, p2, current)
         {
-            return Promise.resolve([p2, p1, p2]);
+            return [p2, p1, p2];
         }
 
-        opFloatDoubleS(p1, p2, current)
+        async opFloatDoubleS(p1, p2, current)
         {
-            var r = p2.concat(p1);
-            var p4 = p2.reverse();
-            return Promise.resolve([r, p1, p4]);
+            const r = p2.concat(p1);
+            const p4 = p2.reverse();
+            return [r, p1, p4];
         }
 
-        opFloatDoubleSS(p1, p2, current)
+        async opFloatDoubleSS(p1, p2, current)
         {
-            var r = p2.concat(p2);
-            var p4 = p2.reverse();
-            return Promise.resolve([r, p1, p4]);
+            const r = p2.concat(p2);
+            const p4 = p2.reverse();
+            return [r, p1, p4];
         }
 
-        opLongFloatD(p1, p2, current)
+        async opLongFloatD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opMyClass(p1, current)
+        async opMyClass(p1, current)
         {
-            var p2 = p1;
-            var p3 = Test.MyClassPrx.uncheckedCast(
+            const p2 = p1;
+            const p3 = Test.MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")));
-            var r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
-            return Promise.resolve([r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)]);
+            const r = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
+            return [r.ice_endpoints(this._endpoints), p2, p3.ice_endpoints(this._endpoints)];
         }
 
-        opMyEnum(p1, current)
+        async opMyEnum(p1, current)
         {
-            return Promise.resolve([Test.MyEnum.enum3, p1]);
+            return [Test.MyEnum.enum3, p1];
         }
 
-        opShortIntD(p1, p2, current)
+        async opShortIntD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opShortIntLong(p1, p2, p3, current)
+        async opShortIntLong(p1, p2, p3, current)
         {
-            return Promise.resolve([p3, p1, p2, p3]);
+            return [p3, p1, p2, p3];
         }
 
-        opShortIntLongS(p1, p2, p3, current)
+        async opShortIntLongS(p1, p2, p3, current)
         {
-            return Promise.resolve([p3, p1, p2.reverse(), p3.concat(p3)]);
+            return [p3, p1, p2.reverse(), p3.concat(p3)];
         }
 
-        opShortIntLongSS(p1, p2, p3, current)
+        async opShortIntLongSS(p1, p2, p3, current)
         {
-            return Promise.resolve([p3, p1, p2.reverse(), p3.concat(p3)]);
+            return [p3, p1, p2.reverse(), p3.concat(p3)];
         }
 
-        opString(p1, p2, current)
+        async opString(p1, p2, current)
         {
-            return Promise.resolve([p1 + " " + p2, p2 + " " + p1]);
+            return [p1 + " " + p2, p2 + " " + p1];
         }
 
-        opStringMyEnumD(p1, p2, current)
+        async opStringMyEnumD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opMyEnumStringD(p1, p2, current)
+        async opMyEnumStringD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opMyStructMyEnumD(p1, p2, current)
+        async opMyStructMyEnumD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opByteBoolDS(p1, p2, current)
+        async opByteBoolDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opShortIntDS(p1, p2, current)
+        async opShortIntDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opLongFloatDS(p1, p2, current)
+        async opLongFloatDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opStringStringDS(p1, p2, current)
+        async opStringStringDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opStringMyEnumDS(p1, p2, current)
+        async opStringMyEnumDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opMyEnumStringDS(p1, p2, current)
+        async opMyEnumStringDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opMyStructMyEnumDS(p1, p2, current)
+        async opMyStructMyEnumDS(p1, p2, current)
         {
-            var p3 = p2.concat(p1);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p2.concat(p1);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opByteByteSD(p1, p2, current)
+        async opByteByteSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opBoolBoolSD(p1, p2, current)
+        async opBoolBoolSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opShortShortSD(p1, p2, current)
+        async opShortShortSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opIntIntSD(p1, p2, current)
+        async opIntIntSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opLongLongSD(p1, p2, current)
+        async opLongLongSD(p1, p2, current)
         {
-            var r = new Ice.HashMap(p1);
+            const r = new Ice.HashMap(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Ice.HashMap(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Ice.HashMap(p2);
+            return [r, p3];
         }
 
-        opStringFloatSD(p1, p2, current)
+        async opStringFloatSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opStringDoubleSD(p1, p2, current)
+        async opStringDoubleSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opStringStringSD(p1, p2, current)
+        async opStringStringSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opMyEnumMyEnumSD(p1, p2, current)
+        async opMyEnumMyEnumSD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            var p3 = new Map(p2);
-            return Promise.resolve([r, p3]);
+            const p3 = new Map(p2);
+            return [r, p3];
         }
 
-        opIntS(s, current)
+        async opIntS(s, current)
         {
-            return Promise.resolve(s.map(function(v, i, arr) { return -v; }));
+            return s.map(v => -v);
         }
 
-        opByteSOneway(s, current)
+        async opByteSOneway(s, current)
         {
             this._opByteSOnewayCount += 1;
-            return Promise.resolve();
         }
 
-        opByteSOnewayCallCount(current)
+        async opByteSOnewayCallCount(current)
         {
-            var count = this._opByteSOnewayCount;
+            const count = this._opByteSOnewayCount;
             this._opByteSOnewayCount = 0;
-            return Promise.resolve(count);
+            return count;
         }
 
-        opContext(current)
+        async opContext(current)
         {
-            return Promise.resolve(current.ctx);
+            return current.ctx;
         }
 
-        opDoubleMarshaling(p1, p2, current)
+        async opDoubleMarshaling(p1, p2, current)
         {
-            var d = 1278312346.0 / 13.0;
+            const d = 1278312346.0 / 13.0;
             test(p1 === d);
-            for(var i = 0; i < p2.length; ++i)
+            for(let i = 0; i < p2.length; ++i)
             {
                 test(p2[i] === d);
             }
-            return Promise.resolve();
         }
 
-        opStringS(p1, p2, current)
+        async opStringS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p1.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p1.concat(p2);
+            const r = p1.reverse();
+            return [r, p3];
         }
 
-        opStringSS(p1, p2, current)
+        async opStringSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p2.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p1.concat(p2);
+            const r = p2.reverse();
+            return [r, p3];
         }
 
-        opStringSSS(p1, p2, current)
+        async opStringSSS(p1, p2, current)
         {
-            var p3 = p1.concat(p2);
-            var r = p2.reverse();
-            return Promise.resolve([r, p3]);
+            const p3 = p1.concat(p2);
+            const r = p2.reverse();
+            return [r, p3];
         }
 
-        opStringStringD(p1, p2, current)
+        async opStringStringD(p1, p2, current)
         {
-            var r = new Map(p1);
+            const r = new Map(p1);
             p2.forEach((value, key) => r.set(key, value));
-            return Promise.resolve([r, p1]);
+            return [r, p1];
         }
 
-        opStruct(p1, p2, current)
+        async opStruct(p1, p2, current)
         {
             p1.s.s = "a new string";
-            return Promise.resolve([p2, p1]);
+            return [p2, p1];
         }
 
-        opIdempotent(current)
+        async opIdempotent(current)
         {
             test(current.mode === Ice.OperationMode.Idempotent);
-            return Promise.resolve();
         }
 
-        opNonmutating(current)
+        async opNonmutating(current)
         {
             test(current.mode === Ice.OperationMode.Nonmutating);
-            return Promise.resolve();
         }
 
-        opDerived(current)
+        async opDerived(current)
         {
-            return Promise.resolve();
         }
 
-        opByte1(value, current)
+        async opByte1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opShort1(value, current)
+        async opShort1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opInt1(value, current)
+        async opInt1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opLong1(value, current)
+        async opLong1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opFloat1(value, current)
+        async opFloat1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opDouble1(value, current)
+        async opDouble1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opString1(value, current)
+        async opString1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opStringS1(value, current)
+        async opStringS1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opByteBoolD1(value, current)
+        async opByteBoolD1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opStringS2(value, current)
+        async opStringS2(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opByteBoolD2(value, current)
+        async opByteBoolD2(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opMyClass1(value, current)
+        async opMyClass1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opMyStruct1(value, current)
+        async opMyStruct1(value, current)
         {
-            return Promise.resolve(value);
+            return value;
         }
 
-        opStringLiterals(current)
+        async opStringLiterals(current)
         {
-            return Promise.resolve([
+            return [
                 Test.s0, Test.s1, Test.s2, Test.s3, Test.s4, Test.s5, Test.s6, Test.s7, Test.s8, Test.s9, Test.s10,
                 Test.sw0, Test.sw1, Test.sw2, Test.sw3, Test.sw4, Test.sw5, Test.sw6, Test.sw7, Test.sw8, Test.sw9, Test.sw10,
                 Test.ss0, Test.ss1, Test.ss2, Test.ss3, Test.ss4, Test.ss5,
-                Test.su0, Test.su1, Test.su2]);
+                Test.su0, Test.su1, Test.su2];
         }
 
         opWStringLiterals(current)
@@ -496,34 +489,34 @@
             return this.opStringLiterals(current);
         }
 
-        opMStruct1(current)
+        async opMStruct1(current)
         {
-            return Promise.resolve(new Test.Structure());
+            return new Test.Structure();
         }
 
-        opMStruct2(p1, current)
+        async opMStruct2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMSeq1(current)
+        async opMSeq1(current)
         {
-            return Promise.resolve([]);
+            return [];
         }
 
-        opMSeq2(p1, current)
+        async opMSeq2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
 
-        opMDict1(current)
+        async opMDict1(current)
         {
-            return Promise.resolve(new Map());
+            return new Map();
         }
 
-        opMDict2(p1, current)
+        async opMDict2(p1, current)
         {
-            return Promise.resolve([p1, p1]);
+            return [p1, p1];
         }
     }
 

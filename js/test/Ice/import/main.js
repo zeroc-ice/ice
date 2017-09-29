@@ -58,8 +58,4 @@ test(session !== undefined);
 let canvas = Demo.gx.CanvasPrx.uncheckedCast(communicator.stringToProxy("demo:default -h 127.0.0.1"));
 test(canvas !== undefined);
 
-communicator.destroy().then(
-    function()
-    {
-        console.log("ok");
-    });
+communicator.destroy().then(() => console.log("ok"));

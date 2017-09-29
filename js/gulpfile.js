@@ -26,8 +26,7 @@ var babel       = require("gulp-babel"),
     rollup      = require("rollup").rollup,
     sourcemaps  = require('gulp-sourcemaps'),
     spawn       = require("child_process").spawn,
-    uglify      = require('uglify-js'),
-    minifier    = require('gulp-uglify/minifier');
+    uglify      = require('gulp-uglify-es').default;
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
@@ -123,16 +122,44 @@ gulp.task("common:slice-babel", ["common:slice"],
         pump([
             gulp.src(["test/Common/Controller.js",
                       "test/Common/ControllerI.js",
-                      "test/Common/ControllerWorker.js"]),
+                      "test/Common/ControllerWorker.js",
+                      "test/Common/TestRunner.js",
+                      "test/Common/TestSuite.js",
+                      "test/Common/Worker.js"]),
             babel({compact: false}),
             gulp.dest("test/es5/Common")], cb);
     });
+
+gulp.task("common:slice-es5-worker", ["common:slice-babel"],
+          function(cb){
+              pump([
+                  gulp.src(["node_modules/babel-polyfill/dist/polyfill.js",
+                            "test/es5/Common/Worker.js"]),
+                  concat("Worker.js"),
+                  gulp.dest("test/es5/Common/")
+              ], cb);
+          });
+
+gulp.task("common:slice-es5-controllerworker", ["common:slice-babel"],
+          function(cb){
+              pump([
+                  gulp.src(["node_modules/babel-polyfill/dist/polyfill.js",
+                            "test/es5/Common/ControllerWorker.js"]),
+                  concat("ControllerWorker.js"),
+                  gulp.dest("test/es5/Common/")
+              ], cb);
+          });
 
 gulp.task("common:clean", [],
     function(){
         del(["test/Common/Controller.js",
              "test/Common/.depend",
-             "test/es5/Common/Controller.js"]);
+             "test/es5/Common/Controller.js",
+             "test/es5/Common/ControllerI.js",
+             "test/es5/Common/ControllerWorker.js",
+             "test/es5/Common/TestRunner.js",
+             "test/es5/Common/TestSuite.js",
+             "test/es5/Common/Worker.js"]);
     });
 
 gulp.task("import:slice2js", [],
@@ -209,7 +236,7 @@ tests.forEach(
     });
 
 gulp.task("test", tests.map(testBabelTask).concat(
-    ["common:slice-babel", "import:bundle"]));
+    ["common:slice-es5-worker", "common:slice-es5-controllerworker", "import:bundle"]));
 
 gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:clean", "import:clean"]));
 
@@ -327,7 +354,7 @@ libs.forEach(
                     gulp.src(libFile(lib)),
                     newer(libFileMin(lib)),
                     sourcemaps.init({loadMaps: false}),
-                    minifier({compress:false}, uglify),
+                    uglify({compress:false}),
                     extreplace(".min.js"),
                     sourcemaps.write(".", {includeContent: false, addComment: false}),
                     gulp.dest("lib"),
@@ -362,7 +389,7 @@ libs.forEach(
                 pump([
                     gulp.src(babelLibFile(lib)),
                     newer(babelLibFileMin(lib)),
-                    minifier({compress:false}, uglify),
+                    uglify({compress:false}),
                     extreplace(".min.js"),
                     sourcemaps.write(".", {includeContent: false, addComment: false}),
                     gulp.dest("lib/es5"),
