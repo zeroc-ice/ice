@@ -605,20 +605,22 @@ classdef AllTests
             %assert(compObj1 < compObj2);
             %assert(~(compObj2 < compObj1));
 
-            %{
-            TODO: ice_getEndpoints
             endpts1 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000').ice_getEndpoints();
             endpts2 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10001').ice_getEndpoints();
-            assert(endpts1 ~= endpts2);
-            assert(endpts1 < endpts2);
-            assert(~(endpts2 < endpts1));
-            assert(endpts1 == communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000').ice_getEndpoints());
-            %}
+            assert(endpts1{1} ~= endpts2{1});
+            %assert(endpts1 < endpts2);
+            %assert(~(endpts2 < endpts1));
+            endpts3 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000').ice_getEndpoints();
+            assert(endpts1{1} == endpts3{1});
 
-            assert(compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)) == compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)));
-            assert(compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)) ~= compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 1)));
-            %assert(compObj.ice_encodingVersion(Ice.EncodingVersion(1, 0)) < compObj.ice_encodingVersion(Ice.EncodingVersion(1, 1)));
-            %assert(~(compObj.ice_encodingVersion(Ice.EncodingVersion(1, 1)) < compObj.ice_encodingVersion(Ice.EncodingVersion(1, 0))));
+            assert(compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)) == ...
+                   compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)));
+            assert(compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 0)) ~= ...
+                   compObj1.ice_encodingVersion(Ice.EncodingVersion(1, 1)));
+            %assert(compObj.ice_encodingVersion(Ice.EncodingVersion(1, 0)) < ...
+            %       compObj.ice_encodingVersion(Ice.EncodingVersion(1, 1)));
+            %assert(~(compObj.ice_encodingVersion(Ice.EncodingVersion(1, 1)) < ...
+            %         compObj.ice_encodingVersion(Ice.EncodingVersion(1, 0))));
 
             %
             % TODO: Ideally we should also test comparison of fixed proxies.

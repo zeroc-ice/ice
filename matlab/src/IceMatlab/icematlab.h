@@ -68,8 +68,11 @@ EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getFacet(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_facet(void*, void**, const char*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getAdapterId(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_adapterId(void*, void**, const char*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpoints(void*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpoints(void*, void**, mxArray*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getNumEndpoints(void*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getEndpoint(void*, unsigned int, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_createEndpointList(void*, unsigned int, void**);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_setEndpoint(void*, void*, unsigned int, void*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_endpoints(void*, void**, void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getLocatorCacheTimeout(void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_locatorCacheTimeout(void*, void**, int);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_getInvocationTimeout(void*);
@@ -167,6 +170,11 @@ EXPORTED_FUNCTION mxArray* Ice_Logger_warning(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Logger_error(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Logger_getPrefix(void*);
 EXPORTED_FUNCTION mxArray* Ice_Logger_cloneWithPrefix(void*, mxArray*, void**);
+
+EXPORTED_FUNCTION mxArray* Ice_Endpoint__release(void*);
+EXPORTED_FUNCTION mxArray* Ice_Endpoint_equals(void*, void*);
+EXPORTED_FUNCTION mxArray* Ice_Endpoint_toString(void*);
+EXPORTED_FUNCTION mxArray* Ice_Endpoint_getInfo(void*);
 
 #ifdef __cplusplus
 }

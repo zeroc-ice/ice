@@ -696,7 +696,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         IceUtilInternal::Output out;
         openClass(abs, out);
 
-        out << nl << "classdef " << name;
+        out << nl << "classdef ";
+        if(p->isLocal() && !p->allOperations().empty())
+        {
+            out << "(Abstract) ";
+        }
+        out << name;
         if(base)
         {
             out << " < " << getAbsolute(base);
@@ -704,6 +709,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         else if(!p->isLocal())
         {
             out << " < Ice.Value";
+        }
+        else
+        {
+            out << " < matlab.mixin.Copyable";
         }
 
         out.inc();
@@ -1013,6 +1022,47 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "properties(Access=protected)";
                 out.inc();
                 out << nl << "iceSlicedData_";
+                out.dec();
+                out << nl << "end";
+            }
+        }
+        else
+        {
+            const OperationList ops = p->operations();
+            if(!ops.empty())
+            {
+                out << nl << "methods(Abstract)";
+                out.inc();
+                for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+                {
+                    OperationPtr op = *q;
+                    const ParamInfoList outParams = getAllOutParams(op);
+                    out << nl;
+                    if(outParams.size() > 1)
+                    {
+                        out << "[";
+                        for(ParamInfoList::const_iterator r = outParams.begin(); r != outParams.end(); ++r)
+                        {
+                            if(r != outParams.begin())
+                            {
+                                out << ", ";
+                            }
+                            out << r->fixedName;
+                        }
+                        out << "] = ";
+                    }
+                    else if(outParams.size() == 1)
+                    {
+                        out << outParams.begin()->fixedName << " = ";
+                    }
+                    out << fixIdent(op->name()) << spar << "obj_";
+                    const ParamInfoList inParams = getAllInParams(op);
+                    for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                    {
+                        out << r->fixedName;
+                    }
+                    out << epar;
+                }
                 out.dec();
                 out << nl << "end";
             }

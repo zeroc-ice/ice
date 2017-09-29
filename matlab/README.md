@@ -101,21 +101,12 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 #### Running the Automated Tests
 
-Start the test controller on your server host (which may be the same host as
-the MATLAB clients). For example, let's assume you want to use the C++11
-servers on Windows in Debug mode:
+Assuming you've built the C++11 test servers in Debug mode on Windows, run the
+`allTests.py` script like this:
 ```
-python scripts\Controller.py --id=server --cpp-config=Debug
-```
-
-On the client host, change to the top-level `matlab` directory and run the
-`allTests.py` script:
-```
-cd matlab
-python allTests.py --server=server --cross=cpp
+python allTests.py --platform=x64 --cpp-config=Cpp11-Debug
 ```
 
-Note that the Python script requires an installation of Ice for Python. The
-script coordinates the launching of the appropriate test server by communicating
-with the test controller. Each MATLAB client is executed using a minimized
-MATLAB interepreter and the test output is copied to the Command Prompt window.
+This command will automatically start a corresponding C++11 server for each
+MATLAB client. MATLAB clients are executed using a minimized MATLAB interepreter
+and the test output is copied to the Command Prompt window.

@@ -52,15 +52,6 @@ classdef (Abstract) Application < handle
 
             [initData.properties_, args] = Ice.createProperties(args, initData.properties_);
 
-            %TBD
-            % If the process logger is the default logger, we replace it with a
-            % a logger that uses the program name as the prefix.
-            %
-            %if(Util.getProcessLogger() instanceof LoggerI)
-            %{
-            %    Util.setProcessLogger(new LoggerI(initData.properties_.getProperty('Ice.ProgramName'), ''));
-            %}
-
             status = 0;
 
             try
@@ -86,9 +77,6 @@ classdef (Abstract) Application < handle
                 r = Ice.initialize(varargin{1});
             end
         end
-        function setLogger(obj, logger)
-            obj.logger_ = logger;
-        end
         function r = appName(obj)
             r = obj.testName_;
         end
@@ -97,7 +85,6 @@ classdef (Abstract) Application < handle
         end
         function r = createInitializationData(obj)
             initData = Ice.InitializationData();
-            initData.logger = obj.logger_;
             r = initData;
         end
         function r = getTestEndpoint(obj, num, prot)
@@ -152,6 +139,5 @@ classdef (Abstract) Application < handle
     properties(Access=private)
         testName_
         communicator_
-        logger_
     end
 end

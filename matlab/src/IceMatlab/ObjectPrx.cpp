@@ -12,6 +12,7 @@
 #include <Ice/Ice.h>
 #include "icematlab.h"
 #include "Communicator.h"
+#include "Endpoint.h"
 #include "Future.h"
 #include "ObjectPrx.h"
 #include "Util.h"
@@ -560,27 +561,86 @@ Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_getEndpoints(void* self)
+Ice_ObjectPrx_ice_getNumEndpoints(void* self)
 {
-    // TBD
+    try
+    {
+        return createResultValue(createInt(SELF->ice_getEndpoints().size()));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
+{
+    try
+    {
+        auto endpoints = SELF->ice_getEndpoints();
+        if(idx > endpoints.size())
+        {
+            throw std::invalid_argument("index outside range");
+        }
+        *r = createEndpoint(endpoints[idx]);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
     return 0;
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_ice_endpoints(void* self, void** r, mxArray* endpts)
+Ice_ObjectPrx_ice_createEndpointList(void* self, unsigned int num, void** r)
 {
-    // TBD
-#if 0
+    *r = new vector<shared_ptr<Ice::Endpoint>>(num);
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_ObjectPrx_ice_setEndpoint(void* self, void* arr, unsigned int idx, void* e)
+{
+    //
+    // arr must hold a pointer returned by createEndpointList.
+    //
+
     try
     {
-        auto newProxy = SELF->ice_endpoints(id);
+        vector<shared_ptr<Ice::Endpoint>>* v = reinterpret_cast<vector<shared_ptr<Ice::Endpoint>>*>(arr);
+        if(idx > v->size())
+        {
+            throw std::invalid_argument("index outside range");
+        }
+        (*v)[idx] = getEndpoint(e);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
+{
+    //
+    // arr must hold a pointer returned by createEndpointList and populated with setEndpoint.
+    //
+
+    try
+    {
+        vector<shared_ptr<Ice::Endpoint>>* v = reinterpret_cast<vector<shared_ptr<Ice::Endpoint>>*>(arr);
+        vector<shared_ptr<Ice::Endpoint>> tmp = *v;
+        delete v;
+        auto newProxy = SELF->ice_endpoints(tmp);
         *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-#endif
     return 0;
 }
 

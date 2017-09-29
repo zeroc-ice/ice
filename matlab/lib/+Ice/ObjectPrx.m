@@ -167,11 +167,33 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getEndpoints(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getEndpoints');
+            num = obj.callWithResult_('ice_getNumEndpoints');
+            r = {};
+            for i = 1:num
+                impl = libpointer('voidPtr');
+                e = obj.callWithResult_('ice_getEndpoint', i - 1, impl); % C-style index
+                assert(~isNull(impl));
+                r{i} = Ice.Endpoint(impl);
+            end
         end
 
         function r = ice_endpoints(obj, endpts)
-            r = obj.factory_('ice_endpoints', true, endpts);
+            %
+            % It's not clear how we can pass a vector of void* to a C function. So we create a temporary C vector
+            % and populate it one element at a time.
+            %
+
+            for i = 1:length(endpts)
+                if ~isa(endpts{i}, 'Ice.Endpoint')
+                    throw(MException('Ice:ArgumentException', 'expected an Ice.Endpoint'))
+                end
+            end
+            arr = libpointer('voidPtr');
+            obj.call_('ice_createEndpointList', length(endpts), arr);
+            for i = 1:length(endpts)
+                obj.call_('ice_setEndpoint', arr, i - 1, endpts{i}.impl_); % C-style index
+            end
+            r = obj.factory_('ice_endpoints', true, arr); % The C function also destroys the temporary array.
         end
 
         function r = ice_getLocatorCacheTimeout(obj)
