@@ -51,6 +51,7 @@ function parseArg(argv, key)
 
 var platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
 var configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
+var host = parseArg(process.argv, "--host") || "127.0.0.1";
 
 function slice2js(options) {
     var defaults = {};
@@ -410,6 +411,11 @@ function runTestsWithBrowser(url)
 {
     require("./bin/HttpServer")();
     var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d"];
+    if(host)
+    {
+        cmd.push("--host");
+        cmd.push(host);
+    }
     if(platform)
     {
         cmd.push("--platform=" + platform);
@@ -454,12 +460,12 @@ function runTestsWithBrowser(url)
 
 gulp.task("test:browser", useBinDist ? ["test"] : ["build"],
     function(url){
-        return runTestsWithBrowser("http://127.0.0.1:8080/test/Ice/acm/index.html");
+        return runTestsWithBrowser("http://" + host +":8080/test/Ice/acm/index.html");
     });
 
 gulp.task("test:browser-es5", useBinDist ? ["test"] : ["build"],
     function(url){
-        return runTestsWithBrowser("http://127.0.0.1:8080/test/es5/Ice/acm/index.html");
+        return runTestsWithBrowser("http://" + host +":8080/test/es5/Ice/acm/index.html");
     });
 
 gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
