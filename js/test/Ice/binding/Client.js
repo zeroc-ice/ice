@@ -213,7 +213,7 @@
             // default), so we prefer to also disable this test with Firefox.
             //
             if(typeof(navigator) === "undefined" ||
-               ["MSIE", "Trident/7.0", "Firefox", "Edge"].every(value => navigator.userAgent.indexOf(value) === -1))
+               ["MSIE", "Trident/7.0", "Firefox"].every(value => navigator.userAgent.indexOf(value) === -1))
             {
                 out.write("testing binding with multiple random endpoints... ");
 
@@ -236,8 +236,7 @@
                     }
                     proxies = new Array(!0);
 
-                    let i;
-                    for(i = 0; i < proxies.length; ++i)
+                    for(let i = 0; i < proxies.length; ++i)
                     {
                         let adpts = new Array(Math.floor(Math.random() * adapters.length));
                         if(adpts.length == 0)
@@ -250,13 +249,11 @@
                         }
                         proxies[i] = await createTestIntfPrx(ArrayUtil.clone(adpts));
                     }
-
-                    for(i = 0; i < proxies.length; i++)
+                    for(let i = 0; i < proxies.length; i++)
                     {
-                        await proxies[i].getAdapterName();
+                        proxies[i].getAdapterName().catch(ex => { /*ignore exception*/ });
                     }
-
-                    for(i = 0; i < proxies.Length; i++)
+                    for(let i = 0; i < proxies.Length; i++)
                     {
                         try
                         {
@@ -267,9 +264,8 @@
                             test(ex instanceof Ice.LocalException, ex);
                         }
                     }
-
                     let connections = [];
-                    for(i = 0; i < proxies.length; i++)
+                    for(let i = 0; i < proxies.length; i++)
                     {
                         if(proxies[i].ice_getCachedConnection() !== null)
                         {
