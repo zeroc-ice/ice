@@ -689,14 +689,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = uncheckedCast_(p, cls, varargin)
+            hasFacet = false;
             facet = [];
             if length(varargin) == 1
+                hasFacet = true;
                 facet = varargin{1};
             elseif length(varargin) > 1
                 throw(MException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
             end
             if ~isempty(p)
-                if ~isempty(facet)
+                if hasFacet
                     p = p.ice_facet(facet);
                 end
                 if isa(p, cls)
