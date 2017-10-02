@@ -1266,7 +1266,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         string name;
                         if(isClass(r->type))
                         {
-                            out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
+                            out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                             name = "@(v) " + r->fixedName + "_h_.set(v)";
                             classParams.push_back(*r);
                         }
@@ -1291,7 +1291,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string name;
                     if(isClass(r->type))
                     {
-                        out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
+                        out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                         name = "@(v) " + r->fixedName + "_h_.set(v)";
                         classParams.push_back(*r);
                     }
@@ -1314,7 +1314,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string name;
                     if(isClass(r->type))
                     {
-                        out << nl << r->fixedName << "_h_ = Ice.ValueHolder();";
+                        out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                         name = "@(v) " + r->fixedName + "_h_.set(v)";
                         classParams.push_back(*r);
                     }
@@ -1409,7 +1409,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         string name;
                         if(isClass(r->type))
                         {
-                            out << nl << r->fixedName << " = Ice.ValueHolder();";
+                            out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                             name = "@(v) " + r->fixedName + ".set(v)";
                         }
                         else
@@ -1428,7 +1428,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string name;
                     if(isClass(r->type))
                     {
-                        out << nl << r->fixedName << " = Ice.ValueHolder();";
+                        out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                         name = "@(v) " + r->fixedName + ".set(v)";
                     }
                     else
@@ -1445,7 +1445,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string name;
                     if(isClass(r->type))
                     {
-                        out << nl << r->fixedName << " = Ice.ValueHolder();";
+                        out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                         name = "@(v) " + r->fixedName + ".set(v)";
                     }
                     else
@@ -1924,7 +1924,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 if(isClass((*q)->type()))
                 {
-                    out << nl << "obj." << m << " = Ice.ValueHolder();";
+                    out << nl << "obj." << m << " = IceInternal.ValueHolder();";
                     unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), false, 0);
                 }
                 else
@@ -1939,7 +1939,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             string m = fixExceptionMemberIdent((*q)->name());
             if(isClass((*q)->type()))
             {
-                out << nl << "obj." << m << " = Ice.ValueHolder();";
+                out << nl << "obj." << m << " = IceInternal.ValueHolder();";
                 unmarshal(out, "is", "@(v) obj." + m + ".set(v)", (*q)->type(), true, (*q)->tag());
             }
             else
@@ -2566,7 +2566,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
         if(cls)
         {
-            out << nl << "v = Ice.ValueHolder();";
+            out << nl << "v = IceInternal.ValueHolder();";
             unmarshal(out, "is", "@(v_) v.set(v_)", value, false, 0);
         }
         else
@@ -2626,7 +2626,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
                 if(cls)
                 {
                     //
-                    // Each entry has a temporary Ice.ValueHolder that we need to replace with the actual value.
+                    // Each entry has a temporary ValueHolder that we need to replace with the actual value.
                     //
                     out << nl << "d(i).value = d(i).value.value;";
                 }
@@ -2648,7 +2648,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
                 if(cls)
                 {
                     //
-                    // Each entry has a temporary Ice.ValueHolder that we need to replace with the actual value.
+                    // Each entry has a temporary ValueHolder that we need to replace with the actual value.
                     //
                     out << nl << "d(k) = v.value;";
                 }
@@ -3689,7 +3689,7 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
         if(isClass((*q)->type()))
         {
             string m = fixIdent((*q)->name());
-            out << nl << v << "." << m << " = Ice.ValueHolder();";
+            out << nl << v << "." << m << " = IceInternal.ValueHolder();";
             unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
         }
         else

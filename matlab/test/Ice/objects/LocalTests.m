@@ -52,7 +52,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             % Prior to conversion, the member is a ValueHolder
-            assert(isa(r.c1, 'Ice.ValueHolder'));
+            assert(isa(r.c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             % Now the member should be an instance of the class
             assert(isa(r.c1, symbol('C1')));
@@ -110,7 +110,7 @@ classdef LocalTests
             assert(isa(r, symbol('S1')));
             assert(length(r) == length(seq));
             % The structures haven't been converted yet
-            assert(isa(r(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r(1).c1, 'IceInternal.ValueHolder'));
             r = S1Seq.convert(r);
             assert(isa(r(1).c1, symbol('C1')));
             for i = 1:10
@@ -118,7 +118,7 @@ classdef LocalTests
             end
 
             %
-            % Test: dictionary with class value type. The map temporarily stores Ice.ValueHolder objects as its
+            % Test: dictionary with class value type. The map temporarily stores IceInternal.ValueHolder objects as its
             % values until converted.
             %
 
@@ -141,7 +141,7 @@ classdef LocalTests
             assert(isa(r, 'containers.Map'));
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
-            assert(isa(r(1), 'Ice.ValueHolder'));
+            assert(isa(r(1), 'IceInternal.ValueHolder'));
             r = C1Dict.convert(r);
             assert(isa(r(1), symbol('C1')));
             for i = 1:10
@@ -150,7 +150,7 @@ classdef LocalTests
 
             %
             % Test: dictionary with structure value type containing a class member. The structure temporarily stores
-            % Ice.ValueHolder objects as its member until converted.
+            % IceInternal.ValueHolder objects as its member until converted.
             %
 
             out = communicator.createOutputStream(encoding);
@@ -172,7 +172,7 @@ classdef LocalTests
             assert(isa(r, 'containers.Map'));
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
-            assert(isa(r(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r(1).c1, 'IceInternal.ValueHolder'));
             r = S1Dict.convert(r);
             assert(isa(r(1).c1, symbol('C1')));
             for i = 1:10
@@ -239,7 +239,7 @@ classdef LocalTests
             assert(isa(r{1}, symbol('S1')));
             assert(length(r) == length(seq));
             % The structures haven't been converted yet
-            assert(isa(r{1}(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r{1}(1).c1, 'IceInternal.ValueHolder'));
             r = S1SeqSeq.convert(r);
             assert(isa(r{1}(1).c1, symbol('C1')));
             for i = 1:10
@@ -266,7 +266,7 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             % Prior to conversion, the class member is a ValueHolder
-            assert(isa(r.s1.c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1.c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             % Now the member should be an instance of the class
             assert(isa(r.s1.c1, symbol('C1')));
@@ -325,7 +325,7 @@ classdef LocalTests
             assert(isa(r.s1seq, symbol('S1')));
             assert(length(r.s1seq) == length(s4.s1seq));
             % The structures haven't been converted yet
-            assert(isa(r.s1seq(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1seq(1).c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             assert(isa(r.s1seq(1).c1, symbol('C1')));
             for i = 1:10
@@ -333,7 +333,7 @@ classdef LocalTests
             end
 
             %
-            % Test: struct containing dictionary with class value type. The map temporarily stores Ice.ValueHolder
+            % Test: struct containing dictionary with class value type. The map temporarily stores IceInternal.ValueHolder
             % objects as its values until converted.
             %
 
@@ -356,7 +356,7 @@ classdef LocalTests
             assert(isa(r.c1dict, 'containers.Map'));
             assert(length(r.c1dict) == length(s5.c1dict));
             % The entry values haven't been converted yet
-            assert(isa(r.c1dict(1), 'Ice.ValueHolder'));
+            assert(isa(r.c1dict(1), 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             assert(isa(r.c1dict(1), symbol('C1')));
             for i = 1:10
@@ -365,7 +365,7 @@ classdef LocalTests
 
             %
             % Test: struct containing dictionary with structure value type containing a class member. The inner
-            % structure temporarily stores Ice.ValueHolder objects as its member until converted.
+            % structure temporarily stores IceInternal.ValueHolder objects as its member until converted.
             %
 
             out = communicator.createOutputStream(encoding);
@@ -387,7 +387,7 @@ classdef LocalTests
             assert(isa(r.s1dict, 'containers.Map'));
             assert(length(r.s1dict) == length(s6.s1dict));
             % The entry values haven't been converted yet
-            assert(isa(r.s1dict(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1dict(1).c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             assert(isa(r.s1dict(1).c1, symbol('C1')));
             for i = 1:10
@@ -455,7 +455,7 @@ classdef LocalTests
             assert(isa(r.s1seqseq{1}, symbol('S1')));
             assert(length(r.s1seqseq) == length(s8.s1seqseq));
             % The structures haven't been converted yet
-            assert(isa(r.s1seqseq{1}(1).c1, 'Ice.ValueHolder'));
+            assert(isa(r.s1seqseq{1}(1).c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             assert(isa(r.s1seqseq{1}(1).c1, symbol('C1')));
             for i = 1:10
@@ -481,14 +481,14 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB1'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
             % Prior to conversion, the member is a ValueHolder
-            assert(isa(h.value.s1.c1, 'Ice.ValueHolder'));
+            assert(isa(h.value.s1.c1, 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             % Now the member should be an instance of the class
@@ -515,7 +515,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB2'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -553,7 +553,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB3'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -588,7 +588,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB4'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -597,7 +597,7 @@ classdef LocalTests
             % The member should be a map
             assert(isa(h.value.c1dict, 'containers.Map'));
             % The entry values haven't been converted yet
-            assert(isa(h.value.c1dict(1), 'Ice.ValueHolder'));
+            assert(isa(h.value.c1dict(1), 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -626,7 +626,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB5'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -635,7 +635,7 @@ classdef LocalTests
             % The member should be a map
             assert(isa(h.value.s1dict, 'containers.Map'));
             % The entry values haven't been converted yet
-            assert(isa(h.value.s1dict(1).c1, 'Ice.ValueHolder'));
+            assert(isa(h.value.s1dict(1).c1, 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -666,7 +666,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB6'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -710,7 +710,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB7'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
@@ -752,15 +752,15 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('CB8'));
             is.readPendingValues();
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
-            assert(isa(h.value.s1.c1, 'Ice.ValueHolder'));
+            assert(isa(h.value.s1.c1, 'IceInternal.ValueHolder'));
             assert(isa(h.value.c1seq, 'IceInternal.CellArrayHandle'));
-            assert(isa(h.value.s1dict(1).c1, 'Ice.ValueHolder'));
+            assert(isa(h.value.s1dict(1).c1, 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -776,7 +776,7 @@ classdef LocalTests
 
             %
             % Test: dictionary with struct key and class value type. The dictionary maps to a struct array and
-            % temporarily stores Ice.ValueHolder objects as its values until converted.
+            % temporarily stores IceInternal.ValueHolder objects as its values until converted.
             %
 
             out = communicator.createOutputStream(encoding);
@@ -799,7 +799,7 @@ classdef LocalTests
             assert(isa(r, 'struct'));
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
-            assert(isa(r(1).value, 'Ice.ValueHolder'));
+            assert(isa(r(1).value, 'IceInternal.ValueHolder'));
             r = StructDict1.convert(r);
             assert(isa(r(1).value, symbol('C1')));
             for i = 1:10
@@ -808,7 +808,7 @@ classdef LocalTests
 
             %
             % Test: dictionary with struct key and struct value type containig class. The dictionary maps to a
-            % struct array and temporarily stores Ice.ValueHolder objects as its values until converted.
+            % struct array and temporarily stores IceInternal.ValueHolder objects as its values until converted.
             %
 
             out = communicator.createOutputStream(encoding);
@@ -831,7 +831,7 @@ classdef LocalTests
             assert(isa(r, 'struct'));
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
-            assert(isa(r(1).value.c1, 'Ice.ValueHolder'));
+            assert(isa(r(1).value.c1, 'IceInternal.ValueHolder'));
             r = StructDict2.convert(r);
             assert(isa(r(1).value.c1, symbol('C1')));
             for i = 1:10
@@ -839,7 +839,7 @@ classdef LocalTests
             end
 
             %
-            % Test: dictionary of dictionary containing class. The inner map temporarily stores Ice.ValueHolder
+            % Test: dictionary of dictionary containing class. The inner map temporarily stores IceInternal.ValueHolder
             % objects as its values until converted.
             %
 
@@ -867,7 +867,7 @@ classdef LocalTests
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
             tmp = r(1);
-            assert(isa(tmp(1), 'Ice.ValueHolder'));
+            assert(isa(tmp(1), 'IceInternal.ValueHolder'));
             r = C1DictDict.convert(r);
             tmp = r(1);
             assert(isa(tmp(1), symbol('C1')));
@@ -881,7 +881,7 @@ classdef LocalTests
 
             %
             % Test: dictionary of dictionary containing struct containing class. The struct temporarily stores
-            % Ice.ValueHolder objects until converted.
+            % IceInternal.ValueHolder objects until converted.
             %
 
             out = communicator.createOutputStream(encoding);
@@ -908,7 +908,7 @@ classdef LocalTests
             assert(length(r) == length(d));
             % The entry values haven't been converted yet
             tmp = r(1);
-            assert(isa(tmp(1).c1, 'Ice.ValueHolder'));
+            assert(isa(tmp(1).c1, 'IceInternal.ValueHolder'));
             r = S1DictDict.convert(r);
             tmp = r(1);
             assert(isa(tmp(1).c1, symbol('C1')));
@@ -933,7 +933,7 @@ classdef LocalTests
 
             is = out.createInputStream();
             is.startEncapsulation();
-            h = Ice.ValueHolder();
+            h = IceInternal.ValueHolder();
             is.readValue(@(v) h.set(v), symbol('Opt'));
             is.readPendingValues();
             is.endEncapsulation();
@@ -962,7 +962,7 @@ classdef LocalTests
 
                 is = out.createInputStream();
                 is.startEncapsulation();
-                h = Ice.ValueHolder();
+                h = IceInternal.ValueHolder();
                 is.readValue(@(v) h.set(v), symbol('Opt'));
                 is.readPendingValues();
                 is.endEncapsulation();
