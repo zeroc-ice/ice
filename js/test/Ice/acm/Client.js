@@ -435,25 +435,19 @@
             await proxy.startHeartbeatCount();
             await proxy.waitForHeartbeatCount(2);
 
-            {
-                const p = new Promise(
-                    (resolve, reject) =>
-                        {
-                            con.setCloseCallback(() => resolve());
-                        });
-                con.close(Ice.ConnectionClose.Gracefully);
-                await p;
-            }
+            await new Promise(
+                (resolve, reject) =>
+                    {
+                        con.setCloseCallback(() => resolve());
+                        con.close(Ice.ConnectionClose.Gracefully);
+                    });
 
-            {
-                const p = new Promise(
-                    (resolve, reject) =>
-                        {
-                            con.setCloseCallback(() => resolve());
-                        });
-                await p;
-                con.setHeartbeatCallback(c => test(false));
-            }
+            await new Promise(
+                (resolve, reject) =>
+                    {
+                        con.setCloseCallback(() => resolve());
+                    });
+            con.setHeartbeatCallback(c => test(false));
         }
     }
 
@@ -511,7 +505,6 @@
         {
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             communicator = Ice.initialize(initData);
-
             await allTests(out, communicator);
         }
         finally

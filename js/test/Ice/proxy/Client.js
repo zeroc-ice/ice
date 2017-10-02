@@ -15,19 +15,24 @@
 
     async function allTests(communicator, out)
     {
-        class TestFailureException extends Error
+        class TestError extends Error
         {
-            constructor()
+            constructor(message)
             {
-                super("test failed");
+                super(message);
             }
         }
 
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new TestFailureException();
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new TestError(message);
             }
         }
 
@@ -61,7 +66,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         b1 = communicator.stringToProxy("\"test -f facet\"");
@@ -81,7 +86,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test\\040test");
@@ -94,7 +99,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.IdentityParseException);
+            test(ex instanceof Ice.IdentityParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test\\40test");
@@ -129,7 +134,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         try
@@ -139,7 +144,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test@adapter");
@@ -152,7 +157,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         b1 = communicator.stringToProxy("category/test@adapter");
@@ -194,7 +199,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         try
@@ -204,7 +209,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
 
         b1 = communicator.stringToProxy("test -f facet:" + defaultProtocol);
@@ -230,7 +235,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ProxyParseException);
+            test(ex instanceof Ice.ProxyParseException, ex);
         }
         b1 = communicator.stringToProxy("test");
         test(b1.ice_isTwoway());
@@ -270,7 +275,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         // This is an unknown endpoint warning, not a parse exception.
@@ -290,7 +295,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         //
@@ -334,7 +339,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.IdentityParseException);
+            test(ex instanceof Ice.IdentityParseException, ex);
         }
 
         // Testing bytes 127 (\x7F) and €
@@ -555,7 +560,7 @@
         }
         catch(ex)
         {
-            test(!(ex instanceof TestFailureException));
+            test(!(ex instanceof TestError), ex);
         }
 
         try
@@ -564,17 +569,17 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         try
         {
             base.ice_timeout(-2);
-            test(false);
+            test(false, ex);
         }
         catch(ex)
         {
-            test(!(ex instanceof TestFailureException));
+            test(!(ex instanceof TestError), ex);
         }
 
         try
@@ -584,7 +589,7 @@
         }
         catch(ex)
         {
-            test(!(ex instanceof TestFailureException));
+            test(!(ex instanceof TestError), ex);
         }
 
         try
@@ -603,7 +608,7 @@
         }
         catch(ex)
         {
-            test(!(ex instanceof TestFailureException));
+            test(!(ex instanceof TestError), ex);
         }
 
         try
@@ -612,7 +617,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         try
@@ -621,7 +626,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         try
@@ -631,7 +636,7 @@
         }
         catch(ex)
         {
-            test(!(ex instanceof TestFailureException));
+            test(!(ex instanceof TestError), ex);
         }
 
         out.writeLine("ok");
@@ -765,7 +770,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.UnsupportedEncodingException);
+            test(ex instanceof Ice.UnsupportedEncodingException, ex);
         }
 
         let ref10 = "test -e 1.0:default -p 12010";
@@ -795,7 +800,7 @@
         catch(ex)
         {
             // Server 2.0 proxy doesn't support 1.0 version.
-            test(ex instanceof Ice.UnsupportedProtocolException);
+            test(ex instanceof Ice.UnsupportedProtocolException, ex);
         }
 
         ref10 = "test -p 1.0:default -p 12010";
@@ -819,7 +824,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -830,7 +835,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -841,7 +846,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -852,7 +857,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -863,7 +868,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -874,7 +879,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -885,7 +890,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -896,7 +901,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -907,7 +912,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -918,7 +923,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         try
@@ -929,7 +934,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.EndpointParseException);
+            test(ex instanceof Ice.EndpointParseException, ex);
         }
 
         // Legal TCP endpoint expressed as opaque endpoint

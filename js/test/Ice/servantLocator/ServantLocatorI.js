@@ -62,7 +62,7 @@
             //
             // Ensure locate() is only called once per request.
             //
-            //test(this._requestId == -1);
+            test(this._requestId == -1);
             this._requestId = current.requestId;
             cookie.value = new CookieI();
             return new TestI();

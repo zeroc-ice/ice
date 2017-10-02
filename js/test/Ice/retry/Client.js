@@ -14,11 +14,16 @@
 
     async function allTests(out, communicator, communicator2)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -53,11 +58,11 @@
         {
             if(typeof(window) === 'undefined' && typeof(WorkerGlobalScope) === 'undefined') // Nodejs
             {
-                test(ex instanceof Ice.ConnectionLostException);
+                test(ex instanceof Ice.ConnectionLostException, ex);
             }
             else // Browser
             {
-                test(ex instanceof Ice.SocketException);
+                test(ex instanceof Ice.SocketException, ex);
             }
             out.writeLine("ok");
         }
@@ -79,7 +84,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
         out.writeLine("ok");
 
@@ -92,7 +97,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.InvocationTimeoutException);
+            test(ex instanceof Ice.InvocationTimeoutException, ex);
         }
 
         await retry2.opIdempotent(-1);

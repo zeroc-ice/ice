@@ -14,11 +14,16 @@
 
     async function run(communicator, prx, Test, bidir)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -147,7 +152,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -157,7 +162,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -167,7 +172,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -177,7 +182,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -187,7 +192,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -197,7 +202,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof RangeError);
+            test(ex instanceof RangeError, ex);
         }
 
         try
@@ -207,7 +212,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof RangeError);
+            test(ex instanceof RangeError, ex);
         }
 
         try
@@ -217,7 +222,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof RangeError);
+            test(ex instanceof RangeError, ex);
         }
 
         try
@@ -227,7 +232,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -237,7 +242,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         try
@@ -247,7 +252,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.MarshalException);
+            test(ex instanceof Ice.MarshalException, ex);
         }
 
         await prx.opFloatDouble(Number.NaN, Number.NaN);

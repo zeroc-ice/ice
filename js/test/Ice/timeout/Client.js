@@ -173,7 +173,7 @@
             }
             catch(ex)
             {
-                test(false);
+                test(false, ex);
             }
 
             while(true)
@@ -185,7 +185,7 @@
                 }
                 catch(ex)
                 {
-                    test(ex instanceof Ice.ConnectionManuallyClosedException); // Expected
+                    test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
                     test(ex.graceful);
                     break;
                 }

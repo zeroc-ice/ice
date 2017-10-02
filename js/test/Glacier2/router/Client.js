@@ -13,13 +13,18 @@
     const Glacier2 = require("ice").Glacier2;
     const Test = require("Callback").Test;
 
-    function test(value)
+    function test(value, ex)
     {
         if(!value)
         {
-            throw new Error("test failed");
+            let message = "test failed";
+            if(ex)
+            {
+                message += "\n" + ex.toString();
+            }
+            throw new Error(message);
         }
-    };
+    }
 
     const CallbackPrx = Test.CallbackPrx;
     const CallbackReceiverPrx = Test.CallbackReceiverPrx;
@@ -88,7 +93,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ConnectionLostException);
+            test(ex instanceof Ice.ConnectionLostException, ex);
         }
         out.writeLine("ok");
 
@@ -100,7 +105,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Glacier2.PermissionDeniedException);
+            test(ex instanceof Glacier2.PermissionDeniedException, ex);
         }
         out.writeLine("ok");
 
@@ -112,7 +117,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Glacier2.SessionNotExistException);
+            test(ex instanceof Glacier2.SessionNotExistException, ex);
         }
         out.writeLine("ok");
 
@@ -128,7 +133,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Glacier2.CannotCreateSessionException);
+            test(ex instanceof Glacier2.CannotCreateSessionException, ex);
         }
         out.writeLine("ok");
 
@@ -192,7 +197,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.CallbackException);
+            test(ex instanceof Test.CallbackException, ex);
             test(ex.someValue == 3.14);
             test(ex.someString == "3.14");
         }
@@ -210,7 +215,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
 
@@ -233,7 +238,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
 
@@ -266,7 +271,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ConnectionLostException);
+            test(ex instanceof Ice.ConnectionLostException, ex);
         }
         out.writeLine("ok");
 
@@ -294,7 +299,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.LocalException);
+                test(ex instanceof Ice.LocalException, ex);
             }
             out.writeLine("ok");
         }

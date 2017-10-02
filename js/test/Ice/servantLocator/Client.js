@@ -14,11 +14,16 @@
 
     async function allTests(communicator, out)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -31,7 +36,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.ObjectNotExistException);
+                test(ex instanceof Ice.ObjectNotExistException, ex);
                 test(ex.id.equals(obj.ice_getIdentity()));
                 test(ex.facet == obj.ice_getFacet());
                 test(ex.operation == "requestFailedException");
@@ -44,7 +49,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownUserException);
+                test(ex instanceof Ice.UnknownUserException, ex);
                 test(ex.unknown == "reason");
             }
 
@@ -55,7 +60,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownLocalException);
+                test(ex instanceof Ice.UnknownLocalException, ex);
                 test(ex.unknown == "reason");
             }
 
@@ -66,7 +71,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownException);
+                test(ex instanceof Ice.UnknownException, ex);
                 test(ex.unknown == "reason");
             }
 
@@ -79,7 +84,7 @@
             {
                 test((ex instanceof Ice.OperationNotExistException) ||
                      (ex instanceof Ice.UnknownUserException &&
-                      ex.unknown == "::Test::TestIntfUserException"));
+                      ex.unknown == "::Test::TestIntfUserException"), ex);
             }
 
             try
@@ -89,7 +94,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownLocalException);
+                test(ex instanceof Ice.UnknownLocalException, ex);
                 test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
                      ex.unknown.indexOf("Ice.SocketException") >= 0);
             }
@@ -102,7 +107,7 @@
             catch(ex)
             {
                 test((ex instanceof Ice.OperationNotExistException) ||
-                     (ex instanceof Ice.UnknownException || ex.unknown.indexOf("") >= 0));
+                     (ex instanceof Ice.UnknownException || ex.unknown.indexOf("") >= 0), ex);
             }
 
             try
@@ -112,7 +117,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownException);
+                test(ex instanceof Ice.UnknownException, ex);
                 test(ex.unknown == "reason");
             }
 
@@ -123,7 +128,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownUserException);
+                test(ex instanceof Ice.UnknownUserException, ex);
             }
 
             try
@@ -133,7 +138,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownUserException);
+                test(ex instanceof Ice.UnknownUserException, ex);
             }
 
             try
@@ -143,7 +148,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Test.TestImpossibleException);
+                test(ex instanceof Test.TestImpossibleException, ex);
             }
 
             try
@@ -153,7 +158,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Test.TestImpossibleException);
+                test(ex instanceof Test.TestImpossibleException, ex);
             }
         }
 
@@ -178,7 +183,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException")
+            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex)
         }
 
         try
@@ -189,7 +194,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException");
+            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
         }
         out.writeLine("ok");
 
@@ -204,7 +209,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
 
@@ -220,7 +225,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
 
         try
@@ -230,7 +235,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
 
@@ -255,7 +260,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.TestImpossibleException); // Called by finished().
+            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
         }
 
         try
@@ -265,7 +270,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.TestImpossibleException); // Called by finished().
+            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
         }
         out.writeLine("ok");
 
@@ -280,7 +285,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.ObjectNotExistException);
+            test(ex instanceof Ice.ObjectNotExistException, ex);
         }
         out.writeLine("ok");
 

@@ -15,11 +15,16 @@
 
     async function allTests(out, communicator)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -43,7 +48,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.Base.prototype);
+            test(ex instanceof Test.Base, ex);
             test(ex.b == "Base.b");
             test(ex.ice_id() == "::Test::Base");
         }
@@ -57,7 +62,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.Base.prototype);
+            test(ex instanceof Test.Base, ex);
             test(ex.b == "UnknownDerived.b");
             test(ex.ice_id() == "::Test::Base");
         }
@@ -71,7 +76,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
+            test(ex instanceof Test.KnownDerived, ex);
             test(ex.b == "KnownDerived.b");
             test(ex.kd == "KnownDerived.kd");
             test(ex.ice_id() == "::Test::KnownDerived");
@@ -86,7 +91,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownDerived.prototype);
+            test(ex instanceof Test.KnownDerived, ex);
             test(ex.b == "KnownDerived.b");
             test(ex.kd == "KnownDerived.kd");
             test(ex.ice_id() == "::Test::KnownDerived");
@@ -101,7 +106,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.Base.prototype);
+            test(ex instanceof Test.Base, ex);
             test(ex.b == "UnknownIntermediate.b");
             test(ex.ice_id() == "::Test::Base");
         }
@@ -115,7 +120,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
+            test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "KnownIntermediate.b");
             test(ex.ki == "KnownIntermediate.ki");
             test(ex.ice_id() == "::Test::KnownIntermediate");
@@ -130,7 +135,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
+            test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
             test(ex.kmd == "KnownMostDerived.kmd");
@@ -146,7 +151,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
+            test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "KnownIntermediate.b");
             test(ex.ki == "KnownIntermediate.ki");
             test(ex.ice_id() == "::Test::KnownIntermediate");
@@ -161,7 +166,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
+            test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
             test(ex.kmd == "KnownMostDerived.kmd");
@@ -177,7 +182,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownMostDerived.prototype);
+            test(ex instanceof Test.KnownMostDerived, ex);
             test(ex.b == "KnownMostDerived.b");
             test(ex.ki == "KnownMostDerived.ki");
             test(ex.kmd == "KnownMostDerived.kmd");
@@ -193,7 +198,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
+            test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "UnknownMostDerived1.b");
             test(ex.ki == "UnknownMostDerived1.ki");
             test(ex.ice_id() == "::Test::KnownIntermediate");
@@ -208,7 +213,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.KnownIntermediate.prototype);
+            test(ex instanceof Test.KnownIntermediate, ex);
             test(ex.b == "UnknownMostDerived1.b");
             test(ex.ki == "UnknownMostDerived1.ki");
             test(ex.ice_id() == "::Test::KnownIntermediate");
@@ -223,7 +228,7 @@
         }
         catch(ex)
         {
-            test(Object.getPrototypeOf(ex) === Test.Base.prototype);
+            test(ex instanceof Test.Base, ex);
             test(ex.b == "UnknownMostDerived2.b");
             test(ex.ice_id() == "::Test::Base");
         }
@@ -237,14 +242,14 @@
         }
         catch(ex)
         {
-            if(Object.getPrototypeOf(ex) === Test.Base.prototype)
+            if(ex instanceof Test.Base)
             {
                 //
                 // For the 1.0 encoding, the unknown exception is sliced to Base.
                 //
                 test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
             }
-            else if(Object.getPrototypeOf(ex) === Ice.UnknownUserException.prototype)
+            else if(ex instanceof Ice.UnknownUserException)
             {
                 //
                 // An UnknownUserException is raised for the compact format because the
@@ -252,9 +257,12 @@
                 //
                 test(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
             }
+            else if(ex instanceof Ice.OperationNotExistException)
+            {
+            }
             else
             {
-                test(false);
+                test(false, ex);
             }
         }
         out.writeLine("ok");
@@ -263,9 +271,11 @@
         try
         {
             await prx.unknownPreservedAsBase();
+            test(false);
         }
         catch(ex)
         {
+            test(ex instanceof Test.Base, ex);
             if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
             {
                 test(ex.ice_getSlicedData() === null);
@@ -287,6 +297,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Test.KnownPreserved, ex);
             test(ex.kp == "preserved");
             if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
             {

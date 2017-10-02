@@ -41,7 +41,7 @@
                 let message = "test failed";
                 if(ex)
                 {
-                    message += ": " + ex.toString();
+                    message += "\n" + ex.toString();
                 }
                 throw new Error(message);
             }
@@ -470,7 +470,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.A);
+            test(ex instanceof Test.A, ex);
         }
         out.writeLine("ok");
 

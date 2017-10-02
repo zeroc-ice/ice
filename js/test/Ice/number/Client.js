@@ -11,9 +11,9 @@
 {
     const Ice = require("ice").Ice;
 
-    function test(b)
+    function test(value)
     {
-        if(!b)
+        if(!value)
         {
             throw new Error("test failed");
         }

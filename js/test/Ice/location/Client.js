@@ -14,11 +14,16 @@
 
     async function allTests(out, communicator)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -139,7 +144,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.NotRegisteredException);
+            test(ex instanceof Ice.NotRegisteredException, ex);
             test(ex.kindOfObject == "object");
             test(ex.id == "unknown/unknown");
         }
@@ -153,7 +158,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.NotRegisteredException);
+            test(ex instanceof Ice.NotRegisteredException, ex);
             test(ex.kindOfObject == "object adapter");
             test(ex.id == "TestAdapterUnknown");
         }
@@ -240,7 +245,7 @@
                     },
                 (ex) =>
                     {
-                        test(ex instanceof Ice.NotRegisteredException);
+                        test(ex instanceof Ice.NotRegisteredException, ex);
                     }));
         }
         await Promise.all(results);
@@ -262,7 +267,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.NotRegisteredException);
+            test(ex instanceof Ice.NotRegisteredException, ex);
             test(ex.kindOfObject == "object adapter");
             test(ex.id == "TestAdapter3");
         }
@@ -275,7 +280,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         try
@@ -285,7 +290,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
         try
         {
@@ -294,7 +299,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
         await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
         try
@@ -303,7 +308,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         out.writeLine("ok");
@@ -317,6 +322,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Ice.NotRegisteredException, ex);
             test(ex.kindOfObject == "object adapter");
             test(ex.id == "TestUnknown");
         }
@@ -329,7 +335,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
 
         await registry.setAdapterDirectProxy("TestAdapter4", await locator.findAdapterById("TestAdapter"));
@@ -339,7 +345,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
@@ -349,7 +355,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         try
@@ -359,7 +365,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
 
         try
@@ -369,6 +375,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Ice.LocalException);
         }
 
         try
@@ -378,7 +385,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex);
         }
 
         await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -388,7 +395,7 @@
         }
         catch(ex)
         {
-            test(false);
+            test(false, ex);
         }
 
         await registry.addObject(communicator.stringToProxy("test4"));
@@ -399,6 +406,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Ice.NoEndpointException, ex);
         }
         out.writeLine("ok");
 
@@ -441,7 +449,7 @@
             catch(ex)
             {
                 // Expected to fail once they endpoints have been updated in the background.
-                test(ex instanceof Ice.LocalException);
+                test(ex instanceof Ice.LocalException, ex);
             }
             try
             {
@@ -454,7 +462,7 @@
             catch(ex)
             {
                 // Expected to fail once they endpoints have been updated in the background.
-                test(ex instanceof Ice.LocalException);
+                test(ex instanceof Ice.LocalException, ex);
             }
             await ic.destroy();
         }

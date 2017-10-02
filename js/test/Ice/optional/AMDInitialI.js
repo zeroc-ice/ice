@@ -12,14 +12,6 @@
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
 
-    function test(value)
-    {
-        if(!value)
-        {
-            throw new Error("test failed");
-        }
-    }
-
     class AMDInitialI extends Test.Initial
     {
         async shutdown(current)

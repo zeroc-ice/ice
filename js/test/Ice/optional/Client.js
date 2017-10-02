@@ -17,11 +17,16 @@
 
     async function allTests(out, communicator, Test)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -692,7 +697,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.OptionalException);
+            test(ex instanceof Test.OptionalException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
             test(ex.o === undefined);
@@ -705,7 +710,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.OptionalException);
+            test(ex instanceof Test.OptionalException, ex);
             test(ex.a === 30);
             test(ex.b == "test");
             test(ex.o.a == 53);
@@ -718,7 +723,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.DerivedException);
+            test(ex instanceof Test.DerivedException, ex);
             test(ex.a === undefined);
             test(ex.b === undefined);
             test(ex.o === undefined);
@@ -733,7 +738,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.DerivedException);
+            test(ex instanceof Test.DerivedException, ex);
             test(ex.a === 30);
             test(ex.b == "test2");
             test(ex.o.a === 53);

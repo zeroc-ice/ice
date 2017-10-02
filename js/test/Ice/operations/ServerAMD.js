@@ -27,9 +27,7 @@
             echo.ice_getCachedConnection().setAdapter(adapter);
             adapter.activate();
             ready.resolve();
-
             await communicator.waitForShutdown();
-
             await echo.shutdown();
         }
         finally
@@ -38,7 +36,7 @@
             {
                 await communicator.destroy();
             }
-        };
+        }
     }
 
     exports._serveramd = run;

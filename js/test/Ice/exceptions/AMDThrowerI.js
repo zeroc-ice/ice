@@ -18,7 +18,7 @@
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     class AMDThrowerI extends Test.Thrower
     {

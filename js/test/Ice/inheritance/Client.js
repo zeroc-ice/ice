@@ -35,7 +35,6 @@
         out.writeLine("ok");
 
         out.write("getting proxies for class hierarchy... ");
-
         let ca = await initial.caop();
         let cb = await initial.cbop();
         let cc = await initial.ccop();

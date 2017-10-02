@@ -142,11 +142,16 @@
 
     async function allTests(out, communicator)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -298,7 +303,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.EDerived);
+            test(ex instanceof Test.EDerived, ex);
             test(ex.a1.name == "a1");
             test(ex.a2.name == "a2");
             test(ex.a3.name == "a3");
@@ -344,7 +349,7 @@
         {
             test((ex instanceof Ice.UnknownLocalException) || // Expected marshal exception from the server (max class graph depth reached)
                  (ex instanceof Ice.UnknownException) ||      // Expected stack overflow from the server (Java only)
-                 (ex instanceof Error));                      // Expected, JavaScript stack overflow
+                 (ex instanceof Error), ex);                  // Expected, JavaScript stack overflow
         }
         await initial.setRecursive(new Test.Recursive());
         out.writeLine("ok");
@@ -374,7 +379,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.UnexpectedObjectException);
+            test(ex instanceof Ice.UnexpectedObjectException, ex);
             test(ex.type == "::Test::AlsoEmpty");
             test(ex.expectedType == "::Test::Empty");
         }
@@ -395,6 +400,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Test.Inner.Ex, ex);
             test(ex.reason == "Inner::Ex");
         }
 
@@ -405,6 +411,7 @@
         }
         catch(ex)
         {
+            test(ex instanceof Test.Inner.Sub.Ex, ex);
             test(ex.reason == "Inner::Sub::Ex");
         }
         out.writeLine("ok");

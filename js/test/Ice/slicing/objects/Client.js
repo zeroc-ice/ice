@@ -29,11 +29,16 @@
             return id === Test.Preserved.ice_staticId() ?  new PreservedI() : null;
         }
 
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message += "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -96,7 +101,7 @@
             }
             catch(ex)
             {
-                test(ex instanceof Ice.OperationNotExistException);
+                test(ex instanceof Ice.OperationNotExistException, ex);
             }
         }
         else
@@ -109,7 +114,7 @@
             catch(ex)
             {
                 test(ex instanceof Ice.OperationNotExistException ||
-                     ex instanceof Ice.NoValueFactoryException);
+                     ex instanceof Ice.NoValueFactoryException, ex);
             }
         }
         out.writeLine("ok");
@@ -126,7 +131,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Ice.NoValueFactoryException);
+            test(ex instanceof Ice.NoValueFactoryException, ex);
             test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
         }
         out.writeLine("ok");
@@ -527,7 +532,6 @@
         out.writeLine("ok");
 
         out.write("base exception thrown as base exception... ");
-
         try
         {
             await prx.throwBaseAsBase();
@@ -535,7 +539,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.BaseException);
+            test(ex instanceof Test.BaseException, ex);
             test(ex.ice_id() == "::Test::BaseException");
             test(ex.sbe == "sbe");
             test(ex.pb !== null);
@@ -552,7 +556,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.DerivedException);
+            test(ex instanceof Test.DerivedException, ex);
             test(ex.ice_id() == "::Test::DerivedException");
             test(ex.sbe == "sbe");
             test(ex.pb !== null);
@@ -575,7 +579,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.DerivedException);
+            test(ex instanceof Test.DerivedException, ex);
             test(ex.ice_id() == "::Test::DerivedException");
             test(ex.sbe == "sbe");
             test(ex.pb !== null);
@@ -598,7 +602,7 @@
         }
         catch(ex)
         {
-            test(ex instanceof Test.BaseException);
+            test(ex instanceof Test.BaseException, ex);
             test(ex.ice_id() == "::Test::BaseException");
             test(ex.sbe == "sbe");
             test(ex.pb !== null);

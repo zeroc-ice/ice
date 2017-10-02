@@ -27,9 +27,7 @@
             echo.ice_getCachedConnection().setAdapter(adapter);
             adapter.activate();
             ready.resolve();
-
             await communicator.waitForShutdown();
-
         }
         finally
         {

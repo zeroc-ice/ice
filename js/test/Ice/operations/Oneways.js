@@ -14,11 +14,16 @@
 
     async function run(communicator, prx, Test, bidir)
     {
-        function test(value)
+        function test(value, ex)
         {
             if(!value)
             {
-                throw new Error("test failed");
+                let message = "test failed";
+                if(ex)
+                {
+                    message + "\n" + ex.toString();
+                }
+                throw new Error(message);
             }
         }
 
@@ -33,7 +38,7 @@
         catch(ex)
         {
             // Expected: twoway proxy required
-            test(ex instanceof Ice.TwowayOnlyException);
+            test(ex instanceof Ice.TwowayOnlyException, ex);
         }
 
         try
@@ -44,7 +49,7 @@
         catch(ex)
         {
             // Expected: twoway proxy required
-            test(ex instanceof Ice.TwowayOnlyException);
+            test(ex instanceof Ice.TwowayOnlyException, ex);
         }
 
         try
@@ -55,7 +60,7 @@
         catch(ex)
         {
             // Expected: twoway proxy required
-            test(ex instanceof Ice.TwowayOnlyException);
+            test(ex instanceof Ice.TwowayOnlyException, ex);
         }
 
         await prx.opVoid();
@@ -72,7 +77,7 @@
         catch(ex)
         {
             // Expected: twoway proxy required
-            test(ex instanceof Ice.TwowayOnlyException);
+            test(ex instanceof Ice.TwowayOnlyException, ex);
         }
     }
 
