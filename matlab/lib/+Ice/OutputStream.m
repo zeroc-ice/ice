@@ -499,6 +499,9 @@ classdef OutputStream < handle
             buf = copy(obj.buf);
             r = Ice.InputStream(obj.communicator, obj.getEncoding(), buf);
         end
+        function r = finished(obj)
+            r = obj.buf.buf(1:obj.buf.size);
+        end
     end
     methods(Access=private)
         function initEncaps(obj)

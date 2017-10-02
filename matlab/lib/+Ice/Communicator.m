@@ -153,6 +153,9 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.encoding;
         end
         function r = createOutputStream(obj, encoding)
+            if nargin == 1
+                encoding = obj.encoding;
+            end
             r = Ice.OutputStream(obj, encoding);
         end
     end
