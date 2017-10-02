@@ -19,9 +19,10 @@
     const ArrayUtil = Ice.ArrayUtil;
 
     const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
-    const isConnectionFailed = ex => (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
-                                   (isBrowser && ex instanceof Ice.ConnectFailedException) ||
-                                   (ex instanceof Ice.ConnectTimeoutException);
+    const isConnectionFailed = ex =>
+          (!isBrowser && ex instanceof Ice.ConnectionRefusedException) ||
+          (isBrowser && ex instanceof Ice.ConnectFailedException) ||
+          (ex instanceof Ice.ConnectTimeoutException);
 
     async function allTests(out, initData)
     {
@@ -105,21 +106,18 @@
 
             out.write("testing binding with multiple endpoints... ");
             {
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("Adapter11", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter12", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter13", "default"));
+                let adapters = await Promise.all([com.createObjectAdapter("Adapter11", "default"),
+                                                  com.createObjectAdapter("Adapter12", "default"),
+                                                  com.createObjectAdapter("Adapter13", "default")]);
 
                 //
                 // Ensure that when a connection is opened it's reused for new
                 // proxies and that all endpoints are eventually tried.
                 //
                 let names = ["Adapter11", "Adapter12", "Adapter13"];
-
                 while(names.length > 0)
                 {
                     let adpts = ArrayUtil.clone(adapters);
-
                     let test1 = await createTestIntfPrx(adpts);
                     ArrayUtil.shuffle(adpts)
                     let test2 = await createTestIntfPrx(adpts);
@@ -139,7 +137,6 @@
                     let conn = await test1.ice_getConnection();
                     await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                 }
-
                 //
                 // Ensure that the proxy correctly caches the connection (we
                 // always send the request over the same connection.)
@@ -165,7 +162,6 @@
                         await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                     }
                 }
-
                 //
                 // Deactivate an adapter and ensure that we can still
                 // establish the connection to the remaining adapters.
@@ -194,7 +190,6 @@
                     let conn = await test1.ice_getConnection();
                     await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                 }
-
                 //
                 // Deactivate an adapter and ensure that we can still
                 // establish the connection to the remaining adapter.
@@ -218,16 +213,16 @@
             // default), so we prefer to also disable this test with Firefox.
             //
             if(typeof(navigator) === "undefined" ||
-               ["MSIE", "Trident/7.0", "Firefox"].every(value => navigator.userAgent.indexOf(value) === -1))
+               ["MSIE", "Trident/7.0", "Firefox", "Edge"].every(value => navigator.userAgent.indexOf(value) === -1))
             {
                 out.write("testing binding with multiple random endpoints... ");
 
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("AdapterRandom11", "default"));
-                adapters.push(await com.createObjectAdapter("AdapterRandom12", "default"));
-                adapters.push(await com.createObjectAdapter("AdapterRandom13", "default"));
-                adapters.push(await com.createObjectAdapter("AdapterRandom14", "default"));
-                adapters.push(await com.createObjectAdapter("AdapterRandom15", "default"));
+                let adapters = await Promise.all([
+                    com.createObjectAdapter("AdapterRandom11", "default"),
+                    com.createObjectAdapter("AdapterRandom12", "default"),
+                    com.createObjectAdapter("AdapterRandom13", "default"),
+                    com.createObjectAdapter("AdapterRandom14", "default"),
+                    com.createObjectAdapter("AdapterRandom15", "default")]);
 
                 let count = 20;
                 let adapterCount = adapters.length;
@@ -310,10 +305,10 @@
 
             out.write("testing random endpoint selection... ");
             {
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("Adapter21", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter22", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter23", "default"));
+                let adapters = await Promise.all([
+                    com.createObjectAdapter("Adapter21", "default"),
+                    com.createObjectAdapter("Adapter22", "default"),
+                    com.createObjectAdapter("Adapter23", "default")]);
 
                 let obj = await createTestIntfPrx(adapters);
                 test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
@@ -355,10 +350,10 @@
 
             out.write("testing ordered endpoint selection... ");
             {
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("Adapter31", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter32", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter33", "default"));
+                let adapters = await Promise.all([
+                    com.createObjectAdapter("Adapter31", "default"),
+                    com.createObjectAdapter("Adapter32", "default"),
+                    com.createObjectAdapter("Adapter33", "default")]);
 
                 let obj = await createTestIntfPrx(adapters);
                 obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -453,10 +448,10 @@
 
             out.write("testing per request binding with multiple endpoints... ");
             {
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("Adapter51", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter52", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter53", "default"));
+                let adapters = await Promise.all([
+                    com.createObjectAdapter("Adapter51", "default"),
+                    com.createObjectAdapter("Adapter52", "default"),
+                    com.createObjectAdapter("Adapter53", "default")]);
 
                 let obj = Test.TestIntfPrx.uncheckedCast((await createTestIntfPrx(adapters)).ice_connectionCached(false));
                 test(!obj.ice_isConnectionCached());
@@ -509,10 +504,10 @@
                 com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
                 out.write("testing per request binding and ordered endpoint selection... ");
-                let adapters = [];
-                adapters.push(await com.createObjectAdapter("Adapter61", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter62", "default"));
-                adapters.push(await com.createObjectAdapter("Adapter63", "default"));
+                let adapters = await Promise.all([
+                    com.createObjectAdapter("Adapter61", "default"),
+                    com.createObjectAdapter("Adapter62", "default"),
+                    com.createObjectAdapter("Adapter63", "default")]);
 
                 let obj = await createTestIntfPrx(adapters);
                 obj = Test.TestIntfPrx.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
