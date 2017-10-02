@@ -46,7 +46,8 @@ classdef Endpoint < IceInternal.WrapperObject
             end
 
             if ~isempty(info.rawEncoding)
-                r = Ice.OpaqueEndpointInfo(underlying, info.timeout, info.compress, info.rawEncoding, info.rawBytes);
+                r = Ice.OpaqueEndpointInfo(info.type, underlying, info.timeout, info.compress, info.rawEncoding, ...
+                                           info.rawBytes);
             else
                 switch info.type
                     case Ice.TCPEndpointType.value

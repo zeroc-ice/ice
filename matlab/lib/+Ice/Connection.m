@@ -36,7 +36,9 @@ classdef Connection < IceInternal.WrapperObject
             r = Ice.ObjectPrx(obj.communicator, obj.communicator.getEncoding(), proxy);
         end
         function r = getEndpoint(obj)
-            throw(Ice.FeatureNotSupportedException('', '', 'getEndpoint'));
+            endpoint = libpointer('voidPtr');
+            obj.call_('getEndpoint', endpoint);
+            r = Ice.Endpoint(endpoint);
         end
         function flushBatchRequests(obj, compress)
             obj.call_('flushBatchRequests', compress);
@@ -84,21 +86,57 @@ classdef Connection < IceInternal.WrapperObject
             r = obj.callWithResult_('type');
         end
         function r = timeout(obj)
-            t = libpointer('int32Ptr', 0);
-            r = obj.call_('timeout', t);
-            r = t.Value;
+            r = obj.callWithResult_('timeout');
         end
         function r = toString(obj)
             r = obj.callWithResult_('toString');
         end
         function r = getInfo(obj)
-            throw(Ice.FeatureNotSupportedException('', '', 'getInfo'));
+            info = obj.callWithResult_('getInfo');
+            r = obj.createConnectionInfo(info);
         end
         function setBufferSize(obj, rcvSize, sndSize)
             obj.call_('setBufferSize', rcvSize, sndSize);
         end
         function throwException(obj)
             obj.call_('throwException');
+        end
+    end
+
+    methods(Access=private)
+        function r = createConnectionInfo(obj, info)
+            underlying = [];
+            if ~isempty(info.underlying)
+                underlying = obj.createConnectionInfo(info.underlying);
+            end
+
+            switch info.type
+                case 'tcp'
+                    r = Ice.TCPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                              info.localAddress, info.localPort, info.remoteAddress, ...
+                                              info.remotePort, info.rcvSize, info.sndSize);
+
+                case 'ssl'
+                    r = Ice.IPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                             info.localAddress, info.localPort, info.remoteAddress, info.remotePort);
+
+                case 'udp'
+                    r = Ice.UDPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                              info.localAddress, info.localPort, info.remoteAddress, ...
+                                              info.remotePort, info.mcastAddress, info.mcastPort, ...
+                                              info.rcvSize, info.sndSize);
+
+                case 'ws'
+                    r = Ice.WSConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                             info.headers);
+
+                case 'ip'
+                    r = Ice.IPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                             info.localAddress, info.localPort, info.remoteAddress, info.remotePort);
+
+                otherwise
+                    r = Ice.ConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId);
+            end
         end
     end
 

@@ -153,13 +153,15 @@ EXPORTED_FUNCTION mxArray* Ice_Connection_closeAsync(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_createProxy(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_flushBatchRequests(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_flushBatchRequestsAsync(void*, mxArray*, void**);
+EXPORTED_FUNCTION mxArray* Ice_Connection_getEndpoint(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_heartbeat(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_heartbeatAsync(void*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_setACM(void*, mxArray*, mxArray*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_getACM(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_type(void*);
-EXPORTED_FUNCTION mxArray* Ice_Connection_timeout(void*, int*);
+EXPORTED_FUNCTION mxArray* Ice_Connection_timeout(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_toString(void*);
+EXPORTED_FUNCTION mxArray* Ice_Connection_getInfo(void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_setBufferSize(void*, int, int);
 EXPORTED_FUNCTION mxArray* Ice_Connection_throwException(void*);
 

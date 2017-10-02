@@ -11,15 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef OpaqueEndpointInfo < Ice.EndpointInfo
     methods
-        function obj = OpaqueEndpointInfo(underlying, timeout, compress, rawEncoding, rawBytes)
-            if nargin == 0
-                underlying = [];
-                timeout = 0;
-                compress = false;
-                rawEncoding = [];
-                rawBytes = 0;
-            end
-            obj = obj@Ice.EndpointInfo(Ice.OpaqueEndpointType.value, false, false, underlying, timeout, compress);
+        function obj = OpaqueEndpointInfo(type, underlying, timeout, compress, rawEncoding, rawBytes)
+            obj = obj@Ice.EndpointInfo(type, false, false, underlying, timeout, compress);
             obj.rawEncoding = rawEncoding;
             obj.rawBytes = rawBytes;
         end
