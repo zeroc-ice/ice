@@ -65,7 +65,7 @@ InvocationFuture::InvocationFuture(bool twoway, bool batch) :
 void
 InvocationFuture::sent()
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     if(_state == State::Running)
     {
         _state = _twoway ? State::Sent : State::Finished;
@@ -75,7 +75,7 @@ InvocationFuture::sent()
 void
 InvocationFuture::exception(exception_ptr e)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _state = State::Finished;
     _token = nullptr;
     _exception = e;
@@ -86,7 +86,7 @@ void
 InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& communicator,
                            const Ice::EncodingVersion& encoding, bool b, pair<const Ice::Byte*, const Ice::Byte*> p)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _ok = b;
     _state = State::Finished;
     _token = nullptr;
@@ -101,7 +101,7 @@ InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& communicato
 string
 InvocationFuture::state() const
 {
-    Lock sync(const_cast<mutex&>(_mutex));
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     string st;
     switch(_state)
     {
@@ -121,7 +121,7 @@ InvocationFuture::state() const
 void
 InvocationFuture::getResults(bool& ok, pair<const Ice::Byte*, const Ice::Byte*>& p)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     assert(_twoway);
     ok = _ok;
     if(!_data.empty())
@@ -164,7 +164,7 @@ private:
 string
 GetConnectionFuture::state() const
 {
-    Lock sync(const_cast<mutex&>(_mutex));
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     if(_exception || _connection)
     {
         return "finished";
@@ -178,7 +178,7 @@ GetConnectionFuture::state() const
 void
 GetConnectionFuture::finished(shared_ptr<Ice::Connection> con)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _token = nullptr;
     _connection = con;
     _cond.notify_all();
@@ -187,7 +187,7 @@ GetConnectionFuture::finished(shared_ptr<Ice::Connection> con)
 shared_ptr<Ice::Connection>
 GetConnectionFuture::getConnection() const
 {
-    Lock sync(const_cast<mutex&>(_mutex));
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     return _connection;
 }
 

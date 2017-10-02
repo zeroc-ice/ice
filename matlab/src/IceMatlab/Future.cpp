@@ -19,7 +19,7 @@ using namespace IceMatlab;
 void
 IceMatlab::Future::token(function<void()> t)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     if(!isFinished())
     {
         _token = std::move(t);
@@ -29,15 +29,15 @@ IceMatlab::Future::token(function<void()> t)
 bool
 IceMatlab::Future::waitUntilFinished()
 {
-    Lock sync(_mutex);
-    _cond.wait(sync, [this]{ return this->isFinished(); });
+    unique_lock<mutex> lock(_mutex);
+    _cond.wait(lock, [this]{ return this->isFinished(); });
     return !_exception;
 }
 
 void
 IceMatlab::Future::exception(exception_ptr e)
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _token = nullptr;
     _exception = e;
     _cond.notify_all();
@@ -46,7 +46,7 @@ IceMatlab::Future::exception(exception_ptr e)
 exception_ptr
 IceMatlab::Future::getException() const
 {
-    Lock sync(const_cast<mutex&>(_mutex));
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     return _exception;
 }
 
@@ -58,7 +58,7 @@ IceMatlab::Future::sent()
 void
 IceMatlab::Future::cancel()
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     if(_token)
     {
         _token();
@@ -77,7 +77,7 @@ IceMatlab::SimpleFuture::SimpleFuture() :
 void
 IceMatlab::SimpleFuture::done()
 {
-    Lock sync(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _done = true;
     _cond.notify_all();
 }
@@ -85,7 +85,7 @@ IceMatlab::SimpleFuture::done()
 string
 IceMatlab::SimpleFuture::state() const
 {
-    Lock sync(const_cast<mutex&>(_mutex));
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
     if(_exception || _done)
     {
         return "finished";

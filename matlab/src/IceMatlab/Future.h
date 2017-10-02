@@ -32,7 +32,6 @@ protected:
 
     std::mutex _mutex;
     std::condition_variable _cond;
-    using Lock = std::unique_lock<std::mutex>;
 
     std::function<void()> _token;
     std::exception_ptr _exception; // If a local exception occurs.
