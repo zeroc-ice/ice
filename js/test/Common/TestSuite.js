@@ -124,101 +124,96 @@ $(document).ready(
                                          }).toString());
         }
 
-        $("#run").click(
-            function()
-            {
-                if(!$(this).hasClass("disabled"))
-                {
-                    setRunning(true);
-                    if($("#worker").is(":checked"))
-                    {
-                        worker = new Worker(es5 ? "/test/es5/Common/Worker.js" : "/test/Common/Worker.js");
-                        worker.onmessage = function(e)
+        $("#run").click(() =>
                         {
-                            if(e.data.type == "Write")
+                            if(!$(this).hasClass("disabled"))
                             {
-                                Output.write(e.data.message);
-                            }
-                            else if(e.data.type == "WriteLine")
-                            {
-                                Output.writeLine(e.data.message);
-                            }
-                            else if(e.data.type == "TestFinished")
-                            {
-                                worker.terminate();
-                                setRunning(false);
-                                next(e.data.success);
-                            }
-                        };
-
-                        worker.postMessage(
-                            {
-                                type: "RunTest",
-                                test:
+                                setRunning(true);
+                                if($("#worker").is(":checked"))
                                 {
-                                    name: current,
-                                    language: $("#language").val(),
-                                    defaultHost: document.location.hostname || "127.0.0.1",
-                                    protocol: $("#protocol").val(),
-                                    testcases: TestSuites[current].testcases,
-                                    files: TestSuites[current].files,
-                                    es5: document.location.pathname.indexOf("/es5/") !== -1
+                                    worker = new Worker(es5 ? "/test/es5/Common/Worker.js" : "/test/Common/Worker.js");
+                                    worker.onmessage = function(e)
+                                    {
+                                        if(e.data.type == "Write")
+                                        {
+                                            Output.write(e.data.message);
+                                        }
+                                        else if(e.data.type == "WriteLine")
+                                        {
+                                            Output.writeLine(e.data.message);
+                                        }
+                                        else if(e.data.type == "TestFinished")
+                                        {
+                                            worker.terminate();
+                                            setRunning(false);
+                                            next(e.data.success);
+                                        }
+                                    };
+
+                                    worker.postMessage(
+                                        {
+                                            type: "RunTest",
+                                            test:
+                                            {
+                                                name: current,
+                                                language: $("#language").val(),
+                                                defaultHost: document.location.hostname || "127.0.0.1",
+                                                protocol: $("#protocol").val(),
+                                                testcases: TestSuites[current].testcases,
+                                                files: TestSuites[current].files,
+                                                es5: document.location.pathname.indexOf("/es5/") !== -1
+                                            }
+                                        });
+
+                                    worker.onerror = function(e)
+                                    {
+                                        console.log(e);
+                                    };
                                 }
-                            });
+                                else
+                                {
+                                    (async function()
+                                     {
+                                         let success;
+                                         try
+                                         {
+                                             success = await runTest(current,
+                                                                     $("#language").val(),
+                                                                     document.location.hostname || "127.0.0.1",
+                                                                     $("#protocol").val(),
+                                                                     TestSuites[current].testcases,
+                                                                     Output);
+                                         }
+                                         finally
+                                         {
+                                             setRunning(false);
+                                         }
+                                         next(success);
+                                     }());
+                                }
+                            }
+                            return false;
+                        });
 
-                        worker.onerror = function(e)
-                        {
-                            console.log(e);
-                        };
-                    }
-                    else
-                    {
-                        (async function()
-                         {
-                             let success;
-                             try
-                             {
-                                 success = await runTest(current,
-                                                         $("#language").val(),
-                                                         document.location.hostname || "127.0.0.1",
-                                                         $("#protocol").val(),
-                                                         TestSuites[current].testcases,
-                                                         Output);
-                             }
-                             finally
-                             {
-                                 setRunning(false);
-                             }
-                             next(success);
-                         }());
-                    }
-                }
-                return false;
-            });
-
-        $("#test").on("change",
-                      function(e)
+        $("#test").on("change", e =>
                       {
                           updateLocation();
                           return false;
                       });
 
-        $("#language").on("change",
-                          function(e)
+        $("#language").on("change", e =>
                           {
                               updateLocation();
                               return false;
                           });
 
-        $("#worker").on("change",
-                        function(e)
+        $("#worker").on("change", e =>
                         {
                             updateLocation();
                             return false;
                         });
 
-        $("#protocol").on("change",
-                          function(e)
+        $("#protocol").on("change", e =>
                           {
                               if((document.location.protocol == "http:" && $(this).val() == "wss") ||
                                  (document.location.protocol == "https:" && $(this).val() == "ws"))
