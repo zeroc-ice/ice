@@ -15,7 +15,8 @@
 #include "Future.h"
 #include "Util.h"
 
-#define SELF (*(reinterpret_cast<shared_ptr<Ice::Connection>*>(self)))
+#define DEREF(x) (*(reinterpret_cast<shared_ptr<Ice::Connection>*>(x)))
+#define SELF DEREF(self)
 
 using namespace std;
 using namespace IceMatlab;
@@ -61,7 +62,7 @@ static const char* infoFields[] =
 };
 
 mxArray*
-createInfo(shared_ptr<Ice::ConnectionInfo> info)
+createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
 {
     //
     // Create and return a struct array containing the fields that describe the EndpointInfo object.
@@ -138,6 +139,21 @@ EXPORTED_FUNCTION mxArray*
 Ice_Connection__release(void* self)
 {
     delete &SELF;
+    return 0;
+}
+
+EXPORTED_FUNCTION mxArray*
+Ice_Connection_equals(void* self, void* other)
+{
+    assert(other); // Wrapper only calls this function for non-nil arguments.
+    try
+    {
+        return createResultValue(createBool(SELF == DEREF(other)));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
     return 0;
 }
 

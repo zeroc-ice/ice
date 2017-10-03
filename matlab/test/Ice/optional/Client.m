@@ -25,7 +25,7 @@ classdef Client < Application
         end
     end
     methods(Static)
-        function start(args)
+        function status = start(args)
             addpath('generated');
             if ~libisloaded('icematlab')
                 loadlibrary('icematlab')

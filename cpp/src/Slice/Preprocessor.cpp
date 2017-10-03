@@ -724,6 +724,18 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             }
             break;
         }
+        case MATLAB:
+        {
+            //
+            // Change .o[bj] suffix to .m suffix.
+            //
+            string::size_type pos;
+            if((pos = result.find(suffix)) != string::npos)
+            {
+                result.replace(pos, suffix.size() - 1, ".m");
+            }
+            break;
+        }
         default:
         {
             assert(false);

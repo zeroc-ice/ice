@@ -1,4 +1,4 @@
 function runTest(varargin)
-    Client.start(varargin);
-    quit
+    status = Client.start(varargin);
+    exit(status);
 end

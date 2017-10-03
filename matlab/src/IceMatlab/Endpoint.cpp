@@ -21,7 +21,7 @@ using namespace std;
 using namespace IceMatlab;
 
 void*
-IceMatlab::createEndpoint(shared_ptr<Ice::Endpoint> p)
+IceMatlab::createEndpoint(const shared_ptr<Ice::Endpoint>& p)
 {
     return new shared_ptr<Ice::Endpoint>(p);
 }
@@ -73,7 +73,7 @@ static const char* infoFields[] =
 };
 
 mxArray*
-createInfo(shared_ptr<Ice::EndpointInfo> info)
+createInfo(const shared_ptr<Ice::EndpointInfo>& info)
 {
     //
     // Create and return a struct array containing the fields that describe the EndpointInfo object.

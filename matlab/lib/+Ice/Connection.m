@@ -21,6 +21,19 @@ classdef Connection < IceInternal.WrapperObject
             obj = obj@IceInternal.WrapperObject(impl);
             obj.communicator = communicator;
         end
+        function r = eq(obj, other)
+            %
+            % Override == operator.
+            %
+            if isempty(other) || ~isa(other, 'Ice.Connection')
+                r = false;
+            else
+                %
+                % Call into C++ to compare the two objects.
+                %
+                r = obj.callWithResult_('equals', other.impl_);
+            end
+        end
         function close(obj, mode)
             obj.call_('close', mode);
         end

@@ -32,6 +32,7 @@
         <Slice Include="$(sliceDir)\Ice\LocalException.ice" />
         <Slice Include="$(sliceDir)\Ice\Locator.ice" />
         <Slice Include="$(sliceDir)\Ice\Router.ice" />
+        <Slice Include="$(sliceDir)\Ice\SliceChecksumDict.ice" />
         <Slice Include="$(sliceDir)\Ice\ValueFactory.ice" />
         <Slice Include="$(sliceDir)\Ice\Version.ice" />
   </ItemGroup>
@@ -49,7 +50,10 @@
 
   <Target Name="Build" DependsOnTargets="CppPrereqs">
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\acm\generated $(testDir)\Ice\acm\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\ami\generated $(testDir)\Ice\ami\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\checksum\generated --checksum test.Ice.checksum.Test.SliceChecksums $(testDir)\Ice\checksum\Test.ice $(testDir)\Ice\checksum\Types.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\defaultValue\generated $(testDir)\Ice\defaultValue\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\exceptions\generated $(testDir)\Ice\exceptions\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\enums\generated $(testDir)\Ice\enums\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\facets\generated $(testDir)\Ice\facets\Test.ice"/>
@@ -63,6 +67,7 @@
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\proxy\generated $(testDir)\Ice\proxy\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\exceptions\generated $(testDir)\Ice\slicing\exceptions\ClientPrivate.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\objects\generated $(testDir)\Ice\slicing\objects\ClientPrivate.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\timeout\generated $(testDir)\Ice\timeout\Test.ice"/>
         <Exec Command="mex -v -outdir $(srcDir) -output icematlab $(MexCompilerFlags) -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
         <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2$(DebugExt).dll $(srcDir)"/>
         <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11$(DebugExt).dll&quot; $(srcDir)"/>

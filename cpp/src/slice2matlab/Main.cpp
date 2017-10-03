@@ -25,6 +25,7 @@
 #include <Slice/Util.h>
 #include <cstring>
 #include <climits>
+#include <iterator>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -191,6 +192,76 @@ scopedToName(const string& scoped)
     return fixIdent(str);
 }
 
+void
+printHeader(IceUtilInternal::Output& out)
+{
+    static const char* header =
+        "%{\n"
+        "**********************************************************************\n"
+        "\n"
+        "Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.\n"
+        "\n"
+        "This copy of Ice is licensed to you under the terms described in the\n"
+        "ICE_LICENSE file included in this distribution.\n"
+        "\n"
+        "**********************************************************************\n"
+        "%}\n"
+        ;
+
+    out << header;
+    out << "%\n";
+    out << "% Ice version " << ICE_STRING_VERSION << "\n";
+    out << "%\n";
+}
+
+void
+openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
+{
+    vector<string> v = splitAbsoluteName(abs);
+    assert(v.size() > 1);
+
+    string path;
+    if(!dir.empty())
+    {
+        path = dir + "/";
+    }
+
+    //
+    // Create a package directory corresponding to each component.
+    //
+    for(vector<string>::size_type i = 0; i < v.size() - 1; i++)
+    {
+        path += "+" + lookupKwd(v[i]);
+        if(!IceUtilInternal::directoryExists(path))
+        {
+            if(IceUtilInternal::mkdir(path, 0777) != 0)
+            {
+                ostringstream os;
+                os << "cannot create directory `" << path << "': " << strerror(errno);
+                throw FileException(__FILE__, __LINE__, os.str());
+            }
+            FileTracker::instance()->addDirectory(path);
+        }
+        path += "/";
+    }
+
+    //
+    // There are two options:
+    //
+    // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
+    // 2) Create a file named "ClassName.m".
+    //
+    // The class directory is useful if you want to add additional supporting files for the class. We only
+    // generate a single file for a class so we use option 2.
+    //
+    const string cls = lookupKwd(v[v.size() - 1]);
+    path += cls + ".m";
+
+    out.open(path);
+    printHeader(out);
+    FileTracker::instance()->addFile(path);
+}
+
 map<string, string> _filePackagePrefix;
 
 string
@@ -232,28 +303,6 @@ getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const s
         pkg += ".";
     }
     return pkg + scopedToName(cont->scope() + pfx + cont->name() + suffix);
-}
-
-void
-printHeader(IceUtilInternal::Output& out)
-{
-    static const char* header =
-        "%{\n"
-        "**********************************************************************\n"
-        "\n"
-        "Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.\n"
-        "\n"
-        "This copy of Ice is licensed to you under the terms described in the\n"
-        "ICE_LICENSE file included in this distribution.\n"
-        "\n"
-        "**********************************************************************\n"
-        "%}\n"
-        ;
-
-    out << header;
-    out << "%\n";
-    out << "% Ice version " << ICE_STRING_VERSION << "\n";
-    out << "%\n";
 }
 
 string
@@ -507,6 +556,13 @@ defaultValue(const DataMemberPtr& m)
             }
         }
 
+        EnumPtr en = EnumPtr::dynamicCast(m->type());
+        if(en)
+        {
+            const EnumeratorList enumerators = en->enumerators();
+            return getAbsolute(*enumerators.begin());
+        }
+
         return "[]";
     }
 }
@@ -596,6 +652,62 @@ convertValueType(IceUtilInternal::Output& out, const string& dest, const string&
     }
 }
 
+void
+writeChecksums(const string& name, const string& dir, const ChecksumMap& m)
+{
+    //
+    // Attempt to open the source file for the checksums.
+    //
+    IceUtilInternal::Output out;
+    openClass(name, dir, out);
+
+    //
+    // Get the name.
+    //
+    string func;
+    string::size_type pos = name.rfind('.');
+    if(pos == string::npos)
+    {
+        func = name;
+    }
+    else
+    {
+        func = name.substr(pos + 1);
+    }
+
+    //
+    // Emit the function.
+    //
+    out << nl << "function r = " << func << "()";
+    out.inc();
+    out << nl << "persistent ice_checksums;";
+    out << nl << "if isempty(ice_checksums)";
+    out.inc();
+    out << nl << "ice_checksums = containers.Map('KeyType', 'char', 'ValueType', 'char');";
+
+    for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
+    {
+        out << nl << "ice_checksums('" << p->first << "') = '";
+        ostringstream str;
+        str.flags(ios_base::hex);
+        str.fill('0');
+        for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        {
+            str << static_cast<int>(*q);
+        }
+        out << str.str() << "';";
+    }
+
+    out.dec();
+    out << nl << "end";
+    out << nl << "r = ice_checksums;";
+    out.dec();
+    out << nl << "end";
+    out << nl;
+
+    out.close();
+}
+
 }
 
 //
@@ -616,8 +728,6 @@ public:
     virtual void visitConst(const ConstPtr&);
 
 private:
-
-    void openClass(const string&, IceUtilInternal::Output&);
 
     struct MemberInfo
     {
@@ -695,7 +805,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         IceUtilInternal::Output out;
-        openClass(abs, out);
+        openClass(abs, _dir, out);
 
         out << nl << "classdef ";
         if(p->isLocal() && !allOps.empty())
@@ -1080,7 +1190,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             ostringstream ostr;
             ostr << "IceCompactId.TypeId_" << p->compactId();
 
-            openClass(ostr.str(), out);
+            openClass(ostr.str(), _dir, out);
 
             out << nl << "classdef TypeId_" << p->compactId();
             out.inc();
@@ -1118,7 +1228,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         IceUtilInternal::Output out;
-        openClass(prxAbs, out);
+        openClass(prxAbs, _dir, out);
 
         out << nl << "classdef " << prxName << " < ";
         if(!prxBases.empty())
@@ -1637,7 +1747,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
 
         IceUtilInternal::Output out;
-        openClass(abs, out);
+        openClass(abs, _dir, out);
 
         out << nl << "classdef (Abstract) " << name;
         if(bases.empty())
@@ -1733,7 +1843,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const bool preserved = p->hasMetaData("preserve-slice");
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     ExceptionPtr base = p->base();
 
@@ -1997,7 +2107,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
@@ -2203,7 +2313,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const bool convert = needsConversion(content);
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     out << nl << "classdef " << name;
     out.inc();
@@ -2460,7 +2570,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const string self = name == "obj" ? "this" : "obj";
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     out << nl << "classdef " << name;
     out.inc();
@@ -2695,7 +2805,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     out << nl << "classdef " << name << " < int32";
 
@@ -2797,7 +2907,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
     const string abs = getAbsolute(p);
 
     IceUtilInternal::Output out;
-    openClass(abs, out);
+    openClass(abs, _dir, out);
 
     out << nl << "classdef " << name;
 
@@ -2814,54 +2924,6 @@ CodeVisitor::visitConst(const ConstPtr& p)
     out << nl;
     out.close();
     out.close();
-}
-
-void
-CodeVisitor::openClass(const string& abs, IceUtilInternal::Output& out)
-{
-    vector<string> v = splitAbsoluteName(abs);
-    assert(v.size() > 1);
-
-    string path;
-    if(!_dir.empty())
-    {
-        path = _dir + "/";
-    }
-
-    //
-    // Create a package directory corresponding to each component.
-    //
-    for(vector<string>::size_type i = 0; i < v.size() - 1; i++)
-    {
-        path += "+" + lookupKwd(v[i]);
-        if(!IceUtilInternal::directoryExists(path))
-        {
-            if(IceUtilInternal::mkdir(path, 0777) != 0)
-            {
-                ostringstream os;
-                os << "cannot create directory `" << path << "': " << strerror(errno);
-                throw FileException(__FILE__, __LINE__, os.str());
-            }
-            FileTracker::instance()->addDirectory(path);
-        }
-        path += "/";
-    }
-
-    //
-    // There are two options:
-    //
-    // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
-    // 2) Create a file named "ClassName.m".
-    //
-    // The class directory is useful if you want to add additional supporting files for the class. We only
-    // generate a single file for a class so we use option 2.
-    //
-    const string cls = lookupKwd(v[v.size() - 1]);
-    path += "/" + cls + ".m";
-
-    out.open(path);
-    printHeader(out);
-    FileTracker::instance()->addFile(path);
 }
 
 string
@@ -3730,65 +3792,6 @@ CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, con
     }
 }
 
-static void
-generate(const UnitPtr& un, const string& dir, bool all, bool checksum, const vector<string>& includePaths)
-{
-    CodeVisitor codeVisitor(dir);
-    un->visit(&codeVisitor, false);
-
-#if 0
-    if(checksum)
-    {
-        ChecksumMap checksums = createChecksums(un);
-        if(!checksums.empty())
-        {
-            out << sp;
-            if(ns)
-            {
-                out << "namespace"; // Global namespace.
-                out << sb;
-                out << "new Ice\\SliceChecksumInit(array(";
-                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end();)
-                {
-                    out << nl << "\"" << p->first << "\" => \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-                    {
-                        str << static_cast<int>(*q);
-                    }
-                    out << str.str() << "\"";
-                    if(++p != checksums.end())
-                    {
-                        out << ",";
-                    }
-                }
-                out << "));";
-                out << eb;
-            }
-            else
-            {
-                for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
-                {
-                    out << nl << "$Ice_sliceChecksums[\"" << p->first << "\"] = \"";
-                    ostringstream str;
-                    str.flags(ios_base::hex);
-                    str.fill('0');
-                    for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-                    {
-                        str << static_cast<int>(*q);
-                    }
-                    out << str.str() << "\";";
-                }
-            }
-        }
-    }
-
-    out << nl; // Trailing newline.
-#endif
-}
-
 namespace
 {
 
@@ -3843,7 +3846,9 @@ usage(const string& n)
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
-        "--checksum               Generate checksums for Slice definitions.\n"
+        "--checksum FUNC          Generate checksums for Slice definitions into function FUNC.\n"
+        "--meta META              Define global metadata directive META.\n"
+        "--list-generated         Emit list of generated files in XML format.\n"
         ;
 }
 
@@ -3862,9 +3867,11 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
+    opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
-    opts.addOpt("", "checksum");
+    opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -3928,7 +3935,13 @@ compile(const vector<string>& argv)
 
     bool all = opts.isSet("all");
 
-    bool checksum = opts.isSet("checksum");
+    string checksumFunc = opts.optArg("checksum");
+
+    bool listGenerated = opts.isSet("list-generated");
+
+    StringList globalMetadata;
+    vector<string> v = opts.argVec("meta");
+    copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
     if(args.empty())
     {
@@ -3957,6 +3970,8 @@ compile(const vector<string>& argv)
 
     int status = EXIT_SUCCESS;
 
+    ChecksumMap checksums;
+
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
@@ -3980,7 +3995,7 @@ compile(const vector<string>& argv)
         if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
 
             if(cppHandle == 0)
             {
@@ -3997,7 +4012,7 @@ compile(const vector<string>& argv)
             }
 
             if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::PHP : Preprocessor::SliceXML,
-                                                  includePaths, "-D__SLICE2PHP__"))
+                                                  includePaths, "-D__SLICE2MATLAB__"))
             {
                 return EXIT_FAILURE;
             }
@@ -4009,8 +4024,10 @@ compile(const vector<string>& argv)
         }
         else
         {
+            FileTracker::instance()->setSource(*i);
+
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
+            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
 
             if(cppHandle == 0)
             {
@@ -4034,7 +4051,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, false, false);
+                UnitPtr u = Unit::createUnit(false, all, false, false, globalMetadata);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
@@ -4058,7 +4075,17 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        generate(u, output, all, checksum, includePaths);
+                        CodeVisitor codeVisitor(output);
+                        u->visit(&codeVisitor, all);
+
+                        if(!checksumFunc.empty())
+                        {
+                            //
+                            // Calculate checksums for the Slice definitions in the unit.
+                            //
+                            ChecksumMap m = createChecksums(u);
+                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
+                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -4068,13 +4095,9 @@ compile(const vector<string>& argv)
                         FileTracker::instance()->cleanup();
                         u->destroy();
                         consoleErr << argv[0] << ": error: " << ex.reason() << endl;
-                        return EXIT_FAILURE;
-                    }
-                    catch(const string& err)
-                    {
-                        FileTracker::instance()->cleanup();
-                        consoleErr << argv[0] << ": error: " << err << endl;
                         status = EXIT_FAILURE;
+                        FileTracker::instance()->error();
+                        break;
                     }
                 }
 
@@ -4101,6 +4124,28 @@ compile(const vector<string>& argv)
     if(depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
+    }
+
+    if(status == EXIT_SUCCESS && !checksumFunc.empty() && !dependxml)
+    {
+        try
+        {
+            writeChecksums(checksumFunc, output, checksums);
+        }
+        catch(const Slice::FileException& ex)
+        {
+            //
+            // If a file could not be created, then cleanup any created files.
+            //
+            FileTracker::instance()->cleanup();
+            consoleErr << argv[0] << ": error: " << ex.reason() << endl;
+            return EXIT_FAILURE;
+        }
+    }
+
+    if(listGenerated)
+    {
+        FileTracker::instance()->dumpxml();
     }
 
     return status;

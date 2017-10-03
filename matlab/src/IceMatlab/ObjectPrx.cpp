@@ -234,16 +234,16 @@ Ice_ObjectPrx__release(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx_equals(void* self, void* other, unsigned char* r)
+Ice_ObjectPrx_equals(void* self, void* other)
 {
     assert(other); // Wrapper only calls this function for non-nil arguments.
     try
     {
-        *r = Ice::targetEqualTo(SELF, DEREF(other)) ? 1 : 0;
+        return createResultValue(createBool(Ice::targetEqualTo(SELF, DEREF(other))));
     }
     catch(const std::exception& ex)
     {
-        return convertException(ex);
+        return createResultException(convertException(ex));
     }
     return 0;
 }

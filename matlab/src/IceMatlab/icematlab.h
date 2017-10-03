@@ -51,7 +51,7 @@ EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequests(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Communicator_flushBatchRequestsAsync(void*, mxArray*, void**);
 
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx__release(void*);
-EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_equals(void*, void*, unsigned char*);
+EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_equals(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_read(void*, mxArray*, mxArray*, int, int, void**);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_write(void*, void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_ObjectPrx_ice_invoke(void*, const char*, int, mxArray*, unsigned int, mxArray*);
@@ -148,6 +148,7 @@ EXPORTED_FUNCTION mxArray* Ice_Properties_load(void*, const char*);
 EXPORTED_FUNCTION mxArray* Ice_Properties_clone(void*, void**);
 
 EXPORTED_FUNCTION mxArray* Ice_Connection__release(void*);
+EXPORTED_FUNCTION mxArray* Ice_Connection_equals(void*, void*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_close(void*, mxArray*);
 EXPORTED_FUNCTION mxArray* Ice_Connection_closeAsync(void*, mxArray*, void**);
 EXPORTED_FUNCTION mxArray* Ice_Connection_createProxy(void*, mxArray*, void**);

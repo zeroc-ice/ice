@@ -78,9 +78,12 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.callWithResult_('identityToString', id);
         end
         function r = getProperties(obj)
-            impl = libpointer('voidPtr');
-            obj.call_('getProperties', impl);
-            r = Ice.Properties(impl);
+            if isempty(obj.properties_)
+                impl = libpointer('voidPtr');
+                obj.call_('getProperties', impl);
+                obj.properties_ = Ice.Properties(impl);
+            end
+            r = obj.properties_;
         end
         function r = getLogger(obj)
             if isempty(obj.logger)
@@ -164,5 +167,6 @@ classdef Communicator < IceInternal.WrapperObject
         classResolver
         encoding
         logger
+        properties_
     end
 end

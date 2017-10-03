@@ -48,9 +48,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 %
                 obj.instantiate_();
                 other.instantiate_();
-                v = libpointer('uint8Ptr', 0);
-                obj.call_('equals', other.impl_, v);
-                r = v.Value == 1;
+                r = obj.callWithResult_('equals', other.impl_);
             end
         end
 
