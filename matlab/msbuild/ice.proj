@@ -54,6 +54,7 @@
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\enums\generated $(testDir)\Ice\enums\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\facets\generated $(testDir)\Ice\facets\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\info\generated $(testDir)\Ice\info\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\inheritance\generated $(testDir)\Ice\inheritance\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\objects\generated $(testDir)\Ice\objects\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\objects\generated $(testDir)\Ice\objects\LocalTest.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>

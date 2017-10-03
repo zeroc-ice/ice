@@ -683,6 +683,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
     const ClassList bases = p->bases();
+    const OperationList allOps = p->allOperations();
     const string self = name == "obj" ? "this" : "obj";
 
     if(!p->isInterface())
@@ -697,7 +698,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         openClass(abs, out);
 
         out << nl << "classdef ";
-        if(p->isLocal() && !p->allOperations().empty())
+        if(p->isLocal() && !allOps.empty())
         {
             out << "(Abstract) ";
         }
@@ -1097,7 +1098,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.close();
         }
     }
-    else if(!p->isLocal())
+
+    if(!p->isLocal() && (p->isInterface() || (!p->isInterface() && !allOps.empty())))
     {
         //
         // Generate proxy class.
@@ -1106,15 +1108,24 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         const string prxName = name + "Prx";
         const string prxAbs = getAbsolute(p, "", "Prx");
 
+        ClassList prxBases = bases;
+        //
+        // For proxy purposes, we can ignore a base class if it has no operations.
+        //
+        if(!prxBases.empty() && !prxBases.front()->isInterface() && prxBases.front()->allOperations().empty())
+        {
+            prxBases.pop_front();
+        }
+
         IceUtilInternal::Output out;
         openClass(prxAbs, out);
 
         out << nl << "classdef " << prxName << " < ";
-        if(!bases.empty())
+        if(!prxBases.empty())
         {
-            for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+            for(ClassList::const_iterator q = prxBases.begin(); q != prxBases.end(); ++q)
             {
-                if(q != bases.begin())
+                if(q != prxBases.begin())
                 {
                     out << " & ";
                 }
@@ -1618,7 +1629,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         out.close();
     }
-    else
+
+    if(p->isLocal())
     {
         //
         // Generate local abstract class.
@@ -3538,7 +3550,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-        if(prx->_class()->isInterface())
+        if(prx->_class()->isInterface() || !prx->_class()->definition()->allOperations().empty())
         {
             const string typeS = getAbsolute(prx->_class(), "", "Prx");
             if(optional)

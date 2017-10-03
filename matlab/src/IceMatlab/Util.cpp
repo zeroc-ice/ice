@@ -58,27 +58,34 @@ getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
 mxArray*
 IceMatlab::createStringFromUTF8(const string& s)
 {
-#ifdef _MSC_VER
-    //
-    // Workaround for Visual Studio bug that causes a link error when using char16_t.
-    //
-    wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
-#else
-    u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
-#endif
-    mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
-    auto r = mxCreateCharArray(2, dims);
-    auto buf = mxGetChars(r);
-    int i = 0;
-#ifdef _MSC_VER
-    for(wchar_t c : utf16)
-#else
-    for(char16_t c : utf16)
-#endif
+    if(s.empty())
     {
-        buf[i++] = static_cast<mxChar>(c);
+        return mxCreateString("");
     }
-    return r;
+    else
+    {
+#ifdef _MSC_VER
+        //
+        // Workaround for Visual Studio bug that causes a link error when using char16_t.
+        //
+        wstring utf16 = wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t>{}.from_bytes(s.data());
+#else
+        u16string utf16 = wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(s.data());
+#endif
+        mwSize dims[2] = { 1, static_cast<mwSize>(utf16.size()) };
+        auto r = mxCreateCharArray(2, dims);
+        auto buf = mxGetChars(r);
+        int i = 0;
+#ifdef _MSC_VER
+        for(wchar_t c : utf16)
+#else
+        for(char16_t c : utf16)
+#endif
+        {
+            buf[i++] = static_cast<mxChar>(c);
+        }
+        return r;
+    }
 }
 
 string
