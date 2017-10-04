@@ -3303,9 +3303,6 @@ class MatlabMapping(CppBasedClientMapping):
         mappingName = "matlab"
         mappingDesc = "MATLAB"
 
-    def getEnv(self, process, current):
-        return {}
-
     def getCommandLineWithArgs(self, current, process, exe, args):
         dir = self.getTestCwd(process, current)
         return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '" + dir + "';runTest" + " " + args + "\""

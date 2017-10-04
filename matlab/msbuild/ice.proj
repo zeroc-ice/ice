@@ -52,6 +52,7 @@
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\acm\generated $(testDir)\Ice\acm\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\ami\generated $(testDir)\Ice\ami\Test.ice"/>
+        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\binding\generated $(testDir)\Ice\binding\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\checksum\generated --checksum test.Ice.checksum.Test.SliceChecksums $(testDir)\Ice\checksum\Test.ice $(testDir)\Ice\checksum\Types.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\defaultValue\generated $(testDir)\Ice\defaultValue\Test.ice"/>
         <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\exceptions\generated $(testDir)\Ice\exceptions\Test.ice"/>
