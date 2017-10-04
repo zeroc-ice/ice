@@ -12,7 +12,7 @@
 namespace IceMatlab
 {
 
-void* createEndpoint(const std::shared_ptr<Ice::Endpoint>&);
+void* createEndpoint(std::shared_ptr<Ice::Endpoint>);
 std::shared_ptr<Ice::Endpoint> getEndpoint(void*);
 
 }

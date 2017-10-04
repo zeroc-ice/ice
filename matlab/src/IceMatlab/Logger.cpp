@@ -22,7 +22,7 @@ using namespace IceMatlab;
 void*
 IceMatlab::createLogger(shared_ptr<Ice::Logger> p)
 {
-    return new shared_ptr<Ice::Logger>(p);
+    return new shared_ptr<Ice::Logger>(move(p));
 }
 
 extern "C"
@@ -111,7 +111,7 @@ Ice_Logger_cloneWithPrefix(void* self, mxArray* prefix, void** newLogger)
     try
     {
         shared_ptr<Ice::Logger> l = SELF->cloneWithPrefix(getStringFromUTF16(prefix));
-        *newLogger = l.get() == SELF.get() ? 0 : new shared_ptr<Ice::Logger>(l);
+        *newLogger = l.get() == SELF.get() ? 0 : new shared_ptr<Ice::Logger>(move(l));
     }
     catch(const std::exception& ex)
     {

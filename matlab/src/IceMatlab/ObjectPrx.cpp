@@ -214,7 +214,7 @@ createInvokeResultValue(mxArray* ok, mxArray* params)
 void*
 IceMatlab::createProxy(shared_ptr<Ice::ObjectPrx> p)
 {
-    return new shared_ptr<Ice::ObjectPrx>(p);
+    return new shared_ptr<Ice::ObjectPrx>(move(p));
 }
 
 shared_ptr<Ice::ObjectPrx>
@@ -412,7 +412,7 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inPara
             },
             ctx);
         f->token(token);
-        *future = new shared_ptr<InvocationFuture>(f);
+        *future = new shared_ptr<InvocationFuture>(move(f));
     }
     catch(const std::exception& ex)
     {
@@ -455,7 +455,7 @@ Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inPa
                 f->sent();
             });
         f->token(token);
-        *future = new shared_ptr<InvocationFuture>(f);
+        *future = new shared_ptr<InvocationFuture>(move(f));
     }
     catch(const std::exception& ex)
     {
@@ -483,8 +483,8 @@ Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
     {
         Ice::Identity ident;
         getIdentity(id, ident);
-        shared_ptr<Ice::ObjectPrx> newProxy = SELF->ice_identity(ident);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        auto newProxy = SELF->ice_identity(ident);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -507,7 +507,7 @@ Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
         Ice::Context ctx;
         getStringMap(c, ctx);
         auto newProxy = SELF->ice_context(ctx);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -529,7 +529,7 @@ Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
     try
     {
         auto newProxy = SELF->ice_facet(f);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -551,7 +551,7 @@ Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
     try
     {
         auto newProxy = SELF->ice_adapterId(id);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -635,7 +635,7 @@ Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
         vector<shared_ptr<Ice::Endpoint>> tmp = *v;
         delete v;
         auto newProxy = SELF->ice_endpoints(tmp);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -656,7 +656,7 @@ Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
     try
     {
         auto newProxy = SELF->ice_locatorCacheTimeout(t);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -677,7 +677,7 @@ Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
     try
     {
         auto newProxy = SELF->ice_invocationTimeout(t);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -699,7 +699,7 @@ Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
     try
     {
         auto newProxy = SELF->ice_connectionId(id);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -720,7 +720,7 @@ Ice_ObjectPrx_ice_connectionCached(void* self, void** r, unsigned char v)
     try
     {
         auto newProxy = SELF->ice_connectionCached(v == 1);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -751,7 +751,7 @@ Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
     {
         auto t = static_cast<Ice::EndpointSelectionType>(getEnumerator(type, "Ice.EndpointSelectionType"));
         auto newProxy = SELF->ice_endpointSelection(t);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -773,8 +773,8 @@ Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
     {
         Ice::EncodingVersion ev;
         getEncodingVersion(v, ev);
-        shared_ptr<Ice::ObjectPrx> newProxy = SELF->ice_encodingVersion(ev);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        auto newProxy = SELF->ice_encodingVersion(ev);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -787,7 +787,7 @@ EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_getRouter(void* self, void** r)
 {
     auto router = SELF->ice_getRouter();
-    *r = router ? new shared_ptr<Ice::ObjectPrx>(router) : 0;
+    *r = router ? new shared_ptr<Ice::ObjectPrx>(move(router)) : 0;
     return 0;
 }
 
@@ -801,8 +801,8 @@ Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
         {
             router = *(reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(rtr));
         }
-        shared_ptr<Ice::ObjectPrx> newProxy = SELF->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(router));
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        auto newProxy = SELF->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(router));
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -815,7 +815,7 @@ EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_ice_getLocator(void* self, void** r)
 {
     auto locator = SELF->ice_getLocator();
-    *r = locator ? new shared_ptr<Ice::ObjectPrx>(locator) : 0;
+    *r = locator ? new shared_ptr<Ice::ObjectPrx>(move(locator)) : 0;
     return 0;
 }
 
@@ -829,8 +829,8 @@ Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
         {
             locator = *(reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(loc));
         }
-        shared_ptr<Ice::ObjectPrx> newProxy = SELF->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        auto newProxy = SELF->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -851,7 +851,7 @@ Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
     try
     {
         auto newProxy = SELF->ice_secure(b == 1);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -872,7 +872,7 @@ Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
     try
     {
         auto newProxy = SELF->ice_preferSecure(b == 1);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -893,7 +893,7 @@ Ice_ObjectPrx_ice_twoway(void* self, void** r)
     try
     {
         auto newProxy = SELF->ice_twoway();
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -914,7 +914,7 @@ Ice_ObjectPrx_ice_oneway(void* self, void** r)
     try
     {
         auto newProxy = SELF->ice_oneway();
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -935,7 +935,7 @@ Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
     try
     {
         auto newProxy = SELF->ice_batchOneway();
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -956,7 +956,7 @@ Ice_ObjectPrx_ice_datagram(void* self, void** r)
     try
     {
         auto newProxy = SELF->ice_datagram();
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -977,7 +977,7 @@ Ice_ObjectPrx_ice_batchDatagram(void* self, void** r)
     try
     {
         auto newProxy = SELF->ice_batchDatagram();
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -992,7 +992,7 @@ Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
     try
     {
         auto newProxy = SELF->ice_compress(b == 1);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -1007,7 +1007,7 @@ Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
     try
     {
         auto newProxy = SELF->ice_timeout(t);
-        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(newProxy);
+        *r = newProxy.get() == SELF.get() ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -1025,7 +1025,7 @@ Ice_ObjectPrx_ice_getConnection(void* self, void** r)
         auto conn = SELF->ice_getConnection();
         if(conn)
         {
-            *r = new shared_ptr<Ice::Connection>(conn);
+            *r = new shared_ptr<Ice::Connection>(move(conn));
         }
     }
     catch(const std::exception& ex)
@@ -1054,7 +1054,7 @@ Ice_ObjectPrx_ice_getConnectionAsync(void* self, void** future)
             },
             nullptr);
         f->token(token);
-        *future = new shared_ptr<GetConnectionFuture>(f);
+        *future = new shared_ptr<GetConnectionFuture>(move(f));
     }
     catch(const std::exception& ex)
     {
@@ -1072,7 +1072,7 @@ Ice_ObjectPrx_ice_getCachedConnection(void* self, void** r)
         auto conn = SELF->ice_getCachedConnection();
         if(conn)
         {
-            *r = new shared_ptr<Ice::Connection>(conn);
+            *r = new shared_ptr<Ice::Connection>(move(conn));
         }
     }
     catch(const std::exception& ex)
@@ -1114,7 +1114,7 @@ Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
                 f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SimpleFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(move(f));
     }
     catch(const std::exception& ex)
     {
@@ -1127,7 +1127,7 @@ EXPORTED_FUNCTION mxArray*
 Ice_ObjectPrx_clone(void* self, void** r)
 {
     auto p = SELF;
-    *r = new shared_ptr<Ice::ObjectPrx>(p);
+    *r = new shared_ptr<Ice::ObjectPrx>(move(p));
     return 0;
 }
 
@@ -1281,8 +1281,9 @@ Ice_GetConnectionFuture_fetch(void* self, void** con)
         }
     }
 
-    assert(GCFSELF->getConnection());
-    *con = new shared_ptr<Ice::Connection>(GCFSELF->getConnection());
+    auto c = GCFSELF->getConnection();
+    assert(c);
+    *con = new shared_ptr<Ice::Connection>(move(c));
 
     //
     // The C++ object won't be used after this.

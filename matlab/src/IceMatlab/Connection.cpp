@@ -193,7 +193,7 @@ Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
             }
         });
     t.detach();
-    *future = new shared_ptr<SimpleFuture>(f);
+    *future = new shared_ptr<SimpleFuture>(move(f));
     return 0;
 }
 
@@ -204,8 +204,8 @@ Ice_Connection_createProxy(void* self, mxArray* id, void** r)
     {
         Ice::Identity ident;
         getIdentity(id, ident);
-        shared_ptr<Ice::ObjectPrx> proxy = SELF->createProxy(ident);
-        *r = new shared_ptr<Ice::ObjectPrx>(proxy);
+        auto proxy = SELF->createProxy(ident);
+        *r = new shared_ptr<Ice::ObjectPrx>(move(proxy));
     }
     catch(const std::exception& ex)
     {
@@ -249,7 +249,7 @@ Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
                 f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SimpleFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(move(f));
     }
     catch(const std::exception& ex)
     {
@@ -304,7 +304,7 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
                 f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SimpleFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(move(f));
     }
     catch(const std::exception& ex)
     {

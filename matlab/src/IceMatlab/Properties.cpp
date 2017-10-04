@@ -39,7 +39,7 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
             def = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(defaultsImpl));
         }
         auto props = Ice::createProperties(a, def);
-        *r = new shared_ptr<Ice::Properties>(props);
+        *r = new shared_ptr<Ice::Properties>(move(props));
         return createResultValue(createStringList(a));
     }
     catch(const std::exception& ex)
@@ -242,7 +242,7 @@ Ice_Properties_clone(void* self, void** r)
     try
     {
         auto c = SELF->clone();
-        *r = new shared_ptr<Ice::Properties>(c);
+        *r = new shared_ptr<Ice::Properties>(move(c));
     }
     catch(const std::exception& ex)
     {

@@ -74,7 +74,7 @@ Ice_Communicator_destroyAsync(void* self, void** future)
             }
         });
     t.detach();
-    *future = new shared_ptr<SimpleFuture>(f);
+    *future = new shared_ptr<SimpleFuture>(move(f));
     return 0;
 }
 
@@ -177,7 +177,7 @@ Ice_Communicator_getProperties(void* self, void** props)
     try
     {
         auto p = SELF->getProperties();
-        *props = new shared_ptr<Ice::Properties>(p);
+        *props = new shared_ptr<Ice::Properties>(move(p));
     }
     catch(const std::exception& ex)
     {
@@ -318,7 +318,7 @@ Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** futur
                 f->done();
             });
         f->token(token);
-        *future = new shared_ptr<SimpleFuture>(f);
+        *future = new shared_ptr<SimpleFuture>(move(f));
     }
     catch(const std::exception& ex)
     {

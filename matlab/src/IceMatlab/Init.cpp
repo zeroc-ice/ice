@@ -43,7 +43,7 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
         }
 
         shared_ptr<Ice::Communicator> c = Ice::initialize(a, id);
-        *r = new shared_ptr<Ice::Communicator>(c);
+        *r = new shared_ptr<Ice::Communicator>(move(c));
         return createResultValue(createStringList(a));
     }
     catch(const std::exception& ex)

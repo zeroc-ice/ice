@@ -21,9 +21,9 @@ using namespace std;
 using namespace IceMatlab;
 
 void*
-IceMatlab::createEndpoint(const shared_ptr<Ice::Endpoint>& p)
+IceMatlab::createEndpoint(shared_ptr<Ice::Endpoint> p)
 {
-    return new shared_ptr<Ice::Endpoint>(p);
+    return new shared_ptr<Ice::Endpoint>(move(p));
 }
 
 shared_ptr<Ice::Endpoint>
