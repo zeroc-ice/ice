@@ -151,7 +151,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_Endpoint__release(void* self)
+Ice_Endpoint_unref(void* self)
 {
     delete &SELF;
     return 0;

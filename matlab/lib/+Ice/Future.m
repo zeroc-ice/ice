@@ -41,14 +41,14 @@ classdef Future < IceInternal.WrapperObject
         end
         function delete(obj)
             if ~isempty(obj.impl_)
-                obj.call_('_release');
+                obj.iceCall('unref');
             end
             obj.impl_ = [];
         end
         function ok = wait(obj)
             if ~isempty(obj.impl_)
                 okPtr = libpointer('uint8Ptr', 0); % Output param
-                obj.call_('wait', okPtr);
+                obj.iceCall('wait', okPtr);
                 ok = okPtr.Value == 1;
             else
                 ok = true;
@@ -75,12 +75,12 @@ classdef Future < IceInternal.WrapperObject
         end
         function cancel(obj)
             if ~isempty(obj.impl_)
-                obj.call_('cancel');
+                obj.iceCall('cancel');
             end
         end
         function r = get.State(obj)
             if ~isempty(obj.impl_)
-                obj.State = obj.callWithResult_('state');
+                obj.State = obj.iceCallWithResult('state');
                 r = obj.State;
             else
                 r = 'finished';

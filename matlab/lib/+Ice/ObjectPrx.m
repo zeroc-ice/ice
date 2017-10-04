@@ -20,13 +20,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
 
             if ~isempty(impl)
-                obj.isTwoway = obj.callWithResult_('ice_isTwoway');
+                obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
             end
         end
 
         function delete(obj)
             if ~isempty(obj.impl_)
-                obj.call_('_release');
+                obj.iceCall('unref');
                 obj.impl_ = [];
             end
         end
@@ -48,7 +48,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 %
                 obj.instantiate_();
                 other.instantiate_();
-                r = obj.callWithResult_('equals', other.impl_);
+                r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
 
@@ -58,7 +58,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_toString(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_toString');
+            r = obj.iceCallWithResult('ice_toString');
         end
 
         function r = ice_getCommunicator(obj)
@@ -66,37 +66,37 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function ice_ping(obj, varargin)
-            obj.invoke_('ice_ping', 1, false, [], false, {}, varargin{:});
+            obj.iceInvoke('ice_ping', 1, false, [], false, {}, varargin{:});
         end
 
         function r = ice_pingAsync(obj, varargin)
-            r = obj.invokeAsync_('ice_ping', 1, false, [], 0, [], {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_ping', 1, false, [], 0, [], {}, varargin{:});
         end
 
         function r = ice_isA(obj, id, varargin)
-            os = obj.startWriteParams_([]);
+            os = obj.iceStartWriteParams([]);
             os.writeString(id);
-            obj.endWriteParams_(os);
-            is = obj.invoke_('ice_isA', 1, true, os, true, {}, varargin{:});
+            obj.iceEndWriteParams(os);
+            is = obj.iceInvoke('ice_isA', 1, true, os, true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readBool();
             is.endEncapsulation();
         end
 
         function r = ice_isAAsync(obj, id, varargin)
-            os = obj.startWriteParams_([]);
+            os = obj.iceStartWriteParams([]);
             os.writeString(id);
-            obj.endWriteParams_(os);
+            obj.iceEndWriteParams(os);
             function varargout = unmarshal(is)
                 is.startEncapsulation();
                 varargout{1} = is.readBool();
                 is.endEncapsulation();
             end
-            r = obj.invokeAsync_('ice_isA', 1, true, os, 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_isA', 1, true, os, 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_id(obj, varargin)
-            is = obj.invoke_('ice_id', 1, true, [], true, {}, varargin{:});
+            is = obj.iceInvoke('ice_id', 1, true, [], true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readString();
             is.endEncapsulation();
@@ -108,11 +108,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readString();
                 is.endEncapsulation();
             end
-            r = obj.invokeAsync_('ice_id', 1, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_id', 1, true, [], 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_ids(obj, varargin)
-            is = obj.invoke_('ice_ids', 1, true, [], true, {}, varargin{:});
+            is = obj.iceInvoke('ice_ids', 1, true, [], true, {}, varargin{:});
             is.startEncapsulation();
             r = is.readStringSeq();
             is.endEncapsulation();
@@ -124,12 +124,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readStringSeq();
                 is.endEncapsulation();
             end
-            r = obj.invokeAsync_('ice_ids', 1, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_ids', 1, true, [], 1, @unmarshal, {}, varargin{:});
         end
 
         function r = ice_getIdentity(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getIdentity');
+            r = obj.iceCallWithResult('ice_getIdentity');
         end
 
         function r = ice_identity(obj, id)
@@ -138,7 +138,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getContext(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getContext');
+            r = obj.iceCallWithResult('ice_getContext');
         end
 
         function r = ice_context(obj, ctx)
@@ -147,7 +147,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getFacet(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getFacet');
+            r = obj.iceCallWithResult('ice_getFacet');
         end
 
         function r = ice_facet(obj, f)
@@ -156,7 +156,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getAdapterId(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getAdapterId');
+            r = obj.iceCallWithResult('ice_getAdapterId');
         end
 
         function r = ice_adapterId(obj, id)
@@ -165,11 +165,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getEndpoints(obj)
             obj.instantiate_();
-            num = obj.callWithResult_('ice_getNumEndpoints');
+            num = obj.iceCallWithResult('ice_getNumEndpoints');
             r = {};
             for i = 1:num
                 impl = libpointer('voidPtr');
-                e = obj.callWithResult_('ice_getEndpoint', i - 1, impl); % C-style index
+                e = obj.iceCallWithResult('ice_getEndpoint', i - 1, impl); % C-style index
                 assert(~isNull(impl));
                 r{i} = Ice.Endpoint(impl);
             end
@@ -187,16 +187,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 end
             end
             arr = libpointer('voidPtr');
-            obj.call_('ice_createEndpointList', length(endpts), arr);
+            obj.iceCall('ice_createEndpointList', length(endpts), arr);
             for i = 1:length(endpts)
-                obj.call_('ice_setEndpoint', arr, i - 1, endpts{i}.impl_); % C-style index
+                obj.iceCall('ice_setEndpoint', arr, i - 1, endpts{i}.impl_); % C-style index
             end
             r = obj.factory_('ice_endpoints', true, arr); % The C function also destroys the temporary array.
         end
 
         function r = ice_getLocatorCacheTimeout(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getLocatorCacheTimeout');
+            r = obj.iceCallWithResult('ice_getLocatorCacheTimeout');
         end
 
         function r = ice_locatorCacheTimeout(obj, t)
@@ -205,7 +205,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getInvocationTimeout(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getInvocationTimeout');
+            r = obj.iceCallWithResult('ice_getInvocationTimeout');
         end
 
         function r = ice_invocationTimeout(obj, t)
@@ -214,7 +214,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getConnectionId(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getConnectionId');
+            r = obj.iceCallWithResult('ice_getConnectionId');
         end
 
         function r = ice_connectionId(obj, id)
@@ -222,7 +222,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isConnectionCached(obj)
-            r = obj.callWithResult_('ice_isConnectionCached');
+            r = obj.iceCallWithResult('ice_isConnectionCached');
         end
 
         function r = ice_connectionCached(obj, b)
@@ -236,7 +236,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getEndpointSelection(obj)
             obj.instantiate_();
-            r = obj.callWithResult_('ice_getEndpointSelection');
+            r = obj.iceCallWithResult('ice_getEndpointSelection');
         end
 
         function r = ice_endpointSelection(obj, t)
@@ -255,7 +255,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getRouter(obj)
             obj.instantiate_();
             v = libpointer('voidPtr');
-            obj.call_('ice_getRouter', v);
+            obj.iceCall('ice_getRouter', v);
             if isNull(v)
                 r = [];
             else
@@ -275,7 +275,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getLocator(obj)
             obj.instantiate_();
             v = libpointer('voidPtr');
-            obj.call_('ice_getLocator', v);
+            obj.iceCall('ice_getLocator', v);
             if isNull(v)
                 r = [];
             else
@@ -293,7 +293,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isSecure(obj)
-            r = obj.callWithResult_('ice_isSecure');
+            r = obj.iceCallWithResult('ice_isSecure');
         end
 
         function r = ice_secure(obj, b)
@@ -306,7 +306,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isPreferSecure(obj)
-            r = obj.callWithResult_('ice_isPreferSecure');
+            r = obj.iceCallWithResult('ice_isPreferSecure');
         end
 
         function r = ice_preferSecure(obj, b)
@@ -327,7 +327,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isOneway(obj)
-            r = obj.callWithResult_('ice_isOneway');
+            r = obj.iceCallWithResult('ice_isOneway');
         end
 
         function r = ice_oneway(obj)
@@ -335,7 +335,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isBatchOneway(obj)
-            r = obj.callWithResult_('ice_isBatchOneway');
+            r = obj.iceCallWithResult('ice_isBatchOneway');
         end
 
         function r = ice_batchOneway(obj)
@@ -343,7 +343,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isDatagram(obj)
-            r = obj.callWithResult_('ice_isDatagram');
+            r = obj.iceCallWithResult('ice_isDatagram');
         end
 
         function r = ice_datagram(obj)
@@ -351,7 +351,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isBatchDatagram(obj)
-            r = obj.callWithResult_('ice_isBatchDatagram');
+            r = obj.iceCallWithResult('ice_isBatchDatagram');
         end
 
         function r = ice_batchDatagram(obj)
@@ -374,7 +374,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getConnection(obj)
             obj.instantiate_();
             v = libpointer('voidPtr');
-            obj.call_('ice_getConnection', v);
+            obj.iceCall('ice_getConnection', v);
             if isNull(v)
                 r = [];
             else
@@ -385,11 +385,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getConnectionAsync(obj)
             obj.instantiate_();
             future = libpointer('voidPtr');
-            obj.call_('ice_getConnectionAsync', future);
+            obj.iceCall('ice_getConnectionAsync', future);
             assert(~isNull(future));
             function varargout = fetch(f)
                 con = libpointer('voidPtr', 0); % Output param
-                f.call_('fetch', con);
+                f.iceCall('fetch', con);
                 assert(~isNull(con));
                 varargout{1} = Ice.Connection(con);
             end
@@ -399,7 +399,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getCachedConnection(obj)
             obj.instantiate_();
             v = libpointer('voidPtr');
-            obj.call_('ice_getCachedConnection', v);
+            obj.iceCall('ice_getCachedConnection', v);
             if isNull(v)
                 r = [];
             else
@@ -409,46 +409,46 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function ice_flushBatchRequests(obj)
             obj.instantiate_();
-            obj.call_('ice_flushBatchRequests');
+            obj.iceCall('ice_flushBatchRequests');
         end
 
         function r = ice_flushBatchRequestsAsync(obj)
             obj.instantiate_();
             future = libpointer('voidPtr');
-            obj.call_('ice_flushBatchRequestsAsync', future);
+            obj.iceCall('ice_flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            r = Ice.Future(future, 'ice_flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
     end
 
     methods(Hidden=true)
-        function write_(obj, os, encoding)
+        function iceWrite(obj, os, encoding)
             %
             % If we don't yet have a byte buffer representing the marshaled form of the proxy, then call into
             % C++ to marshal the proxy and then cache the bytes.
             %
             if isempty(obj.bytes)
-                obj.bytes = obj.callWithResult_('write', obj.communicator.impl_, encoding);
+                obj.bytes = obj.iceCallWithResult('write', obj.communicator.impl_, encoding);
             end
             os.writeBlob(obj.bytes);
         end
-        function r = getImpl_(obj)
+        function r = iceGetImpl(obj)
             obj.instantiate_();
             r = obj.impl_;
         end
     end
 
     methods(Access=protected)
-        function os = startWriteParams_(obj, format)
+        function os = iceStartWriteParams(obj, format)
             os = obj.ice_createOutputStream();
             os.startEncapsulation(format);
         end
 
-        function endWriteParams_(obj, os)
+        function iceEndWriteParams(obj, os)
             os.endEncapsulation();
         end
 
-        function is = invoke_(obj, op, mode, twowayOnly, os, hasOutParams, exceptions, varargin)
+        function is = iceInvoke(obj, op, mode, twowayOnly, os, hasOutParams, exceptions, varargin)
             if isempty(obj.impl_)
                 obj.instantiate_();
             end
@@ -475,7 +475,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     %
                     % Avoid the string concatenation
                     %
-                    % res = obj.callWithResult_('ice_invoke', op, mode, buf, size, varargin{1});
+                    % res = obj.iceCallWithResult('ice_invoke', op, mode, buf, size, varargin{1});
                     %
                     res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, ...
                                                           size, varargin{1});
@@ -483,7 +483,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     %
                     % Avoid the string concatenation
                     %
-                    % res = obj.callWithResult_('ice_invokeNC', op, mode, buf, size);
+                    % res = obj.iceCallWithResult('ice_invokeNC', op, mode, buf, size);
                     %
                     res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invokeNC', obj.impl_, op, mode, buf, size);
                 end
@@ -501,7 +501,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
                 if obj.isTwoway
                     if ~res.ok
-                        obj.throwUserException_(is, exceptions{:});
+                        obj.iceThrowUserException(is, exceptions{:});
                     elseif ~hasOutParams
                         is.skipEmptyEncapsulation();
                     end
@@ -511,7 +511,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function fut = invokeAsync_(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, exceptions, varargin)
+        function fut = iceInvokeAsync(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, exceptions, varargin)
             if isempty(obj.impl_)
                 obj.instantiate_();
             end
@@ -529,12 +529,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         %
                         % Avoid the string concatenation
                         %
-                        % res = f.callWithResult_('results');
+                        % res = f.iceCallWithResult('results');
                         %
                         res = IceInternal.Util.callWithResult('Ice_InvocationFuture_results', f.impl_);
                         is = Ice.InputStream(obj.communicator, obj.encoding, IceInternal.Buffer(res.params));
                         if ~res.ok
-                            obj.throwUserException_(is, exceptions{:});
+                            obj.iceThrowUserException(is, exceptions{:});
                         end
                         if isempty(unmarshalFunc)
                             is.skipEmptyEncapsulation();
@@ -547,7 +547,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                         %
                         % Avoid the string concatenation
                         %
-                        % f.call_('check');
+                        % f.iceCall('check');
                         %
                         IceInternal.Util.call('Ice_InvocationFuture_check', f.impl_);
                     end
@@ -576,7 +576,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     %
                     % Avoid the string concatenation
                     %
-                    % obj.call_('ice_invokeAsync', op, mode, buf, size, varargin{1}, futPtr);
+                    % obj.iceCall('ice_invokeAsync', op, mode, buf, size, varargin{1}, futPtr);
                     %
                     IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ...
                                           varargin{1}, futPtr);
@@ -584,7 +584,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     %
                     % Avoid the string concatenation
                     %
-                    % obj.call_('ice_invokeAsyncNC', op, mode, buf, size, futPtr);
+                    % obj.iceCall('ice_invokeAsyncNC', op, mode, buf, size, futPtr);
                     %
                     IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsyncNC', obj.impl_, op, mode, buf, size, futPtr);
                 end
@@ -595,7 +595,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function throwUserException_(obj, is, varargin) % Varargs are user exception type names
+        function iceThrowUserException(obj, is, varargin) % Varargs are user exception type names
             try
                 is.startEncapsulation();
                 is.throwException();
@@ -625,7 +625,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             if length(varargin) == 0
                 r = p;
             else
-                r = Ice.ObjectPrx.checkedCast_(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
+                r = Ice.ObjectPrx.iceCheckedCast(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
             end
         end
 
@@ -645,7 +645,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
     end
 
     methods(Static,Access=protected)
-        function r = checkedCast_(p, id, cls, varargin)
+        function r = iceCheckedCast(p, id, cls, varargin)
             try
                 hasFacet = false;
                 facet = [];
@@ -686,7 +686,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function r = uncheckedCast_(p, cls, varargin)
+        function r = iceUncheckedCast(p, cls, varargin)
             hasFacet = false;
             facet = [];
             if length(varargin) == 1
@@ -732,7 +732,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 obj.impl_ = impl;
 
                 % Cache the twoway status
-                obj.isTwoway = obj.callWithResult_('ice_isTwoway');
+                obj.isTwoway = obj.iceCallWithResult('ice_isTwoway');
             end
         end
 
@@ -745,7 +745,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             obj.instantiate_();
 
             newImpl = libpointer('voidPtr');
-            obj.call_(op, newImpl, varargin{:});
+            obj.iceCall(op, newImpl, varargin{:});
             if isNull(newImpl)
                 r = obj;
             elseif keepType
@@ -772,7 +772,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             obj.instantiate_();
             implPtr = libpointer('voidPtr'); % Output param
-            obj.call_('clone', implPtr);
+            obj.iceCall('clone', implPtr);
             r = implPtr;
         end
     end

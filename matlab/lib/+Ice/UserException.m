@@ -19,18 +19,18 @@ classdef (Abstract) UserException < Ice.Exception
         end
     end
     methods(Hidden=true)
-        function obj = read_(obj, is)
+        function obj = iceRead(obj, is)
             is.startException();
-            obj = obj.readImpl_(is);
+            obj = obj.iceReadImpl(is);
             is.endException(false);
         end
-        function obj = postUnmarshal_(obj)
+        function obj = icePostUnmarshal(obj)
             %
             % Overridden by subclasses that have class members.
             %
         end
     end
     methods(Abstract,Access=protected)
-        obj = readImpl_(obj, is)
+        obj = iceReadImpl(obj, is)
     end
 end

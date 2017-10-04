@@ -34,7 +34,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_Communicator__release(void* self)
+Ice_Communicator_unref(void* self)
 {
     delete &SELF;
     return 0;

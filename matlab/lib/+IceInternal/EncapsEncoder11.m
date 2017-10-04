@@ -248,7 +248,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             end
 
             obj.os.writeSize(1); % Class instance marker.
-            v.iceWrite_(obj.os);
+            v.iceWrite(obj.os);
         end
     end
     properties(Access=private)

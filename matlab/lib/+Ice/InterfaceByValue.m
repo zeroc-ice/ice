@@ -19,11 +19,11 @@ classdef InterfaceByValue < Ice.Value
         end
     end
     methods(Access=protected)
-        function iceWriteImpl_(obj, os)
+        function iceWriteImpl(obj, os)
             os.startSlice(obj.id, -1, true);
             os.endSlice();
         end
-        function iceReadImpl_(obj, is)
+        function iceReadImpl(obj, is)
             is.startSlice();
             is.endSlice();
         end

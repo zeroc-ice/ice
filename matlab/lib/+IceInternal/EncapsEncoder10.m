@@ -109,7 +109,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
                         obj.os.getCommunicator().getLogger().warning(msg);
                     end
 
-                    v.iceWrite_(obj.os);
+                    v.iceWrite(obj.os);
                 end
             end
             obj.os.writeSize(0); % Zero marker indicates end of sequence of sequences of instances.

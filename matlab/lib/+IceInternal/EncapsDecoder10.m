@@ -101,11 +101,11 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
                     %
                     % Exceptions are value types so we have to replace 'ex' with its new value after calling methods.
                     %
-                    ex = ex.read_(obj.is);
+                    ex = ex.iceRead(obj.is);
                     if usesClasses
                         obj.readPendingValues();
                     end
-                    ex = ex.postUnmarshal_();
+                    ex = ex.icePostUnmarshal();
                     throw(ex);
                 else
                     %

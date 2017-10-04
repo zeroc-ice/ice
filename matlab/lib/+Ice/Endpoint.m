@@ -27,14 +27,14 @@ classdef Endpoint < IceInternal.WrapperObject
                 %
                 % Call into C++ to compare the two objects.
                 %
-                r = obj.callWithResult_('equals', other.impl_);
+                r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
         function r = toString(obj)
-            r = obj.callWithResult_('toString');
+            r = obj.iceCallWithResult('toString');
         end
         function r = getInfo(obj)
-            info = obj.callWithResult_('getInfo');
+            info = obj.iceCallWithResult('getInfo');
             r = obj.createEndpointInfo(info);
         end
     end

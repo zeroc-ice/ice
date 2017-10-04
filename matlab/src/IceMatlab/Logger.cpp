@@ -29,7 +29,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_Logger__release(void* self)
+Ice_Logger_unref(void* self)
 {
     delete &SELF;
     return 0;

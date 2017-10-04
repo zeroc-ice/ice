@@ -50,7 +50,7 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_Properties__release(void* self)
+Ice_Properties_unref(void* self)
 {
     delete &SELF;
     return 0;

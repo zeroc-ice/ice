@@ -30,17 +30,17 @@ classdef Communicator < IceInternal.WrapperObject
             end
         end
         function destroy(obj)
-            obj.call_('destroy');
+            obj.iceCall('destroy');
         end
         function f = destroyAsync(obj)
             future = libpointer('voidPtr');
-            obj.call_('destroyAsync', future);
+            obj.iceCall('destroyAsync', future);
             assert(~isNull(future));
-            f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = stringToProxy(obj, str)
             impl = libpointer('voidPtr');
-            obj.call_('stringToProxy', str, impl);
+            obj.iceCall('stringToProxy', str, impl);
             if isNull(impl)
                 r = [];
             else
@@ -58,7 +58,7 @@ classdef Communicator < IceInternal.WrapperObject
         end
         function r = propertyToProxy(obj, prop)
             impl = libpointer('voidPtr');
-            obj.call_('propertyToProxy', prop, impl);
+            obj.iceCall('propertyToProxy', prop, impl);
             if isNull(impl)
                 r = [];
             else
@@ -71,16 +71,16 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.ObjectPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a proxy'));
             else
-                r = obj.callWithResult_('proxyToProperty', proxy.getImpl_(), prop);
+                r = obj.iceCallWithResult('proxyToProperty', proxy.iceGetImpl(), prop);
             end
         end
         function r = identityToString(obj, id)
-            r = obj.callWithResult_('identityToString', id);
+            r = obj.iceCallWithResult('identityToString', id);
         end
         function r = getProperties(obj)
             if isempty(obj.properties_)
                 impl = libpointer('voidPtr');
-                obj.call_('getProperties', impl);
+                obj.iceCall('getProperties', impl);
                 obj.properties_ = Ice.Properties(impl);
             end
             r = obj.properties_;
@@ -88,14 +88,14 @@ classdef Communicator < IceInternal.WrapperObject
         function r = getLogger(obj)
             if isempty(obj.logger)
                 impl = libpointer('voidPtr');
-                obj.call_('getLogger', impl);
+                obj.iceCall('getLogger', impl);
                 obj.logger = Ice.Logger(impl);
             end
             r = obj.logger;
         end
         function r = getDefaultRouter(obj)
             impl = libpointer('voidPtr');
-            obj.call_('getDefaultRouter', impl);
+            obj.iceCall('getDefaultRouter', impl);
             if ~isNull(impl)
                 r = Ice.RouterPrx(impl, obj);
             else
@@ -108,13 +108,13 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.RouterPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a router proxy'));
             else
-                impl = proxy.getImpl_();
+                impl = proxy.iceGetImpl();
             end
-            obj.call_('setDefaultRouter', impl);
+            obj.iceCall('setDefaultRouter', impl);
         end
         function r = getDefaultLocator(obj)
             impl = libpointer('voidPtr');
-            obj.call_('getDefaultLocator', impl);
+            obj.iceCall('getDefaultLocator', impl);
             if ~isNull(impl)
                 r = Ice.LocatorPrx(impl, obj);
             else
@@ -127,21 +127,21 @@ classdef Communicator < IceInternal.WrapperObject
             elseif ~isa(proxy, 'Ice.LocatorPrx')
                 throw(MException('Ice:ArgumentException', 'expecting a locator proxy'));
             else
-                impl = proxy.getImpl_();
+                impl = proxy.iceGetImpl();
             end
-            obj.call_('setDefaultLocator', impl);
+            obj.iceCall('setDefaultLocator', impl);
         end
         function r = getValueFactoryManager(obj)
             r = obj.initData.valueFactoryManager;
         end
         function flushBatchRequests(obj, mode)
-            obj.call_('flushBatchRequests', mode);
+            obj.iceCall('flushBatchRequests', mode);
         end
         function f = flushBatchRequestsAsync(obj, mode)
             future = libpointer('voidPtr');
-            obj.call_('flushBatchRequestsAsync', mode, future);
+            obj.iceCall('flushBatchRequestsAsync', mode, future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = getClassResolver(obj) 
             if isempty(obj.classResolver) % Lazy initialization.

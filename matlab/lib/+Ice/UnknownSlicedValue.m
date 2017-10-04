@@ -20,11 +20,11 @@ classdef UnknownSlicedValue < Ice.Value
         function r = ice_getSlicedData(obj)
             r = obj.slicedData;
         end
-        function iceWrite_(obj, os)
+        function iceWrite(obj, os)
             os.startValue(obj.slicedData);
             os.endValue();
         end
-        function obj = iceRead_(obj, is)
+        function obj = iceRead(obj, is)
             is.startValue();
             obj.slicedData = is.endValue(true);
         end
@@ -33,9 +33,9 @@ classdef UnknownSlicedValue < Ice.Value
         end
     end
     methods(Access=protected)
-        function iceWriteImpl_(obj, os)
+        function iceWriteImpl(obj, os)
         end
-        function obj = iceReadImpl_(obj, is)
+        function obj = iceReadImpl(obj, is)
         end
     end
     properties(Access=private)

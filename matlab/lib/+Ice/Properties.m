@@ -18,48 +18,48 @@ classdef Properties < IceInternal.WrapperObject
             obj = obj@IceInternal.WrapperObject(impl);
         end
         function r = getProperty(obj, key)
-            r = obj.callWithResult_('getProperty', key);
+            r = obj.iceCallWithResult('getProperty', key);
         end
         function r = getPropertyWithDefault(obj, key, def)
-            r = obj.callWithResult_('getPropertyWithDefault', key, def);
+            r = obj.iceCallWithResult('getPropertyWithDefault', key, def);
         end
         function r = getPropertyAsInt(obj, key)
             v = libpointer('int32Ptr', 0);
-            obj.call_('getPropertyAsInt', key, v);
+            obj.iceCall('getPropertyAsInt', key, v);
             r = v.Value;
         end
         function r = getPropertyAsIntWithDefault(obj, key, def)
             v = libpointer('int32Ptr', 0);
-            obj.call_('getPropertyAsIntWithDefault', key, def, v);
+            obj.iceCall('getPropertyAsIntWithDefault', key, def, v);
             r = v.Value;
         end
         function r = getPropertyAsList(obj, key)
-            r = obj.callWithResult_('getPropertyAsList', key);
+            r = obj.iceCallWithResult('getPropertyAsList', key);
         end
         function r = getPropertyAsListWithDefault(obj, key, def)
-            r = obj.callWithResult_('getPropertyAsListWithDefault', key, def);
+            r = obj.iceCallWithResult('getPropertyAsListWithDefault', key, def);
         end
         function r = getPropertiesForPrefix(obj, prefix)
-            r = obj.callWithResult_('getPropertiesForPrefix', prefix);
+            r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
         function setProperty(obj, key, value)
-            obj.call_('setProperty', key, value);
+            obj.iceCall('setProperty', key, value);
         end
         function r = getCommandLineOptions(obj)
-            r = obj.callWithResult_('getCommandLineOptions');
+            r = obj.iceCallWithResult('getCommandLineOptions');
         end
         function r = parseCommandLineOptions(obj, prefix, options)
-            r = obj.callWithResult_('parseCommandLineOptions', prefix, options);
+            r = obj.iceCallWithResult('parseCommandLineOptions', prefix, options);
         end
         function r = parseIceCommandLineOptions(obj, options)
-            r = obj.callWithResult_('parseIceCommandLineOptions', options);
+            r = obj.iceCallWithResult('parseIceCommandLineOptions', options);
         end
         function load(obj, file)
-            obj.call_('load', file);
+            obj.iceCall('load', file);
         end
         function r = clone(obj)
             impl = libpointer('voidPtr');
-            obj.call_('clone', impl);
+            obj.iceCall('clone', impl);
             r = Ice.Properties(impl);
         end
     end

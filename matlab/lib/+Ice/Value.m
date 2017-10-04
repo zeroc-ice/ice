@@ -45,24 +45,24 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         end
     end
     methods(Hidden=true)
-        function iceWrite_(obj, os)
+        function iceWrite(obj, os)
             os.startValue([]);
-            obj.iceWriteImpl_(os);
+            obj.iceWriteImpl(os);
             os.endValue();
         end
-        function iceRead_(obj, is)
+        function iceRead(obj, is)
             is.startValue();
-            obj.iceReadImpl_(is);
+            obj.iceReadImpl(is);
             is.endValue(false);
         end
-        function r = iceDelayPostUnmarshal_(obj)
+        function r = iceDelayPostUnmarshal(obj)
             %
             % Overridden by subclasses that need to do some post-processing after the initial round of
             % unmarshaling is complete.
             %
             r = false;
         end
-        function icePostUnmarshal_(obj)
+        function icePostUnmarshal(obj)
             %
             % Overridden by subclasses that need to do some post-processing after the initial round of
             % unmarshaling is complete.
@@ -70,8 +70,8 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         end
     end
     methods(Abstract,Access=protected)
-        iceWriteImpl_(obj, os)
-        iceReadImpl_(obj, is)
+        iceWriteImpl(obj, os)
+        iceReadImpl(obj, is)
     end
     properties(Hidden, NonCopyable)
         iceInternal_ int32

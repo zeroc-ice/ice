@@ -31,45 +31,45 @@ classdef Connection < IceInternal.WrapperObject
                 %
                 % Call into C++ to compare the two objects.
                 %
-                r = obj.callWithResult_('equals', other.impl_);
+                r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
         function close(obj, mode)
-            obj.call_('close', mode);
+            obj.iceCall('close', mode);
         end
         function f = closeAsync(obj)
             future = libpointer('voidPtr');
-            obj.call_('closeAsync', future);
+            obj.iceCall('closeAsync', future);
             assert(~isNull(future));
-            f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function r = createProxy(obj, id)
             proxy = libpointer('voidPtr');
-            obj.call_('createProxy', id, proxy);
+            obj.iceCall('createProxy', id, proxy);
             r = Ice.ObjectPrx(obj.communicator, obj.communicator.getEncoding(), proxy);
         end
         function r = getEndpoint(obj)
             endpoint = libpointer('voidPtr');
-            obj.call_('getEndpoint', endpoint);
+            obj.iceCall('getEndpoint', endpoint);
             r = Ice.Endpoint(endpoint);
         end
         function flushBatchRequests(obj, compress)
-            obj.call_('flushBatchRequests', compress);
+            obj.iceCall('flushBatchRequests', compress);
         end
         function r = flushBatchRequestsAsync(obj)
             future = libpointer('voidPtr');
-            obj.call_('flushBatchRequestsAsync', future);
+            obj.iceCall('flushBatchRequestsAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function heartbeat(obj)
-            obj.call_('heartbeat');
+            obj.iceCall('heartbeat');
         end
         function r = heartbeatAsync(obj)
             future = libpointer('voidPtr');
-            obj.call_('heartbeatAsync', future);
+            obj.iceCall('heartbeatAsync', future);
             assert(~isNull(future));
-            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.call_('check'));
+            r = Ice.Future(future, 'heartbeat', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
         function setACM(obj, timeout, close, heartbeat)
             if timeout == Ice.Unset
@@ -81,10 +81,10 @@ classdef Connection < IceInternal.WrapperObject
             if heartbeat == Ice.Unset
                 heartbeat = [];
             end
-            obj.call_('setACM', timeout, close, heartbeat);
+            obj.iceCall('setACM', timeout, close, heartbeat);
         end
         function r = getACM(obj)
-            r = obj.callWithResult_('getACM');
+            r = obj.iceCallWithResult('getACM');
             if isempty(r.timeout)
                 r.timeout = Ice.Unset;
             end
@@ -96,23 +96,23 @@ classdef Connection < IceInternal.WrapperObject
             end
         end
         function r = type(obj)
-            r = obj.callWithResult_('type');
+            r = obj.iceCallWithResult('type');
         end
         function r = timeout(obj)
-            r = obj.callWithResult_('timeout');
+            r = obj.iceCallWithResult('timeout');
         end
         function r = toString(obj)
-            r = obj.callWithResult_('toString');
+            r = obj.iceCallWithResult('toString');
         end
         function r = getInfo(obj)
-            info = obj.callWithResult_('getInfo');
+            info = obj.iceCallWithResult('getInfo');
             r = obj.createConnectionInfo(info);
         end
         function setBufferSize(obj, rcvSize, sndSize)
-            obj.call_('setBufferSize', rcvSize, sndSize);
+            obj.iceCall('setBufferSize', rcvSize, sndSize);
         end
         function throwException(obj)
-            obj.call_('throwException');
+            obj.iceCall('throwException');
         end
     end
 

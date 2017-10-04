@@ -301,7 +301,7 @@ classdef OutputStream < handle
                 %
                 Ice.Identity.ice_write(obj, []);
             else
-                v.write_(obj, obj.getEncoding());
+                v.iceWrite(obj, obj.getEncoding());
             end
         end
         function writeProxyOpt(obj, tag, v)

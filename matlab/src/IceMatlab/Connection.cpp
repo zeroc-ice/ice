@@ -136,7 +136,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_Connection__release(void* self)
+Ice_Connection_unref(void* self)
 {
     delete &SELF;
     return 0;

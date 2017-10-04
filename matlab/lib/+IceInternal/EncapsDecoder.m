@@ -39,11 +39,11 @@ classdef (Abstract) EncapsDecoder < handle
             %
             if ~isempty(obj.delayedPostUnmarshal)
                 %
-                % First call icePostUnmarshal_ on every instance. This allows the generated code to finish its tasks.
+                % First call icePostUnmarshal on every instance. This allows the generated code to finish its tasks.
                 %
                 for i = 1:length(obj.delayedPostUnmarshal)
                     v = obj.delayedPostUnmarshal{i};
-                    v.icePostUnmarshal_();
+                    v.icePostUnmarshal();
                 end
                 %
                 % Then call ice_postUnmarshal on every instance. This is the application's interception point.
@@ -176,7 +176,7 @@ classdef (Abstract) EncapsDecoder < handle
             %
             % Read the instance.
             %
-            v.iceRead_(obj.is);
+            v.iceRead(obj.is);
 
             if ~isempty(obj.patchMap) && obj.patchMap.isKey(index)
                 %
@@ -201,7 +201,7 @@ classdef (Abstract) EncapsDecoder < handle
             end
 
             if (isempty(obj.patchMap) || obj.patchMap.Count == 0) && isempty(obj.valueList)
-                if v.iceDelayPostUnmarshal_()
+                if v.iceDelayPostUnmarshal()
                     obj.delayedPostUnmarshal{end + 1} = v; % See finish()
                 else
                     try
@@ -223,7 +223,7 @@ classdef (Abstract) EncapsDecoder < handle
                     %
                     for i = 1:length(obj.valueList)
                         p = obj.valueList{i};
-                        if p.iceDelayPostUnmarshal_()
+                        if p.iceDelayPostUnmarshal()
                             obj.delayedPostUnmarshal{end + 1} = p; % See finish()
                         else
                             try

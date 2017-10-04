@@ -108,7 +108,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_SimpleFuture__release(void* self)
+Ice_SimpleFuture_unref(void* self)
 {
     delete &SFSELF;
     return 0;

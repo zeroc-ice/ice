@@ -65,7 +65,7 @@ lookupKwd(const string& name)
     bool found =  binary_search(&keywordList[0],
                                 &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
                                 name);
-    return found ? "slice_" + name : name;
+    return found ? name + "_" : name;
 }
 
 //
@@ -141,6 +141,29 @@ fixIdent(const string& ident)
         result << "::" + *i;
     }
     return result.str();
+}
+
+string
+fixOp(const string& name)
+{
+    assert(name[0] != ':');
+
+    //
+    // An operation name must be escaped if it matches any of the identifiers in this list, in addition to the
+    // MATLAB language keywords. The identifiers below represent the names of methods inherited from ObjectPrx
+    // and handle.
+    //
+    // *Must* be kept in alphabetical order.
+    //
+    static const string idList[] =
+    {
+        "addlistener", "checkedCast", "delete", "eq", "findobj", "findprop", "ge", "gt", "isvalid", "le", "listener",
+        "lt", "ne", "notify", "uncheckedCast"
+    };
+    bool found =  binary_search(&idList[0],
+                                &idList[sizeof(idList) / sizeof(*idList)],
+                                name);
+    return found ? name + "_" : fixIdent(name);
 }
 
 string
@@ -990,17 +1013,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 if(preserved && !basePreserved)
                 {
-                    out << nl << "function iceWrite_(obj, os)";
+                    out << nl << "function iceWrite(obj, os)";
                     out.inc();
                     out << nl << "os.startValue(obj.iceSlicedData_);";
-                    out << nl << "obj.iceWriteImpl_(os);";
+                    out << nl << "obj.iceWriteImpl(os);";
                     out << nl << "os.endValue();";
                     out.dec();
                     out << nl << "end";
-                    out << nl << "function iceRead_(obj, is)";
+                    out << nl << "function iceRead(obj, is)";
                     out.inc();
                     out << nl << "is.startValue();";
-                    out << nl << "obj.iceReadImpl_(is);";
+                    out << nl << "obj.iceReadImpl(is);";
                     out << nl << "obj.iceSlicedData_ = is.endValue(true);";
                     out.dec();
                     out << nl << "end";
@@ -1008,12 +1031,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 if(!convertMembers.empty())
                 {
-                    out << nl << "function r = iceDelayPostUnmarshal_(obj)";
+                    out << nl << "function r = iceDelayPostUnmarshal(obj)";
                     out.inc();
                     out << nl << "r = true;";
                     out.dec();
                     out << nl << "end";
-                    out << nl << "function icePostUnmarshal_(obj)";
+                    out << nl << "function icePostUnmarshal(obj)";
                     out.inc();
                     for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
                     {
@@ -1022,7 +1045,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                     if(base)
                     {
-                        out << nl << "icePostUnmarshal_@" << getAbsolute(base) << "(obj);";
+                        out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
                     }
                     out.dec();
                     out << nl << "end";
@@ -1037,7 +1060,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-            out << nl << "function iceWriteImpl_(obj, os)";
+            out << nl << "function iceWriteImpl(obj, os)";
             out.inc();
             out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false")
                 << ");";
@@ -1055,11 +1078,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "os.endSlice();";
             if(base)
             {
-                out << nl << "iceWriteImpl_@" << getAbsolute(base) << "(obj, os);";
+                out << nl << "iceWriteImpl@" << getAbsolute(base) << "(obj, os);";
             }
             out.dec();
             out << nl << "end";
-            out << nl << "function iceReadImpl_(obj, is)";
+            out << nl << "function iceReadImpl(obj, is)";
             out.inc();
             out << nl << "is.startSlice();";
             for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1068,8 +1091,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     if(isClass((*d)->type()))
                     {
-                        unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()) + "_", (*d)->type(), false,
-                                  0);
+                        unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
                     }
                     else
                     {
@@ -1081,7 +1103,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(isClass((*d)->type()))
                 {
-                    unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()) + "_", (*d)->type(), true,
+                    unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
                               (*d)->tag());
                 }
                 else
@@ -1092,7 +1114,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "is.endSlice();";
             if(base)
             {
-                out << nl << "iceReadImpl_@" << getAbsolute(base) << "(obj, is);";
+                out << nl << "iceReadImpl@" << getAbsolute(base) << "(obj, is);";
             }
             out.dec();
             out << nl << "end";
@@ -1101,13 +1123,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(!classMembers.empty())
             {
                 //
-                // For each class data member, we generate a "set_<name>_" method that is called when the instance
-                // is eventually unmarshaled.
+                // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
+                // instance is eventually unmarshaled.
                 //
                 for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
                 {
                     string m = fixIdent((*d)->name());
-                    out << nl << "function iceSetMember_" << m << "_(obj, v)";
+                    out << nl << "function iceSetMember_" << m << "(obj, v)";
                     out.inc();
                     out << nl << "obj." << m << " = v;";
                     out.dec();
@@ -1166,7 +1188,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         out << outParams.begin()->fixedName << " = ";
                     }
-                    out << fixIdent(op->name()) << spar << "obj_";
+                    out << fixOp(op->name()) << spar << "obj_";
                     const ParamInfoList inParams = getAllInParams(op);
                     for(ParamInfoList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
                     {
@@ -1314,7 +1336,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << allOutParams.begin()->fixedName << " = ";
             }
-            out << fixIdent(op->name()) << spar;
+            out << fixOp(op->name()) << spar;
 
             out << self;
             for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
@@ -1329,11 +1351,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(op->format() == DefaultFormat)
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_([]);";
+                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
                 }
                 else
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_(" << getFormatType(op->format()) << ");";
+                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
                 }
                 for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
                 {
@@ -1347,7 +1369,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << nl << "os_.writePendingValues();";
                 }
-                out << nl << self << ".endWriteParams_(os_);";
+                out << nl << self << ".iceEndWriteParams(os_);";
             }
 
             out << nl;
@@ -1355,7 +1377,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << "is_ = ";
             }
-            out << self << ".invoke_('" << op->name() << "', "
+            out << self << ".iceInvoke('" << op->name() << "', "
                 << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false")
                 << ", " << (allInParams.empty() ? "[]" : "os_") << ", " << (!allOutParams.empty() ? "true" : "false");
             if(exceptions.empty())
@@ -1364,7 +1386,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             else
             {
-                out << ", " << prxAbs << "." << op->name() << "__ex";
+                out << ", " << prxAbs << "." << op->name() << "_ex_";
             }
             out << ", varargin{:});";
 
@@ -1476,7 +1498,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Asynchronous method.
             //
-            out << nl << "function r_ = " << fixIdent(op->name()) << "Async" << spar;
+            out << nl << "function r_ = " << op->name() << "Async" << spar;
             out << self;
             for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
             {
@@ -1490,11 +1512,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(op->format() == DefaultFormat)
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_([]);";
+                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
                 }
                 else
                 {
-                    out << nl << "os_ = " << self << ".startWriteParams_(" << getFormatType(op->format()) << ");";
+                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
                 }
                 for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
                 {
@@ -1508,7 +1530,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << nl << "os_.writePendingValues();";
                 }
-                out << nl << self << ".endWriteParams_(os_);";
+                out << nl << self << ".iceEndWriteParams(os_);";
             }
 
             if(twowayOnly && !allOutParams.empty())
@@ -1618,7 +1640,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "end";
             }
 
-            out << nl << "r_ = " << self << ".invokeAsync_('" << op->name() << "', "
+            out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', "
                 << getOperationMode(op->sendMode()) << ", " << (twowayOnly ? "true" : "false") << ", "
                 << (allInParams.empty() ? "[]" : "os_") << ", " << allOutParams.size() << ", "
                 << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
@@ -1628,7 +1650,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             else
             {
-                out << ", " << prxAbs << "." << op->name() << "__ex";
+                out << ", " << prxAbs << "." << op->name() << "_ex_";
             }
             out << ", varargin{:});";
 
@@ -1653,13 +1675,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "end";
         out << nl << "function r = checkedCast(p, varargin)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.checkedCast_(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
+        out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
             << "', varargin{:});";
         out.dec();
         out << nl << "end";
         out << nl << "function r = uncheckedCast(p, varargin)";
         out.inc();
-        out << nl << "r = Ice.ObjectPrx.uncheckedCast_(p, '" << prxAbs << "', varargin{:});";
+        out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
         out.dec();
         out << nl << "end";
         out.dec();
@@ -1717,7 +1739,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 if(!exceptions.empty())
                 {
-                    out << nl << op->name() << "__ex = { ";
+                    out << nl << op->name() << "_ex_ = { ";
                     for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
                     {
                         if(e != exceptions.begin())
@@ -1795,7 +1817,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     out << outParams.begin()->fixedName << " = ";
                 }
-                out << fixIdent(op->name()) << spar;
+                out << fixOp(op->name()) << spar;
                 string self = "obj";
                 const ParamInfoList inParams = getAllInParams(op);
                 for(ParamInfoList::const_iterator r = outParams.begin(); r != outParams.end(); ++r)
@@ -1998,10 +2020,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 //
                 // Override read_ for the first exception in the hierarchy that has the "preserve-slice" metadata.
                 //
-                out << nl << "function obj = read_(obj, is)";
+                out << nl << "function obj = iceRead(obj, is)";
                 out.inc();
                 out << nl << "is.startException();";
-                out << nl << "obj = obj.readImpl_(is);";
+                out << nl << "obj = obj.iceReadImpl(is);";
                 out << nl << "obj.iceSlicedData_ = is.endException(true);";
                 out.dec();
                 out << nl << "end";
@@ -2009,7 +2031,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
             if(!classMembers.empty() || !convertMembers.empty())
             {
-                out << nl << "function obj = postUnmarshal_(obj)";
+                out << nl << "function obj = icePostUnmarshal(obj)";
                 out.inc();
                 for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
                 {
@@ -2023,7 +2045,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 }
                 if(base && base->usesClasses(true))
                 {
-                    out << nl << "obj = postUnmarshal_@" << getAbsolute(base) << "(obj);";
+                    out << nl << "obj = icePostUnmarshal@" << getAbsolute(base) << "(obj);";
                 }
                 out.dec();
                 out << nl << "end";
@@ -2036,7 +2058,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "methods(Access=protected)";
         out.inc();
 
-        out << nl << "function obj = readImpl_(obj, is)";
+        out << nl << "function obj = iceReadImpl(obj, is)";
         out.inc();
         out << nl << "is.startSlice();";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
@@ -2072,7 +2094,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "is.endSlice();";
         if(base)
         {
-            out << nl << "obj = readImpl_@" << getAbsolute(base) << "(obj, is);";
+            out << nl << "obj = iceReadImpl@" << getAbsolute(base) << "(obj, is);";
         }
         out.dec();
         out << nl << "end";

@@ -18,23 +18,23 @@ classdef Logger < IceInternal.WrapperObject
             obj = obj@IceInternal.WrapperObject(impl);
         end
         function print(obj, message)
-            obj.call_('print', message);
+            obj.iceCall('print', message);
         end
         function trace(obj, category, message)
-            obj.call_('trace', category, message);
+            obj.iceCall('trace', category, message);
         end
         function warning(obj, message)
-            obj.call_('warning', message);
+            obj.iceCall('warning', message);
         end
         function error(obj, message)
-            obj.call_('error', message);
+            obj.iceCall('error', message);
         end
         function r = getPrefix(obj)
-            r = obj.callWithResult_('getPrefix');
+            r = obj.iceCallWithResult('getPrefix');
         end
         function r = cloneWithPrefix(obj, prefix)
             impl = libpointer('voidPtr');
-            obj.call_('cloneWithPrefix', prefix, impl);
+            obj.iceCall('cloneWithPrefix', prefix, impl);
             if isNull(impl)
                 r = obj;
             else

@@ -227,7 +227,7 @@ extern "C"
 {
 
 EXPORTED_FUNCTION mxArray*
-Ice_ObjectPrx__release(void* self)
+Ice_ObjectPrx_unref(void* self)
 {
     delete &SELF;
     return 0;
@@ -1132,7 +1132,7 @@ Ice_ObjectPrx_clone(void* self, void** r)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_InvocationFuture__release(void* self)
+Ice_InvocationFuture_unref(void* self)
 {
     delete &IFSELF;
     return 0;
@@ -1236,7 +1236,7 @@ Ice_InvocationFuture_check(void* self)
 }
 
 EXPORTED_FUNCTION mxArray*
-Ice_GetConnectionFuture__release(void* self)
+Ice_GetConnectionFuture_unref(void* self)
 {
     delete &GCFSELF;
     return 0;
