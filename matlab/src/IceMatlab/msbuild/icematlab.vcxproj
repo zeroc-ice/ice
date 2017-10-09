@@ -88,7 +88,13 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
   </ImportGroup>
+  <PropertyGroup>
+    <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
+    <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
+  </PropertyGroup>
   <Target Name="AfterBuild">
+    <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     <Copy SourceFiles="..\icematlab.h" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
