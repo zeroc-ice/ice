@@ -237,7 +237,7 @@ IceMatlab::createStringMap(const map<string, string>& m)
     else
     {
         mwSize dims[2] = {1, 0};
-        dims[1] = m.size();
+        dims[1] = static_cast<int>(m.size());
         auto keys = mxCreateCellArray(2, dims);
         auto values = mxCreateCellArray(2, dims);
         int idx = 0;
@@ -281,8 +281,8 @@ IceMatlab::getStringMap(mxArray* p, map<string, string>& m)
         {
             for(size_t i = 0; i < n; ++i)
             {
-                auto k = getStringFromUTF16(mxGetCell(keys, i));
-                auto v = getStringFromUTF16(mxGetCell(values, i));
+                auto k = getStringFromUTF16(mxGetCell(keys, static_cast<int>(i)));
+                auto v = getStringFromUTF16(mxGetCell(values, static_cast<int>(i)));
                 m[k] = v;
             }
             mxDestroyArray(keys);
@@ -538,7 +538,7 @@ IceMatlab::createResultException(mxArray* ex)
 mxArray*
 IceMatlab::createStringList(const vector<string>& v)
 {
-    auto r = mxCreateCellMatrix(1, v.size());
+    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
     mwIndex i = 0;
     for(auto p = v.begin(); p != v.end(); ++p, ++i)
     {

@@ -143,7 +143,7 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
-        function r = getClassResolver(obj) 
+        function r = getClassResolver(obj)
             if isempty(obj.classResolver) % Lazy initialization.
                 obj.classResolver = IceInternal.ClassResolver(obj.getProperties());
             end

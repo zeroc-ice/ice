@@ -18,11 +18,6 @@ Prompt`. In this Command Prompt, change to the `matlab` subdirectory:
 cd matlab
 ```
 
-Add the MATLAB `bin` directory to your PATH if it's not there already:
-```
-PATH=<MATLAB installation directory>\bin;%PATH%
-```
-
 Now you're ready to build Ice for MATLAB:
 ```
 msbuild msbuild\ice.proj
@@ -33,11 +28,18 @@ To build in debug mode instead:
 msbuild msbuild\ice.proj /p:Configuration=Debug
 ```
 
+If MATLAB is not installed in the standard location set the MSBuild `MatlabHome`
+property:
+
+```
+msbuild msbuild\ice.proj /p:MatlabHome=C:\Program Files\MATLAB\R2016a
+```
+
 Upon completion, the build generates the following components:
 
  - Ice for C++11 library, located in `cpp\bin\x64\Release`
  - slice2matlab executable, located in `cpp\bin\x64\Release`
- - icematlab.mexw64 MEX file, located in `matlab\src\IceMatlab`
+ - icematlab.mexw64 MEX file, located in `matlab\lib\x64\Release`
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
  - MATLAB code for test Slice files, located in `matlab\test\Ice\*\generated`
 
@@ -49,7 +51,7 @@ Add the following directories to your MATLAB search path:
 
  - `matlab\lib`
  - `matlab\lib\generated`
- - `matlab\src\IceMatlab`
+ - `matlab\lib\x64\Release`
 
 ### Slice Files
 
@@ -65,8 +67,8 @@ The Ice for MATLAB library can be loaded with this command:
 loadlibrary icematlab
 ```
 
-The MEX file depends on `bzip2.dll` and `ice37++11.dll`. The build copied
-these DLLs to `matlab\src\IceMatlab`.
+The MEX file depends on `bzip2.dll` and `ice37++11.dll` that are part of the
+C++ distribution.
 
 ### Running the Tests
 
@@ -103,6 +105,7 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 Assuming you've built the C++11 test servers in Debug mode on Windows, run the
 `allTests.py` script like this:
+
 ```
 python allTests.py --platform=x64 --cpp-config=Cpp11-Debug
 ```

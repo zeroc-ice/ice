@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SliceOutputDir>$(MSBuildThisFileDirectory)..\generated</SliceOutputDir>
+    <SliceArgs>--checksum test.Ice.checksum.Test.SliceChecksums</SliceArgs>
+  </PropertyGroup>
+  <ItemGroup>
+    <Slice Include="..\*.ice" />
+  </ItemGroup>
+  <Import Project="..\..\..\..\msbuild\ice.tests.props" />
+</Project>

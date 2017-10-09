@@ -26,7 +26,7 @@ function [communicator, args] = initialize(varargin)
             throw(MException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
         end
     end
-            
+
     if isempty(initData)
         initData = Ice.InitializationData();
     end

@@ -565,7 +565,7 @@ Ice_ObjectPrx_ice_getNumEndpoints(void* self)
 {
     try
     {
-        return createResultValue(createInt(SELF->ice_getEndpoints().size()));
+        return createResultValue(createInt(static_cast<int>(SELF->ice_getEndpoints().size())));
     }
     catch(const std::exception& ex)
     {

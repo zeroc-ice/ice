@@ -602,6 +602,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
         case SliceXML:
             break;
         case Java:
+        case MATLAB:
         {
             //
             // We want to shift the files left one position, so that
@@ -721,18 +722,6 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             {
                 string name = result.substr(0, pos);
                 result.replace(0, pos + suffix.size() - 1, name + ".h " + name + ".m");
-            }
-            break;
-        }
-        case MATLAB:
-        {
-            //
-            // Change .o[bj] suffix to .m suffix.
-            //
-            string::size_type pos;
-            if((pos = result.find(suffix)) != string::npos)
-            {
-                result.replace(pos, suffix.size() - 1, ".m");
             }
             break;
         }

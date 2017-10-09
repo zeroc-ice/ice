@@ -1,77 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
- <PropertyGroup>
-    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+  <PropertyGroup>
+    <Platform>x64</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-    <MexCompilerFlags Condition="'$(Configuration)' == 'Debug'">-g COMPFLAGS=&quot;/MDd /EHsc&quot;</MexCompilerFlags>
-    <MexCompilerFlags Condition="'$(Configuration)' == 'Release'">COMPFLAGS=&quot;/MD /EHsc&quot;</MexCompilerFlags>
-    <DebugExt Condition="'$(Configuration)' == 'Debug'">d</DebugExt>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets"/>
 
-  <PropertyGroup>
-    <topSrcDir>$(MSBuildThisFileDirectory)..\..</topSrcDir>
-    <sliceDir>$(topSrcDir)\slice</sliceDir>
-    <srcDir>$(MSBuildThisFileDirectory)..\src\IceMatlab</srcDir>
-    <testDir>$(MSBuildThisFileDirectory)..\test</testDir>
-    <slice2matlabexe>$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\slice2matlab</slice2matlabexe>
-    <slice2matlab Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2matlab</slice2matlab>
-    <cpp11core Condition="'$(DefaultPlatformToolset)' == 'v140'">c++11\ice++11</cpp11core>
-  </PropertyGroup>
-
   <ItemGroup>
-        <Slice Include="$(sliceDir)\Ice\Communicator.ice" />
-        <Slice Include="$(sliceDir)\Ice\Connection.ice" />
-        <Slice Include="$(sliceDir)\Ice\Current.ice" />
-        <Slice Include="$(sliceDir)\Ice\Endpoint.ice" />
-        <Slice Include="$(sliceDir)\Ice\EndpointTypes.ice" />
-        <Slice Include="$(sliceDir)\Ice\Identity.ice" />
-        <Slice Include="$(sliceDir)\Ice\LocalException.ice" />
-        <Slice Include="$(sliceDir)\Ice\Locator.ice" />
-        <Slice Include="$(sliceDir)\Ice\Router.ice" />
-        <Slice Include="$(sliceDir)\Ice\SliceChecksumDict.ice" />
-        <Slice Include="$(sliceDir)\Ice\ValueFactory.ice" />
-        <Slice Include="$(sliceDir)\Ice\Version.ice" />
+    <TestProjects Include="..\test\**\msbuild\test.proj" />
   </ItemGroup>
 
-  <Target Name="CppPrereqs">
-    <MSBuild Projects="$(topSrcDir)\cpp\msbuild\ice.proj"
-             Targets="NuGetRestore"
-             BuildInParallel="false"/>
-
-    <MSBuild Projects="$(topSrcDir)\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
-             Targets="$(slice2matlab);$(cpp11core)"
-             BuildInParallel="false"
-             Properties="Platform=$(Platform);Configuration=$(Configuration)"/>
+  <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+    <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
+          Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
+    <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+          Condition="'$(ICE_BIN_DIST)' == ''"/>
   </Target>
 
-  <Target Name="Build" DependsOnTargets="CppPrereqs">
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(MSBuildThisFileDirectory)..\lib\generated %(Slice.FullPath)"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\acm\generated $(testDir)\Ice\acm\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\ami\generated $(testDir)\Ice\ami\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\binding\generated $(testDir)\Ice\binding\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\checksum\generated --checksum test.Ice.checksum.Test.SliceChecksums $(testDir)\Ice\checksum\Test.ice $(testDir)\Ice\checksum\Types.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\defaultValue\generated $(testDir)\Ice\defaultValue\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\exceptions\generated $(testDir)\Ice\exceptions\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\enums\generated $(testDir)\Ice\enums\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\facets\generated $(testDir)\Ice\facets\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\info\generated $(testDir)\Ice\info\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\inheritance\generated $(testDir)\Ice\inheritance\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\objects\generated $(testDir)\Ice\objects\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\objects\generated $(testDir)\Ice\objects\LocalTest.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\operations\generated $(testDir)\Ice\operations\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) -I$(testDir)\Ice\optional --output-dir $(testDir)\Ice\optional\generated $(testDir)\Ice\optional\ClientPrivate.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\proxy\generated $(testDir)\Ice\proxy\Test.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\exceptions\generated $(testDir)\Ice\slicing\exceptions\ClientPrivate.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\slicing\objects\generated $(testDir)\Ice\slicing\objects\ClientPrivate.ice"/>
-        <Exec Command="$(slice2matlabexe) -I$(sliceDir) --output-dir $(testDir)\Ice\timeout\generated $(testDir)\Ice\timeout\Test.ice"/>
-        <Exec Command="mex -v -outdir $(srcDir) -output icematlab $(MexCompilerFlags) -I$(topSrcDir)\cpp\include -I$(topSrcDir)\cpp\include\generated\cpp11\$(Platform)\$(Configuration) -DICE_CPP11_MAPPING -DICE_BUILDING_SRC -L$(topSrcDir)\cpp\lib\$(Platform)\$(Configuration) -lmex -lmx $(srcDir)\*.cpp"/>
-        <Exec Command="copy /Y $(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\bzip2$(DebugExt).dll $(srcDir)"/>
-        <Exec Command="copy /Y &quot;$(topSrcDir)\cpp\bin\$(Platform)\$(Configuration)\ice37++11$(DebugExt).dll&quot; $(srcDir)"/>
+  <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' == ''" DependsOnTargets="NuGetRestore">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+             Targets="c++98\slice2matlab;c++11\ice++11;c++11\icessl++11;c++11\icediscovery++11;c++11\icelocatordiscovery++11"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
   </Target>
 
+  <Target Name="BuildDist" DependsOnTargets="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\src\IceMatlab\msbuild\icematlab.vcxproj"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\lib\msbuild\ice.proj"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\src\IceMatlab\msbuild\icematlab.vcxproj"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"
+             Targets="Clean" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\lib\msbuild\ice.proj"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"
+             Targets="Clean" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="BuildDist">
+    <MSBuild Projects="@(TestProjects)"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+  </Target>
+
+  <Target Name="Clean" DependsOnTargets="CleanDist">
+    <MSBuild Projects="@(TestProjects)"
+             BuildInParallel="true"
+             Properties="Platform=$(Platform);Configuration=$(Configuration)"
+             Targets="Clean" />
+  </Target>
 </Project>

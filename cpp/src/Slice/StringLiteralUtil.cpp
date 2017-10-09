@@ -175,7 +175,7 @@ StringLiteralGenerator::escapeASCIIChar(char c)
             // legal characters. If the trailing character after an escaped value could be consumed, we escape it
             // as well to terminate the original escape.
             //
-            if((lastFormat == OctalFormat && _octalChars.find(c) != string::npos) || 
+            if((lastFormat == OctalFormat && _octalChars.find(c) != string::npos) ||
                (lastFormat == HexFormat && _hexChars.find(c) != string::npos))
             {
                 ostringstream os;
