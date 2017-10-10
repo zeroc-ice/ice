@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icematlab", "..\src\IceMatlab\msbuild\icematlab.vcxproj", "{89C40F1A-1761-46C1-B326-5B20BE6F8173}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icematlab", "..\src\IceMatlab\msbuild\icematlab\icematlab.vcxproj", "{89C40F1A-1761-46C1-B326-5B20BE6F8173}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icematlab_thunk", "..\src\IceMatlab\msbuild\icematlab_thunk\icematlab_thunk.vcxproj", "{EC87DC16-51CB-4229-845D-23840A3CC8CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{89C40F1A-1761-46C1-B326-5B20BE6F8173} = {89C40F1A-1761-46C1-B326-5B20BE6F8173}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{89C40F1A-1761-46C1-B326-5B20BE6F8173}.Debug|x64.Build.0 = Debug|x64
 		{89C40F1A-1761-46C1-B326-5B20BE6F8173}.Release|x64.ActiveCfg = Release|x64
 		{89C40F1A-1761-46C1-B326-5B20BE6F8173}.Release|x64.Build.0 = Release|x64
+		{EC87DC16-51CB-4229-845D-23840A3CC8CB}.Debug|x64.ActiveCfg = Debug|x64
+		{EC87DC16-51CB-4229-845D-23840A3CC8CB}.Debug|x64.Build.0 = Debug|x64
+		{EC87DC16-51CB-4229-845D-23840A3CC8CB}.Release|x64.ActiveCfg = Release|x64
+		{EC87DC16-51CB-4229-845D-23840A3CC8CB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

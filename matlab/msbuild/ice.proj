@@ -28,7 +28,7 @@
   </Target>
 
   <Target Name="BuildDist" DependsOnTargets="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\src\IceMatlab\msbuild\icematlab.vcxproj"
+    <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     <MSBuild Projects="$(MSBuildThisFileDirectory)\..\lib\msbuild\ice.proj"
@@ -37,7 +37,7 @@
   </Target>
 
   <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\src\IceMatlab\msbuild\icematlab.vcxproj"
+    <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"
              Targets="Clean" />

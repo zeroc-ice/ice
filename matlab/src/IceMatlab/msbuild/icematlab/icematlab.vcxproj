@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" />
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -27,16 +27,16 @@
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.cpp11.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\..\cpp\msbuild\ice.cpp11.props" />
   <PropertyGroup>
     <MatlabHome  Condition="'$(MatlabHome)' == ''">C:\Program Files\MATLAB\R2016a</MatlabHome>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>..\..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetExt>.mexw64</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>..\..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetExt>.mexw64</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -62,46 +62,62 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Communicator.cpp" />
-    <ClCompile Include="..\Connection.cpp" />
-    <ClCompile Include="..\Endpoint.cpp" />
-    <ClCompile Include="..\Future.cpp" />
-    <ClCompile Include="..\Init.cpp" />
-    <ClCompile Include="..\Logger.cpp" />
-    <ClCompile Include="..\ObjectPrx.cpp" />
-    <ClCompile Include="..\Properties.cpp" />
-    <ClCompile Include="..\Util.cpp" />
+    <ClCompile Include="..\..\Communicator.cpp" />
+    <ClCompile Include="..\..\Connection.cpp" />
+    <ClCompile Include="..\..\Endpoint.cpp" />
+    <ClCompile Include="..\..\Future.cpp" />
+    <ClCompile Include="..\..\Init.cpp" />
+    <ClCompile Include="..\..\Logger.cpp" />
+    <ClCompile Include="..\..\ObjectPrx.cpp" />
+    <ClCompile Include="..\..\Properties.cpp" />
+    <ClCompile Include="..\..\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Communicator.h" />
-    <ClInclude Include="..\Endpoint.h" />
-    <ClInclude Include="..\Future.h" />
-    <ClInclude Include="..\icematlab.h" />
-    <ClInclude Include="..\Logger.h" />
-    <ClInclude Include="..\ObjectPrx.h" />
-    <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\..\Communicator.h" />
+    <ClInclude Include="..\..\Endpoint.h" />
+    <ClInclude Include="..\..\Future.h" />
+    <ClInclude Include="..\..\icematlab.h" />
+    <ClInclude Include="..\..\Logger.h" />
+    <ClInclude Include="..\..\ObjectPrx.h" />
+    <ClInclude Include="..\..\Util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\IceMatlab.rc" />
+    <ResourceCompile Include="..\..\IceMatlab.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
   </ImportGroup>
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
-    <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
+    <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
+    <MatlabPrototypes>$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl</MatlabPrototypes>
   </PropertyGroup>
+  <Target Name="AfterClean">
+    <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\ice37++11$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icematlab.h" />
+    <Delete Files="$(OutDir)\icematlab.i" />
+    <Delete Files="$(OutDir)\icematlab_proto.m" />
+    <Delete Files="$(OutDir)\icematlab_thunk.c" />
+  </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="..\icematlab.h" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="..\..\icematlab.h" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+
+    <Exec Command="cl /P /c icematlab.h"
+          WorkingDirectory="$(OutDir)"
+          Condition="!Exists('$(OutDir)\icematlab.i') or $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.h').Ticks) > $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.i').Ticks)"/>
+    <Exec Command="perl &quot;$(MatlabPrototypes)&quot;  icematlab.i -thunkfile=icematlab_thunk.c -outfile=icematlab_proto.m"
+          WorkingDirectory="$(OutDir)"
+          Condition="!Exists('$(OutDir)\icematlab_proto.m') or $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.i').Ticks) > $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab_proto.m').Ticks)"/>
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets'))" />
   </Target>
 </Project>
