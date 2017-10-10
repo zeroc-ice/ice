@@ -96,22 +96,10 @@
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
     <Delete Files="$(OutDir)\ice37++11$(DebugExtension).dll" />
-    <Delete Files="$(OutDir)\icematlab.h" />
-    <Delete Files="$(OutDir)\icematlab.i" />
-    <Delete Files="$(OutDir)\icematlab_proto.m" />
-    <Delete Files="$(OutDir)\icematlab_thunk.c" />
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="..\..\icematlab.h" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-
-    <Exec Command="cl /P /c icematlab.h"
-          WorkingDirectory="$(OutDir)"
-          Condition="!Exists('$(OutDir)\icematlab.i') or $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.h').Ticks) > $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.i').Ticks)"/>
-    <Exec Command="perl &quot;$(MatlabPrototypes)&quot;  icematlab.i -thunkfile=icematlab_thunk.c -outfile=icematlab_proto.m"
-          WorkingDirectory="$(OutDir)"
-          Condition="!Exists('$(OutDir)\icematlab_proto.m') or $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab.i').Ticks) > $([System.IO.File]::GetLastWriteTime('$(OutDir)/icematlab_proto.m').Ticks)"/>
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

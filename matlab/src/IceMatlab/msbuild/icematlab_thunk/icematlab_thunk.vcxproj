@@ -38,26 +38,39 @@
     <OutDir>..\..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
-  <Target Name="BeforeBuild">
-    <Exec Command="cl /P /c icematlab.h" WorkingDirectory="$(OutDir)" />
-    <Exec Command="perl '$(MatlabHome)\R2016a\toolbox\matlab\general\private\prototypes.pl' icematlab.i -thunkfile=icematlab_thunk_pcwin64.c -outfile=icematlab_proto.m" />
-  </Target>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\$(Platform)\$(Configuration)\icematlab_thunk.c" />
+    <ClCompile Include="x64\Release\icematlab_thunk.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\icematlab_thunk.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="MATLABPrototype" BeforeTargets="CLCompile">
+    <MakeDir Directories="$(Platform)\$(Configuration)" />
+    <Exec Command="cl /P /c ..\..\..\..\icematlab.h" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\icematlab.i') or $([System.IO.File]::GetLastWriteTime('..\..\icematlab.h').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab.i').Ticks)" />
+    <Exec Command="perl &quot;$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl&quot; icematlab.i -thunkfile=icematlab_thunk.c -outfile=icematlab_proto.m" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\icematlab_proto.m') or $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab.i').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab_proto.m').Ticks)" />
+    <Copy SourceFiles="$(Platform)\$(Configuration)\icematlab_proto.m" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="MATLABPrototypeClean" BeforeTargets="Clean">
+    <Delete Files="$(Platform)\$(Configuration)\icematlab.i" />
+    <Delete Files="$(Platform)\$(Configuration)\icematlab_proto.m" />
+    <Delete Files="$(Platform)\$(Configuration)\icematlab_thunk.c" />
+  </Target>
 </Project>
