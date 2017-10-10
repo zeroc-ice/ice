@@ -21,7 +21,7 @@
   <Target Name="Build">
     <RemoveDir Directories="$(SliceOutputDir)" Condition="Exists('$(SliceOutputDir)')"/>
     <MakeDir Directories="$(SliceOutputDir)"/>
-    <Exec Command="$(IceToolsDir)\slice2matlab.exe -I$(SliceDir) --output-dir $(SliceOutputDir) $(SliceArgs) %(Slice.FullPath)"/>
+    <Exec Command="$(IceToolsDir)\slice2matlab.exe -I$(SliceDir) --output-dir $(SliceOutputDir) $(SliceArgs) @(Slice, ' ')"/>
   </Target>
 
   <Target Name="Clean">
