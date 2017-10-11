@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
 #include <Ice/Ice.h>
-#include "icematlab.h"
+#include "ice.h"
 #include "Communicator.h"
 #include "Endpoint.h"
 #include "Future.h"
@@ -226,14 +224,14 @@ IceMatlab::getProxy(void* p)
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_equals(void* self, void* other)
 {
     assert(other); // Wrapper only calls this function for non-nil arguments.
@@ -248,7 +246,7 @@ Ice_ObjectPrx_equals(void* self, void* other)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int start, int size, void** r)
 {
     assert(!mxIsEmpty(buf));
@@ -281,7 +279,7 @@ Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int star
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
 {
     //
@@ -315,7 +313,7 @@ Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, unsigned int size, mxArray* context)
 {
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
@@ -346,7 +344,7 @@ Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, u
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size)
 {
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
@@ -375,7 +373,7 @@ Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams,
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inParams, unsigned int size,
                               mxArray* context, void** future)
 {
@@ -421,7 +419,7 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inPara
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size, void** future)
 {
     const shared_ptr<Ice::ObjectPrx> proxy = SELF;
@@ -464,19 +462,19 @@ Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inPa
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_toString(void* self)
 {
     return createResultValue(createStringFromUTF8(SELF->ice_toString()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getIdentity(void* self)
 {
     return createResultValue(createIdentity(SELF->ice_getIdentity()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
 {
     try
@@ -493,13 +491,13 @@ Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getContext(void* self)
 {
     return createResultValue(createStringMap(SELF->ice_getContext()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
 {
     try
@@ -516,14 +514,14 @@ Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getFacet(void* self)
 {
     auto s = SELF->ice_getFacet();
     return createResultValue(createStringFromUTF8(s));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
 {
     try
@@ -538,14 +536,14 @@ Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getAdapterId(void* self)
 {
     auto s = SELF->ice_getAdapterId();
     return createResultValue(createStringFromUTF8(s));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
 {
     try
@@ -560,7 +558,7 @@ Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getNumEndpoints(void* self)
 {
     try
@@ -573,7 +571,7 @@ Ice_ObjectPrx_ice_getNumEndpoints(void* self)
     }
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
 {
     try
@@ -592,14 +590,14 @@ Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_createEndpointList(void* self, unsigned int num, void** r)
 {
     *r = new vector<shared_ptr<Ice::Endpoint>>(num);
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_setEndpoint(void* self, void* arr, unsigned int idx, void* e)
 {
     //
@@ -622,7 +620,7 @@ Ice_ObjectPrx_ice_setEndpoint(void* self, void* arr, unsigned int idx, void* e)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
 {
     //
@@ -644,13 +642,13 @@ Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self)
 {
     return createResultValue(createInt(SELF->ice_getLocatorCacheTimeout()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
 {
     try
@@ -665,13 +663,13 @@ Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
 {
     return createResultValue(createInt(SELF->ice_getInvocationTimeout()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
 {
     try
@@ -686,14 +684,14 @@ Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getConnectionId(void* self)
 {
     auto s = SELF->ice_getConnectionId();
     return createResultValue(createStringFromUTF8(s));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
 {
     try
@@ -708,13 +706,13 @@ Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isConnectionCached(void* self)
 {
     return createResultValue(createBool(SELF->ice_isConnectionCached()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_connectionCached(void* self, void** r, unsigned char v)
 {
     try
@@ -729,7 +727,7 @@ Ice_ObjectPrx_ice_connectionCached(void* self, void** r, unsigned char v)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getEndpointSelection(void* self)
 {
     try
@@ -744,7 +742,7 @@ Ice_ObjectPrx_ice_getEndpointSelection(void* self)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
 {
     try
@@ -760,13 +758,13 @@ Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getEncodingVersion(void* self)
 {
     return createResultValue(createEncodingVersion(SELF->ice_getEncodingVersion()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
 {
     try
@@ -783,7 +781,7 @@ Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getRouter(void* self, void** r)
 {
     auto router = SELF->ice_getRouter();
@@ -791,7 +789,7 @@ Ice_ObjectPrx_ice_getRouter(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
 {
     try
@@ -811,7 +809,7 @@ Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getLocator(void* self, void** r)
 {
     auto locator = SELF->ice_getLocator();
@@ -819,7 +817,7 @@ Ice_ObjectPrx_ice_getLocator(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
 {
     try
@@ -839,13 +837,13 @@ Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isSecure(void* self)
 {
     return createResultValue(createBool(SELF->ice_isSecure()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
 {
     try
@@ -860,13 +858,13 @@ Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isPreferSecure(void* self)
 {
     return createResultValue(createBool(SELF->ice_isPreferSecure()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
 {
     try
@@ -881,13 +879,13 @@ Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isTwoway(void* self)
 {
     return createResultValue(createBool(SELF->ice_isTwoway()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_twoway(void* self, void** r)
 {
     try
@@ -902,13 +900,13 @@ Ice_ObjectPrx_ice_twoway(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isOneway(void* self)
 {
     return createResultValue(createBool(SELF->ice_isOneway()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_oneway(void* self, void** r)
 {
     try
@@ -923,13 +921,13 @@ Ice_ObjectPrx_ice_oneway(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isBatchOneway(void* self)
 {
     return createResultValue(createBool(SELF->ice_isBatchOneway()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
 {
     try
@@ -944,13 +942,13 @@ Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isDatagram(void* self)
 {
     return createResultValue(createBool(SELF->ice_isDatagram()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_datagram(void* self, void** r)
 {
     try
@@ -965,13 +963,13 @@ Ice_ObjectPrx_ice_datagram(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_isBatchDatagram(void* self)
 {
     return createResultValue(createBool(SELF->ice_isBatchDatagram()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_batchDatagram(void* self, void** r)
 {
     try
@@ -986,7 +984,7 @@ Ice_ObjectPrx_ice_batchDatagram(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
 {
     try
@@ -1001,7 +999,7 @@ Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
 {
     try
@@ -1016,7 +1014,7 @@ Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getConnection(void* self, void** r)
 {
     *r = 0;
@@ -1035,7 +1033,7 @@ Ice_ObjectPrx_ice_getConnection(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getConnectionAsync(void* self, void** future)
 {
     *future = 0;
@@ -1063,7 +1061,7 @@ Ice_ObjectPrx_ice_getConnectionAsync(void* self, void** future)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_getCachedConnection(void* self, void** r)
 {
     *r = 0;
@@ -1082,7 +1080,7 @@ Ice_ObjectPrx_ice_getCachedConnection(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_flushBatchRequests(void* self)
 {
     try
@@ -1096,7 +1094,7 @@ Ice_ObjectPrx_ice_flushBatchRequests(void* self)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
 {
     *future = 0;
@@ -1123,7 +1121,7 @@ Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_ObjectPrx_clone(void* self, void** r)
 {
     auto p = SELF;
@@ -1131,21 +1129,21 @@ Ice_ObjectPrx_clone(void* self, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_unref(void* self)
 {
     delete &IFSELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_id(void* self, unsigned long long* id)
 {
     *id = reinterpret_cast<unsigned long long>(self);
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
@@ -1155,7 +1153,7 @@ Ice_InvocationFuture_wait(void* self, unsigned char* ok)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_results(void* self)
 {
     // TBD: Timeout?
@@ -1194,20 +1192,20 @@ Ice_InvocationFuture_results(void* self)
     return createResultValue(createInvokeResultValue(createBool(ok), params));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_state(void* self)
 {
     return createResultValue(createStringFromUTF8(IFSELF->state()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_cancel(void* self)
 {
     IFSELF->cancel();
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_InvocationFuture_check(void* self)
 {
     if(!IFSELF->waitUntilFinished())
@@ -1235,21 +1233,21 @@ Ice_InvocationFuture_check(void* self)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_unref(void* self)
 {
     delete &GCFSELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_id(void* self, unsigned long long* id)
 {
     *id = reinterpret_cast<unsigned long long>(self);
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
@@ -1259,7 +1257,7 @@ Ice_GetConnectionFuture_wait(void* self, unsigned char* ok)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_fetch(void* self, void** con)
 {
     // TBD: Timeout?
@@ -1293,13 +1291,13 @@ Ice_GetConnectionFuture_fetch(void* self, void** con)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_state(void* self)
 {
     return createResultValue(createStringFromUTF8(GCFSELF->state()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_GetConnectionFuture_cancel(void* self)
 {
     GCFSELF->cancel();

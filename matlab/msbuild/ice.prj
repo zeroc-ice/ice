@@ -1,0 +1,72 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration build-checksum="2704456572" file="C:\Users\vagrant\builds\ice\matlab\msbuild\ice.prj" location="C:\Users\vagrant\builds\ice\matlab\msbuild" name="ice" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>ice</param.appname>
+    <param.authnamewatermark>ZeroC, Inc</param.authnamewatermark>
+    <param.email>info@zeroc.com</param.email>
+    <param.company>ZeroC, Inc</param.company>
+    <param.summary>Ice for MATLAB</param.summary>
+    <param.description />
+    <param.screenshot>${PROJECT_ROOT}\zeroc_logo-64x64.png</param.screenshot>
+    <param.version>3.7.1</param.version>
+    <param.output>${PROJECT_ROOT}\ice.mltbx</param.output>
+    <param.products.name />
+    <param.products.id />
+    <param.products.version />
+    <param.platforms />
+    <param.guid>095a111b-0147-4a42-b828-c42aafed1c81</param.guid>
+    <param.exclude.filters />
+    <param.examples />
+    <param.demosxml />
+    <param.apps />
+    <param.docs />
+    <param.matlabpath.excludes />
+    <unset>
+      <param.description />
+      <param.output />
+      <param.products.name />
+      <param.products.id />
+      <param.products.version />
+      <param.platforms />
+      <param.exclude.filters />
+      <param.examples />
+      <param.demosxml />
+      <param.apps />
+      <param.docs />
+      <param.matlabpath.excludes />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}\toolbox</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\toolbox\ice</file>
+      <file>${PROJECT_ROOT}\toolbox\slice</file>
+      <file>${PROJECT_ROOT}\toolbox\slice2matlab.exe</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="C:\Users\vagrant\builds\ice\matlab\msbuild" name="ice.mltbx" optional="false">C:\Users\vagrant\builds\ice\matlab\msbuild\ice.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>C:\Program Files\MATLAB\R2016a</root>
+      <toolboxes />
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>6.2</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>

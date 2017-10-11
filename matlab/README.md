@@ -28,13 +28,6 @@ To build in debug mode instead:
 msbuild msbuild\ice.proj /p:Configuration=Debug
 ```
 
-If MATLAB is not installed in the standard location set the MSBuild `MatlabHome`
-property:
-
-```
-msbuild msbuild\ice.proj /p:MatlabHome=C:\Program Files\MATLAB\R2016a
-```
-
 Upon completion, the build generates the following components:
 
  - Ice for C++11 library, located in `cpp\bin\x64\Release`
@@ -64,7 +57,7 @@ search path.
 
 The Ice for MATLAB library can be loaded with this command:
 ```
-loadlibrary icematlab
+loadlibrary('ice', @iceproto)
 ```
 
 The MEX file depends on `bzip2.dll` and `ice37++11.dll` that are part of the

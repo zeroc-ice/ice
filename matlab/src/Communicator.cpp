@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
 #include <Ice/Communicator.h>
 #include <Ice/Proxy.h>
-#include "icematlab.h"
+#include "ice.h"
 #include "Communicator.h"
 #include "Future.h"
 #include "Logger.h"
@@ -33,14 +31,14 @@ IceMatlab::getCommunicator(void* p)
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_destroy(void* self)
 {
     try
@@ -54,7 +52,7 @@ Ice_Communicator_destroy(void* self)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_destroyAsync(void* self, void** future)
 {
     *future = 0;
@@ -74,11 +72,11 @@ Ice_Communicator_destroyAsync(void* self, void** future)
             }
         });
     t.detach();
-    *future = new shared_ptr<SimpleFuture>(move(f));
+    *future = new shared_ptr<SimpleFuture>(f);
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
 {
     try
@@ -100,7 +98,7 @@ Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_proxyToString(void* self, void* proxy)
 {
     assert(proxy);
@@ -116,7 +114,7 @@ Ice_Communicator_proxyToString(void* self, void* proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
 {
     try
@@ -138,7 +136,7 @@ Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
 {
     assert(proxy);
@@ -155,7 +153,7 @@ Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_identityToString(void* self, mxArray* id)
 {
     try
@@ -171,7 +169,7 @@ Ice_Communicator_identityToString(void* self, mxArray* id)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_getProperties(void* self, void** props)
 {
     try
@@ -186,7 +184,7 @@ Ice_Communicator_getProperties(void* self, void** props)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_getLogger(void* self, void** logger)
 {
     try
@@ -201,7 +199,7 @@ Ice_Communicator_getLogger(void* self, void** logger)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_getDefaultRouter(void* self, void** proxy)
 {
     try
@@ -223,7 +221,7 @@ Ice_Communicator_getDefaultRouter(void* self, void** proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_setDefaultRouter(void* self, void* proxy)
 {
     try
@@ -242,7 +240,7 @@ Ice_Communicator_setDefaultRouter(void* self, void* proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_getDefaultLocator(void* self, void** proxy)
 {
     try
@@ -264,7 +262,7 @@ Ice_Communicator_getDefaultLocator(void* self, void** proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_setDefaultLocator(void* self, void* proxy)
 {
     try
@@ -283,7 +281,7 @@ Ice_Communicator_setDefaultLocator(void* self, void* proxy)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_flushBatchRequests(void* self, mxArray* mode)
 {
     try
@@ -298,7 +296,7 @@ Ice_Communicator_flushBatchRequests(void* self, mxArray* mode)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** future)
 {
     *future = 0;

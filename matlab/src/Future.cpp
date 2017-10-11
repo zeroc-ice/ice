@@ -7,9 +7,7 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
-#include "icematlab.h"
+#include "ice.h"
 #include "Future.h"
 #include "Util.h"
 
@@ -107,14 +105,14 @@ IceMatlab::SimpleFuture::isFinished() const
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_SimpleFuture_unref(void* self)
 {
     delete &SFSELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
@@ -124,20 +122,20 @@ Ice_SimpleFuture_wait(void* self, unsigned char* ok)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_SimpleFuture_state(void* self)
 {
     return createResultValue(createStringFromUTF8(SFSELF->state()));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_SimpleFuture_cancel(void* self)
 {
     SFSELF->cancel();
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_SimpleFuture_check(void* self)
 {
     if(!SFSELF->waitUntilFinished())

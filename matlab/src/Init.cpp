@@ -7,12 +7,10 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
 #include <Ice/Ice.h>
 #include <Ice/RegisterPlugins.h>
 #include <IceUtil/Time.h>
-#include "icematlab.h"
+#include "ice.h"
 #include "Util.h"
 
 using namespace std;
@@ -21,7 +19,7 @@ using namespace IceMatlab;
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_initialize(mxArray* args, void* propsImpl, void** r)
 {
     try
@@ -53,7 +51,7 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_stringToIdentity(mxArray* s)
 {
     try
@@ -68,7 +66,7 @@ Ice_stringToIdentity(mxArray* s)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_identityToString(mxArray* id, mxArray* mode)
 {
     try
@@ -85,32 +83,32 @@ Ice_identityToString(mxArray* id, mxArray* mode)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_stringVersion()
 {
     return createResultValue(createStringFromUTF8(ICE_STRING_VERSION));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_intVersion(int* v)
 {
     *v = ICE_INT_VERSION;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_currentEncoding()
 {
     return createResultValue(createEncodingVersion(Ice::currentEncoding));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_currentProtocol()
 {
     return createResultValue(createProtocolVersion(Ice::currentProtocol));
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_currentProtocolEncoding()
 {
     return createResultValue(createEncodingVersion(Ice::currentProtocolEncoding));

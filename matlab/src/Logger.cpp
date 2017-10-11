@@ -7,9 +7,7 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
-#include "icematlab.h"
+#include "ice.h"
 #include "Logger.h"
 #include "Util.h"
 
@@ -28,14 +26,14 @@ IceMatlab::createLogger(shared_ptr<Ice::Logger> p)
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_print(void* self, mxArray* message)
 {
     try
@@ -49,7 +47,7 @@ Ice_Logger_print(void* self, mxArray* message)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_trace(void* self, mxArray* category, mxArray* message)
 {
     try
@@ -63,7 +61,7 @@ Ice_Logger_trace(void* self, mxArray* category, mxArray* message)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_warning(void* self, mxArray* message)
 {
     try
@@ -77,7 +75,7 @@ Ice_Logger_warning(void* self, mxArray* message)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_error(void* self, mxArray* message)
 {
     try
@@ -91,7 +89,7 @@ Ice_Logger_error(void* self, mxArray* message)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_getPrefix(void* self)
 {
     try
@@ -105,7 +103,7 @@ Ice_Logger_getPrefix(void* self)
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Logger_cloneWithPrefix(void* self, mxArray* prefix, void** newLogger)
 {
     try

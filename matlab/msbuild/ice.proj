@@ -7,14 +7,25 @@
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets"/>
 
   <ItemGroup>
     <TestProjects Include="..\test\**\msbuild\test.proj" />
   </ItemGroup>
 
+  <Target Name="MatlabHome" Condition="'$(MatlabHome)' == ''">
+    <Exec Command="where matlab" ConsoleToMSBuild="true" EchoOff="yes">
+      <Output TaskParameter="ConsoleOutput" PropertyName="MatlabExe" />
+    </Exec>
+    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabExe)')"/>
+    <CreateProperty Value="$([System.IO.Path]::GetFullPath( '$(MatlabExe)\..\..' ))">
+      <Output TaskParameter="Value" PropertyName="MatlabHome" />
+    </CreateProperty>
+  </Target>
+
   <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-    <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
+    <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)packages -Version $(IceJSONVersion)"
           Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
     <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
           Condition="'$(ICE_BIN_DIST)' == ''"/>
@@ -27,13 +38,13 @@
              Properties="Platform=$(Platform);Configuration=$(Configuration)" />
   </Target>
 
-  <Target Name="BuildDist" DependsOnTargets="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+  <Target Name="BuildDist" DependsOnTargets="BuildCppDist;MatlabHome" Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
              BuildInParallel="true"
-             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
-    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\lib\msbuild\ice.proj"
+             Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\lib\msbuild\ice.proj"
              BuildInParallel="true"
-             Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+             Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
   </Target>
 
   <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
@@ -41,7 +52,7 @@
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"
              Targets="Clean" />
-    <MSBuild Projects="$(MSBuildThisFileDirectory)\..\lib\msbuild\ice.proj"
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\lib\msbuild\ice.proj"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"
              Targets="Clean" />
@@ -58,5 +69,13 @@
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration)"
              Targets="Clean" />
+  </Target>
+
+  <Target Name="Package" DependsOnTargets="BuildDist">
+    <RemoveDir Directories="$(MSBuildThisFileDirectory)toolbox" />
+    <MakeDir Directories="$(MSBuildThisFileDirectory)toolbox" />
+    <MSBuild Projects="ice.toolbox.targets"
+             Properties="Configuration=$(Configuration);Platform=x64" />
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd '$(MSBuildThisFileDirectory)';buildToolbox '3.7.1';exit(0)&quot;"/>
   </Target>
 </Project>

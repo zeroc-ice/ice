@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#define EXPORT_FCNS
-
 #include <Ice/Ice.h>
-#include "icematlab.h"
+#include "ice.h"
 #include "Endpoint.h"
 #include "Util.h"
 
@@ -150,14 +148,14 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
 extern "C"
 {
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Endpoint_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Endpoint_equals(void* self, void* other)
 {
     assert(other); // Wrapper only calls this function for non-nil arguments.
@@ -171,7 +169,7 @@ Ice_Endpoint_equals(void* self, void* other)
     }
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Endpoint_toString(void* self)
 {
     try
@@ -184,7 +182,7 @@ Ice_Endpoint_toString(void* self)
     }
 }
 
-EXPORTED_FUNCTION mxArray*
+ICE_MATLAB_API mxArray*
 Ice_Endpoint_getInfo(void* self)
 {
     try

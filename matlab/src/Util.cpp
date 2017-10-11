@@ -12,7 +12,7 @@
 #include <string>
 #include <locale>
 #include <codecvt>
-#include "icematlab.h"
+#include "ice.h"
 #include "Util.h"
 
 using namespace std;

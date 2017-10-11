@@ -1,11 +1,11 @@
 #include <IceUtil/ResourceConfig.h>
 
 #ifdef _DEBUG
-#   define ICE_INTERNALNAME "icematlab_d\0"
-#   define ICE_ORIGINALFILENAME "icematlab_d.dll\0"
+#   define ICE_INTERNALNAME "ice\0"
+#   define ICE_ORIGINALFILENAME "ice.mexw64\0"
 #else
-#   define ICE_INTERNALNAME "icematlab\0"
-#   define ICE_ORIGINALFILENAME "icematlab.dll\0"
+#   define ICE_INTERNALNAME "ice\0"
+#   define ICE_ORIGINALFILENAME "ice.mexw64\0"
 #endif
 
 VS_VERSION_INFO VERSIONINFO
