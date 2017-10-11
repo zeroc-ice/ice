@@ -19,14 +19,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Slice Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
     <Slice Include="..\..\..\slice\Ice\Communicator.ice" />
     <Slice Include="..\..\..\slice\Ice\Connection.ice" />
     <Slice Include="..\..\..\slice\Ice\Current.ice" />
     <Slice Include="..\..\..\slice\Ice\Endpoint.ice" />
     <Slice Include="..\..\..\slice\Ice\EndpointTypes.ice" />
     <Slice Include="..\..\..\slice\Ice\Identity.ice" />
+    <Slice Include="..\..\..\slice\Ice\Instrumentation.ice" />
     <Slice Include="..\..\..\slice\Ice\LocalException.ice" />
     <Slice Include="..\..\..\slice\Ice\Locator.ice" />
+    <Slice Include="..\..\..\slice\Ice\Metrics.ice" />
+    <Slice Include="..\..\..\slice\Ice\Process.ice" />
+    <Slice Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
+    <Slice Include="..\..\..\slice\Ice\RemoteLogger.ice" />
     <Slice Include="..\..\..\slice\Ice\Router.ice" />
     <Slice Include="..\..\..\slice\Ice\SliceChecksumDict.ice" />
     <Slice Include="..\..\..\slice\Ice\ValueFactory.ice" />
