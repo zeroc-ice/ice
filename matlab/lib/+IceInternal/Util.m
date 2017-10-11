@@ -16,7 +16,7 @@ classdef Util
         % The value for fn MUST be given in single quotes!
         %
         function call(fn, varargin)
-            ex = calllib('icematlab', fn, varargin{:});
+            ex = calllib('ice', fn, varargin{:});
             if ~isempty(ex)
                 ex.throwAsCaller();
             end
@@ -27,7 +27,7 @@ classdef Util
         % The value for fn MUST be given in single quotes!
         %
         function r = callWithResult(fn, varargin)
-            result = calllib('icematlab', fn, varargin{:});
+            result = calllib('ice', fn, varargin{:});
             if isempty(result)
                 r = result;
             elseif ~isempty(result.exception)

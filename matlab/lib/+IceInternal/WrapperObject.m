@@ -31,14 +31,14 @@ classdef (Abstract) WrapperObject < handle
         end
         function iceCall(obj, fn, varargin)
             name = strcat(obj.type_, '_', fn);
-            ex = calllib('icematlab', name, obj.impl_, varargin{:});
+            ex = calllib('ice', name, obj.impl_, varargin{:});
             if ~isempty(ex)
                 ex.throwAsCaller();
             end
         end
         function r = iceCallWithResult(obj, fn, varargin)
             name = strcat(obj.type_, '_', fn);
-            result = calllib('icematlab', name, obj.impl_, varargin{:});
+            result = calllib('ice', name, obj.impl_, varargin{:});
             if isempty(result)
                 r = result;
             elseif ~isempty(result.exception)
