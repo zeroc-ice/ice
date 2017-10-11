@@ -278,31 +278,6 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
 
 map<string, string> _filePackagePrefix;
 
-string
-getPackagePrefix(const ContainedPtr& cont)
-{
-    UnitPtr unit = cont->container()->unit();
-    string file = cont->file();
-    assert(!file.empty());
-
-    map<string, string>::const_iterator p = _filePackagePrefix.find(file);
-    if(p != _filePackagePrefix.end())
-    {
-        return p->second;
-    }
-
-    static const string prefix = "matlab:package:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
-    assert(dc);
-    string q = dc->findMetaData(prefix);
-    if(!q.empty())
-    {
-        q = q.substr(prefix.size());
-    }
-    _filePackagePrefix[file] = q;
-    return q;
-}
-
 //
 // Get the fully-qualified name of the given definition. If a suffix is provided,
 // it is prepended to the definition's unqualified name. If the nameSuffix
@@ -311,12 +286,7 @@ getPackagePrefix(const ContainedPtr& cont)
 string
 getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
 {
-    string pkg = getPackagePrefix(cont);
-    if(!pkg.empty())
-    {
-        pkg += ".";
-    }
-    return pkg + scopedToName(cont->scope() + pfx + cont->name() + suffix);
+    return scopedToName(cont->scope() + pfx + cont->name() + suffix);
 }
 
 string

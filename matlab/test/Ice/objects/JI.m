@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef JI < Ice.InterfaceByValue
     methods
         function obj = JI()
-            obj = obj@Ice.InterfaceByValue(test.Ice.objects.Test.JPrx.ice_staticId());
+            obj = obj@Ice.InterfaceByValue(Test.JPrx.ice_staticId());
         end
     end
 end

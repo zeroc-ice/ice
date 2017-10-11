@@ -9,7 +9,6 @@
 
 #pragma once
 
-[["matlab:package:test.Ice.objects"]]
 [["suppress-warning:deprecated"]] // For classes with operations
 
 module Test

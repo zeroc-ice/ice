@@ -11,7 +11,6 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["matlab:package:test.Ice.exceptions"]]
 module Test
 {
 

@@ -9,8 +9,6 @@
 
 #pragma once
 
-[["matlab:package:test.Ice.objects"]]
-
 module LocalTest
 {
 

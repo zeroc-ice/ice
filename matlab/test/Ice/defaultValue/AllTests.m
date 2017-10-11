@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function allTests(app)
-            import test.Ice.defaultValue.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -31,9 +31,9 @@ classdef AllTests
             assert(v.c1 == Color.red);
             assert(v.c2 == Color.green);
             assert(v.c3 == Color.blue);
-            assert(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
-            assert(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
-            assert(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
+            assert(v.nc1 == Test.Nested.Color.red);
+            assert(v.nc2 == Test.Nested.Color.green);
+            assert(v.nc3 == Test.Nested.Color.blue);
             assert(strcmp(v.noDefault, ''));
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
@@ -89,9 +89,9 @@ classdef AllTests
             assert(v.c1 == Color.red);
             assert(v.c2 == Color.green);
             assert(v.c3 == Color.blue);
-            assert(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
-            assert(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
-            assert(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
+            assert(v.nc1 == Test.Nested.Color.red);
+            assert(v.nc2 == Test.Nested.Color.green);
+            assert(v.nc3 == Test.Nested.Color.blue);
             assert(strcmp(v.noDefault, ''));
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
@@ -132,9 +132,9 @@ classdef AllTests
             assert(v.c1 == Color.red);
             assert(v.c2 == Color.green);
             assert(v.c3 == Color.blue);
-            assert(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
-            assert(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
-            assert(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
+            assert(v.nc1 == Test.Nested.Color.red);
+            assert(v.nc2 == Test.Nested.Color.green);
+            assert(v.nc3 == Test.Nested.Color.blue);
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
             assert(v.zeroF == 0);
@@ -146,7 +146,7 @@ classdef AllTests
 
             fprintf('testing default constructor... ');
 
-            v = test.Ice.defaultValue.Test.StructNoDefaults();
+            v = StructNoDefaults();
             assert(v.bo == false);
             assert(v.b == 0);
             assert(v.s == 0);
@@ -155,22 +155,22 @@ classdef AllTests
             assert(v.f == 0.0);
             assert(v.d == 0.0);
             assert(strcmp(v.str, ''));
-            assert(v.c1 == test.Ice.defaultValue.Test.Color.red);
+            assert(v.c1 == Color.red);
             assert(isempty(v.bs));
             assert(isempty(v.is));
             assert(~isempty(v.st));
             assert(isempty(v.dict));
 
-            e = test.Ice.defaultValue.Test.ExceptionNoDefaults();
+            e = ExceptionNoDefaults();
             assert(strcmp(e.str, ''));
-            assert(e.c1 == test.Ice.defaultValue.Test.Color.red);
+            assert(e.c1 == Color.red);
             assert(isempty(e.bs));
             assert(~isempty(e.st));
             assert(isempty(e.dict));
 
-            cl = test.Ice.defaultValue.Test.ClassNoDefaults();
+            cl = ClassNoDefaults();
             assert(strcmp(cl.str, ''));
-            assert(cl.c1 == test.Ice.defaultValue.Test.Color.red);
+            assert(cl.c1 == Color.red);
             assert(isempty(cl.bs));
             assert(~isempty(cl.st));
             assert(isempty(cl.dict));

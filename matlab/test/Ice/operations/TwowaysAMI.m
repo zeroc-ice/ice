@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef TwowaysAMI
     methods(Static)
         function twowaysAMI(app, p)
-            import test.Ice.operations.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -794,7 +794,7 @@ classdef TwowaysAMI
             [r, p3] = call(p, 'opMyStructMyEnumDS', dsi1, dsi2);
 
             function checkStructDict(d)
-                import test.Ice.operations.Test.*;
+                import Test.*;
                 for i = 1:length(d)
                     if isequal(d(i).key, s11)
                         assert(d(i).value == MyEnum.enum1);
@@ -1152,11 +1152,10 @@ classdef TwowaysAMI
 %{
             impls = {'Shared', 'PerThread'};
             for i = 1:2
-                initData = app.createInitializationData();
-                initData.properties_ = communicator.getProperties().clone();
+                initData = app.cloneInitData();
                 initData.properties_.setProperty('Ice.ImplicitContext', impls{i});
 
-                ic = app.initialize(initData);
+                ic = Ice.initialize(initData);
 
                 ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
                 ctx('one') = 'ONE';

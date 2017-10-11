@@ -12,12 +12,12 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.slicing.exceptions.client.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
             fprintf('testing stringToProxy... ');
-            ref = ['Test:', app.getTestEndpoint(0, ''), ' -t 10000'];
+            ref = ['Test:', app.getTestEndpoint(0), ' -t 10000'];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             fprintf('ok\n');
@@ -34,7 +34,7 @@ classdef AllTests
                 test.baseAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'Base.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -50,7 +50,7 @@ classdef AllTests
                 test.baseAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'Base.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -66,7 +66,7 @@ classdef AllTests
                 test.unknownDerivedAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownDerived.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -82,7 +82,7 @@ classdef AllTests
                 test.unknownDerivedAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownDerived.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -98,7 +98,7 @@ classdef AllTests
                 test.knownDerivedAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownDerived')
+                if isa(ex, 'Test.KnownDerived')
                     assert(strcmp(ex.b, 'KnownDerived.b'));
                     assert(strcmp(ex.kd, 'KnownDerived.kd'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownDerived'));
@@ -115,7 +115,7 @@ classdef AllTests
                 test.knownDerivedAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownDerived')
+                if isa(ex, 'Test.KnownDerived')
                     assert(strcmp(ex.b, 'KnownDerived.b'));
                     assert(strcmp(ex.kd, 'KnownDerived.kd'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownDerived'));
@@ -132,7 +132,7 @@ classdef AllTests
                 test.knownDerivedAsKnownDerived();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownDerived')
+                if isa(ex, 'Test.KnownDerived')
                     assert(strcmp(ex.b, 'KnownDerived.b'));
                     assert(strcmp(ex.kd, 'KnownDerived.kd'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownDerived'));
@@ -149,7 +149,7 @@ classdef AllTests
                 test.knownDerivedAsKnownDerivedAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownDerived')
+                if isa(ex, 'Test.KnownDerived')
                     assert(strcmp(ex.b, 'KnownDerived.b'));
                     assert(strcmp(ex.kd, 'KnownDerived.kd'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownDerived'));
@@ -166,7 +166,7 @@ classdef AllTests
                 test.unknownIntermediateAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownIntermediate.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -182,7 +182,7 @@ classdef AllTests
                 test.unknownIntermediateAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownIntermediate.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -198,7 +198,7 @@ classdef AllTests
                 test.knownIntermediateAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'KnownIntermediate.b'));
                     assert(strcmp(ex.ki, 'KnownIntermediate.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -215,7 +215,7 @@ classdef AllTests
                 test.knownIntermediateAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'KnownIntermediate.b'));
                     assert(strcmp(ex.ki, 'KnownIntermediate.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -232,7 +232,7 @@ classdef AllTests
                 test.knownMostDerivedAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -250,7 +250,7 @@ classdef AllTests
                 test.knownMostDerivedAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -268,7 +268,7 @@ classdef AllTests
                 test.knownIntermediateAsKnownIntermediate();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'KnownIntermediate.b'));
                     assert(strcmp(ex.ki, 'KnownIntermediate.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -285,7 +285,7 @@ classdef AllTests
                 test.knownIntermediateAsKnownIntermediateAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'KnownIntermediate.b'));
                     assert(strcmp(ex.ki, 'KnownIntermediate.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -302,7 +302,7 @@ classdef AllTests
                 test.knownMostDerivedAsKnownIntermediate();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -320,7 +320,7 @@ classdef AllTests
                 test.knownMostDerivedAsKnownIntermediateAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -338,7 +338,7 @@ classdef AllTests
                 test.knownMostDerivedAsKnownMostDerived();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -356,7 +356,7 @@ classdef AllTests
                 test.knownMostDerivedAsKnownMostDerivedAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownMostDerived')
+                if isa(ex, 'Test.KnownMostDerived')
                     assert(strcmp(ex.b, 'KnownMostDerived.b'));
                     assert(strcmp(ex.ki, 'KnownMostDerived.ki'));
                     assert(strcmp(ex.kmd, 'KnownMostDerived.kmd'));
@@ -374,7 +374,7 @@ classdef AllTests
                 test.unknownMostDerived1AsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'UnknownMostDerived1.b'));
                     assert(strcmp(ex.ki, 'UnknownMostDerived1.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -391,7 +391,7 @@ classdef AllTests
                 test.unknownMostDerived1AsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'UnknownMostDerived1.b'));
                     assert(strcmp(ex.ki, 'UnknownMostDerived1.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -408,7 +408,7 @@ classdef AllTests
                 test.unknownMostDerived1AsKnownIntermediate();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'UnknownMostDerived1.b'));
                     assert(strcmp(ex.ki, 'UnknownMostDerived1.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -425,7 +425,7 @@ classdef AllTests
                 test.unknownMostDerived1AsKnownIntermediateAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownIntermediate')
+                if isa(ex, 'Test.KnownIntermediate')
                     assert(strcmp(ex.b, 'UnknownMostDerived1.b'));
                     assert(strcmp(ex.ki, 'UnknownMostDerived1.ki'));
                     assert(strcmp(ex.ice_id(), '::Test::KnownIntermediate'));
@@ -442,7 +442,7 @@ classdef AllTests
                 test.unknownMostDerived2AsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownMostDerived2.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -458,7 +458,7 @@ classdef AllTests
                 test.unknownMostDerived2AsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     assert(strcmp(ex.b, 'UnknownMostDerived2.b'));
                     assert(strcmp(ex.ice_id(), '::Test::Base'));
                 else
@@ -474,7 +474,7 @@ classdef AllTests
                 test.unknownMostDerived2AsBaseCompact();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.Base')
+                if isa(ex, 'Test.Base')
                     %
                     % For the 1.0 encoding, the unknown exception is sliced to Base.
                     %
@@ -519,7 +519,7 @@ classdef AllTests
                 test.unknownPreservedAsKnownPreserved();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.exceptions.client.Test.KnownPreserved')
+                if isa(ex, 'Test.KnownPreserved')
                     assert(strcmp(ex.kp, 'preserved'));
                     if test.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
                         assert(isempty(ex.ice_getSlicedData()));

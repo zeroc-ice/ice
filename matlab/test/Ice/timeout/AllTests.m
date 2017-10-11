@@ -29,11 +29,11 @@ classdef AllTests
             r = prx.ice_getConnection(); % Establish connection
         end
         function r = allTests(app)
-            import test.Ice.timeout.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
-            sref = ['timeout:', app.getTestEndpoint(0, '')];
+            sref = ['timeout:', app.getTestEndpoint(0)];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
@@ -239,11 +239,10 @@ classdef AllTests
             % Test Ice.Override.Timeout. This property overrides all
             % endpoint timeouts.
             %
-            initData = app.createInitializationData();
-            initData.properties_ = communicator.getProperties().clone();
+            initData = app.cloneInitData();
             initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
             initData.properties_.setProperty('Ice.Override.Timeout', '100');
-            comm = app.initialize(initData);
+            comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             AllTests.connect(to);
             timeout.holdAdapter(500 * mult);
@@ -273,15 +272,14 @@ classdef AllTests
             %
             % Test Ice.Override.ConnectTimeout.
             %
-            initData = app.createInitializationData();
-            initData.properties_ = communicator.getProperties().clone();
+            initData = app.cloneInitData();
             if mult == 1
                 initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
             else
                 initData.properties_.setProperty('Ice.Override.ConnectTimeout', '2500');
             end
 
-            comm = app.initialize(initData);
+            comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             timeout.holdAdapter(750 * mult);
             try
@@ -322,10 +320,9 @@ classdef AllTests
             %
             % Test Ice.Override.CloseTimeout.
             %
-            initData = app.createInitializationData();
-            initData.properties_ = communicator.getProperties().clone();
+            initData = app.cloneInitData();
             initData.properties_.setProperty('Ice.Override.CloseTimeout', '100');
-            comm = app.initialize(initData);
+            comm = Ice.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
             timeout.holdAdapter(800);
             tic();

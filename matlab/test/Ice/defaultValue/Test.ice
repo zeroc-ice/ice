@@ -9,8 +9,6 @@
 
 #pragma once
 
-[["matlab:package:test.Ice.defaultValue"]]
-
 [["suppress-warning:deprecated"]] // For enumerator references
 
 module Test

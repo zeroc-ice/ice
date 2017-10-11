@@ -9,5 +9,5 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef HI < test.Ice.objects.Test.H
+classdef HI < Test.H
 end

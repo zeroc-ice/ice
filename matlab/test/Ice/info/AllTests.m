@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function allTests(app)
-            import test.Ice.info.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -61,7 +61,7 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            base = communicator.stringToProxy(['test:', app.getTestEndpoint(0, ''), ':', ...
+            base = communicator.stringToProxy(['test:', app.getTestEndpoint(0), ':', ...
                                               app.getTestEndpoint(0, 'udp')]);
             testIntf = TestIntfPrx.checkedCast(base);
 

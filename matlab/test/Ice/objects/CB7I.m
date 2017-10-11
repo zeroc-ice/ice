@@ -9,7 +9,7 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef CB7I < test.Ice.objects.LocalTest.CB7
+classdef CB7I < LocalTest.CB7
     methods
         function ice_postUnmarshal(obj)
             obj.postUnmarshalInvoked = true;

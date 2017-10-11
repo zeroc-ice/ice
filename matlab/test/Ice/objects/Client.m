@@ -9,59 +9,48 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Client < Application
-    methods
-        function r = run(obj, args)
-            communicator = obj.communicator();
-
-            %
-            % Remote tests
-            %
-            vfm = communicator.getValueFactoryManager();
-            vfm.add(@(id) BI(), test.Ice.objects.Test.B.ice_staticId());
-            vfm.add(@(id) CI(), test.Ice.objects.Test.C.ice_staticId());
-            vfm.add(@(id) DI(), test.Ice.objects.Test.D.ice_staticId());
-            vfm.add(@(id) EI(), test.Ice.objects.Test.E.ice_staticId());
-            vfm.add(@(id) FI(), test.Ice.objects.Test.F.ice_staticId());
-            vfm.add(@(id) II(), test.Ice.objects.Test.IPrx.ice_staticId());
-            vfm.add(@(id) JI(), test.Ice.objects.Test.JPrx.ice_staticId());
-            vfm.add(@(id) HI(), test.Ice.objects.Test.H.ice_staticId());
-
-            initial = AllTests.allTests(obj);
-            initial.shutdown();
-
-            %
-            % Local tests
-            %
-            vfm.add(@(id) CB1I(), test.Ice.objects.LocalTest.CB1.ice_staticId());
-            vfm.add(@(id) CB2I(), test.Ice.objects.LocalTest.CB2.ice_staticId());
-            vfm.add(@(id) CB3I(), test.Ice.objects.LocalTest.CB3.ice_staticId());
-            vfm.add(@(id) CB4I(), test.Ice.objects.LocalTest.CB4.ice_staticId());
-            vfm.add(@(id) CB5I(), test.Ice.objects.LocalTest.CB5.ice_staticId());
-            vfm.add(@(id) CB6I(), test.Ice.objects.LocalTest.CB6.ice_staticId());
-            vfm.add(@(id) CB7I(), test.Ice.objects.LocalTest.CB7.ice_staticId());
-            vfm.add(@(id) CB8I(), test.Ice.objects.LocalTest.CB8.ice_staticId());
-            LocalTests.localTests(obj);
-
-            r = 0;
-        end
+function Client(args)
+    addpath('generated');
+    addpath('../../lib');
+    if ~libisloaded('ice')
+        loadlibrary('ice', @iceproto)
     end
-    methods(Access=protected)
-        function [r, remArgs] = getInitData(obj, args)
-            [initData, remArgs] = getInitData@Application(obj, args);
-            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.objects');
-            initData.properties_.setProperty('Ice.Package.LocalTest', 'test.Ice.objects');
-            r = initData;
-        end
-    end
-    methods(Static)
-        function status = start(args)
-            addpath('generated');
-            if ~libisloaded('ice')
-                loadlibrary('ice', @iceproto)
-            end
-            c = Client();
-            status = c.main('Client', args);
-        end
-    end
+
+    initData = TestApp.createInitData('Client', args);
+    initData.properties_.setProperty('Ice.Warn.Connections', '0');
+    communicator = Ice.initialize(initData);
+    cleanup = onCleanup(@() communicator.destroy());
+
+    app = TestApp(communicator);
+
+    %
+    % Remote tests
+    %
+    vfm = communicator.getValueFactoryManager();
+    vfm.add(@(id) BI(), Test.B.ice_staticId());
+    vfm.add(@(id) CI(), Test.C.ice_staticId());
+    vfm.add(@(id) DI(), Test.D.ice_staticId());
+    vfm.add(@(id) EI(), Test.E.ice_staticId());
+    vfm.add(@(id) FI(), Test.F.ice_staticId());
+    vfm.add(@(id) II(), Test.IPrx.ice_staticId());
+    vfm.add(@(id) JI(), Test.JPrx.ice_staticId());
+    vfm.add(@(id) HI(), Test.H.ice_staticId());
+
+    initial = AllTests.allTests(app);
+    initial.shutdown();
+
+    %
+    % Local tests
+    %
+    vfm.add(@(id) CB1I(), LocalTest.CB1.ice_staticId());
+    vfm.add(@(id) CB2I(), LocalTest.CB2.ice_staticId());
+    vfm.add(@(id) CB3I(), LocalTest.CB3.ice_staticId());
+    vfm.add(@(id) CB4I(), LocalTest.CB4.ice_staticId());
+    vfm.add(@(id) CB5I(), LocalTest.CB5.ice_staticId());
+    vfm.add(@(id) CB6I(), LocalTest.CB6.ice_staticId());
+    vfm.add(@(id) CB7I(), LocalTest.CB7.ice_staticId());
+    vfm.add(@(id) CB8I(), LocalTest.CB8.ice_staticId());
+    LocalTests.localTests(app);
+
+    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

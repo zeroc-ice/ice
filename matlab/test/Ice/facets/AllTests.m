@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.facets.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -39,7 +39,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing stringToProxy... ');
-            ref = ['d:', app.getTestEndpoint(0, '')];
+            ref = ['d:', app.getTestEndpoint(0)];
             db = communicator.stringToProxy(ref);
             assert(~isempty(db));
             fprintf('ok\n');

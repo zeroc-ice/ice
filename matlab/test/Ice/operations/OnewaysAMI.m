@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef OnewaysAMI
     methods(Static)
         function onewaysAMI(app, p)
-            import test.Ice.operations.Test.*;
+            import Test.*;
 
             p = p.ice_oneway();
 

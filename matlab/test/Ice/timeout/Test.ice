@@ -9,7 +9,6 @@
 
 #pragma once
 
-[["matlab:package:test.Ice.timeout"]]
 module Test
 {
 

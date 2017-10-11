@@ -12,12 +12,12 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.slicing.objects.client.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
             fprintf('testing stringToProxy... ');
-            ref = ['Test:', app.getTestEndpoint(0, ''), ' -t 10000'];
+            ref = ['Test:', app.getTestEndpoint(0), ' -t 10000'];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             fprintf('ok\n');
@@ -490,7 +490,7 @@ classdef AllTests
             assert(strcmp(b2.sb, 'D3.sb'));
             assert(strcmp(b2.ice_id(), '::Test::B'));  % Sliced by server
             assert(b2.pb == b1);
-            assert(~isa(b2, 'test.Ice.slicing.objects.client.Test.D3'));
+            assert(~isa(b2, 'Test.D3'));
 
             assert(b1 ~= d1);
             assert(b1 ~= d3);
@@ -527,7 +527,7 @@ classdef AllTests
             assert(strcmp(b2.sb, 'D3.sb'));
             assert(strcmp(b2.ice_id(), '::Test::B'));  % Sliced by server
             assert(b2.pb == b1);
-            assert(~isa(b2, 'test.Ice.slicing.objects.client.Test.D3'));
+            assert(~isa(b2, 'Test.D3'));
 
             assert(b1 ~= d1);
             assert(b1 ~= d3);
@@ -554,7 +554,7 @@ classdef AllTests
             assert(~isempty(b1));
             assert(strcmp(b1.sb, 'D3.sb'));
             assert(strcmp(b1.ice_id(), '::Test::B')); % Sliced by server
-            assert(~isa(b1, 'test.Ice.slicing.objects.client.Test.D3'));
+            assert(~isa(b1, 'Test.D3'));
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D1.sb'));
@@ -590,7 +590,7 @@ classdef AllTests
             assert(~isempty(b1));
             assert(strcmp(b1.sb, 'D3.sb'));
             assert(strcmp(b1.ice_id(), '::Test::B')); % Sliced by server
-            assert(~isa(b1, 'test.Ice.slicing.objects.client.Test.D3'));
+            assert(~isa(b1, 'Test.D3'));
             b2 = b1.pb;
             assert(~isempty(b2));
             assert(strcmp(b2.sb, 'D1.sb'));
@@ -1039,7 +1039,7 @@ classdef AllTests
                 proxy.throwBaseAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.BaseException')
+                if isa(ex, 'Test.BaseException')
                     assert(strcmp(ex.ice_id(), '::Test::BaseException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1057,7 +1057,7 @@ classdef AllTests
                 proxy.throwBaseAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.BaseException')
+                if isa(ex, 'Test.BaseException')
                     assert(strcmp(ex.ice_id(), '::Test::BaseException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1075,7 +1075,7 @@ classdef AllTests
                 proxy.throwDerivedAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.DerivedException')
+                if isa(ex, 'Test.DerivedException')
                     assert(strcmp(ex.ice_id(), '::Test::DerivedException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1099,7 +1099,7 @@ classdef AllTests
                 proxy.throwDerivedAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.DerivedException')
+                if isa(ex, 'Test.DerivedException')
                     assert(strcmp(ex.ice_id(), '::Test::DerivedException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1123,7 +1123,7 @@ classdef AllTests
                 proxy.throwDerivedAsDerived();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.DerivedException')
+                if isa(ex, 'Test.DerivedException')
                     assert(strcmp(ex.ice_id(), '::Test::DerivedException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1147,7 +1147,7 @@ classdef AllTests
                 proxy.throwDerivedAsDerivedAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.DerivedException')
+                if isa(ex, 'Test.DerivedException')
                     assert(strcmp(ex.ice_id(), '::Test::DerivedException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1171,7 +1171,7 @@ classdef AllTests
                 proxy.throwUnknownDerivedAsBase();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.BaseException')
+                if isa(ex, 'Test.BaseException')
                     assert(strcmp(ex.ice_id(), '::Test::BaseException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1189,7 +1189,7 @@ classdef AllTests
                 proxy.throwUnknownDerivedAsBaseAsync().fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.slicing.objects.client.Test.BaseException')
+                if isa(ex, 'Test.BaseException')
                     assert(strcmp(ex.ice_id(), '::Test::BaseException'));
                     assert(strcmp(ex.sbe, 'sbe'));
                     assert(~isempty(ex.pb));
@@ -1249,7 +1249,7 @@ classdef AllTests
                 pu.pu = 'preserved';
 
                 r = proxy.exchangePBase(pu);
-                assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCUnknown'));
+                assert(~isa(r, 'Test.PCUnknown'));
                 assert(r.pi == 3);
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1271,7 +1271,7 @@ classdef AllTests
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCDerived'));
+                    assert(~isa(r, 'Test.PCDerived'));
                     assert(r.pi == 3);
                 else
                     p2 = r;
@@ -1298,7 +1298,7 @@ classdef AllTests
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.CompactPCDerived'));
+                    assert(~isa(r, 'Test.CompactPCDerived'));
                     assert(r.pi == 3);
                 else
                     p2 = r;
@@ -1337,8 +1337,8 @@ classdef AllTests
 
                 r = proxy.exchangePBase(pcd);
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCDerived3'));
-                    assert(isa(r, 'test.Ice.slicing.objects.client.Test.Preserved'));
+                    assert(~isa(r, 'Test.PCDerived3'));
+                    assert(isa(r, 'Test.Preserved'));
                     assert(r.pi == 3);
                 else
                     p3 = r;
@@ -1422,7 +1422,7 @@ classdef AllTests
                 pu.pu = 'preserved';
 
                 r = proxy.exchangePBaseAsync(pu).fetchOutputs();
-                assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCUnknown'));
+                assert(~isa(r, 'Test.PCUnknown'));
                 assert(r.pi == 3);
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
@@ -1444,7 +1444,7 @@ classdef AllTests
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCDerived'));
+                    assert(~isa(r, 'Test.PCDerived'));
                     assert(r.pi == 3);
                 else
                     p2 = r;
@@ -1471,7 +1471,7 @@ classdef AllTests
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.CompactPCDerived'));
+                    assert(~isa(r, 'Test.CompactPCDerived'));
                     assert(r.pi == 3);
                 else
                     p2 = r;
@@ -1510,8 +1510,8 @@ classdef AllTests
 
                 r = proxy.exchangePBaseAsync(pcd).fetchOutputs();
                 if proxy.ice_getEncodingVersion() == Ice.EncodingVersion(1, 0)
-                    assert(~isa(r, 'test.Ice.slicing.objects.client.Test.PCDerived3'));
-                    assert(isa(r, 'test.Ice.slicing.objects.client.Test.Preserved'));
+                    assert(~isa(r, 'Test.PCDerived3'));
+                    assert(isa(r, 'Test.Preserved'));
                     assert(r.pi == 3);
                 else
                     p3 = r;
@@ -1571,7 +1571,7 @@ classdef AllTests
             preservedCounter = Counter();
             function r = preservedFactory(id)
                 preservedCounter.count = preservedCounter.count + 1;
-                r = test.Ice.slicing.objects.client.Test.Preserved();
+                r = Test.Preserved();
             end
             communicator.getValueFactoryManager().add(@preservedFactory, Preserved.ice_staticId());
 
@@ -1582,7 +1582,7 @@ classdef AllTests
             nodeCounter = Counter();
             function r = nodeFactory(id)
                 nodeCounter.count = nodeCounter.count + 1;
-                r = test.Ice.slicing.objects.client.Test.PNode();
+                r = Test.PNode();
             end
             communicator.getValueFactoryManager().add(@nodeFactory, PNode.ice_staticId());
 
@@ -1641,7 +1641,7 @@ classdef AllTests
                 try
                     proxy.throwPreservedException();
                 catch ex
-                    if isa(ex, 'test.Ice.slicing.objects.client.Test.PreservedException')
+                    if isa(ex, 'Test.PreservedException')
                         assert(preservedCounter.count == 1);
                     else
                         rethrow(ex);

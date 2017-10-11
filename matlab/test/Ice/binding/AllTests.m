@@ -35,11 +35,11 @@ classdef AllTests
         end
 
         function r = allTests(app)
-            import test.Ice.binding.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
-            ref = ['communicator:', app.getTestEndpoint(0, '')];
+            ref = ['communicator:', app.getTestEndpoint(0)];
             rcom = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             fprintf('testing binding with single endpoint... ');

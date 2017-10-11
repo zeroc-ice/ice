@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.exceptions.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -45,7 +45,7 @@ classdef AllTests
                 thrower.throwAasA(1);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.A')
+                if isa(ex, 'Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -56,7 +56,7 @@ classdef AllTests
                 thrower.throwAorDasAorD(1);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.A')
+                if isa(ex, 'Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -67,7 +67,7 @@ classdef AllTests
                 thrower.throwAorDasAorD(-1);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.D')
+                if isa(ex, 'Test.D')
                     assert(ex.dMem == -1);
                 else
                     rethrow(ex);
@@ -78,7 +78,7 @@ classdef AllTests
                 thrower.throwBasB(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.B')
+                if isa(ex, 'Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -90,7 +90,7 @@ classdef AllTests
                 thrower.throwCasC(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -107,7 +107,7 @@ classdef AllTests
                 thrower.throwBasB(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.A')
+                if isa(ex, 'Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -118,7 +118,7 @@ classdef AllTests
                 thrower.throwCasC(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.B')
+                if isa(ex, 'Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -134,7 +134,7 @@ classdef AllTests
                 thrower.throwBasA(1, 2);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.B')
+                if isa(ex, 'Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -146,7 +146,7 @@ classdef AllTests
                 thrower.throwCasA(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -159,7 +159,7 @@ classdef AllTests
                 thrower.throwCasB(1, 2, 3);
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -364,7 +364,7 @@ classdef AllTests
                 thrower.throwAfterException();
                 assert(false);
             catch ex
-                if ~isa(ex, 'test.Ice.exceptions.Test.A')
+                if ~isa(ex, 'Test.A')
                     rethrow(ex);
                 end
             end
@@ -377,7 +377,7 @@ classdef AllTests
                 thrower.throwAasAAsync(1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.A')
+                if isa(ex, 'Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -388,7 +388,7 @@ classdef AllTests
                 thrower.throwAorDasAorDAsync(1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.A')
+                if isa(ex, 'Test.A')
                     assert(ex.aMem == 1);
                 else
                     rethrow(ex);
@@ -399,7 +399,7 @@ classdef AllTests
                 thrower.throwAorDasAorDAsync(-1).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.D')
+                if isa(ex, 'Test.D')
                     assert(ex.dMem == -1);
                 else
                     rethrow(ex);
@@ -410,7 +410,7 @@ classdef AllTests
                 thrower.throwBasBAsync(1, 2).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.B')
+                if isa(ex, 'Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -422,7 +422,7 @@ classdef AllTests
                 thrower.throwCasCAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -439,7 +439,7 @@ classdef AllTests
                 thrower.throwBasAAsync(1, 2).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.B')
+                if isa(ex, 'Test.B')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                 else
@@ -451,7 +451,7 @@ classdef AllTests
                 thrower.throwCasAAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);
@@ -464,7 +464,7 @@ classdef AllTests
                 thrower.throwCasBAsync(1, 2, 3).fetchOutputs();
                 assert(false);
             catch ex
-                if isa(ex, 'test.Ice.exceptions.Test.C')
+                if isa(ex, 'Test.C')
                     assert(ex.aMem == 1);
                     assert(ex.bMem == 2);
                     assert(ex.cMem == 3);

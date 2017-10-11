@@ -12,7 +12,6 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-[["matlab:package:test.Ice.ami"]]
 module Test
 {
 

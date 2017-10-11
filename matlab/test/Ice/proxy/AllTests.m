@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.proxy.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 

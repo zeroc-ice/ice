@@ -12,17 +12,17 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.ami.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
-            sref = ['test:', app.getTestEndpoint(0, '')];
+            sref = ['test:', app.getTestEndpoint(0)];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
             p = TestIntfPrx.uncheckedCast(obj);
 
-            sref = ['testController:', app.getTestEndpoint(1, '')];
+            sref = ['testController:', app.getTestEndpoint(1)];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
@@ -54,14 +54,14 @@ classdef AllTests
                 p.opWithUEAsync().fetchOutputs();
                 assert(false);
             catch ex
-                assert(isa(ex, 'test.Ice.ami.Test.TestIntfException'));
+                assert(isa(ex, 'Test.TestIntfException'));
             end
 
             try
                 p.opWithUEAsync(ctx).fetchOutputs();
                 assert(false);
             catch ex
-                assert(isa(ex, 'test.Ice.ami.Test.TestIntfException'));
+                assert(isa(ex, 'Test.TestIntfException'));
             end
 
             if p.supportsFunctionalTests()
@@ -96,9 +96,8 @@ classdef AllTests
             % Check that CommunicatorDestroyedException is raised directly.
             %
             if ~isempty(p.ice_getConnection())
-                initData = app.createInitializationData();
-                initData.properties_ = communicator.getProperties().clone();
-                ic = app.initialize(initData);
+                initData = app.cloneInitData();
+                ic = Ice.initialize(initData);
                 o = ic.stringToProxy(p.ice_toString());
                 p2 = TestIntfPrx.checkedCast(o);
                 ic.destroy();

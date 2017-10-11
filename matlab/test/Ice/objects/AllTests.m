@@ -12,10 +12,10 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.objects.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
-            ref = ['initial:', app.getTestEndpoint(0, '')];
+            ref = ['initial:', app.getTestEndpoint(0)];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
 
@@ -43,10 +43,10 @@ classdef AllTests
             assert(b1 ~= b2);
             assert(b1.theB == b1);
             assert(isempty(b1.theC));
-            assert(isa(b1.theA, 'test.Ice.objects.Test.B'));
+            assert(isa(b1.theA, 'Test.B'));
             assert(b1.theA.theA == b1.theA);
             assert(b1.theA.theB == b1);
-            assert(isa(b1.theA.theC, 'test.Ice.objects.Test.C'));
+            assert(isa(b1.theA.theC, 'Test.C'));
             assert(b1.theA.theC.theB == b1.theA);
             assert(b1.preMarshalInvoked);
             assert(b1.postUnmarshalInvoked);
@@ -93,13 +93,13 @@ classdef AllTests
             fprintf('testing protected members... ');
             e = initial.getE();
             assert(e.checkValues());
-            em = ?test.Ice.objects.Test.E;
+            em = ?Test.E;
             assert(strcmp(em.PropertyList(1).GetAccess, 'protected'));
             assert(strcmp(em.PropertyList(2).GetAccess, 'protected'));
             f = initial.getF();
             assert(f.checkValues());
             assert(f.e2.checkValues());
-            fm = ?test.Ice.objects.Test.F;
+            fm = ?Test.F;
             assert(strcmp(fm.PropertyList(1).GetAccess, 'public'));
             assert(strcmp(fm.PropertyList(2).GetAccess, 'protected'));
             fprintf('ok\n');
@@ -110,7 +110,7 @@ classdef AllTests
             j = initial.getJ();
             assert(~isempty(j) && strcmp(j.ice_id(), JPrx.ice_staticId()));
             h = initial.getH();
-            assert(~isempty(h) && isa(h, 'test.Ice.objects.Test.H'));
+            assert(~isempty(h) && isa(h, 'Test.H'));
             fprintf('ok\n');
 
             fprintf('getting D1... ');
@@ -127,7 +127,7 @@ classdef AllTests
                 initial.throwEDerived();
                 assert(false);
             catch ederived
-                assert(isa(ederived, 'test.Ice.objects.Test.EDerived'));
+                assert(isa(ederived, 'Test.EDerived'));
                 assert(strcmp(ederived.a1.name, 'a1'));
                 assert(strcmp(ederived.a2.name, 'a2'));
                 assert(strcmp(ederived.a3.name, 'a3'));
@@ -209,7 +209,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing UnexpectedObjectException... ');
-            ref = ['uoet:', app.getTestEndpoint(0, '')];
+            ref = ['uoet:', app.getTestEndpoint(0)];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
@@ -219,8 +219,8 @@ classdef AllTests
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.UnexpectedObjectException')
-                    assert(strcmp(ex.type_, 'test.Ice.objects.Test.AlsoEmpty'));
-                    assert(strcmp(ex.expectedType, 'test.Ice.objects.Test.Empty'));
+                    assert(strcmp(ex.type_, 'Test.AlsoEmpty'));
+                    assert(strcmp(ex.expectedType, 'Test.Empty'));
                 else
                     rethrow(ex);
                 end

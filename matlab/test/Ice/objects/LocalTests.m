@@ -15,7 +15,7 @@ ICE_LICENSE file included in this distribution.
 classdef LocalTests
     methods(Static)
         function localTests(app)
-            import test.Ice.objects.LocalTest.*;
+            import LocalTest.*;
 
             communicator = app.communicator();
             props = communicator.getProperties();
@@ -983,5 +983,5 @@ classdef LocalTests
 end
 
 function r = symbol(name)
-    r = strcat('test.Ice.objects.LocalTest.', name);
+    r = strcat('LocalTest.', name);
 end

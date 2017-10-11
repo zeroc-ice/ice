@@ -11,7 +11,6 @@
 
 #include <Ice/Current.ice>
 
-[["matlab:package:test.Ice.info"]]
 module Test
 {
 

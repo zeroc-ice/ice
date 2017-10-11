@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function allTests(app)
-            import test.Ice.acm.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
@@ -25,7 +25,7 @@ classdef AllTests
             com.shutdown();
         end
         function testSetACM(communicator, com)
-            import test.Ice.acm.Test.*;
+            import Test.*;
 
             fprintf('testing setACM/getACM... ');
 
@@ -67,7 +67,7 @@ classdef AllTests
             fprintf('ok\n');
         end
         function testHeartbeatManual(communicator, com)
-            import test.Ice.acm.Test.*;
+            import Test.*;
 
             fprintf('testing manual heartbeats... ');
 

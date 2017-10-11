@@ -12,11 +12,11 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.enums.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
-            ref = ['test:', app.getTestEndpoint(0, '')];
+            ref = ['test:', app.getTestEndpoint(0)];
             obj = communicator.stringToProxy(ref);
             assert(~isempty(obj));
             proxy = TestIntfPrx.checkedCast(obj);

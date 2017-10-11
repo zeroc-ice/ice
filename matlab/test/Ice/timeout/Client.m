@@ -9,46 +9,37 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Client < Application
-    methods
-        function r = run(obj, args)
-            timeout = AllTests.allTests(obj);
-            timeout.shutdown();
-            r = 0;
-        end
+function Client(args)
+    addpath('generated');
+    addpath('../../lib');
+    if ~libisloaded('ice')
+        loadlibrary('ice', @iceproto)
     end
-    methods(Access=protected)
-        function [r, remArgs] = getInitData(obj, args)
-            [initData, remArgs] = getInitData@Application(obj, args);
-            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.timeout');
 
-            %
-            % For this test, we want to disable retries.
-            %
-            initData.properties_.setProperty('Ice.RetryIntervals', '-1');
+    initData = TestApp.createInitData('Client', args);
 
-            %
-            % This test kills connections, so we don't want warnings.
-            %
-            initData.properties_.setProperty('Ice.Warn.Connections', '0');
+    %
+    % For this test, we want to disable retries.
+    %
+    initData.properties_.setProperty('Ice.RetryIntervals', '-1');
 
-            %
-            % Limit the send buffer size, this test relies on the socket
-            % send() blocking after sending a given amount of data.
-            %
-            initData.properties_.setProperty('Ice.TCP.SndSize', '50000');
+    %
+    % This test kills connections, so we don't want warnings.
+    %
+    initData.properties_.setProperty('Ice.Warn.Connections', '0');
 
-            r = initData;
-        end
-    end
-    methods(Static)
-        function status = start(args)
-            addpath('generated');
-            if ~libisloaded('ice')
-                loadlibrary('ice', @iceproto)
-            end
-            c = Client();
-            status = c.main('Client', args);
-        end
-    end
+    %
+    % Limit the send buffer size, this test relies on the socket
+    % send() blocking after sending a given amount of data.
+    %
+    initData.properties_.setProperty('Ice.TCP.SndSize', '50000');
+
+    communicator = Ice.initialize(initData);
+    cleanup = onCleanup(@() communicator.destroy());
+
+    app = TestApp(communicator);
+    timeout = AllTests.allTests(app);
+    timeout.shutdown();
+
+    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

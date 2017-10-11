@@ -9,28 +9,19 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef Client < Application
-    methods
-        function r = run(obj, args)
-            AllTests.allTests(obj);
-            r = 0;
-        end
+function Client(args)
+    addpath('generated');
+    addpath('../../lib');
+    if ~libisloaded('ice')
+        loadlibrary('ice', @iceproto)
     end
-    methods(Access=protected)
-        function [r, remArgs] = getInitData(obj, args)
-            [initData, remArgs] = getInitData@Application(obj, args);
-            initData.properties_.setProperty('Ice.Package.Test', 'test.Ice.binding');
-            r = initData;
-        end
-    end
-    methods(Static)
-        function status = start(args)
-            addpath('generated');
-            if ~libisloaded('ice')
-                loadlibrary('ice', @iceproto)
-            end
-            c = Client();
-            status = c.main('Client', args);
-        end
-    end
+
+    initData = TestApp.createInitData('Client', args);
+    communicator = Ice.initialize(initData);
+    cleanup = onCleanup(@() communicator.destroy());
+
+    app = TestApp(communicator);
+    AllTests.allTests(app);
+
+    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

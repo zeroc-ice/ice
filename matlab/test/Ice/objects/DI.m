@@ -9,7 +9,7 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-classdef DI < test.Ice.objects.Test.D
+classdef DI < Test.D
     methods
         function ice_preMarshal(obj)
             obj.preMarshalInvoked = true;

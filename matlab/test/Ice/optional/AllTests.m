@@ -12,11 +12,11 @@ ICE_LICENSE file included in this distribution.
 classdef AllTests
     methods(Static)
         function r = allTests(app)
-            import test.Ice.optional.Test.*;
+            import Test.*;
 
             communicator = app.communicator();
 
-            ref = ['initial:', app.getTestEndpoint(0, '')];
+            ref = ['initial:', app.getTestEndpoint(0)];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
 
@@ -768,7 +768,7 @@ classdef AllTests
             try
                 initial.opOptionalException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
+                assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -777,7 +777,7 @@ classdef AllTests
             try
                 initial.opOptionalException(30, 'test', OneOptional(53));
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
+                assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test'));
                 assert(ex.o.a == 53);
@@ -789,7 +789,7 @@ classdef AllTests
                 %
                 initial.ice_encodingVersion(Ice.EncodingVersion(1, 0)).opOptionalException(30, 'test', OneOptional(53));
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.OptionalException'));
+                assert(isa(ex, 'Test.OptionalException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -798,7 +798,7 @@ classdef AllTests
             try
                 initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.DerivedException'));
+                assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -809,7 +809,7 @@ classdef AllTests
             try
                 initial.opDerivedException(30, 'test2', OneOptional(53));
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.DerivedException'));
+                assert(isa(ex, 'Test.DerivedException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
                 assert(ex.o.a == 53);
@@ -820,7 +820,7 @@ classdef AllTests
             try
                 initial.opRequiredException(Ice.Unset, Ice.Unset, Ice.Unset);
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.RequiredException'));
+                assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == Ice.Unset);
                 assert(ex.b == Ice.Unset);
                 assert(ex.o == Ice.Unset);
@@ -831,7 +831,7 @@ classdef AllTests
             try
                 initial.opRequiredException(30, 'test2', OneOptional(53));
             catch ex
-                assert(isa(ex, 'test.Ice.optional.Test.RequiredException'));
+                assert(isa(ex, 'Test.RequiredException'));
                 assert(ex.a == 30);
                 assert(strcmp(ex.b, 'test2'));
                 assert(ex.o.a == 53);

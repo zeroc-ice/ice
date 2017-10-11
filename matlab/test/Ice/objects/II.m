@@ -12,7 +12,7 @@ ICE_LICENSE file included in this distribution.
 classdef II < Ice.InterfaceByValue
     methods
         function obj = II()
-            obj = obj@Ice.InterfaceByValue(test.Ice.objects.Test.IPrx.ice_staticId());
+            obj = obj@Ice.InterfaceByValue(Test.IPrx.ice_staticId());
         end
     end
 end

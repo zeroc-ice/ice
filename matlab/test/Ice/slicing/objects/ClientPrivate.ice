@@ -9,7 +9,6 @@
 
 #pragma once
 
-[["matlab:package:test.Ice.slicing.objects.client"]]
 module Test
 {
 
