@@ -91,7 +91,6 @@
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
     <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
-    <MatlabPrototypes>$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl</MatlabPrototypes>
   </PropertyGroup>
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />

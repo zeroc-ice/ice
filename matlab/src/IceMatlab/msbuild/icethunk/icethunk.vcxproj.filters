@@ -24,11 +24,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="x64\Debug\icematlab_thunk.c">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\icematlab_thunk.c">
+    <ClCompile Include="x64\Release\icethunk.c">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\icethunk.c">
+      <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

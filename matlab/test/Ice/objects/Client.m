@@ -57,8 +57,8 @@ classdef Client < Application
     methods(Static)
         function status = start(args)
             addpath('generated');
-            if ~libisloaded('icematlab')
-                loadlibrary('icematlab', 'icematlab_proto')
+            if ~libisloaded('ice')
+                loadlibrary('ice', @iceproto)
             end
             c = Client();
             status = c.main('Client', args);

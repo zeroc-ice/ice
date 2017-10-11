@@ -15,59 +15,59 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Communicator.cpp">
+    <ClCompile Include="..\..\Init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Connection.cpp">
+    <ClCompile Include="..\..\Communicator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Endpoint.cpp">
+    <ClCompile Include="..\..\Connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Future.cpp">
+    <ClCompile Include="..\..\Endpoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Init.cpp">
+    <ClCompile Include="..\..\Future.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Logger.cpp">
+    <ClCompile Include="..\..\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ObjectPrx.cpp">
+    <ClCompile Include="..\..\ObjectPrx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Properties.cpp">
+    <ClCompile Include="..\..\Properties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Util.cpp">
+    <ClCompile Include="..\..\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Communicator.h">
+    <ClInclude Include="..\..\Communicator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Endpoint.h">
+    <ClInclude Include="..\..\Endpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Future.h">
+    <ClInclude Include="..\..\Future.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\icematlab.h">
+    <ClInclude Include="..\..\icematlab.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Logger.h">
+    <ClInclude Include="..\..\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ObjectPrx.h">
+    <ClInclude Include="..\..\ObjectPrx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Util.h">
+    <ClInclude Include="..\..\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\IceMatlab.rc">
+    <ResourceCompile Include="..\..\IceMatlab.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

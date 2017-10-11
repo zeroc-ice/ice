@@ -51,10 +51,10 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="x64\Release\icematlab_thunk.c">
+    <ClCompile Include="x64\Release\icethunk.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="x64\Debug\icematlab_thunk.c">
+    <ClCompile Include="x64\Debug\icethunk.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
   </ItemGroup>
@@ -64,13 +64,14 @@
   <Target Name="MATLABPrototype" BeforeTargets="CLCompile">
     <MakeDir Directories="$(Platform)\$(Configuration)" />
     <Exec Command="cl /P /c ..\..\..\..\icematlab.h" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\icematlab.i') or $([System.IO.File]::GetLastWriteTime('..\..\icematlab.h').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab.i').Ticks)" />
-    <Exec Command="perl &quot;$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl&quot; icematlab.i -thunkfile=icematlab_thunk.c -outfile=icematlab_proto.m" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\icematlab_proto.m') or $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab.i').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab_proto.m').Ticks)" />
-    <Copy SourceFiles="$(Platform)\$(Configuration)\icematlab_proto.m" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Exec Command="perl &quot;$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl&quot; icematlab.i -thunkfile=icethunk.c -outfile=iceproto.m" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\iceproto.m') or $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\icematlab.i').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\iceproto.m').Ticks)" />
+    <Copy SourceFiles="$(Platform)\$(Configuration)\iceproto.m" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="MATLABPrototypeClean" BeforeTargets="Clean">
     <Delete Files="$(Platform)\$(Configuration)\icematlab.i" />
-    <Delete Files="$(Platform)\$(Configuration)\icematlab_proto.m" />
-    <Delete Files="$(Platform)\$(Configuration)\icematlab_thunk.c" />
+    <Delete Files="$(Platform)\$(Configuration)\iceproto.m" />
+    <Delete Files="$(Platform)\$(Configuration)\icethunk.c" />
   </Target>
 </Project>
+
