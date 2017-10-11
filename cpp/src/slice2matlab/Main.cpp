@@ -18,7 +18,6 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/ConsoleUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <Slice/Checksum.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Parser.h>
@@ -216,25 +215,18 @@ scopedToName(const string& scoped)
 }
 
 void
-printHeader(IceUtilInternal::Output& out)
+writeCopyright(IceUtilInternal::Output& out, const string& file)
 {
-    static const char* header =
-        "%{\n"
-        "**********************************************************************\n"
-        "\n"
-        "Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.\n"
-        "\n"
-        "This copy of Ice is licensed to you under the terms described in the\n"
-        "ICE_LICENSE file included in this distribution.\n"
-        "\n"
-        "**********************************************************************\n"
-        "%}\n"
-        ;
+    string f = file;
+    string::size_type pos = f.find_last_of("/");
+    if(pos != string::npos)
+    {
+        f = f.substr(pos + 1);
+    }
 
-    out << header;
-    out << "%\n";
-    out << "% Ice version " << ICE_STRING_VERSION << "\n";
-    out << "%\n";
+    out << nl << "% Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.";
+    out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
+    out << nl;
 }
 
 void
@@ -281,7 +273,6 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
     path += cls + ".m";
 
     out.open(path);
-    printHeader(out);
     FileTracker::instance()->addFile(path);
 }
 
@@ -343,7 +334,7 @@ typeToString(const TypePtr& type)
         "char",
         "Ice.Object", // Object
         "Ice.ObjectPrx", // ObjectPrx
-        "", // LocalObject
+        "any", // LocalObject
         "Ice.Value" // Value
     };
 
@@ -373,13 +364,10 @@ typeToString(const TypePtr& type)
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        return "containers.Map";
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        return "???";
+        if(!StructPtr::dynamicCast(dict->keyType()))
+        {
+            return "containers.Map";
+        }
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -676,59 +664,863 @@ convertValueType(IceUtilInternal::Output& out, const string& dest, const string&
 }
 
 void
-writeChecksums(const string& name, const string& dir, const ChecksumMap& m)
+trimLines(StringList& l)
 {
     //
-    // Attempt to open the source file for the checksums.
+    // Remove empty trailing lines.
     //
-    IceUtilInternal::Output out;
-    openClass(name, dir, out);
+    while(!l.empty() && l.back().empty())
+    {
+        l.pop_back();
+    }
+}
+
+StringList
+splitComment(const string& c)
+{
+    string comment = c;
 
     //
-    // Get the name.
+    // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
     //
-    string func;
-    string::size_type pos = name.rfind('.');
-    if(pos == string::npos)
+    string::size_type pos = 0;
+    do
     {
-        func = name;
+        pos = comment.find('<', pos);
+        if(pos != string::npos)
+        {
+            string::size_type endpos = comment.find('>', pos);
+            if(endpos == string::npos)
+            {
+                break;
+            }
+            comment.erase(pos, endpos - pos + 1);
+        }
+    }
+    while(pos != string::npos);
+
+    const string link = "{@link";
+    pos = 0;
+    do
+    {
+        pos = comment.find(link, pos);
+        if(pos != string::npos)
+        {
+            comment.erase(pos, link.size() + 1); // Erase trailing white space too.
+            string::size_type endpos = comment.find('}', pos);
+            if(endpos != string::npos)
+            {
+                string ident = comment.substr(pos, endpos - pos);
+                comment.erase(pos, endpos - pos + 1);
+
+                //
+                // Check for links of the form {@link Type#member}.
+                //
+                string::size_type hash = ident.find('#');
+                string rest;
+                if(hash != string::npos)
+                {
+                    rest = ident.substr(hash + 1);
+                    ident = ident.substr(0, hash);
+                    if(!ident.empty())
+                    {
+                        ident = fixIdent(ident);
+                        if(!rest.empty())
+                        {
+                            ident += "." + fixIdent(rest);
+                        }
+                    }
+                    else if(!rest.empty())
+                    {
+                        ident = fixIdent(rest);
+                    }
+                }
+                else
+                {
+                    ident = fixIdent(ident);
+                }
+
+                comment.insert(pos, ident);
+            }
+        }
+    }
+    while(pos != string::npos);
+
+    StringList result;
+
+    pos = 0;
+    string::size_type nextPos;
+    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    {
+        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        pos = nextPos + 1;
+    }
+    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    if(!lastLine.empty())
+    {
+        result.push_back(lastLine);
+    }
+
+    trimLines(result);
+
+    return result;
+}
+
+bool
+parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+{
+    doc.clear();
+
+    if(l.find(tag) == 0)
+    {
+        const string ws = " \t";
+
+        if(namedTag)
+        {
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                doc = l.substr(n);
+            }
+        }
+        else
+        {
+            name.clear();
+
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            doc = l.substr(n);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+struct DocElements
+{
+    StringList overview;
+    bool deprecated;
+    StringList deprecateReason;
+    StringList misc;
+    StringList seeAlso;
+    StringList returns;
+    map<string, StringList> params;
+    map<string, StringList> exceptions;
+};
+
+DocElements
+parseComment(const ContainedPtr& p)
+{
+    DocElements doc;
+
+    doc.deprecated = false;
+
+    //
+    // First check metadata for a deprecated tag.
+    //
+    string deprecateMetadata;
+    if(p->findMetaData("deprecate", deprecateMetadata))
+    {
+        doc.deprecated = true;
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            doc.deprecateReason.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
+        }
+    }
+
+    //
+    // Split up the comment into lines.
+    //
+    StringList lines = splitComment(p->comment());
+
+    StringList::const_iterator i;
+    for(i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string l = *i;
+        if(l[0] == '@')
+        {
+            break;
+        }
+        doc.overview.push_back(l);
+    }
+
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    State state = StateMisc;
+    string name;
+    const string ws = " \t";
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+    const string seeTag = "@see";
+    for(; i != lines.end(); ++i)
+    {
+        const string l = IceUtilInternal::trim(*i);
+        string line;
+        if(parseCommentLine(l, paramTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateParam;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.params[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, throwsTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, exceptionTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                doc.exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, seeTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                doc.seeAlso.push_back(line);
+            }
+        }
+        else if(parseCommentLine(l, returnTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateReturn;
+                doc.returns.push_back(line); // The first line of the description.
+            }
+        }
+        else if(parseCommentLine(l, deprecatedTag, false, name, line))
+        {
+            doc.deprecated = true;
+            if(!line.empty())
+            {
+                state = StateDeprecated;
+                doc.deprecateReason.push_back(line); // The first line of the description.
+            }
+        }
+        else if(!l.empty())
+        {
+            if(l[0] == '@')
+            {
+                //
+                // Treat all other tags as miscellaneous comments.
+                //
+                state = StateMisc;
+            }
+
+            switch(state)
+            {
+                case StateMisc:
+                {
+                    doc.misc.push_back(l);
+                    break;
+                }
+                case StateParam:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(doc.params.find(name) != doc.params.end())
+                    {
+                        sl = doc.params[name];
+                    }
+                    sl.push_back(l);
+                    doc.params[name] = sl;
+                    break;
+                }
+                case StateThrows:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(doc.exceptions.find(name) != doc.exceptions.end())
+                    {
+                        sl = doc.exceptions[name];
+                    }
+                    sl.push_back(l);
+                    doc.exceptions[name] = sl;
+                    break;
+                }
+                case StateReturn:
+                {
+                    doc.returns.push_back(l);
+                    break;
+                }
+                case StateDeprecated:
+                {
+                    doc.deprecateReason.push_back(l);
+                    break;
+                }
+            }
+        }
+    }
+
+    trimLines(doc.overview);
+    trimLines(doc.deprecateReason);
+    trimLines(doc.misc);
+    trimLines(doc.returns);
+
+    return doc;
+}
+
+void
+writeDocLines(IceUtilInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+{
+    StringList l = lines;
+    if(!commentFirst)
+    {
+        out << l.front();
+        l.pop_front();
+    }
+    for(StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+        out << nl << "%";
+        if(!i->empty())
+        {
+            out << space << *i;
+        }
+    }
+}
+
+void
+writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
+{
+    //
+    // Write the first sentence.
+    //
+    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string ws = " \t";
+
+        if(i->empty())
+        {
+            break;
+        }
+        if(i != lines.begin() && i->find_first_not_of(ws) == 0)
+        {
+            out << " ";
+        }
+        string::size_type pos = i->find('.');
+        if(pos == string::npos)
+        {
+            out << *i;
+        }
+        else if(pos == i->size() - 1)
+        {
+            out << *i;
+            break;
+        }
+        else
+        {
+            //
+            // Assume a period followed by whitespace indicates the end of the sentence.
+            //
+            while(pos != string::npos)
+            {
+                if(ws.find((*i)[pos + 1]) != string::npos)
+                {
+                    break;
+                }
+                pos = i->find('.', pos + 1);
+            }
+            if(pos != string::npos)
+            {
+                out << i->substr(0, pos + 1);
+                break;
+            }
+            else
+            {
+                out << *i;
+            }
+        }
+    }
+}
+
+void
+writeSeeAlso(IceUtilInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
+{
+    assert(!seeAlso.empty());
+    //
+    // All references must be on one line.
+    //
+    out << nl << "% See also ";
+    for(StringList::const_iterator p = seeAlso.begin(); p != seeAlso.end(); ++p)
+    {
+        if(p != seeAlso.begin())
+        {
+            out << ", ";
+        }
+
+        string sym = *p;
+        string rest;
+        string::size_type pos = sym.find('#');
+        if(pos != string::npos)
+        {
+            rest = sym.substr(pos + 1);
+            sym = sym.substr(0, pos);
+        }
+
+        if(!sym.empty() || !rest.empty())
+        {
+            if(!sym.empty())
+            {
+                ContainedList c = container->lookupContained(sym, false);
+                if(c.empty())
+                {
+                    out << sym;
+                }
+                else
+                {
+                    out << getAbsolute(c.front());
+                }
+
+                if(!rest.empty())
+                {
+                    out << ".";
+                }
+            }
+
+            if(!rest.empty())
+            {
+                out << rest;
+            }
+        }
+    }
+}
+
+void
+writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
+{
+    DocElements doc = parseComment(p);
+
+    string n = fixIdent(p->name());
+
+    //
+    // No leading newline.
+    //
+    out << "% " << n << "   Summary of " << n;
+
+    if(!doc.overview.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.overview, true);
+    }
+
+    if(p->containedType() == Contained::ContainedTypeEnum)
+    {
+        out << nl << "%";
+        out << nl << "% " << n << " Properties:";
+        EnumPtr en = EnumPtr::dynamicCast(p);
+        const EnumeratorList el = en->enumerators();
+        for(EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
+        {
+            StringList sl = splitComment((*q)->comment());
+            out << nl << "%   " << fixIdent((*q)->name());
+            if(!sl.empty())
+            {
+                out << " - ";
+                writeDocSentence(out, sl);
+            }
+        }
+    }
+    else if(p->containedType() == Contained::ContainedTypeStruct)
+    {
+        out << nl << "%";
+        out << nl << "% " << n << " Properties:";
+        StructPtr st = StructPtr::dynamicCast(p);
+        const DataMemberList dml = st->dataMembers();
+        for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+        {
+            StringList sl = splitComment((*q)->comment());
+            out << nl << "%   " << fixIdent((*q)->name());
+            if(!sl.empty())
+            {
+                out << " - ";
+                writeDocSentence(out, sl);
+            }
+        }
+    }
+    else if(p->containedType() == Contained::ContainedTypeException)
+    {
+        ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+        const DataMemberList dml = ex->dataMembers();
+        if(!dml.empty())
+        {
+            out << nl << "%";
+            out << nl << "% " << n << " Properties:";
+            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            {
+                StringList sl = splitComment((*q)->comment());
+                out << nl << "%   " << fixExceptionMemberIdent((*q)->name());
+                if(!sl.empty())
+                {
+                    out << " - ";
+                    writeDocSentence(out, sl);
+                }
+            }
+        }
+    }
+    else if(p->containedType() == Contained::ContainedTypeClass)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(p);
+        const DataMemberList dml = cl->dataMembers();
+        if(!dml.empty())
+        {
+            out << nl << "%";
+            out << nl << "% " << n << " Properties:";
+            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            {
+                StringList sl = splitComment((*q)->comment());
+                out << nl << "%   " << fixIdent((*q)->name());
+                if(!sl.empty())
+                {
+                    out << " - ";
+                    writeDocSentence(out, sl);
+                }
+            }
+        }
+    }
+
+    if(!doc.misc.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.misc, true);
+    }
+
+    if(!doc.seeAlso.empty())
+    {
+        out << nl << "%";
+        writeSeeAlso(out, doc.seeAlso, p->container());
+    }
+
+    if(!doc.deprecateReason.empty())
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated: ";
+        writeDocLines(out, doc.deprecateReason, false);
+    }
+    else if(doc.deprecated)
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated";
+    }
+
+    out << nl;
+}
+
+void
+writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool async)
+{
+    DocElements doc = parseComment(p);
+
+    out << nl << "% " << (async ? p->name() + "Async" : fixOp(p->name()));
+
+    if(!doc.overview.empty())
+    {
+        out << "   ";
+        writeDocLines(out, doc.overview, false);
+    }
+
+    out << nl << "%";
+    out << nl << "% Parameters:";
+    const ParamDeclList inParams = p->inParameters();
+    string ctxName = "context";
+    string resultName = "result";
+    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        if((*q)->name() == "context")
+        {
+            ctxName = "context_";
+        }
+        if((*q)->name() == "result")
+        {
+            resultName = "result_";
+        }
+
+        out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
+        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+        if(r != doc.params.end() && !r->second.empty())
+        {
+            out << " - ";
+            writeDocLines(out, r->second, false, "     ");
+        }
+    }
+    out << nl << "%   " << ctxName << " (containers.Map) - Optional request context.";
+
+    if(async)
+    {
+        out << nl << "%";
+        out << nl << "% Returns (Ice.Future) - A future that will be completed with the results of the invocation.";
     }
     else
     {
-        func = name.substr(pos + 1);
-    }
-
-    //
-    // Emit the function.
-    //
-    out << nl << "function r = " << func << "()";
-    out.inc();
-    out << nl << "persistent ice_checksums;";
-    out << nl << "if isempty(ice_checksums)";
-    out.inc();
-    out << nl << "ice_checksums = containers.Map('KeyType', 'char', 'ValueType', 'char');";
-
-    for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
-    {
-        out << nl << "ice_checksums('" << p->first << "') = '";
-        ostringstream str;
-        str.flags(ios_base::hex);
-        str.fill('0');
-        for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+        const ParamDeclList outParams = p->outParameters();
+        if(p->returnType() || !outParams.empty())
         {
-            str << static_cast<int>(*q);
+            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                if((*q)->name() == "result")
+                {
+                    resultName = "result_";
+                }
+            }
+
+            out << nl << "%";
+            if(p->returnType() && outParams.empty())
+            {
+                out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
+                if(!doc.returns.empty())
+                {
+                    out << " - ";
+                    writeDocLines(out, doc.returns, false);
+                }
+            }
+            else if(!p->returnType() && outParams.size() == 1)
+            {
+                out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
+                map<string, StringList>::const_iterator q = doc.params.find(outParams.front()->name());
+                if(q != doc.params.end() && !q->second.empty())
+                {
+                    out << " - ";
+                    writeDocLines(out, q->second, false);
+                }
+            }
+            else
+            {
+                out << nl << "% Returns:";
+                if(p->returnType())
+                {
+                    out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
+                    if(!doc.returns.empty())
+                    {
+                        out << " - ";
+                        writeDocLines(out, doc.returns, false, "     ");
+                    }
+                }
+                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
+                    map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+                    if(r != doc.params.end() && !r->second.empty())
+                    {
+                        out << " - ";
+                        writeDocLines(out, r->second, false, "     ");
+                    }
+                }
+            }
         }
-        out << str.str() << "';";
     }
 
-    out.dec();
-    out << nl << "end";
-    out << nl << "r = ice_checksums;";
-    out.dec();
-    out << nl << "end";
-    out << nl;
+    if(!doc.exceptions.empty())
+    {
+        out << nl << "%";
+        out << nl << "% Exceptions:";
+        for(map<string, StringList>::const_iterator q = doc.exceptions.begin(); q != doc.exceptions.end(); ++q)
+        {
+            //
+            // Try to find the exception based on the name given in the doc comment.
+            //
+            out << nl << "%   ";
+            ExceptionPtr ex = p->container()->lookupException(q->first, false);
+            if(ex)
+            {
+                out << getAbsolute(ex);
+            }
+            else
+            {
+                out << q->first;
+            }
+            if(!q->second.empty())
+            {
+                out << " - ";
+                writeDocLines(out, q->second, false, "     ");
+            }
+        }
+    }
 
-    out.close();
+    if(!doc.misc.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.misc, true);
+    }
+
+    if(!doc.seeAlso.empty())
+    {
+        out << nl << "%";
+        writeSeeAlso(out, doc.seeAlso, p->container());
+    }
+
+    if(!doc.deprecateReason.empty())
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated: ";
+        writeDocLines(out, doc.deprecateReason, false);
+    }
+    else if(doc.deprecated)
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated";
+    }
+
+    out << nl;
+}
+
+void
+writeProxyDocSummary(IceUtilInternal::Output& out, const ClassDefPtr& p)
+{
+    DocElements doc = parseComment(p);
+
+    string n = p->name() + "Prx";
+
+    //
+    // No leading newline.
+    //
+    out << "% " << n << "   Summary of " << n;
+
+    if(!doc.overview.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.overview, true);
+    }
+
+    out << nl << "%";
+    out << nl << "% " << n << " Methods:";
+    const OperationList ops = p->operations();
+    if(!ops.empty())
+    {
+        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        {
+            OperationPtr op = *q;
+            DocElements opdoc = parseComment(op);
+            out << nl << "%   " << fixOp(op->name());
+            if(!opdoc.overview.empty())
+            {
+                out << " - ";
+                writeDocSentence(out, opdoc.overview);
+            }
+            out << nl << "%   " << op->name() << "Async";
+            if(!opdoc.overview.empty())
+            {
+                out << " - ";
+                writeDocSentence(out, opdoc.overview);
+            }
+        }
+    }
+    out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
+    out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
+
+    if(!doc.misc.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.misc, true);
+    }
+
+    if(!doc.seeAlso.empty())
+    {
+        out << nl << "%";
+        writeSeeAlso(out, doc.seeAlso, p->container());
+    }
+
+    if(!doc.deprecateReason.empty())
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated: ";
+        writeDocLines(out, doc.deprecateReason, false);
+    }
+    else if(doc.deprecated)
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated";
+    }
+
+    out << nl;
+}
+
+void
+writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+{
+    DocElements doc = parseComment(p);
+
+    //
+    // Skip if there are no doc comments.
+    //
+    if(doc.overview.empty() && doc.misc.empty() && doc.seeAlso.empty() && doc.deprecateReason.empty() &&
+       !doc.deprecated)
+    {
+        return;
+    }
+
+    string n;
+
+    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    if(cont->containedType() == Contained::ContainedTypeException)
+    {
+        n = fixExceptionMemberIdent(p->name());
+    }
+    else
+    {
+        n = fixIdent(p->name());
+    }
+
+    out << nl << "% " << n;
+
+    if(!doc.overview.empty())
+    {
+        out << " - ";
+        writeDocLines(out, doc.overview, false);
+    }
+
+    if(!doc.misc.empty())
+    {
+        out << nl << "%";
+        writeDocLines(out, doc.misc, true);
+    }
+
+    if(!doc.seeAlso.empty())
+    {
+        out << nl << "%";
+        writeSeeAlso(out, doc.seeAlso, p->container());
+    }
+
+    if(!doc.deprecateReason.empty())
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated: ";
+        writeDocLines(out, doc.deprecateReason, false);
+    }
+    else if(doc.deprecated)
+    {
+        out << nl << "%";
+        out << nl << "% Deprecated";
+    }
 }
 
 }
@@ -830,6 +1622,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         IceUtilInternal::Output out;
         openClass(abs, _dir, out);
 
+        writeDocSummary(out, p);
+        writeCopyright(out, p->file());
+
         out << nl << "classdef ";
         if(p->isLocal() && !allOps.empty())
         {
@@ -863,6 +1658,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out.inc();
                 for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
                 {
+                    writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
                     if(declarePropertyType((*q)->type(), (*q)->optional()))
                     {
@@ -892,6 +1688,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.inc();
                     for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
                     {
+                        writeMemberDoc(out, *q);
                         out << nl << fixIdent((*q)->name());
                         if(declarePropertyType((*q)->type(), (*q)->optional()))
                         {
@@ -907,6 +1704,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.inc();
                     for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
                     {
+                        writeMemberDoc(out, *q);
                         out << nl << fixIdent((*q)->name());
                         if(declarePropertyType((*q)->type(), (*q)->optional()))
                         {
@@ -1252,6 +2050,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         IceUtilInternal::Output out;
         openClass(prxAbs, _dir, out);
 
+        writeProxyDocSummary(out, p);
+        writeCopyright(out, p->file());
+
         out << nl << "classdef " << prxName << " < ";
         if(!prxBases.empty())
         {
@@ -1346,6 +2147,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << "varargin"; // For the optional context
             out << epar;
             out.inc();
+
+            writeOpDocSummary(out, op, false);
 
             if(!allInParams.empty())
             {
@@ -1507,6 +2310,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << "varargin"; // For the optional context
             out << epar;
             out.inc();
+
+            writeOpDocSummary(out, op, true);
 
             if(!allInParams.empty())
             {
@@ -1675,12 +2480,31 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "end";
         out << nl << "function r = checkedCast(p, varargin)";
         out.inc();
+        out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
+        out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
+        out << nl << "%   facet name and a context map.";
+        out << nl << "%";
+        out << nl << "% Parameters:";
+        out << nl << "%   p - The proxy to be cast.";
+        out << nl << "%   facet - The optional name of the desired facet.";
+        out << nl << "%   context - The optional context map to send with the invocation.";
+        out << nl << "%";
+        out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
+            << " does not support this type.";
         out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
             << "', varargin{:});";
         out.dec();
         out << nl << "end";
         out << nl << "function r = uncheckedCast(p, varargin)";
         out.inc();
+        out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
+        out << nl << "%   You can optionally specify a facet name.";
+        out << nl << "%";
+        out << nl << "% Parameters:";
+        out << nl << "%   p - The proxy to be cast.";
+        out << nl << "%   facet - The optional name of the desired facet.";
+        out << nl << "%";
+        out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
         out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
         out.dec();
         out << nl << "end";
@@ -1867,6 +2691,9 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
 
+    writeDocSummary(out, p);
+    writeCopyright(out, p->file());
+
     ExceptionPtr base = p->base();
 
     out << nl << "classdef " << name;
@@ -1891,6 +2718,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
+            writeMemberDoc(out, *q);
             out << nl << fixExceptionMemberIdent((*q)->name());
             if(declarePropertyType((*q)->type(), (*q)->optional()))
             {
@@ -1926,7 +2754,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "function " << self << " = " << name << spar << "ice_exid" << "ice_exmsg" << allNames << epar;
     out.inc();
     string exid = abs;
-    const string exmsg = abs; // TODO: Allow a message to be specified via metadata?
+    const string exmsg = abs;
     //
     // The ID argument must use colon separators.
     //
@@ -2131,6 +2959,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
 
+    writeDocSummary(out, p);
+    writeCopyright(out, p->file());
+
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
 
@@ -2145,6 +2976,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         const string m = fixIdent((*q)->name());
         memberNames.push_back(m);
+        writeMemberDoc(out, *q);
         out << nl << m;
         if(declarePropertyType((*q)->type(), false))
         {
@@ -2825,18 +3657,34 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
+    const EnumeratorList enumerators = p->enumerators();
 
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
 
-    out << nl << "classdef " << name << " < int32";
+    writeDocSummary(out, p);
+    writeCopyright(out, p->file());
 
-    const EnumeratorList enumerators = p->enumerators();
+    out << nl << "classdef " << name;
+    if(p->maxValue() <= 255)
+    {
+        out << " < uint8";
+    }
+    else
+    {
+        out << " < int32";
+    }
+
     out.inc();
     out << nl << "enumeration";
     out.inc();
     for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
+        StringList sl = splitComment((*q)->comment());
+        if(!sl.empty())
+        {
+            writeDocLines(out, sl, true);
+        }
         out << nl << fixIdent((*q)->name()) << " (" << (*q)->value() << ")";
     }
     out.dec();
@@ -2930,6 +3778,9 @@ CodeVisitor::visitConst(const ConstPtr& p)
 
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
+
+    writeDocSummary(out, p);
+    writeCopyright(out, p->file());
 
     out << nl << "classdef " << name;
 
@@ -3868,8 +4719,6 @@ usage(const string& n)
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
         "--all                    Generate code for Slice definitions in included files.\n"
-        "--checksum FUNC          Generate checksums for Slice definitions into function FUNC.\n"
-        "--meta META              Define global metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
         ;
 }
@@ -3892,8 +4741,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
-    opts.addOpt("", "checksum", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
@@ -3957,13 +4804,7 @@ compile(const vector<string>& argv)
 
     bool all = opts.isSet("all");
 
-    string checksumFunc = opts.optArg("checksum");
-
     bool listGenerated = opts.isSet("list-generated");
-
-    StringList globalMetadata;
-    vector<string> v = opts.argVec("meta");
-    copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
     if(args.empty())
     {
@@ -3991,8 +4832,6 @@ compile(const vector<string>& argv)
     }
 
     int status = EXIT_SUCCESS;
-
-    ChecksumMap checksums;
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
@@ -4049,7 +4888,7 @@ compile(const vector<string>& argv)
             FileTracker::instance()->setSource(*i);
 
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2MATLAB__");
 
             if(cppHandle == 0)
             {
@@ -4073,7 +4912,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, false, false, globalMetadata);
+                UnitPtr u = Unit::createUnit(false, all, false, false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())
@@ -4099,15 +4938,6 @@ compile(const vector<string>& argv)
                     {
                         CodeVisitor codeVisitor(output);
                         u->visit(&codeVisitor, all);
-
-                        if(!checksumFunc.empty())
-                        {
-                            //
-                            // Calculate checksums for the Slice definitions in the unit.
-                            //
-                            ChecksumMap m = createChecksums(u);
-                            copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-                        }
                     }
                     catch(const Slice::FileException& ex)
                     {
@@ -4146,23 +4976,6 @@ compile(const vector<string>& argv)
     if(depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
-    }
-
-    if(status == EXIT_SUCCESS && !checksumFunc.empty() && !dependxml)
-    {
-        try
-        {
-            writeChecksums(checksumFunc, output, checksums);
-        }
-        catch(const Slice::FileException& ex)
-        {
-            //
-            // If a file could not be created, then cleanup any created files.
-            //
-            FileTracker::instance()->cleanup();
-            consoleErr << argv[0] << ": error: " << ex.reason() << endl;
-            return EXIT_FAILURE;
-        }
     }
 
     if(listGenerated)
