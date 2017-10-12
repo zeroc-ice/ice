@@ -35,6 +35,12 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 - Fixed Ice for PHP build failure when build with PHP5 ZTS
 
+## Objective-C Changes
+
+- Fixed the generated code to specify the __autoreleasing qualifier on
+  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  qualifier is omitted.
+
 # Changes in Ice 3.7.0
 
 These are the changes since the Ice 3.6 release or snapshot described in

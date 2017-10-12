@@ -449,7 +449,7 @@ Slice::ObjCVisitor::getParams(const OperationPtr& op, bool internal) const
         string typeString;
         if((*q)->isOutParam())
         {
-            typeString = outTypeToString(type, (*q)->optional(), false, true);
+            typeString = outTypeToString(type, (*q)->optional(), true, true);
         }
         else
         {
@@ -524,7 +524,7 @@ Slice::ObjCVisitor::getUnmarshalParams(const OperationPtr& op, bool internal) co
             {
                 result += " " + getParamId(*q);
             }
-            result += ":(" + outTypeToString(type, (*q)->optional(), false, true) + ")" + getParamName(*q, internal);
+            result += ":(" + outTypeToString(type, (*q)->optional(), true, true) + ")" + getParamName(*q, internal);
         }
     }
     return result;
