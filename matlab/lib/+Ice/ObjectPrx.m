@@ -236,7 +236,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = ice_getEndpointSelection(obj)
             obj.instantiate_();
-            r = obj.iceCallWithResult('ice_getEndpointSelection');
+            r = Ice.EndpointSelectionType.ice_getValue(obj.iceCallWithResult('ice_getEndpointSelection'));
         end
 
         function r = ice_endpointSelection(obj, t)

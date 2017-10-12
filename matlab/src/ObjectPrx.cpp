@@ -733,7 +733,7 @@ Ice_ObjectPrx_ice_getEndpointSelection(void* self)
     try
     {
         auto type = SELF->ice_getEndpointSelection();
-        return createResultValue(createEnumerator("Ice.EndpointSelectionType", static_cast<int>(type)));
+        return createResultValue(createInt(static_cast<int>(type)));
     }
     catch(const std::exception& ex)
     {

@@ -357,8 +357,8 @@ Ice_Connection_getACM(void* self)
         auto acm = SELF->getACM();
         mxArray* params[3];
         params[0] = createInt(acm.timeout);
-        params[1] = createEnumerator("Ice.ACMClose", static_cast<int>(acm.close));
-        params[2] = createEnumerator("Ice.ACMHeartbeat", static_cast<int>(acm.heartbeat));
+        params[1] = createInt(static_cast<int>(acm.close)); // The integer is converted to the enumerator.
+        params[2] = createInt(static_cast<int>(acm.heartbeat)); // The integer is converted to the enumerator.
         mxArray* r;
         mexCallMATLAB(1, &r, 3, params, "Ice.ACM");
         return createResultValue(r);
