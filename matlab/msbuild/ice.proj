@@ -4,6 +4,8 @@
   <PropertyGroup>
     <Platform>x64</Platform>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
+    <ToolboxDir>$(MSBuildThisFileDirectory)toolbox</ToolboxDir>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -21,6 +23,17 @@
     <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabExe)')"/>
     <CreateProperty Value="$([System.IO.Path]::GetFullPath( '$(MatlabExe)\..\..' ))">
       <Output TaskParameter="Value" PropertyName="MatlabHome" />
+    </CreateProperty>
+  </Target>
+
+  <Target Name="MatlabVersion" Condition="'$(MatlabVersion)' == ''">
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;fprintf(2, '%%s', version('-release'));exit(0);&quot;"
+          EchoOff="yes"
+          ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="MatlabOut"/>
+    </Exec>
+    <CreateProperty Value="$(MatlabOut.Substring($(MatlabOut.LastIndexOf(';'))).Replace(';',''))">
+      <Output TaskParameter="Value" PropertyName="MatlabVersion" />
     </CreateProperty>
   </Target>
 
@@ -71,11 +84,50 @@
              Targets="Clean" />
   </Target>
 
-  <Target Name="Package" DependsOnTargets="BuildDist">
-    <RemoveDir Directories="$(MSBuildThisFileDirectory)toolbox" />
-    <MakeDir Directories="$(MSBuildThisFileDirectory)toolbox" />
+  <!-- Replace file contents -->
+  <UsingTask TaskName="WriteFileWithReplacements"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <InputFile ParameterType="System.String" Required="true"/>
+      <OutputFile ParameterType="System.String" Required="true"/>
+      <Tokens ParameterType="System.String[]"/>
+      <Replacements ParameterType="System.String[]"/>
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System" />
+
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+                 var text = System.IO.File.ReadAllText(InputFile);
+                 for(var i = 0; i < Tokens.Length; ++i)
+                 {
+                 text = text.Replace(Tokens[i], Replacements[i]);
+                 }
+                 System.IO.File.WriteAllText(OutputFile, text, new System.Text.UTF8Encoding(false));
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="Package" DependsOnTargets="BuildDist;MatlabHome;MatlabVersion">
+    <RemoveDir Directories="$(ToolboxDir)" />
+    <MakeDir Directories="$(ToolboxDir)" />
+    <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)toolbox.template.prj"
+                               OutputFile="$(MSBuildThisFileDirectory)toolbox.prj"
+                               Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@"
+                               Replacements="$(RootDir);$(MatlabHome);3.7.1;$(MatlabVersion)"/>
+    <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)info.template.xml"
+                               OutputFile="$(MSBuildThisFileDirectory)toolbox\info.xml"
+                               Tokens="@MatlabVersion@"
+                               Replacements="R$(MatlabVersion)"/>
     <MSBuild Projects="ice.toolbox.targets"
              Properties="Configuration=$(Configuration);Platform=x64" />
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd '$(MSBuildThisFileDirectory)';buildToolbox '3.7.1';exit(0)&quot;"/>
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;addFolderToPath '$(ToolboxDir)\ice'&quot;"
+          WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;buildToolbox '3.7.1'&quot;"
+          WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
+          WorkingDirectory="$(MSBuildThisFileDirectory)"/>
+    <Delete Files="toolbox.prj"/>
   </Target>
 </Project>

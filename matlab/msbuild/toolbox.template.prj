@@ -1,13 +1,18 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration build-checksum="2704456572" file="C:\Users\vagrant\builds\ice\matlab\msbuild\ice.prj" location="C:\Users\vagrant\builds\ice\matlab\msbuild" name="ice" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="2704456572"
+                 file="@RootDir@\toolbox.prj"
+                 location="@RootDir@"
+                 name="ice"
+                 target="target.toolbox"
+                 target-name="Package Toolbox">
     <param.appname>ice</param.appname>
     <param.authnamewatermark>ZeroC, Inc</param.authnamewatermark>
     <param.email>info@zeroc.com</param.email>
     <param.company>ZeroC, Inc</param.company>
-    <param.summary>Ice for MATLAB</param.summary>
+    <param.summary>Ice @IceVersion@ for MATLAB @MatlabVersion@</param.summary>
     <param.description />
     <param.screenshot>${PROJECT_ROOT}\zeroc_logo-64x64.png</param.screenshot>
-    <param.version>3.7.1</param.version>
+    <param.version>@IceVersion@</param.version>
     <param.output>${PROJECT_ROOT}\ice.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -46,11 +51,13 @@
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="C:\Users\vagrant\builds\ice\matlab\msbuild" name="ice.mltbx" optional="false">C:\Users\vagrant\builds\ice\matlab\msbuild\ice.mltbx</file>
+      <file location="@RootDir@"
+            name="ice.mltbx"
+            optional="false">@RootDir@\ice.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2016a</root>
+      <root>@MatlabHome@</root>
       <toolboxes />
     </matlab>
     <platform>

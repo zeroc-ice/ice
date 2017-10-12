@@ -16,8 +16,11 @@
   <!-- Dynamic libraries and import libraries -->
   <ItemGroup>
     <Sources Include="$(RootDir)lib\**\*.m"
-             Exclude="$(RootDir)lib\generated\**\*.m"/>
-    <Sources Include="$(RootDir)lib\generated\**\*.m"/>
+             Exclude="$(RootDir)lib\generated\**\*.m;
+                      $(RootDir)lib\$(Platform)\$(Configuration)\iceproto.m" />
+    <Sources Include="$(RootDir)lib\generated\**\*.m" />
+    <Sources Include="$(RootDir)lib\$(Platform)\$(Configuration)\iceproto.m" />
+    <Headers Include="$(RootDir)src\ice.h" />
     <Libraries Include="$(RootDir)lib\$(Platform)\$(Configuration)\*.mexw64;
                         $(RootDir)lib\$(Platform)\$(Configuration)\*.dll" />
 
@@ -31,13 +34,14 @@
 
     <Slices Include="$(RootDir)..\slice\**\*.ice"
             Exclude="$(RootDir)..\slice\IceDiscovery\*.ice;
-                     $(RootDir)..\slice\IceLocatorDiscovery\*.ice"/>
+                     $(RootDir)..\slice\IceLocatorDiscovery\*.ice" />
   </ItemGroup>
 
   <!-- Copy required files to the package specific directories -->
   <Target Name="ToolBoxPackage">
     <Copy SourceFiles="@(Sources)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\%(Sources.RecursiveDir)" />
     <Copy SourceFiles="@(Libraries)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
+    <Copy SourceFiles="@(Headers)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox" />
     <Copy SourceFiles="@(Slices)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\slice\%(Slices.RecursiveDir)" />
   </Target>
