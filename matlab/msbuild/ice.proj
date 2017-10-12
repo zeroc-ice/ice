@@ -20,7 +20,7 @@
     <Exec Command="where matlab" ConsoleToMSBuild="true" EchoOff="yes">
       <Output TaskParameter="ConsoleOutput" PropertyName="MatlabExe" />
     </Exec>
-    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabExe)')"/>
+    <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabExe)')"/>
     <CreateProperty Value="$([System.IO.Path]::GetFullPath( '$(MatlabExe)\..\..' ))">
       <Output TaskParameter="Value" PropertyName="MatlabHome" />
     </CreateProperty>
