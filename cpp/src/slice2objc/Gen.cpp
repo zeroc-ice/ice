@@ -436,7 +436,7 @@ Slice::ObjCVisitor::getParams(const OperationPtr& op) const
         string typeString;
         if((*q)->isOutParam())
         {
-            typeString = outTypeToString(type, (*q)->optional(), false, true);
+            typeString = outTypeToString(type, (*q)->optional(), true, true);
         }
         else
         {
@@ -485,7 +485,7 @@ Slice::ObjCVisitor::getUnmarshalParams(const OperationPtr& op) const
             {
                 result += " " + getParamId(*q);
             }
-            result += ":(" + outTypeToString(type, (*q)->optional(), false, true) + ")" + fixId((*q)->name());
+            result += ":(" + outTypeToString(type, (*q)->optional(), true, true) + ")" + fixId((*q)->name());
         }
     }
     return result;
