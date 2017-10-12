@@ -43,6 +43,7 @@
       <file>${PROJECT_ROOT}\toolbox</file>
     </fileset.rootdir>
     <fileset.rootfiles>
+      <file>${PROJECT_ROOT}\toolbox\doc</file>
       <file>${PROJECT_ROOT}\toolbox\ice</file>
       <file>${PROJECT_ROOT}\toolbox\slice</file>
       <file>${PROJECT_ROOT}\toolbox\slice2matlab.exe</file>

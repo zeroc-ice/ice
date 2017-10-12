@@ -35,6 +35,7 @@
     <Slices Include="$(RootDir)..\slice\**\*.ice"
             Exclude="$(RootDir)..\slice\IceDiscovery\*.ice;
                      $(RootDir)..\slice\IceLocatorDiscovery\*.ice" />
+    <Doc Include="$(MSBuildThisFileDirectory)doc\*.html;$(MSBuildThisFileDirectory)doc\*.xml;$(MSBuildThisFileDirectory)doc\**\*.css" />
   </ItemGroup>
 
   <!-- Copy required files to the package specific directories -->
@@ -44,5 +45,6 @@
     <Copy SourceFiles="@(Headers)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox" />
     <Copy SourceFiles="@(Slices)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\slice\%(Slices.RecursiveDir)" />
+    <Copy SourceFiles="@(Doc)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\doc\%(Doc.RecursiveDir)" />
   </Target>
 </Project>
