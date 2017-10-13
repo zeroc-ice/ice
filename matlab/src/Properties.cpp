@@ -12,8 +12,6 @@
 #include "ice.h"
 #include "Util.h"
 
-#define SELF (*(reinterpret_cast<shared_ptr<Ice::Properties>*>(self)))
-
 using namespace std;
 using namespace IceMatlab;
 
@@ -34,7 +32,7 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
         shared_ptr<Ice::Properties> def;
         if(defaultsImpl)
         {
-            def = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(defaultsImpl));
+            def = deref<Ice::Properties>(defaultsImpl);
         }
         auto props = Ice::createProperties(a, def);
         *r = new shared_ptr<Ice::Properties>(move(props));
@@ -50,7 +48,7 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
 mxArray*
 Ice_Properties_unref(void* self)
 {
-    delete &SELF;
+    delete reinterpret_cast<shared_ptr<Ice::Properties>*>(self);
     return 0;
 }
 
@@ -59,7 +57,7 @@ Ice_Properties_getProperty(void* self, const char* key)
 {
     try
     {
-        return createResultValue(createStringFromUTF8(SELF->getProperty(key)));
+        return createResultValue(createStringFromUTF8(deref<Ice::Properties>(self)->getProperty(key)));
     }
     catch(const std::exception& ex)
     {
@@ -73,7 +71,7 @@ Ice_Properties_getPropertyWithDefault(void* self, const char* key, const char* d
 {
     try
     {
-        return createResultValue(createStringFromUTF8(SELF->getPropertyWithDefault(key, dflt)));
+        return createResultValue(createStringFromUTF8(deref<Ice::Properties>(self)->getPropertyWithDefault(key, dflt)));
     }
     catch(const std::exception& ex)
     {
@@ -87,7 +85,7 @@ Ice_Properties_getPropertyAsInt(void* self, const char* key, int* r)
 {
     try
     {
-        *r = SELF->getPropertyAsInt(key);
+        *r = deref<Ice::Properties>(self)->getPropertyAsInt(key);
     }
     catch(const std::exception& ex)
     {
@@ -101,7 +99,7 @@ Ice_Properties_getPropertyAsIntWithDefault(void* self, const char* key, int dflt
 {
     try
     {
-        *r = SELF->getPropertyAsIntWithDefault(key, dflt);
+        *r = deref<Ice::Properties>(self)->getPropertyAsIntWithDefault(key, dflt);
     }
     catch(const std::exception& ex)
     {
@@ -115,7 +113,7 @@ Ice_Properties_getPropertyAsList(void* self, const char* key)
 {
     try
     {
-        auto l = SELF->getPropertyAsList(key);
+        auto l = deref<Ice::Properties>(self)->getPropertyAsList(key);
         return createResultValue(createStringList(l));
     }
     catch(const std::exception& ex)
@@ -132,7 +130,7 @@ Ice_Properties_getPropertyAsListWithDefault(void* self, const char* key, mxArray
     {
         Ice::StringSeq d;
         getStringList(dflt, d);
-        Ice::StringSeq l = SELF->getPropertyAsListWithDefault(key, d);
+        Ice::StringSeq l = deref<Ice::Properties>(self)->getPropertyAsListWithDefault(key, d);
         return createResultValue(createStringList(l));
     }
     catch(const std::exception& ex)
@@ -147,7 +145,7 @@ Ice_Properties_getPropertiesForPrefix(void* self, const char* prefix)
 {
     try
     {
-        auto d = SELF->getPropertiesForPrefix(prefix);
+        auto d = deref<Ice::Properties>(self)->getPropertiesForPrefix(prefix);
         return createResultValue(createStringMap(d));
     }
     catch(const std::exception& ex)
@@ -162,7 +160,7 @@ Ice_Properties_setProperty(void* self, const char* key, const char* value)
 {
     try
     {
-        SELF->setProperty(key, value);
+        deref<Ice::Properties>(self)->setProperty(key, value);
     }
     catch(const std::exception& ex)
     {
@@ -176,7 +174,7 @@ Ice_Properties_getCommandLineOptions(void* self)
 {
     try
     {
-        auto opts = SELF->getCommandLineOptions();
+        auto opts = deref<Ice::Properties>(self)->getCommandLineOptions();
         return createResultValue(createStringList(opts));
     }
     catch(const std::exception& ex)
@@ -193,7 +191,7 @@ Ice_Properties_parseCommandLineOptions(void* self, const char* prefix, mxArray* 
     {
         Ice::StringSeq opts;
         getStringList(options, opts);
-        Ice::StringSeq rem = SELF->parseCommandLineOptions(prefix, opts);
+        Ice::StringSeq rem = deref<Ice::Properties>(self)->parseCommandLineOptions(prefix, opts);
         return createResultValue(createStringList(rem));
     }
     catch(const std::exception& ex)
@@ -210,7 +208,7 @@ Ice_Properties_parseIceCommandLineOptions(void* self, mxArray* options)
     {
         Ice::StringSeq opts;
         getStringList(options, opts);
-        Ice::StringSeq rem = SELF->parseIceCommandLineOptions(opts);
+        Ice::StringSeq rem = deref<Ice::Properties>(self)->parseIceCommandLineOptions(opts);
         return createResultValue(createStringList(rem));
     }
     catch(const std::exception& ex)
@@ -225,7 +223,7 @@ Ice_Properties_load(void* self, const char* file)
 {
     try
     {
-        SELF->load(file);
+        deref<Ice::Properties>(self)->load(file);
     }
     catch(const std::exception& ex)
     {
@@ -239,8 +237,7 @@ Ice_Properties_clone(void* self, void** r)
 {
     try
     {
-        auto c = SELF->clone();
-        *r = new shared_ptr<Ice::Properties>(move(c));
+        *r = new shared_ptr<Ice::Properties>(deref<Ice::Properties>(self));
     }
     catch(const std::exception& ex)
     {

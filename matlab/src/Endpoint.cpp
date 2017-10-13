@@ -12,9 +12,6 @@
 #include "Endpoint.h"
 #include "Util.h"
 
-#define DEREF(x) (*(reinterpret_cast<shared_ptr<Ice::Endpoint>*>(x)))
-#define SELF DEREF(self)
-
 using namespace std;
 using namespace IceMatlab;
 
@@ -22,12 +19,6 @@ void*
 IceMatlab::createEndpoint(shared_ptr<Ice::Endpoint> p)
 {
     return new shared_ptr<Ice::Endpoint>(move(p));
-}
-
-shared_ptr<Ice::Endpoint>
-IceMatlab::getEndpoint(void* p)
-{
-    return DEREF(p);
 }
 
 namespace
@@ -151,7 +142,7 @@ extern "C"
 mxArray*
 Ice_Endpoint_unref(void* self)
 {
-    delete &SELF;
+    delete reinterpret_cast<shared_ptr<Ice::Endpoint>*>(self);
     return 0;
 }
 
@@ -161,7 +152,8 @@ Ice_Endpoint_equals(void* self, void* other)
     assert(other); // Wrapper only calls this function for non-nil arguments.
     try
     {
-        return createResultValue(createBool(Ice::targetEqualTo(SELF, DEREF(other))));
+        return createResultValue(createBool(Ice::targetEqualTo(deref<Ice::Endpoint>(self),
+                                                               deref<Ice::Endpoint>(other))));
     }
     catch(const std::exception& ex)
     {
@@ -174,7 +166,7 @@ Ice_Endpoint_toString(void* self)
 {
     try
     {
-        return createResultValue(createStringFromUTF8(SELF->toString()));
+        return createResultValue(createStringFromUTF8(deref<Ice::Endpoint>(self)->toString()));
     }
     catch(const std::exception& ex)
     {
@@ -187,7 +179,7 @@ Ice_Endpoint_getInfo(void* self)
 {
     try
     {
-        shared_ptr<Ice::EndpointInfo> info = SELF->getInfo();
+        shared_ptr<Ice::EndpointInfo> info = deref<Ice::Endpoint>(self)->getInfo();
         return createResultValue(createInfo(info));
     }
     catch(const std::exception& ex)

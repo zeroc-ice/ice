@@ -13,9 +13,6 @@
 #include "Future.h"
 #include "Util.h"
 
-#define DEREF(x) (*(reinterpret_cast<shared_ptr<Ice::Connection>*>(x)))
-#define SELF DEREF(self)
-
 using namespace std;
 using namespace IceMatlab;
 
@@ -136,7 +133,7 @@ extern "C"
 mxArray*
 Ice_Connection_unref(void* self)
 {
-    delete &SELF;
+    delete reinterpret_cast<shared_ptr<Ice::Connection>*>(self);
     return 0;
 }
 
@@ -146,7 +143,7 @@ Ice_Connection_equals(void* self, void* other)
     assert(other); // Wrapper only calls this function for non-nil arguments.
     try
     {
-        return createResultValue(createBool(SELF == DEREF(other)));
+        return createResultValue(createBool(deref<Ice::Connection>(self) == deref<Ice::Connection>(other)));
     }
     catch(const std::exception& ex)
     {
@@ -161,7 +158,7 @@ Ice_Connection_close(void* self, mxArray* m)
     try
     {
         auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
-        SELF->close(mode);
+        deref<Ice::Connection>(self)->close(mode);
     }
     catch(const std::exception& ex)
     {
@@ -174,7 +171,7 @@ mxArray*
 Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
 {
     *future = 0;
-    auto c = SELF;
+    auto c = deref<Ice::Connection>(self);
     auto f = make_shared<SimpleFuture>();
 
     thread t([m, c, f]
@@ -191,7 +188,7 @@ Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
             }
         });
     t.detach();
-    *future = new shared_ptr<SimpleFuture>(f);
+    *future = new shared_ptr<SimpleFuture>(move(f));
     return 0;
 }
 
@@ -202,7 +199,7 @@ Ice_Connection_createProxy(void* self, mxArray* id, void** r)
     {
         Ice::Identity ident;
         getIdentity(id, ident);
-        auto proxy = SELF->createProxy(ident);
+        auto proxy = deref<Ice::Connection>(self)->createProxy(ident);
         *r = new shared_ptr<Ice::ObjectPrx>(move(proxy));
     }
     catch(const std::exception& ex)
@@ -218,7 +215,7 @@ Ice_Connection_flushBatchRequests(void* self, mxArray* c)
     try
     {
         auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
-        SELF->flushBatchRequests(mode);
+        deref<Ice::Connection>(self)->flushBatchRequests(mode);
     }
     catch(const std::exception& ex)
     {
@@ -236,7 +233,7 @@ Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
     try
     {
         auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
-        function<void()> token = SELF->flushBatchRequestsAsync(
+        function<void()> token = deref<Ice::Connection>(self)->flushBatchRequestsAsync(
             mode,
             [f](exception_ptr e)
             {
@@ -261,7 +258,7 @@ Ice_Connection_getEndpoint(void* self, void** endpoint)
 {
     try
     {
-        *endpoint = createEndpoint(SELF->getEndpoint());
+        *endpoint = createEndpoint(deref<Ice::Connection>(self)->getEndpoint());
     }
     catch(const std::exception& ex)
     {
@@ -275,7 +272,7 @@ Ice_Connection_heartbeat(void* self)
 {
     try
     {
-        SELF->heartbeat();
+        deref<Ice::Connection>(self)->heartbeat();
     }
     catch(const std::exception& ex)
     {
@@ -292,7 +289,7 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
 
     try
     {
-        function<void()> token = SELF->heartbeatAsync(
+        function<void()> token = deref<Ice::Connection>(self)->heartbeatAsync(
             [f](exception_ptr e)
             {
                 f->exception(e);
@@ -340,7 +337,7 @@ Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
         {
             heartbeat = static_cast<Ice::ACMHeartbeat>(getEnumerator(h, "Ice.ACMHeartbeat"));
         }
-        SELF->setACM(timeout, close, heartbeat);
+        deref<Ice::Connection>(self)->setACM(timeout, close, heartbeat);
     }
     catch(const std::exception& ex)
     {
@@ -354,7 +351,7 @@ Ice_Connection_getACM(void* self)
 {
     try
     {
-        auto acm = SELF->getACM();
+        auto acm = deref<Ice::Connection>(self)->getACM();
         mxArray* params[3];
         params[0] = createInt(acm.timeout);
         params[1] = createInt(static_cast<int>(acm.close)); // The integer is converted to the enumerator.
@@ -375,7 +372,7 @@ Ice_Connection_type(void* self)
 {
     try
     {
-        return createResultValue(createStringFromUTF8(SELF->type()));
+        return createResultValue(createStringFromUTF8(deref<Ice::Connection>(self)->type()));
     }
     catch(const std::exception& ex)
     {
@@ -389,7 +386,7 @@ Ice_Connection_timeout(void* self)
 {
     try
     {
-        return createResultValue(createInt(SELF->timeout()));
+        return createResultValue(createInt(deref<Ice::Connection>(self)->timeout()));
     }
     catch(const std::exception& ex)
     {
@@ -403,7 +400,7 @@ Ice_Connection_toString(void* self)
 {
     try
     {
-        return createResultValue(createStringFromUTF8(SELF->toString()));
+        return createResultValue(createStringFromUTF8(deref<Ice::Connection>(self)->toString()));
     }
     catch(const std::exception& ex)
     {
@@ -417,7 +414,7 @@ Ice_Connection_getInfo(void* self)
 {
     try
     {
-        shared_ptr<Ice::ConnectionInfo> info = SELF->getInfo();
+        shared_ptr<Ice::ConnectionInfo> info = deref<Ice::Connection>(self)->getInfo();
         return createResultValue(createInfo(info));
     }
     catch(const std::exception& ex)
@@ -431,7 +428,7 @@ Ice_Connection_setBufferSize(void* self, int rcvSize, int sndSize)
 {
     try
     {
-        SELF->setBufferSize(rcvSize, sndSize);
+        deref<Ice::Connection>(self)->setBufferSize(rcvSize, sndSize);
     }
     catch(const std::exception& ex)
     {
@@ -445,7 +442,7 @@ Ice_Connection_throwException(void* self)
 {
     try
     {
-        SELF->throwException();
+        deref<Ice::Connection>(self)->throwException();
     }
     catch(const std::exception& ex)
     {

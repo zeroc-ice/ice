@@ -37,11 +37,10 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
         //
         if(propsImpl)
         {
-            id.properties = *(reinterpret_cast<shared_ptr<Ice::Properties>*>(propsImpl));
+            id.properties = deref<Ice::Properties>(propsImpl);
         }
 
-        shared_ptr<Ice::Communicator> c = Ice::initialize(a, id);
-        *r = new shared_ptr<Ice::Communicator>(move(c));
+        *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, id));
         return createResultValue(createStringList(a));
     }
     catch(const std::exception& ex)
@@ -56,8 +55,7 @@ Ice_stringToIdentity(mxArray* s)
 {
     try
     {
-        Ice::Identity id = Ice::stringToIdentity(getStringFromUTF16(s));
-        return createResultValue(createIdentity(id));
+        return createResultValue(createIdentity(Ice::stringToIdentity(getStringFromUTF16(s))));
     }
     catch(const std::exception& ex)
     {

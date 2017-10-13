@@ -100,15 +100,13 @@ IceMatlab::SimpleFuture::isFinished() const
     return _done || _exception;
 }
 
-#define SFSELF (*(reinterpret_cast<shared_ptr<SimpleFuture>*>(self)))
-
 extern "C"
 {
 
 mxArray*
 Ice_SimpleFuture_unref(void* self)
 {
-    delete &SFSELF;
+    delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
     return 0;
 }
 
@@ -117,7 +115,7 @@ Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
 
-    bool b = SFSELF->waitUntilFinished();
+    bool b = deref<SimpleFuture>(self)->waitUntilFinished();
     *ok = b ? 1 : 0;
     return 0;
 }
@@ -125,32 +123,33 @@ Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 mxArray*
 Ice_SimpleFuture_state(void* self)
 {
-    return createResultValue(createStringFromUTF8(SFSELF->state()));
+    return createResultValue(createStringFromUTF8(deref<SimpleFuture>(self)->state()));
 }
 
 mxArray*
 Ice_SimpleFuture_cancel(void* self)
 {
-    SFSELF->cancel();
+    deref<SimpleFuture>(self)->cancel();
     return 0;
 }
 
 mxArray*
 Ice_SimpleFuture_check(void* self)
 {
-    if(!SFSELF->waitUntilFinished())
+    auto f = deref<SimpleFuture>(self);
+    if(!f->waitUntilFinished())
     {
-        assert(SFSELF->getException());
+        assert(f->getException());
         try
         {
-            rethrow_exception(SFSELF->getException());
+            rethrow_exception(f->getException());
         }
         catch(const std::exception& ex)
         {
             //
             // The C++ object won't be used after this.
             //
-            delete &SFSELF;
+            delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
             return convertException(ex);
         }
     }
@@ -158,7 +157,7 @@ Ice_SimpleFuture_check(void* self)
     //
     // The C++ object won't be used after this.
     //
-    delete &SFSELF;
+    delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
 
     return 0;
 }

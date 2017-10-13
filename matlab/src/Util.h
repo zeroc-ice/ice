@@ -45,4 +45,10 @@ mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);
 
 std::string idToClass(const std::string&);
 
+template<typename T>
+std::shared_ptr<T> deref(void* p)
+{
+    return *reinterpret_cast<std::shared_ptr<T>*>(p);
+}
+
 }
