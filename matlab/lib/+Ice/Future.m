@@ -4,7 +4,8 @@ classdef Future < IceInternal.WrapperObject
     % Represents an asynchronous invocation.
     %
     % Future Methods:
-    %   wait - Block until the invocation completes.
+    %   wait - Block until the invocation reaches a certain state, or a
+    %     timeout expires.
     %   fetchOutputs - Block until the invocation completes and then return
     %     the results or raise an exception.
     %   cancel - If the invocation is still pending, calling this method
@@ -67,16 +68,33 @@ classdef Future < IceInternal.WrapperObject
             end
             obj.impl_ = [];
         end
-        function ok = wait(obj)
-            % wait   Block until the invocation completes.
+        function ok = wait(obj, state, timeout)
+            % wait - Block until the invocation reaches a certain state, or a
+            %   timeout expires.
             %
-            % Returns (logical) - True upon success, false if an exception
-            %   occurred.
+            % Parameters:
+            %   state (char) - If provided, wait blocks until the future reaches
+            %     the given state. Must be one of 'running', 'sent', 'finished'.
+            %     If not provided, wait blocks until the state is 'finished'.
+            %     Note that the future enters the 'finished' state when
+            %     completed successfully or exceptionally.
+            %   timeout (double) - If provided, wait blocks up to the given
+            %     number of seconds while waiting for the future to reach the
+            %     desired state. If the timeout is negative or not provided,
+            %     wait blocks indefinitely.
+            %
+            % Returns (logical) - True if the future reached the desired state,
+            %   false if the future has not reached the desired state or an
+            %   exception occurred.
 
             if ~isempty(obj.impl_)
-                okPtr = libpointer('uint8Ptr', 0); % Output param
-                obj.iceCall('wait', okPtr);
-                ok = okPtr.Value == 1;
+                if nargin == 1
+                    ok = obj.iceCallWithResult('wait');
+                elseif nargin == 2
+                    ok = obj.iceCallWithResult('waitState', state, -1);
+                else
+                    ok = obj.iceCallWithResult('waitState', state, timeout);
+                end
             else
                 ok = true;
             end

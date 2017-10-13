@@ -118,6 +118,8 @@ classdef AllTests
             indirect = p.ice_adapterId('dummy');
             f = indirect.opAsync();
             assert(~f.wait());
+            assert(~f.wait('finished'));
+            assert(~f.wait('finished', 1));
 
             try
                 f.fetchOutputs();
@@ -138,7 +140,9 @@ classdef AllTests
                     pause(0.1);
                 end
                 f1.cancel();
+                assert(~f1.wait());
                 f2.cancel();
+                assert(~f2.wait());
                 try
                     f1.fetchOutputs();
                     assert(false);
@@ -151,11 +155,17 @@ classdef AllTests
                 catch ex
                     assert(isa(ex, 'Ice.InvocationCanceledException'));
                 end
+
+                f1 = p.opAsync();
+                assert(f1.wait('sent', 1));
+                assert(~f1.wait('finished', 0.1));
             catch ex
                 testController.resumeAdapter();
                 rethrow(ex);
             end
             testController.resumeAdapter();
+
+            assert(f1.wait('finished', 1));
 
             fprintf('ok\n');
 

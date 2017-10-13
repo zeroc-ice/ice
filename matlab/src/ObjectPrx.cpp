@@ -28,7 +28,6 @@ public:
 
     virtual void exception(exception_ptr);
     virtual void sent();
-    virtual string state() const;
 
     void finished(const std::shared_ptr<Ice::Communicator>&, const Ice::EncodingVersion&, bool,
                   std::pair<const Ice::Byte*, const Ice::Byte*>);
@@ -36,12 +35,11 @@ public:
 
 protected:
 
-    virtual bool isFinished() const;
+    virtual State stateImpl() const;
 
 private:
 
     const bool _twoway;
-    enum State { Running, Sent, Finished };
     State _state;
     bool _ok; // True for success, false for user exception.
     vector<Ice::Byte> _data;
@@ -90,26 +88,6 @@ InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& communicato
     _cond.notify_all();
 }
 
-string
-InvocationFuture::state() const
-{
-    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
-    string st;
-    switch(_state)
-    {
-        case State::Running:
-            st = "running";
-            break;
-        case State::Sent:
-            st = "sent";
-            break;
-        case State::Finished:
-            st = "finished";
-            break;
-    }
-    return st;
-}
-
 void
 InvocationFuture::getResults(bool& ok, pair<const Ice::Byte*, const Ice::Byte*>& p)
 {
@@ -127,43 +105,27 @@ InvocationFuture::getResults(bool& ok, pair<const Ice::Byte*, const Ice::Byte*>&
     }
 }
 
-bool
-InvocationFuture::isFinished() const
+Future::State
+InvocationFuture::stateImpl() const
 {
-    return _state == State::Finished;
+    return _state;
 }
 
 class GetConnectionFuture : public Future
 {
 public:
 
-    virtual string state() const;
-
     void finished(shared_ptr<Ice::Connection>);
     shared_ptr<Ice::Connection> getConnection() const;
 
 protected:
 
-    virtual bool isFinished() const;
+    virtual State stateImpl() const;
 
 private:
 
     shared_ptr<Ice::Connection> _connection;
 };
-
-string
-GetConnectionFuture::state() const
-{
-    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
-    if(_exception || _connection)
-    {
-        return "finished";
-    }
-    else
-    {
-        return "running";
-    }
-}
 
 void
 GetConnectionFuture::finished(shared_ptr<Ice::Connection> con)
@@ -181,10 +143,17 @@ GetConnectionFuture::getConnection() const
     return _connection;
 }
 
-bool
-GetConnectionFuture::isFinished() const
+Future::State
+GetConnectionFuture::stateImpl() const
 {
-    return _connection || _exception;
+    if(_exception || _connection)
+    {
+        return State::Finished;
+    }
+    else
+    {
+        return State::Running;
+    }
 }
 
 static const char* invokeResultFields[] = {"ok", "params"};
@@ -1155,21 +1124,32 @@ Ice_InvocationFuture_id(void* self, unsigned long long* id)
 }
 
 mxArray*
-Ice_InvocationFuture_wait(void* self, unsigned char* ok)
+Ice_InvocationFuture_wait(void* self)
 {
-    // TBD: Timeout?
+    bool b = deref<InvocationFuture>(self)->waitForState(Future::State::Finished, -1);
+    return createResultValue(createBool(b));
+}
 
-    bool b = deref<InvocationFuture>(self)->waitUntilFinished();
-    *ok = b ? 1 : 0;
-    return 0;
+mxArray*
+Ice_InvocationFuture_waitState(void* self, mxArray* st, double timeout)
+{
+    try
+    {
+        string state = getStringFromUTF16(st);
+        bool b = deref<InvocationFuture>(self)->waitForState(state, timeout);
+        return createResultValue(createBool(b));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
 }
 
 mxArray*
 Ice_InvocationFuture_results(void* self)
 {
-    // TBD: Timeout?
     auto f = deref<InvocationFuture>(self);
-    if(!f->waitUntilFinished())
+    if(!f->waitForState(Future::State::Finished, -1))
     {
         assert(f->getException());
         try
@@ -1220,7 +1200,7 @@ mxArray*
 Ice_InvocationFuture_check(void* self)
 {
     auto f = deref<InvocationFuture>(self);
-    if(!f->waitUntilFinished())
+    if(!f->waitForState(Future::State::Finished, -1))
     {
         assert(f->getException());
         try
@@ -1260,21 +1240,32 @@ Ice_GetConnectionFuture_id(void* self, unsigned long long* id)
 }
 
 mxArray*
-Ice_GetConnectionFuture_wait(void* self, unsigned char* ok)
+Ice_GetConnectionFuture_wait(void* self)
 {
-    // TBD: Timeout?
+    bool b = deref<GetConnectionFuture>(self)->waitForState(Future::State::Finished, -1);
+    return createResultValue(createBool(b));
+}
 
-    bool b = deref<GetConnectionFuture>(self)->waitUntilFinished();
-    *ok = b ? 1 : 0;
-    return 0;
+mxArray*
+Ice_GetConnectionFuture_waitState(void* self, mxArray* st, double timeout)
+{
+    try
+    {
+        string state = getStringFromUTF16(st);
+        bool b = deref<GetConnectionFuture>(self)->waitForState(state, timeout);
+        return createResultValue(createBool(b));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
 }
 
 mxArray*
 Ice_GetConnectionFuture_fetch(void* self, void** con)
 {
-    // TBD: Timeout?
     auto f = deref<GetConnectionFuture>(self);
-    if(!f->waitUntilFinished())
+    if(!f->waitForState(Future::State::Finished, -1))
     {
         assert(f->getException());
         try

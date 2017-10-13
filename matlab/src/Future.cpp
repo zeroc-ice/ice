@@ -18,18 +18,51 @@ void
 IceMatlab::Future::token(function<void()> t)
 {
     lock_guard<mutex> lock(_mutex);
-    if(!isFinished())
+    if(stateImpl() != State::Finished)
     {
         _token = std::move(t);
     }
 }
 
 bool
-IceMatlab::Future::waitUntilFinished()
+IceMatlab::Future::waitForState(State state, double timeout)
 {
     unique_lock<mutex> lock(_mutex);
-    _cond.wait(lock, [this]{ return this->isFinished(); });
-    return !_exception;
+    if(timeout < 0)
+    {
+        _cond.wait(lock, [this, state]{ return state == this->stateImpl(); });
+        return !_exception;
+    }
+    else
+    {
+        auto now = chrono::system_clock::now();
+        auto stop = now + chrono::milliseconds(static_cast<long long>(timeout * 1000));
+        bool b = _cond.wait_until(lock, stop, [this, state]{ return state == this->stateImpl(); });
+        return b && !_exception;
+    }
+}
+
+bool
+IceMatlab::Future::waitForState(const string& s, double timeout)
+{
+    State state;
+    if(s == "running")
+    {
+        state = State::Running;
+    }
+    else if(s == "sent")
+    {
+        state = State::Sent;
+    }
+    else if(s == "finished")
+    {
+        state = State::Finished;
+    }
+    else
+    {
+        throw std::invalid_argument("state must be one of 'running', 'sent' or 'finished'");
+    }
+    return waitForState(state, timeout);
 }
 
 void
@@ -53,6 +86,26 @@ IceMatlab::Future::sent()
 {
 }
 
+string
+IceMatlab::Future::state() const
+{
+    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
+    string st;
+    switch(stateImpl())
+    {
+        case State::Running:
+            st = "running";
+            break;
+        case State::Sent:
+            st = "sent";
+            break;
+        case State::Finished:
+            st = "finished";
+            break;
+    }
+    return st;
+}
+
 void
 IceMatlab::Future::cancel()
 {
@@ -68,7 +121,7 @@ IceMatlab::Future::cancel()
 // SimpleFuture
 //
 IceMatlab::SimpleFuture::SimpleFuture() :
-    _done(false)
+    _state(State::Running)
 {
 }
 
@@ -76,28 +129,21 @@ void
 IceMatlab::SimpleFuture::done()
 {
     lock_guard<mutex> lock(_mutex);
-    _done = true;
+    _state = State::Finished;
     _cond.notify_all();
 }
 
-string
-IceMatlab::SimpleFuture::state() const
+IceMatlab::Future::State
+IceMatlab::SimpleFuture::stateImpl() const
 {
-    lock_guard<mutex> lock(const_cast<mutex&>(_mutex));
-    if(_exception || _done)
+    if(_exception)
     {
-        return "finished";
+        return State::Finished;
     }
     else
     {
-        return "running";
+        return _state;
     }
-}
-
-bool
-IceMatlab::SimpleFuture::isFinished() const
-{
-    return _done || _exception;
 }
 
 extern "C"
@@ -111,13 +157,25 @@ Ice_SimpleFuture_unref(void* self)
 }
 
 mxArray*
-Ice_SimpleFuture_wait(void* self, unsigned char* ok)
+Ice_SimpleFuture_wait(void* self)
 {
-    // TBD: Timeout?
+    bool b = deref<SimpleFuture>(self)->waitForState("finished", -1);
+    return createResultValue(createBool(b));
+}
 
-    bool b = deref<SimpleFuture>(self)->waitUntilFinished();
-    *ok = b ? 1 : 0;
-    return 0;
+mxArray*
+Ice_SimpleFuture_waitState(void* self, mxArray* st, double timeout)
+{
+    try
+    {
+        string s = getStringFromUTF16(st);
+        bool b = deref<SimpleFuture>(self)->waitForState(s, timeout);
+        return createResultValue(createBool(b));
+    }
+    catch(const std::exception& ex)
+    {
+        return createResultException(convertException(ex));
+    }
 }
 
 mxArray*
@@ -137,7 +195,7 @@ mxArray*
 Ice_SimpleFuture_check(void* self)
 {
     auto f = deref<SimpleFuture>(self);
-    if(!f->waitUntilFinished())
+    if(!f->waitForState(Future::State::Finished, -1))
     {
         assert(f->getException());
         try

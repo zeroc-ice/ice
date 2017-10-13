@@ -111,20 +111,23 @@ ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_flushBatchRequestsAsync(void*, void**)
 ICE_MATLAB_API mxArray* Ice_ObjectPrx_clone(void*, void**);
 
 ICE_MATLAB_API mxArray* Ice_InvocationFuture_unref(void*);
-ICE_MATLAB_API mxArray* Ice_InvocationFuture_wait(void*, unsigned char*);
+ICE_MATLAB_API mxArray* Ice_InvocationFuture_wait(void*);
+ICE_MATLAB_API mxArray* Ice_InvocationFuture_waitState(void*, mxArray*, double);
 ICE_MATLAB_API mxArray* Ice_InvocationFuture_results(void*);
 ICE_MATLAB_API mxArray* Ice_InvocationFuture_state(void*);
 ICE_MATLAB_API mxArray* Ice_InvocationFuture_cancel(void*);
 ICE_MATLAB_API mxArray* Ice_InvocationFuture_check(void*);
 
 ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_unref(void*);
-ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_wait(void*, unsigned char*);
+ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_wait(void*);
+ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_waitState(void*, mxArray*, double);
 ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_fetch(void*, void**);
 ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_state(void*);
 ICE_MATLAB_API mxArray* Ice_GetConnectionFuture_cancel(void*);
 
 ICE_MATLAB_API mxArray* Ice_SimpleFuture_unref(void*);
-ICE_MATLAB_API mxArray* Ice_SimpleFuture_wait(void*, unsigned char*);
+ICE_MATLAB_API mxArray* Ice_SimpleFuture_wait(void*);
+ICE_MATLAB_API mxArray* Ice_SimpleFuture_waitState(void*, mxArray*, double);
 ICE_MATLAB_API mxArray* Ice_SimpleFuture_state(void*);
 ICE_MATLAB_API mxArray* Ice_SimpleFuture_cancel(void*);
 ICE_MATLAB_API mxArray* Ice_SimpleFuture_check(void*);

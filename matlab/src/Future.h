@@ -17,45 +17,28 @@ class Future
 public:
 
     void token(std::function<void()>);
-    bool waitUntilFinished();
+
+    enum State { Running, Sent, Finished };
+
+    bool waitForState(State, double);
+    bool waitForState(const std::string&, double);
 
     virtual void exception(std::exception_ptr);
     std::exception_ptr getException() const;
 
     virtual void sent();
-    virtual std::string state() const = 0;
+    virtual std::string state() const;
     void cancel();
 
 protected:
 
-    virtual bool isFinished() const = 0;
+    virtual State stateImpl() const = 0;
 
     std::mutex _mutex;
     std::condition_variable _cond;
 
     std::function<void()> _token;
     std::exception_ptr _exception; // If a local exception occurs.
-};
-
-//
-// For invocations that are considered completed when sent.
-//
-class SentFuture : public Future
-{
-public:
-
-    SentFuture();
-
-    virtual void sent();
-    virtual std::string state() const;
-
-protected:
-
-    virtual bool isFinished() const;
-
-private:
-
-    bool _sent;
 };
 
 class SimpleFuture : public Future
@@ -66,15 +49,13 @@ public:
 
     void done();
 
-    virtual std::string state() const;
-
 protected:
 
-    virtual bool isFinished() const;
+    virtual State stateImpl() const;
 
 private:
 
-    bool _done;
+    State _state;
 };
 
 }
