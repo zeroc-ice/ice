@@ -24,7 +24,7 @@ extern "C"
 // Implementation note: We need to pass the implementation object from MATLAB code for the defaults argument.
 // If we passed the wrapper object instead, there is no way to extract the void pointer from the mxArray object.
 //
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
 {
     try
@@ -47,14 +47,14 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getProperty(void* self, const char* key)
 {
     try
@@ -68,7 +68,7 @@ Ice_Properties_getProperty(void* self, const char* key)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertyWithDefault(void* self, const char* key, const char* dflt)
 {
     try
@@ -82,7 +82,7 @@ Ice_Properties_getPropertyWithDefault(void* self, const char* key, const char* d
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertyAsInt(void* self, const char* key, int* r)
 {
     try
@@ -96,7 +96,7 @@ Ice_Properties_getPropertyAsInt(void* self, const char* key, int* r)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertyAsIntWithDefault(void* self, const char* key, int dflt, int* r)
 {
     try
@@ -110,7 +110,7 @@ Ice_Properties_getPropertyAsIntWithDefault(void* self, const char* key, int dflt
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertyAsList(void* self, const char* key)
 {
     try
@@ -125,7 +125,7 @@ Ice_Properties_getPropertyAsList(void* self, const char* key)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertyAsListWithDefault(void* self, const char* key, mxArray* dflt)
 {
     try
@@ -142,7 +142,7 @@ Ice_Properties_getPropertyAsListWithDefault(void* self, const char* key, mxArray
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getPropertiesForPrefix(void* self, const char* prefix)
 {
     try
@@ -157,7 +157,7 @@ Ice_Properties_getPropertiesForPrefix(void* self, const char* prefix)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_setProperty(void* self, const char* key, const char* value)
 {
     try
@@ -171,7 +171,7 @@ Ice_Properties_setProperty(void* self, const char* key, const char* value)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_getCommandLineOptions(void* self)
 {
     try
@@ -186,7 +186,7 @@ Ice_Properties_getCommandLineOptions(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_parseCommandLineOptions(void* self, const char* prefix, mxArray* options)
 {
     try
@@ -203,7 +203,7 @@ Ice_Properties_parseCommandLineOptions(void* self, const char* prefix, mxArray* 
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_parseIceCommandLineOptions(void* self, mxArray* options)
 {
     try
@@ -220,7 +220,7 @@ Ice_Properties_parseIceCommandLineOptions(void* self, mxArray* options)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_load(void* self, const char* file)
 {
     try
@@ -234,7 +234,7 @@ Ice_Properties_load(void* self, const char* file)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Properties_clone(void* self, void** r)
 {
     try

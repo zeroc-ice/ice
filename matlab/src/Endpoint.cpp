@@ -148,14 +148,14 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
 extern "C"
 {
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Endpoint_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Endpoint_equals(void* self, void* other)
 {
     assert(other); // Wrapper only calls this function for non-nil arguments.
@@ -169,7 +169,7 @@ Ice_Endpoint_equals(void* self, void* other)
     }
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Endpoint_toString(void* self)
 {
     try
@@ -182,7 +182,7 @@ Ice_Endpoint_toString(void* self)
     }
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Endpoint_getInfo(void* self)
 {
     try

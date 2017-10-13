@@ -19,7 +19,7 @@ using namespace IceMatlab;
 extern "C"
 {
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_initialize(mxArray* args, void* propsImpl, void** r)
 {
     try
@@ -51,7 +51,7 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_stringToIdentity(mxArray* s)
 {
     try
@@ -66,7 +66,7 @@ Ice_stringToIdentity(mxArray* s)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_identityToString(mxArray* id, mxArray* mode)
 {
     try
@@ -83,32 +83,32 @@ Ice_identityToString(mxArray* id, mxArray* mode)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_stringVersion()
 {
     return createResultValue(createStringFromUTF8(ICE_STRING_VERSION));
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_intVersion(int* v)
 {
     *v = ICE_INT_VERSION;
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_currentEncoding()
 {
     return createResultValue(createEncodingVersion(Ice::currentEncoding));
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_currentProtocol()
 {
     return createResultValue(createProtocolVersion(Ice::currentProtocol));
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_currentProtocolEncoding()
 {
     return createResultValue(createEncodingVersion(Ice::currentProtocolEncoding));

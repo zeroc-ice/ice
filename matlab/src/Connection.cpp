@@ -133,14 +133,14 @@ createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
 extern "C"
 {
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_unref(void* self)
 {
     delete &SELF;
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_equals(void* self, void* other)
 {
     assert(other); // Wrapper only calls this function for non-nil arguments.
@@ -155,7 +155,7 @@ Ice_Connection_equals(void* self, void* other)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_close(void* self, mxArray* m)
 {
     try
@@ -170,7 +170,7 @@ Ice_Connection_close(void* self, mxArray* m)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
 {
     *future = 0;
@@ -195,7 +195,7 @@ Ice_Connection_closeAsync(void* self, mxArray* m, void** future)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_createProxy(void* self, mxArray* id, void** r)
 {
     try
@@ -212,7 +212,7 @@ Ice_Connection_createProxy(void* self, mxArray* id, void** r)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_flushBatchRequests(void* self, mxArray* c)
 {
     try
@@ -227,7 +227,7 @@ Ice_Connection_flushBatchRequests(void* self, mxArray* c)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
 {
     *future = 0;
@@ -256,7 +256,7 @@ Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_getEndpoint(void* self, void** endpoint)
 {
     try
@@ -270,7 +270,7 @@ Ice_Connection_getEndpoint(void* self, void** endpoint)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_heartbeat(void* self)
 {
     try
@@ -284,7 +284,7 @@ Ice_Connection_heartbeat(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_heartbeatAsync(void* self, void** future)
 {
     *future = 0;
@@ -311,7 +311,7 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
 {
     Ice::optional<int> timeout;
@@ -349,7 +349,7 @@ Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_getACM(void* self)
 {
     try
@@ -370,7 +370,7 @@ Ice_Connection_getACM(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_type(void* self)
 {
     try
@@ -384,7 +384,7 @@ Ice_Connection_type(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_timeout(void* self)
 {
     try
@@ -398,7 +398,7 @@ Ice_Connection_timeout(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_toString(void* self)
 {
     try
@@ -412,7 +412,7 @@ Ice_Connection_toString(void* self)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_getInfo(void* self)
 {
     try
@@ -426,7 +426,7 @@ Ice_Connection_getInfo(void* self)
     }
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_setBufferSize(void* self, int rcvSize, int sndSize)
 {
     try
@@ -440,7 +440,7 @@ Ice_Connection_setBufferSize(void* self, int rcvSize, int sndSize)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_Connection_throwException(void* self)
 {
     try

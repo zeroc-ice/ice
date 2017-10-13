@@ -105,14 +105,14 @@ IceMatlab::SimpleFuture::isFinished() const
 extern "C"
 {
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_SimpleFuture_unref(void* self)
 {
     delete &SFSELF;
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_SimpleFuture_wait(void* self, unsigned char* ok)
 {
     // TBD: Timeout?
@@ -122,20 +122,20 @@ Ice_SimpleFuture_wait(void* self, unsigned char* ok)
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_SimpleFuture_state(void* self)
 {
     return createResultValue(createStringFromUTF8(SFSELF->state()));
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_SimpleFuture_cancel(void* self)
 {
     SFSELF->cancel();
     return 0;
 }
 
-ICE_MATLAB_API mxArray*
+mxArray*
 Ice_SimpleFuture_check(void* self)
 {
     if(!SFSELF->waitUntilFinished())
