@@ -308,9 +308,6 @@ classdef Communicator < IceInternal.WrapperObject
             end
             r = obj.classResolver;
         end
-        function r = getCompactIdResolver(obj)
-            r = obj.initData.compactIdResolver;
-        end
         function r = getEncoding(obj)
             r = obj.encoding;
         end

@@ -11,9 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef EncapsDecoder11 < IceInternal.EncapsDecoder
     methods
-        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver, compactIdResolver)
+        function obj = EncapsDecoder11(is, encaps, sliceValues, valueFactoryManager, classResolver)
             obj = obj@IceInternal.EncapsDecoder(is, encaps, sliceValues, valueFactoryManager, classResolver);
-            obj.compactIdResolver = compactIdResolver;
             obj.current = [];
             obj.valueIdIndex = 1;
         end
@@ -376,20 +375,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                     %
                     if isempty(v)
                         obj.current.typeId = '';
-                        if ~isempty(obj.compactIdResolver)
-                            try
-                                obj.current.typeId = obj.compactIdResolver(obj.current.compactId);
-                            catch ex
-                                if isa(ex, 'Ice.LocalException')
-                                    rethrow(ex);
-                                else
-                                    throw(Ice.MarshalException('', '', ...
-                                            sprintf('exception in compact ID resolver for ID %d', ...
-                                                    obj.current.compactId)));
-                                end
-                            end
-                        end
-
                         if isempty(obj.current.typeId)
                             obj.current.typeId = obj.resolveCompactId(obj.current.compactId);
                         end
@@ -500,18 +485,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         function r = resolveCompactId(obj, id)
             type = '';
 
-            if ~isempty(obj.compactIdResolver)
-                try
-                    type = obj.compactIdResolver(id);
-                catch ex
-                    if isa(ex, 'Ice.LocalException')
-                        rethrow(ex);
-                    else
-                        throw(Ice.MarshalException('', '', sprintf('exception in compact ID resolver for ID %d', id)));
-                    end
-                end
-            end
-
             if isempty(type)
                 prop = sprintf('IceCompactId.TypeId_%d.typeId', id);
                 try
@@ -524,7 +497,6 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
         end
     end
     properties(Access=private)
-        compactIdResolver
         current
         valueIdIndex
         compactIdCache

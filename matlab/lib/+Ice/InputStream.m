@@ -814,7 +814,6 @@ classdef InputStream < handle
             end
 
             valueFactoryManager = obj.communicator.getValueFactoryManager();
-            compactIdResolver = obj.communicator.getCompactIdResolver();
             if isempty(obj.encapsStack.decoder) % Lazy initialization
                 if obj.encapsStack.encoding_1_0
                     obj.encapsStack.decoder = ...
@@ -823,7 +822,7 @@ classdef InputStream < handle
                 else
                     obj.encapsStack.decoder = ...
                         IceInternal.EncapsDecoder11(obj, obj.encapsStack, obj.sliceValues, valueFactoryManager, ...
-                                                    obj.communicator.getClassResolver(), compactIdResolver);
+                                                    obj.communicator.getClassResolver());
                 end
             end
         end
