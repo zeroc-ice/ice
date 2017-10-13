@@ -1,15 +1,13 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function r = encodingVersionToString(v)
+    % encodingVersionToString  Converts an encoding version to a string.
+    %
+    % Parameters:
+    %   v (Ice.EncodingVersion) - The encoding version to convert.
+    %
+    % Returns (char) - The encoding version as a string.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     if ~isa(v, 'Ice.EncodingVersion')
         throw(MException('Ice:ArgumentException', 'expecting an Ice.EncodingVersion'));
     end

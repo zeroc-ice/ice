@@ -1,21 +1,43 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef Future < IceInternal.WrapperObject
+    % Future   Summary of Future
+    %
+    % Represents an asynchronous invocation.
+    %
+    % Future Methods:
+    %   wait - Block until the invocation completes.
+    %   fetchOutputs - Block until the invocation completes and then return
+    %     the results or raise an exception.
+    %   cancel - If the invocation is still pending, calling this method
+    %     instructs the local Ice run time to ignore its results.
+    %
+    % Future Properties:
+    %   ID - A unique identifier for this object.
+    %   NumOutputArguments - The number of output arguments that will be
+    %     returned by fetchOutputs upon successful completion.
+    %   Operation - The name of the operation that was invoked.
+    %   Read - True if fetchOutputs has already been called.
+    %   State - The current state of the future.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     properties(SetAccess=private)
-        ID = 0
-        NumOutputArguments
-        Operation
-        Read = false
-        State = 'running'
+        % ID - A unique identifier for this object.
+        ID int32 = 0
+
+        % NumOutputArguments - The number of output arguments that will be
+        %   returned by fetchOutputs upon successful completion.
+        NumOutputArguments int32
+
+        % Operation - The name of the operation that was invoked.
+        Operation char
+
+        % Read - True if fetchOutputs has already been called.
+        Read logical = false
+
+        % State - The current state of the future. Its initial value is
+        %   'running' and its final value is 'finished'. A remote invocation
+        %   transitions from 'running' to 'sent' to 'finished'.
+        State char = 'running'
     end
     methods
         function obj = Future(impl, op, numOutArgs, type, fetchFunc)
@@ -34,7 +56,7 @@ classdef Future < IceInternal.WrapperObject
             if nextId
                 obj.ID = nextId;
             else
-                nextId = 0;
+                nextId = int32(0);
                 obj.ID = 0;
             end
             nextId = nextId + 1;
@@ -46,6 +68,11 @@ classdef Future < IceInternal.WrapperObject
             obj.impl_ = [];
         end
         function ok = wait(obj)
+            % wait   Block until the invocation completes.
+            %
+            % Returns (logical) - True upon success, false if an exception
+            %   occurred.
+
             if ~isempty(obj.impl_)
                 okPtr = libpointer('uint8Ptr', 0); % Output param
                 obj.iceCall('wait', okPtr);
@@ -55,6 +82,10 @@ classdef Future < IceInternal.WrapperObject
             end
         end
         function varargout = fetchOutputs(obj)
+            % fetchOutputs   Block until the invocation completes and then
+            %   return the results or raise an exception. Can only be called
+            %   once.
+
             if obj.Read
                 throw(MException('Ice:InvalidStateException', 'outputs already read'));
             end
@@ -74,6 +105,9 @@ classdef Future < IceInternal.WrapperObject
             obj.Read = true;
         end
         function cancel(obj)
+            % cancel   If the invocation is still pending, calling this method
+            %   instructs the local Ice run time to ignore its results.
+
             if ~isempty(obj.impl_)
                 obj.iceCall('cancel');
             end

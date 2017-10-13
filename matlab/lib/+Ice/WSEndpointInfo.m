@@ -1,15 +1,13 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef WSEndpointInfo < Ice.EndpointInfo
+    % WSEndpointInfo   Summary of WSEndpointInfo
+    %
+    % Provides access to WebSocket endpoint information.
+    %
+    % WSEndpointInfo Properties:
+    %   resource - The URI configured with the endpoint.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = WSEndpointInfo(secure, underlying, timeout, compress, resource)
             if nargin == 0
@@ -23,6 +21,7 @@ classdef WSEndpointInfo < Ice.EndpointInfo
         end
     end
     properties(SetAccess=private)
+        % resource - The URI configured with the endpoint.
         resource char
     end
 end

@@ -1,15 +1,15 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef IPEndpointInfo < Ice.EndpointInfo
+    % IPEndpointInfo   Summary of IPEndpointInfo
+    %
+    % Provides access to the address details of a IP endpoint.
+    %
+    % IPEndpointInfo Properties:
+    %   host - The host or address configured with the endpoint.
+    %   port - The port number.
+    %   sourceAddress - The source IP address.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = IPEndpointInfo(type, datagram, secure, underlying, timeout, compress, host, port, sourceAddress)
             if nargin == 3
@@ -27,8 +27,13 @@ classdef IPEndpointInfo < Ice.EndpointInfo
         end
     end
     properties(SetAccess=private)
+        % host - The host or address configured with the endpoint.
         host char
+
+        % port - The port number.
         port int32
+
+        % sourceAddress - The source IP address.
         sourceAddress char
     end
 end

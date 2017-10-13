@@ -1,15 +1,12 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef InterfaceByValue < Ice.Value
+    % InterfaceByValue   Summary of InterfaceByValue
+    %
+    % Base class for interoperating with existing applications that pass
+    % interfaces by value. The constructor expects the Slice type ID of
+    % the interface.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = InterfaceByValue(id)
             obj.id = id;

@@ -1,15 +1,14 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef UDPEndpointInfo < Ice.IPEndpointInfo
+    % UDPEndpointInfo   Summary of UDPEndpointInfo
+    %
+    % Provides access to UDP endpoint information.
+    %
+    % UDPEndpointInfo Properties:
+    %   mcastInterface - The multicast interface.
+    %   mcastTtl - The multicast time-to-live (or hops).
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = UDPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress, mcastInterface, ...
                                        mcastTtl)
@@ -30,7 +29,10 @@ classdef UDPEndpointInfo < Ice.IPEndpointInfo
         end
     end
     properties(SetAccess=private)
+        % mcastInterface - The multicast interface.
         mcastInterface char
+
+        % mcastTtl - The multicast time-to-live (or hops).
         mcastTtl int32
     end
 end

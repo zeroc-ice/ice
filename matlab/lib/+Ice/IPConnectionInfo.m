@@ -1,15 +1,16 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef IPConnectionInfo < Ice.ConnectionInfo
+    % IPConnectionInfo   Summary of IPConnectionInfo
+    %
+    % Provides access to the connection details of an IP connection.
+    %
+    % IPConnectionInfo Properties:
+    %   localAddress - The local address.
+    %   localPort - The local port.
+    %   remoteAddress - The remote address.
+    %   remotePort - The remote port.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...
                                         remoteAddress, remotePort)
@@ -31,9 +32,16 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
         end
     end
     properties(SetAccess=private)
+        % localAddress - The local address.
         localAddress char
+
+        % localPort - The local port.
         localPort int32
+
+        % remoteAddress - The remote address.
         remoteAddress char
+
+        % remotePort - The remote port.
         remotePort int32
     end
 end

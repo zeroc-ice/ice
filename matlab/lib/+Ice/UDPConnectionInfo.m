@@ -1,15 +1,16 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef UDPConnectionInfo < Ice.IPConnectionInfo
+    % UDPConnectionInfo   Summary of UDPConnectionInfo
+    %
+    % Provides access to the connection details of a UDP connection.
+    %
+    % UDPConnectionInfo Properties:
+    %   mcastAddress - The multicast address.
+    %   mcastPort - The multicast port.
+    %   rcvSize - The connection buffer receive size.
+    %   sndSize - The connection buffer send size.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = UDPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...
                                          remoteAddress, remotePort, mcastAddress, mcastPort, rcvSize, sndSize)
@@ -36,9 +37,16 @@ classdef UDPConnectionInfo < Ice.IPConnectionInfo
         end
     end
     properties(SetAccess=private)
+        % mcastAddress - The multicast address.
         mcastAddress char
+
+        % mcastPort - The multicast port.
         mcastPort int32
+
+        % rcvSize - The connection buffer receive size.
         rcvSize int32
+
+        % sndSize - The connection buffer send size.
         sndSize int32
     end
 end

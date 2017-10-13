@@ -1,15 +1,15 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function r = proxyIdentityCompare(lhs, rhs)
+    % proxyIdentityCompare  Compares the object identities of two proxies.
+    %
+    % Parameters:
+    %   lhs (Ice.ObjectPrx) - A proxy.
+    %   rhs (Ice.ObjectPrx) - A proxy.
+    %
+    % Returns (int32) - -1 if the identity in lhs compares less than the
+    %   identity in rhs; 0 if the identities compare equal; 1, otherwise.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     if isempty(lhs) && isempty(rhs)
         r = 0;
     elseif isempty(lhs) && ~isempty(rhs)

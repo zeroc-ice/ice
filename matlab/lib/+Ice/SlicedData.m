@@ -1,18 +1,14 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
-%
-% SlicedData holds the slices of unknown types.
-%
 classdef SlicedData < handle
+    % SlicedData   Summary of SlicedData
+    %
+    % SlicedData holds the slices of unknown types.
+    %
+    % SlicedData Properties:
+    %   slices - The details of each slice, in order of most-derived to
+    %     least-derived.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     properties(SetAccess=private)
         % The details of each slice, in order of most-derived to least-derived.
         slices

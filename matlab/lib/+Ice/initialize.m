@@ -1,15 +1,24 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function [communicator, args] = initialize(varargin)
+    % initialize  Creates a communicator.
+    %
+    % Examples:
+    %   communicator = Ice.initialize();
+    %   [communicator, remArgs] = Ice.initialize(args);
+    %   communicator = Ice.initialize(initData);
+    %   [communicator, remArgs] = Ice.initialize(args, initData);
+    %
+    % Parameters:
+    %   args (cell array of char) - An optional argument vector. Any Ice-related
+    %     options in this vector are used to initialize the communicator.
+    %   initData (Ice.InitializationData) - Optional additional initialization data.
+    %
+    % Returns:
+    %   communicator (Ice.Communicator) - The new communicator.
+    %   args (cell array of char) - Contains the remaining command-line arguments
+    %     that were not used to set properties.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     if length(varargin) > 2
         throw(MException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
     end

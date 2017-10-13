@@ -1,15 +1,10 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef (Abstract) LocalException < Ice.Exception
+    % LocalException   Summary of LocalException
+    %
+    % Base class for all Ice run-time exceptions.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = LocalException(id, msg)
             obj = obj@Ice.Exception(id, msg)

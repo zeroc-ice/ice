@@ -1,15 +1,14 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef Endpoint < IceInternal.WrapperObject
+    % Endpoint   Summary of Endpoint
+    %
+    % The user-level interface to an endpoint.
+    %
+    % Endpoint Methods:
+    %   toString - Return a string representation of the endpoint.
+    %   getInfo - Returns the endpoint information.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = Endpoint(impl)
             if ~isa(impl, 'lib.pointer')
@@ -31,9 +30,17 @@ classdef Endpoint < IceInternal.WrapperObject
             end
         end
         function r = toString(obj)
+            % toString   Return a string representation of the endpoint.
+            %
+            % Returns (char) - The string representation of the endpoint.
+
             r = obj.iceCallWithResult('toString');
         end
         function r = getInfo(obj)
+            % getInfo   Returns the endpoint information.
+            %
+            % Returns (Ice.EndpointInfo) - The endpoint information class.
+
             info = obj.iceCallWithResult('getInfo');
             r = obj.createEndpointInfo(info);
         end

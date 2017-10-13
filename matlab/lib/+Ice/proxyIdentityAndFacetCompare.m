@@ -1,15 +1,17 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function r = proxyIdentityAndFacetCompare(lhs, rhs)
+    % proxyIdentityAndFacetCompare  Compares the object identities and facets
+    %   of two proxies.
+    %
+    % Parameters:
+    %   lhs (Ice.ObjectPrx) - A proxy.
+    %   rhs (Ice.ObjectPrx) - A proxy.
+    %
+    % Returns (int32) - -1 if the identity and facet in lhs compares less than
+    %   the identity and facet in rhs; 0 if the identities and facets compare
+    %   equal; 1, otherwise.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     if isempty(lhs) && isempty(rhs)
         r = 0;
     elseif isempty(lhs) && ~isempty(rhs)

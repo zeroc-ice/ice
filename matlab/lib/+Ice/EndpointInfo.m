@@ -1,15 +1,22 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef EndpointInfo < handle
+    % EndpointInfo   Summary of EndpointInfo
+    %
+    % Base class providing access to the endpoint details.
+    %
+    % EndpointInfo Methods:
+    %   type - Returns the type of the endpoint.
+    %   datagram - Returns true if this endpoint is a datagram endpoint.
+    %   secure - Returns true if this endpoint is a secure endpoint.
+    %
+    % EndpointInfo Properties:
+    %   underlying (Ice.EndpointInfo) - The information of the underyling
+    %     endpoint or an empty array if there's no underlying endpoint.
+    %   timeout (int32) - The timeout for the endpoint in milliseconds.
+    %   compress (logical) - Specifies whether or not compression should be
+    %     used if available when using this endpoint.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = EndpointInfo(type, datagram, secure, underlying, timeout, compress)
             if nargin == 3
@@ -25,6 +32,10 @@ classdef EndpointInfo < handle
             obj.compress = compress;
         end
         function r = type(obj)
+            % type   Returns the type of the endpoint.
+            %
+            % Returns (int16) - The endpoint type.
+
             if ~isempty(obj.underlying)
                 r = obj.underlying.type();
             else
@@ -32,6 +43,10 @@ classdef EndpointInfo < handle
             end
         end
         function r = datagram(obj)
+            % datagram   Returns true if this endpoint is a datagram endpoint.
+            %
+            % Returns (logical) - True for a datagram endpoint.
+
             if ~isempty(obj.underlying)
                 r = obj.underlying.datagram();
             else
@@ -39,6 +54,10 @@ classdef EndpointInfo < handle
             end
         end
         function r = secure(obj)
+            % secure   Returns true if this endpoint is a secure endpoint.
+            %
+            % Returns (logical) - True for a secure endpoint.
+
             if ~isempty(obj.underlying)
                 r = obj.underlying.secure();
             else
@@ -47,8 +66,16 @@ classdef EndpointInfo < handle
         end
     end
     properties(SetAccess=private)
+        % underlying   The information of the underyling endpoint or an empty
+        %   array if there's no underlying endpoint.
         underlying
+
+        % timeout   The timeout for the endpoint in milliseconds. 0 means
+        %   non-blocking, -1 means no timeout.
         timeout int32
+
+        % compress   Specifies whether or not compression should be used if
+        %   available when using this endpoint.
         compress logical
     end
     properties(Access=protected)

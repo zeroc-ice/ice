@@ -1,15 +1,14 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef OptionalFormat < uint32
+    % OptionalFormat   Summary of OptionalFormat
+    %
+    % The optional type.
+    %
+    % An optional value is encoded with a specific optional format. This optional
+    % format describes how the data is encoded and how it can be skipped by the
+    % unmarshaling code if the optional is not known to the receiver.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     enumeration
         F1 (0)
         F2 (1)

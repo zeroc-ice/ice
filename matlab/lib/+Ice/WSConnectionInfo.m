@@ -1,15 +1,13 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 classdef WSConnectionInfo < Ice.ConnectionInfo
+    % WSConnectionInfo   Summary of WSConnectionInfo
+    %
+    % Provides access to the connection details of a WebSocket connection.
+    %
+    % WSConnectionInfo Properties:
+    %   headers - The headers from the HTTP upgrade request.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     methods
         function obj = WSConnectionInfo(underlying, incoming, adapterName, connectionId, headers)
             if nargin == 0
@@ -24,6 +22,7 @@ classdef WSConnectionInfo < Ice.ConnectionInfo
         end
     end
     properties(SetAccess=private)
+        % headers - The headers from the HTTP upgrade request.
         headers
     end
 end

@@ -1,15 +1,13 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function r = stringToEncodingVersion(s)
+    % stringToEncodingVersion  Converts a string to an encoding version.
+    %
+    % Parameters:
+    %   s (char) - The string to convert.
+    %
+    % Returns (Ice.EncodingVersion) - The converted encoding version.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     tokens = regexp(s, '^([0-9]+)\.([0-9]+)$', 'tokens');
     if isempty(tokens)
         throw(MException('Ice:ArgumentException', 'expecting a version in X.Y format'));

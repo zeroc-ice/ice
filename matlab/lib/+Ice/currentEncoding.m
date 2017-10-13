@@ -1,14 +1,9 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-%}
-
 function r = currentEncoding()
+    % currentEncoding  Returns the supported Ice encoding version.
+    %
+    % Returns (Ice.EncodingVersion) - The Ice encoding version.
+
+    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+
     r = IceInternal.Util.callWithResult('Ice_currentEncoding');
 end
