@@ -6,11 +6,14 @@ function [communicator, args] = initialize(varargin)
     %   [communicator, remArgs] = Ice.initialize(args);
     %   communicator = Ice.initialize(initData);
     %   [communicator, remArgs] = Ice.initialize(args, initData);
+    %   communicator = Ice.initialize(configFile);
+    %   [communicator, remArgs] = Ice.initialize(args, configFile);
     %
     % Parameters:
     %   args (cell array of char) - An optional argument vector. Any Ice-related
     %     options in this vector are used to initialize the communicator.
     %   initData (Ice.InitializationData) - Optional additional initialization data.
+    %   configFile (char) - Optional configuration file name.
     %
     % Returns:
     %   communicator (Ice.Communicator) - The new communicator.
@@ -25,28 +28,32 @@ function [communicator, args] = initialize(varargin)
 
     args = {};
     initData = [];
+    configFile = '';
 
     for i = 1:length(varargin)
         if isa(varargin{i}, 'cell') && isempty(args)
             args = varargin{i};
         elseif isa(varargin{i}, 'Ice.InitializationData') && isempty(initData)
             initData = varargin{i};
+        elseif isa(varargin{i}, 'char') && isempty(configFile)
+            configFile = varargin{i};
         else
             throw(MException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
         end
     end
 
-    if isempty(initData)
-        initData = Ice.InitializationData();
+    if ~isempty(initData) && ~isempty(configFile)
+        throw(MException('Ice:ArgumentException', ...
+                         'initialize accepts either Ice.InitializationData or a configuration filename'));
     end
 
-    if isempty(initData.valueFactoryManager)
-        %
-        % Supply a default implementation of ValueFactoryManager.
-        %
-        initData.valueFactoryManager = Ice.ValueFactoryManagerI();
-    elseif ~isa(initData.valueFactoryManager, 'Ice.ValueFactoryManager')
-        throw(MException('Ice:ArgumentException', 'invalid value for valueFactoryManager member'));
+    if isempty(initData)
+        initData = Ice.InitializationData();
+
+        if ~isempty(configFile)
+            initData.properties_ = Ice.createProperties();
+            initData.properties_.load(configFile);
+        end
     end
 
     %

@@ -33,6 +33,8 @@ classdef Communicator < IceInternal.WrapperObject
             obj = obj@IceInternal.WrapperObject(impl);
             obj.initData = initData;
 
+            obj.valueFactoryManager = IceInternal.ValueFactoryManagerI();
+
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
                 obj.encoding = Ice.currentEncoding();
@@ -266,7 +268,7 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (Ice.ValueFactoryManager) - This communicator's value
             %   factory manager.
 
-            r = obj.initData.valueFactoryManager;
+            r = obj.valueFactoryManager;
         end
         function flushBatchRequests(obj, mode)
             % flushBatchRequests   Flush any pending batch requests for this
@@ -325,5 +327,6 @@ classdef Communicator < IceInternal.WrapperObject
         encoding
         logger
         properties_
+        valueFactoryManager
     end
 end
