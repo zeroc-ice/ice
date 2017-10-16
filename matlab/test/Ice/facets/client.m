@@ -9,26 +9,20 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-function Client(args)
+function client(args)
     addpath('generated');
     addpath('../../lib');
     if ~libisloaded('ice')
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('Client', args);
-    initData.properties_.setProperty('Ice.Warn.AMICallback', '0');
-    initData.properties_.setProperty('Ice.Warn.Connections', '0');
-    %
-    % Limit the send buffer size, this test relies on the socket
-    % send() blocking after sending a given amount of data.
-    %
-    initData.properties_.setProperty('Ice.TCP.SndSize', '50000');
+    initData = TestApp.createInitData('client', args);
     communicator = Ice.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
 
     app = TestApp(communicator);
-    AllTests.allTests(app);
+    g = AllTests.allTests(app);
+    g.shutdown();
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

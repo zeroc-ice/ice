@@ -9,14 +9,14 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-function Client(args)
+function client(args)
     addpath('generated');
     addpath('../../lib');
     if ~libisloaded('ice')
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('Client', args);
+    initData = TestApp.createInitData('client', args);
     initData.properties_.setProperty('Ice.Warn.Connections', '0');
     communicator = Ice.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());

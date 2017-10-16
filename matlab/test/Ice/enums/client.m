@@ -9,20 +9,20 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-function Client(args)
+function client(args)
     addpath('generated');
     addpath('../../lib');
     if ~libisloaded('ice')
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('Client', args);
+    initData = TestApp.createInitData('client', args);
     communicator = Ice.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
 
     app = TestApp(communicator);
-    initial = AllTests.allTests(app);
-    initial.shutdown();
+    test = AllTests.allTests(app);
+    test.shutdown();
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

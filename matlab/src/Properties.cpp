@@ -237,7 +237,7 @@ Ice_Properties_clone(void* self, void** r)
 {
     try
     {
-        *r = new shared_ptr<Ice::Properties>(deref<Ice::Properties>(self));
+        *r = new shared_ptr<Ice::Properties>(deref<Ice::Properties>(self)->clone());
     }
     catch(const std::exception& ex)
     {

@@ -9,22 +9,20 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 %}
 
-function Client(args)
+function client(args)
     addpath('generated');
     addpath('../../lib');
     if ~libisloaded('ice')
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('Client', args);
+    initData = TestApp.createInitData('client', args);
     initData.properties_.setProperty('Ice.Warn.Connections', '0');
-    initData.properties_.setProperty('Ice.MessageSizeMax', '10'); % 10KB max
     communicator = Ice.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());
 
     app = TestApp(communicator);
-    thrower = AllTests.allTests(app);
-    thrower.shutdown();
+    AllTests.allTests(app);
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

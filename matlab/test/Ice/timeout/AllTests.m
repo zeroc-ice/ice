@@ -37,11 +37,6 @@ classdef AllTests
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
-            mult = 1;
-            if ~strcmp(communicator.getProperties().getPropertyWithDefault('Ice.Default.Protocol', 'tcp'), 'tcp')
-                mult = 4;
-            end
-
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
 
@@ -50,8 +45,8 @@ classdef AllTests
             %
             % Expect ConnectTimeoutException.
             %
-            to = timeout.ice_timeout(100 * mult);
-            timeout.holdAdapter(500 * mult);
+            to = timeout.ice_timeout(100);
+            timeout.holdAdapter(500);
             try
                 to.op();
                 assert(false);
@@ -64,8 +59,8 @@ classdef AllTests
             % Expect success.
             %
             timeout.op(); % Ensure adapter is active.
-            to = timeout.ice_timeout(1000 * mult);
-            timeout.holdAdapter(500 * mult);
+            to = timeout.ice_timeout(1000);
+            timeout.holdAdapter(500);
             try
                 to.op();
             catch ex
@@ -89,7 +84,7 @@ classdef AllTests
             %
             to = timeout.ice_timeout(250);
             AllTests.connect(to);
-            timeout.holdAdapter(750 * mult);
+            timeout.holdAdapter(750);
             try
                 to.sendData(seq);
                 assert(false);
@@ -102,8 +97,8 @@ classdef AllTests
             % Expect success.
             %
             timeout.op(); % Ensure adapter is active.
-            to = timeout.ice_timeout(1000 * mult);
-            timeout.holdAdapter(500 * mult);
+            to = timeout.ice_timeout(1000);
+            timeout.holdAdapter(500);
             try
                 to.sendData(zeros(1, 1000000, 'uint8'));
             catch ex
@@ -122,16 +117,16 @@ classdef AllTests
             to = timeout.ice_invocationTimeout(100);
             assert(connection == to.ice_getConnection());
             try
-                to.sleep(750 * mult);
+                to.sleep(750);
                 assert(false);
             catch ex
                 assert(isa(ex, 'Ice.InvocationTimeoutException'));
             end
             obj.ice_ping();
-            to = TimeoutPrx.checkedCast(obj.ice_invocationTimeout(500 * mult));
+            to = TimeoutPrx.checkedCast(obj.ice_invocationTimeout(500));
             assert(connection == to.ice_getConnection());
             try
-                to.sleep(100 * mult);
+                to.sleep(100);
             catch ex
                 if isa(ex, 'Ice.InvocationTimeoutException')
                     assert(false);
@@ -145,7 +140,7 @@ classdef AllTests
             % Expect InvocationTimeoutException.
             %
             to = timeout.ice_invocationTimeout(100);
-            f = to.sleepAsync(750 * mult);
+            f = to.sleepAsync(750);
             try
                 f.fetchOutputs();
             catch ex
@@ -156,8 +151,8 @@ classdef AllTests
             %
             % Expect success.
             %
-            to = timeout.ice_invocationTimeout(500 * mult);
-            f = to.sleepAsync(100 * mult);
+            to = timeout.ice_invocationTimeout(500);
+            f = to.sleepAsync(100);
             f.fetchOutputs();
 
             %
@@ -209,7 +204,7 @@ classdef AllTests
 
             fprintf('testing close timeout... ');
 
-            to = TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+            to = TimeoutPrx.uncheckedCast(obj.ice_timeout(250));
             connection = AllTests.connect(to);
             timeout.holdAdapter(600);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
@@ -219,7 +214,7 @@ classdef AllTests
                 assert(false);
             end
 
-            pause(.650 * mult);
+            pause(.650);
 
             try
                 connection.getInfo();
@@ -245,7 +240,7 @@ classdef AllTests
             comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             AllTests.connect(to);
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(500);
             try
                 to.sendData(seq);
                 assert(false);
@@ -257,9 +252,9 @@ classdef AllTests
             % Calling ice_timeout() should have no effect.
             %
             timeout.op(); % Ensure adapter is active.
-            to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
+            to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000));
             AllTests.connect(to);
-            timeout.holdAdapter(500 * mult);
+            timeout.holdAdapter(500);
             try
                 to.sendData(seq);
                 assert(false);
@@ -273,15 +268,11 @@ classdef AllTests
             % Test Ice.Override.ConnectTimeout.
             %
             initData = app.cloneInitData();
-            if mult == 1
-                initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
-            else
-                initData.properties_.setProperty('Ice.Override.ConnectTimeout', '2500');
-            end
+            initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
 
             comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(750 * mult);
+            timeout.holdAdapter(750);
             try
                 to.op();
                 assert(false);
@@ -293,8 +284,8 @@ classdef AllTests
             % Calling ice_timeout() should have no effect on the connect timeout.
             %
             timeout.op(); % Ensure adapter is active.
-            timeout.holdAdapter(750 * mult);
-            to = to.ice_timeout(1000 * mult);
+            timeout.holdAdapter(750);
+            to = to.ice_timeout(1000);
             try
                 to.op();
                 assert(false);
@@ -308,7 +299,7 @@ classdef AllTests
             timeout.op(); % Ensure adapter is active.
             to = to.ice_timeout(250);
             AllTests.connect(to);
-            timeout.holdAdapter(750 * mult);
+            timeout.holdAdapter(750);
             try
                 to.sendData(seq);
                 assert(false);
