@@ -13,15 +13,20 @@ classdef Communicator < IceInternal.WrapperObject
     %   propertyToProxy - Convert a set of proxy properties into a proxy.
     %   proxyToProperty - Convert a proxy to a set of proxy properties.
     %   identityToString - Convert an identity into a string.
+    %   getImplicitContext - Get the implicit context associated with this
+    %     communicator.
     %   getProperties - Get the properties for this communicator.
     %   getLogger - Get the logger for this communicator.
     %   getDefaultRouter - Get the default router for this communicator.
     %   setDefaultRouter - Set a default router for this communicator.
     %   getDefaultLocator - Get the default locator for this communicator.
     %   setDefaultLocator - Set a default locator for this communicator.
-    %   getValueFactoryManager - Get the value factory manager for this communicator.
-    %   flushBatchRequests - Flush any pending batch requests for this communicator.
-    %   flushBatchRequestsAsync - Flush any pending batch requests for this communicator.
+    %   getValueFactoryManager - Get the value factory manager for this
+    %     communicator.
+    %   flushBatchRequests - Flush any pending batch requests for this
+    %     communicator.
+    %   flushBatchRequestsAsync - Flush any pending batch requests for this
+    %     communicator.
 
     % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 
@@ -166,6 +171,21 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (char) - The stringified identity.
 
             r = obj.iceCallWithResult('identityToString', id);
+        end
+        function r = getImplicitContext(obj)
+            % getImplicitContext   Get the implicit context associated with
+            %   this communicator.
+            %
+            % Returns (Ice.ImplicitContext) - The implicit context associated
+            %   with this communicator; returns an empty array when the property
+            %   Ice.ImplicitContext is not set or is set to None.
+
+            if isempty(obj.implicitContext)
+                impl = libpointer('voidPtr');
+                obj.iceCall('getImplicitContext', impl);
+                obj.implicitContext = Ice.ImplicitContext(impl);
+            end
+            r = obj.implicitContext;
         end
         function r = getProperties(obj)
             % getProperties   Get the properties for this communicator.
@@ -322,8 +342,9 @@ classdef Communicator < IceInternal.WrapperObject
         initData
         classResolver
         encoding
-        logger
+        implicitContext
         properties_
+        logger
         valueFactoryManager
     end
 end

@@ -1149,7 +1149,6 @@ classdef TwowaysAMI
             %
             % Test implicit context propagation
             %
-%{
             impls = {'Shared', 'PerThread'};
             for i = 1:2
                 initData = app.cloneInitData();
@@ -1168,7 +1167,7 @@ classdef TwowaysAMI
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));
                 assert(isequal(p3.opContext(), ctx));
 
-                assert(!ic.getImplicitContext().containsKey('zero'));
+                assert(~ic.getImplicitContext().containsKey('zero'));
                 r = ic.getImplicitContext().put('zero', 'ZERO');
                 assert(strcmp(r, ''));
                 assert(ic.getImplicitContext().containsKey('zero'));
@@ -1200,7 +1199,6 @@ classdef TwowaysAMI
 
                 ic.destroy();
             end
-%}
 
             d = 1278312346.0 / 13.0;
             ds = zeros(1, 5);

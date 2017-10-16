@@ -11,6 +11,7 @@
 #include <Ice/Proxy.h>
 #include "ice.h"
 #include "Future.h"
+#include "ImplicitContext.h"
 #include "Logger.h"
 #include "ObjectPrx.h"
 #include "Util.h"
@@ -155,6 +156,21 @@ Ice_Communicator_identityToString(void* self, mxArray* id)
     catch(const std::exception& ex)
     {
         return createResultException(convertException(ex));
+    }
+    return 0;
+}
+
+mxArray*
+Ice_Communicator_getImplicitContext(void* self, void** ctx)
+{
+    try
+    {
+        auto p = deref<Ice::Communicator>(self)->getImplicitContext();
+        *ctx = createImplicitContext(p);
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
     }
     return 0;
 }

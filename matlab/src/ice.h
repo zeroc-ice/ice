@@ -39,6 +39,7 @@ ICE_MATLAB_API mxArray* Ice_Communicator_proxyToString(void*, void*);
 ICE_MATLAB_API mxArray* Ice_Communicator_propertyToProxy(void*, const char*, void**);
 ICE_MATLAB_API mxArray* Ice_Communicator_proxyToProperty(void*, void*, const char*);
 ICE_MATLAB_API mxArray* Ice_Communicator_identityToString(void*, mxArray*);
+ICE_MATLAB_API mxArray* Ice_Communicator_getImplicitContext(void*, void**);
 ICE_MATLAB_API mxArray* Ice_Communicator_getProperties(void*, void**);
 ICE_MATLAB_API mxArray* Ice_Communicator_getLogger(void*, void**);
 ICE_MATLAB_API mxArray* Ice_Communicator_getDefaultRouter(void*, void**);
@@ -179,6 +180,14 @@ ICE_MATLAB_API mxArray* Ice_Endpoint_unref(void*);
 ICE_MATLAB_API mxArray* Ice_Endpoint_equals(void*, void*);
 ICE_MATLAB_API mxArray* Ice_Endpoint_toString(void*);
 ICE_MATLAB_API mxArray* Ice_Endpoint_getInfo(void*);
+
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_unref(void*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_getContext(void*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_setContext(void*, mxArray*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_containsKey(void*, mxArray*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_get(void*, mxArray*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_put(void*, mxArray*, mxArray*);
+ICE_MATLAB_API mxArray* Ice_ImplicitContext_remove(void*, mxArray*);
 
 #ifdef __cplusplus
 }

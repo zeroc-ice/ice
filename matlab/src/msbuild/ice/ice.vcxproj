@@ -64,6 +64,7 @@
     <ClCompile Include="..\..\Connection.cpp" />
     <ClCompile Include="..\..\Endpoint.cpp" />
     <ClCompile Include="..\..\Future.cpp" />
+    <ClCompile Include="..\..\ImplicitContext.cpp" />
     <ClCompile Include="..\..\Init.cpp" />
     <ClCompile Include="..\..\Logger.cpp" />
     <ClCompile Include="..\..\ObjectPrx.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="..\..\Endpoint.h" />
     <ClInclude Include="..\..\Future.h" />
     <ClInclude Include="..\..\ice.h" />
+    <ClInclude Include="..\..\ImplicitContext.h" />
     <ClInclude Include="..\..\Logger.h" />
     <ClInclude Include="..\..\ObjectPrx.h" />
     <ClInclude Include="..\..\Util.h" />
