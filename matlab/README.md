@@ -5,8 +5,9 @@ in a production application.*
 
 ## Prerequisites
 
-The build system requires Microsoft Visual Studio 2015 and the [Ice Builder for
-Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=ZeroCInc.IceBuilder).
+The build system requires Microsoft Visual Studio 2015, the [Ice Builder for
+Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=ZeroCInc.IceBuilder),
+and a Perl installation.
 
 Ice for MATLAB supports MATLAB 2016a or later.
 
@@ -32,9 +33,10 @@ Upon completion, the build generates the following components:
 
  - Ice for C++11 library, located in `cpp\bin\x64\Release`
  - slice2matlab executable, located in `cpp\bin\x64\Release`
- - icematlab.mexw64 MEX file, located in `matlab\lib\x64\Release`
+ - ice.mexw64 MEX file, located in `matlab\lib\x64\Release`
+ - Prototype and thunk files, located in `matlab\lib\x64\Release`
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
- - MATLAB code for test Slice files, located in `matlab\test\Ice\*\generated`
+ - MATLAB code for test Slice files, located in `matlab\test\**\generated`
 
 ## Using Ice for MATLAB
 
@@ -61,12 +63,12 @@ loadlibrary('ice', @iceproto)
 ```
 
 The MEX file depends on `bzip2.dll` and `ice37++11.dll` that are part of the
-C++ distribution.
+Ice for C++ distribution.
 
 ### Running the Tests
 
 Several tests have been ported to MATLAB so far. You can find them in
-`matlab\test\Ice\*`.
+`matlab\test\*`.
 
 Since Ice for MATLAB only supports client functionality, you will have to build
 test servers from a different language mapping.
@@ -78,18 +80,18 @@ mapping.
 
 In MATLAB, change to a test directory:
 ```
-cd matlab\test\Ice\...
+cd matlab\test\...
 ```
 
 Now you can start the MATLAB test client. Assuming the server is running on
 the same host, use this command:
 ```
-Client.start({})
+client({})
 ```
 
 If you started the server on a different host, use this command instead:
 ```
-Client.start({'--Ice.Default.Host=<addr>'})
+client({'--Ice.Default.Host=<addr>'})
 ```
 
 Replace `<addr>` with the host name or IP address of the server host.
@@ -104,5 +106,5 @@ python allTests.py --platform=x64 --cpp-config=Cpp11-Debug
 ```
 
 This command will automatically start a corresponding C++11 server for each
-MATLAB client. MATLAB clients are executed using a minimized MATLAB interepreter
+MATLAB client. MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
