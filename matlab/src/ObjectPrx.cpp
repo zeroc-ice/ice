@@ -188,7 +188,7 @@ extern "C"
 mxArray*
 Ice_ObjectPrx_unref(void* self)
 {
-    delete &deref<Ice::ObjectPrx>(self);
+    delete reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(self);
     return 0;
 }
 
