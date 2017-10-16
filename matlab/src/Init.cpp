@@ -16,6 +16,25 @@
 using namespace std;
 using namespace IceMatlab;
 
+namespace
+{
+
+class Init
+{
+public:
+
+    Init()
+    {
+        Ice::registerIceWS(true);
+        Ice::registerIceSSL(false);
+        Ice::registerIceDiscovery(false);
+        Ice::registerIceLocatorDiscovery(false);
+    }
+};
+
+Init init;
+}
+
 extern "C"
 {
 
