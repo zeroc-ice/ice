@@ -63,7 +63,7 @@
   </Target>
   <Target Name="MATLABPrototype" BeforeTargets="CLCompile">
     <MakeDir Directories="$(Platform)\$(Configuration)" />
-    <Exec Command="cl /P /c ..\..\..\..\ice.h" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\ice.i') or $([System.IO.File]::GetLastWriteTime('..\..\..\ice.h').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\ice.i').Ticks)" />
+    <Exec Command="cl /P /c ..\..\..\..\ice.h" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\ice.i') or $([System.IO.File]::GetLastWriteTime('..\..\ice.h').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\ice.i').Ticks)" />
     <Exec Command="perl &quot;$(MatlabHome)\toolbox\matlab\general\private\prototypes.pl&quot; ice.i -thunkfile=icethunk.c -outfile=iceproto.m" WorkingDirectory="$(Platform)\$(Configuration)" Condition="!Exists('$(Platform)\$(Configuration)\iceproto.m') or $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\ice.i').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(Platform)\$(Configuration)\iceproto.m').Ticks)" />
     <Copy SourceFiles="$(Platform)\$(Configuration)\iceproto.m" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
