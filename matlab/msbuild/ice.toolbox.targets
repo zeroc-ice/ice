@@ -4,12 +4,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
-    <CppBinDir>$(RootDir)..\cpp\bin\$(Platform)\$(Configuration)</CppBinDir>
-    <CppToolsDir>$(CppBinDir)</CppToolsDir>
+    <CppToolsDir>$(RootDir)..\cpp\bin\$(Platform)\$(Configuration)</CppToolsDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <CppBinDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140\build\native\bin\$(Platform)\$(Configuration)</CppBinDir>
     <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140\tools</CppToolsDir>
   </PropertyGroup>
 
@@ -23,12 +21,6 @@
     <Headers Include="$(RootDir)src\ice.h" />
     <Libraries Include="$(RootDir)lib\$(Platform)\$(Configuration)\*.mexw64;
                         $(RootDir)lib\$(Platform)\$(Configuration)\*.dll" />
-
-    <Libraries Include="$(CppBinDir)\bzip2.dll;
-                        $(CppBinDir)\ice37++11.dll;
-                        $(CppBinDir)\icediscovery37++11.dll;
-                        $(CppBinDir)\icelocatordiscovery37++11.dll;
-                        $(CppBinDir)\icessl37++11.dll;" />
 
     <Tools Include="$(CppToolsDir)\slice2matlab.exe" />
 

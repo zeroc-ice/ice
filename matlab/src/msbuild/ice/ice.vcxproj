@@ -95,10 +95,16 @@
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
     <Delete Files="$(OutDir)\ice37++11$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icediscovery37++11$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icelocatordiscovery37++11$(DebugExtension).dll" />
+    <Delete Files="$(OutDir)\icessl37++11$(DebugExtension).dll" />
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(IceBinPath)\icediscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(IceBinPath)\icelocatordiscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(IceBinPath)\icessl37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
   </Target>
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
     <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabHome)')"/>
