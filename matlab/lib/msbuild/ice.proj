@@ -37,6 +37,9 @@
     <Slice Include="..\..\..\slice\Ice\SliceChecksumDict.ice" />
     <Slice Include="..\..\..\slice\Ice\ValueFactory.ice" />
     <Slice Include="..\..\..\slice\Ice\Version.ice" />
+    <Slice Include="..\..\..\slice\Glacier2\*.ice" />
+    <Slice Include="..\..\..\slice\IceStorm\*.ice" />
+    <Slice Include="..\..\..\slice\IceGrid\*.ice" />
   </ItemGroup>
   <Target Name="Config">
     <Message Text="IceHome: $(IceHome)"/>
