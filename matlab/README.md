@@ -29,9 +29,9 @@ To build in debug mode instead:
 msbuild msbuild\ice.proj /p:Configuration=Debug
 ```
 
-Upon completion, the build generates the following components:
+Upon completion, a build in release mode generates the following components:
 
- - Ice for C++11 library, located in `cpp\bin\x64\Release`
+ - Ice for C++11 libraries, located in `cpp\bin\x64\Release`
  - slice2matlab executable, located in `cpp\bin\x64\Release`
  - ice.mexw64 MEX file, located in `matlab\lib\x64\Release`
  - Prototype and thunk files, located in `matlab\lib\x64\Release`
@@ -62,13 +62,13 @@ The Ice for MATLAB library can be loaded with this command:
 loadlibrary('ice', @iceproto)
 ```
 
-The MEX file depends on `bzip2.dll` and `ice37++11.dll` that are part of the
-Ice for C++ distribution.
+The MEX file depends on `bzip2.dll` and several Ice DLLs that are part of the
+Ice for C++ distribution. The build copies all DLL dependencies to the
+`matlab\lib\x64\Release` directory.
 
 ### Running the Tests
 
-Several tests have been ported to MATLAB so far. You can find them in
-`matlab\test\*`.
+The Ice for MATLAB tests are located in `matlab\test`.
 
 Since Ice for MATLAB only supports client functionality, you will have to build
 test servers from a different language mapping.
