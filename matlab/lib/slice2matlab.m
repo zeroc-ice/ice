@@ -1,11 +1,18 @@
-function [status, out] = slice2matlab(args)
+function status = slice2matlab(args)
 
-    % slice2matlab   Summary of slice2matlab
+    % SLICE2MATLAB Compile Slice files.
     %
-    % A wrapper function to call Slice to MATLAB compiler slice2matlab.exe.
+    % Compiles Slice files using the Slice-to-MATLAB compiler
+    % included with the Ice toolbox.
     %
     % Parameters:
-    %   args - arguments passed to slice2matlab.exe.
+    %
+    %   args - The arguments passed to the Slice-to-MATLAB compiler,
+    %          specified as a string.
+    %
+    % Returns:
+    %
+    %   status - The Slice-to-MATLAB compiler exit status code.
 
     % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 
@@ -28,7 +35,7 @@ function [status, out] = slice2matlab(args)
                      '..\msbuild\packages\zeroc.ice.v140\build\native\tools\slice2matlab.exe'}, rootDir, 2);
 
     searchPath = findFile({'..\slice' '..\..\slice'}, rootDir, 7);
-
+    out = '';
     if isempty(path)
         status = 1;
         out = 'Cannot locate slice2matlab.exe\n';
@@ -36,7 +43,7 @@ function [status, out] = slice2matlab(args)
         status = 1;
         out = 'Cannot locate slice dir.\n';
     else
-        [status, out] = system(sprintf('%s -I%s %s', path, searchPath, args));
+        status = system(sprintf('%s -I%s %s', path, searchPath, args));
     end
 
     if ~isempty(out)

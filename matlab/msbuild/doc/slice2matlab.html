@@ -1,0 +1,31 @@
+<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="css/doc_center.css" rel="stylesheet" type="text/css">
+
+<section id="doc_center_content" lang="en">
+  <div id="pgtype-topic">
+    <span id="top" class="anchor_target"></span>
+    <h1 class="title r2016b" id="">slice2matlab </h1>
+    <p>Compiles Slice files using the Slice-to-MATLAB compiler included with the Ice toolbox.</p>
+    <p>The complete documentation for the Slice-to-MATLAB compiler is availabe with the
+      <a href="https://doc.zeroc.com/display/IceMatlab/slice2matlab+Command-Line+Options">Ice Manual</a>.</p>
+    <div itemprop="content">
+      <h2 id="syntax">Syntax</h2>
+      <div>
+        <code>status = slice2matlab(args)</code>
+      </div>
+      <h2>Input Arguments</h2>
+      <div>
+        <span><code>args</code> — Arguments passed to the Slice-to-MATLAB compiler, specified as a string</span>
+      </div>
+      <h2>Output Arguments</h2>
+      <div>
+        <span><code>status</code> — The Slice-to-MATLAB compiler exit status.</span>
+      </div>
+      <h2 id="examples">Examples</h2>
+      <p>Compile <code>Hello.ice</code> file in the current directory.</p>
+      <div>
+        <pre>slice2matlab('Hello.ice --output-dir=generated');</pre>
+      </div>
+    </div>
+  </div>
+</section>
