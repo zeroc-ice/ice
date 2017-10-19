@@ -38,6 +38,16 @@ Upon completion, a build in release mode generates the following components:
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
  - MATLAB code for test Slice files, located in `matlab\test\**\generated`
 
+## MATLAB Toolbox
+
+You can build the Ice MATLAB toolbox package with the following command:
+
+```
+msbuild msbuild\ice.proj /t:Package
+```
+
+This create the toolbox package `msbuild\ice-<Ice Version>-<MATLAB Version>.mltbx`.
+
 ## Using Ice for MATLAB
 
 ### Search Path
