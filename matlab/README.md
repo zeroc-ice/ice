@@ -46,7 +46,7 @@ You can build the MATLAB Ice toolbox package with the following command:
 msbuild msbuild\ice.proj /t:Package
 ```
 
-This create the toolbox package `msbuild\ice-<Ice Version>-<MATLAB Version>.mltbx`.
+This creates the toolbox package `msbuild\ice-<Ice Version>-<MATLAB Version>.mltbx`.
 
 ## Using Ice for MATLAB
 

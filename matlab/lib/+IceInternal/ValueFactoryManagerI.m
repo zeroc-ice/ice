@@ -33,7 +33,7 @@ classdef ValueFactoryManagerI < Ice.ValueFactoryManager
                 end
             end
         end
-        function r = find(obj, id)
+        function r = find_(obj, id)
             if isempty(id)
                 r = obj.defaultFactory;
             elseif obj.hasFactories && obj.factories.isKey(id)

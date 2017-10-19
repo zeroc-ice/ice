@@ -42,31 +42,6 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string
-lowerCase(const string& s)
-{
-    string result(s);
-    transform(result.begin(), result.end(), result.begin(), ::tolower);
-    return result;
-}
-
-string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    static const string keywordList[] =
-    {
-        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "for", "function", "global",
-        "if", "otherwise", "parfor", "persistent", "return", "spmd", "switch", "try", "while"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
-    return found ? name + "_" : name;
-}
-
 //
 // Split an absolute name into its components and return the components as a list of identifiers.
 //
@@ -126,6 +101,24 @@ splitScopedName(const string& scoped)
 }
 
 string
+lookupKwd(const string& name)
+{
+    //
+    // Keyword list. *Must* be kept in alphabetical order.
+    //
+    static const string keywordList[] =
+    {
+        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "enumeration", "events", "for",
+        "function", "global", "if", "methods", "otherwise", "parfor", "persistent", "properties", "return", "spmd",
+        "switch", "try", "while"
+    };
+    bool found =  binary_search(&keywordList[0],
+                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                                name);
+    return found ? name + "_" : name;
+}
+
+string
 fixIdent(const string& ident)
 {
     if(ident[0] != ':')
@@ -143,6 +136,41 @@ fixIdent(const string& ident)
 }
 
 string
+fixMember(const string& name)
+{
+    assert(name[0] != ':');
+
+    //
+    // Method list. These represent the built-in methods for every object, which you can view by executing
+    // "methods(obj)" in the console. MATLAB does not allow a class to declare a property having one of these
+    // names. Furthermore, if we generated a method (e.g., a proxy operation) having one of these names, then
+    // it would override the built-in method and possibly cause problems.
+    //
+    // *Must* be kept in alphabetical order.
+    //
+    static const string methodList[] =
+    {
+        "abs", "accumarray", "all", "and", "any", "bitand", "bitcmp", "bitget", "bitor", "bitset", "bitshift",
+        "bitxor", "bsxfun", "cat", "ceil", "cell", "cellstr", "char", "complex", "conj", "conv2", "ctranspose",
+        "cummax", "cummin", "cumprod", "cumsum", "diag", "diff", "double", "end", "eq", "fft", "fftn", "find",
+        "fix", "floor", "full", "function_handle", "ge", "gt", "horzcat", "ifft", "ifftn", "imag", "int16", "int32",
+        "int64", "int8", "intersect", "isempty", "isequal", "isequaln", "isequalwithequalnans", "isfinite", "isfloat",
+        "isinf", "isinteger", "islogical", "ismember", "isnan", "isnumeric", "isreal", "isscalar", "issorted",
+        "issparse", "isvector", "ldivide", "le", "length", "linsolve", "logical", "lt", "max", "min", "minus",
+        "mldivide", "mod", "mpower", "mrdivide", "mtimes", "ndims", "ne", "nnz", "nonzeros", "not", "numel", "nzmax",
+        "or", "permute", "plot", "plus", "power", "prod", "rdivide", "real", "rem", "reshape", "round", "setdiff",
+        "setxor", "sign", "single", "size", "sort", "sortrowsc", "strcmp", "strcmpi", "strncmp", "strncmpi",
+        "subsasgn", "subsindex", "subsref", "sum", "times", "transpose", "tril", "triu", "uint16", "uint32", "uint64",
+        "uminus", "union", "uplus", "vertcat", "xor"
+    };
+
+    bool found =  binary_search(&methodList[0],
+                                &methodList[sizeof(methodList) / sizeof(*methodList)],
+                                name);
+    return found ? name + "_" : lookupKwd(name);
+}
+
+string
 fixOp(const string& name)
 {
     assert(name[0] != ':');
@@ -156,24 +184,23 @@ fixOp(const string& name)
     //
     static const string idList[] =
     {
-        "addlistener", "checkedCast", "delete", "eq", "findobj", "findprop", "ge", "gt", "isvalid", "le", "listener",
-        "lt", "ne", "notify", "uncheckedCast"
+        "addlistener", "checkedCast", "delete", "findobj", "findprop", "isvalid", "listener", "notify", "uncheckedCast"
     };
     bool found =  binary_search(&idList[0],
                                 &idList[sizeof(idList) / sizeof(*idList)],
                                 name);
-    return found ? name + "_" : fixIdent(name);
+    return found ? name + "_" : fixMember(name);
 }
 
 string
-fixExceptionMemberIdent(const string& ident)
+fixExceptionMember(const string& ident)
 {
     //
     // User exceptions are subclasses of MATLAB's MException class. Subclasses cannot redefine a member that
     // conflicts with MException's properties. Unfortunately MException also has some undocumented non-public
     // properties that will cause run-time errors.
     //
-    string s = fixIdent(ident);
+    string s = fixMember(ident);
     if(s == "identifier" ||
        s == "message" ||
        s == "stack" ||
@@ -198,20 +225,6 @@ replace(string s, string patt, string val)
         pos = r.find(patt, pos);
     }
     return r;
-}
-
-string
-scopedToName(const string& scoped)
-{
-    string str = scoped;
-    if(str.find("::") == 0)
-    {
-        str.erase(0, 2);
-    }
-
-    str = replace(str, "::", ".");
-
-    return fixIdent(str);
 }
 
 void
@@ -286,7 +299,13 @@ map<string, string> _filePackagePrefix;
 string
 getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
 {
-    return scopedToName(cont->scope() + pfx + cont->name() + suffix);
+    string str = fixIdent(cont->scope() + pfx + cont->name() + suffix);
+    if(str.find("::") == 0)
+    {
+        str.erase(0, 2);
+    }
+
+    return replace(str, "::", ".");
 }
 
 string
@@ -544,6 +563,12 @@ defaultValue(const DataMemberPtr& m)
             return getAbsolute(*enumerators.begin());
         }
 
+        StructPtr st = StructPtr::dynamicCast(m->type());
+        if(st)
+        {
+            return getAbsolute(st) + "()";
+        }
+
         return "[]";
     }
 }
@@ -702,7 +727,7 @@ splitComment(const string& c)
                     }
                     else if(!rest.empty())
                     {
-                        ident = fixIdent(rest);
+                        ident = fixMember(rest);
                     }
                 }
                 else
@@ -1113,7 +1138,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
         for(EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
         {
             StringList sl = splitComment((*q)->comment());
-            out << nl << "%   " << fixIdent((*q)->name());
+            out << nl << "%   " << fixMember((*q)->name());
             if(!sl.empty())
             {
                 out << " - ";
@@ -1130,7 +1155,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
         for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
         {
             StringList sl = splitComment((*q)->comment());
-            out << nl << "%   " << fixIdent((*q)->name());
+            out << nl << "%   " << fixMember((*q)->name());
             if(!sl.empty())
             {
                 out << " - ";
@@ -1149,7 +1174,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
             for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
             {
                 StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixExceptionMemberIdent((*q)->name());
+                out << nl << "%   " << fixExceptionMember((*q)->name());
                 if(!sl.empty())
                 {
                     out << " - ";
@@ -1169,7 +1194,7 @@ writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
             for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
             {
                 StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixIdent((*q)->name());
+                out << nl << "%   " << fixMember((*q)->name());
                 if(!sl.empty())
                 {
                     out << " - ";
@@ -1453,11 +1478,11 @@ writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     if(cont->containedType() == Contained::ContainedTypeException)
     {
-        n = fixExceptionMemberIdent(p->name());
+        n = fixExceptionMember(p->name());
     }
     else
     {
-        n = fixIdent(p->name());
+        n = fixMember(p->name());
     }
 
     out << nl << "% " << n;
@@ -1629,7 +1654,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
-                    out << nl << fixIdent((*q)->name());
+                    out << nl << fixMember((*q)->name());
                     if(declarePropertyType((*q)->type(), (*q)->optional()))
                     {
                         out << " " << typeToString((*q)->type());
@@ -1659,7 +1684,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
                     {
                         writeMemberDoc(out, *q);
-                        out << nl << fixIdent((*q)->name());
+                        out << nl << fixMember((*q)->name());
                         if(declarePropertyType((*q)->type(), (*q)->optional()))
                         {
                             out << " " << typeToString((*q)->type());
@@ -1675,7 +1700,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
                     {
                         writeMemberDoc(out, *q);
-                        out << nl << fixIdent((*q)->name());
+                        out << nl << fixMember((*q)->name());
                         if(declarePropertyType((*q)->type(), (*q)->optional()))
                         {
                             out << " " << typeToString((*q)->type());
@@ -1808,7 +1833,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     out.inc();
                     for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
                     {
-                        string m = "obj." + fixIdent((*d)->name());
+                        string m = "obj." + fixMember((*d)->name());
                         convertValueType(out, m, m, (*d)->type(), (*d)->optional());
                     }
                     if(base)
@@ -1836,12 +1861,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(!(*d)->optional())
                 {
-                    marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
+                    marshal(out, "os", "obj." + fixMember((*d)->name()), (*d)->type(), false, 0);
                 }
             }
             for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
             {
-                marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+                marshal(out, "os", "obj." + fixMember((*d)->name()), (*d)->type(), true, (*d)->tag());
             }
             out << nl << "os.endSlice();";
             if(base)
@@ -1859,11 +1884,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     if(isClass((*d)->type()))
                     {
-                        unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
+                        unmarshal(out, "is", "@obj.iceSetMember_" + fixMember((*d)->name()), (*d)->type(), false, 0);
                     }
                     else
                     {
-                        unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
+                        unmarshal(out, "is", "obj." + fixMember((*d)->name()), (*d)->type(), false, 0);
                     }
                 }
             }
@@ -1871,12 +1896,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(isClass((*d)->type()))
                 {
-                    unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true,
+                    unmarshal(out, "is", "@obj.iceSetMember_" + fixMember((*d)->name()), (*d)->type(), true,
                               (*d)->tag());
                 }
                 else
                 {
-                    unmarshal(out, "is", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
+                    unmarshal(out, "is", "obj." + fixMember((*d)->name()), (*d)->type(), true, (*d)->tag());
                 }
             }
             out << nl << "is.endSlice();";
@@ -1896,7 +1921,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
                 {
-                    string m = fixIdent((*d)->name());
+                    string m = fixMember((*d)->name());
                     out << nl << "function iceSetMember_" << m << "(obj, v)";
                     out.inc();
                     out << nl << "obj." << m << " = v;";
@@ -2005,7 +2030,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Generate proxy class.
         //
 
-        const string prxName = name + "Prx";
+        const string prxName = p->name() + "Prx";
         const string prxAbs = getAbsolute(p, "", "Prx");
 
         ClassList prxBases = bases;
@@ -2689,7 +2714,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             writeMemberDoc(out, *q);
-            out << nl << fixExceptionMemberIdent((*q)->name());
+            out << nl << fixExceptionMember((*q)->name());
             if(declarePropertyType((*q)->type(), (*q)->optional()))
             {
                 out << " " << typeToString((*q)->type());
@@ -2833,7 +2858,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
                 out.inc();
                 for(DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
                 {
-                    string m = fixExceptionMemberIdent((*q)->name());
+                    string m = fixExceptionMember((*q)->name());
                     out << nl << "obj." << m << " = obj." << m << ".value;";
                 }
                 for(MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
@@ -2861,7 +2886,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "is.startSlice();";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            string m = fixExceptionMemberIdent((*q)->name());
+            string m = fixExceptionMember((*q)->name());
             if(!(*q)->optional())
             {
                 if(isClass((*q)->type()))
@@ -2878,7 +2903,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
         for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
         {
-            string m = fixExceptionMemberIdent((*q)->name());
+            string m = fixExceptionMember((*q)->name());
             if(isClass((*q)->type()))
             {
                 out << nl << "obj." << m << " = IceInternal.ValueHolder();";
@@ -2944,7 +2969,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     DataMemberList convertMembers;
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        const string m = fixIdent((*q)->name());
+        const string m = fixMember((*q)->name());
         memberNames.push_back(m);
         writeMemberDoc(out, *q);
         out << nl << m;
@@ -2977,7 +3002,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        out << nl << self << "." << fixIdent((*q)->name()) << " = " << defaultValue(*q) << ';';
+        out << nl << self << "." << fixMember((*q)->name()) << " = " << defaultValue(*q) << ';';
     }
     out.dec();
     out << nl << "end";
@@ -3048,7 +3073,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         out << nl << "end";
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            marshal(out, "os", "v." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+            marshal(out, "os", "v." + fixMember((*q)->name()), (*q)->type(), false, 0);
         }
         out.dec();
         out << nl << "end";
@@ -3655,7 +3680,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         {
             writeDocLines(out, sl, true);
         }
-        out << nl << fixIdent((*q)->name()) << " (" << (*q)->value() << ")";
+        out << nl << fixMember((*q)->name()) << " (" << (*q)->value() << ")";
     }
     out.dec();
     out << nl << "end";
@@ -3668,7 +3693,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         out.inc();
         out << nl << "if isempty(v)";
         out.inc();
-        string firstEnum = fixIdent(enumerators.front()->name());
+        string firstEnum = fixMember(enumerators.front()->name());
         out << nl << "os.writeEnum(int32(" << abs << "." << firstEnum << "), " << p->maxValue() << ");";
         out.dec();
         out << nl << "else";
@@ -3718,7 +3743,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     {
         out << nl << "case " << (*q)->value();
         out.inc();
-        out << nl << "r = " << abs << "." << fixIdent((*q)->name()) << ";";
+        out << nl << "r = " << abs << "." << fixMember((*q)->name()) << ";";
         out.dec();
     }
     out << nl << "otherwise";
@@ -3799,7 +3824,7 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
-        m.fixedName = fixIdent((*q)->name());
+        m.fixedName = fixMember((*q)->name());
         m.inherited = inherited;
         m.dataMember = *q;
         allMembers.push_back(m);
@@ -3820,7 +3845,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
-        m.fixedName = fixExceptionMemberIdent((*q)->name());
+        m.fixedName = fixExceptionMember((*q)->name());
         m.inherited = inherited;
         m.dataMember = *q;
         allMembers.push_back(m);
@@ -4605,13 +4630,13 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
     {
         if(isClass((*q)->type()))
         {
-            string m = fixIdent((*q)->name());
+            string m = fixMember((*q)->name());
             out << nl << v << "." << m << " = IceInternal.ValueHolder();";
             unmarshal(out, "is", "@(v_) " + v + "." + m + ".set(v_)", (*q)->type(), false, 0);
         }
         else
         {
-            unmarshal(out, "is", v + "." + fixIdent((*q)->name()), (*q)->type(), false, 0);
+            unmarshal(out, "is", v + "." + fixMember((*q)->name()), (*q)->type(), false, 0);
         }
     }
 }
@@ -4623,7 +4648,7 @@ CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, con
 
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        string m = fixIdent((*q)->name());
+        string m = fixMember((*q)->name());
         if(needsConversion((*q)->type()))
         {
             convertValueType(out, v + "." + m, v + "." + m, (*q)->type(), false);
