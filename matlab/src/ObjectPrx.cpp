@@ -9,9 +9,7 @@
 
 #include <Ice/Ice.h>
 #include "ice.h"
-#include "Endpoint.h"
 #include "Future.h"
-#include "ObjectPrx.h"
 #include "Util.h"
 
 using namespace std;
@@ -170,18 +168,6 @@ createInvokeResultValue(mxArray* ok, mxArray* params)
 
 }
 
-void*
-IceMatlab::createProxy(shared_ptr<Ice::ObjectPrx> p)
-{
-    return new shared_ptr<Ice::ObjectPrx>(move(p));
-}
-
-shared_ptr<Ice::ObjectPrx>
-IceMatlab::getProxy(void* p)
-{
-    return deref<Ice::ObjectPrx>(p);
-}
-
 extern "C"
 {
 
@@ -227,7 +213,7 @@ Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int star
         in.read(proxy);
         if(proxy)
         {
-            *r = createProxy(proxy);
+            *r = createShared<Ice::ObjectPrx>(proxy);
         }
         else
         {
@@ -545,7 +531,7 @@ Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
         {
             throw std::invalid_argument("index outside range");
         }
-        *r = createEndpoint(endpoints[idx]);
+        *r = createShared<Ice::Endpoint>(endpoints[idx]);
     }
     catch(const std::exception& ex)
     {

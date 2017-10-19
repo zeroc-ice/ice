@@ -9,11 +9,10 @@
 
 #include <Ice/Communicator.h>
 #include <Ice/Proxy.h>
+#include <Ice/ImplicitContext.h>
+#include <Ice/Logger.h>
 #include "ice.h"
 #include "Future.h"
-#include "ImplicitContext.h"
-#include "Logger.h"
-#include "ObjectPrx.h"
 #include "Util.h"
 
 using namespace std;
@@ -75,7 +74,7 @@ Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
         auto p = deref<Ice::Communicator>(self)->stringToProxy(s);
         if(p)
         {
-            *proxy = createProxy(p);
+            *proxy = createShared<Ice::ObjectPrx>(p);
         }
         else
         {
@@ -95,7 +94,7 @@ Ice_Communicator_proxyToString(void* self, void* proxy)
     assert(proxy);
     try
     {
-        auto p = getProxy(proxy);
+        auto p = deref<Ice::ObjectPrx>(proxy);
         return createResultValue(createStringFromUTF8(deref<Ice::Communicator>(self)->proxyToString(p)));
     }
     catch(const std::exception& ex)
@@ -113,7 +112,7 @@ Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
         auto p = deref<Ice::Communicator>(self)->propertyToProxy(prop);
         if(p)
         {
-            *proxy = createProxy(p);
+            *proxy = createShared<Ice::ObjectPrx>(p);
         }
         else
         {
@@ -133,7 +132,7 @@ Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
     assert(proxy);
     try
     {
-        auto p = getProxy(proxy);
+        auto p = deref<Ice::ObjectPrx>(proxy);
         auto d = deref<Ice::Communicator>(self)->proxyToProperty(p, prop);
         return createResultValue(createStringMap(d));
     }
@@ -166,7 +165,7 @@ Ice_Communicator_getImplicitContext(void* self, void** ctx)
     try
     {
         auto p = deref<Ice::Communicator>(self)->getImplicitContext();
-        *ctx = createImplicitContext(p);
+        *ctx = createShared<Ice::ImplicitContext>(p);
     }
     catch(const std::exception& ex)
     {
@@ -196,7 +195,7 @@ Ice_Communicator_getLogger(void* self, void** logger)
     try
     {
         auto l = deref<Ice::Communicator>(self)->getLogger();
-        *logger = createLogger(l);
+        *logger = createShared<Ice::Logger>(l);
     }
     catch(const std::exception& ex)
     {
@@ -213,7 +212,7 @@ Ice_Communicator_getDefaultRouter(void* self, void** proxy)
         auto p = deref<Ice::Communicator>(self)->getDefaultRouter();
         if(p)
         {
-            *proxy = createProxy(p);
+            *proxy = createShared<Ice::ObjectPrx>(p);
         }
         else
         {
@@ -235,7 +234,7 @@ Ice_Communicator_setDefaultRouter(void* self, void* proxy)
         shared_ptr<Ice::RouterPrx> p;
         if(proxy)
         {
-            p = Ice::uncheckedCast<Ice::RouterPrx>(getProxy(proxy));
+            p = Ice::uncheckedCast<Ice::RouterPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultRouter(p);
     }
@@ -254,7 +253,7 @@ Ice_Communicator_getDefaultLocator(void* self, void** proxy)
         auto p = deref<Ice::Communicator>(self)->getDefaultLocator();
         if(p)
         {
-            *proxy = createProxy(p);
+            *proxy = createShared<Ice::ObjectPrx>(p);
         }
         else
         {
@@ -276,7 +275,7 @@ Ice_Communicator_setDefaultLocator(void* self, void* proxy)
         shared_ptr<Ice::LocatorPrx> p;
         if(proxy)
         {
-            p = Ice::uncheckedCast<Ice::LocatorPrx>(getProxy(proxy));
+            p = Ice::uncheckedCast<Ice::LocatorPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultLocator(p);
     }

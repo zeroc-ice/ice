@@ -72,13 +72,8 @@
     <ClCompile Include="..\..\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Communicator.h" />
-    <ClInclude Include="..\..\Endpoint.h" />
     <ClInclude Include="..\..\Future.h" />
     <ClInclude Include="..\..\ice.h" />
-    <ClInclude Include="..\..\ImplicitContext.h" />
-    <ClInclude Include="..\..\Logger.h" />
-    <ClInclude Include="..\..\ObjectPrx.h" />
     <ClInclude Include="..\..\Util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -101,14 +96,14 @@
     <Delete Files="$(OutDir)\icessl37++11$(DebugExtension).dll" />
   </Target>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="$(IceBinPath)\icediscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="$(IceBinPath)\icelocatordiscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
-    <Copy SourceFiles="$(IceBinPath)\icessl37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(IceBinPath)\bzip2$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\ice37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icediscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icelocatordiscovery37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IceBinPath)\icessl37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
-    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabHome)')"/>
+    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabHome)')" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

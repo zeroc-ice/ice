@@ -9,17 +9,10 @@
 
 #include <Ice/Ice.h>
 #include "ice.h"
-#include "Endpoint.h"
 #include "Util.h"
 
 using namespace std;
 using namespace IceMatlab;
-
-void*
-IceMatlab::createEndpoint(shared_ptr<Ice::Endpoint> p)
-{
-    return new shared_ptr<Ice::Endpoint>(move(p));
-}
 
 namespace
 {

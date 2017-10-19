@@ -7,18 +7,12 @@
 //
 // **********************************************************************
 
+#include <Ice/Logger.h>
 #include "ice.h"
-#include "Logger.h"
 #include "Util.h"
 
 using namespace std;
 using namespace IceMatlab;
-
-void*
-IceMatlab::createLogger(shared_ptr<Ice::Logger> p)
-{
-    return new shared_ptr<Ice::Logger>(move(p));
-}
 
 extern "C"
 {

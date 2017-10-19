@@ -51,4 +51,10 @@ std::shared_ptr<T> deref(void* p)
     return *reinterpret_cast<std::shared_ptr<T>*>(p);
 }
 
+template<typename T>
+void* createShared(std::shared_ptr<T> p)
+{
+    return new std::shared_ptr<T>(std::move(p));
+}
+
 }

@@ -8,17 +8,11 @@
 // **********************************************************************
 
 #include "ice.h"
-#include "ImplicitContext.h"
+#include <Ice/ImplicitContext.h>
 #include "Util.h"
 
 using namespace std;
 using namespace IceMatlab;
-
-void*
-IceMatlab::createImplicitContext(shared_ptr<Ice::ImplicitContext> p)
-{
-    return new shared_ptr<Ice::ImplicitContext>(move(p));
-}
 
 extern "C"
 {

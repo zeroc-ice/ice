@@ -9,7 +9,6 @@
 
 #include <Ice/Ice.h>
 #include "ice.h"
-#include "Endpoint.h"
 #include "Future.h"
 #include "Util.h"
 
@@ -258,7 +257,7 @@ Ice_Connection_getEndpoint(void* self, void** endpoint)
 {
     try
     {
-        *endpoint = createEndpoint(deref<Ice::Connection>(self)->getEndpoint());
+        *endpoint = createShared<Ice::Endpoint>(deref<Ice::Connection>(self)->getEndpoint());
     }
     catch(const std::exception& ex)
     {
