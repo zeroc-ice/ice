@@ -49,8 +49,7 @@ classdef AllTests
             assert(c.for_.case_ == classdef_.break_.bitand.catch_);
             assert(c.for_.continue_ == 1);
             assert(c.for_.eq_ == 2);
-            assert(c.int64_ == true);
-            assert(c.size_ == 1);
+            assert(c.int64 == true);
             % Exercise the marshaling code.
             os = communicator.createOutputStream();
             os.writeValue(c);
@@ -63,18 +62,15 @@ classdef AllTests
             assert(v.value.for_.case_ == c.for_.case_);
             assert(v.value.for_.continue_ == c.for_.continue_);
             assert(v.value.for_.eq_ == c.for_.eq_);
-            assert(v.value.int64_ == c.int64_);
-            assert(v.value.size_ == c.size_);
+            assert(v.value.int64 == c.int64);
 
             d = classdef_.break_.xor();
             assert(d.else_ == classdef_.break_.bitand.enumeration_);
             assert(d.for_.case_ == classdef_.break_.bitand.catch_);
             assert(d.for_.continue_ == 1);
             assert(d.for_.eq_ == 2);
-            assert(d.int64_ == true);
-            assert(d.size_ == 1);
+            assert(d.int64 == true);
             assert(d.return_ == 1);
-            assert(d.char_ == 2);
             % Exercise the marshaling code.
             os = communicator.createOutputStream();
             os.writeValue(d);
@@ -87,13 +83,12 @@ classdef AllTests
             assert(v.value.for_.case_ == d.for_.case_);
             assert(v.value.for_.continue_ == d.for_.continue_);
             assert(v.value.for_.eq_ == d.for_.eq_);
-            assert(v.value.int64_ == d.int64_);
-            assert(v.value.size_ == d.size_);
+            assert(v.value.int64 == d.int64);
             assert(v.value.return_ == d.return_);
-            assert(v.value.char_ == d.char_);
 
             p = classdef_.break_.properties_();
             assert(p.while_ == 1);
+            assert(p.delete == 2);
             assert(p.if_ == 2);
             assert(isempty(p.spmd_));
             assert(isempty(p.otherwise_));
@@ -107,6 +102,7 @@ classdef AllTests
             is.readValue(@v.set, 'classdef_.break_.properties_');
             is.readPendingValues();
             assert(v.value.while_ == p.while_);
+            assert(v.value.delete == p.delete);
             assert(v.value.if_ == p.if_);
 
             fprintf('ok\n');
@@ -119,7 +115,6 @@ classdef AllTests
             assert(strcmp(e.stack_, '3'));
             assert(strcmp(e.cause_, '4'));
             assert(strcmp(e.type_, '5'));
-            assert(e.length_ == 1);
             assert(isempty(e.end_));
 
             g = classdef_.break_.global_();
@@ -128,9 +123,8 @@ classdef AllTests
             assert(strcmp(g.stack_, '3'));
             assert(strcmp(g.cause_, '4'));
             assert(strcmp(g.type_, '5'));
-            assert(g.length_ == 1);
             assert(isempty(g.end_));
-            assert(g.ne_ == 1);
+            assert(g.enumeration_ == 1);
 
             fprintf('ok\n');
 
@@ -142,10 +136,6 @@ classdef AllTests
             assert(ismember('eventsAsync', m));
             assert(ismember('function_', m));
             assert(ismember('functionAsync', m));
-            assert(ismember('not_', m));
-            assert(ismember('notAsync', m));
-            assert(ismember('round_', m));
-            assert(ismember('roundAsync', m));
             assert(ismember('delete_', m));
             assert(ismember('deleteAsync', m));
             assert(ismember('checkedCast_', m));

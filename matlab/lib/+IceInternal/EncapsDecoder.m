@@ -94,7 +94,7 @@ classdef (Abstract) EncapsDecoder < handle
             %
             % Try to find a factory registered for the specific type.
             %
-            userFactory = obj.valueFactoryManager.find_(typeId);
+            userFactory = obj.valueFactoryManager.find(typeId);
             v = [];
             if ~isempty(userFactory)
                 v = userFactory(typeId);
@@ -104,7 +104,7 @@ classdef (Abstract) EncapsDecoder < handle
             % If that fails, invoke the default factory if one has been registered.
             %
             if isempty(v)
-                userFactory = obj.valueFactoryManager.find_('');
+                userFactory = obj.valueFactoryManager.find('');
                 if ~isempty(userFactory)
                     v = userFactory(typeId);
                 end

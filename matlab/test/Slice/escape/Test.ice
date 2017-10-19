@@ -16,11 +16,16 @@ module classdef // Should be escaped
         enum bitand // Should not be escaped
         {
             //
-            // All of the keywords as well as a few reserved method names.
+            // All of the keywords.
             //
             break, case, catch, classdef, continue, else, elseif, end, enumeration, events, for, function, global,
-            if, methods, otherwise, parfor, persistent, properties, return, spmd, switch, try, while, abs, and, char,
-            eq, length, size, xor, LAST
+            if, methods, otherwise, parfor, persistent, properties, return, spmd, switch, try, while,
+            //
+            // Plus a few method names reserved for enumerators because the enumeration class derives from uint8
+            // or int32.
+            //
+            abs, and, char, eq, length, size, xor,
+            LAST
         }
 
         struct bitor // Should not be escaped
@@ -28,20 +33,19 @@ module classdef // Should be escaped
             bitand case = catch;
             int continue = 1;
             int eq = 2;
+            int ne = 3;
         }
 
         class logical // Should not be escaped
         {
             bitand else = enumeration;
             bitor for;
-            bool int64 = true;
-            int size = 1;
+            bool int64 = true; // Should not be escaped
         }
 
         class xor extends logical // Should not be escaped
         {
             int return = 1;
-            int char = 2;
         }
 
         sequence<bitor> parfor;
@@ -50,6 +54,7 @@ module classdef // Should be escaped
         class try // Should be escaped
         {
             int while = 1;
+            int delete = 2; // Should not be escaped
         }
 
         class properties extends try // Should be escaped
@@ -70,24 +75,19 @@ module classdef // Should be escaped
             string stack = "3";
             string cause = "4";
             string type = "5";
-            //
-            // Reserved method and keyword.
-            //
-            int length = 1;
+
             logical end;
         }
 
         exception global extends persistent // Should be escaped
         {
-            int ne = 1;
+            int enumeration = 1;
         }
 
         interface elseif // elseifPrx should not be escaped
         {
             void events();
             void function();
-            void not();
-            void round();
             void delete();
             void checkedCast();
         }
