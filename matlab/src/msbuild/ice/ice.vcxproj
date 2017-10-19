@@ -88,6 +88,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.0\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
   </ImportGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
     <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
