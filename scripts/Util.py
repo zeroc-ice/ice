@@ -3305,7 +3305,7 @@ class MatlabMapping(CppBasedClientMapping):
 
     def getCommandLineWithArgs(self, current, process, exe, args):
         dir = self.getTestCwd(process, current)
-        scriptdir = os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib");
+        scriptdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib"))
         return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '" + scriptdir + "';runTest " + dir + " " + args + "\""
 
     def getDefaultSource(self, processType):
