@@ -2590,6 +2590,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         IceUtilInternal::Output out;
         openClass(abs, _dir, out);
 
+        writeDocSummary(out, p);
+        writeCopyright(out, p->file());
+
         out << nl << "classdef (Abstract) " << name;
         if(bases.empty())
         {
@@ -3164,6 +3167,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
 
+    writeCopyright(out, p->file());
+
     out << nl << "classdef " << name;
     out.inc();
     out << nl << "methods(Static)";
@@ -3420,6 +3425,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     IceUtilInternal::Output out;
     openClass(abs, _dir, out);
+
+    writeCopyright(out, p->file());
 
     out << nl << "classdef " << name;
     out.inc();
