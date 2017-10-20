@@ -122,11 +122,11 @@
                                Replacements="R$(MatlabVersion)"/>
     <MSBuild Projects="ice.toolbox.targets"
              Properties="Configuration=$(Configuration);Platform=x64" />
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;addFolderToPath '$(ToolboxDir)\ice'&quot;"
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;buildToolbox '3.7.1'&quot;"
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.1'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
+    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     <Delete Files="toolbox.prj"/>
   </Target>
