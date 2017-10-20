@@ -10,7 +10,8 @@
     <param.email>info@zeroc.com</param.email>
     <param.company>ZeroC, Inc.</param.company>
     <param.summary>Ice @IceVersion@ for MATLAB @MatlabVersion@</param.summary>
-    <param.description />
+    <param.description>Ice is a comprehensive RPC framework with support for MATLAB, C++, .NET, Java, Python and more. Please refer to the Ice Manual for more information:
+  https://doc.zeroc.com/display/IceMatlab/Ice+Manual.</param.description>
     <param.screenshot>${PROJECT_ROOT}\zeroc_logo-64x64.png</param.screenshot>
     <param.version>@IceVersion@</param.version>
     <param.output>${PROJECT_ROOT}\ice.mltbx</param.output>
@@ -26,7 +27,6 @@
     <param.docs />
     <param.matlabpath.excludes />
     <unset>
-      <param.description />
       <param.output />
       <param.products.name />
       <param.products.id />
