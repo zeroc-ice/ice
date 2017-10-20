@@ -301,8 +301,6 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
     FileTracker::instance()->addFile(path);
 }
 
-map<string, string> _filePackagePrefix;
-
 //
 // Get the fully-qualified name of the given definition. If a suffix is provided,
 // it is prepended to the definition's unqualified name. If the nameSuffix
