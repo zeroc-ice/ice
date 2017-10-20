@@ -108,11 +108,11 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 #### Running the Automated Tests
 
-Assuming you've built the C++11 test servers in Debug mode on Windows, run the
+Assuming you've built the C++11 test servers in Release mode on Windows, run the
 `allTests.py` script like this:
 
 ```
-python allTests.py --platform=x64 --cpp-config=Cpp11-Debug
+python allTests.py --platform=x64 --cpp-config=Cpp11-Release
 ```
 
 This command will automatically start a corresponding C++11 server for each
