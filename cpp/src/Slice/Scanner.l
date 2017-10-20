@@ -74,6 +74,7 @@ static StringTokenMap keywordMap;
 
 void initScanner();
 int checkKeyword(string&);
+int checkIdentifier(string&);
 
 }
 
@@ -85,7 +86,7 @@ int checkKeyword(string&);
 %option never-interactive
 %option prefix="slice_"
 
-identifier      \\?[[:alpha:]_][[:alnum:]_]*
+identifier      ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
 integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
 fractional_constant (\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
 exponent_part       (e|E)(\+|-)?[[:digit:]]+
@@ -180,11 +181,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     }
 }
 
-"::" {
-    BEGIN(MAINSCAN);
-    return ICE_SCOPE_DELIMITER;
-}
-
 "[" {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -213,11 +209,20 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     *yylvalp = ident;
     if(*yytext == '\\')
     {
+        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
+        {
+            unit->error("Operation identifiers cannot be scoped: `" + (ident->) + "'");
+        }
         return ICE_IDENT_OP;
     }
     int st = checkKeyword(ident->v);
     if(st == ICE_IDENTIFIER)
     {
+        return ICE_IDENT_OP;
+    }
+    else if(st == ICE_SCOPED_IDENTIFIER)
+    {
+        unit->error("Operation identifiers cannot be scoped: `" + (ident->) + "'");
         return ICE_IDENT_OP;
     }
     else if(st == ICE_OPTIONAL)
@@ -235,14 +240,21 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
-    return *yytext == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
+    if(*yytext == '\\')
+    {
+        return checkIdentifier(ident->v);
+    }
+    else
+    {
+        return checkKeyword(ident->v);
+    }
 }
 
 \" {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-     while(true)
+    while(true)
     {
         char c = static_cast<char>(yyinput());
         str->literal += c;
@@ -588,7 +600,18 @@ checkKeyword(string& id)
         }
         return pos->second;
     }
-    return ICE_IDENTIFIER;
+    return checkIdentifier(id);
+}
+
+//
+// Determines whether an identifier is scoped. If it is,
+// this returns a scoped identifier token; otherwise this
+// returns a normal identifier token.
+//
+
+int checkIdentifier(string& id)
+{
+    return (id.find("::") != string::npos) ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
 }
 
 }
