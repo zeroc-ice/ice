@@ -71,18 +71,38 @@ struct ExceptionInfoObject
 extern PyTypeObject TypeInfoType;
 extern PyTypeObject ExceptionInfoType;
 
+#if PY_VERSION_HEX >= 0x03000000
 bool
 writeString(PyObject* p, Ice::OutputStream* os)
 {
     if(p == Py_None)
     {
-        os->write(string());
+        os->write(string(), false); // Bypass string conversion.
     }
     else if(checkString(p))
     {
-        os->write(getString(p));
+        os->write(getString(p), false); // Bypass string conversion.
     }
-#if defined(Py_USING_UNICODE) && PY_VERSION_HEX < 0x03000000
+    else
+    {
+        assert(false);
+    }
+
+    return true;
+}
+#else
+bool
+writeString(PyObject* p, Ice::OutputStream* os)
+{
+    if(p == Py_None)
+    {
+        os->write(string(), true);
+    }
+    else if(checkString(p))
+    {
+        os->write(getString(p), true);
+    }
+#if defined(Py_USING_UNICODE)
     else if(PyUnicode_Check(p))
     {
         //
@@ -104,6 +124,7 @@ writeString(PyObject* p, Ice::OutputStream* os)
 
     return true;
 }
+#endif
 
 }
 
@@ -1001,7 +1022,11 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     case PrimitiveInfo::KindString:
     {
         string val;
-        is->read(val);
+#if PY_VERSION_HEX >= 0x03000000
+        is->read(val, false); // Bypass string conversion.
+#else
+        is->read(val, true);
+#endif
         PyObjectHandle p = createString(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
@@ -2288,7 +2313,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     case PrimitiveInfo::KindString:
     {
         Ice::StringSeq seq;
-        is->read(seq);
+#if PY_VERSION_HEX >= 0x03000000
+        is->read(seq, false); // Bypass string conversion.
+#else
+        is->read(seq, true);
+#endif
         int sz = static_cast<int>(seq.size());
         result = sm->createContainer(sz);
         if(!result.get())

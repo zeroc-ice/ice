@@ -618,7 +618,11 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ObjectMap*, bool
     case PrimitiveInfo::KindString:
     {
         string val = getString(p);
-        os->write(val);
+#ifdef HAVE_RUBY_ENCODING_H
+        os->write(val, false); // Bypass string conversion.
+#else
+        os->write(val, true);
+#endif
         break;
     }
     }
@@ -683,7 +687,11 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     case PrimitiveInfo::KindString:
     {
         string str;
-        is->read(str);
+#ifdef HAVE_RUBY_ENCODING_H
+        is->read(str, false); // Bypass string conversion.
+#else
+        is->read(str, true);
+#endif
         val = createString(str);
         break;
     }
@@ -1517,7 +1525,11 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = getString(RARRAY_AREF(arr, i));
         }
-        os->write(&seq[0], &seq[0] + seq.size());
+#ifdef HAVE_RUBY_ENCODING_H
+        os->write(&seq[0], &seq[0] + seq.size(), false); // Bypass string conversion.
+#else
+        os->write(&seq[0], &seq[0] + seq.size(), true);
+#endif
         break;
     }
     }
@@ -1643,7 +1655,11 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     case PrimitiveInfo::KindString:
     {
         Ice::StringSeq seq;
+#ifdef HAVE_RUBY_ENCODING_H
+        is->read(seq, false); // Bypass string conversion.
+#else
         is->read(seq, true);
+#endif
         long sz = static_cast<long>(seq.size());
         result = createArray(sz);
 
