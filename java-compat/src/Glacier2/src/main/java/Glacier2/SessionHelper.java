@@ -427,20 +427,25 @@ public class SessionHelper
     connectImpl(final ConnectStrategy factory)
     {
         assert !_destroy;
-
-        try
+        new Thread(new Runnable()
         {
-            _communicator = Ice.Util.initialize(_initData);
-        }
-        catch(final Ice.LocalException ex)
-        {
-            _destroy = true;
-            new Thread(new Runnable()
+            @Override
+            public void run()
+            {
+                try
                 {
-                    @Override
-                    public void run()
+                    synchronized(SessionHelper.this)
                     {
-                        dispatchCallback(new Runnable()
+                        _communicator = Ice.Util.initialize(_initData);
+                    }
+                }
+                catch(final Ice.LocalException ex)
+                {
+                    synchronized(SessionHelper.this)
+                    {
+                        _destroy = true;
+                    }
+                    dispatchCallback(new Runnable()
                         {
                             @Override
                             public void run()
@@ -448,20 +453,13 @@ public class SessionHelper
                                 _callback.connectFailed(SessionHelper.this, ex);
                             }
                         }, null);
-                    }
-                }).start();
-            return;
-        }
+                    return;
+                }
 
-        final Ice.RouterFinderPrx finder =
-            Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
                 if(_communicator.getDefaultRouter() == null)
                 {
+                    final Ice.RouterFinderPrx finder =
+                        Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
                     try
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
@@ -500,8 +498,7 @@ public class SessionHelper
                         }
                     });
 
-                    RouterPrx routerPrx = RouterPrxHelper.uncheckedCast(
-                        _communicator.getDefaultRouter());
+                    RouterPrx routerPrx = RouterPrxHelper.uncheckedCast(_communicator.getDefaultRouter());
                     SessionPrx session = factory.connect(routerPrx);
                     connected(routerPrx, session);
                 }
