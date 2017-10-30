@@ -671,11 +671,10 @@ class ConnectionI
 
         if(this._adapter !== null)
         {
+            //
+            // The OA's servant manager is immutable.
+            //
             this._servantManager = this._adapter.getServantManager();
-            if(this._servantManager === null)
-            {
-                this._adapter = null;
-            }
         }
         else
         {

@@ -983,11 +983,10 @@ namespace Ice
 
                 if(_adapter != null)
                 {
+                    //
+                    // The OA's servant manager is immutable.
+                    //
                     _servantManager = ((ObjectAdapterI) _adapter).getServantManager();
-                    if(_servantManager == null)
-                    {
-                        _adapter = null;
-                    }
                 }
                 else
                 {
