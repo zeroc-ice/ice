@@ -98,7 +98,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -195,7 +195,7 @@ private:
         void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
         bool emitVirtualBaseInitializers(const ClassDefPtr&, bool virtualInheritance, bool direct);
         void emitOneShotConstructor(const ClassDefPtr&);
-        void emitUpcall(const ClassDefPtr&, const std::string&);
+        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -274,12 +274,7 @@ private:
         //
         // Get the default value returned for a type
         //
-        std::string defaultValue(const TypePtr&, const StringList&) const;
-
-        //
-        // Generate code to return a dummy value
-        //
-        void writeReturn(::IceUtilInternal::Output&, const TypePtr&, const StringList&);
+        std::string defaultValue(const TypePtr&, const std::string&, const StringList&) const;
     };
 
     class AsyncVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -394,7 +389,7 @@ private:
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, bool = false);
+        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&, bool = false);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -483,7 +478,7 @@ private:
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
-        void emitUpcall(const ClassDefPtr&, const std::string&);
+        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
     };
 
     class Cpp11ValueVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
@@ -499,7 +494,7 @@ private:
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitOperation(const OperationPtr&);
-        void emitUpcall(const ClassDefPtr&, const std::string&);
+        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
     };
 
     class Cpp11StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -558,14 +553,9 @@ private:
         std::list<int> _useWstringHist;
 
         //
-        // Generate code to return a dummy value
-        //
-        void writeReturn(::IceUtilInternal::Output&, const TypePtr&, const StringList&);
-
-        //
         // Get the default value returned for a type
         //
-        std::string defaultValue(const TypePtr&, const StringList&) const;
+        std::string defaultValue(const TypePtr&, const std::string&, const StringList&) const;
     };
 
 private:

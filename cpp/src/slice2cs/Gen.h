@@ -24,21 +24,22 @@ public:
 
 protected:
 
-    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false,
+    void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, const std::string&, bool = false,
                                      bool = false, const std::string& = "");
-    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, bool = false);
-    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool = false);
+    void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
+    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);
     virtual void writeMarshaling(const ClassDefPtr&);
 
-    static std::vector<std::string> getParams(const OperationPtr&);
-    static std::vector<std::string> getInParams(const OperationPtr&, bool = false);
-    static std::vector<std::string> getOutParams(const OperationPtr&, bool, bool);
+    static std::vector<std::string> getParams(const OperationPtr&, const std::string&);
+    static std::vector<std::string> getInParams(const OperationPtr&, const std::string&, bool = false);
+    static std::vector<std::string> getOutParams(const OperationPtr&, const std::string&, bool, bool);
     static std::vector<std::string> getArgs(const OperationPtr&);
     static std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
-    static std::string getDispatchParams(const OperationPtr&, std::string&, std::vector<std::string>&, std::vector<std::string>&);
+    static std::string getDispatchParams(const OperationPtr&, std::string&, std::vector<std::string>&,
+                                         std::vector<std::string>&, const std::string&);
 
     void emitAttributes(const ContainedPtr&);
     void emitComVisibleAttribute();
@@ -47,7 +48,7 @@ protected:
 
     static std::string getParamAttributes(const ParamDeclPtr&);
 
-    std::string writeValue(const TypePtr&);
+    std::string writeValue(const TypePtr&, const std::string&);
 
     void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
@@ -55,7 +56,7 @@ protected:
     // Generate assignment statements for those data members that have default values.
     //
     bool requiresDataMemberInitializers(const DataMemberList&);
-    void writeDataMemberInitializers(const DataMemberList&, int = 0, bool = false);
+    void writeDataMemberInitializers(const DataMemberList&, const std::string&, int = 0, bool = false);
 
     std::string toCsIdent(const std::string&);
     std::string editMarkup(const std::string&);

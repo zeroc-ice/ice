@@ -62,9 +62,7 @@ sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
-#if !defined(COMPACT) && !defined(SILVERLIGHT)
 ["clr:serializable:Test.SerializableClass"]
-#endif
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;

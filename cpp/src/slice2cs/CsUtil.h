@@ -34,30 +34,33 @@ public:
 
 protected:
 
+    static std::string getAbsolute(const std::string&, const std::string&);
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
-    static std::string resultType(const OperationPtr&, bool = false);
-    static std::string taskResultType(const OperationPtr&, bool = false);
+    static std::string resultType(const OperationPtr&, const std::string&, bool = false);
+    static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
     static std::string fixId(const std::string&, int = 0, bool = false);
     static std::string fixId(const ContainedPtr&, int = 0, bool = false);
-    static std::string getOptionalFormat(const TypePtr&);
+    static std::string getOptionalFormat(const TypePtr&, const std::string&);
     static std::string getStaticId(const TypePtr&);
-    static std::string typeToString(const TypePtr&, bool = false, bool = false, const StringList& = StringList());
+    static std::string typeToString(const TypePtr&, const std::string&, bool = false, bool = false,
+                                    const StringList& = StringList());
     static bool isClassType(const TypePtr&);
     static bool isValueType(const TypePtr&);
 
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
-                                   const std::string& = "");
-    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool,
-                                           const std::string& = "");
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&,
+                                   bool, const std::string& = "");
+    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&,
+                                           const std::string&, int, bool, const std::string& = "");
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                           bool, bool, const std::string& = "");
+                                           const std::string&, bool, bool, const std::string& = "");
     void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const SequencePtr&, const std::string&,
-                                                   int, bool, const std::string& = "");
+                                                   const std::string&, int, bool, const std::string& = "");
 
-    void writeSerializeDeserializeCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool, int, bool);
+    void writeSerializeDeserializeCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&,
+                                       const std::string&, bool, int, bool);
 
 private:
 

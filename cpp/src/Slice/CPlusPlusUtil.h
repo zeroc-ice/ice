@@ -37,11 +37,12 @@ const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);
 
-std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0);
-std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string getAbsolute(const std::string&, const std::string&);
+std::string typeToString(const TypePtr&, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string operationModeToString(Operation::Mode, bool = false);
 std::string opFormatTypeToString(const OperationPtr&, bool);
 
@@ -55,7 +56,7 @@ void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const Op
                       int = 0, const std::string& = "", const std::string& = "");
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
                         const std::string& = "", const std::string& = "", const std::string& = "");
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
 std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
@@ -63,7 +64,7 @@ void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const Operat
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool, bool, bool);
-void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
+void writeIceTuple(::IceUtilInternal::Output&, const std::string&, DataMemberList, int);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
 bool findMetaData(const std::string&, const StringList&, std::string&);

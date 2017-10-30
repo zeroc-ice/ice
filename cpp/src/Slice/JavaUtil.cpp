@@ -964,6 +964,16 @@ Slice::JavaCompatGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
+Slice::JavaCompatGenerator::getAbsolute(const std::string& type, const std::string& package) const
+{
+    if(type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
+    {
+        return type.substr(package.size() + 1);
+    }
+    return type;
+}
+
+string
 Slice::JavaCompatGenerator::getAbsolute(const ContainedPtr& cont,
                                         const string& package,
                                         const string& prefix,
@@ -3408,6 +3418,16 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
+Slice::JavaGenerator::getAbsolute(const std::string& type, const std::string& package) const
+{
+    if(type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
+    {
+        return type.substr(package.size() + 1);
+    }
+    return type;
+}
+
+string
 Slice::JavaGenerator::getAbsolute(const ContainedPtr& cont,
                                   const string& package,
                                   const string& prefix,
@@ -3443,11 +3463,11 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     if(b && b->kind() == Builtin::KindObject)
     {
-        return "com.zeroc.Ice.Object.ice_staticId()";
+        return getAbsolute("com.zeroc.Ice.Object", package) + ".ice_staticId()";
     }
     else if(b && b->kind() == Builtin::KindValue)
     {
-        return "com.zeroc.Ice.Value.ice_staticId()";
+        return getAbsolute("com.zeroc.Ice.Value", package) + ".ice_staticId()";
     }
     else
     {
@@ -3578,26 +3598,12 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "float",
         "double",
         "String",
-        "com.zeroc.Ice.Value",
-        "com.zeroc.Ice.ObjectPrx",
-        "java.lang.Object",
-        "com.zeroc.Ice.Value"
-    };
-    static const char* builtinLocalTable[] =
-    {
-        "byte",
-        "boolean",
-        "short",
-        "int",
-        "long",
-        "float",
-        "double",
-        "String",
         "com.zeroc.Ice.Object",
         "com.zeroc.Ice.ObjectPrx",
         "java.lang.Object",
         "com.zeroc.Ice.Value"
     };
+
     static const char* builtinOptionalTable[] =
     {
         "java.util.Optional<java.lang.Byte>",
@@ -3649,7 +3655,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 {
-                    return builtinOptionalTable[builtin->kind()];
+                    return getAbsolute(builtinOptionalTable[builtin->kind()], package);
                 }
                 case Builtin::KindString:
                 case Builtin::KindObject:
@@ -3663,7 +3669,14 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
-            return local ? builtinLocalTable[builtin->kind()] : builtinTable[builtin->kind()];
+            if(!local && builtin->kind() == Builtin::KindObject)
+            {
+                return getAbsolute(builtinTable[Builtin::KindValue], package);
+            }
+            else
+            {
+                return getAbsolute(builtinTable[builtin->kind()], package);
+            }
         }
     }
 
@@ -3678,7 +3691,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(cl->isInterface() && !local)
         {
-            return "com.zeroc.Ice.Value";
+            return getAbsolute("com.zeroc.Ice.Value", package);
         }
         else
         {
@@ -3697,7 +3710,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
-            return "com.zeroc.Ice.ObjectPrx";
+            return getAbsolute("com.zeroc.Ice.ObjectPrx", package);
         }
     }
 
