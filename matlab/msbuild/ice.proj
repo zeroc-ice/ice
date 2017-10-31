@@ -26,8 +26,8 @@
     </CreateProperty>
   </Target>
 
-  <Target Name="MatlabVersion" Condition="'$(MatlabVersion)' == ''">
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;fprintf(2, '%%s', version('-release'));exit(0);&quot;"
+  <Target Name="MatlabVersion" Condition="'$(MatlabVersion)' == ''" DependsOnTargets="MatlabHome">
+    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;fprintf(2, '%%s', version('-release'));exit(0);&quot;"
           EchoOff="yes"
           ConsoleToMSBuild="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="MatlabOut"/>
@@ -122,11 +122,11 @@
                                Replacements="R$(MatlabVersion)"/>
     <MSBuild Projects="ice.toolbox.targets"
              Properties="Configuration=$(Configuration);Platform=x64" />
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
+    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.1'&quot;"
+    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.1-beta0'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    <Exec Command="matlab -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
+    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     <Delete Files="toolbox.prj"/>
   </Target>
