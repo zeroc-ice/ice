@@ -299,7 +299,7 @@ IcePy::DefaultValueFactory::create(const string& id)
     //
     // Instantiate the object.
     //
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType.get());
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
     PyObjectHandle args = PyTuple_New(0);
     PyObjectHandle obj = type->tp_new(type, args.get(), 0);
     if(!obj.get())

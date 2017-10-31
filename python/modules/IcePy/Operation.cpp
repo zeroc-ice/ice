@@ -2185,7 +2185,7 @@ IcePy::Invocation::validateException(const OperationPtr& op, PyObject* ex) const
 {
     for(ExceptionInfoList::const_iterator p = op->exceptions.begin(); p != op->exceptions.end(); ++p)
     {
-        if(PyObject_IsInstance(ex, (*p)->pythonType.get()))
+        if(PyObject_IsInstance(ex, (*p)->pythonType))
         {
             return true;
         }

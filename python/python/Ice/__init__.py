@@ -737,7 +737,7 @@ FormatType.SlicedFormat = FormatType(2)
 IcePy._t_Object = IcePy.declareClass('::Ice::Object')
 IcePy._t_Value = IcePy.declareValue('::Ice::Object')
 IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
-IcePy._t_LocalObject = IcePy.declareClass('::Ice::LocalObject')
+IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
 
 #
 # Sequence mappings.
