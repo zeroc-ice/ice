@@ -11,7 +11,8 @@ for installation instructions.
 
 ## Source Build
 
-The remainder of this describes how to build and use Ice for MATLAB from source.
+The remainder of this document describes how to build and use Ice for MATLAB
+from source.
 
 ### Prerequisites
 
@@ -50,7 +51,7 @@ Upon completion, a build in release mode generates the following components:
 
 ### Packaging the Ice Toolbox
 
-You can build the MATLAB Ice toolbox package with the following command:
+Use the following command to build the Ice toolbox package:
 
 ```
 msbuild msbuild\ice.proj /t:Package
@@ -58,11 +59,13 @@ msbuild msbuild\ice.proj /t:Package
 
 This creates the toolbox package `msbuild\ice-<Ice Version>-<MATLAB Version>.mltbx`.
 
+You can install the package from within MATLAB by double-clicking on the file.
+
 ### Using Ice for MATLAB
 
 #### Search Path
 
-Add the following directories to your MATLAB search path:
+To use the source build, add the following directories to your MATLAB path:
 
  - `matlab\lib`
  - `matlab\lib\generated`
@@ -73,7 +76,7 @@ Add the following directories to your MATLAB search path:
 Use `slice2matlab` to compile your Slice files. Run `slice2matlab -h` for a
 description of its command-line options. You can place the generated `*.m`
 files anywhere you like, but the enclosing directory must be in your MATLAB
-search path.
+path.
 
 #### Loading the Library
 
