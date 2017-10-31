@@ -22,7 +22,7 @@ project.ext.javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JA
 
 project.ext.hasJavaFx = javafxJar != null
 
-if (project.ext.hasJavaFx) {
+if(project.ext.hasJavaFx) {
     apply plugin: 'application'
     apply from: 'javafx.gradle'
 } else {
@@ -34,9 +34,6 @@ if (project.ext.hasJavaFx) {
         }
     }
 }
-
-// Avoid gradle warnings related to separate output directories for each JVM language
-sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
 
 // Disable deprecation warnings caused by JGoodies
 tasks.withType(JavaCompile) {
@@ -68,7 +65,7 @@ project.ext.keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
 
 jar {
     archiveName = tmpJarName
-    if (!hasJavaFx) {
+    if(!hasJavaFx) {
         manifest {
             attributes 'Main-Class': "com.zeroc.IceGridGUI.Main"
         }
@@ -79,20 +76,25 @@ project.ext.libJars = []
 ['rt.jar', 'jsse.jar', 'i386/default/jclSC170/vm.jar', 'amd64/default/jclSC170/vm.jar', 'ibmcertpathfw.jar', 'math.jar'].each {
     def jfile = searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
                            ["${it}", "lib/${it}", "jre/lib/${it}"])
-    if (jfile) {
+    if(jfile) {
       project.ext.libJars << jfile
     }
 }
 
-if (hasJavaFx) {
+if(hasJavaFx) {
     project.ext.libJars << javafxJar
 }
 
-if(icegridguiProguard.toBoolean()){
-    apply from: "proguard-jar.gradle"
-}else{
-    apply from: "plain-jar.gradle"
+def jarBuilder = "plain-jar.gradle"
+if(icegridguiProguard.toBoolean()) {
+    // Proguard does not yet support Java 9
+    if(JavaVersion.current() == JavaVersion.VERSION_1_9) {
+        logger.warn('Proguard does not yet support Java 9. Plain IceGridGUI JAR will be built.')
+    } else {
+        jarBuidler = "proguard-jar.gradle"
+    }
 }
+apply from: jarBuilder
 
 task signjar(dependsOn: updateManifest) {
     doLast {
