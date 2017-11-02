@@ -1557,6 +1557,12 @@ public final class Instance implements java.util.function.Function<String, Class
                 _pluginManager.destroy();
             }
 
+            if(_initData.logger instanceof com.zeroc.Ice.LoggerI)
+            {
+                com.zeroc.Ice.LoggerI logger = (com.zeroc.Ice.LoggerI)_initData.logger;
+                logger.destroy();
+            }
+
             synchronized(this)
             {
                 _objectAdapterFactory = null;

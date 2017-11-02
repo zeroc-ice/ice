@@ -136,6 +136,11 @@ namespace Ice
             _writer.Flush();
         }
 
+        public void destroy()
+        {
+            _writer.Close();
+        }
+
         private string _file;
         private TextWriter _writer;
     }

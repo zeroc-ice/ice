@@ -1534,6 +1534,12 @@ public final class Instance implements Ice.ClassResolver
                 _pluginManager.destroy();
             }
 
+            if(_initData.logger instanceof Ice.LoggerI)
+            {
+                Ice.LoggerI logger = (Ice.LoggerI)_initData.logger;
+                logger.destroy();
+            }
+
             synchronized(this)
             {
                 _objectAdapterFactory = null;

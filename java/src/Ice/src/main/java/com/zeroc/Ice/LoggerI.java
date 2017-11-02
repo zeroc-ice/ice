@@ -152,6 +152,21 @@ public class LoggerI implements Logger
         }
     }
 
+    public void
+    destroy()
+    {
+        if(_file.length() > 0)
+        {
+            try
+            {
+                _out.close();
+            }
+            catch(java.io.IOException ex)
+            {
+            }
+        }
+    }
+
     String _prefix = "";
     String _formattedPrefix = "";
     String _file = "";
