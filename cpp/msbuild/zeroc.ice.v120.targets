@@ -18,7 +18,7 @@
 
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v120'">
         <Link>
-            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\$(IceConfiguration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\Release;$(MSBuildThisFileDirectory)lib\$(Platform)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
         </Link>
     </ItemDefinitionGroup>
 
