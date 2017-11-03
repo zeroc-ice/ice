@@ -91,8 +91,8 @@ slice_error(const char* s)
 //
 // Other tokens.
 //
-%token ICE_SCOPE_DELIMITER
 %token ICE_IDENTIFIER
+%token ICE_SCOPED_IDENTIFIER
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
@@ -367,7 +367,7 @@ exception_def
 // ----------------------------------------------------------------------
 exception_extends
 // ----------------------------------------------------------------------
-: ICE_EXTENDS scoped_name
+: ICE_EXTENDS ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
@@ -441,7 +441,7 @@ optional
     m->v.tag = tag;
     $$ = m;
 }
-| ICE_OPTIONAL_OP scoped_name ')'
+| ICE_OPTIONAL_OP ICE_SCOPED_IDENTIFIER ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
 
@@ -721,7 +721,7 @@ class_id
     classId->t = static_cast<int>(id);
     $$ = classId;
 }
-| ICE_CLASS ICE_IDENT_OP scoped_name ')'
+| ICE_CLASS ICE_IDENT_OP ICE_SCOPED_IDENTIFIER ')'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($3);
 
@@ -888,7 +888,7 @@ class_def
 // ----------------------------------------------------------------------
 class_extends
 // ----------------------------------------------------------------------
-: ICE_EXTENDS scoped_name
+: ICE_EXTENDS ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
@@ -1372,7 +1372,7 @@ interface_def
 // ----------------------------------------------------------------------
 interface_list
 // ----------------------------------------------------------------------
-: scoped_name ',' interface_list
+: ICE_SCOPED_IDENTIFIER ',' interface_list
 {
     ClassListTokPtr intfs = ClassListTokPtr::dynamicCast($3);
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
@@ -1407,7 +1407,7 @@ interface_list
     }
     $$ = intfs;
 }
-| scoped_name
+| ICE_SCOPED_IDENTIFIER
 {
     ClassListTokPtr intfs = new ClassListTok;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
@@ -1519,7 +1519,7 @@ exception_list
 // ----------------------------------------------------------------------
 exception
 // ----------------------------------------------------------------------
-: scoped_name
+: ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
@@ -1727,7 +1727,7 @@ enumerator_initializer
 {
     $$ = $1;
 }
-| scoped_name
+| ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
@@ -1880,28 +1880,6 @@ throws
 ;
 
 // ----------------------------------------------------------------------
-scoped_name
-// ----------------------------------------------------------------------
-: ICE_IDENTIFIER
-{
-}
-| ICE_SCOPE_DELIMITER ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ident->v = "::" + ident->v;
-    $$ = ident;
-}
-| scoped_name ICE_SCOPE_DELIMITER ICE_IDENTIFIER
-{
-    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    scoped->v += "::";
-    scoped->v += ident->v;
-    $$ = scoped;
-}
-;
-
-// ----------------------------------------------------------------------
 type
 // ----------------------------------------------------------------------
 : ICE_BYTE
@@ -1952,7 +1930,7 @@ type
 {
     $$ = unit->builtin(Builtin::KindValue);
 }
-| scoped_name
+| ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
@@ -1971,7 +1949,7 @@ type
         $$ = 0;
     }
 }
-| scoped_name '*'
+| ICE_SCOPED_IDENTIFIER '*'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
@@ -2088,7 +2066,7 @@ const_initializer
     def->v.valueAsLiteral = floatVal->literal;
     $$ = def;
 }
-| scoped_name
+| ICE_SCOPED_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok;
