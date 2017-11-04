@@ -43,7 +43,7 @@ CaseInsensitive.ice:192: enumeration `M1' differs only in capitalization from mo
 CaseInsensitive.ice:193: enumerator `EN1' differs only in capitalization from `en1'
 CaseInsensitive.ice:211: interface name `base' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Base'
 CaseInsensitive.ice:211: redefinition of interface `Derived'
-CaseInsensitive.ice:219: exception name `E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:218: exception name `E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
 CaseInsensitive.ice:225: sequence name `S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
 CaseInsensitive.ice:226: sequence name `xxx::xx::S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
 CaseInsensitive.ice:227: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
