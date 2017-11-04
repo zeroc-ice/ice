@@ -74,6 +74,7 @@ static StringTokenMap keywordMap;
 
 void initScanner();
 int checkKeyword(string&);
+int checkIdentifier(string&);
 
 }
 
@@ -85,7 +86,7 @@ int checkKeyword(string&);
 %option never-interactive
 %option prefix="slice_"
 
-identifier      \\?[[:alpha:]_][[:alnum:]_]*
+identifier          ((::)?\\?[[:alpha:]_][[:alnum:]_]*)+
 integer_constant    (\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
 fractional_constant (\+|-)?(([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.))
 exponent_part       (e|E)(\+|-)?[[:digit:]]+
@@ -180,11 +181,6 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     }
 }
 
-"::" {
-    BEGIN(MAINSCAN);
-    return ICE_SCOPE_DELIMITER;
-}
-
 "[" {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -213,11 +209,20 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     *yylvalp = ident;
     if(*yytext == '\\')
     {
+        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
+        {
+            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        }
         return ICE_IDENT_OP;
     }
     int st = checkKeyword(ident->v);
     if(st == ICE_IDENTIFIER)
     {
+        return ICE_IDENT_OP;
+    }
+    else if(st == ICE_SCOPED_IDENTIFIER)
+    {
+        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OP;
     }
     else if(st == ICE_OPTIONAL)
@@ -235,14 +240,14 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
-    return *yytext == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
+    return *yytext == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
 }
 
 \" {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-     while(true)
+    while(true)
     {
         char c = static_cast<char>(yyinput());
         str->literal += c;
@@ -588,7 +593,84 @@ checkKeyword(string& id)
         }
         return pos->second;
     }
-    return ICE_IDENTIFIER;
+    return checkIdentifier(id);
+}
+
+//
+// Checks an identifier for any illegal syntax and
+// determines whether it's scoped. If it is, this
+// returns a scoped identifier token; otherwise this
+// returns a normal identifier token.
+//
+
+int checkIdentifier(string& id)
+{
+    // check whether the identifier is scoped
+    int scopeIndex = id.rfind("::");
+    bool isScoped = scopeIndex != string::npos;
+    string name;
+    if(isScoped)
+    {
+        name = id.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
+    }
+    else
+    {
+        name = id;
+    }
+
+    // check the identifier for reserved suffixes
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    {
+        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        {
+            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+        }
+    }
+
+    // check the identifier for illegal underscores
+    int index = name.find('_');
+    if(index == 0)
+    {
+        unit->error("illegal leading underscore in identifier `" + name + "'");
+    }
+    else if(name.rfind('_') == (name.size() - 1))
+    {
+        unit->error("illegal trailing underscore in identifier `" + name + "'");
+    }
+    else if(name.find("__") != string::npos)
+    {
+        unit->error("illegal double underscore in identifier `" + name + "'");
+    }
+    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
+    {
+        DefinitionContextPtr dc = unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        {
+            unit->error("illegal underscore in identifier `" + name + "'");
+        }
+    }
+
+    // Check the identifier for illegal ice prefixes
+    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
+    {
+        DefinitionContextPtr dc = unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
+        {
+            string prefix3;
+            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
+            if(prefix3 == "ice")
+            {
+                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+            }
+        }
+    }
+
+    return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
 }
 
 }

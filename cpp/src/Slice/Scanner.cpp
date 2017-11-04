@@ -384,8 +384,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 20
-#define YY_END_OF_BUFFER 21
+#define YY_NUM_RULES 19
+#define YY_END_OF_BUFFER 20
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -393,16 +393,16 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[73] =
+static yyconst flex_int16_t yy_accept[76] =
     {   0,
-        0,    0,    0,    0,    0,    0,   21,   19,   17,   17,
-       14,   19,   19,   19,   15,   15,   19,   13,    8,   19,
-        9,   19,   19,    0,   15,   15,   16,    6,    5,   16,
-       15,    0,    0,    7,    0,   12,   13,   10,   13,   11,
-        0,    0,    0,    0,    0,   16,    0,   16,   15,    0,
-        1,    0,   18,    0,   16,    0,    0,    0,    0,    0,
-        0,    2,    0,    0,    0,    3,    0,    0,    0,    0,
-        4,    0
+        0,    0,    0,    0,    0,    0,   20,   18,   16,   16,
+       13,   18,   18,   18,   14,   14,   18,   12,    7,   18,
+        8,   18,   18,    0,   14,   14,   15,    6,    5,   15,
+       14,    0,    0,    0,    0,   11,   12,    0,   12,    0,
+        9,   12,   10,    0,    0,    0,    0,    0,   15,    0,
+       15,   14,    0,    1,    0,   17,    0,   15,    0,    0,
+        0,    0,    0,    0,    2,    0,    0,    0,    3,    0,
+        0,    0,    0,    4,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -439,94 +439,94 @@ static yyconst flex_int32_t yy_ec[256] =
 
 static yyconst flex_int32_t yy_meta[32] =
     {   0,
-        1,    2,    3,    4,    1,    1,    4,    1,    5,    5,
-        1,    1,    6,    6,    6,    1,    7,    7,    7,    8,
-        1,    1,    1,    7,    8,    9,    8,    8,    1,    1,
+        1,    2,    3,    1,    1,    1,    1,    1,    4,    4,
+        1,    1,    5,    5,    5,    1,    6,    6,    6,    7,
+        1,    1,    1,    6,    7,    8,    7,    7,    1,    1,
         1
     } ;
 
-static yyconst flex_int16_t yy_base[85] =
+static yyconst flex_int16_t yy_base[87] =
     {   0,
-        0,  185,    0,   26,    0,  184,  189,  192,  192,  192,
-      192,   22,   25,   33,   47,   35,  153,   40,  147,    0,
-      121,   44,  114,   37,    0,    0,   63,  192,  192,    0,
-      107,   44,    0,  192,   65,  192,   81,  192,    0,  192,
-       53,   71,  109,  102,   80,  192,   78,   81,    0,   96,
-      192,  104,  192,   89,   92,  125,   97,  111,   83,   78,
-       63,  192,   95,  110,  112,  192,   59,   54,   53,   31,
-      192,  192,  116,  119,  127,  132,  133,  139,  141,  147,
-      156,  164,  170,  179
+        0,  140,    0,   26,    0,  139,  137,  197,  197,  197,
+      197,   22,   25,   33,   47,   35,  120,   74,  114,    0,
+      111,   40,  104,   37,    0,    0,   90,  197,  197,    0,
+      104,   34,    0,   97,   52,  197,    0,   99,    0,    0,
+      197,    0,  197,   44,   65,   88,   77,   63,  197,   69,
+       97,    0,  115,  197,   79,  197,  108,  111,   92,   71,
+       81,   82,   72,   66,  197,  125,   77,  126,  197,   59,
+       48,   44,   31,  197,  197,  135,  142,  147,  148,  153,
+      155,  160,  168,  175,  180,  188
     } ;
 
-static yyconst flex_int16_t yy_def[85] =
+static yyconst flex_int16_t yy_def[87] =
     {   0,
-       72,    1,    1,    1,    1,    1,   72,   72,   72,   72,
-       72,   72,   72,   72,   72,   15,   72,   73,   72,   74,
-       72,   75,   72,   72,   15,   16,   72,   72,   72,   27,
-       15,   76,   77,   72,   72,   72,   73,   72,   37,   72,
-       75,   78,   72,   72,   79,   72,   72,   72,   77,   72,
-       72,   72,   72,   72,   72,   80,   72,   80,   81,   72,
-       81,   72,   72,   82,   72,   72,   83,   83,   84,   84,
-       72,    0,   72,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72,   72
+       75,    1,    1,    1,    1,    1,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   15,   75,   75,   75,   76,
+       75,   77,   75,   75,   15,   16,   75,   75,   75,   27,
+       15,   78,   79,   76,   75,   75,   18,   75,   18,   76,
+       75,   18,   75,   77,   80,   75,   75,   81,   75,   75,
+       75,   79,   75,   75,   75,   75,   75,   75,   82,   75,
+       82,   83,   75,   83,   75,   75,   84,   75,   75,   85,
+       85,   86,   86,   75,    0,   75,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   75
     } ;
 
-static yyconst flex_int16_t yy_nxt[224] =
+static yyconst flex_int16_t yy_nxt[229] =
     {   0,
         8,    9,   10,    9,   11,    8,    8,    8,   12,   12,
        13,   14,   15,   16,   16,   17,   18,   18,   18,   18,
        19,   20,   21,   18,   18,   18,   18,   18,    8,    8,
-        8,   22,   24,   71,   25,   26,   26,   27,   27,   27,
-       28,   35,   35,   35,   29,   41,   36,   26,   26,   27,
-       27,   27,   47,   47,   41,   71,   23,   30,   69,   31,
-       31,   26,   72,   69,   32,   62,   35,   35,   35,   43,
-       32,   36,   50,   51,   33,   27,   27,   27,   43,   63,
-       45,   46,   35,   35,   35,   62,   45,   36,   54,   54,
-       48,   48,   48,   48,   48,   48,   63,   50,   51,   46,
+        8,   22,   24,   74,   25,   26,   26,   27,   27,   27,
+       28,   44,   50,   50,   29,   44,   74,   26,   26,   27,
+       27,   27,   72,   35,   35,   35,   23,   30,   36,   31,
+       31,   26,   75,   72,   32,   46,   53,   54,   65,   46,
+       32,   57,   57,   66,   33,   35,   35,   35,   68,   69,
+       36,   51,   51,   51,   65,   62,   37,   37,   37,   38,
+       39,   39,   39,   39,   63,   40,   62,   39,   39,   39,
 
-       56,   55,   55,   55,   55,   55,   55,   64,   64,   64,
-       46,   65,   66,   65,   66,   59,   67,   37,   37,   37,
-       60,   37,   37,   37,   37,   39,   39,   39,   42,   59,
-       57,   53,   42,   52,   72,   42,   48,   48,   49,   49,
-       42,   42,   44,   40,   42,   55,   55,   58,   58,   58,
-       58,   58,   58,   58,   58,   58,   61,   61,   61,   61,
-       61,   61,   61,   61,   61,   64,   64,   38,   34,   64,
-       68,   68,   68,   68,   68,   68,   68,   68,   68,   70,
-       70,   70,   70,   70,   70,   70,   70,   70,   72,   22,
-       22,    7,   72,   72,   72,   72,   72,   72,   72,   72,
+       39,   39,   27,   27,   27,   60,   56,   48,   49,   51,
+       51,   51,   55,   48,   34,   49,   53,   54,   40,   59,
+       58,   58,   58,   58,   58,   58,   66,   68,   69,   49,
+       70,   75,   47,   43,   41,   34,   75,   67,   67,   67,
+       42,   42,   42,   45,   22,   22,   45,   75,   75,   45,
+       51,   51,   52,   52,   45,   45,   75,   45,   58,   58,
+       61,   61,   61,   61,   61,   61,   61,   61,   64,   64,
+       64,   64,   64,   64,   64,   64,   67,   67,   75,   67,
+       71,   71,   71,   71,   71,   71,   71,   71,   73,   73,
+       73,   73,   73,   73,   73,   73,    7,   75,   75,   75,
 
-       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72
+       75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   75,   75,   75
     } ;
 
-static yyconst flex_int16_t yy_chk[224] =
+static yyconst flex_int16_t yy_chk[229] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    4,   12,   70,   12,   12,   12,   13,   13,   13,
-       14,   18,   18,   18,   14,   22,   18,   16,   16,   24,
-       24,   24,   32,   32,   41,   69,    4,   15,   68,   15,
-       15,   15,   16,   67,   15,   61,   35,   35,   35,   22,
-       15,   35,   42,   42,   15,   27,   27,   27,   41,   60,
-       27,   27,   37,   37,   37,   59,   27,   37,   45,   45,
-       47,   47,   47,   48,   48,   48,   63,   50,   50,   48,
+        1,    4,   12,   73,   12,   12,   12,   13,   13,   13,
+       14,   22,   32,   32,   14,   44,   72,   16,   16,   24,
+       24,   24,   71,   35,   35,   35,    4,   15,   35,   15,
+       15,   15,   16,   70,   15,   22,   45,   45,   64,   44,
+       15,   48,   48,   63,   15,   18,   18,   18,   67,   67,
+       18,   50,   50,   50,   62,   61,   18,   18,   18,   18,
+       18,   18,   18,   18,   60,   18,   59,   18,   18,   18,
 
-       50,   54,   54,   54,   55,   55,   55,   63,   63,   63,
-       55,   64,   64,   65,   65,   58,   65,   73,   73,   73,
-       57,   73,   73,   73,   73,   74,   74,   74,   75,   56,
-       52,   44,   75,   43,   31,   75,   76,   76,   77,   77,
-       78,   78,   23,   21,   78,   79,   79,   80,   80,   80,
-       80,   80,   80,   80,   80,   80,   81,   81,   81,   81,
-       81,   81,   81,   81,   81,   82,   82,   19,   17,   82,
-       83,   83,   83,   83,   83,   83,   83,   83,   83,   84,
-       84,   84,   84,   84,   84,   84,   84,   84,    7,    6,
-        2,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       18,   18,   27,   27,   27,   55,   47,   27,   27,   51,
+       51,   51,   46,   27,   38,   51,   53,   53,   34,   53,
+       57,   57,   57,   58,   58,   58,   66,   68,   68,   58,
+       68,   31,   23,   21,   19,   17,    7,   66,   66,   66,
+       76,   76,   76,   77,    6,    2,   77,    0,    0,   77,
+       78,   78,   79,   79,   80,   80,    0,   80,   81,   81,
+       82,   82,   82,   82,   82,   82,   82,   82,   83,   83,
+       83,   83,   83,   83,   83,   83,   84,   84,    0,   84,
+       85,   85,   85,   85,   85,   85,   85,   85,   86,   86,
+       86,   86,   86,   86,   86,   86,   75,   75,   75,   75,
 
-       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
-       72,   72,   72
+       75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+       75,   75,   75,   75,   75,   75,   75,   75
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -620,6 +620,7 @@ static StringTokenMap keywordMap;
 
 void initScanner();
 int checkKeyword(string&);
+int checkIdentifier(string&);
 
 }
 
@@ -627,7 +628,7 @@ int checkKeyword(string&);
 
 
 
-#line 630 "src/Slice/Scanner.cpp"
+#line 631 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -814,10 +815,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 97 "src/Slice/Scanner.l"
+#line 98 "src/Slice/Scanner.l"
 
 
-#line 820 "src/Slice/Scanner.cpp"
+#line 821 "src/Slice/Scanner.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -871,13 +872,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 73 )
+				if ( yy_current_state >= 76 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 72 );
+		while ( yy_current_state != 75 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -902,7 +903,7 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 99 "src/Slice/Scanner.l"
+#line 100 "src/Slice/Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -916,7 +917,7 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 106 "src/Slice/Scanner.l"
+#line 107 "src/Slice/Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -929,7 +930,7 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 113 "src/Slice/Scanner.l"
+#line 114 "src/Slice/Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -943,7 +944,7 @@ case 4:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 120 "src/Slice/Scanner.l"
+#line 121 "src/Slice/Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -953,7 +954,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 127 "src/Slice/Scanner.l"
+#line 128 "src/Slice/Scanner.l"
 {
     // C++-style comment
     BEGIN(MAINSCAN);
@@ -971,7 +972,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 142 "src/Slice/Scanner.l"
+#line 143 "src/Slice/Scanner.l"
 {
     // C-style comment
     BEGIN(MAINSCAN);
@@ -1015,48 +1016,40 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 183 "src/Slice/Scanner.l"
-{
-    BEGIN(MAINSCAN);
-    return ICE_SCOPE_DELIMITER;
-}
-	YY_BREAK
-case 8:
-YY_RULE_SETUP
-#line 188 "src/Slice/Scanner.l"
+#line 184 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
 }
 	YY_BREAK
-case 9:
+case 8:
 YY_RULE_SETUP
-#line 193 "src/Slice/Scanner.l"
+#line 189 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
 }
 	YY_BREAK
-case 10:
+case 9:
 YY_RULE_SETUP
-#line 198 "src/Slice/Scanner.l"
+#line 194 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
 }
 	YY_BREAK
-case 11:
+case 10:
 YY_RULE_SETUP
-#line 203 "src/Slice/Scanner.l"
+#line 199 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
 }
 	YY_BREAK
-case 12:
-/* rule 12 can match eol */
+case 11:
+/* rule 11 can match eol */
 YY_RULE_SETUP
-#line 208 "src/Slice/Scanner.l"
+#line 204 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1065,11 +1058,20 @@ YY_RULE_SETUP
     *yylvalp = ident;
     if(*slice_text == '\\')
     {
+        if(checkIdentifier(ident->v) == ICE_SCOPED_IDENTIFIER)
+        {
+            unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        }
         return ICE_IDENT_OP;
     }
     int st = checkKeyword(ident->v);
     if(st == ICE_IDENTIFIER)
     {
+        return ICE_IDENT_OP;
+    }
+    else if(st == ICE_SCOPED_IDENTIFIER)
+    {
+        unit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
         return ICE_IDENT_OP;
     }
     else if(st == ICE_OPTIONAL)
@@ -1082,25 +1084,25 @@ YY_RULE_SETUP
     }
 }
 	YY_BREAK
-case 13:
+case 12:
 YY_RULE_SETUP
-#line 233 "src/Slice/Scanner.l"
+#line 238 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
     ident->v = *slice_text == '\\' ? slice_text + 1 : slice_text;
     *yylvalp = ident;
-    return *slice_text == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
+    return *slice_text == '\\' ? checkIdentifier(ident->v) : checkKeyword(ident->v);
 }
 	YY_BREAK
-case 14:
+case 13:
 YY_RULE_SETUP
-#line 241 "src/Slice/Scanner.l"
+#line 246 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
     str->literal = "\"";
-     while(true)
+    while(true)
     {
         char c = static_cast<char>(yyinput());
         str->literal += c;
@@ -1299,9 +1301,9 @@ YY_RULE_SETUP
     return ICE_STRING_LITERAL;
 }
 	YY_BREAK
-case 15:
+case 14:
 YY_RULE_SETUP
-#line 444 "src/Slice/Scanner.l"
+#line 449 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1318,9 +1320,9 @@ YY_RULE_SETUP
     return ICE_INTEGER_LITERAL;
 }
 	YY_BREAK
-case 16:
+case 15:
 YY_RULE_SETUP
-#line 460 "src/Slice/Scanner.l"
+#line 465 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1351,10 +1353,10 @@ YY_RULE_SETUP
     return ICE_FLOATING_POINT_LITERAL;
 }
 	YY_BREAK
-case 17:
-/* rule 17 can match eol */
+case 16:
+/* rule 16 can match eol */
 YY_RULE_SETUP
-#line 490 "src/Slice/Scanner.l"
+#line 495 "src/Slice/Scanner.l"
 {
     // Ignore white-space
 
@@ -1368,18 +1370,18 @@ YY_RULE_SETUP
     }
 }
 	YY_BREAK
-case 18:
+case 17:
 YY_RULE_SETUP
-#line 503 "src/Slice/Scanner.l"
+#line 508 "src/Slice/Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
 
     BEGIN(MAINSCAN);
 }
 	YY_BREAK
-case 19:
+case 18:
 YY_RULE_SETUP
-#line 509 "src/Slice/Scanner.l"
+#line 514 "src/Slice/Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
@@ -1396,12 +1398,12 @@ YY_RULE_SETUP
     return slice_text[0];
 }
 	YY_BREAK
-case 20:
+case 19:
 YY_RULE_SETUP
-#line 525 "src/Slice/Scanner.l"
+#line 530 "src/Slice/Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1404 "src/Slice/Scanner.cpp"
+#line 1406 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -1697,7 +1699,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 73 )
+			if ( yy_current_state >= 76 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1725,11 +1727,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 73 )
+		if ( yy_current_state >= 76 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 72);
+	yy_is_jam = (yy_current_state == 75);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2401,7 +2403,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 525 "src/Slice/Scanner.l"
+#line 530 "src/Slice/Scanner.l"
 
 
 
@@ -2469,7 +2471,84 @@ checkKeyword(string& id)
         }
         return pos->second;
     }
-    return ICE_IDENTIFIER;
+    return checkIdentifier(id);
+}
+
+//
+// Checks an identifier for any illegal syntax and
+// determines whether it's scoped. If it is, this
+// returns a scoped identifier token; otherwise this
+// returns a normal identifier token.
+//
+
+int checkIdentifier(string& id)
+{
+    // check whether the identifier is scoped
+    int scopeIndex = id.rfind("::");
+    bool isScoped = scopeIndex != string::npos;
+    string name;
+    if(isScoped)
+    {
+        name = id.substr(scopeIndex + 2); // Only check the unscoped identifier for syntax
+    }
+    else
+    {
+        name = id;
+    }
+
+    // check the identifier for reserved suffixes
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    {
+        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        {
+            unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+        }
+    }
+
+    // check the identifier for illegal underscores
+    int index = name.find('_');
+    if(index == 0)
+    {
+        unit->error("illegal leading underscore in identifier `" + name + "'");
+    }
+    else if(name.rfind('_') == (name.size() - 1))
+    {
+        unit->error("illegal trailing underscore in identifier `" + name + "'");
+    }
+    else if(name.find("__") != string::npos)
+    {
+        unit->error("illegal double underscore in identifier `" + name + "'");
+    }
+    else if(index != string::npos && unit->currentIncludeLevel() == 0 && !unit->allowUnderscore())
+    {
+        DefinitionContextPtr dc = unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("underscore") != "underscore") // no 'underscore' global metadata
+        {
+            unit->error("illegal underscore in identifier `" + name + "'");
+        }
+    }
+
+    // Check the identifier for illegal ice prefixes
+    if(unit->currentIncludeLevel() == 0 && !unit->allowIcePrefix() && name.size() > 2)
+    {
+        DefinitionContextPtr dc = unit->currentDefinitionContext();
+        assert(dc);
+        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no 'ice-prefix' metadata
+        {
+            string prefix3;
+            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
+            if(prefix3 == "ice")
+            {
+                unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+            }
+        }
+    }
+
+    return isScoped ? ICE_SCOPED_IDENTIFIER : ICE_IDENTIFIER;
 }
 
 }

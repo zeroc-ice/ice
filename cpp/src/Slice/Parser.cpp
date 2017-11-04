@@ -677,7 +677,6 @@ Slice::Container::destroy()
 ModulePtr
 Slice::Container::createModule(const string& name)
 {
-    checkIdentifier(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
@@ -730,8 +729,6 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -812,20 +809,15 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local, false);
+    ClassDeclPtr decl = createClassDecl(name, intf, local);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local, bool checkName)
+Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
-    if (checkName)
-    {
-        checkIdentifier(name);
-    }
-
     ClassDefPtr def;
 
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -915,8 +907,6 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local, boo
 ExceptionPtr
 Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -967,8 +957,6 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 StructPtr
 Slice::Container::createStruct(const string& name, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1012,8 +1000,6 @@ SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
                                  NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1069,8 +1055,6 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
                                    const TypePtr& valueType, const StringList& valueMetaData, bool local,
                                    NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1143,8 +1127,6 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 EnumPtr
 Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1213,8 +1195,6 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
                               const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
                               NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -2559,74 +2539,6 @@ Slice::Container::Container(const UnitPtr& unit) :
 {
 }
 
-void
-Slice::Container::checkIdentifier(const string& name) const
-{
-    //
-    // Weed out identifiers with reserved suffixes.
-    //
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
-    {
-        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
-        {
-            _unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-        }
-    }
-
-    //
-    // Check for illegal underscores.
-    //
-    if(name.find('_') == 0)
-    {
-        _unit->error("illegal leading underscore in identifier `" + name + "'");
-    }
-    else if(name.rfind('_') == name.size() - 1)
-    {
-        _unit->error("illegal trailing underscore in identifier `" + name + "'");
-    }
-    else if(name.find("__") != string::npos)
-    {
-        _unit->error("illegal double underscore in identifier `" + name + "'");
-    }
-    else if(_unit->currentIncludeLevel() == 0 && !_unit->allowUnderscore() && name.find('_') != string::npos)
-    {
-        //
-        // For rules controlled by a translator option, we don't complain about included files.
-        //
-
-        DefinitionContextPtr dc = _unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("underscore") != "underscore") // no "underscore" global metadata
-        {
-            _unit->error("illegal underscore in identifier `" + name + "'");
-        }
-    }
-
-    //
-    // For rules controlled by a translator option, we don't complain about included files.
-    //
-    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
-    {
-        DefinitionContextPtr dc = _unit->currentDefinitionContext();
-        assert(dc);
-        if(dc->findMetaData("ice-prefix") != "ice-prefix") // no "ice-prefix" global metadata
-        {
-            if(name.size() >= 3)
-            {
-                string prefix3;
-                prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-                prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-                prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-                if(prefix3 == "ice")
-                {
-                    _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-                }
-            }
-        }
-    }
-}
-
 bool
 Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
                                          bool intf, bool intfOther,
@@ -3014,8 +2926,6 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, Synt
 EnumeratorPtr
 Slice::Container::validateEnumerator(const string& name)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3421,8 +3331,6 @@ Slice::ClassDef::createOperation(const string& name,
                                  int tag,
                                  Operation::Mode mode)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3533,8 +3441,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                   const string& defaultLiteral)
 {
-    checkIdentifier(name);
-
     assert(!isInterface());
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -4082,8 +3988,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -5289,8 +5193,6 @@ Slice::Operation::hasMarshaledResult() const
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {

@@ -427,7 +427,7 @@ public:
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&, bool);
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool, bool = true);
+    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
     StructPtr createStruct(const std::string&, bool, NodeType = Real);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool, NodeType = Real);
@@ -490,7 +490,6 @@ protected:
 
     Container(const UnitPtr&);
 
-    void checkIdentifier(const std::string&) const;
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
