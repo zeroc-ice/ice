@@ -317,7 +317,7 @@ class Windows(Platform):
         buildConfig = current.driver.configs[mapping].buildConfig
         config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
 
-        if current.config.uwp:
+        if current.config.uwp and not current.config.protocol in ["ssl", "wss"]:
             return ""
         elif current.driver.useIceBinDist(mapping):
             version = self.getNugetPackageVersion()
