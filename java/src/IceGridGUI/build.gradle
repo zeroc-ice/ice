@@ -86,11 +86,16 @@ if (hasJavaFx) {
     project.ext.libJars << javafxJar
 }
 
-if(icegridguiProguard.toBoolean()){
-    apply from: "proguard-jar.gradle"
-}else{
-    apply from: "plain-jar.gradle"
+project.ext.jarBuilder = "plain-jar.gradle"
+if(icegridguiProguard.toBoolean()) {
+    // Proguard does not yet support Java 9
+    if(JavaVersion.current() == JavaVersion.VERSION_1_9) {
+        logger.warn('Proguard does not yet support Java 9. Plain IceGridGUI JAR will be built.')
+    } else {
+        project.ext.jarBuilder = "proguard-jar.gradle"
+    }
 }
+apply from: jarBuilder
 
 task signjar(dependsOn: updateManifest) {
     doLast {
