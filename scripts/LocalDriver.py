@@ -399,80 +399,81 @@ class LocalDriver(Driver):
         else:
             self.runner = TestCaseRunner()
 
-        while True:
-            for mapping in mappings:
-                testsuites = self.runner.getTestSuites(mapping, testSuiteIds)
+        try:
+            while True:
+                for mapping in mappings:
+                    testsuites = self.runner.getTestSuites(mapping, testSuiteIds)
+
+                    #
+                    # Sort the test suites to run tests in the following order.
+                    #
+                    runOrder = mapping.getRunOrder()
+                    def testsuiteKey(testsuite):
+                        for k in runOrder:
+                            if testsuite.getId().startswith(k + '/'):
+                                return testsuite.getId().replace(k, str(runOrder.index(k)))
+                        return testsuite.getId()
+                    testsuites = sorted(testsuites, key=testsuiteKey)
+
+                    #
+                    # Create the executor to run the test suites on multiple workers thread is requested.
+                    #
+                    for testsuite in testsuites:
+                        if mapping.filterTestSuite(testsuite.getId(), self.configs[mapping], self.filters, self.rfilters):
+                            continue
+                        if testsuite.getId() == "Ice/echo":
+                            continue
+                        elif (self.cross or self.allCross) and not testsuite.isCross():
+                            continue
+                        elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
+                            continue
+                        self.executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
 
                 #
-                # Sort the test suites to run tests in the following order.
+                # Run all the tests and wait for the executor to complete.
                 #
-                runOrder = mapping.getRunOrder()
-                def testsuiteKey(testsuite):
-                    for k in runOrder:
-                        if testsuite.getId().startswith(k + '/'):
-                            return testsuite.getId().replace(k, str(runOrder.index(k)))
-                    return testsuite.getId()
-                testsuites = sorted(testsuites, key=testsuiteKey)
+                now = time.time()
 
-                #
-                # Create the executor to run the test suites on multiple workers thread is requested.
-                #
-                for testsuite in testsuites:
-                    if mapping.filterTestSuite(testsuite.getId(), self.configs[mapping], self.filters, self.rfilters):
-                        continue
-                    if testsuite.getId() == "Ice/echo":
-                        continue
-                    elif (self.cross or self.allCross) and not testsuite.isCross():
-                        continue
-                    elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
-                        continue
-                    self.executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
+                results = self.executor.runUntilCompleted(self, self.start)
 
-            #
-            # Run all the tests and wait for the executor to complete.
-            #
-            now = time.time()
+                failures = [r for r in results if not r.isSuccess()]
+                duration = time.time() - now
 
-            results = self.executor.runUntilCompleted(self, self.start)
+                if self.exportToXml:
+                    XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
 
-            Expect.cleanup() # Cleanup processes which might still be around
+                m, s = divmod(duration, 60)
+                print("")
+                if m > 0:
+                    print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
+                else:
+                    print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
 
-            failures = [r for r in results if not r.isSuccess()]
-            duration = time.time() - now
+                if self.showDurations:
+                    for r in sorted(results, key = lambda r : r.getDuration()):
+                        print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
 
-            if self.exportToXml:
-                XmlExporter(results, duration, failures).save(self.exportToXml, os.getenv("NODE_NAME", ""))
+                self.loopCount += 1
 
-            m, s = divmod(duration, 60)
-            print("")
-            if m > 0:
-                print("Ran {0} tests in {1} minutes {2:02.2f} seconds".format(len(results), m, s))
-            else:
-                print("Ran {0} tests in {1:02.2f} seconds".format(len(results), s))
-
-            if self.showDurations:
-                for r in sorted(results, key = lambda r : r.getDuration()):
-                    print("- {0} took {1:02.2f} seconds".format(r.testsuite, r.getDuration()))
-
-            self.loopCount += 1
-
-            if len(failures) > 0:
-                print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
-                for r in failures:
-                    print("- {0}".format(r.testsuite))
-                    for (c, ex) in r.getFailed().items():
-                        lines = r.getOutput(c).strip().split('\n')
-                        for i in range(0, min(4, len(lines))):
-                            print("  " + lines[i])
-                        if len(lines) > 4:
-                            print("  [...]")
-                            for i in range(max(4, len(lines) - 8), len(lines)):
+                if len(failures) > 0:
+                    print("{0} succeeded and {1} failed:".format(len(results) - len(failures), len(failures)))
+                    for r in failures:
+                        print("- {0}".format(r.testsuite))
+                        for (c, ex) in r.getFailed().items():
+                            lines = r.getOutput(c).strip().split('\n')
+                            for i in range(0, min(4, len(lines))):
                                 print("  " + lines[i])
-                return 1
-            else:
-                print("{0} succeeded".format(len(results)))
-                if not self.loop:
-                    return 0
+                            if len(lines) > 4:
+                                print("  [...]")
+                                for i in range(max(4, len(lines) - 8), len(lines)):
+                                    print("  " + lines[i])
+                    return 1
+                else:
+                    print("{0} succeeded".format(len(results)))
+                    if not self.loop:
+                        return 0
+        finally:
+            Expect.cleanup() # Cleanup processes which might still be around
 
     def runTestSuite(self, current):
         if self.loop:
