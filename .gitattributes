@@ -1,2 +1,4 @@
 * text=auto
+js/package.json text eol=lf
+js/package-lock.json text eol=lf
 gradlew.bat text eol=crlf
