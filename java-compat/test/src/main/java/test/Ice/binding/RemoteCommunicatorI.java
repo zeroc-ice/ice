@@ -23,17 +23,30 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
     public RemoteObjectAdapterPrx
     createObjectAdapter(String name, String endpts, Ice.Current current)
     {
-        String endpoints = endpts;
-        if(endpoints.indexOf("-p") < 0)
+        int retry = 5;
+        while(true)
         {
-            endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
-        }
+            try
+            {
+                String endpoints = endpts;
+                if(endpoints.indexOf("-p") < 0)
+                {
+                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                }
 
-        Ice.Communicator com = current.adapter.getCommunicator();
-        com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-        return RemoteObjectAdapterPrxHelper.uncheckedCast(
-            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                Ice.Communicator com = current.adapter.getCommunicator();
+                com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+            }
+            catch(Ice.SocketException ex)
+            {
+                if(--retry == 0)
+                {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override

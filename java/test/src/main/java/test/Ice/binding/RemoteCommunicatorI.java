@@ -23,16 +23,30 @@ public class RemoteCommunicatorI implements RemoteCommunicator
     @Override
     public RemoteObjectAdapterPrx createObjectAdapter(String name, String endpts, com.zeroc.Ice.Current current)
     {
-        String endpoints = endpts;
-        if(endpoints.indexOf("-p") < 0)
+        int retry = 5;
+        while(true)
         {
-            endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
-        }
+            try
+            {
+                String endpoints = endpts;
+                if(endpoints.indexOf("-p") < 0)
+                {
+                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                }
 
-        com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
-        com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-        com.zeroc.Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-        return RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
+                com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                com.zeroc.Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+                return RemoteObjectAdapterPrx.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+            }
+            catch(com.zeroc.Ice.SocketException ex)
+            {
+                if(--retry == 0)
+                {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override
