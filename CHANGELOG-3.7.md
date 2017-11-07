@@ -41,6 +41,13 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   parameters returned by reference. Xcode 9.0 now emits a warning if this
   qualifier is omitted.
 
+## CSharp Changes
+
+- Added ice_initialize partial method to generated struct and classes.
+  The method is call by constructors after the initialization of the data
+  members, by implementing this method users can customize struct and
+  class initialization.
+
 # Changes in Ice 3.7.0
 
 These are the changes since the Ice 3.6 release or snapshot described in

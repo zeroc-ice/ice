@@ -2340,10 +2340,22 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             _out << sp << nl << "#endregion";
         }
+        const bool isAbstract = p->isLocal() && p->isAbstract();
 
-        if(!allDataMembers.empty())
+        _out << sp << nl << "partial void ice_initialize();";
+        if(allDataMembers.empty())
         {
-            const bool isAbstract = p->isLocal() && p->isAbstract();
+            _out << sp << nl << "#region Constructors";
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << (isAbstract ? "protected " : "public ") << name << spar << epar;
+            _out << sb;
+            _out << nl << "ice_initialize();";
+            _out << eb;
+            _out << sp << nl << "#endregion"; // Constructors
+        }
+        else
+        {
             const bool propertyMapping = p->hasMetaData("cs:property");
 
             _out << sp << nl << "#region Constructors";
@@ -2357,6 +2369,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
             _out << sb;
             writeDataMemberInitializers(dataMembers, scope, DotNet::ICloneable, propertyMapping);
+            _out << nl << "ice_initialize();";
             _out << eb;
 
             _out << sp;
@@ -2396,6 +2409,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 }
                 _out << " = " << paramName << ';';
             }
+            _out << nl << "ice_initialize();";
             _out << eb;
 
             _out << sp << nl << "#endregion"; // Constructors
@@ -2965,7 +2979,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp << nl << "#endregion"; // Slice data members
 
     const bool isClass = !isValueType(p);
-
+    _out << sp << nl << "partial void ice_initialize();";
     _out << sp << nl << "#region Constructor";
     if(isClass)
     {
@@ -2981,6 +2995,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << nl << "public " << name << "()";
         _out << sb;
         writeDataMemberInitializers(dataMembers, scope, DotNet::ICloneable, propertyMapping);
+        _out << nl << "ice_initialize();";
         _out << eb;
     }
 
@@ -3010,6 +3025,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         _out << " = " << paramName << ';';
     }
+    _out << nl << "ice_initialize();";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Constructor(s)

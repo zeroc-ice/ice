@@ -218,6 +218,35 @@ interface UnexpectedObjectExceptionTest
     Empty op();
 }
 
+class IBase
+{
+    string id;
+}
+
+class IDerived extends IBase
+{
+    string name;
+}
+
+class IDerived2 extends IBase
+{
+}
+
+class I2
+{
+}
+
+struct S1
+{
+    int id;
+}
+
+["cs:class"]
+struct SC1
+{
+    string id;
+}
+
 //
 // Remaining definitions are here to ensure that the generated code compiles.
 //

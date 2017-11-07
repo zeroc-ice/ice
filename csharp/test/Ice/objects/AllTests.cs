@@ -11,6 +11,55 @@ using System;
 using System.Diagnostics;
 using Test;
 
+namespace Test
+{
+    public partial class IBase
+    {
+        partial void ice_initialize()
+        {
+            id = "My id";
+        }
+    }
+
+    public partial class IDerived
+    {
+        partial void ice_initialize()
+        {
+            name = "My name";
+        }
+    }
+
+    public partial class I2
+    {
+        public bool called
+        {
+            get;
+            set;
+        }
+
+        partial void ice_initialize()
+        {
+            called = true;
+        }
+    }
+
+    public partial struct S1
+    {
+        partial void ice_initialize()
+        {
+            id = 1;
+        }
+    }
+
+    public partial class SC1
+    {
+        partial void ice_initialize()
+        {
+            id = "My id";
+        }
+    }
+}
+
 public class AllTests : TestCommon.AllTests
 {
     public static Ice.Value MyValueFactory(string type)
@@ -362,6 +411,29 @@ public class AllTests : TestCommon.AllTests
         WriteLine("ok");
 #pragma warning restore 612, 618
 
+        Write("testing partial ice_initialize...");
+        Flush();
+        var ib1 = new IBase();
+        test(ib1.id.Equals("My id"));
+        var id1 = new IDerived();
+        test(id1.id.Equals("My id"));
+        test(id1.name.Equals("My name"));
+
+        var id2 = new IDerived2();
+        test(id2.id.Equals("My id"));
+        var i2 = new I2();
+        test(i2.called);
+
+        var s1 = new S1();
+        // The struct default constructor do not call ice_initialize
+        test(s1.id == 0);
+        s1 = new S1(2);
+        // The id should have the value set by ice_initialize and not 2
+        test(s1.id == 1);
+
+        var sc1 = new SC1();
+        test(sc1.id.Equals("My id"));
+        WriteLine("ok");
         return initial;
     }
 }
