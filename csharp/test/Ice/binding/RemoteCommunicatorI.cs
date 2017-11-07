@@ -21,25 +21,28 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
     createObjectAdapter(string name, string endpts, Ice.Current current)
     {
         int retry = 5;
-        try
+        while(true)
         {
-            string endpoints = endpts;
-            if(endpoints.IndexOf("-p") < 0)
+            try
             {
-                endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
-            }
+                string endpoints = endpts;
+                if(endpoints.IndexOf("-p") < 0)
+                {
+                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                }
 
-            Ice.Communicator com = current.adapter.getCommunicator();
-            com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-            Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-            return RemoteObjectAdapterPrxHelper.uncheckedCast(
-                current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
-        }
-        catch(Ice.SocketException)
-        {
-            if(--retry == 0)
+                Ice.Communicator com = current.adapter.getCommunicator();
+                com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+                return RemoteObjectAdapterPrxHelper.uncheckedCast(
+                    current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+            }
+            catch(Ice.SocketException)
             {
-                throw;
+                if(--retry == 0)
+                {
+                    throw;
+                }
             }
         }
     }
