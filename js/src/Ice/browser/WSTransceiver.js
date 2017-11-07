@@ -124,8 +124,8 @@ class WSTransceiver
         this._registered = true;
         if(this._hasBytesAvailable || this._exception)
         {
-            this._bytesAvailableCallback();
             this._hasBytesAvailable = false;
+            Timer.setTimeout(() => this._bytesAvailableCallback(), 0);
         }
     }
 
