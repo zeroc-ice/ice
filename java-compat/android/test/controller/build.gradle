@@ -43,7 +43,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
     }
-    buildToolsVersion '25.0.3'
 }
 
 idea.module {

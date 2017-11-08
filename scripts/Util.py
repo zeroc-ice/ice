@@ -3001,6 +3001,7 @@ class Android:
             "Ice/networkProxy",
             "Ice/throughput",
             "Ice/plugin",
+            "Ice/logger",
             "Ice/properties"]
         if protocol in ["ssl", "wss"]:
             tests += [

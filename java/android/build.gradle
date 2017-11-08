@@ -10,9 +10,10 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-alpha7'
+        classpath 'com.android.tools.build:gradle:3.0.0'
     }
 }
 
@@ -49,6 +50,6 @@ subprojects {
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "4.1-milestone-1"
+    gradleVersion = "4.1"
     distributionType = Wrapper.DistributionType.ALL
 }
