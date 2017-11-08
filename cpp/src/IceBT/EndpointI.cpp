@@ -187,11 +187,22 @@ IceBT::EndpointI::acceptor(const string& adapterName) const
 vector<IceInternal::EndpointIPtr>
 IceBT::EndpointI::expandIfWildcard() const
 {
-    //
-    // Nothing to do here.
-    //
     vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+
+    if(_addr.empty())
+    {
+        //
+        // getDefaultAdapterAddress will raise BluetoothException if no adapter is present.
+        //
+        string addr = _instance->engine()->getDefaultAdapterAddress();
+        endps.push_back(ICE_MAKE_SHARED(EndpointI, _instance, addr, _uuid, _name, _channel, _timeout, _connectionId,
+                                        _compress));
+    }
+    else
+    {
+        endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    }
+
     return endps;
 }
 
@@ -445,20 +456,16 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     {
         const_cast<string&>(_addr) = _instance->defaultHost();
     }
-
-    if(_addr.empty() || _addr == "*")
+    else if(_addr == "*")
     {
         if(oaEndpoint)
         {
-            //
-            // getDefaultAdapterAddress can throw BluetoothException.
-            //
-            const_cast<string&>(_addr) = _instance->engine()->getDefaultAdapterAddress();
+            const_cast<string&>(_addr) = string();
         }
         else
         {
             throw EndpointParseException(__FILE__, __LINE__,
-                                         "a device address must be specified using the -a option or Ice.Default.Host");
+                                         "`-a *' not valid for proxy endpoint `" + toString() + "'");
         }
     }
 
