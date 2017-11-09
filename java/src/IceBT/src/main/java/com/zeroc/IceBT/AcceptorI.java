@@ -68,12 +68,22 @@ final class AcceptorI implements Acceptor
     @Override
     public com.zeroc.IceInternal.EndpointI listen()
     {
+        UUID uuid = null;
+        try
+        {
+            uuid = UUID.fromString(_uuid);
+        }
+        catch(IllegalArgumentException ex)
+        {
+            throw new SocketException(ex);
+        }
+
         try
         {
             //
             // We always listen using the "secure" method.
             //
-            _socket = _instance.bluetoothAdapter().listenUsingRfcommWithServiceRecord(_name, _uuid);
+            _socket = _instance.bluetoothAdapter().listenUsingRfcommWithServiceRecord(_name, uuid);
         }
         catch(java.io.IOException ex)
         {
@@ -142,15 +152,15 @@ final class AcceptorI implements Acceptor
             s.append(_name);
             s.append("'");
         }
-        if(_uuid != null)
+        if(!_uuid.isEmpty())
         {
             s.append("\nservice uuid = ");
-            s.append(_uuid.toString());
+            s.append(_uuid);
         }
         return s.toString();
     }
 
-    AcceptorI(EndpointI endpoint, Instance instance, String adapterName, UUID uuid, String name)
+    AcceptorI(EndpointI endpoint, Instance instance, String adapterName, String uuid, String name)
     {
         _endpoint = endpoint;
         _instance = instance;
@@ -220,7 +230,7 @@ final class AcceptorI implements Acceptor
     private Instance _instance;
     private String _adapterName;
     private String _name;
-    private UUID _uuid;
+    private String _uuid;
     private ReadyCallback _readyCallback;
     private BluetoothServerSocket _socket;
     private java.util.Stack<BluetoothSocket> _pending;

@@ -279,7 +279,7 @@ final class TransceiverI implements IceInternal.Transceiver
         //info.localChannel - not available, use default value of -1
         info.remoteAddress = _remoteAddr;
         //info.remoteChannel - not available, use default value of -1
-        info.uuid = _uuid.toString();
+        info.uuid = _uuid;
         return info;
     }
 
@@ -298,7 +298,7 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     // Used by ConnectorI.
     //
-    TransceiverI(Instance instance, String remoteAddr, UUID uuid, String connectionId)
+    TransceiverI(Instance instance, String remoteAddr, String uuid, String connectionId)
     {
         _instance = instance;
         _remoteAddr = remoteAddr;
@@ -318,10 +318,16 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         catch(IllegalArgumentException ex)
         {
-            //
-            // Illegal address - This should have been detected by the endpoint.
-            //
-            assert(false);
+            throw new Ice.SocketException(ex);
+        }
+
+        UUID uuidObj = null;
+        try
+        {
+            uuidObj = UUID.fromString(_uuid);
+        }
+        catch(IllegalArgumentException ex)
+        {
             throw new Ice.SocketException(ex);
         }
 
@@ -330,7 +336,7 @@ final class TransceiverI implements IceInternal.Transceiver
             //
             // We always connect using the "secure" method.
             //
-            _socket = device.createRfcommSocketToServiceRecord(_uuid);
+            _socket = device.createRfcommSocketToServiceRecord(uuidObj);
         }
         catch(java.io.IOException ex)
         {
@@ -346,9 +352,9 @@ final class TransceiverI implements IceInternal.Transceiver
                 {
                     name += "-" + _remoteAddr;
                 }
-                if(_uuid != null)
+                if(!_uuid.isEmpty())
                 {
-                    name += "-" + _uuid.toString();
+                    name += "-" + _uuid;
                 }
                 setName(name);
 
@@ -361,7 +367,7 @@ final class TransceiverI implements IceInternal.Transceiver
     //
     // Used by AcceptorI.
     //
-    TransceiverI(Instance instance, BluetoothSocket socket, UUID uuid, String adapterName)
+    TransceiverI(Instance instance, BluetoothSocket socket, String uuid, String adapterName)
     {
         _instance = instance;
         _remoteAddr = socket.getRemoteDevice().getAddress();
@@ -383,9 +389,9 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             _desc += "\nremote address = " + _remoteAddr;
         }
-        if(_uuid != null)
+        if(!_uuid.isEmpty())
         {
-            _desc += "\nservice uuid = " + _uuid.toString();
+            _desc += "\nservice uuid = " + _uuid;
         }
 
         final int defaultBufSize = 128 * 1024;
@@ -451,9 +457,9 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             s += "-" + _remoteAddr;
         }
-        if(_uuid != null)
+        if(!_uuid.isEmpty())
         {
-            s += "-" + _uuid.toString();
+            s += "-" + _uuid;
         }
         final String suffix = s;
 
@@ -664,7 +670,7 @@ final class TransceiverI implements IceInternal.Transceiver
 
     private Instance _instance;
     private String _remoteAddr;
-    private UUID _uuid;
+    private String _uuid;
     private String _connectionId;
     private String _adapterName;
 
