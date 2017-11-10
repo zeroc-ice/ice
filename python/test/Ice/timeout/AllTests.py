@@ -89,8 +89,8 @@ def allTests(communicator):
     #
     # Expect success.
     #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    controller.holdAdapter(200)
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     try:
         to.op()
     except Ice.ConnectTimeoutException:
@@ -122,8 +122,8 @@ def allTests(communicator):
     #
     # Expect success.
     #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000))
-    controller.holdAdapter(200)
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     try:
         if sys.version_info[0] == 2:
             seq2 = []

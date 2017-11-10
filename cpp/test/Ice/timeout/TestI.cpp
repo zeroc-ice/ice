@@ -26,9 +26,7 @@ public:
     virtual void
     run()
     {
-        cerr << "holdx start: " << IceUtil::Time::now().toDateTime() << endl;
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_timeout));
-        cerr << "holdx finished: " << IceUtil::Time::now().toDateTime() << endl;
         _adapter->activate();
     }
 

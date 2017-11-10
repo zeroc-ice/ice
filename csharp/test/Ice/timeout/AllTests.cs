@@ -101,8 +101,8 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
-            controller.holdAdapter(200);
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(2000));
+            controller.holdAdapter(100);
             try
             {
                 to.op();
@@ -142,8 +142,8 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000));
-            controller.holdAdapter(200);
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(2000));
+            controller.holdAdapter(100);
             try
             {
                 to.sendData(new byte[1000000]);

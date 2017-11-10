@@ -51,8 +51,8 @@ def allTests(communicator)
     #
     # Expect success.
     #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(1000))
-    controller.holdAdapter(200)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     begin
         to.op()
     rescue Ice::ConnectTimeoutException
@@ -80,8 +80,8 @@ def allTests(communicator)
     #
     # Expect success.
     #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(1000))
-    controller.holdAdapter(200)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     begin
         seq2 = "\0" * 1000000 # 1,000,000 entries
         to.sendData(seq2)

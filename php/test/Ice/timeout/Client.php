@@ -107,8 +107,8 @@ function allTests($communicator)
         //
         // Expect success.
         //
-        $to =$timeout->ice_timeout(1000);
-        $controller->holdAdapter(200);
+        $to =$timeout->ice_timeout(2000);
+        $controller->holdAdapter(100);
         try
         {
             $to->op();
@@ -152,8 +152,8 @@ function allTests($communicator)
         //
         // Expect success.
         //
-        $to = $timeout->ice_timeout(1000)->ice_uncheckedCast("::Test::Timeout");
-        $controller->holdAdapter(200);
+        $to = $timeout->ice_timeout(2000)->ice_uncheckedCast("::Test::Timeout");
+        $controller->holdAdapter(100);
         try
         {
             $data = array_fill(0, 1000000, 0x01);
