@@ -16,12 +16,6 @@ version 4.3.6 or greater to build Ice.
 
 ## Compiling Ice for .NET with Visual Studio
 
-### Preparing to Build
-
-The build system requires the `slice2cs` compiler from Ice for C++. If you have
-not built Ice for C++ in this source distribution, refer to the
-[C++ build instructions](../cpp/BuildInstructionsWindows.md).
-
 ### Building Ice for .NET
 
 Open a Visual Studio command prompt and change to the `csharp` subdirectory:
