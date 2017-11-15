@@ -26,7 +26,7 @@ var babel       = require("gulp-babel"),
     rollup      = require("rollup").rollup,
     sourcemaps  = require('gulp-sourcemaps'),
     spawn       = require("child_process").spawn,
-    uglify      = require('gulp-uglify-es').default;
+    uglify      = require('gulp-uglifyes');
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
