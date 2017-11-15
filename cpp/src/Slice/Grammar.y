@@ -91,8 +91,8 @@ slice_error(const char* s)
 //
 // Other tokens.
 //
-%token ICE_SCOPE_DELIMITER
 %token ICE_IDENTIFIER
+%token ICE_SCOPED_IDENTIFIER
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
@@ -1885,19 +1885,8 @@ scoped_name
 : ICE_IDENTIFIER
 {
 }
-| ICE_SCOPE_DELIMITER ICE_IDENTIFIER
+| ICE_SCOPED_IDENTIFIER
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ident->v = "::" + ident->v;
-    $$ = ident;
-}
-| scoped_name ICE_SCOPE_DELIMITER ICE_IDENTIFIER
-{
-    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    scoped->v += "::";
-    scoped->v += ident->v;
-    $$ = scoped;
 }
 ;
 
