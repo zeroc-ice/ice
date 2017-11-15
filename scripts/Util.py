@@ -2233,11 +2233,11 @@ class iOSSimulatorProcessController(RemoteProcessController):
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         for r in run("xcrun simctl list runtimes").split('\n'):
-            m = re.search("iOS .* \(.*\) \((.*)\)", r)
+            m = re.search("iOS .* \(.*\) - (.*)", r)
             if m:
                 self.runtimeID = m.group(1)
         if not self.runtimeID:
-            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-10-3" # Default value
+            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-11-0" # Default value
 
     def __str__(self):
         return "iOS Simulator"
