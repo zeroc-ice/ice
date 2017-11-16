@@ -316,7 +316,7 @@ public final class AMDTestI implements TestIntf
         r.returnValue = new java.util.HashMap<>();
         for(i = 0; i < 10; ++i)
         {
-            String s = "D1." + new Integer(i * 20).toString();
+            String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
             d1.pb = (i == 0 ? null : r.returnValue.get((i - 1) * 20));

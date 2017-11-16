@@ -2472,7 +2472,7 @@ public class AllTests
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     D1 d1 = new D1();
                     d1.sb = s;
                     d1.pb = d1;
@@ -2487,7 +2487,7 @@ public class AllTests
                 {
                     B b = boutH.value.get(i * 10);
                     test(b != null);
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     test(b.sb.equals(s));
                     test(b.pb != null);
                     test(b.pb != b);
@@ -2500,7 +2500,7 @@ public class AllTests
                 {
                     B b = r.get(i * 20);
                     test(b != null);
-                    String s = "D1." + new Integer(i * 20).toString();
+                    String s = "D1." + Integer.valueOf(i * 20).toString();
                     test(b.sb.equals(s));
                     test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                     D1 d1 = (D1)b;
@@ -2525,7 +2525,7 @@ public class AllTests
             int i;
             for(i = 0; i < 10; ++i)
             {
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 D1 d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
@@ -2544,7 +2544,7 @@ public class AllTests
             {
                 B b = bout.get(i * 10);
                 test(b != null);
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 test(b.sb.equals(s));
                 test(b.pb != null);
                 test(b.pb != b);
@@ -2557,7 +2557,7 @@ public class AllTests
             {
                 B b = r.get(i * 20);
                 test(b != null);
-                String s = "D1." + new Integer(i * 20).toString();
+                String s = "D1." + Integer.valueOf(i * 20).toString();
                 test(b.sb.equals(s));
                 test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                 D1 d1 = (D1)b;

@@ -19,6 +19,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         _deactivated = false;
     }
 
+    @SuppressWarnings("deprecation")
     protected synchronized void
     finalize()
         throws Throwable

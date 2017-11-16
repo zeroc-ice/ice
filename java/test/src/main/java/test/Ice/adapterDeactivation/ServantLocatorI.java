@@ -19,6 +19,7 @@ public final class ServantLocatorI implements ServantLocator
         _deactivated = false;
     }
 
+    @SuppressWarnings( "deprecation" )
     protected synchronized void finalize()
         throws Throwable
     {

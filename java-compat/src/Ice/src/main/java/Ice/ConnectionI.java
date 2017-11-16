@@ -1800,6 +1800,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize() throws Throwable
     {

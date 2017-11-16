@@ -29,6 +29,7 @@ class FactoryACMMonitor implements ACMMonitor
         _config = config;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

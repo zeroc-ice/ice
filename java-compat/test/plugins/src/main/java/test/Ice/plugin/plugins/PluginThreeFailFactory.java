@@ -36,6 +36,7 @@ public class PluginThreeFailFactory implements Ice.PluginFactory
             test(false);
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         protected void finalize() throws Throwable
         {

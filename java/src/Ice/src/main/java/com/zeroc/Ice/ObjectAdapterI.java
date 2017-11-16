@@ -1121,6 +1121,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

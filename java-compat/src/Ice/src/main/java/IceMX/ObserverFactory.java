@@ -83,7 +83,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         O obsv;
         try
         {
-            obsv = cl.newInstance();
+            obsv = cl.getDeclaredConstructor().newInstance();
         }
         catch(Exception ex)
         {

@@ -227,6 +227,7 @@ public final class ThreadPool
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

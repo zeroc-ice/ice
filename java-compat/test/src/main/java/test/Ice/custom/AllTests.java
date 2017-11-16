@@ -138,7 +138,8 @@ public class AllTests
         }
 
         {
-            final Byte[] seq = { new Byte((byte)0), new Byte((byte)1), new Byte((byte)2), new Byte((byte)3) };
+            final Byte[] seq = { Byte.valueOf((byte)0), Byte.valueOf((byte)1), Byte.valueOf((byte)2),
+                                 Byte.valueOf((byte)3) };
             ArrayList<Byte> list = new ArrayList<Byte>(Arrays.asList(seq));
             ByteSeqHolder listH = new ByteSeqHolder();
             List<Byte> listR = t.opByteSeq(list, listH);
@@ -147,7 +148,8 @@ public class AllTests
         }
 
         {
-            final Short[] seq = { new Short((short)0), new Short((short)1), new Short((short)2), new Short((short)3) };
+            final Short[] seq = { Short.valueOf((short)0), Short.valueOf((short)1), Short.valueOf((short)2),
+                                  Short.valueOf((short)3) };
             ArrayList<Short> list = new ArrayList<Short>(Arrays.asList(seq));
             ShortSeqHolder listH = new ShortSeqHolder();
             List<Short> listR = t.opShortSeq(list, listH);
@@ -156,7 +158,7 @@ public class AllTests
         }
 
         {
-            final Integer[] seq = { new Integer(0), new Integer(1), new Integer(2), new Integer(3) };
+            final Integer[] seq = { Integer.valueOf(0), Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3) };
             ArrayList<Integer> list = new ArrayList<Integer>(Arrays.asList(seq));
             IntSeqHolder listH = new IntSeqHolder();
             List<Integer> listR = t.opIntSeq(list, listH);
@@ -165,7 +167,7 @@ public class AllTests
         }
 
         {
-            final Long[] seq = { new Long(0), new Long(1), new Long(2), new Long(3) };
+            final Long[] seq = { Long.valueOf(0), Long.valueOf(1), Long.valueOf(2), Long.valueOf(3) };
             ArrayList<Long> list = new ArrayList<Long>(Arrays.asList(seq));
             LongSeqHolder listH = new LongSeqHolder();
             List<Long> listR = t.opLongSeq(list, listH);
@@ -174,7 +176,8 @@ public class AllTests
         }
 
         {
-            final Float[] seq = { new Float(0), new Float(1), new Float(2), new Float(3) };
+            final Float[] seq = { Float.valueOf((float)0), Float.valueOf((float)1), Float.valueOf((float)2),
+                                  Float.valueOf((float)3) };
             ArrayList<Float> list = new ArrayList<Float>(Arrays.asList(seq));
             FloatSeqHolder listH = new FloatSeqHolder();
             List<Float> listR = t.opFloatSeq(list, listH);
@@ -183,7 +186,8 @@ public class AllTests
         }
 
         {
-            final Double[] seq = { new Double(0), new Double(1), new Double(2), new Double(3) };
+            final Double[] seq = { Double.valueOf((double)0), Double.valueOf((double)1), Double.valueOf((double)2),
+                                   Double.valueOf((double)3) };
             ArrayList<Double> list = new ArrayList<Double>(Arrays.asList(seq));
             DoubleSeqHolder listH = new DoubleSeqHolder();
             List<Double> listR = t.opDoubleSeq(list, listH);

@@ -34,6 +34,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _communicator;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void
     activate()
@@ -1120,6 +1121,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

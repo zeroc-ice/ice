@@ -429,9 +429,25 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     {
         try
         {
-            _ObjectPrxI proxy = getClass().newInstance();
+            _ObjectPrxI proxy = getClass().getDeclaredConstructor().newInstance();
             proxy._setup(ref);
             return proxy;
+        }
+        catch(NoSuchMethodException ex)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
+        catch(java.lang.reflect.InvocationTargetException ex)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
         }
         catch(InstantiationException e)
         {

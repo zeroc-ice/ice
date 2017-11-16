@@ -125,6 +125,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize()
         throws Throwable

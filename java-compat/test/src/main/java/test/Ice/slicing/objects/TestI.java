@@ -313,7 +313,7 @@ public final class TestI extends _TestIntfDisp
         java.util.Map<Integer, B> r = new java.util.HashMap<Integer, B>();
         for(i = 0; i < 10; ++i)
         {
-            String s = "D1." + new Integer(i * 20).toString();
+            String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
             d1.pb = (i == 0 ? null : r.get((i - 1) * 20));

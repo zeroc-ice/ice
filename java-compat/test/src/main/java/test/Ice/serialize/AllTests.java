@@ -161,8 +161,8 @@ public class AllTests
         test(java.util.Arrays.equals(b.seq2, new int[] { 5, 6, 7, 8, 9 }));
         test(java.util.Arrays.equals(b.seq3, new MyEnum[] { MyEnum.enum3, MyEnum.enum2, MyEnum.enum1 }));
         test(java.util.Arrays.equals(b.seq4, new Base[] { b }));
-        test(b.d1.get(new Byte((byte)1)).equals(Boolean.TRUE));
-        test(b.d2.get(new Short((short)2)).equals(new Integer(3)));
+        test(b.d1.get(Byte.valueOf((byte)1)).equals(Boolean.TRUE));
+        test(b.d2.get(Short.valueOf((short)2)).equals(Integer.valueOf(3)));
         test(b.d3.get("enum3") == MyEnum.enum3);
         test(b.d4.get("b") == b);
         test(b instanceof Derived);

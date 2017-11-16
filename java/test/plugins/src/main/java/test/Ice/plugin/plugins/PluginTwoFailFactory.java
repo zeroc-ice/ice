@@ -45,6 +45,7 @@ public class PluginTwoFailFactory implements com.zeroc.Ice.PluginFactory
             _destroyed = true;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         protected void finalize() throws Throwable
         {

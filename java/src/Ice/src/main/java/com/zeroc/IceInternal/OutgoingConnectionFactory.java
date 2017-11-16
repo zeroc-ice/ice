@@ -349,6 +349,7 @@ public final class OutgoingConnectionFactory
         _destroyed = false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

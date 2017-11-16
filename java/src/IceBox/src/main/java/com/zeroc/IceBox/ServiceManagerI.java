@@ -701,7 +701,7 @@ public class ServiceManagerI implements ServiceManager
                     //
                     try
                     {
-                        obj = c.newInstance();
+                        obj = c.getDeclaredConstructor().newInstance();
                     }
                     catch(IllegalAccessException ex)
                     {

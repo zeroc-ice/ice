@@ -529,6 +529,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

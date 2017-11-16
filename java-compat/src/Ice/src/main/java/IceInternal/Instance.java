@@ -1132,6 +1132,7 @@ public final class Instance implements Ice.ClassResolver
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

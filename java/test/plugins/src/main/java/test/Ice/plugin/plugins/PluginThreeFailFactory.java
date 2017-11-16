@@ -36,6 +36,7 @@ public class PluginThreeFailFactory implements com.zeroc.Ice.PluginFactory
             test(false);
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         protected void finalize() throws Throwable
         {

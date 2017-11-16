@@ -2237,7 +2237,7 @@ public class InputStream
                 Class<?> c = _classResolver.apply(id);
                 if(c != null)
                 {
-                    userEx = (UserException)c.newInstance();
+                    userEx = (UserException)c.getDeclaredConstructor().newInstance();
                 }
             }
         }
@@ -2384,7 +2384,7 @@ public class InputStream
                 {
                     try
                     {
-                        v = (Value)cls.newInstance();
+                        v = (Value)cls.getDeclaredConstructor().newInstance();
                     }
                     catch(java.lang.Exception ex)
                     {
@@ -3262,7 +3262,7 @@ public class InputStream
                         {
                             try
                             {
-                                v = (Value)cls.newInstance();
+                                v = (Value)cls.getDeclaredConstructor().newInstance();
                                 updateCache = false;
                             }
                             catch(java.lang.Exception ex)

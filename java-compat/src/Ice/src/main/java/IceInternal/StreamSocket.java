@@ -62,6 +62,7 @@ public class StreamSocket
         _desc = Network.fdToString(_fd);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize()
         throws Throwable

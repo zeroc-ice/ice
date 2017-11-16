@@ -28,6 +28,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
         _requestId = -1;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

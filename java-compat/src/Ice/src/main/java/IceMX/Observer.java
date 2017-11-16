@@ -107,7 +107,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
 
         try
         {
-            ObserverImpl obsv = ocl.newInstance();
+            ObserverImpl obsv = ocl.getDeclaredConstructor().newInstance();
             obsv.init(helper, metricsObjects, null);
             return obsv;
         }

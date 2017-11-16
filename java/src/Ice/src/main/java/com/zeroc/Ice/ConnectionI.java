@@ -1713,6 +1713,7 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize() throws Throwable
     {

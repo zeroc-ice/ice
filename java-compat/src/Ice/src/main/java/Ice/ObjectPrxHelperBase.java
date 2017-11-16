@@ -2819,7 +2819,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                         ObjectPrxHelperBase h = null;
                         try
                         {
-                            h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
+                            h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
+                        }
+                        catch(NoSuchMethodException ex)
+                        {
+                            throw new SyscallException(ex);
+                        }
+                        catch(java.lang.reflect.InvocationTargetException ex)
+                        {
+                            throw new SyscallException(ex);
                         }
                         catch(InstantiationException ex)
                         {
@@ -2861,7 +2869,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             {
                 if(explicitFacet)
                 {
-                    ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
+                    ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
                     h._copyFrom(obj.ice_facet(facet));
                     d = proxyCls.cast(h);
                 }
@@ -2873,11 +2881,19 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     }
                     else
                     {
-                        ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
+                        ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
                         h._copyFrom(obj);
                         d = proxyCls.cast(h);
                     }
                 }
+            }
+            catch(NoSuchMethodException ex)
+            {
+                throw new SyscallException(ex);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                throw new SyscallException(ex);
             }
             catch(InstantiationException ex)
             {
@@ -2920,9 +2936,25 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         try
         {
-            ObjectPrxHelperBase proxy = getClass().newInstance();
+            ObjectPrxHelperBase proxy = getClass().getDeclaredConstructor().newInstance();
             proxy._setup(ref);
             return proxy;
+        }
+        catch(NoSuchMethodException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
+        catch(java.lang.reflect.InvocationTargetException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
         }
         catch(InstantiationException e)
         {

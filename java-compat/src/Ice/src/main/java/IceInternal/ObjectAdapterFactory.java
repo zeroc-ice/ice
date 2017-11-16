@@ -240,6 +240,7 @@ public final class ObjectAdapterFactory
         _communicator = communicator;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

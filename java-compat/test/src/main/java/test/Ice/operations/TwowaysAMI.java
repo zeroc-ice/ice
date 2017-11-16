@@ -2359,14 +2359,14 @@ class TwowaysAMI
             List<Map<Long, Float>> dsi2 = new ArrayList<>();
 
             Map<Long, Float> di1 = new HashMap<>();
-            di1.put(999999110L, new Float(-1.1));
-            di1.put(999999111L, new Float(123123.2));
+            di1.put(999999110L, Float.valueOf((float)-1.1));
+            di1.put(999999111L, Float.valueOf((float)123123.2));
             Map<Long, Float> di2 = new HashMap<>();
-            di2.put(999999110L, new Float(-1.1));
-            di2.put(999999120L, new Float(-100.4));
-            di2.put(999999130L, new Float(0.5));
+            di2.put(999999110L, Float.valueOf((float)-1.1));
+            di2.put(999999120L, Float.valueOf((float)-100.4));
+            di2.put(999999130L, Float.valueOf((float)0.5));
             Map<Long, Float> di3 = new HashMap<>();
-            di3.put(999999140L, new Float(3.14));
+            di3.put(999999140L, Float.valueOf((float)3.14));
 
             dsi1.add(di1);
             dsi1.add(di2);

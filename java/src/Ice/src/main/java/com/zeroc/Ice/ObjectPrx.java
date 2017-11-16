@@ -865,7 +865,15 @@ public interface ObjectPrx
                         ObjectPrx h = null;
                         try
                         {
-                            h = _ObjectPrxI.class.cast(impl.newInstance());
+                            h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
+                        }
+                        catch(NoSuchMethodException ex)
+                        {
+                            throw new SyscallException(ex);
+                        }
+                        catch(java.lang.reflect.InvocationTargetException ex)
+                        {
+                            throw new SyscallException(ex);
                         }
                         catch(InstantiationException ex)
                         {
@@ -906,7 +914,7 @@ public interface ObjectPrx
             {
                 if(explicitFacet)
                 {
-                    ObjectPrx h = _ObjectPrxI.class.cast(impl.newInstance());
+                    ObjectPrx h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
                     h._copyFrom(obj.ice_facet(facet));
                     r = proxy.cast(h);
                 }
@@ -918,11 +926,19 @@ public interface ObjectPrx
                     }
                     else
                     {
-                        ObjectPrx h = _ObjectPrxI.class.cast(impl.newInstance());
+                        ObjectPrx h = _ObjectPrxI.class.cast(impl.getDeclaredConstructor().newInstance());
                         h._copyFrom(obj);
                         r = proxy.cast(h);
                     }
                 }
+            }
+            catch(NoSuchMethodException ex)
+            {
+                throw new SyscallException(ex);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                throw new SyscallException(ex);
             }
             catch(InstantiationException ex)
             {

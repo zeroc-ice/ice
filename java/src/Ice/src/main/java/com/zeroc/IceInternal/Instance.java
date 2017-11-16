@@ -1153,6 +1153,7 @@ public final class Instance implements java.util.function.Function<String, Class
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

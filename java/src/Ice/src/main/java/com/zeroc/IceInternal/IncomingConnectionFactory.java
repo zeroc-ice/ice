@@ -526,6 +526,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

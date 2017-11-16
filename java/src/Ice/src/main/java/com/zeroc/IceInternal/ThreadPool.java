@@ -227,6 +227,7 @@ public final class ThreadPool implements java.util.concurrent.Executor
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

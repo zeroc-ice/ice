@@ -126,7 +126,7 @@ class SSLEngine
 
             try
             {
-                _verifier = (CertificateVerifier)cls.newInstance();
+                _verifier = (CertificateVerifier)cls.getDeclaredConstructor().newInstance();
             }
             catch(Throwable ex)
             {
@@ -161,7 +161,7 @@ class SSLEngine
 
             try
             {
-                _passwordCallback = (PasswordCallback)cls.newInstance();
+                _passwordCallback = (PasswordCallback)cls.getDeclaredConstructor().newInstance();
             }
             catch(Throwable ex)
             {

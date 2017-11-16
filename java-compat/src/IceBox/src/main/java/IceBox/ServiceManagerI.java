@@ -714,7 +714,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     //
                     try
                     {
-                        obj = c.newInstance();
+                        obj = c.getDeclaredConstructor().newInstance();
                     }
                     catch(IllegalAccessException ex)
                     {
