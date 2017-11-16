@@ -527,6 +527,7 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize()
         throws Throwable
