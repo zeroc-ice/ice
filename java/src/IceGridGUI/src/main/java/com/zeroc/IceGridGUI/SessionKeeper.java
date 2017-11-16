@@ -230,7 +230,7 @@ public class SessionKeeper
             }
             else
             {
-                _keepAliveFuture = _coordinator.getExecutor().scheduleAtFixedRate(() ->
+                _keepAliveFuture = _coordinator.getScheduledExecutor().scheduleAtFixedRate(() ->
                     {
                         _session.keepAliveAsync().whenComplete((result, ex) ->
                             {
@@ -1049,7 +1049,7 @@ public class SessionKeeper
             _discoveryStatus.setText("Searching for registries...");
             try
             {
-                new Thread(() ->
+                _coordinator.getExecutor().submit(() ->
                     {
                         synchronized(SessionKeeper.this)
                         {
@@ -1098,7 +1098,7 @@ public class SessionKeeper
                                     });
                             }
                         }
-                    }).start();
+                    });
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
@@ -5135,7 +5135,7 @@ public class SessionKeeper
         //
         // Create the session in its own thread as it made remote calls
         //
-        new Thread(() ->
+        _coordinator.getExecutor().submit(() ->
             {
                 try
                 {
@@ -5188,7 +5188,7 @@ public class SessionKeeper
                         _connectionManagerDialog.setConnectionWizard(null);
                         _connectionManagerDialog.setVisible(false);
                     });
-            }).start();
+            });
     }
 
     public void loginFailed()

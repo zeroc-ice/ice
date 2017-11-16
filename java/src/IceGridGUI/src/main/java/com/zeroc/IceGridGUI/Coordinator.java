@@ -11,6 +11,10 @@ package com.zeroc.IceGridGUI;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import java.util.Enumeration;
@@ -1736,7 +1740,7 @@ public class Coordinator
         if(!info.getDirect())
         {
             final ConnectionCallback cb = new ConnectionCallback();
-            new Thread(() ->
+            getExecutor().submit(() ->
                        {
                            try
                            {
@@ -1863,7 +1867,7 @@ public class Coordinator
                                                           });
                                return;
                            }
-                       }).start();
+                       });
         }
         else
         {
@@ -1917,7 +1921,7 @@ public class Coordinator
                 return;
             }
 
-            new Thread(() ->
+            getExecutor().submit(() ->
                        {
                            synchronized(Coordinator.this)
                            {
@@ -2131,7 +2135,7 @@ public class Coordinator
 
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
-                       }).start();
+                       });
         }
     }
 
@@ -3102,20 +3106,11 @@ public class Coordinator
         _mainPane = new MainPane(this);
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
 
-        java.util.concurrent.ScheduledThreadPoolExecutor executor =
-            new java.util.concurrent.ScheduledThreadPoolExecutor(1,
-                                                                 new java.util.concurrent.ThreadFactory()
-                                                                 {
-                                                                     @Override
-                                                                     public Thread newThread(Runnable r)
-                                                                     {
-                                                                         Thread t = new Thread(r);
-                                                                         t.setName("Pinger");
-                                                                         return t;
-                                                                     }
-                                                                 });
+        ScheduledThreadPoolExecutor executor =
+            new ScheduledThreadPoolExecutor(1, (Runnable r) -> new Thread(r, "Pinger"));
         executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-        _executor = executor;
+        _scheduledExecutor = executor;
+        _executor = Executors.newSingleThreadExecutor((Runnable r) -> new Thread(r));
     }
 
     public IGraphView createGraphView()
@@ -3334,8 +3329,8 @@ public class Coordinator
         destroyIceGridAdmin();
         destroyCommunicator();
 
-        _executor.shutdown();
-        _executor = null;
+        _scheduledExecutor.shutdown();
+        _scheduledExecutor = null;
 
         Runtime.getRuntime().removeShutdownHook(_shutdownHook);
         _mainFrame.dispose();
@@ -3563,7 +3558,12 @@ public class Coordinator
         return _graphViews.toArray(new IGraphView[_graphViews.size()]);
     }
 
-    public java.util.concurrent.ScheduledExecutorService getExecutor()
+    public ScheduledExecutorService getScheduledExecutor()
+    {
+        return _scheduledExecutor;
+    }
+
+    public ExecutorService getExecutor()
     {
         return _executor;
     }
@@ -3839,5 +3839,6 @@ public class Coordinator
 
     private java.util.List<IGraphView> _graphViews = new java.util.ArrayList<>();
 
-    private java.util.concurrent.ScheduledExecutorService _executor;
+    private ScheduledExecutorService _scheduledExecutor;
+    private ExecutorService _executor;
 }

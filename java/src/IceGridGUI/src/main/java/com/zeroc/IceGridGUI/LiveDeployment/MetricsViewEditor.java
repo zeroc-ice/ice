@@ -247,7 +247,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     synchronized static void startRefresh(final MetricsView node)
     {
         assert(_refreshFuture == null);
-        _refreshFuture = node.getCoordinator().getExecutor().scheduleAtFixedRate(() ->
+        _refreshFuture = node.getCoordinator().getScheduledExecutor().scheduleAtFixedRate(() ->
             {
                 node.fetchMetricsView();
             }, 0, _refreshPeriod, java.util.concurrent.TimeUnit.SECONDS);
