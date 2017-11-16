@@ -36,7 +36,7 @@ public class BZip2
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
             //
             data = new byte[buf.size()];
-            buf.b.position(0);
+            buf.position(0);
             buf.b.get(data);
         }
 
@@ -70,7 +70,7 @@ public class BZip2
 
         Buffer r = new Buffer(false);
         r.resize(headerSize + 4 + compressedLen, false);
-        r.b.position(0);
+        r.position(0);
 
         //
         // Copy the header from the uncompressed stream to the compressed one.
@@ -94,7 +94,7 @@ public class BZip2
     {
         assert(supported());
 
-        buf.b.position(headerSize);
+        buf.position(headerSize);
         int uncompressedSize = buf.b.getInt();
         if(uncompressedSize <= headerSize)
         {
@@ -124,7 +124,7 @@ public class BZip2
             // Otherwise, allocate an array to hold a copy of the compressed data.
             //
             compressed = new byte[buf.size()];
-            buf.b.position(0);
+            buf.position(0);
             buf.b.get(compressed);
         }
 
@@ -142,7 +142,7 @@ public class BZip2
                 new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
             java.lang.Object[] args = new java.lang.Object[]{ bais };
             java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
-            r.b.position(headerSize);
+            r.position(headerSize);
             byte[] arr = new byte[8 * 1024];
             int n;
             while((n = is.read(arr)) != -1)
@@ -159,7 +159,7 @@ public class BZip2
         //
         // Copy the header from the compressed stream to the uncompressed one.
         //
-        r.b.position(0);
+        r.position(0);
         r.b.put(compressed, offset, headerSize);
 
         return r;

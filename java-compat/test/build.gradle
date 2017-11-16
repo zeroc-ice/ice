@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+sourceCompatibility = iceSourceCompatibility
+targetCompatibility = iceTargetCompatibility
+
 ext.testDir = "${projectDir}/src/main/java/test"
 apply from: "slice.gradle"
 

@@ -112,7 +112,7 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver
                 if(_readBufferPos == _readBuffer.b.position())
                 {
                     _readBufferPos = 0;
-                    _readBuffer.b.position(0);
+                    _readBuffer.position(0);
                     _transceiver.read(_readBuffer);
                     if(_readBufferPos == _readBuffer.b.position())
                     {
@@ -131,11 +131,11 @@ final class Transceiver implements com.zeroc.IceInternal.Transceiver
                 }
 
                 byte[] arr = new byte[available];
-                _readBuffer.b.position(_readBufferPos);
+                _readBuffer.position(_readBufferPos);
                 _readBuffer.b.get(arr);
                 buf.b.put(arr);
                 _readBufferPos += available;
-                _readBuffer.b.position(pos);
+                _readBuffer.position(pos);
             }
 
             _readyCallback.ready(SocketOperation.Read, _readBufferPos < _readBuffer.b.position());

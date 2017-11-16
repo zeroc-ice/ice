@@ -51,7 +51,7 @@ final class WSTransceiver implements Transceiver
                 // We don't know how much we'll need to read.
                 //
                 _readBuffer.resize(1024, true);
-                _readBuffer.b.position(0);
+                _readBuffer.position(0);
                 _readBufferPos = 0;
 
                 //
@@ -83,9 +83,9 @@ final class WSTransceiver implements Transceiver
                     out.append(_key + "\r\n\r\n"); // EOM
 
                     _writeBuffer.resize(out.length(), false);
-                    _writeBuffer.b.position(0);
+                    _writeBuffer.position(0);
                     _writeBuffer.b.put(out.toString().getBytes(_ascii));
-                    _writeBuffer.b.flip();
+                    _writeBuffer.flip();
                 }
             }
 
@@ -143,7 +143,7 @@ final class WSTransceiver implements Transceiver
                             throw new com.zeroc.Ice.MemoryLimitException();
                         }
                         _readBuffer.resize(oldSize + 1024, true);
-                        _readBuffer.b.position(oldSize);
+                        _readBuffer.position(oldSize);
                         continue; // Try again to read the response/request
                     }
 
@@ -718,9 +718,9 @@ final class WSTransceiver implements Transceiver
         final byte[] bytes = out.toString().getBytes(_ascii);
         assert(bytes.length == out.length());
         responseBuffer.resize(bytes.length, false);
-        responseBuffer.b.position(0);
+        responseBuffer.position(0);
         responseBuffer.b.put(bytes);
-        responseBuffer.b.flip();
+        responseBuffer.flip();
     }
 
     private void handleResponse()
@@ -1121,7 +1121,7 @@ final class WSTransceiver implements Transceiver
                     {
                         System.arraycopy(_readBuffer.b.array(), _readBuffer.b.arrayOffset() + _readBufferPos,
                                         buf.b.array(), buf.b.arrayOffset() + buf.b.position(), n);
-                        buf.b.position(buf.b.position() + n);
+                        buf.position(buf.b.position() + n);
                     }
                     else
                     {
@@ -1212,7 +1212,7 @@ final class WSTransceiver implements Transceiver
                 prepareWriteHeader((byte)OP_PING, 0); // Don't send any payload
 
                 _writeState = WriteStateControlFrame;
-                _writeBuffer.b.flip();
+                _writeBuffer.flip();
             }
             else if(_state == StatePongPending)
             {
@@ -1221,13 +1221,13 @@ final class WSTransceiver implements Transceiver
                 {
                     final int pos = _writeBuffer.b.position();
                     _writeBuffer.resize(pos + _pingPayload.length, false);
-                    _writeBuffer.b.position(pos);
+                    _writeBuffer.position(pos);
                 }
                 _writeBuffer.b.put(_pingPayload);
                 _pingPayload = new byte[0];
 
                 _writeState = WriteStateControlFrame;
-                _writeBuffer.b.flip();
+                _writeBuffer.flip();
             }
             else if((_state == StateClosingRequestPending && !_closingInitiator) ||
                     (_state == StateClosingResponsePending && _closingInitiator))
@@ -1249,7 +1249,7 @@ final class WSTransceiver implements Transceiver
                 }
 
                 _writeState = WriteStateControlFrame;
-                _writeBuffer.b.flip();
+                _writeBuffer.flip();
             }
             else
             {
@@ -1275,7 +1275,7 @@ final class WSTransceiver implements Transceiver
             {
                 if(!_writeBuffer.b.hasRemaining())
                 {
-                    _writeBuffer.b.position(0);
+                    _writeBuffer.position(0);
                 }
 
                 int n = buf.b.position();
@@ -1292,7 +1292,7 @@ final class WSTransceiver implements Transceiver
                     {
                         dest[destOff + pos] = (byte)(src[srcOff + n] ^ _writeMask[n % 4]);
                     }
-                    _writeBuffer.b.position(pos);
+                    _writeBuffer.position(pos);
                 }
                 else
                 {
@@ -1303,7 +1303,7 @@ final class WSTransceiver implements Transceiver
                     }
                 }
                 _writePayloadLength = n;
-                _writeBuffer.b.flip();
+                _writeBuffer.flip();
             }
             else if(_writePayloadLength == 0)
             {
@@ -1315,9 +1315,9 @@ final class WSTransceiver implements Transceiver
                     if(buf.b.remaining() > n)
                     {
                         int limit = buf.b.limit();
-                        buf.b.limit(n);
+                        buf.limit(n);
                         _writeBuffer.b.put(buf.b);
-                        buf.b.limit(limit);
+                        buf.limit(limit);
                         _writePayloadLength = n;
                     }
                     else
@@ -1325,9 +1325,9 @@ final class WSTransceiver implements Transceiver
                         _writePayloadLength = buf.b.remaining();
                         _writeBuffer.b.put(buf.b);
                     }
-                    buf.b.position(0);
+                    buf.position(0);
                 }
-                _writeBuffer.b.flip();
+                _writeBuffer.flip();
             }
             return true;
         }
@@ -1403,7 +1403,7 @@ final class WSTransceiver implements Transceiver
         {
             if(!_writeBuffer.b.hasRemaining())
             {
-                buf.b.position(_writePayloadLength);
+                buf.position(_writePayloadLength);
             }
         }
 
@@ -1440,7 +1440,7 @@ final class WSTransceiver implements Transceiver
         {
             _readBuffer.resize(_readBufferSize, true);
             _readBufferPos = 0;
-            _readBuffer.b.position(0);
+            _readBuffer.position(0);
         }
         else
         {
@@ -1449,14 +1449,14 @@ final class WSTransceiver implements Transceiver
             {
                 if(_readBufferPos > 0)
                 {
-                    _readBuffer.b.limit(_readBuffer.b.position());
-                    _readBuffer.b.position(_readBufferPos);
+                    _readBuffer.limit(_readBuffer.b.position());
+                    _readBuffer.position(_readBufferPos);
                     _readBuffer.b.compact();
                     assert(_readBuffer.b.position() == available);
                 }
                 _readBuffer.resize(Math.max(_readBufferSize, sz), true);
                 _readBufferPos = 0;
-                _readBuffer.b.position(available);
+                _readBuffer.position(available);
             }
         }
 
@@ -1475,8 +1475,8 @@ final class WSTransceiver implements Transceiver
         // We need to prepare the frame header.
         //
         _writeBuffer.resize(_writeBufferSize, false);
-        _writeBuffer.b.limit(_writeBufferSize);
-        _writeBuffer.b.position(0);
+        _writeBuffer.limit(_writeBufferSize);
+        _writeBuffer.position(0);
 
         //
         // Set the opcode - this is the one and only data frame.

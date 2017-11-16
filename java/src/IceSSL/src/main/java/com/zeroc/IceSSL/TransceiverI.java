@@ -111,7 +111,9 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 // Send the close_notify message.
                 //
                 _engine.closeOutbound();
-                _netOutput.b.clear();
+                // Cast to java.nio.Buffer to avoid incompatible covariant
+                // return type used in Java 9 java.nio.ByteBuffer
+                ((java.nio.Buffer)_netOutput.b).clear();
                 while(!_engine.isOutboundDone())
                 {
                     _engine.wrap(_emptyBuffer, _netOutput.b);
@@ -205,7 +207,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         {
             while(buf.b.hasRemaining())
             {
-                _netInput.b.flip();
+                _netInput.flip();
                 SSLEngineResult result = _engine.unwrap(_netInput.b, _appInput);
                 _netInput.b.compact();
 
@@ -235,7 +237,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
             // that the SSLEngine has no buffered data (Android R21 and greater only).
             if(_appInput.position() == 0)
             {
-                _netInput.b.flip();
+                _netInput.flip();
                 _engine.unwrap(_netInput.b, _appInput);
                 _netInput.b.compact();
 
@@ -359,7 +361,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                     // the _netInput buffer to satisfy the engine. If not, the engine
                     // responds with BUFFER_UNDERFLOW and we'll read from the socket.
                     //
-                    _netInput.b.flip();
+                    _netInput.flip();
                     result = _engine.unwrap(_netInput.b, _appInput);
                     _netInput.b.compact();
                     //
@@ -504,7 +506,7 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
 
     private int flushNonBlocking()
     {
-        _netOutput.b.flip();
+        _netOutput.flip();
 
         try
         {
@@ -519,13 +521,15 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
         {
             throw new com.zeroc.Ice.ConnectionLostException(ex);
         }
-        _netOutput.b.clear();
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        ((java.nio.Buffer)_netOutput.b).clear();
         return SocketOperation.None;
     }
 
     private void fill(ByteBuffer buf)
     {
-        _appInput.flip();
+        ((java.nio.Buffer)_appInput).flip();
         if(_appInput.hasRemaining())
         {
             int bytesAvailable = _appInput.remaining();
@@ -541,7 +545,9 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 //
                 byte[] arr = buf.array();
                 _appInput.get(arr, buf.arrayOffset() + buf.position(), bytesAvailable);
-                buf.position(buf.position() + bytesAvailable);
+                // Cast to java.nio.Buffer to avoid incompatible covariant
+                // return type used in Java 9 java.nio.ByteBuffer
+                ((Buffer)buf).position(buf.position() + bytesAvailable);
             }
             else if(_appInput.hasArray())
             {
@@ -550,7 +556,9 @@ final class TransceiverI implements com.zeroc.IceInternal.Transceiver
                 //
                 byte[] arr = _appInput.array();
                 buf.put(arr, _appInput.arrayOffset() + _appInput.position(), bytesAvailable);
-                _appInput.position(_appInput.position() + bytesAvailable);
+                // Cast to java.nio.Buffer to avoid incompatible covariant
+                // return type used in Java 9 java.nio.ByteBuffer
+                ((Buffer)_appInput).position(_appInput.position() + bytesAvailable);
             }
             else
             {

@@ -41,14 +41,14 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         buf.resize(9, false);
         final java.nio.ByteOrder order = buf.b.order();
         buf.b.order(java.nio.ByteOrder.BIG_ENDIAN); // Network byte order.
-        buf.b.position(0);
+        buf.position(0);
         buf.b.put((byte)0x04); // SOCKS version 4.
         buf.b.put((byte)0x01); // Command, establish a TCP/IP stream connection
         buf.b.putShort((short)endpoint.getPort()); // Port
         buf.b.put(addr.getAddress()); // IPv4 address
         buf.b.put((byte)0x00); // User ID.
-        buf.b.position(0);
-        buf.b.limit(buf.size());
+        buf.position(0);
+        buf.limit(buf.size());
         buf.b.order(order);
     }
 
@@ -68,7 +68,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
         if(!buf.b.hasRemaining())
         {
             buf.resize(8, true);
-            buf.b.position(0);
+            buf.position(0);
         }
     }
 
@@ -82,7 +82,7 @@ public final class SOCKSNetworkProxy implements NetworkProxy
     @Override
     public void finish(Buffer readBuffer, Buffer writeBuffer)
     {
-        readBuffer.b.position(0);
+        readBuffer.position(0);
         byte b1 = readBuffer.b.get();
         byte b2 = readBuffer.b.get();
         if(b1 != 0x00 || b2 != 0x5a)

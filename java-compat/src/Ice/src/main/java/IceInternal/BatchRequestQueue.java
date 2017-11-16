@@ -161,7 +161,7 @@ public class BatchRequestQueue
         {
             lastRequest = new byte[_batchStream.size() - _batchMarker];
             Buffer buffer = _batchStream.getBuffer();
-            buffer.b.position(_batchMarker);
+            buffer.position(_batchMarker);
             buffer.b.get(lastRequest);
             _batchStream.resize(_batchMarker);
         }

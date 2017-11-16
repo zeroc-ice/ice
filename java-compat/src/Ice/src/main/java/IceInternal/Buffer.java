@@ -74,6 +74,27 @@ public class Buffer
         }
     }
 
+    public java.nio.Buffer position(int newPosition)
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).position(newPosition);
+    }
+
+    public java.nio.Buffer limit(int newLimit)
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).limit(newLimit);
+    }
+
+    public java.nio.Buffer flip()
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).flip();
+    }
+
     public void swap(Buffer buf)
     {
         final java.nio.ByteBuffer bb = buf.b;
@@ -150,7 +171,7 @@ public class Buffer
         //
         if(reading)
         {
-            b.limit(_size);
+            limit(_size);
         }
     }
 
@@ -177,8 +198,8 @@ public class Buffer
         _size = 0;
         if(b != _emptyBuffer)
         {
-            b.limit(b.capacity());
-            b.position(0);
+            limit(b.capacity());
+            position(0);
         }
     }
 
@@ -218,12 +239,12 @@ public class Buffer
             else
             {
                 final int pos = b.position();
-                b.position(0);
-                b.limit(java.lang.Math.min(_capacity, b.capacity()));
+                position(0);
+                limit(java.lang.Math.min(_capacity, b.capacity()));
                 buf.put(b);
                 b = buf;
-                b.limit(b.capacity());
-                b.position(pos);
+                limit(b.capacity());
+                position(pos);
             }
 
             b.order(_order); // Preserve the original order.

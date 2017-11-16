@@ -76,7 +76,9 @@ public class InputStreamWrapper extends java.io.InputStream
     public void reset()
         throws java.io.IOException
     {
-        _buf.position(_markPos);
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        ((java.nio.Buffer)_buf).position(_markPos);
     }
 
     @Override

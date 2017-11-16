@@ -223,9 +223,11 @@ public class StreamSocket
                 if(_maxSendPacketSize > 0 && buf.remaining() > _maxSendPacketSize)
                 {
                     int previous = buf.limit();
-                    buf.limit(buf.position() + _maxSendPacketSize);
+                    // Cast to java.nio.Buffer to avoid incompatible covariant
+                    // return type used in Java 9 java.nio.ByteBuffer
+                    ((java.nio.Buffer)buf).limit(buf.position() + _maxSendPacketSize);
                     ret = _fd.write(buf);
-                    buf.limit(previous);
+                    ((java.nio.Buffer)buf).limit(previous);
                 }
                 else
                 {

@@ -121,7 +121,7 @@ final class UdpMulticastServerTransceiver implements Transceiver
         {
             Buffer rb = _buffers.removeFirst();
             buf.swap(rb);
-            buf.b.position(buf.b.limit());
+            buf.position(buf.b.limit());
             buf.resize(buf.b.limit(), true);
 
             if(rb.b.hasArray())
@@ -446,7 +446,7 @@ final class UdpMulticastServerTransceiver implements Transceiver
 
                 if(p.getLength() > 0)
                 {
-                    buf.b.limit(p.getLength());
+                    buf.limit(p.getLength());
 
                     synchronized(this)
                     {

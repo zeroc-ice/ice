@@ -168,12 +168,14 @@ final class TransceiverI implements IceInternal.Transceiver
         final int capacity = _sndSize - _writeBuffer.b.position();
         if(capacity > 0)
         {
+            // Cast to java.nio.Buffer to avoid incompatible covariant
+            // return type used in Java 9 java.nio.ByteBuffer
             final int num = Math.min(capacity, buf.b.remaining());
             _writeBuffer.expand(num);
             final int lim = buf.b.limit();       // Save the current limit.
-            buf.b.limit(buf.b.position() + num); // Temporarily change the limit.
+            buf.limit(buf.b.position() + num);   // Temporarily change the limit.
             _writeBuffer.b.put(buf.b);           // Copy to our internal buffer.
-            buf.b.limit(lim);                    // Restore the previous limit.
+            buf.limit(lim);                      // Restore the previous limit.
 
             notifyAll(); // We've added data to the internal buffer, so wake up the write thread.
         }
@@ -209,7 +211,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 //
                 byte[] arr = buf.b.array();
                 _readBuffer.b.get(arr, buf.b.arrayOffset() + buf.b.position(), bytesAvailable);
-                buf.b.position(buf.b.position() + bytesAvailable);
+                buf.position(buf.b.position() + bytesAvailable);
             }
             else if(_readBuffer.b.hasArray())
             {
@@ -507,8 +509,6 @@ final class TransceiverI implements IceInternal.Transceiver
 
             while(true)
             {
-                ByteBuffer b = null;
-
                 synchronized(this)
                 {
                     //
