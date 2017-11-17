@@ -1135,8 +1135,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     struct passwd pwbuf;
                     vector<char> buffer(4096); // 4KB initial buffer
                     struct passwd *pw;
-                    int err = getpwnam_r(newUser.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
-                    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+                    int err;
+                    while((err =  getpwnam_r(newUser.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
+                          buffer.size() < 1024 * 1024) // Limit buffer to 1M
                     {
                         buffer.resize(buffer.size() * 2);
                     }
