@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 ext.testDir = "${projectDir}/src/main/java/test"
 apply from: "slice.gradle"
 
