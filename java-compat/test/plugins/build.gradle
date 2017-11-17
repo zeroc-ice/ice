@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
-
 sourceSets {
     main {
         java {
