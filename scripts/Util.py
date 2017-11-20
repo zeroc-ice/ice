@@ -3311,6 +3311,11 @@ class MatlabMapping(CppBasedClientMapping):
     def getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
 
+    def getOptions(self, current):
+        options = CppBasedClientMapping.getOptions(self, current)
+        options["mx"] = [False]
+        return options
+
 class JavaScriptMapping(Mapping):
 
     class Config(Mapping.Config):
