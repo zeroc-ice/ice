@@ -140,6 +140,14 @@ class Platform:
         return False
 
     def canRun(self, mapping, current):
+        #
+        # MATALB cannot run this test because IceSSL::EndpointInfo doesn't
+        # work with matlab see ICE-8571
+        #
+        if (isinstance(mapping, MatlabMapping) and
+            current.config.protocol in ["ssl", "wss"] and
+            current.testcase.getTestSuite().getId() == "Ice/info"):
+            return False
         return True
 
 class Darwin(Platform):
@@ -233,7 +241,7 @@ class Linux(Platform):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceStorm", "IceGrid"]:
                 return False
-        return True
+        return Platform.canRun(self, mapping, current)
 
 class Windows(Platform):
 
@@ -389,7 +397,7 @@ class Windows(Platform):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
-        return True
+        return Platform.canRun(self, mapping, current)
 
 platform = None
 if sys.platform == "darwin":
