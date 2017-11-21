@@ -606,7 +606,7 @@ checkKeyword(string& id)
 int checkIdentifier(string& id)
 {
     // check whether the identifier is scoped
-    int scopeIndex = id.rfind("::");
+    size_t scopeIndex = id.rfind("::");
     bool isScoped = scopeIndex != string::npos;
     string name;
     if(isScoped)
@@ -629,7 +629,7 @@ int checkIdentifier(string& id)
     }
 
     // check the identifier for illegal underscores
-    int index = name.find('_');
+    size_t index = name.find('_');
     if(index == 0)
     {
         unit->error("illegal leading underscore in identifier `" + name + "'");
