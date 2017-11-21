@@ -305,7 +305,7 @@ public:
         string host = getTestHost(communicator()->getProperties());
         _initData.properties = Ice::createProperties(argc, argv, communicator()->getProperties());
         _initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" +
-                                          getTestEndpoint(communicator(), 10));
+                                          getTestEndpoint(communicator(), 50));
 
         DispatcherPtr dispatcher = new Dispatcher();
         dispatcher->start();
@@ -370,7 +370,7 @@ public:
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
             cout << "testing SessionHelper connect... " << flush;
             _factory->setRouterHost(host);
-            _factory->setPort(getTestPort(_initData.properties, 10));
+            _factory->setPort(getTestPort(_initData.properties, 50));
             _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
 
@@ -469,7 +469,7 @@ public:
             {
                 cout << "testing stringToProxy for process object... " << flush;
                 processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                            getTestEndpoint(communicator(), 11));
+                                                            getTestEndpoint(communicator(), 51));
                 cout << "ok" << endl;
             }
 
@@ -507,7 +507,7 @@ public:
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
             cout << "testing SessionHelper connect after router shutdown... " << flush;
             _factory->setRouterHost(host);
-            _factory->setPort(getTestPort(_initData.properties, 10));
+            _factory->setPort(getTestPort(_initData.properties, 50));
             _factory->setProtocol(protocol);
             _session = _factory->connect("userid", "abc123");
 

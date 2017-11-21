@@ -37,7 +37,7 @@ public class Client extends test.Util.Application
         com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         _initData = initData;
         _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
-                                         getTestEndpoint(_initData.properties, 10));
+                                         getTestEndpoint(_initData.properties, 50));
         _initData.dispatcher =
             (Runnable runnable, com.zeroc.Ice.Connection c) -> {  _workQueue.submit(runnable); };
 
@@ -238,7 +238,7 @@ public class Client extends test.Util.Application
             out.print("testing SessionHelper connect... ");
             out.flush();
             _factory.setRouterHost(host);
-            _factory.setPort(getTestPort(10));
+            _factory.setPort(getTestPort(50));
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
             while(true)
@@ -358,7 +358,7 @@ public class Client extends test.Util.Application
             com.zeroc.Ice.ObjectPrx processBase;
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
                 out.println("ok");
             }
 
@@ -447,7 +447,7 @@ public class Client extends test.Util.Application
             out.flush();
 
             _factory.setRouterHost(host);
-            _factory.setPort(getTestPort(10));
+            _factory.setPort(getTestPort(50));
             _factory.setProtocol(protocol);
             _session = _factory.connect("userid", "abc123");
             while(true)

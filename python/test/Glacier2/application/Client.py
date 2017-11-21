@@ -79,7 +79,7 @@ class Application(Glacier2.Application):
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12020")
+    initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12060")
 
     app = Application()
     status = app.main(sys.argv, initData=initData)
@@ -89,7 +89,7 @@ try:
     with Ice.initialize(initData) as communicator:
         sys.stdout.write("testing stringToProxy for process object... ")
         sys.stdout.flush()
-        processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12021");
+        processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
         print("ok")
 
         sys.stdout.write("testing checked cast for admin object... ")

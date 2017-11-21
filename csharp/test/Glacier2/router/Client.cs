@@ -26,7 +26,7 @@ public class Client : TestCommon.Application
         {
             Console.Out.Write("testing stringToProxy for router... ");
             Console.Out.Flush();
-            routerBase = communicator().stringToProxy("Glacier2/router:" + getTestEndpoint(10));
+            routerBase = communicator().stringToProxy("Glacier2/router:" + getTestEndpoint(50));
             Console.Out.WriteLine("ok");
         }
 
@@ -43,7 +43,7 @@ public class Client : TestCommon.Application
             Console.Out.Write("testing router finder... ");
             Console.Out.Flush();
             Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
-                communicator().stringToProxy("Ice/RouterFinder:" + getTestEndpoint(10)));
+                communicator().stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
             test(finder.getRouter().ice_getIdentity().Equals(router.ice_getIdentity()));
             Console.Out.WriteLine("ok");
         }
@@ -385,7 +385,7 @@ public class Client : TestCommon.Application
 
             {
                 Console.Out.Write("testing stringToProxy for admin object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(11));
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
                 Console.Out.WriteLine("ok");
             }
 

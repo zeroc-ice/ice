@@ -150,14 +150,14 @@ public class Client extends test.Util.Application
         Application app = new Application();
 
         _initData.properties.setProperty("Ice.Default.Router",
-                                         "Glacier2/router:" + getTestEndpoint(_initData.properties, 10));
+                                         "Glacier2/router:" + getTestEndpoint(_initData.properties, 50));
 
         int status = app.main("Client", args, _initData);
 
         out.print("testing stringToProxy for process object... ");
         out.flush();
         Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
-                                                               getTestEndpoint(communicator().getProperties(), 11));
+                                                               getTestEndpoint(communicator().getProperties(), 51));
         out.println("ok");
 
         out.print("testing checked cast for admin object... ");

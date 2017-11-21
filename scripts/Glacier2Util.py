@@ -12,7 +12,7 @@ from Util import *
 
 class Glacier2Router(ProcessFromBinDir, Server):
 
-    def __init__(self, portnum=10, passwords={"userid": "abc123"}, *args, **kargs):
+    def __init__(self, portnum=50, passwords={"userid": "abc123"}, *args, **kargs):
         Server.__init__(self, "glacier2router", mapping=Mapping.getByName("cpp"), desc="Glacier2 router",
                         readyCount=2, *args, **kargs)
         self.portnum = portnum

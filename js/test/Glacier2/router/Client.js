@@ -63,7 +63,7 @@
     async function allTests(out, communicator)
     {
         out.write("testing stringToProxy for router... ");
-        let routerBase = communicator.stringToProxy("Glacier2/router:default -p 12020");
+        let routerBase = communicator.stringToProxy("Glacier2/router:default -p 12060");
         test(routerBase !== null);
         out.writeLine("ok");
 
@@ -282,7 +282,7 @@
             out.writeLine("ok");
 
             out.write("testing stringToProxy for process object... ");
-            processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12021");
+            processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
             out.writeLine("ok");
 
             out.write("testing checked cast for admin object... ");
