@@ -10,6 +10,17 @@ function runTest(varargin)
 
     testdir = varargin{1};
     varargin(1) = []; % Removes first argument.
+    libsubdir = varargin{1};
+    varargin(1) = []; % Removes second argument
+
+    if ~strcmp(getenv('ICE_BIN_DIST'), 'all')
+        rootDir = fileparts(mfilename('fullpath'));
+        rootDir = fullfile(rootDir, '..', '..');
+        addpath(fullfile(rootDir, 'lib'));
+        addpath(fullfile(rootDir, 'lib', 'generated'));
+        addpath(fullfile(rootDir, 'lib', libsubdir));
+        addpath(fullfile(rootDir, 'test', 'lib'));
+    end
 
     cd(testdir);
 

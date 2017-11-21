@@ -3304,14 +3304,20 @@ class MatlabMapping(CppBasedClientMapping):
         mappingDesc = "MATLAB"
 
     def getCommandLineWithArgs(self, current, process, exe, args):
-        dir = self.getTestCwd(process, current)
-        scriptdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib"))
-        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '" + scriptdir + "';runTest " + dir + " " + args + "\""
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2} {3}\"".format(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
+            self.getTestCwd(process, current),
+            os.path.join(current.config.buildPlatform, current.config.buildConfig),
+            args)
 
     def getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
 
     def getOptions(self, current):
+        #
+        # Metrics tests configuration not supported with MATLAB
+        # they use the Admin adapter.
+        #
         options = CppBasedClientMapping.getOptions(self, current)
         options["mx"] = [False]
         return options

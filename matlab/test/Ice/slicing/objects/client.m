@@ -11,7 +11,6 @@ ICE_LICENSE file included in this distribution.
 
 function client(args)
     addpath('generated');
-    addpath('../../../lib');
     if ~libisloaded('ice')
         loadlibrary('ice', @iceproto)
     end
