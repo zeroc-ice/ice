@@ -215,7 +215,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         obj->ice_ping();
-        to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
+        to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
         test(connection == to->ice_getConnection());
         try
         {
@@ -258,7 +258,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
 #ifdef ICE_CPP11_MAPPING
         auto f = to->sleepAsync(100);
         try

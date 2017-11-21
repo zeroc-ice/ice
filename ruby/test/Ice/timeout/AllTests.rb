@@ -103,7 +103,7 @@ def allTests(communicator)
     end
     obj.ice_ping();
 
-    to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
     test(connection == to.ice_getConnection())
     begin
         to.sleep(100)

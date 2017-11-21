@@ -148,7 +148,7 @@ def allTests(communicator):
     except Ice.InvocationTimeoutException:
         pass
     obj.ice_ping()
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
     test(connection == to.ice_getConnection())
     try:
         to.sleep(100)
@@ -167,7 +167,7 @@ def allTests(communicator):
     # #
     # # Expect success.
     # #
-    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    # to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
     # cb = new Callback()
     # to.begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback.response, &Callback.exception))
     # cb.check()

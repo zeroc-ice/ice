@@ -170,7 +170,7 @@ public class AllTests : TestCommon.AllTests
             {
             }
             obj.ice_ping();
-            to = Test.TimeoutPrxHelper.checkedCast(obj.ice_invocationTimeout(500));
+            to = Test.TimeoutPrxHelper.checkedCast(obj.ice_invocationTimeout(1000));
             test(connection == to.ice_getConnection());
             try
             {
@@ -205,7 +205,7 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(1000));
             Callback cb = new Callback();
             to.begin_sleep(100).whenCompleted(
                 () =>

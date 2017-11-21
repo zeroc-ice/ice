@@ -146,7 +146,7 @@
                 test(ex instanceof Ice.InvocationTimeoutException, ex);
             }
             await obj.ice_ping();
-            to = await Test.TimeoutPrx.checkedCast(obj.ice_invocationTimeout(500));
+            to = await Test.TimeoutPrx.checkedCast(obj.ice_invocationTimeout(1000));
             test(connection === await obj.ice_getConnection());
 
             try
