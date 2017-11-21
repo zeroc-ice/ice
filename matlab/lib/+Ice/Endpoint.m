@@ -56,24 +56,21 @@ classdef Endpoint < IceInternal.WrapperObject
                 r = Ice.OpaqueEndpointInfo(info.type, underlying, info.timeout, info.compress, info.rawEncoding, ...
                                            info.rawBytes);
             else
-                switch info.type
+                switch info.infoType
                     case Ice.TCPEndpointType.value
-                        r = Ice.TCPEndpointInfo(underlying, info.timeout, info.compress, info.host, info.port, ...
-                                                info.sourceAddress);
+                        r = Ice.TCPEndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress, ...
+                                                info.host, info.port, info.sourceAddress);
 
                     case Ice.SSLEndpointType.value
-                        r = Ice.IPEndpointInfo(info.type, info.datagram, info.secure, underlying, info.timeout, ...
-                                               info.compress, info.host, info.port, info.sourceAddress);
+                        r = IceSSL.EndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress);
 
                     case Ice.UDPEndpointType.value
-                        r = Ice.UDPEndpointInfo(underlying, info.timeout,  info.compress, info.host, info.port, ...
-                                                info.sourceAddress, info.mcastInterface, info.mcastTtl);
+                        r = Ice.UDPEndpointInfo(info.type, underlying, info.timeout,  info.compress, info.host, ...
+                                                info.port, info.sourceAddress, info.mcastInterface, info.mcastTtl);
 
-                    case Ice.WSEndpointType.value
-                        r = Ice.WSEndpointInfo(info.secure, underlying, info.timeout,  info.compress, info.resource);
-
-                    case Ice.WSSEndpointType.value
-                        r = Ice.WSEndpointInfo(info.secure, underlying, info.timeout,  info.compress, info.resource);
+                    case {Ice.WSEndpointType.value, Ice.WSSEndpointType.value}
+                        r = Ice.WSEndpointInfo(info.type, info.secure, underlying, info.timeout,  info.compress, ...
+                                               info.resource);
 
                     otherwise
                         r = Ice.EndpointInfo(info.type, info.datagram, info.secure, underlying, info.timeout, ...

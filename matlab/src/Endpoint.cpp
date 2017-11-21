@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceSSL/IceSSL.h>
 #include "ice.h"
 #include "Util.h"
 
@@ -20,6 +21,7 @@ namespace
 enum Field
 {
     Type = 0,
+    InfoType,
     Datagram,
     Secure,
     Underlying,
@@ -39,6 +41,7 @@ enum Field
 static const char* infoFields[] =
 {
     "type",
+    "infoType",
     "datagram",
     "secure",
     "underlying",
@@ -64,7 +67,7 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
 
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, Field::NumFields, infoFields);
-    mxSetFieldByNumber(r, 0, Field::Type, createInt(info->type())); // May be overridden below.
+    mxSetFieldByNumber(r, 0, Field::Type, createInt(info->type()));
     mxSetFieldByNumber(r, 0, Field::Datagram, createBool(info->datagram()));
     mxSetFieldByNumber(r, 0, Field::Secure, createBool(info->secure()));
     mxSetFieldByNumber(r, 0, Field::Timeout, createInt(info->timeout));
@@ -82,7 +85,7 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
     // to use type casts instead.
     //
 
-    shared_ptr<Ice::IPEndpointInfo> ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(info);
+    auto ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(info);
     if(ipInfo)
     {
         mxSetFieldByNumber(r, 0, Field::Host, createStringFromUTF8(ipInfo->host));
@@ -90,7 +93,7 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
         mxSetFieldByNumber(r, 0, Field::SourceAddress, createStringFromUTF8(ipInfo->sourceAddress));
     }
 
-    shared_ptr<Ice::OpaqueEndpointInfo> opaqueInfo = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(info);
+    auto opaqueInfo = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(info);
     if(opaqueInfo)
     {
         mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
@@ -98,31 +101,30 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
         mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
     }
 
-    shared_ptr<Ice::UDPEndpointInfo> udpInfo = dynamic_pointer_cast<Ice::UDPEndpointInfo>(info);
+    auto udpInfo = dynamic_pointer_cast<Ice::UDPEndpointInfo>(info);
     if(udpInfo)
     {
-        mxSetFieldByNumber(r, 0, Field::Type, createInt(Ice::UDPEndpointType));
+        mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::UDPEndpointType));
         mxSetFieldByNumber(r, 0, Field::McastInterface, createStringFromUTF8(udpInfo->mcastInterface));
         mxSetFieldByNumber(r, 0, Field::McastTtl, createInt(udpInfo->mcastTtl));
     }
 
     if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(info))
     {
-        mxSetFieldByNumber(r, 0, Field::Type, createInt(Ice::TCPEndpointType));
+        mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::TCPEndpointType));
     }
 
-    shared_ptr<Ice::WSEndpointInfo> wsInfo = dynamic_pointer_cast<Ice::WSEndpointInfo>(info);
+    auto wsInfo = dynamic_pointer_cast<Ice::WSEndpointInfo>(info);
     if(wsInfo)
     {
+        mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::WSEndpointType));
         mxSetFieldByNumber(r, 0, Field::Resource, createStringFromUTF8(wsInfo->resource));
     }
 
-    /* TODO: If we link with IceSSL
     if(dynamic_pointer_cast<IceSSL::EndpointInfo>(info))
     {
-        mxSetFieldByNumber(r, 0, Field::Type, createInt(Ice::SSLEndpointType));
+        mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::SSLEndpointType));
     }
-    */
 
     return r;
 }

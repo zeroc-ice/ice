@@ -6,7 +6,7 @@ classdef TCPEndpointInfo < Ice.IPEndpointInfo
     % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = TCPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress)
+        function obj = TCPEndpointInfo(type, secure, underlying, timeout, compress, host, port, sourceAddress)
             if nargin == 0
                 underlying = [];
                 timeout = 0;
@@ -15,8 +15,7 @@ classdef TCPEndpointInfo < Ice.IPEndpointInfo
                 port = 0;
                 sourceAddress = '';
             end
-            obj = obj@Ice.IPEndpointInfo(Ice.TCPEndpointType.value, false, false, underlying, timeout, ...
-                                         compress, host, port, sourceAddress);
+            obj = obj@Ice.IPEndpointInfo(type, false, secure, underlying, timeout, compress, host, port, sourceAddress);
         end
     end
 end

@@ -140,14 +140,6 @@ class Platform:
         return False
 
     def canRun(self, mapping, current):
-        #
-        # MATALB cannot run this test because IceSSL::EndpointInfo doesn't
-        # work with matlab see ICE-8571
-        #
-        if (isinstance(mapping, MatlabMapping) and
-            current.config.protocol in ["ssl", "wss"] and
-            current.testcase.getTestSuite().getId() == "Ice/info"):
-            return False
         return True
 
 class Darwin(Platform):

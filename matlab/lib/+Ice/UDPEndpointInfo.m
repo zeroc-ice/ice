@@ -10,8 +10,8 @@ classdef UDPEndpointInfo < Ice.IPEndpointInfo
     % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = UDPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress, mcastInterface, ...
-                                       mcastTtl)
+        function obj = UDPEndpointInfo(type, underlying, timeout, compress, host, port, sourceAddress, ...
+                                       mcastInterface, mcastTtl)
             if nargin == 0
                 underlying = [];
                 timeout = 0;
@@ -22,8 +22,7 @@ classdef UDPEndpointInfo < Ice.IPEndpointInfo
                 mcastInterface = '';
                 mcastTtl = 0;
             end
-            obj = obj@Ice.IPEndpointInfo(Ice.UDPEndpointType.value, true, false, underlying, timeout, ...
-                                         compress, host, port, sourceAddress);
+            obj = obj@Ice.IPEndpointInfo(type, true, false, underlying, timeout, compress, host, port, sourceAddress);
             obj.mcastInterface = mcastInterface;
             obj.mcastTtl = mcastTtl;
         end

@@ -9,14 +9,14 @@ classdef WSEndpointInfo < Ice.EndpointInfo
     % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = WSEndpointInfo(secure, underlying, timeout, compress, resource)
+        function obj = WSEndpointInfo(type, secure, underlying, timeout, compress, resource)
             if nargin == 0
                 underlying = [];
                 timeout = 0;
                 compress = false;
                 resource = '';
             end
-            obj = obj@Ice.EndpointInfo(Ice.WSEndpointType.value, false, secure, underlying, timeout, compress);
+            obj = obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
             obj.resource = resource;
         end
     end
