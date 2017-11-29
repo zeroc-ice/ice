@@ -4,6 +4,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main'
     packages:
     - g++-5
     - gcc-5
@@ -15,6 +16,7 @@ addons:
     - libdbus-glib-1-dev
     - libbluetooth-dev
     - oracle-java8-installer
+    - dotnet-sdk-2.0.3
 
 env:
   global:
