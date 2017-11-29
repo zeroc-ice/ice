@@ -130,7 +130,7 @@ namespace IceInternal
             {
                 Console.Error.WriteLine("warning: found bzip2.dll but entry point BZ2_bzlibVersion is missing.");
             }
-            catch(BadImageFormatException)
+            catch(BadImageFormatException ex)
             {
                 string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "bzip2.so";
                 if(!String.IsNullOrEmpty(ex.FileName))
