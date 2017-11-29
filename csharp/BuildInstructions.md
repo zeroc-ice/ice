@@ -11,12 +11,10 @@ for the supported platforms.
 Ice for .NET was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][2].
 
-The build requires the [Ice Builder for Visual Studio][3]. You must install
-version 4.3.6 or greater to build Ice.
+The Visual Studio build requires the [Ice Builder for Visual Studio][3]. You must
+install version 4.3.6 or greater to build Ice.
 
-## Compiling Ice for .NET with Visual Studio
-
-### Building Ice for .NET
+## Compiling Ice for .NET with Visual Studio on Windows
 
 Open a Visual Studio command prompt and change to the `csharp` subdirectory:
 
@@ -26,7 +24,8 @@ To build the Ice assemblies, services and tests, run
 
     msbuild msbuild\ice.proj
 
-Upon completion, the Ice assemblies are placed in the `Assemblies` subdirectory.
+Upon completion, the Ice assemblies from .NET 4.5 and .NET Standard 2.0 are
+placed in the `lib\net45` and `lib\netstandard2.0` directories respectively.
 
 You can add Strong Naming signatures to Ice assemblies by setting the following
 environment variables:
@@ -53,38 +52,48 @@ environment variables:
 If you want to build the test suite without building the entire source base, use
 this command:
 
-    msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+```
+msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+```
 
 The build will automatically install ZeroC's official Ice binary NuGet packages
 if necessary.
 
-## Running the .NET Tests
+## Compiling Ice for .NET on Linux and MacOS
+
+```
+cd csharp
+dotnet msbuild msbuild\ice.proj
+```
+
+Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in
+`lib\netstandard2.0`.
+
+## Running the Tests
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
 
-    > pip install passlib
+```
+pip install passlib
+```
 
 To run the tests, open a command window and change to the top-level directory.
 At the command prompt, execute:
 
-    > python allTests.py
+```
+python allTests.py
+```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-## Targeting Managed Code
+On Windows to run the tests with .NET Standard 2.0 instead of .NET 4.5 pass the
+`--framework netcoreapp2.0` argument to `allTest.py`.
 
-Ice invokes unmanaged code to implement the following features:
-
-- Protocol compression
-- Signal processing in the Ice.Application class
-
-if you do not require these features and prefer that the Ice run time use only
-managed code, you can build using the `Debug-Managed` or `Release-Managed`
-configurations:
-
-    msbuild msbuild\ice.proj /p:Configuration=Release-Managed
+```
+python allTests.py --framework netcoreapp2.0
+```
 
 ## NuGet packages
 

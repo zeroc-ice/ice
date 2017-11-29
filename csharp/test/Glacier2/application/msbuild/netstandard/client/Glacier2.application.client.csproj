@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../../../../../../msbuild/ice.common.props" />
+    <PropertyGroup>
+        <AssemblyName>client</AssemblyName>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="../../../../../TestCommon/TestApp.cs" />
+        <Compile Include="../../../CallbackI.cs" />
+        <Compile Include="../../../Client.cs" />
+        <Slice Include="../../../Callback.ice" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(ICE_BIN_DIST)' == ''">
+        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../../lib/netstandard2.0/Glacier2.dll" />
+    </ItemGroup>
+    <Import Project="../../../../../../msbuild/zeroc.ice.net.targets" />
+</Project>

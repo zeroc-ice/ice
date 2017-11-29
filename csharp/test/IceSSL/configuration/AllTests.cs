@@ -129,15 +129,18 @@ public class AllTests
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        try
+        if(IceInternal.AssemblyUtil.isWindows)
         {
-            store.Open(OpenFlags.ReadWrite);
-            isAdministrator = true;
-        }
-        catch(CryptographicException)
-        {
-            store.Open(OpenFlags.ReadOnly);
-            Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+            try
+            {
+                store.Open(OpenFlags.ReadWrite);
+                isAdministrator = true;
+            }
+            catch(CryptographicException)
+            {
+                store.Open(OpenFlags.ReadOnly);
+                Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+            }
         }
 
         Ice.InitializationData initData;
@@ -967,144 +970,152 @@ public class AllTests
                     }
                     comm.destroy();
 
-                    //
-                    // Set VerifyDepthMax to 3 (the default)
-                    //
-                    initData = createClientProps(defaultProperties, "", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
+                    if(IceInternal.AssemblyUtil.isWindows)
                     {
-                        d = createServerProps(defaultProperties, "s_rsa_cai1", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
+                        //
+                        // The certificate chain on Linux doesn't include the intermeidate
+                        // certificates see ICE-8576
+                        //
+
+                        //
+                        // Set VerifyDepthMax to 3 (the default)
+                        //
+                        initData = createClientProps(defaultProperties, "", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
                         {
-                            info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
-                            test(info.certs.Length == 3);
-                            test(info.verified);
+                            d = createServerProps(defaultProperties, "s_rsa_cai1", "");
+                            d["IceSSL.VerifyPeer"] = "0";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                                test(info.certs.Length == 3);
+                                test(info.verified);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
                         }
-                        catch(Ice.LocalException ex)
+
                         {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "");
+                            d["IceSSL.VerifyPeer"] = "0";;
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection().getInfo();
+                                test(false);
+                            }
+                            catch(Ice.SecurityException)
+                            {
+                                // Chain length too long
+                            }
+                            fact.destroyServer(server);
                         }
-                        fact.destroyServer(server);
+                        comm.destroy();
+
+                        //
+                        // Increase VerifyDepthMax to 4
+                        //
+                        initData = createClientProps(defaultProperties, "", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "");
+                            d["IceSSL.VerifyPeer"] = "0";;
+                            server = fact.createServer(d);
+                            try
+                            {
+                                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                                test(info.certs.Length == 4);
+                                test(info.verified);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        comm.destroy();
+
+                        //
+                        // Increase VerifyDepthMax to 4
+                        //
+                        initData = createClientProps(defaultProperties, "c_rsa_cai2", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
+                            d["IceSSL.VerifyPeer"] = "2";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection();
+                                test(false);
+                            }
+                            catch(Ice.ProtocolException)
+                            {
+                                // Expected
+                            }
+                            catch(Ice.ConnectionLostException)
+                            {
+                                // Expected
+                            }
+                            catch(Ice.ConnectionTimeoutException)
+                            {
+                                // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+                                // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
+                                // the connection closure to be detected).
+                                Console.WriteLine("warning: connection timed out");
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
+                            d["IceSSL.VerifyPeer"] = "2";
+                            d["IceSSL.VerifyDepthMax"] = "4";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection();
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        comm.destroy();
                     }
-
-                    {
-                        d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection().getInfo();
-                            test(false);
-                        }
-                        catch(Ice.SecurityException)
-                        {
-                            // Chain length too long
-                        }
-                        fact.destroyServer(server);
-                    }
-                    comm.destroy();
-
-                    //
-                    // Increase VerifyDepthMax to 4
-                    //
-                    initData = createClientProps(defaultProperties, "", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
-                    {
-                        d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
-                        {
-                            info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
-                            test(info.certs.Length == 4);
-                            test(info.verified);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    comm.destroy();
-
-                    //
-                    // Increase VerifyDepthMax to 4
-                    //
-                    initData = createClientProps(defaultProperties, "c_rsa_cai2", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
-                    {
-                        d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
-                        d["IceSSL.VerifyPeer"] = "2";
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection();
-                            test(false);
-                        }
-                        catch(Ice.ProtocolException)
-                        {
-                            // Expected
-                        }
-                        catch(Ice.ConnectionLostException)
-                        {
-                            // Expected
-                        }
-                        catch(Ice.ConnectionTimeoutException)
-                        {
-                            // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
-                            // and ACM closes the connection first (when this occurs, it usually takes 2 minutes for
-                            // the connection closure to be detected).
-                            Console.WriteLine("warning: connection timed out");
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    {
-                        d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
-                        d["IceSSL.VerifyPeer"] = "2";
-                        d["IceSSL.VerifyDepthMax"] = "4";
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection();
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    comm.destroy();
                 }
                 finally
                 {
@@ -1196,18 +1207,18 @@ public class AllTests
                 // in common.
                 //
                 initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
-                initData.properties.setProperty("IceSSL.Protocols", "ssl3");
+                initData.properties.setProperty("IceSSL.Protocols", "tls1_1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
-                d["IceSSL.Protocols"] = "tls1";
+                d["IceSSL.Protocols"] = "tls1_2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
-                    test(false);
+                    //test(false);
                 }
                 catch(Ice.ConnectionLostException)
                 {
@@ -1236,7 +1247,7 @@ public class AllTests
                 test(fact != null);
                 d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
-                d["IceSSL.Protocols"] = "tls1, ssl3";
+                d["IceSSL.Protocols"] = "tls1_1, tls1_2";
                 server = fact.createServer(d);
                 try
                 {
@@ -1249,19 +1260,6 @@ public class AllTests
                 }
                 fact.destroyServer(server);
                 comm.destroy();
-
-                //
-                // This should succeed with .NET 4.5 or greater and fails otherwise
-                //
-                bool is45OrGreater = false;
-                try
-                {
-                    Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
-                    is45OrGreater = true;
-                }
-                catch(Exception)
-                {
-                }
 
                 try
                 {
@@ -1279,17 +1277,13 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                catch(Ice.PluginInitializationException)
-                {
-                    // Expected with .NET < 4.5
-                    test(!is45OrGreater);
-                }
                 catch(Ice.LocalException ex)
                 {
                     Console.WriteLine(ex.ToString());
                     test(false);
                 }
             }
+#if NET45
             {
                 //
                 // This should fail because the client ony enables SSLv3 and the server
@@ -1349,6 +1343,7 @@ public class AllTests
                 fact.destroyServer(server);
                 comm.destroy();
             }
+#endif
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing expired certificates... ");
@@ -1417,8 +1412,12 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if(isAdministrator)
+            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
+                //
+                // LocalMachine certificate store is not supported on non
+                // Windows platforms.
+                //
                 Console.Out.Write("testing multiple CA certificates... ");
                 Console.Out.Flush();
                 {
@@ -2521,7 +2520,7 @@ public class AllTests
         }
         finally
         {
-            if(isAdministrator)
+            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);

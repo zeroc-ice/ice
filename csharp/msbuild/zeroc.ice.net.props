@@ -7,8 +7,13 @@
         <IceVersionMM>3.7</IceVersionMM>
         <IceSoVersion>37</IceSoVersion>
         <IceNugetPackageVersion>3.7.0</IceNugetPackageVersion>
-        <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
+        <IceHome Condition="'$(IceHome)' == ''">$(ICE_HOME)</IceHome>
+        <IceHome Condition="'$(IceHome)' == ''">$(MSBuildThisFileDirectory)..</IceHome>
         <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
-    </PropertyGroup>
+        <SliceCompiler Condition="Exists('$(IceHome)\bin\slice2cs')">$(IceHome)\bin\slice2cs</SliceCompiler>
+        <SliceCompiler Condition="Exists('$(IceHome)\bin\slice2cs.exe')">$(IceHome)\bin\slice2cs.exe</SliceCompiler>
+        <SliceCompiler Condition="Exists('$(IceHome)\tools\slice2cs.exe')">$(IceHome)\tools\slice2cs.exe</SliceCompiler>
+        <SliceDir>$(MSBuildThisFileDirectory)..</SliceDir>
+     </PropertyGroup>
 </Project>

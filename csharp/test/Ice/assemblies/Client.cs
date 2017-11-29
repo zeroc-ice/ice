@@ -40,13 +40,19 @@ public class Client
             id.properties = Ice.Util.createProperties();
             id.properties.setProperty("Ice.PreloadAssemblies", "0");
             Ice.Communicator ic = Ice.Util.initialize(id);
-            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(
-                (e) => e.CodeBase.EndsWith("msbuild/client/Core.DLL")) == null);
+            test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
+                    {
+                        return e.CodeBase.EndsWith("msbuild/client/Core.DLL") ||
+                               e.CodeBase.EndsWith("netcoreapp2.0/core.dll");
+                    }) == null);
             ic.destroy();
             id.properties.setProperty("Ice.PreloadAssemblies", "1");
             ic = Ice.Util.initialize(id);
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
-                e.CodeBase.EndsWith("msbuild/client/Core.DLL")) != null);
+                    {
+                        return e.CodeBase.EndsWith("msbuild/client/Core.DLL") ||
+                               e.CodeBase.EndsWith("netcoreapp2.0/core.dll");
+                    }) != null);
             Console.Out.WriteLine("ok");
         }
         catch(Exception ex)

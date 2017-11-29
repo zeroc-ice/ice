@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../../../../../../msbuild/ice.common.props" />
+    <PropertyGroup>
+        <AssemblyName>server</AssemblyName>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="../../../../../TestCommon/TestApp.cs" />
+        <Compile Include="../../../MyDerivedClassI.cs" />
+        <Compile Include="../../../Server.cs" />
+        <Slice Include="../../../Test.ice" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(ICE_BIN_DIST)' == ''">
+        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+    </ItemGroup>
+    <Import Project="../../../../../../msbuild/zeroc.ice.net.targets" />
+</Project>

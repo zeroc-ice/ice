@@ -400,14 +400,17 @@ namespace IceInternal
             Debug.Assert(_fd != null);
 
             int packetSize = buf.remaining();
-            //
-            // On Windows, limiting the buffer size is important to prevent
-            // poor throughput performances when transfering large amount of
-            // data. See Microsoft KB article KB823764.
-            //
-            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
+            if(AssemblyUtil.isWindows)
             {
-                packetSize = _maxSendPacketSize / 2;
+                //
+                // On Windows, limiting the buffer size is important to prevent
+                // poor throughput performances when transfering large amount of
+                // data. See Microsoft KB article KB823764.
+                //
+                if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
+                {
+                    packetSize = _maxSendPacketSize / 2;
+                }
             }
 
             int sent = 0;

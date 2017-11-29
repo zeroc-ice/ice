@@ -228,12 +228,13 @@ class IceGridTestCase(TestCase):
             variables = {
                 "test.dir" : self.getPath(),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
+                "dotnet.exe" : platform.getDotnetExe(),
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
                 "glacier2router.exe" : Glacier2Router().getCommandLine(current),
                 "icepatch2server.exe" : IcePatch2Server().getCommandLine(current),
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
-                "properties-override" : self.icegridnode[0].getPropertiesOverride(current)
+                "properties-override" : self.icegridnode[0].getPropertiesOverride(current),
             }
 
             # Add variables that point to the directories containing the built executables
@@ -243,7 +244,10 @@ class IceGridTestCase(TestCase):
             variables.update(self.variables)
             varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
             targets = " ".join(self.targets)
-            self.runadmin(current, "application add -n {0} {1} {2}".format(self.application, varStr, targets))
+            framework = current.config.framework
+            self.runadmin(current, "application add -n {0} {1} {2}".format(
+                self.application.replace(".xml", ".{0}.xml".format(framework)) if framework else self.application,
+                varStr, targets))
 
     def teardownClientSide(self, current, success):
         if self.application:

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../../../../msbuild/ice.common.props" />
+    <Import Project="../../../../../config/icebuilder.props" />
+    <PropertyGroup>
+      <AssemblyName>Ice</AssemblyName>
+      <Version>$(IceVersion)</Version>
+      <OutputPath>../../../../lib</OutputPath>
+      <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    </PropertyGroup>
+    <ItemGroup>
+        <Slice Include="../../../../../slice/Ice/*.ice" />
+        <Compile Include="../../*.cs"/>
+    </ItemGroup>
+    <Import Project="../../../../msbuild/zeroc.ice.net.targets" />
+</Project>

@@ -6,26 +6,37 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Any CPU'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug-Managed|Any CPU'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-Managed|Any CPU'">
-  </PropertyGroup>
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <Prefer32Bit>false</Prefer32Bit>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
     <SignAssembly>true</SignAssembly>
-    <AssembliesDirectory>$(MSBuildThisFileDirectory)..\Assemblies\</AssembliesDirectory>
-    <ExeDirectory>$(MSBuildThisFileDirectory)..\bin\</ExeDirectory>
-    <IceHome>$(MSBuildThisFileDirectory)..\..\</IceHome>
+    <IceHome Condition="'$(ICE_BIN_DIST)' != 'all'">$(MSBuildThisFileDirectory)..\..</IceHome>
+    <SliceCompilerOutputDir>generated</SliceCompilerOutputDir>
+    <SliceDir>$(IceHome)\slice</SliceDir>
+    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45</DefineConstants>
   </PropertyGroup>
+
+  <Choose>
+    <When Condition="Exists('$(IceHome)\cpp\bin\x64\$(Configuration)\slice2cs.exe')">
+      <PropertyGroup>
+        <SliceCompiler>$(IceHome)\cpp\bin\x64\$(Configuration)\slice2cs.exe</SliceCompiler>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(IceHome)\cpp\bin\slice2cs')">
+      <PropertyGroup>
+        <SliceCompiler>$(IceHome)\cpp\bin\slice2cs</SliceCompiler>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
   <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
     <DebugSymbols>true</DebugSymbols>
@@ -39,16 +50,4 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(Configuration.Contains('-Managed'))">
-    <DefineConstants>MANAGED;$(DefineConstants)</DefineConstants>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(OutputType)' == 'Library' ">
-      <OutputPath>$(AssembliesDirectory)</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(OutputType)' == 'Exe' ">
-      <OutputPath>$(ExeDirectory)</OutputPath>
-  </PropertyGroup>
 </Project>

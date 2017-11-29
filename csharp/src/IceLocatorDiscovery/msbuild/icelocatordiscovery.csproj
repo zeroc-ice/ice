@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
     <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
@@ -11,8 +11,10 @@
     <OutputType>Library</OutputType>
     <AssemblyName>IceLocatorDiscovery</AssemblyName>
     <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <DocumentationFile>..\..\..\Assemblies\IceLocatorDiscovery.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\lib\net45\IceLocatorDiscovery.XML</DocumentationFile>
+    <OutputPath>..\..\..\lib\net45\</OutputPath>
     <NoWarn>1591</NoWarn>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.common.props" />
   <ItemGroup>

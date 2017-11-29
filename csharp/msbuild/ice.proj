@@ -4,9 +4,10 @@
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"
+            Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.Default.props')"/>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <Target Name="RemovePackages">
       <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
@@ -16,57 +17,180 @@
       <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln" Condition="'$(ICE_BIN_DIST)' == 'all'"/>
     </Target>
 
-    <PropertyGroup>
-        <SliceCompilers Condition="'$(DefaultPlatformToolset)' == 'v140'">c++98\slice2cs;c++98\slice2html</SliceCompilers>
-        <SliceCompilers Condition="'$(DefaultPlatformToolset)' == 'v120'">slice2cs;slice2html</SliceCompilers>
-    </PropertyGroup>
+    <!-- Targets required to build Slice compilers -->
+    <Choose>
+        <When Condition="'$(DefaultPlatformToolset)' == 'v120' OR '$(OS)' != 'Windows_NT'">
+            <ItemGroup>
+                <SliceCompilers Include="slice2cs;slice2html"/>
+            </ItemGroup>
+        </When>
+
+        <Otherwise>
+            <ItemGroup>
+                <SliceCompilers Include="c++98\slice2cs;c++98\slice2html"/>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 
     <Target Name="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
-                Targets="NuGetRestore"
-                BuildInParallel="true"/>
+                 Targets="NuGetRestore"
+                 BuildInParallel="true"
+                 Condition="'$(OS)' == 'Windows_NT'"/>
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
-                 Targets="$(SliceCompilers)"
+                 Targets="@(SliceCompilers)"
                  BuildInParallel="true"
-                 Properties="Platform=$(Platform);Configuration=$(Configuration.Replace('-Managed', ''))"/>
+                 Properties="Platform=$(Platform);Configuration=$(Configuration)"
+                 Condition="'$(OS)' == 'Windows_NT'"/>
+
+        <Exec Command="make @(SliceCompilers->'%(Identity)', ' ')"
+              WorkingDirectory="$(MSBuildThisFileDirectory)..\..\cpp"
+              Condition="'$(OS)' != 'Windows_NT'"/>
     </Target>
 
     <ItemGroup>
-        <DistSolution Include="ice.sln">
+        <!-- .NET 4.5 Solution files -->
+        <Net45DistSolution Include="ice.net45.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
-        </DistSolution>
+        </Net45DistSolution>
 
-        <TestSoution Include="ice.test.sln">
-          <Properties>Configuration=$(Configuration.Replace("-Managed", ""));Platform=Any CPU</Properties>
-        </TestSoution>
+        <Net45TestSolution Include="ice.net45.test.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+        </Net45TestSolution>
+
+        <!-- .NET Standard Solution files -->
+        <NetStandardDistSolution Include="ice.netstandard.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+        </NetStandardDistSolution>
+
+        <NetStandardTestSolution Include="ice.netstandard.test.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+        </NetStandardTestSolution>
     </ItemGroup>
 
-    <Target Name="BuildDist" DependsOnTargets="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
-        <MSBuild Projects="@(DistSolution)"
+    <!-- NET 4.5 Targets -->
+
+    <Target Name="BuildNet45Dist"
+            DependsOnTargets="SliceCompilers"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
+
+        <MSBuild Projects="@(Net45DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
+
     </Target>
 
-    <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
-        <MSBuild Projects="@(DistSolution)"
+    <Target Name="CleanNet45Dist"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
+
+        <MSBuild Projects="@(Net45DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Clean" />
+
     </Target>
 
-    <Target Name="Build" DependsOnTargets="NuGetRestore;BuildDist;SliceCompilers">
-        <MSBuild Projects="@(TestSoution)"
+    <Target Name="BuildNet45"
+            DependsOnTargets="BuildNet45Dist"
+            Condition="'$(OS)' == 'Windows_NT'">
+
+        <MSBuild Projects="@(Net45TestSolution)"
                  BuildInParallel="true"
-                 Properties="%(Properties)" />
+                 Properties="%(Properties)"/>
+
     </Target>
 
-    <Target Name="Clean" DependsOnTargets="CleanDist">
-        <MSBuild Projects="@(TestSoution)" BuildInParallel="true" Targets="Clean" Properties="%(Properties)" />
+    <Target Name="CleanNet45"
+            DependsOnTargets="CleanNet45Dist"
+            Condition="'$(OS)' == 'Windows_NT'">
+
+        <MSBuild Projects="@(Net45TestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+
+    </Target>
+
+    <!-- NET Standard Targets -->
+
+    <Target Name="RestoreNetStandardDist"
+            DependsOnTargets="SliceCompilers"
+            Condition="'$(ICE_BIN_DIST)' != 'all'">
+
+        <MSBuild Projects="@(NetStandardDistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Restore"/>
+
+    </Target>
+
+    <Target Name="BuildNetStandardDist"
+            DependsOnTargets="SliceCompilers;RestoreNetStandardDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all'">
+
+        <MSBuild Projects="@(NetStandardDistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"/>
+
+    </Target>
+
+    <Target Name="CleanNetStandardDist"
+            Condition="'$(ICE_BIN_DIST)' != 'all'">
+
+        <MSBuild Projects="@(NetStandardDistSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+
+    </Target>
+
+    <Target Name="RestoreNetStandard"
+            DependsOnTargets="BuildNetStandardDist">
+
+        <MSBuild Projects="@(NetStandardTestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Restore"/>
+
+    </Target>
+
+    <Target Name="BuildNetStandard"
+            DependsOnTargets="BuildNetStandardDist;RestoreNetStandard">
+
+        <MSBuild Projects="@(NetStandardTestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"/>
+
+    </Target>
+
+    <Target Name="CleanNetStandard"
+            DependsOnTargets="CleanNetStandardDist">
+
+        <MSBuild Projects="@(NetStandardTestSolution)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)"
+                 Targets="Clean" />
+
+    </Target>
+
+    <!-- Meta targets -->
+
+    <Target Name="BuildDist" DependsOnTargets="BuildNetStandardDist;BuildNet45Dist">
+    </Target>
+
+    <Target Name="CleanDist" DependsOnTargets="CleanNetStandardDist;CleanNet45Dist">
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="BuildNetStandard;BuildNet45">
+    </Target>
+
+    <Target Name="Clean" DependsOnTargets="CleanNetStandard;CleanNet45">
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
+    <!-- Packaging -->
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="ice.nuget.targets"
@@ -110,4 +234,5 @@
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="zeroc.ice.net"/>
     </Target>
+
 </Project>
