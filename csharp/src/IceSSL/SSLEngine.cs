@@ -582,20 +582,23 @@ namespace IceSSL
             //
             path = path.Trim();
 
-            //
-            // We need at least 3 non-whitespace characters to have an absolute path
-            //
-            if(path.Length < 3)
+            if(IceInternal.AssemblyUtil.isWindows)
             {
-                return false;
-            }
+                //
+                // We need at least 3 non-whitespace characters to have an absolute path
+                //
+                if(path.Length < 3)
+                {
+                    return false;
+                }
 
-            //
-            // Check for X:\ path ('\' may have been converted to '/')
-            //
-            if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
-            {
-                return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                //
+                // Check for X:\ path ('\' may have been converted to '/')
+                //
+                if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+                {
+                    return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                }
             }
 
             //
