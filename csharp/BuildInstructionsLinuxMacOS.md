@@ -1,15 +1,20 @@
 # Building Ice for .NET on Linux and macOS
 
-This page describes how to build and install Ice for .NET from source code using
-.NET Core SDK.
+This page describes how to build Ice for .NET from source using the .NET Core SDK.
+As an alternative, you can download and install the [zeroc.ice.net][1] NuGet package.
+
+A source build of Ice for .NET on Linux or macOS produces:
+ - assemblies for [.NET Standard 2.0][2]
 
 ## Build Requirements
 
-### Operating Systems and Compilers
+Ice for .NET was extensively tested using the operating systems and compiler
+versions listed for our [supported platforms][3].
 
-.NET Core 2.0 SDK
+In order to build Ice for .NET from source, you need the following:
+ - the [.NET Core 2.0 SDK][4]
 
-## Compiling Ice for .NET with .NET Core sdk
+## Compiling Ice for .NET with .NET Core SDK
 
 Open a command prompt and change to the `csharp` subdirectory:
 
@@ -17,19 +22,19 @@ Open a command prompt and change to the `csharp` subdirectory:
 cd csharp
 ```
 
-To build the Ice assemblies, services and tests, run
+To build all Ice assemblies and the associated test suite, run:
 
 ```
-msbuild msbuild\ice.proj
+dotnet msbuild msbuild/ice.proj
 ```
 
 Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the
-`lib\netstandard2.0` directory.
+`lib/netstandard2.0` directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
 
 ```
-msbuild msbuild\ice.proj /t:Net45Build
+dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
 ## Running the Tests
@@ -53,4 +58,9 @@ failure, the tests abort with `failed`.
 
 ## NuGet packages
 
-*At this point the creation of NuGet packages is not supported on Linux and macOS*
+*At this point the creation of NuGet packages is not supported on Linux and macOS.*
+
+[1]: https://zeroc.com/distributions/ice
+[2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
+[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[4]: https://www.microsoft.com/net/download
