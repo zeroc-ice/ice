@@ -15,8 +15,8 @@ versions listed for our [supported platforms][3].
 
 In order to build Ice for .NET from source, you need all of the following:
  - a supported version of Visual Studio
- - the [Ice Builder for Visual Studio][3]
- - the [.NET Core 2.0 SDK][4]
+ - the [Ice Builder for Visual Studio][4]
+ - the [.NET Core 2.0 SDK][5]
 
 ## Compiling Ice for .NET
 
@@ -57,7 +57,7 @@ KEYFILE.
 
 If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
-This can be used for generating [Enhanced Strong Naming][5] signatures.
+This can be used for generating [Enhanced Strong Naming][6] signatures.
 
 *Temporary limitation: assembly signing applies only to .NET 4.5 assemblies at present.*
 
@@ -117,4 +117,5 @@ This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
 [4]: https://github.com/zeroc-ice/ice-builder-visualstudio
-[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[5]: https://www.microsoft.com/net/download/windows
+[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
