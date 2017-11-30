@@ -623,8 +623,8 @@ public final class OutgoingConnectionFactory
                 for(Ice.ConnectionI c : cons)
                 {
                     _connections.removeElementWithValue(c.connector(), c);
-                    _connectionsByEndpoint.remove(c.endpoint(), c);
-                    _connectionsByEndpoint.remove(c.endpoint().compress(true), c);
+                    _connectionsByEndpoint.removeElementWithValue(c.endpoint(), c);
+                    _connectionsByEndpoint.removeElementWithValue(c.endpoint().compress(true), c);
                 }
             }
 
