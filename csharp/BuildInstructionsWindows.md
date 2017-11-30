@@ -42,8 +42,10 @@ The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite. 
 
+### Strong Name Signatures
+
 You can add Strong Naming signatures to the Ice assemblies by setting the following
-environment variables:
+environment variables before building these assemblies:
  - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
  - KEYFILE Identity full key pair used to sign the assembly
 
@@ -57,20 +59,25 @@ If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
 This can be used for generating [Enhanced Strong Naming][5] signatures.
 
-You can also sign the Ice binaries with Authenticode by setting the following
-environment variables:
+*Temporary limitation: assembly signing applies only to .NET 4.5 assemblies at present.*
+
+### Authenticode Signatures
+
+You can sign the Ice binaries with Authenticode by setting the following
+environment variables before building these assemblies:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
 
 *Temporary limitation: assembly signing applies only to .NET 4.5 assemblies at present.*
 
-If you want to build the test suite without building the entire source base, use
-this command:
+### Building only the Test Suite
+
+You can build only the test suite with this command:
 ```
 msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
 ```
 
-This build installs ZeroC's binary NuGet packages if necessary.
+This build retrieves and installs ZeroC's binary NuGet packages if necessary.
 
 ## Running the Tests
 
@@ -95,7 +102,7 @@ To run the tests with .NET Standard 2.0 instead of .NET 4.5 pass the
 python allTests.py --framework netcoreapp2.0
 ```
 
-## NuGet packages
+## NuGet Packages
 
 To create a NuGet package for the distribution, use the following command:
 ```
