@@ -9,14 +9,10 @@
                                  $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe" />
 
         <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
-        <IceBoxNet Include="$(IceSrcRootDir)bin\**\iceboxnet.exe;
-                            $(IceSrcRootDir)bin\**\iceboxnet.dll;
-                            $(IceSrcRootDir)bin\**\iceboxnet.pdb;
-                            $(IceSrcRootDir)bin\**\iceboxnet.deps.json;
-                            $(IceSrcRootDir)bin\**\Ice.dll;
-                            $(IceSrcRootDir)bin\**\Ice.pdb;
-                            $(IceSrcRootDir)bin\**\IceBox.dll;
-                            $(IceSrcRootDir)bin\**\IceBox.pdb"/>
+        <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe;
+                              $(IceSrcRootDir)bin\net45\iceboxnet.pdb"/>
+
+        <IceBoxNetStandard Include="$(IceSrcRootDir)bin\**\publish\*"/>
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.pdb;
@@ -32,6 +28,7 @@
         <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\%(Assemblies.RecursiveDir)"/>
         <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
         <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
-        <Copy SourceFiles="@(IceBoxNet)" DestinationFolder="$(PackageDirectory)\tools\%(IceBoxNet.RecursiveDir)"/>
+        <Copy SourceFiles="@(IceBoxNet45)" DestinationFolder="$(PackageDirectory)\tools\net45"/>
+        <Copy SourceFiles="@(IceBoxNetStandard)" DestinationFolder="$(PackageDirectory)\tools\netcoreapp2.0"/>
     </Target>
 </Project>

@@ -368,15 +368,20 @@ class Windows(Platform):
         return "PATH"
 
     def getInstallDir(self, mapping, current, envName):
+
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
         version = self.getNugetPackageVersion()
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-        package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
-            mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
-        package = None
-        if hasattr(mapping, "getNugetPackage"):
+        if isinstance(mapping, CSharpMapping) and current.config.framework:
+            #
+            # Use NuGet package from nuget locals
+            #
+            package = re.search("info : global-packages: (.*)",
+                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            package = os.path.join(package, "zeroc.ice.net", version)
+        elif hasattr(mapping, "getNugetPackage"):
             package = os.path.join(mapping.path, "msbuild", "packages", mapping.getNugetPackage(packageSuffix, version))
 
         home = os.environ.get(envName, "")
@@ -3175,8 +3180,8 @@ class CSharpMapping(Mapping):
     def getEnv(self, process, current):
         if not current.config.framework:
             if current.driver.useIceBinDist(self):
-                bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools")
-                libDir = os.path.join(platform.getIceInstallDir(self, current), "lib")
+                bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45")
+                libDir = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
                 bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                      "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
@@ -3203,7 +3208,11 @@ class CSharpMapping(Mapping):
     def getCommandLine(self, current, process, exe):
         if current.config.framework:
             if exe  == "icebox":
-                return "dotnet {0}/bin/{1}/iceboxnet.dll".format(self.path, current.config.framework)
+                if current.driver.useIceBinDist(self):
+                    return "dotnet {0}/tools/{1}/iceboxnet.dll".format(platform.getIceInstallDir(self, current),
+                                                                       current.config.framework)
+                else:
+                    return "dotnet {0}/bin/{1}/iceboxnet.dll".format(self.path, current.config.framework)
             else:
                 return "dotnet {0}/{1}/{2}.dll".format(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
         else:

@@ -70,7 +70,6 @@
     </ItemGroup>
 
     <!-- NET 4.5 Targets -->
-
     <Target Name="BuildNet45Dist"
             DependsOnTargets="SliceCompilers"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
@@ -145,8 +144,7 @@
 
     </Target>
 
-    <Target Name="RestoreNetStandard"
-            DependsOnTargets="BuildNetStandardDist">
+    <Target Name="RestoreNetStandard">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -216,6 +214,10 @@
                                    Tokens="@PublicKeyToken@;@AssemblyDir@"
                                    Replacements="$(PublicKeyToken);..\..\lib\net45"
                                    Condition="'$(PublicKeyToken)' != ''"/>
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\netstandard\icebox\icebox.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
+                 Targets="Publish"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll"
