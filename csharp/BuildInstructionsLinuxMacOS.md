@@ -3,27 +3,23 @@
 This page describes how to build Ice for .NET from source using the .NET Core SDK.
 As an alternative, you can download and install the [zeroc.ice.net][1] NuGet package.
 
-A source build of Ice for .NET on Linux or macOS produces:
- - assemblies for [.NET Standard 2.0][2]
+A source build of Ice for .NET on Linux or macOS produces assemblies for [.NET Standard 2.0][2].
 
 ## Build Requirements
 
 Ice for .NET was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][3].
 
-In order to build Ice for .NET from source, you need the following:
- - the [.NET Core 2.0 SDK][4]
+In order to build Ice for .NET from source, you need the following the [.NET Core 2.0 SDK][4]
 
 ## Compiling Ice for .NET with .NET Core SDK
 
 Open a command prompt and change to the `csharp` subdirectory:
-
 ```
 cd csharp
 ```
 
 To build all Ice assemblies and the associated test suite, run:
-
 ```
 dotnet msbuild msbuild/ice.proj
 ```
@@ -32,27 +28,24 @@ Upon completion, the Ice assemblies for .NET Standard 2.0 are placed in the
 `lib/netstandard2.0` directory.
 
 You can skip the build of the test suite with the `BuildDist` target:
-
 ```
 dotnet msbuild msbuild/ice.proj /t:BuildDist
 ```
 
 ## Running the Tests
 
-*There is a bug in .NET Core Socket implementation that can cause failures when
-running the test suite, the bug has been fixed in .NET Core 2.0.4 available in
-[.NET Core daily builds][5]*
+*There is a bug in .NET Core 2.0.3 Socket implementation that can cause failures when
+running the test suite. This bug is fixed in the .NET Core 2.0.4 prerelease available
+from [.NET Core daily builds][5].*
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
-
 ```
 pip install passlib
 ```
 
 To run the tests, open a command window and change to the top-level directory.
 At the command prompt, execute:
-
 ```
 python allTests.py
 ```
@@ -62,7 +55,7 @@ failure, the tests abort with `failed`.
 
 ## NuGet packages
 
-*At this point the creation of NuGet packages is not supported on Linux and macOS.*
+*Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
