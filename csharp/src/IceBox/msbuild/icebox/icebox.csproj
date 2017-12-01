@@ -12,7 +12,7 @@
     <AssemblyName>iceboxnet</AssemblyName>
     <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\..\lib\net45\iceboxnet.XML</DocumentationFile>
-    <OutputPath>..\..\..\..\lib\net45\</OutputPath>
+    <OutputPath>..\..\..\..\bin\net45\</OutputPath>
     <NoWarn>1591</NoWarn>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
@@ -64,12 +64,12 @@
       <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken" />
     </GetPublicKeyToken>
     <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\iceboxnet.exe.config.release"
-                               OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\bin\iceboxnet.exe.config"
+                               OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\bin\net45\iceboxnet.exe.config"
                                Tokens="@PublicKeyToken@;@AssemblyDir@"
-                               Replacements="$(PublicKeyToken);..\Assemblies"
+                               Replacements="$(PublicKeyToken);..\..\lib\net45"
                                Condition="'$(KEYFILE)' != ''" />
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\iceboxnet.exe.config.dev"
-          DestinationFiles="$(MSBuildThisFileDirectory)..\..\..\..\bin\iceboxnet.exe.config"
+          DestinationFiles="$(MSBuildThisFileDirectory)..\..\..\..\bin\net45\iceboxnet.exe.config"
           Condition="'$(KEYFILE)' == ''"/>
   </Target>
   <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">

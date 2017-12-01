@@ -193,6 +193,7 @@
     <!-- Packaging -->
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
+
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net"/>
 
@@ -201,35 +202,33 @@
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
+
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
               DestinationFiles="zeroc.ice.net\LICENSE.txt" />
 
         <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and assembly paths -->
-        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\Assemblies\Ice.dll">
-          <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
+        <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\lib\net45\Ice.dll">
+            <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
         </GetPublicKeyToken>
 
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release"
-                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
+                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45\iceboxnet.exe.config"
                                    Tokens="@PublicKeyToken@;@AssemblyDir@"
-                                   Replacements="$(PublicKeyToken);..\lib"
+                                   Replacements="$(PublicKeyToken);..\..\lib\net45"
                                    Condition="'$(PublicKeyToken)' != ''"/>
-
-        <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)iceboxnet.exe.config.release.unsigned"
-                                   OutputFile="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\iceboxnet.exe.config"
-                                   Tokens="@AssemblyDir@"
-                                   Replacements="..\lib"
-                                   Condition="'$(PublicKeyToken)' == ''"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll"
-              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\bzip2.dll"/>
+              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45\bzip2.dll"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\bzip2.pdb"/>
+              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45\bzip2.pdb"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
+
+        <Copy SourceFiles="zeroc.ice.net.targets"
+              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.targets"/>
 
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="zeroc.ice.net"/>

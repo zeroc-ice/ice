@@ -3203,12 +3203,12 @@ class CSharpMapping(Mapping):
     def getCommandLine(self, current, process, exe):
         if current.config.framework:
             if exe  == "icebox":
-                return "dotnet {0}/lib/{1}/iceboxnet.dll".format(self.path, current.config.framework)
+                return "dotnet {0}/bin/{1}/iceboxnet.dll".format(self.path, current.config.framework)
             else:
                 return "dotnet {0}/{1}/{2}.dll".format(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
         else:
             if exe == "icebox":
-                return os.path.join(self.path, "lib", "net45", "iceboxnet.exe")
+                return os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
             else:
                 return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
 

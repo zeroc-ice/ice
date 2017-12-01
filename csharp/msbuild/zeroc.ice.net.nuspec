@@ -12,8 +12,5 @@
         <description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
         <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.0+Release+Notes</releaseNotes>
         <tags>ice</tags>
-        <references>
-            <reference file="Ice.dll" />
-        </references>
     </metadata>
 </package>
