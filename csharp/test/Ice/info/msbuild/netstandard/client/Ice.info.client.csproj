@@ -15,6 +15,7 @@
     </ItemGroup>
     <ItemGroup Condition="'$(ICE_BIN_DIST)' == ''">
         <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../../lib/netstandard2.0/IceSSL.dll" />
     </ItemGroup>
     <ItemGroup Condition="'$(ICE_BIN_DIST)' == 'all'">
       <PackageReference Include="zeroc.ice.net" Version="3.7.0" />
