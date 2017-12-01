@@ -77,6 +77,7 @@ class Platform:
             "supported-platforms" : ("supportedPlatforms", lambda s : s.split(" ")),
             "supported-configs" : ("supportedConfigs", lambda s : s.split(" "))
         })
+        self.nugetPackageVersion = None
 
     def parseBuildVariables(self, variables):
         # Run make to get the values of the given variables
@@ -122,7 +123,16 @@ class Platform:
         return os.environ.get(envName, "/usr")
 
     def getIceInstallDir(self, mapping, current):
-        return self.getInstallDir(mapping, current, "ICE_HOME")
+        #
+        # For .NET Core with Ice binary distribution the NuGet packages is
+        # installed in the global packages package cache
+        #
+        if isinstance(mapping, CSharpMapping) and current.driver.useIceBinDist(mapping) and current.config.framework:
+            package = re.search("info : global-packages: (.*)",
+                                run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            return os.path.join(package, "zeroc.ice.net", self.getNugetPackageVersion())
+        else:
+            return self.getInstallDir(mapping, current, "ICE_HOME")
 
     def getSliceDir(self, iceDir):
         if iceDir.startswith("/usr"):
@@ -144,6 +154,12 @@ class Platform:
 
     def getDotnetExe(self):
         return "dotnet"
+
+    def getNugetPackageVersion(self):
+        if not self.nugetPackageVersion:
+            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        return self.nugetPackageVersion
 
 class Darwin(Platform):
 
@@ -243,7 +259,6 @@ class Windows(Platform):
     def __init__(self):
         Platform.__init__(self)
         self.compiler = None
-        self.nugetPackageVersion = None
 
     def getFilters(self, config):
         if config.uwp:
@@ -302,12 +317,6 @@ class Windows(Platform):
             except:
                 self.compiler = ""
         return self.compiler
-
-    def getNugetPackageVersion(self):
-        if not self.nugetPackageVersion:
-            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return self.nugetPackageVersion
 
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
