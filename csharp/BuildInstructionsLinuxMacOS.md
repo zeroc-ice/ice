@@ -10,7 +10,7 @@ A source build of Ice for .NET on Linux or macOS produces assemblies for [.NET S
 Ice for .NET was extensively tested using the operating systems and compiler
 versions listed for our [supported platforms][3].
 
-In order to build Ice for .NET from source, you need the following the [.NET Core 2.0 SDK][4]
+You need the [.NET Core 2.0 SDK][4] to build Ice for .NET from source.
 
 ## Compiling Ice for .NET with .NET Core SDK
 
