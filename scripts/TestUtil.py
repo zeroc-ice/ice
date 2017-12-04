@@ -58,7 +58,7 @@ def isCygwin():
 
 def isWin32():
     return sys.platform == "win32" or isCygwin()
-    
+
 def isVista():
     return isWin32() and sys.getwindowsversion()[0] == 6 and sys.getwindowsversion()[1] == 0
 
@@ -102,7 +102,7 @@ def getCppCompiler():
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
         if compiler != "VC90" and compiler != "VC100" and compiler != "VC110" and compiler != "VC120":
             compiler = ""
-                
+
         if compiler == "":
             p = subprocess.Popen("cl", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             if not p or not p.stdout:
@@ -244,8 +244,8 @@ crossTests = [ "Ice/adapterDeactivation",
                "Ice/binding",
                "Ice/checksum",
                #"Ice/custom",
-               "Ice/ami", 
-               "Ice/info", 
+               "Ice/ami",
+               "Ice/info",
                "Ice/exceptions",
                "Ice/enums",
                "Ice/facets",
@@ -310,10 +310,10 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64", 
-                                    "script", "env", 
-                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
-                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx", 
+                                    "ipv6", "no-ipv6", "socks", "ice-home=", "cross=", "client-home=", "x64",
+                                    "script", "env",
+                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=",
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx",
                                     "c++11"])
     except getopt.GetoptError:
         usage()
@@ -485,7 +485,7 @@ def getIceDir(subdir = None, testdir = None):
     # sub-directory of the client home directory, run the test against
     # the client-home source distribution.
     #
-    global clientHome 
+    global clientHome
     if testdir and clientHome and os.path.commonprefix([testdir, clientHome]) == clientHome:
         return os.path.join(clientHome, subdir)
 
@@ -939,7 +939,7 @@ def getCommandLine(exe, config, options = ""):
         output.write("ruby '" + exe + "' ")
     elif config.silverlight and config.lang == "cs" and config.type == "client":
         xap = "obj/sl/%s.xap" % os.path.basename(os.getcwd())
-        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":	
+        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":
             output.write('"%s (x86)\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
         else:
             output.write('"%s\Microsoft Silverlight\sllauncher.exe" /emulate:%s ' % ( os.environ["PROGRAMFILES"], xap))
@@ -1261,7 +1261,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
             serverenv = getTestEnv("cpp", serverdir)
         else:
             serverenv = getTestEnv(lang, serverdir)
-            
+
 
     global cross
     if len(cross) == 0:
@@ -1940,7 +1940,9 @@ def runTests(start, expanded, num = 0, script = False):
                     print("  exit 1")
                 print("fi")
             else:
-                status = os.system(sys.executable + " " +  quoteArgument(os.path.join(dir, "run.py")) + " " + args)
+                status = subprocess.call("%s %s %s" % (quoteArgument(sys.executable),
+                                                       quoteArgument(os.path.join(dir, "run.py")),
+                                                       args), shell=True)
 
                 if status:
                     if(num > 0):
