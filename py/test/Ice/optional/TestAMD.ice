@@ -255,6 +255,8 @@ class Initial
 
     bool supportsRequiredParams();
 
+    void opVoid();
+
     bool supportsJavaSerializable();
 
     bool supportsCsharpSerializable();

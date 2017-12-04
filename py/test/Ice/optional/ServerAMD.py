@@ -142,6 +142,9 @@ class InitialI(Test.Initial):
     def supportsRequiredParams_async(self, cb, current=None):
         cb.ice_response(False)
 
+    def opVoid_async(self, cb, current=None):
+        cb.ice_response()
+
     def supportsJavaSerializable(self, cb, current=None):
         cb.ice_response(True)
 

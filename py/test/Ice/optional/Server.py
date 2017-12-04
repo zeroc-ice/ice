@@ -138,6 +138,9 @@ class InitialI(Test.Initial):
     def returnOptionalClass(self, req, current=None):
         return Test.OneOptional(5)
 
+    def opVoid(self, current=None):
+        pass
+
     def supportsRequiredParams(self, current=None):
         return False
 
