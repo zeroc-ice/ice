@@ -1,0 +1,44 @@
+sudo: false
+language: generic
+addons:
+  apt:
+    packages:
+    - libdb++-dev
+    - libdb-dev
+    - libdb-java
+    - libdb-java-dev
+    - php5-cli
+    - php5-dev
+    - python-dev
+    - python-pip
+    - ruby-dev
+    - openjdk-7-jdk
+    - libjgoodies-common-java
+    - libjgoodies-looks-java
+    - libjgoodies-forms-java
+    - mono-devel
+
+env:
+  global:
+    - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
+    - CLASSPATH=/usr/share/java/db.jar
+    - OPTIMIZE=yes
+    - JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+
+before_install:
+- git clone --depth 1 https://github.com/zeroc-ice/mcpp.git mcpp
+- rvm use system
+
+install:
+- make -C ${MCPP_HOME} -j3
+- mv ${MCPP_HOME}/lib/x86_64-linux-gnu/libmcpp.a ${MCPP_HOME}/lib/libmcpp.a
+- pip install --user passlib
+- make -j3 V=1
+
+script:
+- python allTests.py --debug --protocol=ssl --no-ipv6 --rfilter=Ice/binding --rfilter=java/test/IceSSL/configuration
+
+notifications:
+  email: travis-ci@zeroc.com
+  slack:
+    secure: TywLzzH1Hx3Pb5I4s4wxbEZ9nOAPkamZDqHBOkpLSNSRa2iSk6n5GcQi5bnw0Ct59oTEytO/8fNP6mYwf5G2rrXGWpcdgSdyLMcUk6ASeO7ANv7xLKhVWbbOoVuZxFJvIG5mTYpCa3R58EtchQErzdyf3rRMN3rq/ZBmocFMcRY=
