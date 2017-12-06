@@ -16,6 +16,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../../../../Ice/msbuild/netstandard/ice.csproj" />
+        <ProjectReference Include="../../../../IceSSL/msbuild/netstandard/icessl.csproj" />
         <ProjectReference Include="../iceboxlib/iceboxlib.csproj" />
     </ItemGroup>
     <Import Project="../../../../../msbuild/zeroc.ice.net.targets" />
