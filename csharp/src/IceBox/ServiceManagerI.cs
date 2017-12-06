@@ -507,7 +507,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     serviceAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
                     try
                     {
