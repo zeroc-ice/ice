@@ -507,13 +507,13 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     serviceAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.IO.IOException ex)
+                catch(Exception)
                 {
                     try
                     {
                         serviceAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
                     }
-                    catch(System.IO.IOException)
+                    catch(Exception)
                     {
                          throw ex;
                     }
