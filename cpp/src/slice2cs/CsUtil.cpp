@@ -849,7 +849,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                     if(param.find(".") != string::npos)
                     {
                         out << sb;
-                        out << "var tmp = " << stream << ".readByte(" << tag << ");";
+                        out << nl << "var tmp = " << stream << ".readByte(" << tag << ");";
                         out << nl << param << " = tmp;";
                         out << eb;
                     }
@@ -875,7 +875,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                     if(param.find(".") != string::npos)
                     {
                         out << sb;
-                        out << "var tmp = " << stream << ".readBool(" << tag << ");";
+                        out << nl << "var tmp = " << stream << ".readBool(" << tag << ");";
                         out << nl << param << " = tmp;";
                         out << eb;
                     }
