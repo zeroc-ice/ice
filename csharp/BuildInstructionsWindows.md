@@ -111,8 +111,6 @@ msbuild msbuild\ice.proj /t:NuGetPack
 
 This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
-*Temporary limitation: the NuGet package includes only .NET 4.5 assemblies at present.*
-
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0

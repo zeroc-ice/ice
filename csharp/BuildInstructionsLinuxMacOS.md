@@ -34,9 +34,9 @@ dotnet msbuild msbuild/ice.proj /t:BuildDist
 
 ## Running the Tests
 
-*There is a bug in .NET Core 2.0.3 Socket implementation that can cause failures when
-running the test suite. This bug is fixed in the .NET Core 2.0.4 prerelease available
-from [.NET Core daily builds][5].*
+*There is a bug in .NET Core 2.0.2 Socket implementation that can cause failures when
+running the test suite. This bug is fixed in the .NET Core 2.0.3 release available
+from [.NET Core download page][4].*
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
