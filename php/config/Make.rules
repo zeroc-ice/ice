@@ -31,6 +31,12 @@ else
 php_cppflags            := $(php_cppflags) -DICEPHP_USE_NAMESPACES
 endif
 
+# PHP 5.3 does not compile with C++11 due to an issue with
+# user defined literals. PHP 5.4 and up do not have this issue.
+ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 50400 ] && echo 0),0)
+    php_cppflags        := -std=c++98 $(php_cppflags)
+endif
+
 ifeq ($(os),Darwin)
     php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
