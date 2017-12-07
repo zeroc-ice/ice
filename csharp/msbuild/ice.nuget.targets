@@ -12,7 +12,7 @@
         <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe;
                               $(IceSrcRootDir)bin\net45\iceboxnet.pdb"/>
 
-        <IceBoxNetStandard Include="$(IceSrcRootDir)bin\**\publish\*"/>
+        <IceBoxNetStandard Include="$(IceSrcRootDir)bin\netcoreapp2.0\publish\*"/>
 
         <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
                              $(IceSrcRootDir)lib\**\*.pdb;

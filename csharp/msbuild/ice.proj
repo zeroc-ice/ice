@@ -192,6 +192,10 @@
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
 
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\netstandard\icebox\icebox.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
+                 Targets="Publish"/>
+
         <MSBuild Projects="ice.nuget.targets"
                  Properties="PackageDirectory=zeroc.ice.net"/>
 
@@ -215,9 +219,9 @@
                                    Replacements="$(PublicKeyToken);..\..\lib\net45"
                                    Condition="'$(PublicKeyToken)' != ''"/>
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\netstandard\icebox\icebox.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
-                 Targets="Publish"/>
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)iceboxnet.exe.config.dev"
+              DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45\iceboxnet.exe.config"
+              Condition="'$(PublicKeyToken)' == ''"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet.exe -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll"
