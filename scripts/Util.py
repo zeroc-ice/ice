@@ -383,7 +383,7 @@ class Windows(Platform):
         version = self.getNugetPackageVersion()
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
 
-        if isinstance(mapping, CSharpMapping) and current.config.framework:
+        if isinstance(mapping, CSharpMapping) and current.config.netcore:
             #
             # Use NuGet package from nuget locals
             #
@@ -540,7 +540,7 @@ class Mapping:
             self.device = ""
             self.avd = ""
             self.androidemulator = False
-            self.framework = ""
+            self.netcore = False
 
         def __str__(self):
             s = []
@@ -1915,7 +1915,7 @@ class LocalProcessController(ProcessController):
             "testdir": current.testsuite.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
             "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
-            "iceboxconfigext": "" if not current.config.framework else ".{0}".format(current.config.framework)
+            "iceboxconfigext": "" if not current.config.netcore else ".netcoreapp2.0"
         }
 
         traceFile = ""
@@ -3122,26 +3122,24 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["framework="])
+            return ("", ["netcore"])
 
         @classmethod
         def usage(self):
             print("")
-            print("--framework           .NET Framework use to run the tests")
+            print("--netcore           Run C# tests with .Net Core 2.0")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            parseOptions(self, options, { "framework" : "framework" })
-            if self.framework and not self.framework in ["net4.5", "netcoreapp2.0"]:
-                raise RuntimeError("unknown .NET framework `{0}'".format(self.framework))
-            if not isinstance(platform, Windows) and not self.framework:
-                self.framework = "netcoreapp2.0"
+            parseOptions(self, options, { "netcore" : "netcore" })
+            self.netcore = self.netcore if isinstance(platform, Windows) else True
 
         def canRun(self, current):
             testId = current.testcase.getTestSuite().getId()
             if not Mapping.Config.canRun(self, current):
                 return False
-            if self.framework == "netcoreapp2.0":
+
+            if self.netcore:
                 #
                 # The following tests require multicast, on Unix platforms is currently
                 # only supported with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
@@ -3153,10 +3151,10 @@ class CSharpMapping(Mapping):
             return True
 
     def getBuildDir(self, name, current):
-        if current.config.framework:
+        if current.config.netcore:
             return os.path.join("msbuild", "netstandard", name, "bin",
                                 "Debug" if current.config.buildConfig == "Debug" else "Release",
-                                current.config.framework)
+                                "netcoreapp2.0")
         else:
             return os.path.join("msbuild", name)
 
@@ -3173,9 +3171,8 @@ class CSharpMapping(Mapping):
 
     def getPluginEntryPoint(self, plugin, process, current):
         plugindir = "{0}/{1}".format(current.driver.getIceDir(self, current), "lib")
-        framework = current.config.framework
 
-        if framework:
+        if current.config.netcore:
             plugindir = os.path.join(plugindir, "netstandard2.0")
         else:
             plugindir = os.path.join(plugindir, "net45")
@@ -3187,7 +3184,7 @@ class CSharpMapping(Mapping):
         }[plugin]
 
     def getEnv(self, process, current):
-        if not current.config.framework:
+        if not current.config.netcore:
             if current.driver.useIceBinDist(self):
                 bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45")
                 libDir = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
@@ -3215,13 +3212,13 @@ class CSharpMapping(Mapping):
         return "zeroc.ice.net.{0}".format(version)
 
     def getCommandLine(self, current, process, exe):
-        if current.config.framework:
+        if current.config.netcore:
             if exe  == "icebox":
                 if current.driver.useIceBinDist(self):
-                    return "dotnet {0}/tools/{1}/iceboxnet.dll".format(platform.getIceInstallDir(self, current),
-                                                                       current.config.framework)
+                    return "dotnet {0}/tools/netcoreapp2.0/iceboxnet.dll".format(
+                        platform.getIceInstallDir(self, current))
                 else:
-                    return "dotnet {0}/bin/{1}/iceboxnet.dll".format(self.path, current.config.framework)
+                    return "dotnet {0}/bin/netcoreapp2.0/iceboxnet.dll".format(self.path)
             else:
                 return "dotnet {0}/{1}/{2}.dll".format(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
         else:
