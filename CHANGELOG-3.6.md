@@ -8,12 +8,12 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.4 (Pre-Release Snapshot)](#changes-in-ice-364-pre-release-snapshot)
+- [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
-  - [C# Changes](#c-changes-2)
+  - [C# Changes](#csharp-changes)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -43,19 +43,40 @@ particular aspect of Ice.
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.6.4 (Pre-Release Snapshot)
+# Changes in Ice 3.6.4
 
-These are the changes since Ice 3.6.3 included in this pre-release.
+These are the changes since Ice 3.6.3.
 
 ## General Changes
+
+- Fixed IceGrid node bug where a replica might not get up-to-date object
+  adapter information about a server if an update is pending for this
+  server. Thanks to Michael Gmelin for the bug report and fix.
+
+- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
+  overflows in case a sender sends a very large graph.
+
+  The unmarshaling or destruction of a graph of Slice class instances is a
+  recursive operation. This property limits the amount of stack size required to
+  perform these operations. This property is supported with all the language
+  mappings except Java and JavaScript where it's not needed (the run time
+  environment allows graceful handling of stack overflows).
+
+  The default maximum class graph depth is infinite. If your application
+  receives class graphs in an insecure environment, you should set the
+  `Ice.ClassGraphDepthMax` to a value that ensures the thread pool stack size is
+  large enough to allow reading graphs without causing a stack overflow.
 
 - Fixed IceGrid bug where updating properties of an IceBox service at runtime
   would fail if the service used the IceBox shared communicator. Thanks to
   Andreas Sommer for the bug report and fix.
 
-- Fixed a bug in Slice compilers which generates bogus dependencies when the
-  Slice files are located in a directory that contains the string ".ice" in
-  the path.
+- Fixed a bug in the Slice compilers: they generated incorrect dependencies for
+  Slice files in directories with the string ".ice" in their path.
+
+- Significantly reduced the size of the Windows binary distribution by
+  moving all C++ debug information (PDB files) to https://symbols.zeroc.com.
+  Also removed the WinRT libraries from the Windows binary distribution.
 
 ## C++ Changes
 
@@ -63,8 +84,11 @@ These are the changes since Ice 3.6.3 included in this pre-release.
   This message would only show up under certain circumstances when using Ice
   on macOS Sierra (10.2).
 
-- Fixed bug which would cause an IceUtil::NullHandleException to be raised when
+- Fixed a bug which would cause an IceUtil::NullHandleException to be raised when
   using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
+
+- Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice
+  with -DICE_PRIO_INHERIT.
 
 ## Java Changes
 
@@ -74,16 +98,17 @@ These are the changes since Ice 3.6.3 included in this pre-release.
 
 ## JavaScript Changes
 
-- Fixed a bug in Ice.Long toNumber implementation where negative integers
-  smaller than -(2^52 - 1) where not correctly handle.
+- Fixed a bug in the Ice.Long toNumber implementation: negative integers
+  smaller than -(2^52 - 1) were not correctly handled.
 
 ## CSharp Changes
 
-- Fixed a bug that affect Stack sequence mapping, when using the Stack mapping
-with a element of type Object* items where unmarshal in reverse order.
+- Fixed a bug that affects the Stack sequence mapping. When using the Stack
+mapping with a sequence<Object*>, items were unmarshaled in reverse
+order.
 
-- Fixed a bug where metadata was not correctly ignored and can result in bogus
-code being generated if applying invalid metadata directives.
+- Fixed a bug where incorrect code could be generated for invalid metadata
+directives.
 
 # Changes in Ice 3.6.3
 
@@ -170,7 +195,7 @@ These are the changes since Ice 3.6.1.
 
 - Fixed an IceGrid bug where resolving endpoints of dynamically registered
   replica groups would fail unless the client was using an encoding superior
-  to the encoding of the dynamically registered object adapters.
+  to the encoding   of the dynamically registered object adapters.
 
 - Added missing functions Ice::identityToString and Ice::stringToIdentity
   (C++, Objective-C, PHP, Python and Ruby).
