@@ -97,9 +97,9 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 To run the tests with .NET Standard 2.0 instead of .NET 4.5 pass the
-`--framework netcoreapp2.0` argument to `allTest.py`.
+`--netcore` argument to `allTest.py`.
 ```
-python allTests.py --framework netcoreapp2.0
+python allTests.py --netcore
 ```
 
 ## NuGet Packages
