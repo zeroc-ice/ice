@@ -11,6 +11,7 @@
     <IceToolsPath>$(IceHome)\tools</IceToolsPath>
     <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
     <SliceDir>$(IceHome)\slice</SliceDir>
+    <SliceCompilerOutputDir Condition="'$(SliceCompilerOutputDir)' == ''">generated</SliceCompilerOutputDir>
   </PropertyGroup>
 
   <Choose>
