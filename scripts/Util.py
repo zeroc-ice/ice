@@ -3508,6 +3508,19 @@ except ImportError:
 from LocalDriver import *
 
 #
+# Check if the .NET Core SDK is installed
+#
+#
+# Check if the Android SDK is installed by looking for adb
+#
+hasDotnetSDK=False
+try:
+    run("dotnet --version")
+    hasDotnetSDK=True
+except:
+    pass
+
+#
 # Check if the Android SDK is installed by looking for adb
 #
 hasAndroidSDK=False
@@ -3535,10 +3548,11 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, PhpMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
-    elif m == "csharp" or re.match("csharp-.*", m):
-        Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
+
+if isinstance(platform, Windows) or hasDotnetSDK:
+    Mapping.add("csharp", CSharpMapping())
 
 if hasAndroidSDK:
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
