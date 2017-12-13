@@ -54,10 +54,10 @@ This will build the tests programs with both NET Core 2.0 `netcoreapp2.0` and
 .NET Framework 4.6.1 `net461`. The chosen frameworks must implement .NET Standard 2.0
 as that is the framework used to build Ice assemblies used by the tests.
 
-### Strong Name Signatures
+### Strong Name Signatures for .NET Framework 4.5 Assemblies
 
-You can add Strong Naming signatures to the Ice assemblies by setting the following
-environment variables before building these assemblies:
+You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.6
+by setting the following environment variables before building these assemblies:
  - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
  - KEYFILE Identity full key pair used to sign the assembly
 
@@ -70,8 +70,6 @@ KEYFILE.
 If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
 This can be used for generating [Enhanced Strong Naming][6] signatures.
-
-*Temporary limitation: assembly signing applies only to .NET 4.5 assemblies at present.*
 
 ### Authenticode Signatures
 
