@@ -43,11 +43,11 @@ allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2
 with or without the test suite.
 
 The .NET Standard test project files by default set the target framework to .NET Core 2.0
-`netcoreapp2.0` is possible to change the target frameworks setting the `IceTestTargetFrameworks`
+`netcoreapp2.0` is possible to change the target frameworks setting the `IceTestsTargetFrameworks`
 MSBuild property to the desired framework identifiers.
 
 ```
-msbuild msbuild\ice.proj /p:"IceTestTargetFrameworks=net461;netcoreapp2.0"
+msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 ```
 
 This will build the tests programs with both NET Core 2.0 `netcoreapp2.0` and
