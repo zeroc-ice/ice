@@ -42,21 +42,19 @@ The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The .NET Standard test project files by default set the target framework to .NET Core 2.0
-`netcoreapp2.0` is possible to change the target frameworks setting the `IceTestsTargetFrameworks`
-MSBuild property to the desired framework identifiers.
-
+The target framework for the .NET Standard tests is `netcoreapp2.0` by default. You can
+change this value by setting the `IceTestsTargetFrameworks` property to one or more
+Target Framework Monikers (TMF), for example:
 ```
 msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 ```
 
-This will build the tests programs with both NET Core 2.0 `netcoreapp2.0` and
-.NET Framework 4.6.1 `net461`. The chosen frameworks must implement .NET Standard 2.0
-as that is the framework used to build Ice assemblies used by the tests.
+This builds the test programs with `net461` and `netcoreapp2.0` (in separate folders). 
+The target frameworks you specify must implement .NET Standard 2.0.
 
 ### Strong Name Signatures for .NET Framework 4.5 Assemblies
 
-You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.6
+You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.5
 by setting the following environment variables before building these assemblies:
  - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
  - KEYFILE Identity full key pair used to sign the assembly
@@ -78,7 +76,7 @@ environment variables before building these assemblies:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
 
-*Temporary limitation: assembly signing applies only to .NET 4.5 assemblies at present.*
+*Temporary limitation: assembly signing applies only to .NET Framework 4.5 assemblies at present.*
 
 ### Building only the Test Suite
 
