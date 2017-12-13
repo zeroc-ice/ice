@@ -23,6 +23,7 @@
     <SliceCompilerOutputDir>generated</SliceCompilerOutputDir>
     <SliceDir>$(IceHome)\slice</SliceDir>
     <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45</DefineConstants>
+    <IceTestsTargetFrameworks Condition="'$(IceTestsTargetFrameworks)' == ''">netcoreapp2.0</IceTestsTargetFrameworks>
   </PropertyGroup>
 
   <Choose>

@@ -1,6 +1,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Condition="'$(Configuration)' == ''">
-      <Configuration>Release</Configuration>
+        <Configuration>Release</Configuration>
+        <IceTestsTargetFrameworks Condition="'$(IceTestsTargetFrameworks)' == ''">netcoreapp2.0</IceTestsTargetFrameworks>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
@@ -60,12 +61,12 @@
         </Net45TestSolution>
 
         <!-- .NET Standard Solution files -->
-        <NetStandardDistSolution Include="ice.netstandard.sln">
+        <NetStandardDistSolution Include="ice.netstandard2.0.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
         </NetStandardDistSolution>
 
-        <NetStandardTestSolution Include="ice.netstandard.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+        <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;IceTestsTargetFrameworks=$(IceTestsTargetFrameworks)</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
@@ -223,7 +224,7 @@
               DestinationFiles="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45\iceboxnet.exe.config"
               Condition="'$(PublicKeyToken)' == ''"/>
 
-        <!-- Copy bzip2 native dll next to iceboxnet.exe -->
+        <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45"/>

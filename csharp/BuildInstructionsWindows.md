@@ -42,6 +42,18 @@ The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
+The .NET Standard test project files by default set the target framework to .NET Core 2.0
+`netcoreapp2.0` is possible to change the target frameworks setting the `IceTestTargetFrameworks`
+MSBuild property to the desired framework identifiers.
+
+```
+msbuild msbuild\ice.proj /p:"IceTestTargetFrameworks=net461;netcoreapp2.0"
+```
+
+This will build the tests programs with both NET Core 2.0 `netcoreapp2.0` and
+.NET Framework 4.6.1 `net461`. The chosen frameworks must implement .NET Standard 2.0
+as that is the framework used to build Ice assemblies used by the tests.
+
 ### Strong Name Signatures
 
 You can add Strong Naming signatures to the Ice assemblies by setting the following
@@ -96,10 +108,11 @@ python allTests.py
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-To run the tests with .NET Standard 2.0 instead of .NET 4.5 pass the
-`--netcore` argument to `allTest.py`.
+To run the tests with .NET Standard 2.0 instead of .NET 4.5 pass set `--netframework`
+argument to the value of target framework used to build the tests.
+
 ```
-python allTests.py --netcore
+python allTests.py --netframwork netcoreapp2.0
 ```
 
 ## NuGet Packages

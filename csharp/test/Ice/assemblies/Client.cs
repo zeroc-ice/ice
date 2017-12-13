@@ -9,6 +9,7 @@
 
 using System;
 using System.Linq;
+using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -39,19 +40,21 @@ public class Client
             Ice.InitializationData id = new Ice.InitializationData();
             id.properties = Ice.Util.createProperties();
             id.properties.setProperty("Ice.PreloadAssemblies", "0");
+
+            string assembly =
+                String.Format("{0}/core.dll",
+                              Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
             Ice.Communicator ic = Ice.Util.initialize(id);
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {
-                        return e.CodeBase.EndsWith("msbuild/client/Core.DLL") ||
-                               e.CodeBase.EndsWith("netcoreapp2.0/core.dll");
+                        return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
                     }) == null);
             ic.destroy();
             id.properties.setProperty("Ice.PreloadAssemblies", "1");
             ic = Ice.Util.initialize(id);
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {
-                        return e.CodeBase.EndsWith("msbuild/client/Core.DLL") ||
-                               e.CodeBase.EndsWith("netcoreapp2.0/core.dll");
+                        return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
                     }) != null);
             Console.Out.WriteLine("ok");
         }

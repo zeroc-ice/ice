@@ -9,3 +9,5 @@ IceLocatorDiscovery.XML
 IcePatch2.XML
 IceSSL.XML
 IceStorm.XML
+test/**/netstandard2.0/netcoreapp2.0
+test/**/netstandard2.0/net4*

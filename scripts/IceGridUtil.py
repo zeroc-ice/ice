@@ -244,10 +244,10 @@ class IceGridTestCase(TestCase):
             variables.update(self.variables)
             varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
             targets = " ".join(self.targets)
-            framework = "netcoreapp2.0" if current.config.netcore else ""
-            self.runadmin(current, "application add -n {0} {1} {2}".format(
-                self.application.replace(".xml", ".{0}.xml".format(framework)) if framework else self.application,
-                varStr, targets))
+            application = self.application
+            if current.config.netframework == "netcoreapp2.0":
+                application = application.replace(".xml", ".{0}.xml".format("netcoreapp2.0"))
+            self.runadmin(current, "application add -n {0} {1} {2}".format(application, varStr, targets))
 
     def teardownClientSide(self, current, success):
         if self.application:

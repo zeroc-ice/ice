@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.IO;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -29,9 +30,11 @@ public class Client
     public static int Main(string[] args)
     {
 #if NET45
-        string pluginPath = "plugins/Plugin.dll";
+        string pluginPath = "msbuild/plugin/net45/Plugin.dll";
 #else
-        string pluginPath = "msbuild/netstandard/plugin/bin/netcoreapp2.0/Plugin.dll";
+        string pluginPath =
+            String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
+                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
 #endif
         Ice.Communicator communicator = null;
         Console.Write("testing a simple plug-in... ");

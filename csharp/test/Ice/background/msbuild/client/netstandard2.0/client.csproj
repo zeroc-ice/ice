@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../../../../../../msbuild/ice.common.props"/>
+    <PropertyGroup>
+        <AssemblyName>client</AssemblyName>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>$(IceTestsTargetFrameworks)</TargetFrameworks>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <OutputPath>.</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="../../../../../TestCommon/TestApp.cs"/>
+        <Compile Include="../../../Acceptor.cs"/>
+        <Compile Include="../../../AllTests.cs"/>
+        <Compile Include="../../../Client.cs"/>
+        <Compile Include="../../../Configuration.cs"/>
+        <Compile Include="../../../Connector.cs"/>
+        <Compile Include="../../../EndpointFactory.cs"/>
+        <Compile Include="../../../EndpointI.cs"/>
+        <Compile Include="../../../PluginI.cs"/>
+        <Compile Include="../../../Transceiver.cs"/>
+        <Slice Include="../../../Test.ice"/>
+    </ItemGroup>
+    <Choose>
+        <!--Using Ice NuGet package-->
+        <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+            <ItemGroup>
+                <PackageReference Include="zeroc.ice.net" Version="3.7.0"/>
+            </ItemGroup>
+        </When>
+        <!--Using Ice built from source-->
+        <Otherwise>
+            <ItemGroup>
+                <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll"/>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+    <ImportGroup Condition="'$(ICE_BIN_DIST)' == ''">
+        <!--Using Ice built from source-->
+        <Import Project="../../../../../../msbuild/zeroc.ice.net.targets"/>
+    </ImportGroup>
+</Project>
