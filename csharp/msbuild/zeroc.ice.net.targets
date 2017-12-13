@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
     <ItemGroup>
-        <Compile Include="@(Slice->'$(SliceCompilerOutputDir)/%(Filename).cs')" />
+        <Compile Include="@(Slice->'$(SliceCompilerOutputDir)\%(Filename).cs')" />
     </ItemGroup>
     <Target Name="SliceCompile" BeforeTargets="CoreCompile"
             Inputs="@(Slice);$(SliceCompiler)"
-            Outputs="$(SliceCompilerOutputDir)/SliceCompiler.command.log"
+            Outputs="$(SliceCompilerOutputDir)\SliceCompiler.command.log"
             Condition="@(Slice) != ''">
         <Error Text="Unable to locate Slice to CSharp compiler SliceCompiler=$(SliceCompiler)" Condition="!Exists('$(SliceCompiler)')" />
         <MakeDir Directories="$(SliceCompilerOutputDir)"/>
-        <Exec Command="$(SliceCompiler) --output-dir $(SliceCompilerOutputDir) -I$(IceHome)/slice $(SliceCompilerArgs) @(Slice->'%(Identity)', ' ')" />
-        <WriteLinesToFile File="$(SliceCompilerOutputDir)/SliceCompiler.command.log"
+        <Exec Command="$(SliceCompiler) --output-dir $(SliceCompilerOutputDir) -I$(IceHome)\slice $(SliceCompilerArgs) @(Slice->'%(Identity)', ' ')" />
+        <WriteLinesToFile File="$(SliceCompilerOutputDir)\SliceCompiler.command.log"
                           Lines="Ice Home: $(IceHome);Output Dir: $(SliceOuputDir);Slice Compiler Args: $(SliceCompilerArgs)"
                           Overwrite="true" />
     </Target>
