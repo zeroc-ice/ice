@@ -44,7 +44,7 @@ with or without the test suite.
 
 The target framework for the .NET Standard tests is `netcoreapp2.0` by default. You can
 change this value by setting the `IceTestsTargetFrameworks` property to one or more
-Target Framework Monikers (TMF), for example:
+Target Framework Monikers (TFMs), for example:
 ```
 msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 ```
