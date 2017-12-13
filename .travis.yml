@@ -1,67 +1,45 @@
-sudo: false
-language: python
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-5
-    - gcc-5
-    - php5-cli
-    - php5-dev
-    - python-dev
-    - python-pip
-    - ruby-dev
-    - libdbus-glib-1-dev
-    - libbluetooth-dev
-    - oracle-java8-installer
+sudo: true
+language: generic
+dist: trusty
+group: travis_latest
 
 env:
   global:
-    - CXX=g++-5
-    - GCC_COMPILER=yes
-    - MCPP_HOME=${TRAVIS_BUILD_DIR}/mcpp
-    - LMDB_REVISION=0.9.16
-    - LMDB_BUILD_DIR=${TRAVIS_BUILD_DIR}/lmdb-LMDB_${LMDB_REVISION}
-    - LMDB_HOME=${TRAVIS_BUILD_DIR}/lmdb
-    - JAVA_HOME=/usr/lib/jvm/java-8-oracle
-    - USE_NAMESPACES=no
-    - OPTIMIZE=no
+  - DOCKER_BASE_TAG=3.7-ubuntu-16.04
+  - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
+  - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
+  - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USER_NAMESPACES=no CONFIGS=shared"
+  - DOCKER_RUN="docker run --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - ALLTESTS="python allTests.py --protocol=ssl --workers=4"
 
-  matrix:
-    - WORK_DIR=${TRAVIS_BUILD_DIR}/cpp SKIP="IceBT" CONFIGS="cpp11-shared"
-    - WORK_DIR=${TRAVIS_BUILD_DIR}
+jobs:
+  include:
+    - stage: build docker image
+      script:
+      - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+      - |
+        echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
+        echo "RUN make ${MAKEFLAGS}" >> Dockerfile
+      - docker build --cache-from ${DOCKER_BASE_IMAGE} -t ${DOCKER_BUILD_IMAGE} .
+      - docker push ${DOCKER_BUILD_IMAGE}
 
-python:
-- "2.7"
-
-cache:
-  directories:
-  - $HOME/.gradle
-  - $TRAVIS_BUILD_DIR/js/node_modules
-
-before_install:
-- git clone https://github.com/zeroc-ice/mcpp.git mcpp
-- wget https://github.com/LMDB/lmdb/archive/LMDB_${LMDB_REVISION}.tar.gz
-- tar xvf LMDB_${LMDB_REVISION}.tar.gz
-- nvm install node
-- nvm use node
-
-install:
-- make -C ${MCPP_HOME} -j3
-- mkdir -p ${LMDB_HOME}/bin
-- mkdir -p ${LMDB_HOME}/lib
-- mkdir -p ${LMDB_HOME}/include
-- mkdir -p ${LMDB_HOME}/man/man1
-- CPPFLAGS=-fPIC make -C ${LMDB_BUILD_DIR}/libraries/liblmdb install prefix=${LMDB_HOME}
-- rm -f ${LMDB_HOME}/lib/liblmdb.so
-- pip install passlib
-- if [ "${CONFIGS}" = "cpp11-shared" ]; then make -C ${WORK_DIR} -j3 CONFIGS=shared srcs; fi
-- make -C ${WORK_DIR} -j3 V=1
-
-script:
-- cd ${WORK_DIR}
-- python allTests.py -d --protocol=ssl --workers=4
+    - stage: test docker image
+      script: $DOCKER_RUN "${ALLTESTS} --filter=cpp"
+      env: TESTING=C++
+    - script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
+      env: TESTING=C++11
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=java"
+      env: TESTING=Java
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
+      env: TESTING=Java Compat
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=js"
+      env: TESTING=JavaScript
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=php"
+      env: TESTING=PHP
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=python"
+      env: TESTING=Python
+    - script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
+      env: TESTING=Ruby
 
 notifications:
   email: travis-ci@zeroc.com
