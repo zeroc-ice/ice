@@ -149,8 +149,8 @@ failure, the tests abort with `failed`.
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
 
-[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.0
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.1
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [3]: http://bzip.org
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/
