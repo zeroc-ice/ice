@@ -3188,6 +3188,17 @@ class CSharpMapping(Mapping):
         else:
             plugindir = os.path.join(plugindir, "net45")
 
+        #
+        # If the plug-in assemblie exists in the test directory, this is a good indication that the
+        # test include a reference to the plug-in, in this case we must use the test dir as the plug-in
+        # base directory to avoid loading two instances of the same assemblie.
+        #
+        proccessType = current.testcase.getProcessType(process)
+        if proccessType:
+            testdir = os.path.join(current.testcase.getPath(), self.getBuildDir(proccessType, current))
+            if os.path.isfile(os.path.join(testdir, plugin + ".dll")):
+                plugindir = testdir
+
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
             "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory",
