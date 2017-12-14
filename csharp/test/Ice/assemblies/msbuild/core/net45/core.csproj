@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Condition="Exists('..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.0\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0\build\zeroc.ice.net.props"/>
+    <Import Condition="Exists('..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props"/>
     <PropertyGroup Label="Globals">
         <NuGetPackageImportStamp/>
         <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
@@ -22,7 +22,7 @@
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="Ice, Version=3.7.0.0, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
+        <Reference Include="Ice, Version=3.7.1.0, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
             <HintPath>$(IceAssembliesDir)\Ice.dll</HintPath>
             <SpecificVersion>False</SpecificVersion>
             <Private>False</Private>
@@ -58,6 +58,6 @@
         <PropertyGroup>
             <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
         </PropertyGroup>
-        <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.0\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.0\build\zeroc.ice.net.props'))"/>
+        <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props'))"/>
     </Target>
 </Project>

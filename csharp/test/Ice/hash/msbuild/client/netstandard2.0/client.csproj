@@ -18,7 +18,7 @@
         <!--Using Ice NuGet package-->
         <When Condition="'$(ICE_BIN_DIST)' == 'all'">
             <ItemGroup>
-                <PackageReference Include="zeroc.ice.net" Version="3.7.0"/>
+                <PackageReference Include="zeroc.ice.net" Version="3.7.1"/>
             </ItemGroup>
         </When>
         <!--Using Ice built from source-->

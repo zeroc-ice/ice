@@ -59,6 +59,6 @@ failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [4]: https://www.microsoft.com/net/download
 [5]: https://github.com/dotnet/core-setup#daily-builds

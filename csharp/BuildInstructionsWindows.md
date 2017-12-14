@@ -49,7 +49,7 @@ Target Framework Monikers (TFMs), for example:
 msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 ```
 
-This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders). 
+This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
 The target frameworks you specify must implement .NET Standard 2.0.
 
 ### Strong Name Signatures for .NET Framework 4.5 Assemblies
@@ -122,7 +122,7 @@ This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [4]: https://github.com/zeroc-ice/ice-builder-visualstudio
 [5]: https://www.microsoft.com/net/download/windows
 [6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
