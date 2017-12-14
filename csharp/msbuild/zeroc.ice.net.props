@@ -12,6 +12,7 @@
     <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
     <SliceDir>$(IceHome)\slice</SliceDir>
     <SliceCompilerOutputDir Condition="'$(SliceCompilerOutputDir)' == ''">generated</SliceCompilerOutputDir>
+    <EnableDefaultSliceItems Condition="'$(EnableDefaultSliceItems)' == ''">true</EnableDefaultSliceItems>
   </PropertyGroup>
 
   <Choose>
@@ -27,5 +28,9 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+
+   <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+       <Slice Condition="'$(EnableDefaultSliceItems)' == 'true'" Include="**/*.ice"/>
+   </ItemGroup>
 
 </Project>
