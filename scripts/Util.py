@@ -3195,18 +3195,20 @@ class CSharpMapping(Mapping):
         }[plugin]
 
     def getEnv(self, process, current):
-        if not current.config.netframework:
+        env = {}
+        if isinstance(platform, Windows):
+
             if current.driver.useIceBinDist(self):
-                bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45")
-                libDir = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
+                env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45")
+                if not current.config.netframework:
+                    env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
-                bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
-                                     "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
-                                     "build", "native", "bin", "x64", "Release")
-                libDir = os.path.join(current.driver.getIceDir(self, current), "lib", "net45")
-            return { "DEVPATH" : libDir, "PATH" : bzip2 }
-        else:
-            return {}
+                env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
+                                           "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
+                                           "build", "native", "bin", "x64", "Release")
+                if not current.config.netframework:
+                    env['DEVPATH'] = os.path.join(current.driver.getIceDir(self, current), "lib", "net45")
+        return env
 
     def getDefaultSource(self, processType):
         return {
