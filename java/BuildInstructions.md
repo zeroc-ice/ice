@@ -112,7 +112,7 @@ On Windows with an MSI installation:
 
 ```
 set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1
 ```
 
 If you are using Ice for C++ from a source distribution on Windows, you must set
@@ -159,17 +159,17 @@ gradlew install
 
 The following JAR files will be installed to `<prefix>/lib`.
 
-    glacier2-3.7.0.jar
-    ice-3.7.0.jar
-    icebox-3.7.0.jar
-    icebt-3.7.0.jar
-    icediscovery-3.7.0.jar
-    icegrid-3.7.0.jar
+    glacier2-3.7.1.jar
+    ice-3.7.1.jar
+    icebox-3.7.1.jar
+    icebt-3.7.1.jar
+    icediscovery-3.7.1.jar
+    icegrid-3.7.1.jar
     icegridgui.jar
-    icelocatordiscovery-3.7.0.jar
-    icepatch2-3.7.0.jar
-    icessl-3.7.0.jar
-    icestorm-3.7.0.jar
+    icelocatordiscovery-3.7.1.jar
+    icepatch2-3.7.1.jar
+    icessl-3.7.1.jar
+    icestorm-3.7.1.jar
 
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
@@ -182,14 +182,14 @@ then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
 ```
-export ICE_HOME=/opt/Ice-3.7.0 (For local build)
+export ICE_HOME=/opt/Ice-3.7.1 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
 
 ```
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1
 ```
 
 Python is required to run the test suite. To run the tests, open a command
@@ -219,7 +219,7 @@ can start the IceGrid GUI tool by double-clicking the IceGrid GUI icon in
 Finder.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [3]: https://gradle.org
 [4]: http://proguard.sourceforge.net
 [5]: https://commons.apache.org/proper/commons-compress/

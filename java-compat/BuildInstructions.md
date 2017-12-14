@@ -64,12 +64,12 @@ have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation. For
 example, on Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.7.1 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0 (MSI installation)
+    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1 (MSI installation)
 
 On Windows if you are using Ice for C++ from a source distribution, you must set
 the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
@@ -107,15 +107,15 @@ To install Ice for Java in the directory specified by the `prefix` variable in
 
 The installation installs the following JAR files to `<prefix>/lib`.
 
-    glacier2-compat-3.7.0.jar
-    ice-compat-3.7.0.jar
-    icebox-compat-3.7.0.jar
-    icebt-compat-3.7.0.jar
-    icediscovery-compat-3.7.0.jar
-    icegrid-compat-3.7.0.jar
-    icelocatordiscovery-compat-3.7.0.jar
-    icepatch2-compat-3.7.0.jar
-    icestorm-compat-3.7.0.jar
+    glacier2-compat-3.7.1.jar
+    ice-compat-3.7.1.jar
+    icebox-compat-3.7.1.jar
+    icebt-compat-3.7.1.jar
+    icediscovery-compat-3.7.1.jar
+    icegrid-compat-3.7.1.jar
+    icelocatordiscovery-compat-3.7.1.jar
+    icepatch2-compat-3.7.1.jar
+    icestorm-compat-3.7.1.jar
 
 POM files are also installed for ease of deployment to a Maven-based
 distribution system.
@@ -127,12 +127,12 @@ C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
 
-    $ export ICE_HOME=/opt/Ice-3.7.0 (For local build)
+    $ export ICE_HOME=/opt/Ice-3.7.1 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
 
 On Windows:
 
-    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.0
+    > set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
@@ -143,6 +143,6 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [3]: https://gradle.org
 [4]: https://commons.apache.org/proper/commons-compress/

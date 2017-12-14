@@ -155,8 +155,8 @@ After a successful source build, you can run the tests as follows:
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-[1]: https://doc.zeroc.com/display/Rel/Using+the+Linux+Binary+Distributions+for+Ice+3.7.0
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.0
+[1]: https://doc.zeroc.com/display/Rel/Using+the+Linux+Binary+Distributions+for+Ice+3.7.1
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [3]: http://bzip.org
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/
