@@ -18,9 +18,23 @@
       <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln" Condition="'$(ICE_BIN_DIST)' == 'all'"/>
     </Target>
 
+    <!-- NET Standard on Windows requires Visual Studio 2017 -->
+    <Choose>
+        <When Condition="'$(DefaultPlatformToolset)' == 'v141' or '$(OS)' != 'Windows_NT'">
+            <PropertyGroup>
+                <BuildNetStandardTargets>true</BuildNetStandardTargets>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <BuildNetStandardTargets>false</BuildNetStandardTargets>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
     <!-- Targets required to build Slice compilers -->
     <Choose>
-        <When Condition="'$(DefaultPlatformToolset)' == 'v120' OR '$(OS)' != 'Windows_NT'">
+        <When Condition="'$(DefaultPlatformToolset)' == 'v120' or '$(OS)' != 'Windows_NT'">
             <ItemGroup>
                 <SliceCompilers Include="slice2cs;slice2html"/>
             </ItemGroup>
@@ -116,7 +130,7 @@
 
     <Target Name="RestoreNetStandardDist"
             DependsOnTargets="SliceCompilers"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -127,7 +141,7 @@
 
     <Target Name="BuildNetStandardDist"
             DependsOnTargets="SliceCompilers;RestoreNetStandardDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -136,7 +150,7 @@
     </Target>
 
     <Target Name="CleanNetStandardDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
+            Condition="'$(ICE_BIN_DIST)' != 'all and '$(BuildNetStandardTargets)' == 'true''">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -145,7 +159,8 @@
 
     </Target>
 
-    <Target Name="RestoreNetStandard">
+    <Target Name="RestoreNetStandard"
+            Condition="'$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -155,7 +170,8 @@
     </Target>
 
     <Target Name="BuildNetStandard"
-            DependsOnTargets="BuildNetStandardDist;RestoreNetStandard">
+            DependsOnTargets="BuildNetStandardDist;RestoreNetStandard"
+            Condition="'$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -164,7 +180,8 @@
     </Target>
 
     <Target Name="CleanNetStandard"
-            DependsOnTargets="CleanNetStandardDist">
+            DependsOnTargets="CleanNetStandardDist"
+            Condition="'$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -190,10 +207,10 @@
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
     <!-- Packaging -->
-    <Target Name="NuGetPack" DependsOnTargets="BuildDist">
+    <Target Name="NuGetPack" DependsOnTargets="BuildDist" Condition="'$(DefaultPlatformToolset)' == 'v141' and '$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\netstandard\icebox\icebox.csproj"
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
                  Targets="Publish"/>
 
