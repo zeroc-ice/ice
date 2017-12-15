@@ -33,7 +33,7 @@ msbuild msbuild\ice.proj
 Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0
 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 
-> Note: the .NET Standard 2.0 assemblies are created only when you build with
+> Note: the assemblies for .NET Standard 2.0 are created only when you build with
 > Visual Studio 2017.
 
 You can skip the build of the test suite with the `BuildDist` target:
@@ -122,12 +122,11 @@ and run the following command:
 msbuild msbuild\ice.proj /t:NuGetPack
 ```
 
-This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
+This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
-NuGet packages build with Visual Studio 2013 or Visual Studio 2015 will only
-include .NET Framework 4.5 assemblies, packages build with Visual Studio 2017
-will include both .NET Standard 2.0 assemblies and .NET Framework 4.5
-assemblies.
+| Note: The new NuGet package always includes assemblies for the .NET Framework 4.5.
+| If you build with Visual Studio 2017, the NuGet package also includes assemblies
+| for .NET Standard 2.0.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
