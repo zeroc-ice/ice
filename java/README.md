@@ -4,6 +4,22 @@ This page describes how to build and install Ice for Java from source code. If
 you prefer, you can also download [binary distributions][1] for the supported
 platforms.
 
+* [Build Requirements](#build-requirements)
+  * [Operating Systems](#operating-systems)
+  * [Slice to Java Compiler](#slice-to-java-compiler)
+  * [Java Version](#java-version)
+  * [Gradle](#gradle)
+  * [Bzip2 Compression](#bzip2-compression)
+  * [JGoodies](#jgoodies)
+  * [ProGuard](#proguard)
+  * [Java Application Bundler](#java-application-bundler)
+* [Compiling Ice for Java](#compiling-ice-for-java)
+  * [Preparing to Build](#preparing-to-build)
+  * [Building Ice for Java](#building-ice-for-java-1)
+* [Installing Ice for Java](#installing-ice-for-java)
+* [Running the Java Tests](#running-the-java-tests)
+* [IceGrid GUI Tool](#icegrid-gui-tool)
+
 ## Build Requirements
 
 ### Operating Systems
