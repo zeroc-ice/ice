@@ -1,25 +1,22 @@
-# Building Ice for Python on Windows
+# Building Ice for Python
 
-This document describes how to build and install Ice for Python from source code
-on Windows. If you prefer, you can also download [binary distributions][1] for
-the supported platforms.
+This document describes how to build and install Ice for Python from source.
+You can also download and install a [binary distribution][1].
 
-## Python Build Requirements
+* [Building with Pip](#building-with-pip)
+* [Building with Visual Studio 2015 and MSBuild (Python 3\.6 for Windows)](#building-with-visual-studio-2015-and-msbuild-python-36-for-windows)
+* [Building on Linux or macOS](#building-on-linux-or-macos)
+* [Configuring your Environment for Python](#configuring-your-environment-for-python)
+* [Running the Python Tests](#running-the-python-tests)
 
-### Operating Systems and Compilers
-
-Ice for Python was extensively tested on the operating systems and compiler versions
-listed on [supported platforms][2].
-
-## Building the Python Extension
-
-### With Pip
+## Building with Pip
 
 You can build the Ice for Python extension from source using `pip`:
 ```
 pip install <URL of Ice source distribution for Python>
 ```
-### With Visual Studio 2015 and MSBuild (Python 3.6 only)
+
+## Building with Visual Studio 2015 and MSBuild (Python 3.6 for Windows)
 
 You can  build an Ice for Python 3.6 extension that links with the Ice C++
 DLLs using Visual Studio and MSBuild.
@@ -84,28 +81,67 @@ installation from `C:\Python36-AMD64` instead of the default location:
 ```
 msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python36-AMD64
 ```
+
+## Building on Linux or macOS
+
+Ice for Python supports Python versions 2.6, 2.7, and 3.5. Note however that
+your Python installation must have been built with a C++ compiler that is
+compatible with the compiler used to build Ice for C++.
+
+The build of Ice for Python requires to first build Ice for C++ in the `cpp`
+subdirectory.
+
+From the top-level source directory, edit `config/Make.rules` to establish your
+build configuration. The comments in the file provide more information.
+
+Change to the Ice for Python source subdirectory:
+```
+cd python
+```
+
+Execute `python -V` to verify that the correct Python interpreter is in your
+executable search path.
+
+Run `make` to build the extension.
+
+Upon successful completion, run `make install`. You may need additional user
+permissions to install in the directory specified by `config/Make.rules`.
+
+
 ## Configuring your Environment for Python
 
 Modify your environment to allow Python to find the Ice extension for Python.
-The interpreter must be able to locate the extension DLL as well as the Python
-source files in the `python` subdirectory. This is normally accomplished by
-setting the `PYTHONPATH` environment variable to contain the necessary
-subdirectory. For example, if the Ice for Python extension is installed in
-`C:\Ice`, you could configure your environment as follows:
+The python interpreter must be able to locate the IcePy extension as well as
+the Python source files in the `python` subdirectory. This is normally
+accomplished by setting the `PYTHONPATH` environment variable to contain the
+necessary subdirectory.
+
+For example on Windows, with Ice for Python installed in `C:\Ice`:
 ```
 set PYTHONPATH=C:\Ice\python;C:\Ice\python\Win32\Release
 ```
+
+For example on Linux or macOS, with Ice for Python installed in `/opt/Ice`:
+```
+export PYTHONPATH=/opt/Ice/python
+```
+
 ## Running the Python Tests
 
 After a successful build, you can run the tests as follows:
+
+Windows:
 ```
 python allTests.py --config=Release --platform=Win32
 ```
 (adjust `--config` and `--platform` to match your build)
 
+Linux/macOS:
+```
+python allTests.py
+```
+
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
-[3]: https://github.com/zeroc-ice/ice-builder-visualstudio
