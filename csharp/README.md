@@ -4,17 +4,17 @@ This page describes how to build Ice for .NET from source and package the
 resulting binaries. As an alternative, you can download and install the
 [zeroc.ice.net][1] NuGet package.
 
- * [Building on Windows](#building-on-windows)
-   * [Windows Build Requirements](#windows-build-requirements)
-   * [Compiling Ice for \.NET on Windows](#compiling-ice-for-net-on-windows)
-     * [Strong Name Signatures for \.NET Framework 4\.5 Assemblies](#strong-name-signatures-for-net-framework-45-assemblies)
-     * [Authenticode Signatures](#authenticode-signatures)
-     * [Building only the Test Suite](#building-only-the-test-suite)
- * [Building on Linux or macOS](#building-on-linux-or-macos)
-   * [Linux and macOS Build Requirements](#linux-and-macos-build-requirements)
-   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
- * [Running the Tests](#running-the-tests)
- * [NuGet Package](#nuget-package)
+* [Building on Windows](#building-on-windows)
+  * [Windows Build Requirements](#windows-build-requirements)
+  * [Compiling Ice for \.NET on Windows](#compiling-ice-for-net-on-windows)
+    * [Strong Name Signatures for \.NET Framework 4\.5 Assemblies](#strong-name-signatures-for-net-framework-45-assemblies)
+    * [Authenticode Signatures](#authenticode-signatures)
+    * [Building only the Test Suite](#building-only-the-test-suite)
+* [Building on Linux or macOS](#building-on-linux-or-macos)
+  * [Linux and macOS Build Requirements](#linux-and-macos-build-requirements)
+  * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
+* [Running the Tests](#running-the-tests)
+* [NuGet Package](#nuget-package)
 
 ## Building on Windows
 
