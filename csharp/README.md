@@ -172,5 +172,5 @@ This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
 [4]: https://github.com/zeroc-ice/ice-builder-visualstudio
-[5]: https://www.microsoft.com/net/download/windows
+[5]: https://www.microsoft.com/net/download
 [6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
