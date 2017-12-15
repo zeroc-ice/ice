@@ -16,7 +16,7 @@ versions listed for our [supported platforms][3].
 In order to build Ice for .NET from source, you need all of the following:
  - a supported version of Visual Studio
  - the [Ice Builder for Visual Studio][4]
- - the [.NET Core 2.0 SDK][5]
+ - the [.NET Core 2.0 SDK][5], if you use Visual Studio 2017
 
 ## Compiling Ice for .NET
 
@@ -32,6 +32,9 @@ msbuild msbuild\ice.proj
 
 Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard 2.0
 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
+
+> Note: the .NET Standard 2.0 assemblies are created only when you build with
+> Visual Studio 2017.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
@@ -51,9 +54,6 @@ msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 
 This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
 The target frameworks you specify must implement .NET Standard 2.0.
-
-*Building .NET Standard assemblies requires Visual Studio 2017, building with previous
-Visual Studio will produce only .NET Framework 4.5 assemblies*
 
 ### Strong Name Signatures for .NET Framework 4.5 Assemblies
 
