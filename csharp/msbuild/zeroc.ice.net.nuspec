@@ -13,11 +13,7 @@
         <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes</releaseNotes>
         <tags>ice</tags>
         <references>
-            <group targetFramework="net451">
-                <reference file="Ice.dll" />
-            </group>
-
-            <group targetFramework="netstandard2.0">
+            <group targetFramework="net45">
                 <reference file="Ice.dll" />
             </group>
         </references>
