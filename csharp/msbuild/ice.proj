@@ -206,16 +206,17 @@
 
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
-    <!-- Packaging -->
-    <Target Name="NuGetPack" DependsOnTargets="BuildDist" Condition="'$(DefaultPlatformToolset)' == 'v141' and '$(OS)' == 'Windows_NT'">
+    <!-- Packaging is only supported on Windows -->
+    <Target Name="NuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
-                 Targets="Publish"/>
+                 Targets="Publish"
+                 Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net"/>
+                 Properties="PackageDirectory=zeroc.ice.net;BuildNetStandardTargets=$(BuildNetStandardTargets)"/>
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
@@ -248,7 +249,8 @@
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll;
                            $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.0"/>
+              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.0"
+              Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
         <Copy SourceFiles="zeroc.ice.net.props"
               DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>

@@ -52,6 +52,9 @@ msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
 The target frameworks you specify must implement .NET Standard 2.0.
 
+*Building .NET Standard assemblies requires Visual Studio 2017, building with previous
+Visual Studio will produce only .NET Framework 4.5 assemblies*
+
 ### Strong Name Signatures for .NET Framework 4.5 Assemblies
 
 You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.5
@@ -113,12 +116,18 @@ python allTests.py --netframwork netcoreapp2.0
 
 ## NuGet Packages
 
-To create a NuGet package for the distribution, use the following command:
+To create a NuGet package for the distribution, open a Visual Studio command promp
+and run the following command:
 ```
 msbuild msbuild\ice.proj /t:NuGetPack
 ```
 
 This will create `zeroc.ice.net\zeroc.ice.net.nupkg`.
+
+NuGet packages build with Visual Studio 2013 or Visual Studio 2015 will only
+include .NET Framework 4.5 assemblies, packages build with Visual Studio 2017
+will include both .NET Standard 2.0 assemblies and .NET Framework 4.5
+assemblies.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
