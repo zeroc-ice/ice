@@ -162,9 +162,9 @@ msbuild msbuild\ice.proj /t:NuGetPack
 
 This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
-| Note: The new NuGet package always includes assemblies for the .NET Framework 4.5.
-| If you build with Visual Studio 2017, the NuGet package also includes assemblies
-| for .NET Standard 2.0.
+> Note: The new NuGet package always includes assemblies for the .NET Framework 4.5.
+> If you build with Visual Studio 2017, the NuGet package also includes assemblies
+> for .NET Standard 2.0.
 
 *Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
 
