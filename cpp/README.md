@@ -346,13 +346,13 @@ C++98 Test Controller app or C++11 Test Controller app from Xcode:
  - Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must
  match the configuration(s) selected when building the test suite).
 
-* iOS Simulator
+#### iOS Simulator
 ```
 python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 
-* iOS
+#### iOS
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
  - On your Mac:
