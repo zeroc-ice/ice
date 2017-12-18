@@ -107,7 +107,6 @@ Run `make` to build the extension.
 Upon successful completion, run `make install`. You may need additional user
 permissions to install in the directory specified by `config/Make.rules`.
 
-
 ## Configuring your Environment for Python
 
 Modify your environment to allow Python to find the Ice extension for Python.
