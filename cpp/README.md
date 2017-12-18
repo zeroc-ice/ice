@@ -34,7 +34,7 @@ Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
 On Windows, the build requires a recent version of Visual Studio and the
-[Ice Builder for Visual Studio][8].
+[Ice Builder for Visual Studio][13].
 
 ### Third-Party Libraries
 
