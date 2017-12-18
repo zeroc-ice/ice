@@ -55,7 +55,7 @@ Bzip, Expat and OpenSSL are included with most Linux distributions.
 ZeroC supplies binary packages for LMDB and mcpp for several Linux distributions
 that do not include them. You can install these packages as shown below:
 
-* Amazon Linux
+##### Amazon Linux
 ```
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
@@ -63,7 +63,7 @@ cd /etc/yum.repos.d
 sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-amzn1.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
-* RHEL 7
+##### RHEL 7
 ```
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
@@ -71,7 +71,7 @@ cd /etc/yum.repos.d
 sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-el7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
-* SLES 12
+##### SLES 12
 ```
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
