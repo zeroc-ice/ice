@@ -44,6 +44,12 @@ public class AllTests
         }
         result.properties.setProperty("Ice.RetryIntervals", "-1");
         //result.properties.setProperty("IceSSL.Trace.Security", "1");
+
+        // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
+        // and ACM closes the connection first. We increase the default timeout here to prevent
+        // the test from failing when this occurs. It usually takes 2 minutes for the connection
+        // closure to be detected when this occurs so we set a default timeout of 3 minutes.
+        result.properties.setProperty("Ice.Default.Timeout", "180000");
         return result;
     }
 
