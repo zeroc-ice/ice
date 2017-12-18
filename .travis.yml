@@ -9,7 +9,7 @@ env:
   - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
   - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
   - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USER_NAMESPACES=no CONFIGS=shared"
-  - DOCKER_RUN="docker run --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - DOCKER_RUN="docker run -it --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
   - ALLTESTS="python allTests.py --protocol=ssl --workers=4"
 
 jobs:
