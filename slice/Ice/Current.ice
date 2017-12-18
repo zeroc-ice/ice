@@ -158,7 +158,7 @@ local struct Current
      * The encoding version used to encode the input and output parameters.
      *
      **/
-    Ice::EncodingVersion encoding;
+    EncodingVersion encoding;
 }
 
 }

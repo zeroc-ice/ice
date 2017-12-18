@@ -411,7 +411,7 @@ local interface Communicator
      * @return This communicator's observer resolver object.
      *
      **/
-    ["cpp:const"] Ice::Instrumentation::CommunicatorObserver getObserver();
+    ["cpp:const"] Instrumentation::CommunicatorObserver getObserver();
 
     /**
      *

@@ -4,6 +4,15 @@ This file describes how to build and install Ice for Ruby from source code on
 Linux and macOS. If you prefer, you can also download [binary distributions][1]
 for the supported platforms.
 
+* [Ruby Build Requirements](#ruby-build-requirements)
+  * [Operating Systems and Compilers](#operating-systems-and-compilers)
+  * [Ruby Versions](#ruby-versions)
+* [Building the Ruby Extension](#building-the-ruby-extension)
+* [Installing Ice for Ruby](#installing-ice-for-ruby)
+* [Configuring your Environment for Ruby](#configuring-your-environment-for-ruby)
+* [Running the Ruby Tests](#running-the-ruby-tests)
+* [SELinux Notes for Ruby](#selinux-notes-for-ruby)
+
 ## Ruby Build Requirements
 
 ### Operating Systems and Compilers

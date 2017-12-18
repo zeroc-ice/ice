@@ -3,6 +3,18 @@
 This page describes how to build and install Ice for Objective-C from source
 code on macOS. If you prefer, you can install a [Homebrew][1] package instead.
 
+* [Objective\-C Build Requirements](#objective-c-build-requirements)
+  * [Operating Systems and Compilers](#operating-systems-and-compilers)
+* [Building Ice for Objective\-C](#building-ice-for-objective-c)
+  * [Build configurations and platforms](#build-configurations-and-platforms)
+  * [Ice Xcode SDK](#ice-xcode-sdk)
+* [Installing an Objective\-C Source Build](#installing-an-objective-c-source-build)
+* [Building the Test Suite](#building-the-test-suite)
+* [Running the Test Suite](#running-the-test-suite)
+  * [macOS](#macos)
+  * [iOS Simulator](#ios-simulator)
+  * [iOS](#ios)
+
 ## Objective-C Build Requirements
 
 ### Operating Systems and Compilers
