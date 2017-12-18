@@ -1,4 +1,4 @@
-# Building Ice for C++ on Windows
+# Building Ice for C++
 
 This file describes how to build Ice for C++ from source and how to test the
 resulting build.
@@ -254,13 +254,15 @@ the `runpath` directory to the installation directory, you also need to add the
 library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH (macOS).
 
 On a Linux x86_64 system:
-
-    <prefix>/lib64                 (RHEL, SLES, Amazon)
-    <prefix>/lib/x86_64-linux-gnu  (Ubuntu)
+```
+<prefix>/lib64                 (RHEL, SLES, Amazon)
+prefix>/lib/x86_64-linux-gnu  (Ubuntu)
+```
 
 On macOS:
-
-   <prefix>/lib
+```
+<prefix>/lib
+```
 
 When compiling Ice programs, you must pass the location of the
 `<prefix>/include` directory to the compiler with the `-I` option, and the
