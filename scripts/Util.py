@@ -2698,7 +2698,10 @@ class Driver:
 
     def getInstallDir(self, mapping, current, envHomeName, envBinDistName):
         if self.useBinDist(mapping, envBinDistName):
-            return platform.getInstallDir(mapping, current, envHomeName)
+            if envHomeName == "ICE_HOME":
+                return platform.getIceInstallDir(mapping, current)
+            else:
+                return platform.getInstallDir(mapping, current, envHomeName)
         elif mapping:
             return mapping.getPath()
         else:
