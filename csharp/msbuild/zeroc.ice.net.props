@@ -12,35 +12,8 @@
     <SliceDir>$(IceHome)\slice</SliceDir>
     <SliceCompilerOutputDir Condition="'$(SliceCompilerOutputDir)' == ''">generated</SliceCompilerOutputDir>
     <EnableDefaultSliceItems Condition="'$(EnableDefaultSliceItems)' == ''">true</EnableDefaultSliceItems>
+    <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
   </PropertyGroup>
-
-  <Choose>
-      <When Condition="$(TargetFramework.StartsWith('net45')) or $(TargetFramework.StartsWith('net46')) or $(TargetFramework.StartsWith('net47'))">
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
-          </PropertyGroup>
-      </When>
-      <When Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' and $(TargetFrameworkVersion.StartsWith('v4.5'))">
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
-          </PropertyGroup>
-      </When>
-      <When Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' and $(TargetFrameworkVersion.StartsWith('v4.6'))">
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
-          </PropertyGroup>
-      </When>
-      <When Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' and $(TargetFrameworkVersion.StartsWith('v4.7'))">
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
-          </PropertyGroup>
-      </When>
-      <Otherwise>
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib\netstandard2.0</IceAssembliesDir>
-          </PropertyGroup>
-      </Otherwise>
-  </Choose>
 
   <Choose>
     <When Condition="'$(OS)' == 'Windows_NT'">
