@@ -3254,7 +3254,11 @@ class CSharpMapping(Mapping):
                     return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}".format(exe))
         else:
             if exe == "icebox":
-                return os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
+                if current.driver.useIceBinDist(self):
+                    return os.path.join(
+                        platform.getIceInstallDir(self, current), "tools", "net45", "iceboxnet.exe")
+                else:
+                    return os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
             else:
                 return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
 
