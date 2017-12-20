@@ -3213,7 +3213,8 @@ class CSharpMapping(Mapping):
         if isinstance(platform, Windows):
 
             if current.driver.useIceBinDist(self):
-                env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45")
+                framework = "net45" if not current.config.netframework else current.config.netframework
+                env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", framework)
                 if not current.config.netframework:
                     env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
