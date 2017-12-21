@@ -9,13 +9,15 @@ env:
   - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
   - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
   - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USER_NAMESPACES=no CONFIGS=shared"
-  - DOCKER_RUN="docker run --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - DOCKER_RUN="docker run -it --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
   - ALLTESTS="python allTests.py --protocol=ssl --workers=4"
 
 jobs:
   include:
     - stage: build docker image
       script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
       - |
         echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
@@ -23,25 +25,35 @@ jobs:
       - docker build --cache-from ${DOCKER_BASE_IMAGE} -t ${DOCKER_BUILD_IMAGE} .
       - docker push ${DOCKER_BUILD_IMAGE}
 
-    - stage: test docker image
+    - &test-staging
+      stage: test staging
+      before_script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+      - docker pull ${DOCKER_BUILD_IMAGE}
       script: $DOCKER_RUN "${ALLTESTS} --filter=cpp"
-      env: TESTING=C++
-    - script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
-      env: TESTING=C++11
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=chsarp"
-      env: TESTING=C#
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java"
-      env: TESTING=Java
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
-      env: TESTING=Java Compat
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=js"
-      env: TESTING=JavaScript
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=php"
-      env: TESTING=PHP
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=python"
-      env: TESTING=Python
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
-      env: TESTING=Ruby
+      env: comment=C++
+    - <<: *test-staging
+      script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
+      env: comment=C++11
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=java"
+      env: comment=Java
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
+      env: comment=Java Compat
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=js"
+      env: comment=JavaScript
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=php"
+      env: comment=PHP
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=python"
+      env: comment=Python
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
+      env: comment=Ruby
 
 notifications:
   email: travis-ci@zeroc.com
