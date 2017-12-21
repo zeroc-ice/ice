@@ -9,14 +9,15 @@ env:
   - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
   - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
   - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USER_NAMESPACES=no CONFIGS=shared"
-  # see https://github.com/travis-ci/travis-ci/issues/8920#issuecomment-353133953 for fcntl issue
-  - DOCKER_RUN="python -c \'import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)\';docker run -it --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - DOCKER_RUN="docker run -it --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
   - ALLTESTS="python allTests.py --protocol=ssl --workers=4"
 
 jobs:
   include:
     - stage: build docker image
       script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
       - |
         echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
@@ -24,22 +25,34 @@ jobs:
       - docker build --cache-from ${DOCKER_BASE_IMAGE} -t ${DOCKER_BUILD_IMAGE} .
       - docker push ${DOCKER_BUILD_IMAGE}
 
-    - stage: test docker image
+    - &test-staging
+      stage: test staging
+      before_script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+      - docker pull ${DOCKER_BUILD_IMAGE}
       script: $DOCKER_RUN "${ALLTESTS} --filter=cpp"
       env: comment=C++
-    - script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
+    - <<: *test-staging
+      script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
       env: comment=C++11
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=java"
       env: comment=Java
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
       env: comment=Java Compat
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=js"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=js"
       env: comment=JavaScript
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=php"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=php"
       env: comment=PHP
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=python"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=python"
       env: comment=Python
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
       env: comment=Ruby
 
 notifications:
