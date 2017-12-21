@@ -5,7 +5,8 @@
         but only if Ice Builder for Visual Studio is not enabled
     -->
     <ItemGroup Condition="'$(IceBuilderCsharpProps)' == ''">
-        <Compile Include="@(Slice->'$(SliceCompilerOutputDir)\%(Filename).cs')" />
+        <Compile Include="@(Slice->'$(SliceCompilerOutputDir)\%(Filename).cs')"
+                 Condition="!Exists(@(Slice->'$(SliceCompilerOutputDir)\%(Filename).cs')) or !$(EnableDefaultCompileItems)"/>
     </ItemGroup>
     <!--
         The SliceCompile targets build the Slice project items using Slice to C# compiler,
