@@ -22,7 +22,7 @@
     <IceHome Condition="'$(ICE_BIN_DIST)' != 'all'">$(MSBuildThisFileDirectory)..\..</IceHome>
     <SliceCompilerOutputDir>generated\$(TargetFramework)</SliceCompilerOutputDir>
     <SliceDir>$(IceHome)\slice</SliceDir>
-    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45</DefineConstants>
+    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45;$(DefineConstants)</DefineConstants>
     <IceTestsTargetFrameworks Condition="'$(IceTestsTargetFrameworks)' == ''">netcoreapp2.0</IceTestsTargetFrameworks>
   </PropertyGroup>
 
