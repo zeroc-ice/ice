@@ -182,12 +182,12 @@ public class AllTests : TestCommon.AllTests
             };
             // We use sleepAsync instead of opAsync to ensure the response isn't received before
             // we setup the continuation
-            var t = p.sleepAsync(200).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously);
+            var t = p.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously);
             t.Wait();
             cb.check();
 
             var i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.sleepAsync(200).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            i.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
             cb.check();
 
             //
