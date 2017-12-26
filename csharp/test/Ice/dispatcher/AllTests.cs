@@ -187,8 +187,13 @@ public class AllTests : TestCommon.AllTests
             cb.check();
 
             var i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
-            cb.check();
+
+            //
+            // sleepAsync doesn't help here as the test will fail with Ice.NoEndpointException and sleepAsync
+            // will not be called.
+            //
+            //i.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            //cb.check();
 
             //
             // Expect InvocationTimeoutException.
