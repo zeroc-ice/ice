@@ -1813,8 +1813,10 @@ class TestSuite:
 
     def isMainThreadOnly(self, driver):
         for m in [CppMapping, JavaMapping, CSharpMapping]:
-            if isinstance(self.mapping, m):
-                config = driver.configs[self.mapping]
+            config = driver.configs[self.mapping]
+            if isinstance(self.mapping, CSharpMapping) and config.netframework:
+                return True
+            elif isinstance(self.mapping, m):
                 if "iphone" in config.buildPlatform or config.uwp:
                     return True # Not supported yet for tests that require a remote process controller
                 return self.runOnMainThread
