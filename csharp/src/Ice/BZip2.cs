@@ -36,10 +36,10 @@ namespace IceInternal
                                                                      int small,
                                                                      int verbosity);
 
-        [DllImport("libbz2.so", EntryPoint="BZ2_bzlibVersion")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzlibVersion")]
         internal static extern IntPtr unixBZ2_bzlibVersion();
 
-        [DllImport("libbz2.so", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffCompress")]
         internal static extern int unixBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                 ref int destLen,
                                                                 byte[] source,
@@ -48,7 +48,7 @@ namespace IceInternal
                                                                 int verbosity,
                                                                 int workFactor);
 
-        [DllImport("libbz2.so", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffDecompress")]
         internal static extern int unixBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                   ref int destLen,
                                                                   byte[] source,
@@ -128,11 +128,12 @@ namespace IceInternal
             }
             catch(EntryPointNotFoundException)
             {
-                Console.Error.WriteLine("warning: found bzip2.dll but entry point BZ2_bzlibVersion is missing.");
+                string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
+                Console.Error.WriteLine("warning: found " + lib + " but entry point BZ2_bzlibVersion is missing.");
             }
             catch(BadImageFormatException ex)
             {
-                string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "bzip2.so";
+                string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                 if(!String.IsNullOrEmpty(ex.FileName))
                 {
                     lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
