@@ -146,7 +146,12 @@ IceSSL_opensslPasswordCallback(char* buf, int size, int flag, void* userData)
 DH*
 IceSSL_opensslDHCallback(SSL* ssl, int /*isExport*/, int keyLength)
 {
-    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010000fL
+    SSL_CTX* sslCtx = SSL_get_SSL_CTX(ssl);
+#else
+    SSL_CTX* sslCtx = ssl->ctx;
+#endif
+    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(sslCtx, 0));
     return p->dhParams(keyLength);
 }
 #endif
@@ -155,7 +160,12 @@ int
 IceSSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
 {
     SSL* ssl = reinterpret_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
-    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(ssl->ctx, 0));
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010000fL
+    SSL_CTX* sslCtx = SSL_get_SSL_CTX(ssl);
+#else
+    SSL_CTX* sslCtx = ssl->ctx;
+#endif
+    IceSSL::Instance* p = reinterpret_cast<IceSSL::Instance*>(SSL_CTX_get_ex_data(sslCtx, 0));
     return p->verifyCallback(ok, ssl, ctx);
 }
 
@@ -271,7 +281,7 @@ IceSSL::Instance::Instance(const CommunicatorPtr& communicator) :
                     }
                 }
             }
-#ifndef _WIN32
+#if !defined (_WIN32) && !defined (OPENSSL_NO_EGD)
             //
             // The Entropy Gathering Daemon (EGD) is not available on Windows.
             // The file should be a Unix domain socket for the daemon.
