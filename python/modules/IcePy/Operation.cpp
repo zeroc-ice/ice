@@ -1771,7 +1771,7 @@ IcePy::TypedInvocation::validateException(PyObject* ex) const
 {
     for(ExceptionInfoList::const_iterator p = _op->exceptions.begin(); p != _op->exceptions.end(); ++p)
     {
-        if(PyObject_IsInstance(ex, (*p)->pythonType.get()))
+        if(PyObject_IsInstance(ex, (*p)->pythonType))
         {
             return true;
         }
@@ -3572,7 +3572,7 @@ IcePy::TypedUpcall::validateException(PyObject* ex) const
 {
     for(ExceptionInfoList::const_iterator p = _op->exceptions.begin(); p != _op->exceptions.end(); ++p)
     {
-        if(PyObject_IsInstance(ex, (*p)->pythonType.get()))
+        if(PyObject_IsInstance(ex, (*p)->pythonType))
         {
             return true;
         }
