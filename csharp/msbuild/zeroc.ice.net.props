@@ -2,35 +2,40 @@
 <!-- Copyright (c) 2009-2017 ZeroC, Inc. All rights reserved. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <IceVersion>3.7.1</IceVersion>
-    <IceIntVersion>30701</IceIntVersion>
-    <IceVersionMM>3.7</IceVersionMM>
-    <IceSoVersion>37</IceSoVersion>
-    <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
-    <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-    <SliceDir>$(IceHome)\slice</SliceDir>
-    <SliceCompilerOutputDir Condition="'$(SliceCompilerOutputDir)' == ''">generated</SliceCompilerOutputDir>
-    <EnableDefaultSliceItems Condition="'$(EnableDefaultSliceItems)' == ''">true</EnableDefaultSliceItems>
-    <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
-  </PropertyGroup>
+    <PropertyGroup>
+        <IceVersion>3.7.1</IceVersion>
+        <IceIntVersion>30701</IceIntVersion>
+        <IceVersionMM>3.7</IceVersionMM>
+        <IceSoVersion>37</IceSoVersion>
+        <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
+        <SliceDir>$(IceHome)\slice</SliceDir>
+        <SliceCompilerOutputDir Condition="'$(SliceCompilerOutputDir)' == ''">generated</SliceCompilerOutputDir>
+        <EnableDefaultSliceItems Condition="'$(EnableDefaultSliceItems)' == ''">true</EnableDefaultSliceItems>
+        <IceAssembliesDir>$(IceHome)\lib\net45</IceAssembliesDir>
+    </PropertyGroup>
 
-  <Choose>
-    <When Condition="'$(OS)' == 'Windows_NT'">
-      <PropertyGroup>
-        <SliceCompiler Condition="'$(SliceCompiler)' == ''">$(IceHome)\tools\slice2cs.exe</SliceCompiler>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <SliceCompiler Condition="'$(SliceCompiler)' == '' and Exists('$(ICE_HOME)/bin/slice2cs')">$(ICE_HOME)/bin/slice2cs</SliceCompiler>
-        <SliceCompiler Condition="'$(SliceCompiler)' == '' and Exists('/usr/bin/slice2cs')">/usr/bin/slice2cs</SliceCompiler>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+    <Choose>
+        <When Condition="'$(OS)' == 'Windows_NT'">
+            <PropertyGroup>
+                <SliceCompiler Condition="'$(SliceCompiler)' == ''">$(IceHome)\tools\slice2cs.exe</SliceCompiler>
+                <IceToolsPath Condition="'$(IceToolsPath)' == ''">$(IceHome)\tools</IceToolsPath>
+            </PropertyGroup>
+        </When>
 
-   <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
-       <Slice Condition="'$(EnableDefaultSliceItems)' == 'true'" Include="**/*.ice"/>
-   </ItemGroup>
+        <Otherwise>
+            <PropertyGroup>
+                <IceToolsPath Condition="'$(IceToolsPath)' == '' and Exists('$(ICE_HOME)/bin/slice2cs')">$(ICE_HOME)/bin</IceToolsPath>
+                <IceToolsPath Condition="'$(IceToolsPath)' == '' and Exists('/usr/bin/slice2cs')">/usr/bin</IceToolsPath>
+                <!-- only required for 3.7.1 beta packages -->
+                <SliceCompiler Condition="'$(SliceCompiler)' == '' and Exists('$(ICE_HOME)/bin/slice2cs')">$(ICE_HOME)/bin/slice2cs</SliceCompiler>
+                <SliceCompiler Condition="'$(SliceCompiler)' == '' and Exists('/usr/bin/slice2cs')">/usr/bin/slice2cs</SliceCompiler>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- only required for 3.7.1 beta packages -->
+    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+        <Slice Condition="'$(EnableDefaultSliceItems)' == 'true'" Include="**/*.ice"/>
+    </ItemGroup>
 
 </Project>

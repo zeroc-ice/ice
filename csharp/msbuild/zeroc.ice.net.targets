@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+        <!-- only required for 3.7.1 beta packages -->
     <!--
         Dynamically add the C# generated files to the Compile project items
         but only if Ice Builder for Visual Studio is not enabled
