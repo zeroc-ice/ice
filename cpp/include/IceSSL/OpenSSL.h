@@ -43,7 +43,14 @@
 namespace Ice
 {
 
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool = true);
+/**
+ * When using static libraries, calling this function ensures the OpenSSL version of the IceSSL plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding plug-in
+ * property is set to 1. 
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool loadOnInitialize = true);
 
 }
 #endif
@@ -57,69 +64,84 @@ namespace OpenSSL
 class Certificate;
 ICE_DEFINE_PTR(CertificatePtr, Certificate);
 
+/**
+ * Encapsulates an OpenSSL X.509 certificate.
+ * \headerfile IceSSL/IceSSL.h
+ */
 class ICESSL_OPENSSL_API Certificate : public virtual IceSSL::Certificate
 {
 public:
 
-    //
-    // Construct a certificate using a native certificate.
-    //
-    // The Certificate class assumes ownership of the given native
-    // certificate.
-    //
-    static CertificatePtr create(x509_st*);
+    /**
+     * Construct a certificate using a native certificate.
+     * The Certificate class assumes ownership of the given native
+     * certificate.
+     * @param cert The native certificate.
+     * @return A new certificate object.
+     */
+    static CertificatePtr create(x509_st* cert);
 
-    //
-    // Load the certificate from a file. The certificate must use the
-    // PEM encoding format. Raises CertificateReadException if the
-    // file cannot be read.
-    //
-    static CertificatePtr load(const std::string&);
+    /**
+     * Load the certificate from a file. The certificate must use the
+     * PEM encoding format.
+     * @param file The certificate file.
+     * @return A new certificate object.
+     * @throws CertificateReadException if the file cannot be read.
+     */
+    static CertificatePtr load(const std::string& file);
 
-    //
-    // Decode a certificate from a string that uses the PEM encoding
-    // format. Raises CertificateEncodingException if an error
-    // occurs.
-    //
-    static CertificatePtr decode(const std::string&);
+    /**
+     * Decode a certificate from a string that uses the PEM encoding format.
+     * @param cert A string containing the PEM-encoded certificate.
+     * @return A new certificate object.
+     * @throws CertificateEncodingException if an error occurs.
+     */
+    static CertificatePtr decode(const std::string& cert);
 
-    //
-    // Retrieve the native X509 certificate value wrapped by this
-    // object.
-    //
-    // The returned reference is only valid for the lifetime of this
-    // object. you can increment it with X509_dup.
-    //
+    /**
+     * Retrieve the native X509 certificate value wrapped by this object.
+     * @return The native certificate. The returned reference is only valid for the lifetime of this
+     * object. You can increment it with X509_dup.
+     */
     virtual x509_st* getCert() const = 0;
 };
 
+/**
+ * Represents the IceSSL plug-in object.
+ * \headerfile IceSSL/IceSSL.h
+ */
 class ICESSL_OPENSSL_API Plugin : public virtual IceSSL::Plugin
 {
 public:
-    //
-    // returns OpenSSL version number.
-    //
+
+    /**
+     * Obtains the OpenSSL version number.
+     * @return The version.
+     */
     virtual Ice::Long getOpenSSLVersion() const = 0;
-    //
-    // Establish the OpenSSL context. This must be done before the
-    // plug-in is initialized, therefore the application must define
-    // the property Ice.InitPlugins=0, set the context, and finally
-    // invoke initializePlugins on the PluginManager.
-    //
-    // When the application supplies its own OpenSSL context, the
-    // plug-in ignores configuration properties related to certificates,
-    // keys, and passwords.
-    //
-    // Note that the plugin assumes ownership of the given context.
-    //
-    virtual void setContext(SSL_CTX*) = 0;
 
-    //
-    // Obtain the SSL context. Use caution when modifying this value.
-    // Changes made to this value have no effect on existing connections.
-    //
+    /**
+     * Establishes the OpenSSL context. This must be done before the
+     * plug-in is initialized, therefore the application must define
+     * the property Ice.InitPlugins=0, set the context, and finally
+     * invoke Ice::PluginManager::initializePlugins.
+     *
+     * When the application supplies its own OpenSSL context, the
+     * plug-in ignores configuration properties related to certificates,
+     * keys, and passwords.
+     *
+     * Note that the plug-in assumes ownership of the given context.
+     *
+     * @param ctx The OpenSSL context.
+     */
+    virtual void setContext(SSL_CTX* ctx) = 0;
+
+    /**
+     * Obtains the SSL context. Use caution when modifying this value.
+     * Changes made to this value have no effect on existing connections.
+     * @return The OpenSSL context.
+     */
     virtual SSL_CTX* getContext() = 0;
-
 };
 ICE_DEFINE_PTR(PluginPtr, Plugin);
 

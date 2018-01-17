@@ -29,22 +29,10 @@ protected:
 
     enum ParamDir { InParam, OutParam };
 
-    struct DocComment : public IceUtil::SimpleShared
-    {
-        std::string overview;
-        std::map<std::string, std::string> params;
-        std::map<std::string, std::string> exceptions;
-        std::string returns;
-        bool deprecated;
-        std::string deprecateReason;
-        std::string misc;
-    };
-    typedef IceUtil::Handle<DocComment> DocCommentPtr;
-
     std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
+    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&);
     void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
-                                  const DocCommentPtr&);
+                                  const CommentPtr&);
 
     void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool);
     std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
@@ -112,14 +100,14 @@ protected:
     // Handle doc comments.
     //
     static StringList splitComment(const ContainedPtr&);
-    DocCommentPtr parseDocComment(const ContainedPtr&);
+    void writeDocCommentLines(::IceUtilInternal::Output&, const StringList&);
     void writeDocCommentLines(::IceUtilInternal::Output&, const std::string&);
-    void writeDocComment(::IceUtilInternal::Output&, const DocCommentPtr&);
+    void writeDocComment(::IceUtilInternal::Output&, const CommentPtr&);
     void writeDocComment(::IceUtilInternal::Output&, const std::string&);
-    void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&,
+    void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&,
                               bool, bool);
     void writeServantDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
-                                const DocCommentPtr&, bool);
+                                const CommentPtr&, bool);
 };
 
 class Gen : private ::IceUtil::noncopyable

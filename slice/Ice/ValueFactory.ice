@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -37,7 +37,7 @@ local interface ValueFactory
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
      * Slice type id for an interface <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
+     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
      *
      * <p class="Note">The leading "<tt>::</tt>" is required.
      *

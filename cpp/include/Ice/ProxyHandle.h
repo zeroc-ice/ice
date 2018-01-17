@@ -38,12 +38,21 @@ class Object;
 namespace Ice
 {
 
+/** Smart pointer for an object proxy. */
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 class ObjectAdapter;
 typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
 
+/**
+ * A request context. Context is used to transmit metadata about a
+ * request from the server to the client, such as Quality-of-Service
+ * (QoS) parameters. Each remote operation on a proxy optionally
+ * accepts a Context parameter.
+ **/
 typedef ::std::map< ::std::string, ::std::string> Context;
+
+/** Sentinel value indicating that no explicit context argument was passed to a remote invocation. */
 ICE_API extern const Context noExplicitContext;
 
 }

@@ -21,6 +21,10 @@
 namespace Ice
 {
 
+/**
+ * The base class for instances of Slice classes.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API Value
 {
 public:
@@ -36,26 +40,61 @@ public:
     Value& operator=(Value&&) = default;
     virtual ~Value() = default;
 
+    /**
+     * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
+     * to override this method in order to validate its data members.
+     */
     virtual void ice_preMarshal();
+
+    /**
+     * The Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+     * subclass to override this method in order to perform additional initialization.
+     */
     virtual void ice_postUnmarshal();
 
+    /**
+     * Obtains the Slice type ID of the most-derived class supported by this object.
+     * @return The type ID.
+     */
     virtual std::string ice_id() const;
+
+    /**
+     * Obtains the Slice type ID of this type.
+     * @return The return value is always "::Ice::Object".
+     */
     static const std::string& ice_staticId();
 
+    /**
+     * Returns a shallow copy of the object.
+     * @return The cloned value.
+     */
     std::shared_ptr<Value> ice_clone() const;
 
+    /**
+     * Obtains the sliced data associated with this instance.
+     * @return The sliced data if the value has a preserved-slice base class and has been sliced during
+     * unmarshaling of the value, nil otherwise.
+     */
     virtual std::shared_ptr<SlicedData> ice_getSlicedData() const;
 
+    /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;
     virtual void _iceRead(Ice::InputStream*);
+    /// \endcond
 
 protected:
 
+    /// \cond INTERNAL
     virtual std::shared_ptr<Value> _iceCloneImpl() const = 0;
+    /// \endcond
+
+    /// \cond STREAM
     virtual void _iceWriteImpl(Ice::OutputStream*) const {}
     virtual void _iceReadImpl(Ice::InputStream*) {}
+    /// \endcond
 };
 
+/// \cond INTERNAL
 template<typename T, typename Base> class ValueHelper : public Base
 {
 public:
@@ -97,6 +136,7 @@ protected:
         Base::_iceReadImpl(is);
     }
 };
+/// \endcond
 
 }
 #endif // C++11 mapping end

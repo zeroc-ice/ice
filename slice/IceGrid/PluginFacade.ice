@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "python:pkgdir:IceGrid"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "python:pkgdir:IceGrid"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>

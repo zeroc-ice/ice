@@ -1041,8 +1041,13 @@ namespace std
 # undef TR2_OPTIONAL_REQUIRES
 # undef TR2_OPTIONAL_ASSERTED_EXPRESSION
 
-namespace Ice{
+namespace Ice
+{
 
+/**
+ * Ice::optional is a placeholder for std::optional.
+ * Refer to http://en.cppreference.com/w/cpp/utility/optional for more information.
+ */
 template<class T> using optional = std::experimental::Ice::optional<T>;
 
 using std::experimental::Ice::operator==;
@@ -1052,25 +1057,36 @@ using std::experimental::Ice::operator<=;
 using std::experimental::Ice::operator>;
 using std::experimental::Ice::operator>=;
 
+/** Creates an optional object. */
 using std::experimental::Ice::make_optional;
+/** Exchanges the state of an optional object with another one. */
 using std::experimental::Ice::swap;
 
+/** This type indicates that no value is provided. */
 using nullopt_t = std::experimental::Ice::nullopt_t;
+/** An instance of nullopt_t used as a marker value to indicate that no value is provided. */
 using std::experimental::Ice::nullopt;
 
+/** Raised when accessing an optional that doesn't contain a value. */
 using bad_optional_access = std::experimental::Ice::bad_optional_access;
 
+/** This type indicates that an optional value should be constructed in place. */
 using in_place_t = std::experimental::Ice::in_place_t;
+/** An instance of in_place_t that indicates that an optional value should be constructed in place. */
 using std::experimental::Ice::in_place;
 
 }
 
-//
-// For compatibility with the Ice C++98 mapping, do not use in new code:
-//
-namespace IceUtil{
+namespace IceUtil
+{
 
+/**
+ * For compatibility with the Ice C++98 mapping, do not use in new code:
+ */
 template<class T> using Optional = std::experimental::Ice::optional<T>;
+/**
+ * For compatibility with the Ice C++98 mapping, do not use in new code:
+ */
 constexpr std::experimental::Ice::nullopt_t None{std::experimental::Ice::nullopt_t::init()};
 
 }

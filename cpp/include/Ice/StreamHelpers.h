@@ -20,65 +20,95 @@
 namespace Ice
 {
 
-// The stream helper category
-// Allows streams to select the desired StreamHelper for a given streamable object;
-// see StreamableTraits below.
-//
+/// \cond STREAM
 
+/**
+ * The stream helper category allows streams to select the desired StreamHelper for a given streamable object.
+ */
 typedef int StreamHelperCategory;
 
+/** For types with no specialized trait. */
 const StreamHelperCategory StreamHelperCategoryUnknown = 0;
+/** For built-in types. */
 const StreamHelperCategory StreamHelperCategoryBuiltin = 1;
+/** For struct types. */
 const StreamHelperCategory StreamHelperCategoryStruct = 2;
-const StreamHelperCategory StreamHelperCategoryStructClass = 3; // struct with cpp:class metadata
+/** For struct types with cpp:class metadata. */
+const StreamHelperCategory StreamHelperCategoryStructClass = 3;
+/** For enum types. */
 const StreamHelperCategory StreamHelperCategoryEnum = 4;
+/** For sequence types. */
 const StreamHelperCategory StreamHelperCategorySequence = 5;
+/** For dictionary types. */
 const StreamHelperCategory StreamHelperCategoryDictionary = 6;
+/** For proxy types. */
 const StreamHelperCategory StreamHelperCategoryProxy = 7;
+/** For class types. */
 const StreamHelperCategory StreamHelperCategoryClass = 8;
+/** For exception types. */
 const StreamHelperCategory StreamHelperCategoryUserException = 9;
 
-//
-// The optional format.
-//
-// Optional data members and parameters are encoded with a specific
-// optional format. This optional format describes how the data is encoded
-// and how it can be skipped by the unmarshaling code if the optional
-// isn't known to the receiver.
-//
-
+/**
+ * The optional format.
+ *
+ * Optional data members and parameters are encoded with a specific
+ * optional format. This optional format describes how the data is encoded
+ * and how it can be skipped by the unmarshaling code if the optional ID
+ * isn't known to the receiver.
+ */
 #ifdef ICE_CPP11_MAPPING
 enum class OptionalFormat : unsigned char
 {
-    F1 = 0,             // Fixed 1-byte encoding
-    F2 = 1,             // Fixed 2 bytes encoding
-    F4 = 2,             // Fixed 4 bytes encoding
-    F8 = 3,             // Fixed 8 bytes encoding
-    Size = 4,           // "Size encoding" on 1 to 5 bytes, e.g. enum, class identifier
-    VSize = 5,          // "Size encoding" on 1 to 5 bytes followed by data, e.g. string, fixed size
-                        // struct, or containers whose size can be computed prior to marshaling
-    FSize = 6,          // Fixed size on 4 bytes followed by data, e.g. variable-size struct, container.
+    /** Fixed 1-byte encoding. */
+    F1 = 0,
+    /** Fixed 2-byte encoding. */
+    F2 = 1,
+    /** Fixed 4-byte encoding. */
+    F4 = 2,
+    /** Fixed 8-byte encoding. */
+    F8 = 3,
+    /** "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier. */
+    Size = 4,
+    /**
+     * "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size
+     * struct, or containers whose size can be computed prior to marshaling.
+     */
+    VSize = 5,
+    /** Fixed size using 4 bytes followed by data, e.g., variable-size struct, container. */
+    FSize = 6,
+    /** Class instance. */
     Class = 7
 };
 #else
 enum OptionalFormat
 {
-    OptionalFormatF1 = 0,  // see above
+    /** Fixed 1-byte encoding. */
+    OptionalFormatF1 = 0,
+    /** Fixed 2-byte encoding. */
     OptionalFormatF2 = 1,
+    /** Fixed 4-byte encoding. */
     OptionalFormatF4 = 2,
+    /** Fixed 8-byte encoding. */
     OptionalFormatF8 = 3,
+    /** "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier. */
     OptionalFormatSize = 4,
+    /**
+     * "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size
+     * struct, or containers whose size can be computed prior to marshaling.
+     */
     OptionalFormatVSize = 5,
+    /** Fixed size using 4 bytes followed by data, e.g., variable-size struct, container. */
     OptionalFormatFSize = 6,
+    /** Class instance. */
     OptionalFormatClass = 7
 };
 #endif
 
-//
-// Is the provided type a container?
-// For now, the implementation only checks if there is a T::iterator typedef
-// using SFINAE
-//
+/**
+ * Determines whether the provided type is a container. For now, the implementation only checks
+ * if there is a T::iterator typedef using SFINAE.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct IsContainer
 {
@@ -91,11 +121,11 @@ struct IsContainer
     static const bool value = sizeof(test<T>(0)) == sizeof(char);
 };
 
-//
-// Is the provided type a map?
-// For now, the implementation only checks if there is a T::mapped_type typedef
-// using SFINAE
-//
+/**
+ * Determines whether the provided type is a map. For now, the implementation only checks if there
+ * is a T::mapped_type typedef using SFINAE.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct IsMap
 {
@@ -110,10 +140,10 @@ struct IsMap
 
 #ifdef ICE_CPP11_MAPPING
 
-//
-// Base traits template.
-// Types with no specialized trait use this trait.
-//
+/**
+ * Base traits template. Types with no specialized trait use this trait.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T,  typename Enabler = void>
 struct StreamableTraits
 {
@@ -133,6 +163,10 @@ struct StreamableTraits
     //static const bool fixedLength = false;
 };
 
+/**
+ * Specialization for sequence and dictionary types.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamableTraits<T, typename ::std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
 {
@@ -141,6 +175,10 @@ struct StreamableTraits<T, typename ::std::enable_if<IsMap<T>::value || IsContai
     static const bool fixedLength = false;
 };
 
+/**
+ * Specialization for exceptions.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::UserException, T>::value>::type>
 {
@@ -152,9 +190,10 @@ struct StreamableTraits<T, typename ::std::enable_if<::std::is_base_of<::Ice::Us
     //
 };
 
-//
-// StreamableTraits specialization for arrays (std::pair<const T*, const T*>).
-//
+/**
+ * Specialization for arrays (std::pair<const T*, const T*>).
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamableTraits<std::pair<T*, T*>>
 {
@@ -165,33 +204,35 @@ struct StreamableTraits<std::pair<T*, T*>>
 
 #else
 
-//
-// Base traits template.
-// Types with no specialized trait use this trait.
-//
+/**
+ * Base traits template. Types with no specialized trait use this trait, including sequence and
+ * dictionary types.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T,  typename Enabler = void>
 struct StreamableTraits
 {
     static const StreamHelperCategory helper = IsMap<T>::value ? StreamHelperCategoryDictionary :
         (IsContainer<T>::value ? StreamHelperCategorySequence : StreamHelperCategoryUnknown);
 
-    //
-    // When extracting a sequence<T> from a stream, we can ensure the
-    // stream has at least StreamableTraits<T>::minWireSize * size bytes
-    // For containers, the minWireSize is 1 (just 1 byte for an empty container).
-    //
+    /**
+     * When extracting a sequence<T> from a stream, we can ensure the
+     * stream has at least StreamableTraits<T>::minWireSize * size bytes.
+     * For containers, the minWireSize is 1 (just 1 byte for an empty container).
+     */
     static const int minWireSize = 1;
 
-    //
-    // Is this type encoded on a fixed number of bytes?
-    // Used only for marshaling/unmarshaling optional data members and parameters.
-    //
+    /**
+     * Is this type encoded on a fixed number of bytes?
+     * Used only for marshaling/unmarshaling optional data members and parameters.
+     */
     static const bool fixedLength = false;
 };
 
-//
-// StreamableTraits specialization for user exceptions.
-//
+/**
+ * Specialization for exceptions.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<UserException>
 {
@@ -203,11 +244,11 @@ struct StreamableTraits<UserException>
     //
 };
 
-//
-// StreamableTraits specialization for array / range mapped sequences
-// The type can be a std::pair<T, T> or a
-// std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >
-//
+/**
+ * Specialization for array / range mapped sequences. The type can be a std::pair<T, T> or a
+ * std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, typename U>
 struct StreamableTraits< ::std::pair<T, U> >
 {
@@ -217,10 +258,11 @@ struct StreamableTraits< ::std::pair<T, U> >
 };
 #endif
 
-//
-// StreamableTraits specialization for builtins (these are needed for sequence
-// marshaling to figure out the minWireSize of each built-in).
-//
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<bool>
 {
@@ -229,6 +271,11 @@ struct StreamableTraits<bool>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Byte>
 {
@@ -237,6 +284,11 @@ struct StreamableTraits<Byte>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Short>
 {
@@ -245,6 +297,11 @@ struct StreamableTraits<Short>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Int>
 {
@@ -253,6 +310,11 @@ struct StreamableTraits<Int>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Long>
 {
@@ -261,6 +323,11 @@ struct StreamableTraits<Long>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Float>
 {
@@ -269,6 +336,11 @@ struct StreamableTraits<Float>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits<Double>
 {
@@ -277,6 +349,11 @@ struct StreamableTraits<Double>
     static const bool fixedLength = true;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits< ::std::string>
 {
@@ -285,6 +362,11 @@ struct StreamableTraits< ::std::string>
     static const bool fixedLength = false;
 };
 
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits< ::std::wstring>
 {
@@ -293,10 +375,10 @@ struct StreamableTraits< ::std::wstring>
     static const bool fixedLength = false;
 };
 
-//
-// vector<bool> is a special type in C++: the streams are responsible
-// to handle it like a built-in type.
-//
+/**
+ * vector<bool> is a special type in C++: the streams handle it like a built-in type.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamableTraits< ::std::vector<bool> >
 {
@@ -305,6 +387,10 @@ struct StreamableTraits< ::std::vector<bool> >
     static const bool fixedLength = false;
 };
 
+/**
+ * Specialization for proxy types.
+ * \headerfile Ice/Ice.h
+ */
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
 struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type>
@@ -323,6 +409,10 @@ struct StreamableTraits< ::IceInternal::ProxyHandle<T> >
 };
 #endif
 
+/**
+ * Specialization for class types.
+ * \headerfile Ice/Ice.h
+ */
 #ifdef ICE_CPP11_MAPPING
 template<typename T>
 struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::Value, T>::value>::type>
@@ -345,11 +435,14 @@ struct StreamableTraits< ::IceInternal::Handle<T> >
 // StreamHelper templates used by streams to read and write data.
 //
 
-// Base StreamHelper template; it must be specialized for each type
+/** Base StreamHelper template; it must be specialized for each type. */
 template<typename T, StreamHelperCategory st>
 struct StreamHelper;
 
-// Helper for builtins, delegates read/write to the stream.
+/**
+ * Helper for built-ins, delegates read/write to the stream.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryBuiltin>
 {
@@ -371,6 +464,10 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
 // slice2cpp generates specializations as needed
 //
 
+/**
+ * General writer. slice2cpp generates specializations as needed.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, typename S>
 struct StreamWriter
 {
@@ -387,6 +484,10 @@ struct StreamWriter
 #endif
 };
 
+/**
+ * General reader. slice2cpp generates specializations as needed.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, typename S>
 struct StreamReader
 {
@@ -396,7 +497,10 @@ struct StreamReader
     }
 };
 
-// Helper for structs
+/**
+ * Helper for structs.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStruct>
 {
@@ -413,7 +517,10 @@ struct StreamHelper<T, StreamHelperCategoryStruct>
     }
 };
 
-// Helper for class structs
+/**
+ * Helper for class structs.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStructClass>
 {
@@ -431,7 +538,10 @@ struct StreamHelper<T, StreamHelperCategoryStructClass>
     }
 };
 
-// Helper for enums
+/**
+ * Helper for enums.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryEnum>
 {
@@ -457,7 +567,10 @@ struct StreamHelper<T, StreamHelperCategoryEnum>
     }
 };
 
-// Helper for sequences
+/**
+ * Helper for sequences.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategorySequence>
 {
@@ -483,7 +596,10 @@ struct StreamHelper<T, StreamHelperCategorySequence>
     }
 };
 
-// Helper for array custom sequence parameters
+/**
+ * Helper for array custom sequence parameters.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
 {
@@ -502,7 +618,10 @@ struct StreamHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence>
 
 #ifndef ICE_CPP11_MAPPING
 
-// Helper for range custom sequence parameters
+/**
+ * Helper for range custom sequence parameters.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<std::pair<T, T>, StreamHelperCategorySequence>
 {
@@ -523,6 +642,10 @@ struct StreamHelper<std::pair<T, T>, StreamHelperCategorySequence>
     }
 };
 
+/**
+ * Specialization for sequence<bool>.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
                                ::std::vector<bool>::const_iterator>, StreamHelperCategorySequence>
@@ -539,7 +662,10 @@ struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
     }
 };
 
-// Helper for zero-copy array sequence parameters
+/**
+ * Helper for zero-copy array sequence parameters.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >, StreamHelperCategorySequence>
 {
@@ -553,7 +679,10 @@ struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const
 };
 #endif
 
-// Helper for dictionaries
+/**
+ * Helper for dictionaries.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryDictionary>
 {
@@ -583,7 +712,10 @@ struct StreamHelper<T, StreamHelperCategoryDictionary>
     }
 };
 
-// Helper for user exceptions
+/**
+ * Helper for user exceptions.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryUserException>
 {
@@ -596,7 +728,10 @@ struct StreamHelper<T, StreamHelperCategoryUserException>
     // no read: only used for marshaling
 };
 
-// Helper for proxies
+/**
+ * Helper for proxies.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryProxy>
 {
@@ -613,7 +748,10 @@ struct StreamHelper<T, StreamHelperCategoryProxy>
     }
 };
 
-// Helper for classes
+/**
+ * Helper for classes.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryClass>
 {
@@ -640,52 +778,87 @@ struct StreamHelper<T, StreamHelperCategoryClass>
 // /!\ Do not use in StreamOptionalHelper specializations, and do
 // not provide specialization not handled by the base StreamOptionalHelper
 //
+/**
+ * Extract / compute the optionalFormat.
+ * \headerfile Ice/Ice.h
+ */
 template<StreamHelperCategory st, int minWireSize, bool fixedLength>
 struct GetOptionalFormat;
 
+/**
+ * Specialization for 1-byte built-in fixed-length types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, true>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F1);
 };
 
+/**
+ * Specialization for 2-byte built-in fixed-length types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 2, true>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F2);
 };
 
+/**
+ * Specialization for 4-byte built-in fixed-length types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 4, true>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F4);
 };
 
+/**
+ * Specialization for 8-byte built-in fixed-length types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 8, true>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F8);
 };
 
+/**
+ * Specialization for built-in variable-length types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, VSize);
 };
 
+/**
+ * Specialization for class types.
+ * \headerfile Ice/Ice.h
+ */
 template<>
 struct GetOptionalFormat<StreamHelperCategoryClass, 1, false>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, Class);
 };
 
+/**
+ * Specialization for enum types.
+ * \headerfile Ice/Ice.h
+ */
 template<int minWireSize>
 struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
 {
     static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, Size);
 };
 
-// Base helper: simply read/write the data
+/**
+ * Base helper for optional values: simply read/write the data.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, StreamHelperCategory st, bool fixedLength>
 struct StreamOptionalHelper
 {
@@ -711,7 +884,10 @@ struct StreamOptionalHelper
     }
 };
 
-// Helper to write fixed size structs
+/**
+ * Helper to write fixed-size structs.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
 {
@@ -732,7 +908,10 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
     }
 };
 
-// Helper to write variable size structs
+/**
+ * Helper to write variable-size structs.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
 {
@@ -754,30 +933,38 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
     }
 };
 
-// Class structs are encoded like structs
+/**
+ * Class structs are encoded like structs.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, bool fixedLength>
 struct StreamOptionalHelper<T, StreamHelperCategoryStructClass, fixedLength> : StreamOptionalHelper<T, StreamHelperCategoryStruct, fixedLength>
 {
 };
 
-// Optional proxies are encoded like variable size structs, using the FSize encoding
+/**
+ * Optional proxies are encoded like variable size structs, using the FSize encoding.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryProxy, false> : StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
 {
 };
 
-//
-// Helpers to read/write optional sequences or dictionaries
-//
+/**
+ * Helper to read/write optional sequences or dictionaries.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, bool fixedLength, int sz>
 struct StreamOptionalContainerHelper;
 
-//
-// Encode containers of variable size elements with the FSize optional
-// type, since we can't easily figure out the size of the container
-// before encoding. This is the same encoding as variable size structs
-// so we just re-use its implementation.
-//
+/**
+ * Encode containers of variable-size elements with the FSize optional
+ * type, since we can't easily figure out the size of the container
+ * before encoding. This is the same encoding as variable size structs
+ * so we just re-use its implementation.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, int sz>
 struct StreamOptionalContainerHelper<T, false, sz>
 {
@@ -796,11 +983,12 @@ struct StreamOptionalContainerHelper<T, false, sz>
     }
 };
 
-//
-// Encode containers of fixed size elements with the VSize optional
-// type since we can figure out the size of the container before
-// encoding.
-//
+/**
+ * Encode containers of fixed-size elements with the VSize optional
+ * type since we can figure out the size of the container before
+ * encoding.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, int sz>
 struct StreamOptionalContainerHelper<T, true, sz>
 {
@@ -826,12 +1014,13 @@ struct StreamOptionalContainerHelper<T, true, sz>
     }
 };
 
-//
-// Optimization: containers of 1 byte elements are encoded with the
-// VSize optional type. There's no need to encode an additional size
-// for those, the number of elements of the container can be used to
-// skip the optional.
-//
+/**
+ * Optimization: containers of 1 byte elements are encoded with the
+ * VSize optional type. There's no need to encode an additional size
+ * for those, the number of elements of the container can be used to
+ * skip the optional.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalContainerHelper<T, true, 1>
 {
@@ -850,10 +1039,11 @@ struct StreamOptionalContainerHelper<T, true, 1>
     }
 };
 
-//
-// Helper to write sequences, delegates to the optional container
-// helper template partial specializations.
-//
+/**
+ * Helper to write sequences, delegates to the optional container
+ * helper template partial specializations.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
 {
@@ -878,6 +1068,11 @@ struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
     }
 };
 
+/**
+ * Helper to write sequences, delegates to the optional container
+ * helper template partial specializations.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence, false>
 {
@@ -905,6 +1100,11 @@ struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategoryS
 
 #ifndef ICE_CPP11_MAPPING
 
+/**
+ * Helper to write sequences, delegates to the optional container
+ * helper template partial specializations.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<std::pair<T, T>, StreamHelperCategorySequence, false>
 {
@@ -930,6 +1130,11 @@ struct StreamOptionalHelper<std::pair<T, T>, StreamHelperCategorySequence, false
     }
 };
 
+/**
+ * Helper to write sequences, delegates to the optional container
+ * helper template partial specializations.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >,
                             StreamHelperCategorySequence, false>
@@ -952,10 +1157,11 @@ struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T
 };
 #endif
 
-//
-// Helper to write dictionaries, delegates to the optional container
-// helper template partial specializations.
-//
+/**
+ * Helper to write dictionaries, delegates to the optional container
+ * helper template partial specializations.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryDictionary, false>
 {
@@ -981,6 +1187,8 @@ struct StreamOptionalHelper<T, StreamHelperCategoryDictionary, false>
         StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
     }
 };
+
+/// \endcond
 
 }
 

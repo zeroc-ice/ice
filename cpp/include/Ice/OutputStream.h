@@ -25,35 +25,45 @@ namespace Ice
 
 class UserException;
 
+/**
+ * Interface for output streams used to create a sequence of bytes from Slice types.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API OutputStream : public IceInternal::Buffer
 {
 public:
 
     typedef size_t size_type;
 
-    //
-    // Constructing an OutputStream without providing a communicator means the stream will
-    // use the default encoding version, the default format for class encoding, and the
-    // process string converters. You can supply a communicator later by calling initialize().
-    //
+    /**
+     * Constructs an OutputStream using the latest encoding version, the default format for
+     * class encoding, and the process string converters. You can supply a communicator later
+     * by calling initialize().
+     */
     OutputStream();
 
-    //
-    // This constructor uses the communicator's default encoding version.
-    //
-    OutputStream(const CommunicatorPtr&);
+    /**
+     * Constructs a stream using the communicator's default encoding version.
+     * @param communicator The communicator to use for marshaling tasks.
+     */
+    OutputStream(const CommunicatorPtr& communicator);
 
-    //
-    // This constructor uses the given communicator and encoding version.
-    //
-    OutputStream(const CommunicatorPtr&, const EncodingVersion&);
+    /**
+     * Constructs a stream using the given communicator and encoding version.
+     * @param communicator The communicator to use for marshaling tasks.
+     * @param version The encoding version used to encode the data.
+     */
+    OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& version);
 
-    //
-    // This constructor uses the given communicator and encoding version. The byte pair denotes
-    // application-supplied memory that the stream uses as its initial marshaling buffer. The
-    // stream will reallocate if the size of the marshaled data exceeds the application's buffer.
-    //
-    OutputStream(const CommunicatorPtr&, const EncodingVersion&, const std::pair<const Byte*, const Byte*>&);
+    /**
+     * Constructs a stream using the given communicator and encoding version.
+     * @param communicator The communicator to use for marshaling tasks.
+     * @param version The encoding version used to encode the data.
+     * @param bytes Application-supplied memory that the stream uses as its initial marshaling buffer. The
+     * stream will reallocate if the size of the marshaled data exceeds the application's buffer.
+     */
+    OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& version,
+                 const std::pair<const Byte*, const Byte*>& bytes);
 
     ~OutputStream()
     {
@@ -65,63 +75,128 @@ public:
         }
     }
 
-    //
-    // Initializes the stream to use the communicator's default encoding version and class
-    // encoding format
-    //
-    void initialize(const CommunicatorPtr&);
+    /**
+     * Initializes the stream to use the communicator's default encoding version, class
+     * encoding format and string converters. Use this method if you originally constructed
+     * the stream without a communicator.
+     * @param communicator The communicator to use for marshaling tasks.
+     */
+    void initialize(const CommunicatorPtr& communicator);
 
-    //
-    // Initializes the stream to use the given encoding version and the communicator's
-    // default class encoding format and string converters.
-    //
-    void initialize(const CommunicatorPtr&, const EncodingVersion&);
+    /**
+     * Initializes the stream to use the given encoding version and the communicator's
+     * default class encoding format and string converters. Use this method if you
+     * originally constructed the stream without a communicator.
+     * @param communicator The communicator to use for marshaling tasks.
+     * @param version The encoding version used to encode the data.
+     */
+    void initialize(const CommunicatorPtr& communicator, const EncodingVersion& version);
 
+    /**
+     * Releases any data retained by encapsulations.
+     */
     void clear();
 
+    /// \cond INTERNAL
     //
     // Must return Instance*, because we don't hold an InstancePtr for
     // optimization reasons (see comments below).
     //
     IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
+    /// \endcond
 
-    void setFormat(FormatType);
+    /**
+     * Sets the class encoding format.
+     * @param format The encoding format.
+     */
+    void setFormat(FormatType format);
 
+    /**
+     * Obtains the closure data associated with this stream.
+     * @return The data as a void pointer.
+     */
     void* getClosure() const;
-    void* setClosure(void*);
 
-    void swap(OutputStream&);
+    /**
+     * Associates closure data with this stream.
+     * @param p The data as a void pointer.
+     * @return The previous closure data, or nil.
+     */
+    void* setClosure(void* p);
+
+    /**
+     * Swaps the contents of one stream with another.
+     *
+     * @param other The other stream.
+     */
+    void swap(OutputStream& other);
+
+    /// \cond INTERNAL
     void resetEncapsulation();
+    /// \endcond
 
+    /**
+     * Resizes the stream to a new size.
+     *
+     * @param sz The new size.
+     */
     void resize(Container::size_type sz)
     {
         b.resize(sz);
     }
 
+    /**
+     * Marks the start of a class instance.
+     * @param data Contains the marshaled form of unknown slices from this instance. If not nil,
+     * these slices will be marshaled with the instance.
+     */
     void startValue(const SlicedDataPtr& data)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->startInstance(ValueSlice, data);
     }
+
+    /**
+     * Marks the end of a class instance.
+     */
     void endValue()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->endInstance();
     }
 
+    /**
+     * Marks the start of an exception instance.
+     * @param data Contains the marshaled form of unknown slices from this instance. If not nil,
+     * these slices will be marshaled with the instance.
+     */
     void startException(const SlicedDataPtr& data)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->startInstance(ExceptionSlice, data);
     }
+
+    /**
+     * Marks the end of an exception instance.
+     */
     void endException()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->endInstance();
     }
 
+    /**
+     * Writes the start of an encapsulation using the default encoding version and
+     * class encoding format.
+     */
     void startEncapsulation();
 
+    /**
+     * Writes the start of an encapsulation using the given encoding version and
+     * class encoding format.
+     * @param encoding The encoding version to use for the encapsulation.
+     * @param format The class format to use for the encapsulation.
+     */
     void startEncapsulation(const EncodingVersion& encoding, FormatType format)
     {
         IceInternal::checkSupportedEncoding(encoding);
@@ -143,6 +218,10 @@ public:
         write(Int(0)); // Placeholder for the encapsulation length.
         write(_currentEncaps->encoding);
     }
+
+    /**
+     * Ends the current encapsulation.
+     */
     void endEncapsulation()
     {
         assert(_currentEncaps);
@@ -163,12 +242,22 @@ public:
         }
     }
 
+    /**
+     * Writes an empty encapsulation using the given encoding version.
+     * @param encoding The encoding version to use for the encapsulation.
+     */
     void writeEmptyEncapsulation(const EncodingVersion& encoding)
     {
         IceInternal::checkSupportedEncoding(encoding);
         write(Int(6)); // Size
         write(encoding);
     }
+
+    /**
+     * Copies the marshaled form of an encapsulation to the buffer.
+     * @param v The start of the buffer.
+     * @param sz The number of bytes to copy.
+     */
     void writeEncapsulation(const Byte* v, Int sz)
     {
         if(sz < 6)
@@ -181,24 +270,50 @@ public:
         memcpy(&b[position], &v[0], sz);
     }
 
+    /**
+     * Determines the current encoding version.
+     *
+     * @return The encoding version.
+     */
     const EncodingVersion& getEncoding() const
     {
         return _currentEncaps ? _currentEncaps->encoding : _encoding;
     }
 
+    /**
+     * Writes the start of a value or exception slice.
+     *
+     * @param typeId The Slice type ID for this slice.
+     * @param compactId The compact ID corresponding to the type, or -1 if no compact ID is used.
+     * @param last True if this is the last slice, false otherwise.
+     */
     void startSlice(const std::string& typeId, int compactId, bool last)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->startSlice(typeId, compactId, last);
     }
+
+    /**
+     * Marks the end of a value or exception slice.
+     */
     void endSlice()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->endSlice();
     }
 
+    /**
+     * Encodes the state of class instances whose insertion was delayed during a previous
+     * call to write. This member function must only be called once. For backward
+     * compatibility with encoding version 1.0, this function must only be called when
+     * non-optional data members or parameters use class types.
+     */
     void writePendingValues();
 
+    /**
+     * Writes a size value.
+     * @param v A non-negative integer.
+     */
     void writeSize(Int v) // Inlined for performance reasons.
     {
         assert(v >= 0);
@@ -212,6 +327,13 @@ public:
             write(static_cast<Byte>(v));
         }
     }
+
+    /**
+     * Replaces a size value at the given destination in the stream. This function
+     * does not change the stream's current position.
+     * @param v A non-negative integer representing the size.
+     * @param dest The buffer destination for the size.
+     */
     void rewriteSize(Int v, Container::iterator dest)
     {
         assert(v >= 0);
@@ -226,6 +348,12 @@ public:
         }
     }
 
+    /**
+     * Writes a placeholder value for the size and returns the starting position of the
+     * size value; after writing the data, call endSize to patch the placeholder with
+     * the actual size at the given position.
+     * @return The starting position of the size value.
+     */
     size_type startSize()
     {
         size_type position = b.size();
@@ -233,13 +361,27 @@ public:
         return position;
     }
 
+    /**
+     * Updates the size value at the given position to contain a size based on the
+     * stream's current position.
+     * @param position The starting position of the size value as returned by startSize.
+     */
     void endSize(size_type position)
     {
         rewrite(static_cast<Int>(b.size() - position) - 4, position);
     }
 
-    void writeBlob(const std::vector<Byte>&);
+    /**
+     * Copies the specified blob of bytes to the stream without modification.
+     * @param v The bytes to be copied.
+     */
+    void writeBlob(const std::vector<Byte>& v);
 
+    /**
+     * Copies the specified blob of bytes to the stream without modification.
+     * @param v The start of the buffer to be copied.
+     * @param sz The number of bytes to be copied.
+     */
     void writeBlob(const Byte* v, Container::size_type sz)
     {
         if(sz > 0)
@@ -250,11 +392,20 @@ public:
         }
     }
 
+    /**
+     * Writes a data value to the stream.
+     * @param v The data value to be written.
+     */
     template<typename T> void write(const T& v)
     {
         StreamHelper<T, StreamableTraits<T>::helper>::write(this, v);
     }
 
+    /**
+     * Writes an optional data value to the stream.
+     * @param tag The tag ID.
+     * @param v The data value to be written (if any).
+     */
     template<typename T> void write(Int tag, const IceUtil::Optional<T>& v)
     {
         if(!v)
@@ -272,9 +423,10 @@ public:
         }
     }
 
-    //
-    // Template functions for sequences and custom sequences
-    //
+    /**
+     * Writes a sequence of data values to the stream.
+     * @param v The sequence to be written.
+     */
     template<typename T> void write(const std::vector<T>& v)
     {
         if(v.empty())
@@ -287,6 +439,11 @@ public:
         }
     }
 
+    /**
+     * Writes a sequence of data values to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
     template<typename T> void write(const T* begin, const T* end)
     {
         writeSize(static_cast<Int>(end - begin));
@@ -298,17 +455,26 @@ public:
 
 #ifdef ICE_CPP11_MAPPING
 
+    /**
+     * Writes a list of mandatory data values.
+     */
     template<typename T> void writeAll(const T& v)
     {
         write(v);
     }
 
+    /**
+     * Writes a list of mandatory data values.
+     */
     template<typename T, typename... Te> void writeAll(const T& v, const Te&... ve)
     {
         write(v);
         writeAll(ve...);
     }
 
+    /**
+     * Writes a list of mandatory data values.
+     */
     template<size_t I = 0, typename... Te>
     typename std::enable_if<I == sizeof...(Te), void>::type
     writeAll(std::tuple<Te...>)
@@ -316,6 +482,9 @@ public:
         // Do nothing. Either tuple is empty or we are at the end.
     }
 
+    /**
+     * Writes a list of mandatory data values.
+     */
     template<size_t I = 0, typename... Te>
     typename std::enable_if<I < sizeof...(Te), void>::type
     writeAll(std::tuple<Te...> tuple)
@@ -324,12 +493,18 @@ public:
         writeAll<I + 1, Te...>(tuple);
     }
 
+    /**
+     * Writes a list of optional data values.
+     */
     template<typename T>
     void writeAll(std::initializer_list<int> tags, const IceUtil::Optional<T>& v)
     {
         write(*(tags.begin() + tags.size() - 1), v);
     }
 
+    /**
+     * Writes a list of optional data values.
+     */
     template<typename T, typename... Te>
     void writeAll(std::initializer_list<int> tags, const IceUtil::Optional<T>& v, const IceUtil::Optional<Te>&... ve)
     {
@@ -340,7 +515,13 @@ public:
 
 #endif
 
-    // Write type and tag for optionals
+    /**
+     * Writes the tag and format of an optional value.
+     * @param tag The optional tag ID.
+     * @param format The optional format.
+     * @return True if the current encoding version supports optional values, false otherwise.
+     * If true, the data associated with the optional value must be written next.
+     */
     bool writeOptional(Int tag, OptionalFormat format)
     {
         assert(_currentEncaps);
@@ -354,32 +535,74 @@ public:
         }
     }
 
-    // Byte
+    /**
+     * Writes a byte to the stream.
+     * @param v The byte to write.
+     */
     void write(Byte v)
     {
         b.push_back(v);
     }
-    void write(const Byte*, const Byte*);
 
-    // Bool
+    /**
+     * Writes a byte sequence to the stream.
+     * @param start The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Byte* start, const Byte* end);
+
+    /**
+     * Writes a boolean to the stream.
+     * @param v The boolean to write.
+     */
     void write(bool v)
     {
         b.push_back(static_cast<Byte>(v));
     }
-    void write(const std::vector<bool>&);
-    void write(const bool*, const bool*);
 
-    // Short
-    void write(Short);
-    void write(const Short*, const Short*);
+    /**
+     * Writes a byte sequence to the stream.
+     * @param v The sequence to be written.
+     */
+    void write(const std::vector<bool>& v);
 
-    // Int
+    /**
+     * Writes a byte sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const bool* begin, const bool* end);
+
+    /**
+     * Writes a short to the stream.
+     * @param v The short to write.
+     */
+    void write(Short v);
+
+    /**
+     * Writes a short sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Short* begin, const Short* end);
+
+    /**
+     * Writes an int to the stream.
+     * @param v The int to write.
+     */
     void write(Int v) // Inlined for performance reasons.
     {
         Container::size_type position = b.size();
         resize(position + sizeof(Int));
         write(v, &b[position]);
     }
+
+    /**
+     * Overwrites a 32-bit integer value at the given destination in the stream.
+     * This function does not change the stream's current position.
+     * @param v The integer value to be written.
+     * @param dest The buffer destination for the integer value.
+     */
     void write(Int v, Container::iterator dest)
     {
 #ifdef ICE_BIG_ENDIAN
@@ -397,21 +620,58 @@ public:
 #endif
     }
 
-    void write(const Int*, const Int*);
+    /**
+     * Writes an int sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Int* begin, const Int* end);
 
-    // Long
-    void write(Long);
-    void write(const Long*, const Long*);
+    /**
+     * Writes a long to the stream.
+     * @param v The long to write.
+     */
+    void write(Long v);
 
-    // Float
-    void write(Float);
-    void write(const Float*, const Float*);
+    /**
+     * Writes a long sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Long* begin, const Long* end);
 
-    // Double
-    void write(Double);
-    void write(const Double*, const Double*);
+    /**
+     * Writes a float to the stream.
+     * @param v The float to write.
+     */
+    void write(Float v);
 
-    // String
+    /**
+     * Writes a float sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Float* begin, const Float* end);
+
+    /**
+     * Writes a double to the stream.
+     * @param v The double to write.
+     */
+    void write(Double v);
+
+    /**
+     * Writes a double sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const Double* begin, const Double* end);
+
+    /**
+     * Writes a string to the stream.
+     * @param v The string to write.
+     * @param convert Determines whether the string is processed by the narrow string converter,
+     * if one has been configured. The default behavior is to convert the strings.
+     */
     void write(const std::string& v, bool convert = true)
     {
         Int sz = static_cast<Int>(v.size());
@@ -431,7 +691,13 @@ public:
         }
     }
 
-    // for custom strings
+    /**
+     * Writes a string to the stream.
+     * @param vdata The string to write.
+     * @param vsize The size of the string.
+     * @param convert Determines whether the string is processed by the narrow string converter,
+     * if one has been configured. The default behavior is to convert the strings.
+     */
     void write(const char* vdata, size_t vsize, bool convert = true)
     {
         Int sz = static_cast<Int>(vsize);
@@ -451,36 +717,77 @@ public:
         }
     }
 
-    // Null-terminated C string
+    /**
+     * Writes a string to the stream.
+     * @param vdata The null-terminated string to write.
+     * @param convert Determines whether the string is processed by the narrow string converter,
+     * if one has been configured. The default behavior is to convert the strings.
+     */
     void write(const char* vdata, bool convert = true)
     {
         write(vdata, strlen(vdata), convert);
     }
 
-    void write(const std::string*, const std::string*, bool = true);
+    /**
+     * Writes a string sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     * @param convert Determines whether the string is processed by the narrow string converter,
+     * if one has been configured. The default behavior is to convert the strings.
+     */
+    void write(const std::string* begin, const std::string* end, bool convert = true);
 
+    /**
+     * Writes a wide string to the stream.
+     * @param v The wide string to write.
+     */
     void write(const std::wstring& v);
-    void write(const std::wstring*, const std::wstring*);
 
-    // Proxy
+    /**
+     * Writes a wide string sequence to the stream.
+     * @param begin The beginning of the sequence.
+     * @param end The end of the sequence.
+     */
+    void write(const std::wstring* begin, const std::wstring* end);
+
 #ifdef ICE_CPP11_MAPPING
-    void writeProxy(const ::std::shared_ptr<ObjectPrx>&);
+    /**
+     * Writes a proxy to the stream.
+     * @param v The proxy to be written.
+     */
+    void writeProxy(const ::std::shared_ptr<ObjectPrx>& v);
 
+    /**
+     * Writes a proxy to the stream.
+     * @param v The proxy to be written.
+     */
     template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
     void write(const ::std::shared_ptr<T>& v)
     {
         writeProxy(::std::static_pointer_cast<ObjectPrx>(v));
     }
 #else
-    void write(const ObjectPrx&);
+    /**
+     * Writes a proxy to the stream.
+     * @param v The proxy to be written.
+     */
+    void write(const ObjectPrx& v);
+
+    /**
+     * Writes a proxy to the stream.
+     * @param v The proxy to be written.
+     */
     template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
     {
         write(ObjectPrx(upCast(v.get())));
     }
 #endif
 
-    // Class
 #ifdef ICE_CPP11_MAPPING // C++11 mapping
+    /**
+     * Writes a value instance to the stream.
+     * @param v The value to be written.
+     */
     template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
     void write(const ::std::shared_ptr<T>& v)
     {
@@ -488,42 +795,79 @@ public:
         _currentEncaps->encoder->write(v);
     }
 #else // C++98 mapping
+    /**
+     * Writes a value instance to the stream.
+     * @param v The value to be written.
+     */
     void write(const ObjectPtr& v)
     {
         initEncaps();
         _currentEncaps->encoder->write(v);
     }
+
+    /**
+     * Writes a value instance to the stream.
+     * @param v The value to be written.
+     */
     template<typename T> void write(const IceInternal::Handle<T>& v)
     {
         write(ObjectPtr(upCast(v.get())));
     }
 #endif
 
-    // Enum
-    void writeEnum(Int, Int);
+    /**
+     * Writes an enumerator to the stream.
+     * @param v The enumerator to be written.
+     * @param maxValue The maximum value of all enumerators in this enumeration.
+     */
+    void writeEnum(Int v, Int maxValue);
 
-    // Exception
-    void writeException(const UserException&);
+    /**
+     * Writes an exception to the stream.
+     * @param v The exception to be written.
+     */
+    void writeException(const UserException& v);
 
+    /**
+     * Obtains the current position of the stream.
+     * @return The current position.
+     */
     size_type pos()
     {
         return b.size();
     }
 
-    void rewrite(Int value, size_type p)
+    /**
+     * Overwrite a 32-bit integer value at the given position in the stream.
+     * This function does not change the stream's current position.
+     * @param v The value to be written.
+     * @param pos The buffer position for the value.
+     */
+    void rewrite(Int v, size_type pos)
     {
-        write(value, b.begin() + p);
+        write(v, b.begin() + pos);
     }
 
-    OutputStream(IceInternal::Instance*, const EncodingVersion&);
+    /**
+     * Indicates that marshaling is complete. This function must only be called once.
+     * @param v Filled with a copy of the encoded data.
+     */
+    void finished(std::vector<Byte>& v);
 
-    void initialize(IceInternal::Instance*, const EncodingVersion&);
-
-    void finished(std::vector<Byte>&);
+    /**
+     * Indicates that marshaling is complete. This function must only be called once.
+     * @return A pair of pointers into the internal marshaling buffer. These pointers are
+     * valid for the lifetime of the stream.
+     */
     std::pair<const Byte*, const Byte*> finished();
+
+    /// \cond INTERNAL
+    OutputStream(IceInternal::Instance*, const EncodingVersion&);
+    void initialize(IceInternal::Instance*, const EncodingVersion&);
 
     // Optionals
     bool writeOptImpl(Int, OptionalFormat);
+    /// \endcond
 
 private:
 

@@ -310,7 +310,7 @@ public interface ObjectPrx
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in seconds).
+     * @return The invocation timeout value (in milliseconds).
      **/
     int ice_getInvocationTimeout();
 
@@ -338,7 +338,7 @@ public interface ObjectPrx
     /**
      * Returns a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in seconds).
+     * @param newTimeout The new invocation timeout (in milliseconds).
      * @return The proxy with the new timeout.
      *
      **/
@@ -420,7 +420,7 @@ public interface ObjectPrx
     }
 
     /**
-     * Returns the encoding version used to marshal requests parameters.
+     * Returns the encoding version used to marshal request parameters.
      *
      * @return The encoding version.
      **/
@@ -495,7 +495,7 @@ public interface ObjectPrx
      * Returns a proxy that is identical to this proxy, except for collocation optimization.
      *
      * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.
-     * @return The proxy the specified collocation optimization.
+     * @return The proxy with the specified collocation optimization.
      **/
     default ObjectPrx ice_collocationOptimized(boolean b)
     {

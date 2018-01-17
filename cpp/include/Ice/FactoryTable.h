@@ -17,11 +17,21 @@
 namespace Ice
 {
 
+/**
+ * The base class for a compact ID resolver. Subclasses must implement resolve.
+ * The resolver can be installed via InitializationData.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API CompactIdResolver : public IceUtil::Shared
 {
 public:
 
-    virtual ::std::string resolve(Ice::Int) const = 0;
+    /**
+     * Called by the Ice run time when a compact ID must be translated into a type ID.
+     * @param id The compact ID.
+     * @return The fully-scoped Slice type ID, or an empty string if the compact ID is unknown.
+     */
+    virtual ::std::string resolve(Ice::Int id) const = 0;
 };
 typedef IceUtil::Handle<CompactIdResolver> CompactIdResolverPtr;
 
