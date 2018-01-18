@@ -31,6 +31,11 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.
 
+## C++ Changes
+
+- Slice documentation comments are now preserved in the generated C++
+  code using Doxygen markup.
+
 ## PHP Changes
 
 - Fixed Ice for PHP build failure when build with PHP5 ZTS
