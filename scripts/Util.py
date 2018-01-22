@@ -292,7 +292,7 @@ class Windows(Platform):
                     self.compiler = "VC120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "VC140"
-                elif out.find("Version 19.10.") != -1 or out.find("Version 19.11.") != -1:
+                elif out.find("Version 19.1") != -1:
                     self.compiler = "VC141"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
