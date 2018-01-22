@@ -53,6 +53,13 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   members. By implementing this method users can customize struct and
   class initialization.
 
+## Ruby Changes
+
+- Ice::initialize now accepts an implicit block. If provided, initialize
+  will pass the communicator (and optionally the argument vector) to the
+  block, destroy the communicator upon the block's completion, and return
+  the block's result as the result of initialize.
+
 # Changes in Ice 3.7.0
 
 These are the changes since the Ice 3.6 release or snapshot described in

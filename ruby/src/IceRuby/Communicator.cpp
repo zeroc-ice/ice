@@ -56,6 +56,27 @@ IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
     delete p;
 }
 
+namespace
+{
+
+class CommunicatorDestroyer
+{
+public:
+
+    CommunicatorDestroyer(const Ice::CommunicatorPtr& c) : _communicator(c) {}
+
+    ~CommunicatorDestroyer()
+    {
+        _communicator->destroy();
+    }
+
+private:
+
+    Ice::CommunicatorPtr _communicator;
+};
+
+}
+
 extern "C"
 VALUE
 IceRuby_initialize(int argc, VALUE* argv, VALUE self)
@@ -71,6 +92,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         // Ice::initialize(configFile)
         // Ice::initialize(args, initData)
         // Ice::initialize(args, configFile)
+        //
+        // An implicit block is optional.
         //
 
         if(argc > 2)
@@ -269,7 +292,40 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE self)
         }
         _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<const VALUE&>(result)));
 
-        return result;
+        //
+        // If an implicit block was provided, yield to the block and pass it the communicator instance.
+        // We destroy the communicator after the block is finished, and return the result of the block.
+        //
+        if(rb_block_given_p())
+        {
+            CommunicatorDestroyer destroyer(communicator);
+            //
+            // Examine the arity of the block procedure. If it accepts one argument, pass it the
+            // communicator. If it accepts two arguments, pass it the communicator and the
+            // argument vector.
+            //
+            VALUE proc = callRuby(rb_block_proc);
+            int arity = rb_proc_arity(proc);
+            if(arity == 1)
+            {
+                return callRuby(rb_yield, result);
+            }
+            else if(arity == 2)
+            {
+                VALUE blockArgs = createArray(2);
+                RARRAY_ASET(blockArgs, 0, result);
+                RARRAY_ASET(blockArgs, 1, args);
+                return callRuby(rb_yield, blockArgs);
+            }
+            else
+            {
+                throw RubyException(rb_eArgError, "block must accept one or two arguments");
+            }
+        }
+        else
+        {
+            return result;
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
