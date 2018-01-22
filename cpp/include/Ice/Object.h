@@ -285,7 +285,7 @@ public:
      * are eligible for garbage collection when all external references to the graph have been released.
      * @param b True if the object is eligible, false otherwise.
      */
-    virtual void ice_collectable(bool b) { }
+    virtual void ice_collectable(bool b);
 
     /**
      * The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
