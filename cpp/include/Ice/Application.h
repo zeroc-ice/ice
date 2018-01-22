@@ -218,7 +218,7 @@ public:
 
     /**
      * Configures the application to invoke interruptCallback when a signal occurs,
-     * thereby giving the subclass responsibility for handling the signal. 
+     * thereby giving the subclass responsibility for handling the signal.
      */
     static void callbackOnInterrupt();
 

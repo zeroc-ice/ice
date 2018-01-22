@@ -48,7 +48,7 @@ namespace Ice
  * linked with the application.
  * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
  * If false, the plug-in is only loaded during communicator initialization if its corresponding plug-in
- * property is set to 1. 
+ * property is set to 1.
  */
 ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool loadOnInitialize = true);
 
