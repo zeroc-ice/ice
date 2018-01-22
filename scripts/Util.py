@@ -1701,7 +1701,7 @@ class Result:
         out.write('  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3:.9f}" name="{5}/{4}">\n'
                     .format(len(self._testcases) - 2,
                             len(self._failed),
-                            len(self._skipped),
+                            0,
                             self._duration,
                             self.testsuite,
                             self.testsuite.getMapping()))
@@ -1709,6 +1709,11 @@ class Result:
         for (k, v) in self._testcases.items():
             if isinstance(k, str):
                 # Don't keep track of setup/teardown steps
+                continue
+
+            # Don't write skipped tests, this doesn't really provide useful information and clutters
+            # the output.
+            if k in self._skipped:
                 continue
 
             (tc, cf) = k
@@ -1731,8 +1736,8 @@ class Result:
                 if hostname:
                     last = "Failed on {0}\n{1}".format(hostname, last)
                 out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]), last))
-            elif k in self._skipped:
-                out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
+            # elif k in self._skipped:
+            #     out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
             out.write('      <system-out>\n')
             if hostname:
                 out.write('Running on {0}\n'.format(hostname))
