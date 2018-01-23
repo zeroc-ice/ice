@@ -2432,7 +2432,13 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
 
-            if current.config.browser != "Manual":
+            if current.config.browser.startswith("Remote:"):
+                from selenium import webdriver
+                from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+                (driver, capabilities, port) = current.config.browser.split(":")
+                self.driver = webdriver.Remote("http://localhost:{0}".format(port),
+                                               getattr(DesiredCapabilities, capabilities))
+            elif current.config.browser != "Manual":
                 from selenium import webdriver
                 if not hasattr(webdriver, current.config.browser):
                     raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
