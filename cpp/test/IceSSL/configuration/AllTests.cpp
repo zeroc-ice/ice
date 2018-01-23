@@ -762,8 +762,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         comm->destroy();
@@ -863,8 +864,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             server->noCert();
             test(ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo())->verified);
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -905,8 +907,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1067,8 +1070,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
 #endif
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1096,8 +1100,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1125,9 +1130,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
-           test(false);
+            cerr << ex << endl;
+            test(false);
         }
         fact->destroyServer(server);
         comm->destroy();
@@ -1147,8 +1153,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1174,8 +1181,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1195,8 +1203,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1229,8 +1238,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 
@@ -1277,8 +1287,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 
@@ -1354,8 +1365,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 
@@ -1407,8 +1419,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
 #else
@@ -1543,9 +1556,10 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             test(info->certs.size() == 1);
             test(!info->verified);
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
             import.cleanup();
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -1783,8 +1797,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 // Expected
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 import.cleanup();
                 test(false);
             }
@@ -1800,8 +1815,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 server->ice_getConnection();
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                cerr << ex << endl;
                 import.cleanup();
                 test(false);
             }
@@ -1944,8 +1960,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
             test(info->cipher.compare(0, cipherSub.size(), cipherSub) == 0);
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         test(verifier->invoked());
@@ -1967,8 +1984,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         test(verifier->invoked());
@@ -2053,8 +2071,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected on some platforms.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2119,8 +2138,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 // Expected on some platforms.
             }
-            catch(const LocalException&)
+            catch(const LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
             fact->destroyServer(server);
@@ -2195,8 +2215,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected on some platforms.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2218,8 +2239,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2255,8 +2277,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
             {
                 // Expected on some platforms.
             }
-            catch(const LocalException&)
+            catch(const LocalException& ex)
             {
+                cerr << ex << endl;
                 test(false);
             }
             fact->destroyServer(server);
@@ -2459,8 +2482,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2879,8 +2903,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -2909,8 +2934,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             // Expected.
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3027,8 +3053,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3050,8 +3077,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3093,8 +3121,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3135,8 +3164,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3242,8 +3272,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3263,8 +3294,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3306,8 +3338,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3327,8 +3360,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3462,8 +3496,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3507,8 +3542,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3549,8 +3585,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3578,8 +3615,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3622,8 +3660,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3690,8 +3729,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
@@ -3754,8 +3794,9 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         {
             server->ice_ping();
         }
-        catch(const LocalException&)
+        catch(const LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         fact->destroyServer(server);
