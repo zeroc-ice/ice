@@ -73,10 +73,10 @@ ICE_API @protocol ICEObjectPrx <NSObject, NSCopying>
 -(void) ice_ping:(ICEContext*)context;
 -(id<ICEAsyncResult>) begin_ice_ping;
 -(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context;
--(id<ICEAsyncResult>) begin_ice_ping:(void(^)())response exception:(void(^)(ICEException*))exception;
--(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context response:(void(^)())response exception:(void(^)(ICEException*))exception;
--(id<ICEAsyncResult>) begin_ice_ping:(void(^)())response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
--(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context response:(void(^)())response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
+-(id<ICEAsyncResult>) begin_ice_ping:(void(^)(void))response exception:(void(^)(ICEException*))exception;
+-(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context response:(void(^)(void))response exception:(void(^)(ICEException*))exception;
+-(id<ICEAsyncResult>) begin_ice_ping:(void(^)(void))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
+-(id<ICEAsyncResult>) begin_ice_ping:(ICEContext*)context response:(void(^)(void))response exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent;
 -(void) end_ice_ping:(id<ICEAsyncResult>)result;
 -(NSMutableArray*) ice_ids;
 -(NSMutableArray*) ice_ids:(ICEContext*)context;
@@ -180,7 +180,7 @@ ICE_API @interface ICEObjectPrx : NSObject<ICEObjectPrx>
 -(id<ICEAsyncResult>) iceI_begin_invoke:(NSString*)operation mode:(ICEOperationMode)mode format:(ICEFormatType)format marshal:(ICEMarshalCB)marshal
                             returnsData:(BOOL)returnsData context:(ICEContext*)context;
 -(id<ICEAsyncResult>) iceI_begin_invoke:(NSString*)operation mode:(ICEOperationMode)mode format:(ICEFormatType)format marshal:(ICEMarshalCB)marshal
-                               response:(void(^)())response
+                               response:(void(^)(void))response
                               exception:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
                           context:(ICEContext*)context;
 -(id<ICEAsyncResult>) iceI_begin_invoke:(NSString*)operation mode:(ICEOperationMode)mode format:(ICEFormatType)format marshal:(ICEMarshalCB)marshal

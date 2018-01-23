@@ -14,7 +14,7 @@
 static int
 run()
 {
-    void hashAllTests();
+    void hashAllTests(void);
     hashAllTests();
     return EXIT_SUCCESS;
 }

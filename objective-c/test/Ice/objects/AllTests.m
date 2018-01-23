@@ -16,9 +16,9 @@
 #   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-void breakRetainCycleB();
-void breakRetainCycleC();
-void breakRetainCycleD();
+void breakRetainCycleB(TestObjectsB* b1);
+void breakRetainCycleC(TestObjectsC* c1);
+void breakRetainCycleD(TestObjectsD* d1);
 
 void breakRetainCycleB(TestObjectsB* b1)
 {

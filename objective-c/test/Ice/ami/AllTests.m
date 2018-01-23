@@ -161,7 +161,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         [p begin_ice_isA:[TestAMITestIntfPrx ice_staticId] context:ctx response:isACB exception:exCB];
         [cb check];
 
-        void (^pingCB)() = ^ { [cb called]; };
+        void (^pingCB)(void) = ^ { [cb called]; };
         [p begin_ice_ping:pingCB exception:exCB];
         [cb check];
         [p begin_ice_ping:ctx response:pingCB exception:exCB];
@@ -201,7 +201,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             [cb check];
         }
 
-        void (^opCB)() = ^ { [cb called]; };
+        void (^opCB)(void) = ^ { [cb called]; };
         [p begin_op:opCB exception:exCB];
         [cb check];
         [p begin_op:ctx response:opCB exception:exCB];
@@ -219,7 +219,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         [p begin_opWithResult:ctx response:opWithResultCB exception:exCB];
         [cb check];
 
-        void (^opWithUE)() = ICE_AUTORELEASE([ ^() { test(NO); } copy]);
+        void (^opWithUE)(void) = ICE_AUTORELEASE([ ^(void) { test(NO); } copy]);
         void (^opWithUEEx)(ICEException*) = ^(ICEException* ex)
         {
             @try
@@ -330,7 +330,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         [i begin_ice_isA:@"dummy" context:ctx response:isACB exception:exCB];
         [cb check];
 
-        void (^pingCB)() = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
+        void (^pingCB)(void) = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
         [i begin_ice_ping:pingCB exception:exCB];
         [cb check];
         [i begin_ice_ping:ctx response:pingCB exception:exCB];
@@ -355,7 +355,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             [cb check];
         }
 
-        void (^opCB)() = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
+        void (^opCB)(void) = ICE_AUTORELEASE([ ^ { test(NO); } copy ]);
         [i begin_op:opCB exception:exCB];
         [cb check];
         [i begin_op:ctx response:opCB exception:exCB];
@@ -489,7 +489,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
     {
         id<TestAMITestIntfPrx> q = [TestAMITestIntfPrx uncheckedCast:[p ice_adapterId:@"dummy"]];
         TestAMICallback* cb = [TestAMICallback create];
-        void (^thrower)() = ^(int i)
+        void (^thrower)(int) = ^(int i)
             {
                 [cb called];
                 switch(i)
@@ -517,7 +517,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         int i;
         for(i = 0; i < 3; ++i)
         {
-            void (^throwResponse)() = ^{ thrower(i); };
+            void (^throwResponse)(void) = ^{ thrower(i); };
             void (^throwEx)(ICEException*) = ^(ICEException* ex){ thrower(i); };
             void (^throwSent)(BOOL) = ^(BOOL b){ thrower(i); };
 
