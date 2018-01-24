@@ -156,7 +156,7 @@ public:
     void activate();
     void hold();
     void destroy(DestructionReason);
-    virtual void close(ConnectionClose); // From Connection.
+    virtual void close(ConnectionClose) ICE_NOEXCEPT; // From Connection.
 
     bool isActiveOrHolding() const;
     bool isFinished() const;
@@ -209,7 +209,7 @@ public:
     virtual void setACM(const IceUtil::Optional<int>&,
                         const IceUtil::Optional<ACMClose>&,
                         const IceUtil::Optional<ACMHeartbeat>&);
-    virtual ACM getACM();
+    virtual ACM getACM() ICE_NOEXCEPT;
 
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
 
@@ -221,9 +221,9 @@ public:
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
 
-    virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
-    virtual ObjectAdapterPtr getAdapter() const; // From Connection.
-    virtual EndpointPtr getEndpoint() const; // From Connection.
+    virtual void setAdapter(const ObjectAdapterPtr&) ICE_NOEXCEPT; // From Connection.
+    virtual ObjectAdapterPtr getAdapter() const ICE_NOEXCEPT; // From Connection.
+    virtual EndpointPtr getEndpoint() const ICE_NOEXCEPT; // From Connection.
     virtual ObjectPrxPtr createProxy(const Identity& ident) const; // From Connection.
 
     //
@@ -236,13 +236,13 @@ public:
 
     virtual void message(IceInternal::ThreadPoolCurrent&);
     virtual void finished(IceInternal::ThreadPoolCurrent&, bool);
-    virtual std::string toString() const; // From Connection and EvantHandler.
+    virtual std::string toString() const ICE_NOEXCEPT; // From Connection and EvantHandler.
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     void timedOut();
 
-    virtual std::string type() const; // From Connection.
-    virtual Ice::Int timeout() const; // From Connection.
+    virtual std::string type() const ICE_NOEXCEPT; // From Connection.
+    virtual Ice::Int timeout() const ICE_NOEXCEPT; // From Connection.
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
     virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection

@@ -71,7 +71,7 @@ IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 }
 
 EndpointInfoPtr
-IceInternal::TcpEndpointI::getInfo() const
+IceInternal::TcpEndpointI::getInfo() const ICE_NOEXCEPT
 {
     TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(TcpEndpointI));
     fillEndpointInfo(info.get());

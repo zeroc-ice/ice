@@ -219,7 +219,7 @@ local interface Connection
      *
      * @see ConnectionClose
      **/
-    void close(ConnectionClose mode);
+    ["cpp:noexcept"] void close(ConnectionClose mode);
 
     /**
      *
@@ -258,7 +258,7 @@ local interface Connection
      * @see #getAdapter
      *
      **/
-    void setAdapter(ObjectAdapter adapter);
+    ["cpp:noexcept"] void setAdapter(ObjectAdapter adapter);
 
     /**
      *
@@ -271,7 +271,7 @@ local interface Connection
      * @see #setAdapter
      *
      **/
-    ["cpp:const"] ObjectAdapter getAdapter();
+    ["cpp:const", "cpp:noexcept"] ObjectAdapter getAdapter();
 
     /**
      *
@@ -280,7 +280,7 @@ local interface Connection
      * @return The endpoint from which the connection was created.
      *
      **/
-    ["cpp:const"] Endpoint getEndpoint();
+    ["cpp:const", "cpp:noexcept"] Endpoint getEndpoint();
 
     /**
      *
@@ -345,7 +345,7 @@ local interface Connection
      * @return The ACM parameters.
      *
      **/
-    ACM getACM();
+    ["cpp:noexcept"] ACM getACM();
 
     /**
      *
@@ -355,7 +355,7 @@ local interface Connection
      * @return The type of the connection.
      *
      **/
-    ["cpp:const"] string type();
+    ["cpp:const", "cpp:noexcept"] string type();
 
     /**
      *
@@ -364,7 +364,7 @@ local interface Connection
      * @return The connection's timeout.
      *
      **/
-    ["cpp:const"] int timeout();
+    ["cpp:const", "cpp:noexcept"] int timeout();
 
     /**
      *
@@ -375,7 +375,7 @@ local interface Connection
      * text.
      *
      **/
-    ["cpp:const"] string toString();
+    ["cpp:const", "cpp:noexcept"] string toString();
 
     /**
      *

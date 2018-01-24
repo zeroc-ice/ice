@@ -43,8 +43,8 @@ public:
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
     // From TestEndpoint
-    virtual std::string toString() const;
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual std::string toString() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
     virtual Ice::Int timeout() const;
     virtual const std::string& connectionId() const;
     virtual bool compress() const;

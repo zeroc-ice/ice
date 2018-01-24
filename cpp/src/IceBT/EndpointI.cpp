@@ -439,7 +439,7 @@ IceBT::EndpointI::options() const
 }
 
 Ice::EndpointInfoPtr
-IceBT::EndpointI::getInfo() const
+IceBT::EndpointI::getInfo() const ICE_NOEXCEPT
 {
     EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->addr = _addr;

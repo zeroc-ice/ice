@@ -125,7 +125,7 @@ local class EndpointInfo
      * @return The endpoint type.
      *
      **/
-    ["cpp:const"] short type();
+    ["cpp:const", "cpp:noexcept"] short type();
 
     /**
      *
@@ -134,7 +134,7 @@ local class EndpointInfo
      * @return True for a datagram endpoint.
      *
      **/
-    ["cpp:const"] bool datagram();
+    ["cpp:const", "cpp:noexcept"] bool datagram();
 
     /**
      *
@@ -143,7 +143,7 @@ local class EndpointInfo
      * @return True for a secure endpoint.
      *
      **/
-    ["cpp:const"] bool secure();
+    ["cpp:const", "cpp:noexcept"] bool secure();
 }
 
 /**
@@ -161,7 +161,7 @@ local interface Endpoint
      * @return The string representation of the endpoint.
      *
      **/
-    ["cpp:const"] string toString();
+    ["cpp:const", "cpp:noexcept"] string toString();
 
     /**
      *
@@ -170,7 +170,7 @@ local interface Endpoint
      * @return The endpoint information class.
      *
      **/
-    ["cpp:const"] EndpointInfo getInfo();
+    ["cpp:const", "cpp:noexcept"] EndpointInfo getInfo();
 }
 
 /**

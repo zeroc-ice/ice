@@ -63,7 +63,7 @@ public:
 
     virtual std::string options() const;
 
-    Ice::EndpointInfoPtr getInfo() const;
+    Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
 
     void initWithOptions(std::vector<std::string>&, bool);
 

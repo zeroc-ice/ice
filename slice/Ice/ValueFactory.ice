@@ -121,7 +121,7 @@ local interface ValueFactoryManager
      * found for the given id.
      *
      **/
-    ["cpp:const"] ValueFactory find(string id);
+    ["cpp:const", "cpp:noexcept"] ValueFactory find(string id);
 }
 
 }

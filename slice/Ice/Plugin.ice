@@ -82,7 +82,7 @@ local interface PluginManager
      * @see #getPlugin
      *
      **/
-    StringSeq getPlugins();
+    ["cpp:noexcept"] StringSeq getPlugins();
 
     /**
      *
@@ -115,7 +115,7 @@ local interface PluginManager
      * Called when the communicator is being destroyed.
      *
      **/
-    void destroy();
+    ["cpp:noexcept"] void destroy();
 }
 
 }

@@ -5510,8 +5510,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     assert(dc);
     if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
     {
-        dc->warning(InvalidMetaData, p->file(), p->line(),
-                    "ignoring metadata `cpp:noexcept' for non local interface");
+        dc->warning(InvalidMetaData, p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
         metaData.remove("cpp:noexcept");
     }
 
@@ -5527,7 +5526,6 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
                 dc->warning(InvalidMetaData, p->file(), p->line(),
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metaData.remove(s);
-                continue;
             }
         }
     }
@@ -5616,10 +5614,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             cpp11 = true;
         }
 
-        if(s == "cpp:const" && operation)
+        if(operation && (s == "cpp:const" || s == "cpp:noexcept"))
         {
             continue;
         }
+
         if(!prefix.empty())
         {
             string ss = s.substr(prefix.size());

@@ -164,7 +164,7 @@ public:
     //
     virtual std::string options() const = 0;
 
-    virtual std::string toString() const;
+    virtual std::string toString() const ICE_NOEXCEPT;
     void initWithOptions(std::vector<std::string>&);
 
 protected:
@@ -196,19 +196,19 @@ public:
     }
 
     virtual Ice::Short
-    type() const
+    type() const ICE_NOEXCEPT
     {
         return _endpoint->type();
     }
 
     virtual bool
-    datagram() const
+    datagram() const ICE_NOEXCEPT
     {
         return _endpoint->datagram();
     }
 
     virtual bool
-    secure() const
+    secure() const ICE_NOEXCEPT
     {
         return _endpoint->secure();
     }
