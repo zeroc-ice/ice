@@ -28,7 +28,7 @@ python_ldflags          := $(shell $(python-config) --ldflags)
 
 ifneq ($(OPTIMIZE),yes)
 # Remove optimization options if building debug build
-python_cppflags         := $(filter-out -O% -DNDEBUG,$(python_cppflags))
+python_cppflags         := $(filter-out -O% -DNDEBUG -Wp,-D_FORTIFY_SOURCE=%,$(python_cppflags))
 endif
 
 # Remove the -Wstrict-prototypes option which is not valid with C++
