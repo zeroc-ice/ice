@@ -92,9 +92,9 @@ public:
     EndpointInfoI(const EndpointIPtr&);
     virtual ~EndpointInfoI();
 
-    virtual Ice::Short type() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
+    virtual Ice::Short type() const ICE_NOEXCEPT;
+    virtual bool datagram() const ICE_NOEXCEPT;
+    virtual bool secure() const ICE_NOEXCEPT;
 
 private:
 

@@ -619,19 +619,19 @@ IceBT::EndpointInfoI::~EndpointInfoI()
 }
 
 Ice::Short
-IceBT::EndpointInfoI::type() const
+IceBT::EndpointInfoI::type() const ICE_NOEXCEPT
 {
     return _endpoint->type();
 }
 
 bool
-IceBT::EndpointInfoI::datagram() const
+IceBT::EndpointInfoI::datagram() const ICE_NOEXCEPT
 {
     return _endpoint->datagram();
 }
 
 bool
-IceBT::EndpointInfoI::secure() const
+IceBT::EndpointInfoI::secure() const ICE_NOEXCEPT
 {
     return _endpoint->secure();
 }
