@@ -226,7 +226,7 @@ const writeImpl = function(obj, os, type)
     }
 
     os.startSlice(type._id, -1, type._parent === UserException);
-    if(type.prototype._writeMemberImpl)
+    if(type.prototype.hasOwnProperty('_writeMemberImpl'))
     {
         type.prototype._writeMemberImpl.call(obj, os);
     }
@@ -248,7 +248,7 @@ const readImpl = function(obj, is, type)
     }
 
     is.startSlice();
-    if(type.prototype._readMemberImpl)
+    if(type.prototype.hasOwnProperty('_readMemberImpl'))
     {
         type.prototype._readMemberImpl.call(obj, is);
     }
