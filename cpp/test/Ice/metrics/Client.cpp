@@ -40,7 +40,6 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Admin.InstanceName", "client");
         initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.MessageSizeMax", "50000");
         CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
         initData.observer = observer;
         Ice::CommunicatorHolder ich(argc, argv, initData);
