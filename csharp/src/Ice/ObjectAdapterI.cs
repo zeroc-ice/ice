@@ -162,24 +162,24 @@ namespace Ice
 
             //
             // NOTE: the router/locator infos and incoming connection
-            // facatory list are immutable at this point.
+            // factory list are immutable at this point.
             //
-
-            if(_routerInfo != null)
-            {
-                //
-                // Remove entry from the router manager.
-                //
-                _instance.routerManager().erase(_routerInfo.getRouter());
-
-                //
-                // Clear this object adapter with the router.
-                //
-                _routerInfo.setAdapter(null);
-            }
 
             try
             {
+                if(_routerInfo != null)
+                {
+                    //
+                    // Remove entry from the router manager.
+                    //
+                    _instance.routerManager().erase(_routerInfo.getRouter());
+
+                    //
+                    // Clear this object adapter with the router.
+                    //
+                    _routerInfo.setAdapter(null);
+                }
+
                 updateLocatorRegistry(_locatorInfo, null);
             }
             catch(LocalException)

@@ -249,21 +249,21 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
     // facatory list are immutable at this point.
     //
 
-    if(_routerInfo)
-    {
-        //
-        // Remove entry from the router manager.
-        //
-        _instance->routerManager()->erase(_routerInfo->getRouter());
-
-        //
-        //  Clear this object adapter with the router.
-        //
-        _routerInfo->setAdapter(0);
-    }
-
     try
     {
+        if(_routerInfo)
+        {
+            //
+            // Remove entry from the router manager.
+            //
+            _instance->routerManager()->erase(_routerInfo->getRouter());
+
+            //
+            //  Clear this object adapter with the router.
+            //
+            _routerInfo->setAdapter(0);
+        }
+
         updateLocatorRegistry(_locatorInfo, 0);
     }
     catch(const Ice::LocalException&)
