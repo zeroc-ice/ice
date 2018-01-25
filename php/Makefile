@@ -28,18 +28,12 @@ ifeq ($(filter all php,$(ICE_BIN_DIST)),)
 #
 # Load Makefile.mk fragments
 #
-ifeq ($(filter all php, $(ICE_BIN_DIST)),)
 ifeq ($(filter tests,$(MAKECMDGOALS)),)
-    ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
-        $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
+    ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
+        include $(lang_srcdir)/src/php5/Makefile.mk
     else
-        ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
-            include $(lang_srcdir)/src/php5/Makefile.mk
-        else
-            include $(lang_srcdir)/src/php7/Makefile.mk
-        endif
+        include $(lang_srcdir)/src/php7/Makefile.mk
     endif
-endif
 endif
 
 #
