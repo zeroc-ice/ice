@@ -303,6 +303,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             final String prefix = "IceBox.Service.";
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+
+            if(services.isEmpty())
+            {
+                throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
+            }
+
             String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
             java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<StartServiceInfo>();
             for(String name : loadOrder)
