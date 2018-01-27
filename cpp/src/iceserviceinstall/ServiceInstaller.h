@@ -41,7 +41,7 @@ private:
 
     bool fileExists(const std::string&) const;
     void grantPermissions(const std::string& path, SE_OBJECT_TYPE type = SE_FILE_OBJECT,
-                     bool inherit = false, bool fullControl = false) const;
+                     bool inherit = false, DWORD desiredAccess = GENERIC_READ) const;
     bool mkdir(const std::string&) const;
 
     void addLog(const std::string&) const;

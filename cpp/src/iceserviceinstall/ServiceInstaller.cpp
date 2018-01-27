@@ -125,6 +125,15 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         throw runtime_error(imagePath + ": not found");
     }
+    else
+    {
+        string imageDir = imagePath;
+        imageDir.erase(imageDir.rfind('\\'));
+        if(imageDir != "")
+        {
+            grantPermissions(imageDir.c_str(), SE_FILE_OBJECT, true, GENERIC_READ | GENERIC_EXECUTE);
+        }
+    }
 
     string dependency;
 
@@ -148,7 +157,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
         if(!mkdir(registryDataDir))
         {
-            grantPermissions(registryDataDir, SE_FILE_OBJECT, true, true);
+            grantPermissions(registryDataDir, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         }
     }
     else if(_serviceType == icegridnode)
@@ -165,7 +174,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
         if(!mkdir(nodeDataDir))
         {
-            grantPermissions(nodeDataDir, SE_FILE_OBJECT, true, true);
+            grantPermissions(nodeDataDir, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         }
 
         grantPermissions("MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib", SE_REGISTRY_KEY, true);
@@ -489,7 +498,7 @@ IceServiceInstaller::initializeSid(const string& name)
 }
 
 void
-IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, bool inherit, bool fullControl) const
+IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, bool inherit, DWORD desiredAccess) const
 {
     if(_debug)
     {
@@ -558,7 +567,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
         if(type == SE_FILE_OBJECT)
         {
-            if(fullControl)
+            if(desiredAccess == FILE_ALL_ACCESS)
             {
                 done = (accessMask & READ_CONTROL) && (accessMask & SYNCHRONIZE) && (accessMask & 0x1F) == 0x1F;
             }
@@ -583,15 +592,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         else
         {
             EXPLICIT_ACCESS_W ea = { 0 };
-
-            if(type == SE_FILE_OBJECT && fullControl)
-            {
-                ea.grfAccessPermissions = (accessMask | FILE_ALL_ACCESS);
-            }
-            else
-            {
-                ea.grfAccessPermissions = (accessMask | GENERIC_READ);
-            }
+            ea.grfAccessPermissions = (accessMask | desiredAccess);
             ea.grfAccessMode = GRANT_ACCESS;
             if(inherit)
             {
@@ -673,7 +674,7 @@ IceServiceInstaller::mkdir(const string& path) const
     }
     else
     {
-        grantPermissions(path, SE_FILE_OBJECT, true, true);
+        grantPermissions(path, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         return true;
     }
 }
