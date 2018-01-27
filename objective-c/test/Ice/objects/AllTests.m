@@ -246,7 +246,13 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     int depth = 0;
     @try
     {
-        for(; depth <= 20000; ++depth)
+#if defined(NDEBUG) || !defined(__APPLE__)
+        const int maxDepth = 20000;
+#else
+        // With debug, marshalling a graph of 20000 elements can cause a stack overflow on macOS
+        const int maxDepth = 1500;
+#endif
+        for(; depth <= maxDepth; ++depth)
         {
             p.v = [TestObjectsRecursive recursive];
             p = p.v;
