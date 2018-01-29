@@ -34,8 +34,8 @@ class Long
 
         if(low === undefined)
         {
-            this.low = high % Long.HIGH_MASK;
-            this.high = Math.floor(high / Long.HIGH_MASK);
+            this.low = high >>> 0;
+            this.high = ((high - this.low) / Long.HIGH_MASK) >>> 0;
         }
         else
         {

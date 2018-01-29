@@ -61,6 +61,14 @@
         test(new Ice.Long(Math.pow(2, 33) - 1).toNumber() === Math.pow(2, 33) - 1);         // 2^33 - 1
         test(new Ice.Long(Math.pow(2, 53) - 1).toNumber() === Math.pow(2, 53) - 1);         // 2^53 - 1
 
+        test(Ice.LongHelper.validate(new Ice.Long(0)));                                     // 0
+        test(Ice.LongHelper.validate(new Ice.Long(1)));                                     // 1
+        test(Ice.LongHelper.validate(new Ice.Long(1024)));                                  // 1024
+        test(Ice.LongHelper.validate(new Ice.Long(Math.pow(2, 32) - 1)));                   // 2^32 - 1
+        test(Ice.LongHelper.validate(new Ice.Long(Math.pow(2, 32))));                       // 2^32
+        test(Ice.LongHelper.validate(new Ice.Long(Math.pow(2, 33) - 1)));                    // 2^33 - 1
+        test(Ice.LongHelper.validate(new Ice.Long(Math.pow(2, 53) - 1)));                    // 2^53 - 1
+
         //
         // Test conversion from negative number
         //
@@ -73,6 +81,15 @@
         test(new Ice.Long(-Math.pow(2, 33) - 1).toNumber() === -Math.pow(2, 33) - 1);       // -(2^33 - 1)
         test(new Ice.Long(-Math.pow(2, 52)).toNumber() === -Math.pow(2, 52));               // -(2^52)
         test(new Ice.Long(-Math.pow(2, 52) - 1).toNumber() === -Math.pow(2, 52) - 1);       // -(2^52 - 1)
+
+        test(Ice.LongHelper.validate(new Ice.Long(-1)));
+        test(Ice.LongHelper.validate(new Ice.Long(-2)));
+        test(Ice.LongHelper.validate(new Ice.Long(-100)));
+        test(Ice.LongHelper.validate(new Ice.Long(-Math.pow(2, 32))));                      // -(2^32)
+        test(Ice.LongHelper.validate(new Ice.Long(-Math.pow(2, 33))));                      // -(2^33)
+        test(Ice.LongHelper.validate(new Ice.Long(-Math.pow(2, 33) - 1)));                  // -(2^33 - 1)
+        test(Ice.LongHelper.validate(new Ice.Long(-Math.pow(2, 52))));                      // -(2^52)
+        test(Ice.LongHelper.validate(new Ice.Long(-Math.pow(2, 52) - 1)));                  // -(2^52 - 1)
 
         out.writeLine("ok");
     }
