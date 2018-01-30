@@ -261,7 +261,10 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         command += _configFile + "\"";
     }
 
-    bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
+    int autoStartVal = properties->getPropertyAsIntWithDefault("AutoStart", 1);
+    bool autoStart = autoStartVal != 0;
+    bool delayedAutoStart = autoStartVal == 2;
+
     string password = properties->getProperty("Password");
 
     //
@@ -302,6 +305,22 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
         throw runtime_error("Cannot set description for service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+    }
+
+    //
+    // Set delayed auto-start
+    //
+    if(delayedAutoStart)
+    {
+        SERVICE_DELAYED_AUTO_START_INFO info = { true };
+
+        if(!ChangeServiceConfig2W(service, SERVICE_CONFIG_DELAYED_AUTO_START_INFO, &info))
+        {
+            DWORD res = GetLastError();
+            CloseServiceHandle(scm);
+            CloseServiceHandle(service);
+            throw runtime_error("Cannot set delayed auto start for service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+        }
     }
 
     CloseServiceHandle(scm);
