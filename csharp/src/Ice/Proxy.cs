@@ -668,11 +668,25 @@ namespace Ice
         ObjectPrx ice_compress(bool co);
 
         /// <summary>
+        /// Obtains the compression override setting of this proxy.
+        /// </summary>
+        /// <returns>The compression override setting. If no optional value is present, no override is
+        /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
+        Ice.Optional<bool> ice_getCompress();
+
+        /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
         /// </summary>
         /// <param name="t">The timeout for the new proxy in milliseconds.</param>
         /// <returns>A new proxy with the specified timeout.</returns>
         ObjectPrx ice_timeout(int t);
+
+        /// <summary>
+        /// Obtains the timeout override of this proxy.
+        /// </summary>
+        /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
+        /// returns the timeout override value.</returns>
+        Ice.Optional<int> ice_getTimeout();
 
         /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -687,6 +701,14 @@ namespace Ice
         /// </summary>
         /// <returns>The connection id.</returns>
         string ice_getConnectionId();
+
+        /// <summary>
+        /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+        /// the given connection.
+        /// </summary>
+        /// <param name="connection">The fixed proxy connection.</param>
+        /// <returns>A fixed proxy bound to the given connection.</returns>
+        ObjectPrx ice_fixed(Ice.Connection connection);
 
         /// <summary>
         /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -2073,6 +2095,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Obtains the compression override setting of this proxy.
+        /// </summary>
+        /// <returns>The compression override setting. If no optional value is present, no override is
+        /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
+        public Ice.Optional<bool> ice_getCompress()
+        {
+            return _reference.getCompress();
+        }
+
+        /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
         /// </summary>
         /// <param name="t">The timeout for the new proxy in milliseconds.</param>
@@ -2092,6 +2124,16 @@ namespace Ice
             {
                 return newInstance(@ref);
             }
+        }
+
+        /// <summary>
+        /// Obtains the timeout override of this proxy.
+        /// </summary>
+        /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
+        /// returns the timeout override value.</returns>
+        public Ice.Optional<int> ice_getTimeout()
+        {
+            return _reference.getTimeout();
         }
 
         /// <summary>
@@ -2120,6 +2162,33 @@ namespace Ice
         public string ice_getConnectionId()
         {
             return _reference.getConnectionId();
+        }
+
+        /// <summary>
+        /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+        /// the given connection.
+        /// </summary>
+        /// <param name="connection">The fixed proxy connection.</param>
+        /// <returns>A fixed proxy bound to the given connection.</returns>
+        public ObjectPrx ice_fixed(Ice.Connection connection)
+        {
+            if(connection == null)
+            {
+                throw new ArgumentException("invalid null connection passed to ice_fixed");
+            }
+            if(!(connection is Ice.ConnectionI))
+            {
+                throw new ArgumentException("invalid connection passed to ice_fixed");
+            }
+            var @ref = _reference.changeConnection((Ice.ConnectionI)connection);
+            if(@ref.Equals(_reference))
+            {
+                return this;
+            }
+            else
+            {
+                return newInstance(@ref);
+            }
         }
 
         private class ProxyGetConnectionAsyncCallback : ProxyAsyncResultCompletionCallback<Callback_Object_ice_getConnection>

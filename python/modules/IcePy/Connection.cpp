@@ -1275,3 +1275,32 @@ IcePy::createConnection(const Ice::ConnectionPtr& connection, const Ice::Communi
     }
     return reinterpret_cast<PyObject*>(obj);
 }
+
+bool
+IcePy::checkConnection(PyObject* p)
+{
+    PyTypeObject* type = &ConnectionType; // Necessary to prevent GCC's strict-alias warnings.
+    return PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)) == 1;
+}
+
+bool
+IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice::ConnectionPtr& con)
+{
+    if(p == Py_None)
+    {
+        con = 0;
+        return true;
+    }
+    else if(!checkConnection(p))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("%s expects an Ice.Connection object or None for argument '%s'"),
+                     func.c_str(), arg.c_str());
+        return false;
+    }
+    else
+    {
+        ConnectionObject* obj = reinterpret_cast<ConnectionObject*>(p);
+        con = *obj->connection;
+        return true;
+    }
+}

@@ -1167,6 +1167,35 @@ ZEND_METHOD(Ice_ObjectPrx, ice_compress)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        IceUtil::Optional<bool> compress = _this->proxy->ice_getCompress();
+        if(compress)
+        {
+            RETURN_BOOL(*compress ? 1 : 0);
+        }
+        else
+        {
+            assignUnset(return_value TSRMLS_CC);
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1183,6 +1212,35 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
         if(!_this->clone(return_value, _this->proxy->ice_timeout(l) TSRMLS_CC))
         {
             RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        IceUtil::Optional<int> timeout = _this->proxy->ice_getTimeout();
+        if(timeout)
+        {
+            ZVAL_LONG(return_value, static_cast<long>(*timeout));
+        }
+        else
+        {
+            assignUnset(return_value TSRMLS_CC);
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -1231,6 +1289,38 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
             RETURN_NULL();
         }
         if(!_this->clone(return_value, _this->proxy->ice_connectionId(id) TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
+{
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zval* zcon;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zcon, connectionClassEntry TSRMLS_CC) !=
+        SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::ConnectionPtr connection;
+    if(zcon && !fetchConnection(zcon, connection TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection) TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1676,9 +1766,12 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_batchDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isBatchDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_compress, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getCompress, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_connectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_fixed, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)

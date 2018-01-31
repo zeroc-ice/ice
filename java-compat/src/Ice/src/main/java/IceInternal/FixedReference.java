@@ -96,6 +96,13 @@ public class FixedReference extends Reference
     }
 
     @Override
+    public Ice.IntOptional
+    getTimeout()
+    {
+        return new Ice.IntOptional();
+    }
+
+    @Override
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
@@ -170,6 +177,19 @@ public class FixedReference extends Reference
     changeConnectionId(String connectionId)
     {
         throw new Ice.FixedProxyException();
+    }
+
+    @Override
+    public Reference
+    changeConnection(Ice.ConnectionI connection)
+    {
+        if(_fixedConnection == connection)
+        {
+            return this;
+        }
+        FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+        r._fixedConnection = connection;
+        return r;
     }
 
     @Override

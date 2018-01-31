@@ -583,10 +583,18 @@ proxyAllTests(id<ICECommunicator> communicator)
 //     test([compObj ice_compress:NO] < [compObj ice_compress:YES]);
 //     test(!([compObj ice_compress:YES] < [compObj ice_compress:NO]));
 
+    test([compObj ice_getCompress] == nil);
+    test([[[compObj ice_compress:YES] ice_getCompress] boolValue] == YES);
+    test([[[compObj ice_compress:NO] ice_getCompress] boolValue] == NO);
+
     test([[compObj ice_timeout:20] isEqual:[compObj ice_timeout:20]]);
     test(![[compObj ice_timeout:10] isEqual:[compObj ice_timeout:20]]);
 //     test([compObj ice_timeout:10] < [compObj ice_timeout:20]);
 //     test(!([compObj ice_timeout:20] < [compObj ice_timeout:10]));
+
+    test([compObj ice_getTimeout] == nil);
+    test([[[compObj ice_timeout:10] ice_getTimeout] intValue] == 10);
+    test([[[compObj ice_timeout:20] ice_getTimeout] intValue] == 20);
 
     id<ICELocatorPrx> loc1 = [ICELocatorPrx uncheckedCast:[communicator stringToProxy:@"loc1:default -p 10000"]];
     id<ICELocatorPrx> loc2 = [ICELocatorPrx uncheckedCast:[communicator stringToProxy:@"loc2:default -p 10000"]];
@@ -657,9 +665,15 @@ proxyAllTests(id<ICECommunicator> communicator)
 
 //    test(compObj ice_encodingVersion:Ice::Encoding_1_0] < compObj->ice_encodingVersion(Ice::Encoding_1_1));
 //    test(!(compObj->ice_encodingVersion(Ice::Encoding_1_1) < compObj->ice_encodingVersion(Ice::Encoding_1_0)));
-    //
-    // TODO: Ideally we should also test comparison of fixed proxies.
-    //
+
+    id<ICEConnection> baseConnection = [base ice_getConnection];
+    if(baseConnection != nil)
+    {
+        id<ICEConnection> baseConnection2 = [[base ice_connectionId:@"base2"] ice_getConnection];
+        compObj1 = [compObj1 ice_fixed:baseConnection];
+        compObj2 = [compObj2 ice_fixed:baseConnection2];
+        test(![compObj1 isEqual:compObj2]);
+    }
 
     tprintf("ok\n");
 
@@ -698,6 +712,36 @@ proxyAllTests(id<ICECommunicator> communicator)
     ICEContext* c2 = [cl getContext];
     test([c isEqual:c2]);
 
+    tprintf("ok\n");
+
+    tprintf("testing ice_fixed... ");
+    {
+        id<ICEConnection> connection = [cl ice_getConnection];
+        if(connection != nil)
+        {
+            [[cl ice_fixed:connection] ice_ping];
+            test([[[cl ice_secure:YES] ice_fixed:connection] ice_isSecure]);
+            test([[[[cl ice_facet:@"facet"] ice_fixed:connection] ice_getFacet] isEqualToString:@"facet"]);
+            test([[[cl ice_oneway] ice_fixed:connection] ice_isOneway]);
+            test([[cl ice_fixed:connection] ice_getConnection] == connection);
+            test([[[cl ice_fixed:connection] ice_fixed:connection] ice_getConnection] == connection);
+            test([[cl ice_fixed:connection] ice_getTimeout] === nil);
+            id<ICEConnection> fixedConnection = [[cl ice_connectionId:@"ice_fixed"] ice_getConnection];
+            test([[[cl ice_fixed:connection] ice_fixed:fixedConnection] ice_getConnection] == fixedConnection);
+        }
+        else
+        {
+            @try
+            {
+                [cl ice_fixed:connection];
+                test(false);
+            }
+            @catch(NSException*)
+            {
+                // Expected with null connection.
+            }
+        }
+    }
     tprintf("ok\n");
 
     tprintf("testing encoding versioning... ");

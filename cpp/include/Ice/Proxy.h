@@ -946,18 +946,34 @@ public:
     bool ice_isBatchDatagram() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for compression.
+     * Obtains a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression setting.
+     * @return A proxy with the specified compression override setting.
      */
     ::std::shared_ptr<::Ice::ObjectPrx> ice_compress(bool b) const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting.
-     * @param timeout The connection timeout for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout.
+     * Obtains the compression override setting of this proxy.
+     * @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
+     * if compression is enabled, false otherwise.
+     */
+    ::Ice::optional<bool> ice_getCompress() const;
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
+     * @param timeout The connection timeout override for the proxy (in milliseconds).
+     * @return A proxy with the specified timeout override.
      */
     ::std::shared_ptr<::Ice::ObjectPrx> ice_timeout(int timeout) const;
+
+    /**
+     * Obtains the timeout override of this proxy.
+     * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
+     * the timeout override value.
+     */
+    ::Ice::optional<int> ice_getTimeout() const;
 
     /**
      * Obtains a proxy that is identical to this proxy, except for its connection ID.
@@ -972,6 +988,14 @@ public:
      * @return The connection ID.
      */
     ::std::string ice_getConnectionId() const;
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    ::std::shared_ptr<::Ice::ObjectPrx> ice_fixed(const ::std::shared_ptr<::Ice::Connection>& connection) const;
 
     /**
      * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -1326,9 +1350,10 @@ public:
     }
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for compression.
+     * Obtains a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression setting.
+     * @return A proxy with the specified compression override setting.
      */
     ::std::shared_ptr<Prx> ice_compress(bool b) const
     {
@@ -1336,9 +1361,10 @@ public:
     }
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting.
-     * @param timeout The connection timeout for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout.
+     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
+     * @param timeout The connection timeout override for the proxy (in milliseconds).
+     * @return A proxy with the specified timeout override.
      */
     ::std::shared_ptr<Prx> ice_timeout(int timeout) const
     {
@@ -1354,6 +1380,17 @@ public:
     ::std::shared_ptr<Prx> ice_connectionId(const ::std::string& id) const
     {
         return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_connectionId(id));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    ::std::shared_ptr<Prx> ice_fixed(const ::std::shared_ptr<::Ice::Connection>& connection) const
+    {
+        return ::std::dynamic_pointer_cast<Prx>(ObjectPrx::ice_fixed(connection));
     }
 
     /**
@@ -2561,18 +2598,34 @@ public:
     bool ice_isBatchDatagram() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for compression.
+     * Obtains a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression setting.
+     * @return A proxy with the specified compression override setting.
      */
     ::Ice::ObjectPrx ice_compress(bool b) const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting.
-     * @param timeout The connection timeout for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout.
+     * Obtains the compression override setting of this proxy.
+     * @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
+     * if compression is enabled, false otherwise.
+     */
+    ::IceUtil::Optional<bool> ice_getCompress() const;
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
+     * @param timeout The connection timeout override for the proxy (in milliseconds).
+     * @return A proxy with the specified timeout override.
      */
     ::Ice::ObjectPrx ice_timeout(int timeout) const;
+
+    /**
+     * Obtains the timeout override of this proxy.
+     * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
+     * the timeout override value.
+     */
+    ::IceUtil::Optional<int> ice_getTimeout() const;
 
     /**
      * Obtains a proxy that is identical to this proxy, except for its connection ID.
@@ -2587,6 +2640,14 @@ public:
      * @return The connection ID.
      */
     ::std::string ice_getConnectionId() const;
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    ::Ice::ObjectPrx ice_fixed(const ::Ice::ConnectionPtr& connection) const;
 
     /**
      * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -2964,9 +3025,10 @@ public:
     }
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for compression.
+     * Obtains a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression setting.
+     * @return A proxy with the specified compression override setting.
      */
     IceInternal::ProxyHandle<Prx> ice_compress(bool b) const
     {
@@ -2974,9 +3036,10 @@ public:
     }
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting.
-     * @param timeout The connection timeout for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout.
+     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
+     * @param timeout The connection timeout override for the proxy (in milliseconds).
+     * @return A proxy with the specified timeout override.
      */
     IceInternal::ProxyHandle<Prx> ice_timeout(int timeout) const
     {
@@ -2992,6 +3055,17 @@ public:
     IceInternal::ProxyHandle<Prx> ice_connectionId(const ::std::string& id) const
     {
         return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_connectionId(id).get());
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    IceInternal::ProxyHandle<Prx> ice_fixed(const ::Ice::ConnectionPtr& connection) const
+    {
+        return dynamic_cast<Prx*>(::IceProxy::Ice::Object::ice_fixed(connection).get());
     }
 
     /**

@@ -492,6 +492,16 @@ function allTests($communicator)
     test($base->ice_encodingVersion($Ice_Encoding_1_1)->ice_getEncodingVersion() == $Ice_Encoding_1_1);
     test($base->ice_encodingVersion($Ice_Encoding_1_0)->ice_getEncodingVersion() != $Ice_Encoding_1_1);
 
+    $none = $NS ? constant("Ice\\None") : constant("Ice_Unset");
+
+    test($base->ice_getCompress() == $none);
+    test($base->ice_compress(true)->ice_getCompress() == true);
+    test($base->ice_compress(false)->ice_getCompress() == false);
+
+    test($base->ice_getTimeout() == $none);
+    test($base->ice_timeout(10)->ice_getTimeout() == 10);
+    test($base->ice_timeout(20)->ice_getTimeout() == 20);
+
     echo "ok\n";
 
     echo "testing checked cast... ";
@@ -516,6 +526,35 @@ function allTests($communicator)
     $c2 = $cl->getContext();
     test($c == $c2);
 
+    echo "ok\n";
+
+    echo "testing ice_fixed... ";
+    flush();
+    $connection = $cl->ice_getConnection();
+    if($connection != null)
+    {
+        $cl->ice_fixed($connection)->ice_ping();
+        test($cl->ice_secure(true)->ice_fixed($connection)->ice_isSecure());
+        test($cl->ice_facet("facet")->ice_fixed($connection)->ice_getFacet() == "facet");
+        test($cl->ice_oneway()->ice_fixed($connection)->ice_isOneway());
+        test($cl->ice_fixed($connection)->ice_getConnection() == $connection);
+        test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
+        test($cl->ice_fixed($connection)->ice_getTimeout() == $none);
+        $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
+        test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
+    }
+    else
+    {
+        try
+        {
+            $cl->ice_fixed($connection);
+            test(false);
+        }
+        catch(Exception $ex)
+        {
+            # Expected with null connection.
+        }
+    }
     echo "ok\n";
 
     echo "testing encoding versioning... ";
@@ -759,7 +798,7 @@ function allTests($communicator)
         //
         // Try to invoke on the SSL endpoint to verify that we get a
         // NoEndpointException (or ConnectionRefusedException when
-        // running with SSL).
+        // running with SSL)->
         //
         try
         {

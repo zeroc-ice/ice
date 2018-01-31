@@ -658,6 +658,12 @@ IceInternal::FixedReference::getConnectionId() const
     return string();
 }
 
+IceUtil::Optional<int>
+IceInternal::FixedReference::getTimeout() const
+{
+    return IceUtil::Optional<int>();
+}
+
 ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& /*newEndpoints*/) const
 {
@@ -733,6 +739,18 @@ IceInternal::FixedReference::changeConnectionId(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeConnection(const Ice::ConnectionIPtr& newConnection) const
+{
+    if(newConnection == _fixedConnection)
+    {
+        return FixedReferencePtr(const_cast<FixedReference*>(this));
+    }
+    FixedReferencePtr r = FixedReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_fixedConnection = newConnection;
+    return r;
 }
 
 bool
@@ -979,6 +997,12 @@ IceInternal::RoutableReference::getConnectionId() const
     return _connectionId;
 }
 
+IceUtil::Optional<int>
+IceInternal::RoutableReference::getTimeout() const
+{
+    return _overrideTimeout ? IceUtil::Optional<int>(_timeout) : IceUtil::None;
+}
+
 ReferencePtr
 IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
@@ -1165,6 +1189,19 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
         r->_endpoints = newEndpoints;
     }
     return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
+{
+    return new FixedReference(getInstance(),
+                              getCommunicator(),
+                              getIdentity(),
+                              getFacet(),
+                              getMode(),
+                              getSecure(),
+                              getEncoding(),
+                              connection);
 }
 
 bool

@@ -27,6 +27,15 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Added support for ice_fixed proxy method to create a fixed proxy bound
+  to a given connection.
+
+- Added support for ice_getTimeout and ice_getCompress proxy methods. These
+  methods return an optional value that contains the proxy timeout or
+  compression override setting. If the timeout or the compression setting
+  haven't been overridden with ice_timeout or ice_compress, the optional
+  value is unset.
+
 - Fixed IceGrid node bug where a replica would not get up-to-date object
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.

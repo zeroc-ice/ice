@@ -97,10 +97,24 @@ public class FixedReference extends Reference
     }
 
     @Override
+    public java.util.OptionalInt
+    getTimeout()
+    {
+        return  java.util.OptionalInt.empty();
+    }
+
+    @Override
     public com.zeroc.IceInternal.ThreadPool
     getThreadPool()
     {
         return _fixedConnection.getThreadPool();
+    }
+
+    @Override
+    public com.zeroc.Ice.ConnectionI
+    getConnection()
+    {
+        return _fixedConnection;
     }
 
     @Override
@@ -178,6 +192,19 @@ public class FixedReference extends Reference
     changeConnectionId(String connectionId)
     {
         throw new com.zeroc.Ice.FixedProxyException();
+    }
+
+    @Override
+    public Reference
+    changeConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        if(_fixedConnection == connection)
+        {
+            return this;
+        }
+        FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+        r._fixedConnection = connection;
+        return r;
     }
 
     @Override

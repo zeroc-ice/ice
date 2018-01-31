@@ -678,6 +678,10 @@
         test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));
 
+        test(compObj.ice_getTimeout() === undefined);
+        test(compObj.ice_timeout(10).ice_getTimeout() == 10);
+        test(compObj.ice_timeout(20).ice_getTimeout() == 20);
+
         let loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
         let loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
         test(compObj.ice_locator(null).equals(compObj.ice_locator(null)));
@@ -733,9 +737,14 @@
         test(compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_0)));
         test(!compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_1)));
 
-        //
-        // TODO: Ideally we should also test comparison of fixed proxies.
-        //
+        let baseConnection = await base.ice_getConnection();
+        if(baseConnection !== null)
+        {
+            let baseConnection2 = await base.ice_connectionId("base2").ice_getConnection();
+            compObj1 = compObj1.ice_fixed(baseConnection);
+            compObj2 = compObj2.ice_fixed(baseConnection2);
+            test(!compObj1.equals(compObj2));
+        }
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
@@ -757,6 +766,36 @@
         cl = await Test.MyClassPrx.checkedCast(base, undefined, c);
         let c2 = await cl.getContext();
         test(Ice.MapUtil.equals(c, c2))
+        out.writeLine("ok");
+
+        out.write("testing ice_fixed... ");
+        {
+            const connection = await cl.ice_getConnection();
+            if(connection != null)
+            {
+                await cl.ice_fixed(connection).ice_ping();
+                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
+                test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                test(await cl.ice_fixed(connection).ice_getConnection() == connection);
+                test(await cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                test(cl.ice_fixed(connection).ice_getTimeout() === undefined);
+                const fixedConnection = await cl.ice_connectionId("ice_fixed").ice_getConnection();
+                test(await cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+            }
+            else
+            {
+                try
+                {
+                    cl.ice_fixed(connection);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    // Expected with null connection.
+                }
+            }
+        }
         out.writeLine("ok");
 
         out.write("testing encoding versioning... ");

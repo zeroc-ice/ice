@@ -323,6 +323,18 @@ public interface ObjectPrx
     String ice_getConnectionId();
 
     /**
+     * Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     *
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    default ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection)
+    {
+        return _ice_fixed(connection);
+    }
+
+    /**
      * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).
@@ -583,7 +595,8 @@ public interface ObjectPrx
     boolean ice_isBatchDatagram();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for compression.
+     * Returns a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      *
      * @param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.
      * @return A proxy with the specified compression setting.
@@ -594,7 +607,16 @@ public interface ObjectPrx
     }
 
     /**
-     * Returns a proxy that is identical to this proxy, except for its connection timeout setting.
+     * Obtains the compression override setting of this proxy.
+     *
+     * @return The compression override setting. If no optional value is present, no override is
+     * set. Otherwise, true if compression is enabled, false otherwise.
+     */
+    java.util.Optional<Boolean> ice_getCompress();
+
+    /**
+     * Returns a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
      *
      * @param t The connection timeout for the proxy in milliseconds.
      * @return A proxy with the specified timeout.
@@ -603,6 +625,14 @@ public interface ObjectPrx
     {
         return _ice_timeout(t);
     }
+
+    /**
+     * Obtains the timeout override of this proxy.
+     *
+     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
+     * returns the timeout override value.
+     */
+    java.util.OptionalInt ice_getTimeout();
 
     /**
      * Returns a proxy that is identical to this proxy, except for its connection ID.
@@ -990,6 +1020,26 @@ public interface ObjectPrx
             com.zeroc.IceInternal.EndpointI[] edpts = new com.zeroc.IceInternal.EndpointI[newEndpoints.length];
             edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
             return _newInstance(_getReference().changeEndpoints(edpts));
+        }
+    }
+
+    default ObjectPrx _ice_fixed(com.zeroc.Ice.Connection connection)
+    {
+        if(connection == null)
+        {
+            throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
+        }
+        if(!(connection instanceof com.zeroc.Ice.ConnectionI))
+        {
+            throw new IllegalArgumentException("invalid connection passed to ice_fixed");
+        }
+        if(connection == _getReference().getConnection())
+        {
+            return this;
+        }
+        else
+        {
+            return _newInstance(_getReference().changeConnection((com.zeroc.Ice.ConnectionI)connection));
         }
     }
 

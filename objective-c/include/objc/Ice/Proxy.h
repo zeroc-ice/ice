@@ -146,7 +146,10 @@ ICE_API @protocol ICEObjectPrx <NSObject, NSCopying>
 -(id) ice_batchDatagram;
 -(BOOL) ice_isBatchDatagram;
 -(id) ice_compress:(BOOL)compress;
+-(id) ice_getCompress;
 -(id) ice_timeout:(int)timeout;
+-(id) ice_getTimeout;
+-(id) ice_fixed:(id<ICEConnection>)connection;
 -(id) ice_connectionId:(NSString*)connectionId;
 -(id<ICEConnection>) ice_getConnection;
 -(id<ICEAsyncResult>) begin_ice_getConnection;

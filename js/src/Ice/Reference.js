@@ -986,6 +986,13 @@ class Reference
         return "";
     }
 
+    getTimeout()
+    {
+        // Abstract
+        Debug.assert(false);
+        return "";
+    }
+
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
@@ -1139,6 +1146,13 @@ class Reference
     }
 
     changeConnectionId(connectionId)
+    {
+        // Abstract
+        Debug.assert(false);
+        return null;
+    }
+
+    changeConnection(connection)
     {
         // Abstract
         Debug.assert(false);
@@ -1491,6 +1505,11 @@ class FixedReference extends Reference
         return "";
     }
 
+    getTimeout()
+    {
+        return undefined;
+    }
+
     changeAdapterId(newAdapterId)
     {
         throw new Ice.FixedProxyException();
@@ -1539,6 +1558,17 @@ class FixedReference extends Reference
     changeConnectionId(connectionId)
     {
         throw new Ice.FixedProxyException();
+    }
+
+    changeConnection(newConnection)
+    {
+        if(newConnection == this._fixedConnection)
+        {
+            return this;
+        }
+        const r = this.getInstance().referenceFactory().copy(this);
+        r._fixedConnection = newConnection;
+        return r;
     }
 
     isIndirect()
@@ -1630,7 +1660,7 @@ class FixedReference extends Reference
         {
             return false;
         }
-        return this._fixedConnection.equals(rhs._fixedConnection);
+        return this._fixedConnection == rhs._fixedConnection;
     }
 }
 
@@ -1709,6 +1739,11 @@ class RoutableReference extends Reference
     getConnectionId()
     {
         return this._connectionId;
+    }
+
+    getTimeout()
+    {
+        return this._overrideTimeout ? this._timeout : undefined;
     }
 
     changeEncoding(newEncoding)
@@ -1841,6 +1876,18 @@ class RoutableReference extends Reference
         r._connectionId = id;
         r._endpoints = this._endpoints.map(endpoint => endpoint.changeConnectionId(id));
         return r;
+    }
+
+    changeConnection(newConnection)
+    {
+        return new FixedReference(this.getInstance(),
+                                  this.getCommunicator(),
+                                  this.getIdentity(),
+                                  this.getFacet(),
+                                  this.getMode(),
+                                  this.getSecure(),
+                                  this.getEncoding(),
+                                  newConnection);
     }
 
     isIndirect()
