@@ -18,12 +18,20 @@ public class FixedReference extends Reference
                    String facet,
                    int mode,
                    boolean secure,
+                   com.zeroc.Ice.ProtocolVersion protocol,
                    com.zeroc.Ice.EncodingVersion encoding,
-                   com.zeroc.Ice.ConnectionI connection)
+                   com.zeroc.Ice.ConnectionI connection,
+                   int invocationTimeout,
+                   java.util.Map<String, String> context,
+                   java.util.Optional<Boolean> compress)
     {
-        super(instance, communicator, identity, facet, mode, secure, com.zeroc.Ice.Util.Protocol_1_0, encoding, -1,
-              null);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         _fixedConnection = connection;
+        if(compress.isPresent())
+        {
+            _overrideCompress = true;
+            _compress = compress.get();
+        }
     }
 
     @Override
@@ -248,7 +256,7 @@ public class FixedReference extends Reference
         {
             if(_fixedConnection.endpoint().datagram())
             {
-                throw new com.zeroc.Ice.NoEndpointException("");
+                throw new com.zeroc.Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -258,7 +266,7 @@ public class FixedReference extends Reference
         {
             if(!_fixedConnection.endpoint().datagram())
             {
-                throw new com.zeroc.Ice.NoEndpointException("");
+                throw new com.zeroc.Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -280,7 +288,7 @@ public class FixedReference extends Reference
         }
         if(secure && !_fixedConnection.endpoint().secure())
         {
-            throw new com.zeroc.Ice.NoEndpointException("");
+            throw new com.zeroc.Ice.NoEndpointException(toString());
         }
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.

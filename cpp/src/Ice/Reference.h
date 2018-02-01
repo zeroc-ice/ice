@@ -191,7 +191,8 @@ class FixedReference : public Reference
 public:
 
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
-                   bool, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&);
+                   bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&,
+                   int, const Ice::Context&, const IceUtil::Optional<bool>&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;

@@ -113,8 +113,11 @@ class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? RefMode.ModeDatagram : RefMode.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            Ice.Protocol_1_0,
             this._instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null);
     }
 
     copy(r)
@@ -1454,9 +1457,10 @@ Ice.Reference = Reference;
 
 class FixedReference extends Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, encoding, connection)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, connection,
+                invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, Ice.Protocol_1_0, encoding);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._fixedConnection = connection;
     }
 
@@ -1593,8 +1597,17 @@ class FixedReference extends Reference
 
     clone()
     {
-        const r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                     this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
+        const r = new FixedReference(this.getInstance(),
+                                     this.getCommunicator(),
+                                     this.getIdentity(),
+                                     this.getFacet(),
+                                     this.getMode(),
+                                     this.getSecure(),
+                                     this.getProtocol(),
+                                     this.getEncoding(),
+                                     this._fixedConnection,
+                                     this.getInvocationTimeout(),
+                                     this.getContext());
         this.copyMembers(r);
         return r;
     }
@@ -1609,7 +1622,7 @@ class FixedReference extends Reference
             {
                 if(this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1619,7 +1632,7 @@ class FixedReference extends Reference
             {
                 if(!this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1633,7 +1646,7 @@ class FixedReference extends Reference
         const secure = defaultsAndOverrides.overrideSecure ? defaultsAndOverrides.overrideSecureValue : this.getSecure();
         if(secure && !this._fixedConnection.endpoint().secure())
         {
-            throw new Ice.NoEndpointException("");
+            throw new Ice.NoEndpointException(this.toString());
         }
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -1886,8 +1899,11 @@ class RoutableReference extends Reference
                                   this.getFacet(),
                                   this.getMode(),
                                   this.getSecure(),
+                                  this.getProtocol(),
                                   this.getEncoding(),
-                                  newConnection);
+                                  newConnection,
+                                  this.getInvocationTimeout(),
+                                  this.getContext());
     }
 
     isIndirect()

@@ -660,11 +660,26 @@ def allTests(communicator)
         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")
         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway())
+        ctx = { }
+        ctx["one"] = "hello"
+        ctx["two"] =  "world"
+        test(cl.ice_fixed(connection).ice_getContext().length == 0);
+        test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().length == 2);
+        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
         test(cl.ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_getTimeout() == Ice::Unset)
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
+        begin
+            cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+        rescue Ice::NoEndpointException
+        end
+        begin
+            cl.ice_datagram().ice_fixed(connection).ice_ping();
+        rescue Ice::NoEndpointException
+        end
     else
         begin
             cl.ice_fixed(connection)

@@ -819,11 +819,33 @@ public class AllTests : TestCommon.AllTests
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
+                ctx["one"] = "hello";
+                ctx["two"] = "world";
+                test(cl.ice_fixed(connection).ice_getContext().Count == 0);
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 test(cl.ice_fixed(connection).ice_getConnection() == connection);
                 test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                 test(!cl.ice_fixed(connection).ice_getTimeout().HasValue);
+                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);
                 Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
                 test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
+                try
+                {
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
             }
             else
             {

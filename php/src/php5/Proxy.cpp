@@ -1275,6 +1275,27 @@ ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        ZVAL_LONG(return_value, static_cast<long>(_this->proxy->ice_getInvocationTimeout()));
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
@@ -1770,6 +1791,7 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getInvocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_connectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_fixed, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)

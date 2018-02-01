@@ -603,11 +603,20 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             const string& facet,
                                             Mode mode,
                                             bool secure,
+                                            const ProtocolVersion& protocol,
                                             const EncodingVersion& encoding,
-                                            const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, -1, Ice::Context()),
+                                            const ConnectionIPtr& fixedConnection,
+                                            int invocationTimeout,
+                                            const Ice::Context& context,
+                                            const IceUtil::Optional<bool>& compress) :
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
     _fixedConnection(fixedConnection)
 {
+    if(compress)
+    {
+        _overrideCompress = true;
+        _compress = *compress;
+    }
 }
 
 vector<EndpointIPtr>
@@ -791,7 +800,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -801,7 +810,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(!_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -823,7 +832,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
     if(secure && !_fixedConnection->endpoint()->secure())
     {
-        throw NoEndpointException(__FILE__, __LINE__, "");
+        throw NoEndpointException(__FILE__, __LINE__, toString());
     }
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
@@ -1200,8 +1209,12 @@ IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& conn
                               getFacet(),
                               getMode(),
                               getSecure(),
+                              getProtocol(),
                               getEncoding(),
-                              connection);
+                              connection,
+                              getInvocationTimeout(),
+                              getContext()->getValue(),
+                              getCompress());
 }
 
 bool

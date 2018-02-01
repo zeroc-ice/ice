@@ -522,8 +522,8 @@ function allTests($communicator)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $cl = $base->ice_checkedCast("::Test::MyClass", $c);
-    $c2 = $cl->getContext();
+    $clc = $base->ice_checkedCast("::Test::MyClass", $c);
+    $c2 = $clc->getContext();
     test($c == $c2);
 
     echo "ok\n";
@@ -537,11 +537,33 @@ function allTests($communicator)
         test($cl->ice_secure(true)->ice_fixed($connection)->ice_isSecure());
         test($cl->ice_facet("facet")->ice_fixed($connection)->ice_getFacet() == "facet");
         test($cl->ice_oneway()->ice_fixed($connection)->ice_isOneway());
+        $ctx = [];
+        $ctx["one"] = "hello";
+        $ctx["two"] = "world";
+        echo count($cl->ice_fixed($connection)->ice_getContext());
+        test($cl->ice_fixed($connection)->ice_getContext() == null);
+        test(count($cl->ice_context($ctx)->ice_fixed($connection)->ice_getContext()) == 2);
+        test($cl->ice_fixed($connection)->ice_getInvocationTimeout() == -1);
+        test($cl->ice_invocationTimeout(10)->ice_fixed($connection)->ice_getInvocationTimeout() == 10);
         test($cl->ice_fixed($connection)->ice_getConnection() == $connection);
         test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
         test($cl->ice_fixed($connection)->ice_getTimeout() == $none);
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
+        try
+        {
+            $cl->ice_secure(!$connection->getEndpoint()->getInfo()->secure())->ice_fixed($connection)->ice_ping();
+        }
+        catch(Exception $ex)
+        {
+        }
+        try
+        {
+            $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
+        }
+        catch(Exception $ex)
+        {
+        }
     }
     else
     {

@@ -777,11 +777,35 @@
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                const ctx = new Map();
+                ctx.set("one", "hello");
+                ctx.set("two", "world");
+                test(cl.ice_fixed(connection).ice_getContext().size == 0);
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 test(await cl.ice_fixed(connection).ice_getConnection() == connection);
                 test(await cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                 test(cl.ice_fixed(connection).ice_getTimeout() === undefined);
                 const fixedConnection = await cl.ice_connectionId("ice_fixed").ice_getConnection();
                 test(await cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    await cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.NoEndpointException);
+                }
+                try
+                {
+                    await cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.NoEndpointException);
+                }
+
             }
             else
             {

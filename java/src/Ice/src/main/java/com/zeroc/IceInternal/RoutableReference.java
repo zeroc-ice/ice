@@ -313,8 +313,12 @@ public class RoutableReference extends Reference
                                   getFacet(),
                                   getMode(),
                                   getSecure(),
+                                  getProtocol(),
                                   getEncoding(),
-                                  connection);
+                                  connection,
+                                  getInvocationTimeout(),
+                                  getContext(),
+                                  getCompress());
     }
 
     @Override

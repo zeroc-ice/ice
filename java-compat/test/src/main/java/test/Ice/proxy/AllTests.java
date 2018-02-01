@@ -907,11 +907,33 @@ public class AllTests
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+                ctx.put("one", "hello");
+                ctx.put("two", "world");
+                test(cl.ice_fixed(connection).ice_getContext().isEmpty());
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 test(cl.ice_fixed(connection).ice_getConnection() == connection);
                 test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
                 test(!cl.ice_fixed(connection).ice_getTimeout().isSet());
+                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().get());
                 Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
                 test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+                try
+                {
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
             }
             else
             {

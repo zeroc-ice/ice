@@ -558,11 +558,20 @@ namespace IceInternal
                               string facet,
                               Mode mode,
                               bool secure,
+                              Ice.ProtocolVersion protocol,
                               Ice.EncodingVersion encoding,
-                              Ice.ConnectionI connection)
-        : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, -1, null)
+                              Ice.ConnectionI connection,
+                              int invocationTimeout,
+                              Dictionary<string, string> context,
+                              Ice.Optional<bool> compress)
+        : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
+            if(compress.HasValue)
+            {
+                overrideCompress_ = true;
+                compress_ = compress.Value;
+            }
         }
 
         public override EndpointI[] getEndpoints()
@@ -721,7 +730,7 @@ namespace IceInternal
             {
                 if(_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(ToString());
                 }
                 break;
             }
@@ -731,7 +740,7 @@ namespace IceInternal
             {
                 if(!_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(ToString());
                 }
                 break;
             }
@@ -753,7 +762,7 @@ namespace IceInternal
             }
             if(secure && !_fixedConnection.endpoint().secure())
             {
-                throw new Ice.NoEndpointException("");
+                throw new Ice.NoEndpointException(ToString());
             }
 
             _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -1052,8 +1061,12 @@ namespace IceInternal
                                       getFacet(),
                                       getMode(),
                                       getSecure(),
+                                      getProtocol(),
                                       getEncoding(),
-                                      connection);
+                                      connection,
+                                      getInvocationTimeout(),
+                                      getContext(),
+                                      getCompress());
         }
 
         public override bool isIndirect()
