@@ -656,7 +656,7 @@ def allTests(communicator)
     STDOUT.flush
     connection = cl.ice_getConnection()
     if connection != nil
-        cl.ice_fixed(connection).ice_ping()
+        cl.ice_fixed(connection).getContext()
         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")
         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway())

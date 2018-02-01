@@ -773,7 +773,7 @@
             const connection = await cl.ice_getConnection();
             if(connection != null)
             {
-                await cl.ice_fixed(connection).ice_ping();
+                await cl.ice_fixed(connection).getContext();
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());

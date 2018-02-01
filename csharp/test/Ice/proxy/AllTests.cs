@@ -815,7 +815,8 @@ public class AllTests : TestCommon.AllTests
             Ice.Connection connection = cl.ice_getConnection();
             if(connection != null)
             {
-                cl.ice_fixed(connection).ice_ping();
+                Test.MyClassPrx prx = (Test.MyClassPrx)cl.ice_fixed(connection);
+                prx.ice_ping();
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());

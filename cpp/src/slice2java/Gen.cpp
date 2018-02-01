@@ -4852,6 +4852,18 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
 
     out << sp;
+    writeDocComment(out,
+                    "Returns a proxy that is identical to this proxy, except it's a fixed proxy bound\n"
+                    "the given connection."
+                    "@param connection The fixed proxy connection.\n"
+                    "@return A fixed proxy bound to the given connection.");
+    out << nl << "@Override";
+    out << nl << "default " << p->name() << "Prx ice_fixed(com.zeroc.Ice.Connection connection)";
+    out << sb;
+    out << nl << "return (" << p->name() << "Prx)_ice_fixed(connection);";
+    out << eb;
+
+    out << sp;
     out << nl << "static String ice_staticId()";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\";";

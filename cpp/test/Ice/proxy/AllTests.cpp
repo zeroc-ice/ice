@@ -1151,7 +1151,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::ConnectionPtr connection = cl->ice_getConnection();
         if(connection)
         {
-            cl->ice_fixed(connection)->ice_ping();
+            Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
+            prx->ice_ping();
             test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
             test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
             test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());

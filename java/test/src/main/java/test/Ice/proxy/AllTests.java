@@ -840,7 +840,8 @@ public class AllTests
             com.zeroc.Ice.Connection connection = cl.ice_getConnection();
             if(connection != null)
             {
-                cl.ice_fixed(connection).ice_ping();
+                MyClassPrx prx = cl.ice_fixed(connection); // Test proxy return type.
+                prx.ice_ping();
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());

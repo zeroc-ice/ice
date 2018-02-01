@@ -719,7 +719,7 @@ proxyAllTests(id<ICECommunicator> communicator)
         id<ICEConnection> connection = [cl ice_getConnection];
         if(connection != nil)
         {
-            [[cl ice_fixed:connection] ice_ping];
+            [[cl ice_fixed:connection] getContext];
             test([[[cl ice_secure:YES] ice_fixed:connection] ice_isSecure]);
             test([[[[cl ice_facet:@"facet"] ice_fixed:connection] ice_getFacet] isEqualToString:@"facet"]);
             test([[[cl ice_oneway] ice_fixed:connection] ice_isOneway]);
