@@ -1814,7 +1814,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
 }
 
 void
-Slice::JavaVisitor::writeDocComment(Output& out, const CommentPtr& dc)
+Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unit, const CommentPtr& dc)
 {
     if(!dc)
     {
@@ -1840,7 +1840,8 @@ Slice::JavaVisitor::writeDocComment(Output& out, const CommentPtr& dc)
         StringList sa = dc->seeAlso();
         for(StringList::iterator p = sa.begin(); p != sa.end(); ++p)
         {
-            out << nl << " * @see " << *p;
+            out << nl << " * @see ";
+            writeSeeAlso(out, unit, *p);
         }
     }
 
@@ -1980,9 +1981,10 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
     {
         out << nl << " *";
         StringList sa = dc->seeAlso();
-        for(StringList::iterator p = sa.begin(); p != sa.end(); ++p)
+        for(StringList::iterator q = sa.begin(); q != sa.end(); ++q)
         {
-            out << nl << " * @see " << *p;
+            out << nl << " * @see ";
+            writeSeeAlso(out, p->unit(), *q);
         }
     }
 
@@ -2110,9 +2112,10 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     {
         out << nl << " *";
         StringList sa = dc->seeAlso();
-        for(StringList::iterator p = sa.begin(); p != sa.end(); ++p)
+        for(StringList::iterator q = sa.begin(); q != sa.end(); ++q)
         {
-            out << nl << " * @see " << *p;
+            out << nl << " * @see ";
+            writeSeeAlso(out, p->unit(), *q);
         }
     }
 
@@ -2127,6 +2130,51 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
     }
 
     out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unit, const string& ref)
+{
+    assert(!ref.empty());
+
+    //
+    // Try to look up the referenced type. If we find it, we translate it into a fully-scoped Java type.
+    //
+
+    string s = ref;
+    string::size_type pos = s.find('#');
+    string rest;
+    if(pos != string::npos)
+    {
+        rest = s.substr(pos);
+        s = s.substr(0, pos);
+    }
+
+    pos = 0;
+    while((pos = s.find(".", pos)) != string::npos)
+    {
+        s.replace(pos, 1, "::");
+    }
+
+    //
+    // We assume a scoped name should be an absolute name.
+    //
+    if(s.find(":") != string::npos && s[0] != ':')
+    {
+        s.insert(0, "::");
+    }
+
+    TypeList l = unit->lookupTypeNoBuiltin(s, false, true);
+    if(l.empty())
+    {
+        out << ref;
+    }
+    else
+    {
+        ContainedPtr cont = ContainedPtr::dynamicCast(l.front());
+        assert(cont);
+        out << getAbsolute(cont) << rest;
+    }
 }
 
 Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir) :
@@ -2296,7 +2344,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Slice interfaces map to Java interfaces.
     //
     out << sp;
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -2751,7 +2799,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
 
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3204,7 +3252,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sp;
 
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3587,7 +3635,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     out << sp;
 
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3651,7 +3699,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Getter.
         //
         out << sp;
-        writeDocComment(out, dc);
+        writeDocComment(out, p->unit(), dc);
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -3672,7 +3720,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         // Setter.
         //
         out << sp;
-        writeDocComment(out, dc);
+        writeDocComment(out, p->unit(), dc);
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -3692,7 +3740,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         if(optional)
         {
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p->unit(), dc);
             if(dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3703,7 +3751,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p->unit(), dc);
             if(dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3717,7 +3765,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 typeToString(type, TypeModeMember, getPackage(contained), metaData, true, true, local);
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p->unit(), dc);
             if(dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3751,7 +3799,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
 
             out << sp;
-            writeDocComment(out, dc);
+            writeDocComment(out, p->unit(), dc);
             if(dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -3907,7 +3955,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
 
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -3927,7 +3975,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             out << ',';
         }
         CommentPtr edc = (*en)->parseComment(false);
-        writeDocComment(out, edc);
+        writeDocComment(out, p->unit(), edc);
         if(edc && edc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -4059,7 +4107,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     out << sp;
 
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -4495,7 +4543,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Generate a Java interface as the user-visible type
     //
     out << sp;
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -5254,7 +5302,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     CommentPtr dc = p->parseComment(false);
-    writeDocComment(out, dc);
+    writeDocComment(out, p->unit(), dc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";

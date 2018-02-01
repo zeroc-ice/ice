@@ -102,12 +102,13 @@ protected:
     static StringList splitComment(const ContainedPtr&);
     void writeDocCommentLines(::IceUtilInternal::Output&, const StringList&);
     void writeDocCommentLines(::IceUtilInternal::Output&, const std::string&);
-    void writeDocComment(::IceUtilInternal::Output&, const CommentPtr&);
+    void writeDocComment(::IceUtilInternal::Output&, const UnitPtr&, const CommentPtr&);
     void writeDocComment(::IceUtilInternal::Output&, const std::string&);
     void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&,
                               bool, bool);
     void writeServantDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
                                 const CommentPtr&, bool);
+    void writeSeeAlso(::IceUtilInternal::Output&, const UnitPtr&, const std::string&);
 };
 
 class Gen : private ::IceUtil::noncopyable
