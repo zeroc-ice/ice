@@ -45,9 +45,18 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 - Slice documentation comments are now preserved in the generated C++
   code using Doxygen markup.
 
-## PHP Changes
+## C# Changes
 
-- Fixed Ice for PHP build failure when build with PHP5 ZTS
+- Added the ice_initialize partial method to generated structs and classes.
+  This method is called by constructors after initialization of the data
+  members. By implementing this method users can customize struct and
+  class initialization.
+
+## Java Changes
+
+- The java:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
 
 ## Objective-C Changes
 
@@ -55,12 +64,15 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   parameters returned by reference. Xcode 9.0 now emits a warning if this
   qualifier is omitted.
 
-## C# Changes
+## PHP Changes
 
-- Added the ice_initialize partial method to generated structs and classes.
-  This method is called by constructors after initialization of the data
-  members. By implementing this method users can customize struct and
-  class initialization.
+- Fixed Ice for PHP build failure when build with PHP5 ZTS
+
+## Python Changes
+
+- The python:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
 
 ## Ruby Changes
 
