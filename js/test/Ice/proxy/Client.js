@@ -763,8 +763,8 @@
         c = new Map();
         c.set("one", "hello");
         c.set("two", "world");
-        cl = await Test.MyClassPrx.checkedCast(base, undefined, c);
-        let c2 = await cl.getContext();
+        clc = await Test.MyClassPrx.checkedCast(base, undefined, c);
+        let c2 = await clc.getContext();
         test(Ice.MapUtil.equals(c, c2))
         out.writeLine("ok");
 

@@ -854,7 +854,7 @@ Ice.ReferenceFactory = ReferenceFactory;
 
 class Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
     {
         //
         // Validate string arguments.
@@ -868,7 +868,7 @@ class Reference
         this._mode = mode;
         this._secure = secure;
         this._identity = identity;
-        this._context = Reference._emptyContext;
+        this._context = context === undefined ? Reference._emptyContext : context;
         this._facet = facet;
         this._protocol = protocol;
         this._encoding = encoding;
@@ -1683,9 +1683,9 @@ class RoutableReference extends Reference
 {
     constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
                 adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
-                locatorCacheTimeout, invocationTimeout)
+                locatorCacheTimeout, invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._endpoints = endpoints;
         this._adapterId = adapterId;
         this._locatorInfo = locatorInfo;
