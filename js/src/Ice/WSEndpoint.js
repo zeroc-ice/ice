@@ -36,6 +36,9 @@ class WSEndpoint extends EndpointI
     getInfo()
     {
         let info = new Ice.WSEndpointInfo();
+        info.type = () => this.type();
+        info.datagram = () => this.datagram();
+        info.secure = () => this.secure();
         info.resource = this._resource;
         info.underlying = this._delegate.getInfo();
         info.timeout = info.underlying.timeout;
