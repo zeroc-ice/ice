@@ -14,7 +14,7 @@
 static int
 run()
 {
-    void defaultValueAllTests();
+    void defaultValueAllTests(void);
     defaultValueAllTests();
     return EXIT_SUCCESS;
 }

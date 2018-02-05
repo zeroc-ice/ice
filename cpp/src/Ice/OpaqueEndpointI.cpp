@@ -60,19 +60,19 @@ public:
     OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
 
     virtual Ice::Short
-    type() const
+    type() const ICE_NOEXCEPT
     {
         return _type;
     }
 
     virtual bool
-    datagram() const
+    datagram() const ICE_NOEXCEPT
     {
         return false;
     }
 
     virtual bool
-    secure() const
+    secure() const ICE_NOEXCEPT
     {
         return false;
     }
@@ -102,7 +102,7 @@ IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 }
 
 Ice::EndpointInfoPtr
-IceInternal::OpaqueEndpointI::getInfo() const
+IceInternal::OpaqueEndpointI::getInfo() const ICE_NOEXCEPT
 {
     return ICE_MAKE_SHARED(OpaqueEndpointInfoI, _type, _rawEncoding, _rawBytes);
 }

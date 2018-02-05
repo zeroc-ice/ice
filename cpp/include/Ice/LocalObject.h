@@ -22,6 +22,10 @@
 namespace Ice
 {
 
+/**
+ * Base class for local Slice classes and interfaces.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API LocalObject : public virtual ::IceUtil::Shared
 {
 public:

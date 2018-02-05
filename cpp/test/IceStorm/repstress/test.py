@@ -107,7 +107,14 @@ class IceStormRepStressTestCase(IceStormTestCase):
 
         current.writeln("publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount))
 
+#
+# TODO: WORKAROUND: we run this test on the main thread only for now to investigate a
+# sporadic hang on Windows. This test supports workers but when it hangs we don't get
+# the output. We should remove this workaround once the hang is fixed or no longer
+# shows up.
+#
+
 TestSuite(__file__,
           [ IceStormRepStressTestCase("replicated", icestorm=icestorm) ],
           options={ "ipv6" : [False] },
-          multihost=False)
+          multihost=False, runOnMainThread=True)

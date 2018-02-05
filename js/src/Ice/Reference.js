@@ -113,8 +113,11 @@ class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? RefMode.ModeDatagram : RefMode.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            Ice.Protocol_1_0,
             this._instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null);
     }
 
     copy(r)
@@ -851,7 +854,7 @@ Ice.ReferenceFactory = ReferenceFactory;
 
 class Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
     {
         //
         // Validate string arguments.
@@ -865,7 +868,7 @@ class Reference
         this._mode = mode;
         this._secure = secure;
         this._identity = identity;
-        this._context = Reference._emptyContext;
+        this._context = context === undefined ? Reference._emptyContext : context;
         this._facet = facet;
         this._protocol = protocol;
         this._encoding = encoding;
@@ -980,6 +983,13 @@ class Reference
     }
 
     getConnectionId()
+    {
+        // Abstract
+        Debug.assert(false);
+        return "";
+    }
+
+    getTimeout()
     {
         // Abstract
         Debug.assert(false);
@@ -1139,6 +1149,13 @@ class Reference
     }
 
     changeConnectionId(connectionId)
+    {
+        // Abstract
+        Debug.assert(false);
+        return null;
+    }
+
+    changeConnection(connection)
     {
         // Abstract
         Debug.assert(false);
@@ -1440,9 +1457,10 @@ Ice.Reference = Reference;
 
 class FixedReference extends Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, encoding, connection)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, connection,
+                invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, Ice.Protocol_1_0, encoding);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._fixedConnection = connection;
     }
 
@@ -1489,6 +1507,11 @@ class FixedReference extends Reference
     getConnectionId()
     {
         return "";
+    }
+
+    getTimeout()
+    {
+        return undefined;
     }
 
     changeAdapterId(newAdapterId)
@@ -1541,6 +1564,17 @@ class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
+    changeConnection(newConnection)
+    {
+        if(newConnection == this._fixedConnection)
+        {
+            return this;
+        }
+        const r = this.getInstance().referenceFactory().copy(this);
+        r._fixedConnection = newConnection;
+        return r;
+    }
+
     isIndirect()
     {
         return false;
@@ -1563,8 +1597,17 @@ class FixedReference extends Reference
 
     clone()
     {
-        const r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                     this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
+        const r = new FixedReference(this.getInstance(),
+                                     this.getCommunicator(),
+                                     this.getIdentity(),
+                                     this.getFacet(),
+                                     this.getMode(),
+                                     this.getSecure(),
+                                     this.getProtocol(),
+                                     this.getEncoding(),
+                                     this._fixedConnection,
+                                     this.getInvocationTimeout(),
+                                     this.getContext());
         this.copyMembers(r);
         return r;
     }
@@ -1579,7 +1622,7 @@ class FixedReference extends Reference
             {
                 if(this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1589,7 +1632,7 @@ class FixedReference extends Reference
             {
                 if(!this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1603,7 +1646,7 @@ class FixedReference extends Reference
         const secure = defaultsAndOverrides.overrideSecure ? defaultsAndOverrides.overrideSecureValue : this.getSecure();
         if(secure && !this._fixedConnection.endpoint().secure())
         {
-            throw new Ice.NoEndpointException("");
+            throw new Ice.NoEndpointException(this.toString());
         }
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -1630,7 +1673,7 @@ class FixedReference extends Reference
         {
             return false;
         }
-        return this._fixedConnection.equals(rhs._fixedConnection);
+        return this._fixedConnection == rhs._fixedConnection;
     }
 }
 
@@ -1640,9 +1683,9 @@ class RoutableReference extends Reference
 {
     constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
                 adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
-                locatorCacheTimeout, invocationTimeout)
+                locatorCacheTimeout, invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._endpoints = endpoints;
         this._adapterId = adapterId;
         this._locatorInfo = locatorInfo;
@@ -1709,6 +1752,11 @@ class RoutableReference extends Reference
     getConnectionId()
     {
         return this._connectionId;
+    }
+
+    getTimeout()
+    {
+        return this._overrideTimeout ? this._timeout : undefined;
     }
 
     changeEncoding(newEncoding)
@@ -1841,6 +1889,21 @@ class RoutableReference extends Reference
         r._connectionId = id;
         r._endpoints = this._endpoints.map(endpoint => endpoint.changeConnectionId(id));
         return r;
+    }
+
+    changeConnection(newConnection)
+    {
+        return new FixedReference(this.getInstance(),
+                                  this.getCommunicator(),
+                                  this.getIdentity(),
+                                  this.getFacet(),
+                                  this.getMode(),
+                                  this.getSecure(),
+                                  this.getProtocol(),
+                                  this.getEncoding(),
+                                  newConnection,
+                                  this.getInvocationTimeout(),
+                                  this.getContext());
     }
 
     isIndirect()

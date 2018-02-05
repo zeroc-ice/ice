@@ -32,12 +32,12 @@ TEST_API void TestCommonTestInit(id, SEL, NSString*, BOOL, BOOL);
 @protocol ICECommunicator;
 @protocol ICEProperties;
 
-TEST_API id<ICEProperties> defaultServerProperties();
-TEST_API id<ICEProperties> defaultClientProperties();
+TEST_API id<ICEProperties> defaultServerProperties(int* argc, char** argv);
+TEST_API id<ICEProperties> defaultClientProperties(int* argc, char** argv);
 
 TEST_API void serverReady(id<ICECommunicator>);
 
-TEST_API void serverStop();
+TEST_API void serverStop(void);
 
 TEST_API void tprintf(const char* fmt, ...);
 

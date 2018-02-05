@@ -219,7 +219,7 @@ def allTests(communicator):
     p = top;
     depth = 0;
     try:
-        while depth <= 1000:
+        while depth <= 700:
             p.v = Test.Recursive()
             p = p.v;
             if (depth < 10 and (depth % 10) == 0) or \

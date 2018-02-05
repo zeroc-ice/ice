@@ -53,8 +53,12 @@ public final class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null,
+            new Ice.BooleanOptional());
     }
 
     public Reference

@@ -392,7 +392,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     int depth = 0;
     try
     {
-        for(; depth <= 2000; ++depth)
+#if defined(NDEBUG) || !defined(__APPLE__)
+        const int maxDepth = 2000;
+#else
+        // With debug, marshalling a graph of 2000 elements can cause a stack overflow on macOS
+        const int maxDepth = 1500;
+#endif
+        for(; depth <= maxDepth; ++depth)
         {
             p->v = ICE_MAKE_SHARED(Recursive);
             p = p->v;

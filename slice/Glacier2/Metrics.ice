@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/Metrics.ice>

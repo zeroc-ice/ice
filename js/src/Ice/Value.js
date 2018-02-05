@@ -127,7 +127,7 @@ const writeImpl = function(obj, os, type)
     os.startSlice(type.ice_staticId(),
                   Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1 ,
                   Object.getPrototypeOf(type) === Ice.Value);
-    if(type.prototype._iceWriteMemberImpl)
+    if(type.prototype.hasOwnProperty('_iceWriteMemberImpl'))
     {
         type.prototype._iceWriteMemberImpl.call(obj, os);
     }
@@ -149,7 +149,7 @@ const readImpl = function(obj, is, type)
     }
 
     is.startSlice();
-    if(type.prototype._iceReadMemberImpl)
+    if(type.prototype.hasOwnProperty('_iceReadMemberImpl'))
     {
         type.prototype._iceReadMemberImpl.call(obj, is);
     }

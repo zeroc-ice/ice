@@ -251,6 +251,11 @@ Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 
 #ifndef ICE_CPP11_MAPPING
 void
+Ice::Object::ice_collectable(bool)
+{
+}
+
+void
 Ice::Object::ice_preMarshal()
 {
 }

@@ -280,6 +280,62 @@ Slice::DefinitionContext::initSuppressedWarnings()
 }
 
 // ----------------------------------------------------------------------
+// Comment
+// ----------------------------------------------------------------------
+
+bool
+Slice::Comment::isDeprecated() const
+{
+    return _isDeprecated;
+}
+
+StringList
+Slice::Comment::deprecated() const
+{
+    return _deprecated;
+}
+
+StringList
+Slice::Comment::overview() const
+{
+    return _overview;
+}
+
+StringList
+Slice::Comment::misc() const
+{
+    return _misc;
+}
+
+StringList
+Slice::Comment::seeAlso() const
+{
+    return _seeAlso;
+}
+
+StringList
+Slice::Comment::returns() const
+{
+    return _returns;
+}
+
+map<string, StringList>
+Slice::Comment::parameters() const
+{
+    return _parameters;
+}
+
+map<string, StringList>
+Slice::Comment::exceptions() const
+{
+    return _exceptions;
+}
+
+Slice::Comment::Comment()
+{
+}
+
+// ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
@@ -536,6 +592,330 @@ string
 Slice::Contained::comment() const
 {
     return _comment;
+}
+
+namespace
+{
+
+void
+trimLines(StringList& l)
+{
+    //
+    // Remove empty trailing lines.
+    //
+    while(!l.empty() && l.back().empty())
+    {
+        l.pop_back();
+    }
+}
+
+StringList
+splitComment(const string& c, bool stripMarkup)
+{
+    string comment = c;
+
+    if(stripMarkup)
+    {
+        //
+        // Strip HTML markup and javadoc links.
+        //
+        string::size_type pos = 0;
+        do
+        {
+            pos = comment.find('<', pos);
+            if(pos != string::npos)
+            {
+                string::size_type endpos = comment.find('>', pos);
+                if(endpos == string::npos)
+                {
+                    break;
+                }
+                comment.erase(pos, endpos - pos + 1);
+            }
+        }
+        while(pos != string::npos);
+
+        const string link = "{@link";
+        pos = 0;
+        do
+        {
+            pos = comment.find(link, pos);
+            if(pos != string::npos)
+            {
+                comment.erase(pos, link.size() + 1); // Erase trailing white space too.
+                string::size_type endpos = comment.find('}', pos);
+                if(endpos != string::npos)
+                {
+                    string ident = comment.substr(pos, endpos - pos);
+                    comment.erase(pos, endpos - pos + 1);
+
+                    //
+                    // Replace links of the form {@link Type#member} with "Type.member".
+                    //
+                    string::size_type hash = ident.find('#');
+                    string rest;
+                    if(hash != string::npos)
+                    {
+                        rest = ident.substr(hash + 1);
+                        ident = ident.substr(0, hash);
+                        if(!ident.empty())
+                        {
+                            if(!rest.empty())
+                            {
+                                ident += "." + rest;
+                            }
+                        }
+                        else if(!rest.empty())
+                        {
+                            ident = rest;
+                        }
+                    }
+
+                    comment.insert(pos, ident);
+                }
+            }
+        }
+        while(pos != string::npos);
+    }
+
+    StringList result;
+
+    string::size_type pos = 0;
+    string::size_type nextPos;
+    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    {
+        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        pos = nextPos + 1;
+    }
+    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    if(!lastLine.empty())
+    {
+        result.push_back(lastLine);
+    }
+
+    trimLines(result);
+
+    return result;
+}
+
+bool
+parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+{
+    doc.clear();
+
+    if(l.find(tag) == 0)
+    {
+        const string ws = " \t";
+
+        if(namedTag)
+        {
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                doc = l.substr(n);
+            }
+        }
+        else
+        {
+            name.clear();
+
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            doc = l.substr(n);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+}
+
+CommentPtr
+Slice::Contained::parseComment(bool stripMarkup) const
+{
+    CommentPtr comment = new Comment;
+
+    comment->_isDeprecated = false;
+
+    //
+    // First check metadata for a deprecated tag.
+    //
+    string deprecateMetadata;
+    if(findMetaData("deprecate", deprecateMetadata))
+    {
+        comment->_isDeprecated = true;
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            comment->_deprecated.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
+        }
+    }
+
+    if(!comment->_isDeprecated && _comment.empty())
+    {
+        return 0;
+    }
+
+    //
+    // Split up the comment into lines.
+    //
+    StringList lines = splitComment(_comment, stripMarkup);
+
+    StringList::const_iterator i;
+    for(i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string l = *i;
+        if(l[0] == '@')
+        {
+            break;
+        }
+        comment->_overview.push_back(l);
+    }
+
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    State state = StateMisc;
+    string name;
+    const string ws = " \t";
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+    const string seeTag = "@see";
+    for(; i != lines.end(); ++i)
+    {
+        const string l = IceUtilInternal::trim(*i);
+        string line;
+        if(parseCommentLine(l, paramTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateParam;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_parameters[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, throwsTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, exceptionTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, seeTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                comment->_seeAlso.push_back(line);
+            }
+        }
+        else if(parseCommentLine(l, returnTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateReturn;
+                comment->_returns.push_back(line); // The first line of the description.
+            }
+        }
+        else if(parseCommentLine(l, deprecatedTag, false, name, line))
+        {
+            comment->_isDeprecated = true;
+            if(!line.empty())
+            {
+                state = StateDeprecated;
+                comment->_deprecated.push_back(line); // The first line of the description.
+            }
+        }
+        else if(!l.empty())
+        {
+            if(l[0] == '@')
+            {
+                //
+                // Treat all other tags as miscellaneous comments.
+                //
+                state = StateMisc;
+            }
+
+            switch(state)
+            {
+                case StateMisc:
+                {
+                    comment->_misc.push_back(l);
+                    break;
+                }
+                case StateParam:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(comment->_parameters.find(name) != comment->_parameters.end())
+                    {
+                        sl = comment->_parameters[name];
+                    }
+                    sl.push_back(l);
+                    comment->_parameters[name] = sl;
+                    break;
+                }
+                case StateThrows:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(comment->_exceptions.find(name) != comment->_exceptions.end())
+                    {
+                        sl = comment->_exceptions[name];
+                    }
+                    sl.push_back(l);
+                    comment->_exceptions[name] = sl;
+                    break;
+                }
+                case StateReturn:
+                {
+                    comment->_returns.push_back(l);
+                    break;
+                }
+                case StateDeprecated:
+                {
+                    comment->_deprecated.push_back(l);
+                    break;
+                }
+            }
+        }
+    }
+
+    trimLines(comment->_overview);
+    trimLines(comment->_deprecated);
+    trimLines(comment->_misc);
+    trimLines(comment->_returns);
+
+    return comment;
 }
 
 int

@@ -36,7 +36,6 @@ public class Client extends test.Util.Application
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.

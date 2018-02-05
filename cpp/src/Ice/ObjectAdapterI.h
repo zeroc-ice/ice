@@ -47,16 +47,16 @@ class ObjectAdapterI : public ObjectAdapter,
 {
 public:
 
-    virtual std::string getName() const;
+    virtual std::string getName() const ICE_NOEXCEPT;
 
-    virtual CommunicatorPtr getCommunicator() const;
+    virtual CommunicatorPtr getCommunicator() const ICE_NOEXCEPT;
 
     virtual void activate();
     virtual void hold();
     virtual void waitForHold();
-    virtual void deactivate();
-    virtual void waitForDeactivate();
-    virtual bool isDeactivated() const;
+    virtual void deactivate() ICE_NOEXCEPT;
+    virtual void waitForDeactivate() ICE_NOEXCEPT;
+    virtual bool isDeactivated() const ICE_NOEXCEPT;
     virtual void destroy() ICE_NOEXCEPT;
 
     virtual ObjectPrxPtr add(const ObjectPtr&, const Identity&);
@@ -83,11 +83,11 @@ public:
     virtual ObjectPrxPtr createIndirectProxy(const Identity&) const;
 
     virtual void setLocator(const LocatorPrxPtr&);
-    virtual Ice::LocatorPrxPtr getLocator() const;
-    virtual EndpointSeq getEndpoints() const;
+    virtual Ice::LocatorPrxPtr getLocator() const ICE_NOEXCEPT;
+    virtual EndpointSeq getEndpoints() const ICE_NOEXCEPT;
 
     virtual void refreshPublishedEndpoints();
-    virtual EndpointSeq getPublishedEndpoints() const;
+    virtual EndpointSeq getPublishedEndpoints() const ICE_NOEXCEPT;
     virtual void setPublishedEndpoints(const EndpointSeq&);
 
     bool isLocal(const ObjectPrxPtr&) const;

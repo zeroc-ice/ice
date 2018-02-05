@@ -151,7 +151,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 }
 
 EndpointInfoPtr
-IceObjC::StreamEndpointI::getInfo() const
+IceObjC::StreamEndpointI::getInfo() const ICE_NOEXCEPT
 {
     TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
     IPEndpointI::fillEndpointInfo(info.get());

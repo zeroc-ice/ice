@@ -15,6 +15,10 @@
 namespace Ice
 {
 
+/**
+ * Obtains the map containing the checksums for Slice definitions.
+ * @return The checksum map.
+ */
 ICE_API SliceChecksumDict sliceChecksums();
 
 }

@@ -13,6 +13,7 @@
 #include <Connection.h>
 #include <Endpoint.h>
 #include <Util.h>
+#include <Types.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
@@ -827,6 +828,27 @@ IceRuby_ObjectPrx_ice_compress(VALUE self, VALUE b)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getCompress(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        IceUtil::Optional<bool> c = p->ice_getCompress();
+        if(c)
+        {
+            return *c ? Qtrue : Qfalse;
+        }
+        else
+        {
+            return Unset;
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 {
     ICE_RUBY_TRY
@@ -848,6 +870,27 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getTimeout(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        IceUtil::Optional<int> t = p->ice_getTimeout();
+        if(t)
+        {
+            return INT2FIX(*t);
+        }
+        else
+        {
+            return Unset;
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
@@ -855,6 +898,29 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
         Ice::ObjectPrx p = getProxy(self);
         string idstr = getString(id);
         return createProxy(p->ice_connectionId(idstr), rb_class_of(self));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_fixed(VALUE self, VALUE con)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+
+        Ice::ConnectionPtr connection;
+        if(!NIL_P(con))
+        {
+            if(!checkConnection(con))
+            {
+                throw RubyException(rb_eTypeError, "argument must be an Ice.Connection");
+            }
+            connection = getConnection(con);
+        }
+        return createProxy(p->ice_fixed(connection), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1265,8 +1331,11 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_batchDatagram", CAST_METHOD(IceRuby_ObjectPrx_ice_batchDatagram), 0);
     rb_define_method(_proxyClass, "ice_isBatchDatagram", CAST_METHOD(IceRuby_ObjectPrx_ice_isBatchDatagram), 0);
     rb_define_method(_proxyClass, "ice_compress", CAST_METHOD(IceRuby_ObjectPrx_ice_compress), 1);
+    rb_define_method(_proxyClass, "ice_getCompress", CAST_METHOD(IceRuby_ObjectPrx_ice_getCompress), 0);
     rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
+    rb_define_method(_proxyClass, "ice_getTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getTimeout), 0);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
+    rb_define_method(_proxyClass, "ice_fixed", CAST_METHOD(IceRuby_ObjectPrx_ice_fixed), 1);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
     rb_define_method(_proxyClass, "ice_flushBatchRequests", CAST_METHOD(IceRuby_ObjectPrx_ice_flushBatchRequests), 0);

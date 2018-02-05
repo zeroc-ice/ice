@@ -16,6 +16,7 @@
 namespace Ice
 {
 
+/** Generates a UUID. */
 using IceUtil::generateUUID;
 
 }

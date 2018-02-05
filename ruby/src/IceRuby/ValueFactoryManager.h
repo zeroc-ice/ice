@@ -71,7 +71,7 @@ public:
     ~ValueFactoryManager();
 
     virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const;
+    virtual Ice::ValueFactoryPtr find(const std::string&) const ICE_NOEXCEPT;
 
     void addValueFactory(VALUE, const std::string&);
     VALUE findValueFactory(const std::string&) const;

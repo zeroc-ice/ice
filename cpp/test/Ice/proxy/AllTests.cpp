@@ -768,10 +768,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(Ice::targetLess(compObj->ice_compress(false), compObj->ice_compress(true)));
     test(Ice::targetGreaterEqual(compObj->ice_compress(true), compObj->ice_compress(false)));
 
+    test(compObj->ice_getCompress() == Ice::nullopt);
+    test(compObj->ice_compress(true)->ice_getCompress() == Ice::optional<bool>(true));
+    test(compObj->ice_compress(false)->ice_getCompress() == Ice::optional<bool>(false));
+
     test(Ice::targetEqualTo(compObj->ice_timeout(20), compObj->ice_timeout(20)));
     test(Ice::targetNotEqualTo(compObj->ice_timeout(10), compObj->ice_timeout(20)));
     test(Ice::targetLess(compObj->ice_timeout(10), compObj->ice_timeout(20)));
     test(Ice::targetGreaterEqual(compObj->ice_timeout(20), compObj->ice_timeout(10)));
+
+    test(compObj->ice_getTimeout() == Ice::nullopt);
+    test(compObj->ice_timeout(10)->ice_getTimeout() == Ice::optional<int>(10));
+    test(compObj->ice_timeout(20)->ice_getTimeout() == Ice::optional<int>(20));
 
     auto loc1 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc1:default -p 10000"));
     auto loc2 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc2:default -p 10000"));
@@ -847,7 +855,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
 
-    test(endpts1.size() != endpts2.size() ||  !equal(endpts1.begin(), endpts1.end(), endpts2.begin(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+    test(endpts1.size() != endpts2.size() || !equal(endpts1.begin(), endpts1.end(), endpts2.begin(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
     test(lexicographical_compare(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
     test(!lexicographical_compare(endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
 
@@ -859,9 +867,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(Ice::targetLess(compObj->ice_encodingVersion(Ice::Encoding_1_0), compObj->ice_encodingVersion(Ice::Encoding_1_1)));
     test(Ice::targetGreaterEqual(compObj->ice_encodingVersion(Ice::Encoding_1_1), compObj->ice_encodingVersion(Ice::Encoding_1_0)));
 
-    //
-    // TODO: Ideally we should also test comparison of fixed proxies.
-    //
+    Ice::ConnectionPtr baseConnection = base->ice_getConnection();
+    if(baseConnection)
+    {
+        Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
+        compObj1 = compObj1->ice_fixed(baseConnection);
+        compObj2 = compObj2->ice_fixed(baseConnection2);
+        test(Ice::targetNotEqualTo(compObj1, compObj2));
+        if(Ice::targetLess(compObj1, compObj2))
+        {
+            test(Ice::targetGreaterEqual(compObj2, compObj1));
+        }
+        else
+        {
+            test(Ice::targetGreaterEqual(compObj1, compObj2));
+        }
+    }
 
     cout << "ok" << endl;
 
@@ -938,10 +959,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_compress(false) < compObj->ice_compress(true));
     test(!(compObj->ice_compress(true) < compObj->ice_compress(false)));
 
+    test(!compObj->ice_getCompress());
+    test(compObj->ice_compress(true)->ice_getCompress() == IceUtil::Optional<bool>(true));
+    test(compObj->ice_compress(false)->ice_getCompress() == IceUtil::Optional<bool>(false));
+
     test(compObj->ice_timeout(20) == compObj->ice_timeout(20));
     test(compObj->ice_timeout(10) != compObj->ice_timeout(20));
     test(compObj->ice_timeout(10) < compObj->ice_timeout(20));
     test(!(compObj->ice_timeout(20) < compObj->ice_timeout(10)));
+
+    test(!compObj->ice_getTimeout());
+    test(compObj->ice_timeout(10)->ice_getTimeout() == IceUtil::Optional<int>(10));
+    test(compObj->ice_timeout(20)->ice_getTimeout() == IceUtil::Optional<int>(20));
 
     Ice::LocatorPrxPtr loc1 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc1:" + endp));
     Ice::LocatorPrxPtr loc2 = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("loc2:" + endp));
@@ -1024,9 +1053,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_encodingVersion(Ice::Encoding_1_0) < compObj->ice_encodingVersion(Ice::Encoding_1_1));
     test(!(compObj->ice_encodingVersion(Ice::Encoding_1_1) < compObj->ice_encodingVersion(Ice::Encoding_1_0)));
 
-    //
-    // TODO: Ideally we should also test comparison of fixed proxies.
-    //
+    Ice::ConnectionPtr baseConnection = base->ice_getConnection();
+    if(baseConnection)
+    {
+        Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
+        compObj1 = compObj1->ice_fixed(baseConnection);
+        compObj2 = compObj2->ice_fixed(baseConnection2);
+        test(compObj1 != compObj2);
+        if(compObj1 < compObj2)
+        {
+            test(compObj2 >= compObj1);
+        }
+        else
+        {
+            test(compObj1 >= compObj2);
+        }
+    }
 
     cout << "ok" << endl;
 
@@ -1102,6 +1144,64 @@ allTests(const Ice::CommunicatorPtr& communicator)
     c2 = cl->getContext();
     test(c == c2);
 #endif
+    cout << "ok" << endl;
+
+    cout << "testing ice_fixed... " << flush;
+    {
+        Ice::ConnectionPtr connection = cl->ice_getConnection();
+        if(connection)
+        {
+            Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
+            prx->ice_ping();
+            test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
+            test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
+            test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());
+            Ice::Context ctx;
+            ctx["one"] = "hello";
+            ctx["two"] = "world";
+            test(cl->ice_fixed(connection)->ice_getContext().empty());
+            test(cl->ice_context(ctx)->ice_fixed(connection)->ice_getContext().size() == 2);
+            test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1);
+            test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10);
+            test(cl->ice_fixed(connection)->ice_getConnection() == connection);
+            test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
+            test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
+            test(!cl->ice_fixed(connection)->ice_getTimeout());
+            Ice::ConnectionPtr fixedConnection = cl->ice_connectionId("ice_fixed")->ice_getConnection();
+            test(cl->ice_fixed(connection)->ice_fixed(fixedConnection)->ice_getConnection() == fixedConnection);
+            try
+            {
+                cl->ice_secure(!connection->getEndpoint()->getInfo()->secure())->ice_fixed(connection)->ice_ping();
+            }
+            catch(const Ice::NoEndpointException&)
+            {
+            }
+            try
+            {
+                cl->ice_datagram()->ice_fixed(connection)->ice_ping();
+            }
+            catch(const Ice::NoEndpointException&)
+            {
+            }
+        }
+        else
+        {
+            try
+            {
+                cl->ice_fixed(connection);
+                test(false);
+            }
+#ifdef ICE_CPP11_MAPPING
+            catch(const invalid_argument&)
+#else
+            catch(const IceUtil::IllegalArgumentException&)
+#endif
+            {
+                // Expected with null connection.
+            }
+
+        }
+    }
     cout << "ok" << endl;
 
     cout << "testing encoding versioning... " << flush;

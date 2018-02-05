@@ -101,37 +101,37 @@ public final class InitialI extends _InitialDisp
     public Ice.Object
     getTest3C2AsObject(Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
-    public test.Ice.packagemd.testpkg.Test3.C1
+    public test.Ice.packagemd.modpkg.Test3.C1
     getTest3C2AsC1(Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
-    public test.Ice.packagemd.testpkg.Test3.C2
+    public test.Ice.packagemd.modpkg.Test3.C2
     getTest3C2AsC2(Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
     public void
     throwTest3E2AsE1(Ice.Current current)
-        throws test.Ice.packagemd.testpkg.Test3.E1
+        throws test.Ice.packagemd.modpkg.Test3.E1
     {
-        throw new test.Ice.packagemd.testpkg.Test3.E2();
+        throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 
     @Override
     public void
     throwTest3E2AsE2(Ice.Current current)
-        throws test.Ice.packagemd.testpkg.Test3.E2
+        throws test.Ice.packagemd.modpkg.Test3.E2
     {
-        throw new test.Ice.packagemd.testpkg.Test3.E2();
+        throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 
     @Override

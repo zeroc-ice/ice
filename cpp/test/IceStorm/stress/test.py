@@ -143,13 +143,6 @@ class IceStormStressTestCase(IceStormTestCase):
             s.stop(current, True)
         current.writeln("ok")
 
-#
-# TODO: WORKAROUND: we run this test on the main thread only for now to investigate a
-# sporadic hang on Windows. This test supports workers but when it hangs we don't get
-# the output. We should remove this workaround once the hang is fixed or no longer
-# shows up.
-#
-
 TestSuite(__file__, [
 
     IceStormStressTestCase("persistent", icestorm=[IceStorm("TestIceStorm1", quiet=True),
@@ -159,4 +152,4 @@ TestSuite(__file__, [
                            [IceStorm("TestIceStorm1", i, 3, quiet=True) for i in range(0,3)] +
                            [IceStorm("TestIceStorm2", i, 3, portnum=20, quiet=True) for i in range(0,3)]),
 
-], multihost=False, runOnMainThread=True)
+], multihost=False)

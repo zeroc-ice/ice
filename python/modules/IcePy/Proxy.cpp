@@ -19,6 +19,7 @@
 #include <Operation.h>
 #include <Thread.h>
 #include <Util.h>
+#include <Types.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
@@ -1653,6 +1654,36 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceGetCompress(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        IceUtil::Optional<bool> compress = (*self->proxy)->ice_getCompress();
+        if(compress)
+        {
+            b = *compress ? getTrue() : getFalse();
+        }
+        else
+        {
+            b = Unset;
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceTimeout(ProxyObject* self, PyObject* args)
 {
     int timeout;
@@ -1680,6 +1711,34 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     }
 
     return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceGetTimeout(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    try
+    {
+        IceUtil::Optional<int> timeout = (*self->proxy)->ice_getTimeout();
+        if(timeout)
+        {
+            return PyLong_FromLong(*timeout);
+        }
+        else
+        {
+            Py_INCREF(Unset);
+            return Unset;
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
 }
 
 #ifdef WIN32
@@ -1763,6 +1822,40 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
     try
     {
         newProxy = (*self->proxy)->ice_connectionId(id);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceFixed(ProxyObject* self, PyObject* args)
+{
+    assert(self->proxy);
+
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &p))
+    {
+        return 0;
+    }
+
+    Ice::ConnectionPtr connection;
+    if(!getConnectionArg(p, "ice_fixed", "connection", connection))
+    {
+        return 0;
+    }
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_fixed(connection);
     }
     catch(const Ice::Exception& ex)
     {
@@ -2664,10 +2757,16 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_isBatchDatagram() -> bool")) },
     { STRCAST("ice_compress"), reinterpret_cast<PyCFunction>(proxyIceCompress), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_compress(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getCompress"), reinterpret_cast<PyCFunction>(proxyIceGetCompress), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_getCompress() -> bool")) },
     { STRCAST("ice_timeout"), reinterpret_cast<PyCFunction>(proxyIceTimeout), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getTimeout"), reinterpret_cast<PyCFunction>(proxyIceGetTimeout), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_getTimeout() -> int")) },
     { STRCAST("ice_connectionId"), reinterpret_cast<PyCFunction>(proxyIceConnectionId), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_fixed"), reinterpret_cast<PyCFunction>(proxyIceFixed), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_fixed(Ice.Connection) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getConnection"), reinterpret_cast<PyCFunction>(proxyIceGetConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_getConnectionAsync"), reinterpret_cast<PyCFunction>(proxyIceGetConnectionAsync),

@@ -15,6 +15,11 @@
 namespace IcePHP
 {
 
+//
+// Class entry.
+//
+extern zend_class_entry* connectionClassEntry;
+
 bool connectionInit(TSRMLS_D);
 
 bool createConnection(zval*, const Ice::ConnectionPtr& TSRMLS_DC);

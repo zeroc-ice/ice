@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "objc:header-dir:objc", "python:pkgdir:IceBT"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "cpp:doxygen:include:IceBT/IceBT.h", "objc:header-dir:objc", "python:pkgdir:IceBT"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]

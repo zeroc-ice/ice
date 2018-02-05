@@ -92,6 +92,7 @@ template<typename R> struct ReferenceWrapper<const R&>
 namespace IceMX
 {
 
+/// \cond INTERNAL
 template<class T, typename Y, typename Func> struct ApplyOnMember
 {
     ApplyOnMember(Y T::*m, Func f) : func(f), member(m)
@@ -156,6 +157,7 @@ template<class T, typename Y> ApplyOnMember<T, Y, Decrement<Y> > dec(Y T::*membe
 {
     return applyOnMember(member, Decrement<Y>());
 }
+/// \endcond
 
 }
 

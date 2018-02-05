@@ -36,23 +36,50 @@
 namespace Ice
 {
 
+/**
+ * Indicates that Iconv does not support the code.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API IconvInitializationException : public IceUtil::ExceptionHelper<IconvInitializationException>
 {
 public:
 
-    IconvInitializationException(const char*, int, const std::string&);
+    /**
+     * Constructs the exception with a reason. The file and line number are required.
+     * @param file The file name in which the exception was raised, typically __FILE__.
+     * @param line The line number at which the exception was raised, typically __LINE__.
+     * @param reason More detail about the failure.
+     */
+    IconvInitializationException(const char* file, int line, const std::string& reason);
 
 #ifndef ICE_CPP11_COMPILER
     virtual ~IconvInitializationException() throw();
 #endif
 
+    /**
+     * Obtains the Slice type ID of this exception.
+     * @return The fully-scoped type ID.
+     */
     virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
+
+    /**
+     * Prints a description of this exception to the given stream.
+     * @param str The output stream.
+     */
+    virtual void ice_print(std::ostream& str) const;
 
 #ifndef ICE_CPP11_MAPPING
+    /**
+     * Polymporphically clones this exception.
+     * @return A shallow copy of this exception.
+     */
     virtual IconvInitializationException* ice_clone() const;
 #endif
 
+    /**
+     * Obtains the reason for the failure.
+     * @return The reason.
+     */
     std::string reason() const;
 
 private:
@@ -329,6 +356,13 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 
 namespace Ice
 {
+
+/**
+ * Creates a string converter for the given code.
+ * @param internalCodeWithDefault The desired code. If empty or not provided, a default code is used.
+ * @return The converter object.
+ * @throws IconvInitializationException If the code is not supported.
+ */
 template<typename charT>
 ICE_HANDLE<IceUtil::BasicStringConverter<charT> >
 createIconvStringConverter(const std::string& internalCodeWithDefault = "")
@@ -342,6 +376,7 @@ createIconvStringConverter(const std::string& internalCodeWithDefault = "")
 
     return ICE_MAKE_SHARED(IceInternal::IconvStringConverter<charT>, internalCode);
 }
+
 }
 
 #endif

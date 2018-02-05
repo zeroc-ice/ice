@@ -104,7 +104,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>controller_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>B53E538F15C5F5F4A31972BEBA251ACC85F9BC2C</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>E7BFC05909103170FE986292019448DD325BB206</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -17,8 +17,7 @@ namespace IceBox
 {
 
 //
-// NOTE: the class isn't final on purpose to allow users to eventually
-// extend it.
+// NOTE: the class isn't final on purpose to allow users to extend it.
 //
 class ServiceManagerI : ServiceManagerDisp_
 {
@@ -283,6 +282,12 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             string prefix = "IceBox.Service.";
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
+
+            if(services.Count == 0)
+            {
+                throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
+            }
+
             string[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
             List<StartServiceInfo> servicesInfo = new List<StartServiceInfo>();
             for(int i = 0; i < loadOrder.Length; ++i)

@@ -428,6 +428,32 @@ class ObjectPrx
         }
     }
 
+    ice_getTimeout()
+    {
+        return this._reference.getTimeout();
+    }
+
+    ice_fixed(connection)
+    {
+        if(connection === null)
+        {
+            throw new Error("invalid null connection passed to ice_fixed");
+        }
+        if(!(connection instanceof Ice.ConnectionI))
+        {
+            throw new Error("invalid connection passed to ice_fixed");
+        }
+        const ref = this._reference.changeConnection(connection);
+        if(ref.equals(this._reference))
+        {
+            return this;
+        }
+        else
+        {
+            return this._newInstance(ref);
+        }
+    }
+
     ice_getConnectionId()
     {
         return this._reference.getConnectionId();

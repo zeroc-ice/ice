@@ -724,8 +724,16 @@ public class AllTests
         test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
 
+        test(!compObj.ice_getCompress().isSet());
+        test(compObj.ice_compress(true).ice_getCompress().get() == true);
+        test(compObj.ice_compress(false).ice_getCompress().get() == false);
+
         test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));
+
+        test(!compObj.ice_getTimeout().isSet());
+        test(compObj.ice_timeout(10).ice_getTimeout().get() == 10);
+        test(compObj.ice_timeout(20).ice_getTimeout().get() == 20);
 
         Ice.LocatorPrx loc1 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc1:tcp -p 10000"));
         Ice.LocatorPrx loc2 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc2:tcp -p 10000"));
@@ -784,9 +792,15 @@ public class AllTests
         test(!compObj1.ice_encodingVersion(Ice.Util.Encoding_1_0).equals(
                  compObj1.ice_encodingVersion(Ice.Util.Encoding_1_1)));
 
-        //
-        // TODO: Ideally we should also test comparison of fixed proxies.
-        //
+        Ice.Connection baseConnection = base.ice_getConnection();
+        if(baseConnection != null)
+        {
+            Ice.Connection baseConnection2 = base.ice_connectionId("base2").ice_getConnection();
+            compObj1 = compObj1.ice_fixed(baseConnection);
+            compObj2 = compObj2.ice_fixed(baseConnection2);
+            test(!compObj1.equals(compObj2));
+        }
+
         out.println("ok");
 
         out.print("testing checked cast... ");
@@ -881,6 +895,60 @@ public class AllTests
             test(ex.unknown.indexOf("UnsupportedEncodingException") > 0);
         }
 
+        out.println("ok");
+
+        out.print("testing ice_fixed... ");
+        out.flush();
+        {
+            Ice.Connection connection = cl.ice_getConnection();
+            if(connection != null)
+            {
+                MyClassPrx prx = (MyClassPrx)cl.ice_fixed(connection); // Test proxy return type.
+                prx.ice_ping();
+                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));
+                test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+                ctx.put("one", "hello");
+                ctx.put("two", "world");
+                test(cl.ice_fixed(connection).ice_getContext().isEmpty());
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                test(cl.ice_fixed(connection).ice_getConnection() == connection);
+                test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                test(!cl.ice_fixed(connection).ice_getTimeout().isSet());
+                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().get());
+                Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
+                test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+                try
+                {
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+            }
+            else
+            {
+                try
+                {
+                    cl.ice_fixed(connection);
+                    test(false);
+                }
+                catch(IllegalArgumentException e)
+                {
+                    // Expected with null connection.
+                }
+            }
+        }
         out.println("ok");
 
         out.print("testing protocol versioning... ");

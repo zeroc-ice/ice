@@ -82,6 +82,13 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public Ice.IntOptional
+    getTimeout()
+    {
+        return _overrideTimeout ? Ice.Optional.O(_timeout) : new Ice.IntOptional();
+    }
+
+    @Override
     public Reference
     changeEncoding(Ice.EncodingVersion newEncoding)
     {
@@ -280,6 +287,24 @@ public class RoutableReference extends Reference
             r._endpoints = newEndpoints;
         }
         return r;
+    }
+
+    @Override
+    public Reference
+    changeConnection(Ice.ConnectionI connection)
+    {
+        return new FixedReference(getInstance(),
+                                  getCommunicator(),
+                                  getIdentity(),
+                                  getFacet(),
+                                  getMode(),
+                                  getSecure(),
+                                  getProtocol(),
+                                  getEncoding(),
+                                  connection,
+                                  getInvocationTimeout(),
+                                  getContext(),
+                                  getCompress());
     }
 
     @Override

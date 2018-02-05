@@ -34,7 +34,6 @@ public class Client : TestCommon.Application
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
         // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion

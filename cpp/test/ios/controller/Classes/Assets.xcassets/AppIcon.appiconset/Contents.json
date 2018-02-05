@@ -101,6 +101,12 @@
       "idiom" : "ipad",
       "filename" : "test_suite-Small-83,5@2x-1.png",
       "scale" : "2x"
+    },
+    {
+      "size" : "1024x1024",
+      "idiom" : "ios-marketing",
+      "filename" : "test_suite-AppStore.png",
+      "scale" : "1x"
     }
   ],
   "info" : {

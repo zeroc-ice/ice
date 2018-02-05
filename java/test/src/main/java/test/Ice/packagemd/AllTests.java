@@ -161,27 +161,27 @@ public class AllTests
                 // the Test2.* types again (with this communicator) because factories
                 // have already been cached for them, so now we use the Test3.* types.
                 //
-                communicator.getProperties().setProperty("Ice.Default.Package", "test.Ice.packagemd.testpkg");
-                test.Ice.packagemd.testpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
+                communicator.getProperties().setProperty("Ice.Default.Package", "test.Ice.packagemd.modpkg");
+                test.Ice.packagemd.modpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
                 test(c1 != null);
-                test(c1 instanceof test.Ice.packagemd.testpkg.Test3.C2);
-                test.Ice.packagemd.testpkg.Test3.C2 c2 = initial.getTest3C2AsC2();
+                test(c1 instanceof test.Ice.packagemd.modpkg.Test3.C2);
+                test.Ice.packagemd.modpkg.Test3.C2 c2 = initial.getTest3C2AsC2();
                 test(c2 != null);
                 try
                 {
                     initial.throwTest3E2AsE1();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test3.E1 ex)
+                catch(test.Ice.packagemd.modpkg.Test3.E1 ex)
                 {
-                    test(ex instanceof test.Ice.packagemd.testpkg.Test3.E2);
+                    test(ex instanceof test.Ice.packagemd.modpkg.Test3.E2);
                 }
                 try
                 {
                     initial.throwTest3E2AsE2();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test3.E2 ex)
+                catch(test.Ice.packagemd.modpkg.Test3.E2 ex)
                 {
                     // Expected
                 }

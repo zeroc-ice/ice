@@ -17,6 +17,12 @@
 namespace Ice
 {
 
+/**
+ * Type-safe asynchronous callback wrapper class used for calls to
+ * Ice::Communicator::begin_flushBatchRequests.
+ * Create a wrapper instance by calling ::Ice::newCallback_Communicator_flushBatchRequests.
+ * \headerfile Ice/Ice.h
+ */
 template<class T>
 class CallbackNC_Communicator_flushBatchRequests : public Callback_Communicator_flushBatchRequests_Base,
                                                    public ::IceInternal::OnewayCallbackNC<T>
@@ -33,6 +39,7 @@ public:
     {
     }
 
+    /// \cond INTERNAL
     virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {
         ::Ice::CommunicatorPtr communicator = result->getCommunicator();
@@ -47,8 +54,17 @@ public:
             ::IceInternal::CallbackNC<T>::exception(result, ex);
         }
     }
+    /// \endcond
 };
 
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param excb The exception method of the callback object.
+ * @param sentcb The sent method of the callback object.
+ * @return An object that can be passed to an asynchronous invocation of
+ * Ice::Communicator::begin_flushBatchRequests.
+ */
 template<class T> Callback_Communicator_flushBatchRequestsPtr
 newCallback_Communicator_flushBatchRequests(const IceUtil::Handle<T>& instance,
                                             void (T::*excb)(const ::Ice::Exception&),
@@ -57,6 +73,14 @@ newCallback_Communicator_flushBatchRequests(const IceUtil::Handle<T>& instance,
     return new CallbackNC_Communicator_flushBatchRequests<T>(instance, excb, sentcb);
 }
 
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param excb The exception method of the callback object.
+ * @param sentcb The sent method of the callback object.
+ * @return An object that can be passed to an asynchronous invocation of
+ * Ice::Communicator::begin_flushBatchRequests.
+ */
 template<class T> Callback_Communicator_flushBatchRequestsPtr
 newCallback_Communicator_flushBatchRequests(T* instance, void (T::*excb)(const ::Ice::Exception&),
                                             void (T::*sentcb)(bool) = 0)
@@ -64,6 +88,12 @@ newCallback_Communicator_flushBatchRequests(T* instance, void (T::*excb)(const :
     return new CallbackNC_Communicator_flushBatchRequests<T>(instance, excb, sentcb);
 }
 
+/**
+ * Type-safe asynchronous callback wrapper class used for calls to
+ * Ice::Communicator::begin_flushBatchRequests.
+ * Create a wrapper instance by calling ::Ice::newCallback_Communicator_flushBatchRequests.
+ * \headerfile Ice/Ice.h
+ */
 template<class T, typename CT>
 class Callback_Communicator_flushBatchRequests : public Callback_Communicator_flushBatchRequests_Base,
                                                  public ::IceInternal::OnewayCallback<T, CT>
@@ -80,6 +110,7 @@ public:
     {
     }
 
+    /// \cond INTERNAL
     virtual void completed(const ::Ice::AsyncResultPtr& result) const
     {
         ::Ice::CommunicatorPtr communicator = result->getCommunicator();
@@ -94,8 +125,14 @@ public:
             ::IceInternal::Callback<T, CT>::exception(result, ex);
         }
     }
+    /// \endcond
 };
 
+/**
+ * Type-safe asynchronous callback wrapper class used for calls to
+ * Ice::Communicator::begin_flushBatchRequests.
+ * Create a wrapper instance by calling ::Ice::newCallback_Communicator_flushBatchRequests.
+ */
 template<class T, typename CT> Callback_Communicator_flushBatchRequestsPtr
 newCallback_Communicator_flushBatchRequests(const IceUtil::Handle<T>& instance,
                                             void (T::*excb)(const ::Ice::Exception&, const CT&),
@@ -104,6 +141,11 @@ newCallback_Communicator_flushBatchRequests(const IceUtil::Handle<T>& instance,
     return new Callback_Communicator_flushBatchRequests<T, CT>(instance, excb, sentcb);
 }
 
+/**
+ * Type-safe asynchronous callback wrapper class used for calls to
+ * Ice::Communicator::begin_flushBatchRequests.
+ * Create a wrapper instance by calling ::Ice::newCallback_Communicator_flushBatchRequests.
+ */
 template<class T, typename CT> Callback_Communicator_flushBatchRequestsPtr
 newCallback_Communicator_flushBatchRequests(T* instance, void (T::*excb)(const ::Ice::Exception&, const CT&),
                                             void (T::*sentcb)(bool, const CT&) = 0)

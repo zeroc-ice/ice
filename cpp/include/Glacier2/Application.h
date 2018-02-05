@@ -21,6 +21,7 @@ namespace Glacier2
 /**
  *
  * This exception is raised if the session should be restarted.
+ * \headerfile Glacier2/Glacier2.h
  *
  **/
 class GLACIER2_API RestartSessionException : public IceUtil::ExceptionHelper<RestartSessionException>
@@ -34,49 +35,41 @@ public:
 };
 
 /**
- * An extension of Ice.Application that makes it easy to write
+ * An extension of Ice::Application that makes it easy to write
  * Glacier2 applications.
  *
- * <p> Applications must create a derived class that implements the
- * {@link #createSession} and {@link #runWithSession} methods.<p>
+ * Applications must create a derived class that implements the
+ * createSession and runWithSession methods.
  *
- * The base class invokes {@link #createSession} to create a new
- * Glacier2 session and then invokes {@link #runWithSession} in
+ * The base class invokes createSession to create a new
+ * Glacier2 session and then invokes runWithSession in
  * which the subclass performs its application logic. The base class
- * automatically destroys the session when {@link #runWithSession}
- * returns.
+ * automatically destroys the session when runWithSession returns.
  *
- * If {@link #runWithSession} calls {@link #restart} or raises any of
- * the exceptions Ice.ConnectionRefusedException,
- * Ice.ConnectionLostException, Ice.UnknownLocalException,
- * Ice.RequestFailedException, or Ice.TimeoutException, the base
+ * If runWithSession calls restart or raises any of
+ * the exceptions Ice::ConnectionRefusedException,
+ * Ice::ConnectionLostException, Ice::UnknownLocalException,
+ * Ice::RequestFailedException, or Ice::TimeoutException, the base
  * class destroys the current session and restarts the application
- * with another call to {@link #createSession} followed by
- * {@link #runWithSession}.
+ * with another call to createSession followed by runWithSession.
  *
- * The application can optionally override the {@link #sessionDestroyed}
+ * The application can optionally override the sessionDestroyed
  * callback method if it needs to take action when connectivity with
  * the Glacier2 router is lost.
  *
  * A program can contain only one instance of this class.
- *
- * @see Ice.Application
- * @see Glacier2.Router
- * @see Glacier2.Session
- * @see Ice.Communicator
- * @see Ice.Logger
- * @see #runWithSession
+ * \headerfile Glacier2/Glacier2.h
  **/
-
 class GLACIER2_API Application : public Ice::Application
 {
-    /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
-     * a signal is received.
-     **/
 public:
 
+    /**
+     * Initializes an instance that calls Ice::Communicator::shutdown if
+     * a signal is received.
+     **/
     Application(Ice::SignalPolicy = Ice::ICE_ENUM(SignalPolicy,HandleSignals));
+
 #ifdef ICE_CPP11_MAPPING
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
@@ -85,9 +78,8 @@ public:
     /**
      * Creates a new Glacier2 session. A call to
      * <code>createSession</code> always precedes a call to
-     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
+     * <code>runWithSession</code>. If <code>Ice::LocalException</code>
      * is thrown from this method, the application is terminated.
-
      * @return The Glacier2 session.
      **/
     virtual Glacier2::SessionPrxPtr createSession() = 0;
@@ -172,16 +164,19 @@ public:
 
 protected:
 
-    virtual int doMain(int, char*[], const Ice::InitializationData& initData, int);
+    /**
+     * Helper function that implements the application logic.
+     */
+    virtual int doMain(int argc, char* argv[], const Ice::InitializationData& initData, int version);
 
 private:
 
     bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&, int);
 
-    /**
-     * Run should not be overridden for Glacier2.Application. Instead
-     * <code>runWithSession</code> should be used.
-     */
+    //
+    // Run should not be overridden for Glacier2::Application. Instead
+    // runWithSession should be used.
+    //
     int run(int, char*[])
     {
         // This shouldn't be called.

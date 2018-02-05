@@ -72,7 +72,7 @@ inline EndpointIPtr toEndpointI(const EndpointPtr& endp)
 }
 
 string
-Ice::ObjectAdapterI::getName() const
+Ice::ObjectAdapterI::getName() const ICE_NOEXCEPT
 {
     //
     // No mutex lock necessary, _name is immutable.
@@ -81,7 +81,7 @@ Ice::ObjectAdapterI::getName() const
 }
 
 CommunicatorPtr
-Ice::ObjectAdapterI::getCommunicator() const
+Ice::ObjectAdapterI::getCommunicator() const ICE_NOEXCEPT
 {
     return _communicator;
 }
@@ -224,7 +224,7 @@ Ice::ObjectAdapterI::waitForHold()
 }
 
 void
-Ice::ObjectAdapterI::deactivate()
+Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
 {
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -249,21 +249,21 @@ Ice::ObjectAdapterI::deactivate()
     // facatory list are immutable at this point.
     //
 
-    if(_routerInfo)
-    {
-        //
-        // Remove entry from the router manager.
-        //
-        _instance->routerManager()->erase(_routerInfo->getRouter());
-
-        //
-        //  Clear this object adapter with the router.
-        //
-        _routerInfo->setAdapter(0);
-    }
-
     try
     {
+        if(_routerInfo)
+        {
+            //
+            // Remove entry from the router manager.
+            //
+            _instance->routerManager()->erase(_routerInfo->getRouter());
+
+            //
+            //  Clear this object adapter with the router.
+            //
+            _routerInfo->setAdapter(0);
+        }
+
         updateLocatorRegistry(_locatorInfo, 0);
     }
     catch(const Ice::LocalException&)
@@ -306,7 +306,7 @@ Ice::ObjectAdapterI::deactivate()
 }
 
 void
-Ice::ObjectAdapterI::waitForDeactivate()
+Ice::ObjectAdapterI::waitForDeactivate() ICE_NOEXCEPT
 {
     vector<IceInternal::IncomingConnectionFactoryPtr> incomingConnectionFactories;
 
@@ -345,7 +345,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
 }
 
 bool
-Ice::ObjectAdapterI::isDeactivated() const
+Ice::ObjectAdapterI::isDeactivated() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -633,7 +633,7 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrxPtr& locator)
 }
 
 LocatorPrxPtr
-Ice::ObjectAdapterI::getLocator() const
+Ice::ObjectAdapterI::getLocator() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -648,7 +648,7 @@ Ice::ObjectAdapterI::getLocator() const
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getEndpoints() const
+Ice::ObjectAdapterI::getEndpoints() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -701,7 +701,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
 }
 
 EndpointSeq
-Ice::ObjectAdapterI::getPublishedEndpoints() const
+Ice::ObjectAdapterI::getPublishedEndpoints() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 

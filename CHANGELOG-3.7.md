@@ -27,19 +27,23 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Added support for ice_fixed proxy method to create a fixed proxy bound
+  to a given connection.
+
+- Added support for ice_getTimeout and ice_getCompress proxy methods. These
+  methods return an optional value that contains the proxy timeout or
+  compression override setting. If the timeout or the compression setting
+  haven't been overridden with ice_timeout or ice_compress, the optional
+  value is unset.
+
 - Fixed IceGrid node bug where a replica would not get up-to-date object
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.
 
-## PHP Changes
+## C++ Changes
 
-- Fixed Ice for PHP build failure when build with PHP5 ZTS
-
-## Objective-C Changes
-
-- Fixed the generated code to specify the __autoreleasing qualifier on
-  parameters returned by reference. Xcode 9.0 now emits a warning if this
-  qualifier is omitted.
+- Slice documentation comments are now preserved in the generated C++
+  code using Doxygen markup.
 
 ## C# Changes
 
@@ -47,6 +51,35 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   This method is called by constructors after initialization of the data
   members. By implementing this method users can customize struct and
   class initialization.
+
+## Java Changes
+
+- The java:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
+
+## Objective-C Changes
+
+- Fixed the generated code to specify the __autoreleasing qualifier on
+  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  qualifier is omitted.
+
+## PHP Changes
+
+- Fixed Ice for PHP build failure when build with PHP5 ZTS
+
+## Python Changes
+
+- The python:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
+
+## Ruby Changes
+
+- Ice::initialize now accepts an implicit block. If provided, initialize
+  will pass the communicator (and optionally the argument vector) to the
+  block, destroy the communicator upon the block's completion, and return
+  the block's result as the result of initialize.
 
 # Changes in Ice 3.7.0
 

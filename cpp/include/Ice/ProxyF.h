@@ -18,7 +18,9 @@ namespace Ice
 {
 
 class ObjectPrx;
+/// \cond INTERNAL
 using ObjectPrxPtr = ::std::shared_ptr<ObjectPrx>;
+/// \endcond
 
 }
 

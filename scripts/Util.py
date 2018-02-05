@@ -312,7 +312,7 @@ class Windows(Platform):
                     self.compiler = "VC120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "VC140"
-                elif out.find("Version 19.1"):
+                elif out.find("Version 19.1") != -1:
                     self.compiler = "VC141"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
@@ -1725,7 +1725,7 @@ class Result:
         out.write('  <testsuite tests="{0}" failures="{1}" skipped="{2}" time="{3:.9f}" name="{5}/{4}">\n'
                     .format(len(self._testcases) - 2,
                             len(self._failed),
-                            len(self._skipped),
+                            0,
                             self._duration,
                             self.testsuite,
                             self.testsuite.getMapping()))
@@ -1733,6 +1733,11 @@ class Result:
         for (k, v) in self._testcases.items():
             if isinstance(k, str):
                 # Don't keep track of setup/teardown steps
+                continue
+
+            # Don't write skipped tests, this doesn't really provide useful information and clutters
+            # the output.
+            if k in self._skipped:
                 continue
 
             (tc, cf) = k
@@ -1754,9 +1759,10 @@ class Result:
                     last = last[len(last) - 1]
                 if hostname:
                     last = "Failed on {0}\n{1}".format(hostname, last)
-                out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]), last))
-            elif k in self._skipped:
-                out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
+                out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]),
+                                                                                escapeXml(last)))
+            # elif k in self._skipped:
+            #     out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
             out.write('      <system-out>\n')
             if hostname:
                 out.write('Running on {0}\n'.format(hostname))
@@ -2454,7 +2460,13 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(cmd, cwd=cwd)
             self.httpServer.expect("listening on ports")
 
-            if current.config.browser != "Manual":
+            if current.config.browser.startswith("Remote:"):
+                from selenium import webdriver
+                from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+                (driver, capabilities, port) = current.config.browser.split(":")
+                self.driver = webdriver.Remote("http://localhost:{0}".format(port),
+                                               getattr(DesiredCapabilities, capabilities))
+            elif current.config.browser != "Manual":
                 from selenium import webdriver
                 if not hasattr(webdriver, current.config.browser):
                     raise RuntimeError("unknown browser `{0}'".format(current.config.browser))

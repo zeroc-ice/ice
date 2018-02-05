@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/InstrumentationF.ice>
@@ -51,7 +51,6 @@ module Ice
  * @see Logger
  * @see ObjectAdapter
  * @see Properties
- * @see ObjectFactory
  * @see ValueFactory
  *
  **/
@@ -102,7 +101,7 @@ local interface Communicator
      * @see ObjectAdapter#deactivate
      *
      **/
-    void shutdown();
+    ["cpp:noexcept"] void shutdown();
 
     /**
      *
@@ -124,7 +123,7 @@ local interface Communicator
      * @see ObjectAdapter#waitForDeactivate
      *
      **/
-    void waitForShutdown();
+    ["cpp:noexcept"] void waitForShutdown();
 
     /**
      *
@@ -135,7 +134,7 @@ local interface Communicator
      * @see #shutdown
      *
      **/
-    ["cpp:const"] bool isShutdown();
+    ["cpp:const", "cpp:noexcept"] bool isShutdown();
 
     /**
      *
@@ -230,8 +229,7 @@ local interface Communicator
      * @see #stringToIdentity
      *
      **/
-    ["cpp:const"]
-    string identityToString(Identity ident);
+    ["cpp:const"] string identityToString(Identity ident);
 
     /**
      *
@@ -369,7 +367,7 @@ local interface Communicator
      * @see ValueFactoryManager#find
      *
      **/
-    ["cpp:const", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
+    ["cpp:const", "cpp:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
     /**
@@ -380,7 +378,7 @@ local interface Communicator
      * or is set to None.
      *
      **/
-    ["cpp:const"] ImplicitContext getImplicitContext();
+    ["cpp:const", "cpp:noexcept"] ImplicitContext getImplicitContext();
 
     /**
      *
@@ -391,7 +389,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["cpp:const"] Properties getProperties();
+    ["cpp:const", "cpp:noexcept"] Properties getProperties();
 
     /**
      *
@@ -402,7 +400,7 @@ local interface Communicator
      * @see Logger
      *
      **/
-    ["cpp:const"] Logger getLogger();
+    ["cpp:const", "cpp:noexcept"] Logger getLogger();
 
     /**
      *
@@ -411,7 +409,7 @@ local interface Communicator
      * @return This communicator's observer resolver object.
      *
      **/
-    ["cpp:const"] Instrumentation::CommunicatorObserver getObserver();
+    ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
 
     /**
      *
@@ -498,7 +496,7 @@ local interface Communicator
      * @see ValueFactoryManager
      *
      **/
-    ["cpp:const"] ValueFactoryManager getValueFactoryManager();
+    ["cpp:const", "cpp:noexcept"] ValueFactoryManager getValueFactoryManager();
 
     /**
      *

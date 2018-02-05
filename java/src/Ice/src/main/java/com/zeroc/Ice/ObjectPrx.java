@@ -310,7 +310,7 @@ public interface ObjectPrx
     /**
      * Returns the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value (in seconds).
+     * @return The invocation timeout value (in milliseconds).
      **/
     int ice_getInvocationTimeout();
 
@@ -321,6 +321,18 @@ public interface ObjectPrx
      *
      **/
     String ice_getConnectionId();
+
+    /**
+     * Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     *
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    default ObjectPrx ice_fixed(com.zeroc.Ice.Connection connection)
+    {
+        return _ice_fixed(connection);
+    }
 
     /**
      * Returns a proxy that is identical to this proxy, except for the locator cache timeout.
@@ -338,7 +350,7 @@ public interface ObjectPrx
     /**
      * Returns a proxy that is identical to this proxy, except for the invocation timeout.
      *
-     * @param newTimeout The new invocation timeout (in seconds).
+     * @param newTimeout The new invocation timeout (in milliseconds).
      * @return The proxy with the new timeout.
      *
      **/
@@ -420,7 +432,7 @@ public interface ObjectPrx
     }
 
     /**
-     * Returns the encoding version used to marshal requests parameters.
+     * Returns the encoding version used to marshal request parameters.
      *
      * @return The encoding version.
      **/
@@ -495,7 +507,7 @@ public interface ObjectPrx
      * Returns a proxy that is identical to this proxy, except for collocation optimization.
      *
      * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false</code> otherwise.
-     * @return The proxy the specified collocation optimization.
+     * @return The proxy with the specified collocation optimization.
      **/
     default ObjectPrx ice_collocationOptimized(boolean b)
     {
@@ -583,7 +595,8 @@ public interface ObjectPrx
     boolean ice_isBatchDatagram();
 
     /**
-     * Returns a proxy that is identical to this proxy, except for compression.
+     * Returns a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
      *
      * @param co <code>true</code> enables compression for the new proxy; <code>false</code> disables compression.
      * @return A proxy with the specified compression setting.
@@ -594,7 +607,16 @@ public interface ObjectPrx
     }
 
     /**
-     * Returns a proxy that is identical to this proxy, except for its connection timeout setting.
+     * Obtains the compression override setting of this proxy.
+     *
+     * @return The compression override setting. If no optional value is present, no override is
+     * set. Otherwise, true if compression is enabled, false otherwise.
+     */
+    java.util.Optional<Boolean> ice_getCompress();
+
+    /**
+     * Returns a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeot setting from the proxy endpoints.
      *
      * @param t The connection timeout for the proxy in milliseconds.
      * @return A proxy with the specified timeout.
@@ -603,6 +625,14 @@ public interface ObjectPrx
     {
         return _ice_timeout(t);
     }
+
+    /**
+     * Obtains the timeout override of this proxy.
+     *
+     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
+     * returns the timeout override value.
+     */
+    java.util.OptionalInt ice_getTimeout();
 
     /**
      * Returns a proxy that is identical to this proxy, except for its connection ID.
@@ -990,6 +1020,26 @@ public interface ObjectPrx
             com.zeroc.IceInternal.EndpointI[] edpts = new com.zeroc.IceInternal.EndpointI[newEndpoints.length];
             edpts = java.util.Arrays.asList(newEndpoints).toArray(edpts);
             return _newInstance(_getReference().changeEndpoints(edpts));
+        }
+    }
+
+    default ObjectPrx _ice_fixed(com.zeroc.Ice.Connection connection)
+    {
+        if(connection == null)
+        {
+            throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
+        }
+        if(!(connection instanceof com.zeroc.Ice.ConnectionI))
+        {
+            throw new IllegalArgumentException("invalid connection passed to ice_fixed");
+        }
+        if(connection == _getReference().getConnection())
+        {
+            return this;
+        }
+        else
+        {
+            return _newInstance(_getReference().changeConnection((com.zeroc.Ice.ConnectionI)connection));
         }
     }
 

@@ -512,3 +512,16 @@ IceRuby::initConnection(VALUE iceModule)
     rb_define_attr(_sslConnectionInfoClass, "certs", 1, 0);
     rb_define_attr(_sslConnectionInfoClass, "verified", 1, 0);
 }
+
+Ice::ConnectionPtr
+IceRuby::getConnection(VALUE v)
+{
+    Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(v));
+    return *p;
+}
+
+bool
+IceRuby::checkConnection(VALUE v)
+{
+    return callRuby(rb_obj_is_kind_of, v, _connectionClass) == Qtrue;
+}

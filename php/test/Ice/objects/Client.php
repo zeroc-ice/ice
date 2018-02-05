@@ -416,7 +416,7 @@ function allTests($communicator)
     $depth = 0;
     try
     {
-        while($depth <= 1000)
+        while($depth <= 700)
         {
             $p->v = new Test_Recursive();
             $p = $p->v;
