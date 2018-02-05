@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')" />
   <PropertyGroup Label="Globals">
-    <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
-    <IceBuilderCsharpProps>$(IceBuilderInstallDir)\Resources\IceBuilder.CSharp.props</IceBuilderCsharpProps>
-    <IceBuilderCsharpTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.CSharp.targets</IceBuilderCsharpTargets>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{7CB4715E-DD8B-48F8-B478-27B8BD4008C7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>Ice</AssemblyName>
-    <ProjectTypeGuids>{3C53C28F-DC44-46B0-8B85-0C96B85B2042};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\Assemblies\Ice.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -376,99 +376,99 @@
     <Compile Include="generated\Version.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\slice\Ice\BuiltinSequences.ice">
+    <SliceCompile Include="..\..\..\..\slice\Ice\BuiltinSequences.ice">
       <Link>BuiltinSequences.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Communicator.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Communicator.ice">
       <Link>Communicator.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Connection.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Connection.ice">
       <Link>Connection.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Current.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Current.ice">
       <Link>Current.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Endpoint.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Endpoint.ice">
       <Link>Endpoint.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\EndpointTypes.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\EndpointTypes.ice">
       <Link>EndpointTypes.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\FacetMap.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\FacetMap.ice">
       <Link>FacetMap.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Identity.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Identity.ice">
       <Link>Identity.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ImplicitContext.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\ImplicitContext.ice">
       <Link>ImplicitContext.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Instrumentation.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Instrumentation.ice">
       <Link>Instrumentation.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\LocalException.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\LocalException.ice">
       <Link>LocalException.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Locator.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Locator.ice">
       <Link>Locator.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Logger.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Logger.ice">
       <Link>Logger.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Metrics.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Metrics.ice">
       <Link>Metrics.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ObjectAdapter.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectAdapter.ice">
       <Link>ObjectAdapter.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ObjectFactory.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\ObjectFactory.ice">
       <Link>ObjectFactory.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Plugin.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Plugin.ice">
       <Link>Plugin.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Process.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Process.ice">
       <Link>Process.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Properties.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Properties.ice">
       <Link>Properties.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\PropertiesAdmin.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\PropertiesAdmin.ice">
       <Link>PropertiesAdmin.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\RemoteLogger.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\RemoteLogger.ice">
       <Link>RemoteLogger.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Router.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Router.ice">
       <Link>Router.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ServantLocator.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\ServantLocator.ice">
       <Link>ServantLocator.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\SliceChecksumDict.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\SliceChecksumDict.ice">
       <Link>SliceChecksumDict.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\ValueFactory.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\ValueFactory.ice">
       <Link>ValueFactory.ice</Link>
-    </None>
-    <None Include="..\..\..\..\slice\Ice\Version.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\slice\Ice\Version.ice">
       <Link>Version.ice</Link>
-    </None>
+    </SliceCompile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(IceBuilderCsharpProps)" Condition="Exists('$(IceBuilderCsharpProps)')" />
-  <PropertyGroup Label="IceBuilder">
-    <IceBuilderIncludeDirectories>$(IceHome)\slice</IceBuilderIncludeDirectories>
-  </PropertyGroup>
-  <Import Project="$(IceBuilderCsharpTargets)" Condition="Exists('$(IceBuilderCsharpTargets)')" />
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
-  <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('$(IceBuilderCSharpProps)')" Text="$(ErrorText)" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets'))" />
   </Target>
+  <Import Project="..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')" />
 </Project>

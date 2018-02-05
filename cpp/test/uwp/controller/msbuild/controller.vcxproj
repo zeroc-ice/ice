@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.1\build\native\zeroc.ice.uwp.v141.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.1\build\native\zeroc.ice.uwp.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <PropertyGroup Label="Globals">
@@ -14,9 +15,6 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <TestSuiteDir>$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)../../../../).Replace('\', '/'))</TestSuiteDir>
-    <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
-    <IceBuilderCppProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.props</IceBuilderCppProps>
-    <IceBuilderCppTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Cpp.targets</IceBuilderCppTargets>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -80,7 +78,6 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.testuwp.props" />
-  <Import Project="$(IceBuilderCppProps)" Condition="Exists('$(IceBuilderCppProps)')" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -108,47 +105,50 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..;Generated Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FC %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>TESTSUITE_DIR="$(TestSuiteDir)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Generated Files;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="IceBuilder">
+    <SliceCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\App.xaml.h">
@@ -163,6 +163,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="ARM\Release\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -170,6 +171,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="Win32\Debug\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
@@ -177,6 +179,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="Win32\Release\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -184,6 +187,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Debug\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -191,6 +195,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Release\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -198,6 +203,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +243,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="ARM\Release\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -244,6 +251,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
@@ -251,6 +259,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -258,6 +267,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -265,6 +275,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -272,6 +283,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\scripts\Controller.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -318,7 +330,7 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="controller_TemporaryKey.pfx" />
-    <IceBuilder Include="..\..\..\..\..\scripts\Controller.ice" />
+    <SliceCompile Include="..\..\..\..\..\scripts\Controller.ice" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1882,12 +1894,12 @@
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(IceBuilderCppTargets)" Condition="Exists('$(IceBuilderCppTargets)')" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x64.3.7.1\build\native\zeroc.ice.uwp.v141.x64.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x64.3.7.1\build\native\zeroc.ice.uwp.v141.x64.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x86.3.7.1\build\native\zeroc.ice.uwp.v141.x86.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x86.3.7.1\build\native\zeroc.ice.uwp.v141.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <PropertyGroup>
@@ -1903,11 +1915,7 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props'))" />
-  </Target>
-  <Target Name="EnsureIceBuilderImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project requires the Ice Builder for Visual Studio extension. Use "Tools &amp;gt; Extensions and Updates" to install it. For more information, see https://visualstudiogallery.msdn.microsoft.com/1a64e701-63f2-4740-8004-290e6c682ce0.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(IceBuilderCppProps)')" Text="$(ErrorText)" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets'))" />
   </Target>
 </Project>

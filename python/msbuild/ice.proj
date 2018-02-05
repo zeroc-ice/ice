@@ -1,4 +1,5 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
     </PropertyGroup>
@@ -7,33 +8,59 @@
       <Platform>Win32</Platform>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+    <PropertyGroup>
+        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+    </PropertyGroup>
+
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <!-- Restore NuGet packages -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
-    <ItemGroup>
-        <DistProjects Include="ice.sln">
-            <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </DistProjects>
+    <ItemDefinitionGroup>
+        <SliceCompile>
+            <OutputDir>$(MSBuildThisFileDirectory)..\python</OutputDir>
+            <AdditionalOptions>--checksum</AdditionalOptions>
+        </SliceCompile>
+    </ItemDefinitionGroup>
 
-        <DistProjects Include="..\python\**\msbuild\*.proj">
-            <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-        </DistProjects>
+    <ItemGroup>
+        <SliceCompile Include="..\..\slice\Ice\*.ice;
+                               ..\..\slice\Glacier2\*.ice"
+                      Exclude="..\..\slice\Ice\Metrics.ice;
+                               ..\..\slice\Glacier2\Metrics.ice">
+            <AdditionalOptions>--no-package %(AdditionalOptions)</AdditionalOptions>
+        </SliceCompile>
+        <SliceCompile Include="..\..\slice\Glacier2\Metrics.ice;
+                               ..\..\slice\Ice\Metrics.ice;
+                               ..\..\slice\IceBox\*.ice;
+                               ..\..\slice\IceGrid\*.ice;
+                               ..\..\slice\IcePatch2\*.ice;
+                               ..\..\slice\IceStorm\*.ice"/>
+        <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
     </ItemGroup>
 
     <Target Name="Build" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(DistProjects)"
-                 BuildInParallel="false"
-                 Properties="%(Properties)" />
+        <MSBuild Projects="ice.sln"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
     </Target>
 
     <Target Name="Clean">
-        <MSBuild Projects="@(DistProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
+        <MSBuild Projects="ice.sln"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  Targets="Clean" />
+    </Target>
+
+    <Target Name="SliceCompile" BeforeTargets="Build"
+            Condition="@(SliceCompile) != ''">
+        <MakeDir Directories="$(SliceCompileOutputDir)"/>
+        <Exec Command="$(IceToolsPath)\slice2py.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
+    </Target>
+
+    <Target Name="SliceCompileClean" BeforeTargets="Clean">
+        <Delete Files="@(PythonGenerated)"/>
     </Target>
 </Project>

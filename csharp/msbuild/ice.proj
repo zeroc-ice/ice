@@ -14,6 +14,7 @@
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
       <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.test.sln" Condition="'$(ICE_BIN_DIST)' == 'all'"/>
+      <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
     </Target>
 
     <PropertyGroup>

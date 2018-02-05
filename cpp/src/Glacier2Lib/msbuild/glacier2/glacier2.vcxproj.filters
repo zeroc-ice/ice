@@ -256,26 +256,29 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\Metrics.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\Metrics.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifierF.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\PermissionsVerifierF.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\Router.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\Router.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\RouterF.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\RouterF.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\Session.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\Session.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\Glacier2\SSLInfo.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Glacier2\SSLInfo.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

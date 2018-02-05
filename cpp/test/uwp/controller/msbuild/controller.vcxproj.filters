@@ -1781,8 +1781,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\..\..\scripts\Controller.ice">
+    <SliceCompile Include="..\..\..\..\..\scripts\Controller.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
   </ItemGroup>
 </Project>

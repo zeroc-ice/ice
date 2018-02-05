@@ -96,11 +96,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Internal.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Win32\Debug\IceGrid\Internal.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -118,5 +113,13 @@
     <ResourceCompile Include="..\..\IceGridAdmin.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Internal.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -2,9 +2,9 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- If ICE_BIN_DIST was not set to all, set IceHome
        to point to this source distribution. -->
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
-    <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-  </PropertyGroup>
+  <ImportGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
+      <Import Project="$(MSbuildThisFileDirectory)ice.common.props"/>
+  </ImportGroup>
 
   <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -13,6 +13,23 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+
+  <Choose>
+      <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+          <PropertyGroup>
+              <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
+          </PropertyGroup>
+      </When>
+      <Otherwise>
+          <PropertyGroup>
+              <IceAssembliesDir>$(IceHome)\csharp\Assemblies</IceAssembliesDir>
+          </PropertyGroup>
+      </Otherwise>
+  </Choose>
+
+  <Target Name="Info">
+      <Message Text="IceAssembliesDir: $(IceAssembliesDir)"/>
+  </Target>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
