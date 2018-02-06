@@ -276,7 +276,7 @@ RegistryI::startImpl()
         return false;
     }
 
-    if(_sessionTimeout > 0 && properties->getProperty("IceGrid.Registry.Client.ACM.Timemout").empty())
+    if(_sessionTimeout > 0 && properties->getProperty("IceGrid.Registry.Client.ACM.Timeout").empty())
     {
         ostringstream os;
         os << _sessionTimeout;

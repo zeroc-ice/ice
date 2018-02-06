@@ -27,6 +27,9 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
+  was ignored.
+
 - Added support for ice_fixed proxy method to create a fixed proxy bound
   to a given connection.
 
