@@ -49,6 +49,11 @@ particular aspect of Ice.
 
 These are the changes since Ice 3.6.4 included in this pre-release.
 
+## General Changes
+
+- Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
+  was ignored.
+
 ## Objective-C Changes
 
 - Fixed the generated code to specify the `__autoreleasing` qualifier on
