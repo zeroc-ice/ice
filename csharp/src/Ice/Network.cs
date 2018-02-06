@@ -950,6 +950,11 @@ namespace IceInternal
                         hosts.Add(a.ToString());
                     }
                 }
+                if(hosts.Count == 0 && !includeLoopback)
+                {
+                    // Return loopback if only loopback is available no other local addresses are available.
+                    return getHostsForEndpointExpand(host, protocol, true);
+                }
             }
             return hosts;
         }

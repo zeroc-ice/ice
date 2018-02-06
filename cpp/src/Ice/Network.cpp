@@ -1686,6 +1686,11 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
                 hosts.push_back(inetAddrToString(*p));
             }
         }
+        if(hosts.empty() && !includeLoopback)
+        {
+            // Return loopback if only loopback is available no other local addresses are available.
+            return getHostsForEndpointExpand(host, protocolSupport, true);
+        }
     }
     return hosts; // An empty host list indicates to just use the given host.
 }
