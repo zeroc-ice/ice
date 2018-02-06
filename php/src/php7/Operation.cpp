@@ -363,7 +363,6 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 {
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
-    assert(zend_hash_num_elements(arr) == 3);
 
     ParamInfoPtr param = new ParamInfo;
 

@@ -115,7 +115,7 @@ addClassInfoByName(const ClassInfoPtr& p)
 {
     assert(!getClassInfoByName(p->name));
 #ifdef ICEPHP_USE_NAMESPACES
-    assert(name[0] == '\\');
+    assert(p->name[0] == '\\');
 #endif
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
