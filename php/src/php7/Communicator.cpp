@@ -182,38 +182,39 @@ ZEND_METHOD(Ice_Communicator, destroy)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
-    //
-    // Remove all registrations.
-    //
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
-        for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
-        {
-            _registeredCommunicators.erase(*p);
-        }
-        _this->ac->ids.clear();
-    }
-
-    //
-    // We need to destroy any object factories installed by this request.
-    //
-    _this->destroyObjectFactories();
-
     Ice::CommunicatorPtr c = _this->getCommunicator();
     assert(c);
     CommunicatorMap* m = reinterpret_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
-    assert(m->find(c) != m->end());
-    m->erase(c);
+    if(m->find(c) != m->end()) // If not already destroyed
+    {
+        m->erase(c);
+        //
+        // Remove all registrations.
+        //
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
+            {
+                _registeredCommunicators.erase(*p);
+            }
+            _this->ac->ids.clear();
+        }
 
-    try
-    {
-        c->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex);
-        RETURN_NULL();
+        //
+        // We need to destroy any object factories installed by this request.
+        //
+        _this->destroyObjectFactories();
+
+        try
+        {
+            c->destroy();
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            throwException(ex);
+            RETURN_NULL();
+        }
     }
 }
 

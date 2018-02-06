@@ -1102,6 +1102,7 @@ catch(Exception $ex)
 }
 
 $communicator->destroy();
+$communicator->destroy(); // Test multiple communicator destroy
 
 exit();
 ?>
