@@ -869,7 +869,7 @@ public:
      * Adopts the given communicator.
      * @param communicator The new communicator instance to hold.
      */
-    explicit CommunicatorHolder(const CommunicatorPtr& communicator);
+    CommunicatorHolder(const CommunicatorPtr& communicator);
 
     /**
      * Adopts the given communicator. If this holder currently holds a communicator,
