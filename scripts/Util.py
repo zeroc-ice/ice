@@ -233,7 +233,7 @@ class Linux(Platform):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceStorm", "IceGrid"]:
                 return False
-        return True
+        return Platform.canRun(self, mapping, current)
 
 class Windows(Platform):
 
@@ -391,7 +391,7 @@ class Windows(Platform):
             parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
             if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
-        return True
+        return Platform.canRun(self, mapping, current)
 
 platform = None
 if sys.platform == "darwin":
@@ -916,6 +916,9 @@ class Mapping:
         else:
             return exe
 
+    def getCommandLineWithArgs(self, current, process, exe, args):
+        return self.getCommandLine(current, process, exe) + " " + args
+
     def getProps(self, process, current):
         props = {}
         if isinstance(process, IceProcess):
@@ -1211,6 +1214,9 @@ class Process(Runnable):
 
     def getCommandLine(self, current):
         return self.getMapping(current).getCommandLine(current, self, self.getExe(current))
+
+    def getCommandLineWithArgs(self, current, args):
+        return self.getMapping(current).getCommandLineWithArgs(current, self, self.getExe(current), args)
 
 #
 # A simple client (used to run Slice/IceUtil clients for example)
@@ -1920,8 +1926,9 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
-        exe = process.getCommandLine(current)
-        cmd += (exe + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+        exe = process.getCommandLineWithArgs(current, (" " + " ".join(args) if len(args) > 0 else "").format(**kargs))
+        cmd += exe
+
         if current.driver.debug:
             if len(envs) > 0:
                 current.writeln("({0} env={1})".format(cmd, envs))
@@ -3339,6 +3346,31 @@ class PhpMapping(CppBasedClientMapping):
     def getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]
 
+class MatlabMapping(CppBasedClientMapping):
+
+    class Config(CppBasedClientMapping.Config):
+        mappingName = "matlab"
+        mappingDesc = "MATLAB"
+
+    def getCommandLineWithArgs(self, current, process, exe, args):
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2} {3}\"".format(
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
+            self.getTestCwd(process, current),
+            os.path.join(current.config.buildPlatform, current.config.buildConfig),
+            args)
+
+    def getDefaultSource(self, processType):
+        return { "client" : "client.m" }[processType]
+
+    def getOptions(self, current):
+        #
+        # Metrics tests configuration not supported with MATLAB
+        # they use the Admin adapter.
+        #
+        options = CppBasedClientMapping.getOptions(self, current)
+        options["mx"] = [False]
+        return options
+
 class JavaScriptMapping(Mapping):
 
     class Config(Mapping.Config):
@@ -3468,6 +3500,8 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, RubyMapping())
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping())
+    elif m == "matlab" or re.match("matlab-.*", m):
+        Mapping.add(m, MatlabMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
     elif m == "csharp" or re.match("csharp-.*", m):

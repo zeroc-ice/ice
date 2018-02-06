@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\config\icebuilder.props" />
+
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
+    <IceHome>$(MSBuildThisFileDirectory)..\..\..</IceHome>
+    <IceToolsDir>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+    <IceHome>$(MSBuildThisFileDirectory)..\..\msbuild\packages\zeroc.ice.v140.$(IceJSOnVersion)</IceHome>
+    <IceToolsDir>$(IceHome)\tools</IceToolsDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SliceOutputDir>$(MSBuildThisFileDirectory)..\generated</SliceOutputDir>
+    <SliceDir>$(IceHome)\slice</SliceDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Slice Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
+    <Slice Include="..\..\..\slice\Ice\Communicator.ice" />
+    <Slice Include="..\..\..\slice\Ice\Connection.ice" />
+    <Slice Include="..\..\..\slice\Ice\Current.ice" />
+    <Slice Include="..\..\..\slice\Ice\Endpoint.ice" />
+    <Slice Include="..\..\..\slice\Ice\EndpointTypes.ice" />
+    <Slice Include="..\..\..\slice\Ice\Identity.ice" />
+    <Slice Include="..\..\..\slice\Ice\Instrumentation.ice" />
+    <Slice Include="..\..\..\slice\Ice\LocalException.ice" />
+    <Slice Include="..\..\..\slice\Ice\Locator.ice" />
+    <Slice Include="..\..\..\slice\Ice\Metrics.ice" />
+    <Slice Include="..\..\..\slice\Ice\Process.ice" />
+    <Slice Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
+    <Slice Include="..\..\..\slice\Ice\RemoteLogger.ice" />
+    <Slice Include="..\..\..\slice\Ice\Router.ice" />
+    <Slice Include="..\..\..\slice\Ice\SliceChecksumDict.ice" />
+    <Slice Include="..\..\..\slice\Ice\ValueFactory.ice" />
+    <Slice Include="..\..\..\slice\Ice\Version.ice" />
+    <Slice Include="..\..\..\slice\Glacier2\*.ice" />
+    <Slice Include="..\..\..\slice\IceStorm\*.ice" />
+    <Slice Include="..\..\..\slice\IceGrid\*.ice" />
+  </ItemGroup>
+  <Target Name="Config">
+    <Message Text="IceHome: $(IceHome)"/>
+  </Target>
+
+  <Target Name="Build">
+    <RemoveDir Directories="$(SliceOutputDir)" Condition="Exists('$(SliceOutputDir)')"/>
+    <MakeDir Directories="$(SliceOutputDir)"/>
+    <Exec Command="$(IceToolsDir)\slice2matlab.exe -I$(SliceDir) --output-dir $(SliceOutputDir) @(Slice, ' ')"/>
+  </Target>
+
+  <Target Name="Clean">
+    <RemoveDir Directories="$(SliceOutputDir)" Condition="Exists('$(SliceOutputDir)')"/>
+  </Target>
+
+</Project>

@@ -91,7 +91,7 @@ const short iAPSEndpointType = 9;
  * Base class providing access to the endpoint details.
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class EndpointInfo
 {
     /**
@@ -151,7 +151,7 @@ local class EndpointInfo
  * The user-level interface to an endpoint.
  *
  **/
-["cpp:comparable", "php:internal"]
+["cpp:comparable", "php:internal", "matlab:internal"]
 local interface Endpoint
 {
     /**
@@ -180,7 +180,7 @@ local interface Endpoint
  * @see Endpoint
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class IPEndpointInfo extends EndpointInfo
 {
     /**
@@ -212,7 +212,7 @@ local class IPEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class TCPEndpointInfo extends IPEndpointInfo
 {
 }
@@ -224,7 +224,7 @@ local class TCPEndpointInfo extends IPEndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class UDPEndpointInfo extends IPEndpointInfo
 {
     /**
@@ -247,7 +247,7 @@ local class UDPEndpointInfo extends IPEndpointInfo
  * Provides access to a WebSocket endpoint information.
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class WSEndpointInfo extends EndpointInfo
 {
     /**
@@ -265,7 +265,7 @@ local class WSEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class OpaqueEndpointInfo extends EndpointInfo
 {
     /**

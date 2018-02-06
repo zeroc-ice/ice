@@ -29,9 +29,12 @@ public:
 
     StringLiteralGenerator(const string&, const string&, EscapeMode, unsigned char);
 
-    string escapeASCIIChar(char) const;
-    string escapeCodePoint(unsigned int) const;
-    string flushU8Buffer(vector<unsigned char>&) const;
+    string escapeASCIIChar(char);
+    string escapeCodePoint(unsigned int);
+    string flushU8Buffer(vector<unsigned char>&);
+
+    enum Format { NoFormat, OctalFormat, HexFormat };
+    void format(Format);
 
 private:
 
@@ -39,6 +42,11 @@ private:
     const string _printableEscaped;
     const EscapeMode _escapeMode;
     const unsigned char _cutOff;
+    const string _shortUCNPrefix;
+    const string _octalChars;
+    const string _hexChars;
+
+    Format _format; // The last format used for an escape.
 };
 
 StringLiteralGenerator::StringLiteralGenerator(const string& nonPrintableEscaped,
@@ -46,18 +54,32 @@ StringLiteralGenerator::StringLiteralGenerator(const string& nonPrintableEscaped
                                                EscapeMode escapeMode,
                                                unsigned char cutOff) :
     _nonPrintableEscaped(nonPrintableEscaped),
-    _printableEscaped(printableEscaped + "\\\""),
+    _printableEscaped(printableEscaped + "\\"),
     _escapeMode(escapeMode),
-    _cutOff(cutOff)
+    _cutOff(cutOff),
+    _shortUCNPrefix(escapeMode == Matlab ? "\\x" : "\\u"),
+    _octalChars("01234567"),
+    _hexChars("01234567890ABCDEFabcdef"),
+    _format(NoFormat)
 {
+    //
+    // Double quotes don't need to be escaped in Matlab because the string delimiter is a single quote.
+    //
+    if(_escapeMode != Matlab)
+    {
+        const_cast<string&>(_printableEscaped) += '"';
+    }
 }
 
 string
-StringLiteralGenerator::escapeASCIIChar(char c) const
+StringLiteralGenerator::escapeASCIIChar(char c)
 {
     assert(static_cast<unsigned char>(c) < 128);
 
     string result;
+
+    Format lastFormat = _format;
+    _format = NoFormat;
 
     if(_nonPrintableEscaped.find(c) != string::npos)
     {
@@ -125,10 +147,51 @@ StringLiteralGenerator::escapeASCIIChar(char c) const
         result = '\\';
         result += c;
     }
+    else if(_escapeMode == Matlab && c == '\'')
+    {
+        //
+        // Matlab strings are converted by sprintf(), and sprintf() requires a single quote to be escaped
+        // with another single quote.
+        //
+        result = "''";
+    }
+    else if(_escapeMode == Matlab && c == '%')
+    {
+        //
+        // Matlab strings are converted by sprintf(), and sprintf() requires a percent to be escaped
+        // with another percent.
+        //
+        result = "%%";
+    }
     else if(c >= 32 && c <= 126)
     {
-        // Other printable ASCII
-        result = c;
+        //
+        // Other printable ASCII.
+        //
+        if(_escapeMode == Matlab)
+        {
+            //
+            // While interpreting an octal or hex escape, the Matlab parser will continue to consume adjacent
+            // legal characters. If the trailing character after an escaped value could be consumed, we escape it
+            // as well to terminate the original escape.
+            //
+            if((lastFormat == OctalFormat && _octalChars.find(c) != string::npos) ||
+               (lastFormat == HexFormat && _hexChars.find(c) != string::npos))
+            {
+                ostringstream os;
+                os << "\\" << oct << setfill('0') << setw(3) << static_cast<unsigned int>(c & 0xFF);
+                result = os.str();
+                _format = OctalFormat;
+            }
+            else
+            {
+                result = c;
+            }
+        }
+        else
+        {
+            result = c;
+        }
     }
     else
     {
@@ -137,10 +200,12 @@ StringLiteralGenerator::escapeASCIIChar(char c) const
         if((static_cast<unsigned char>(c) < _cutOff) || (_escapeMode == Octal))
         {
             os << "\\" << oct << setfill('0') << setw(3) << static_cast<unsigned int>(c & 0xFF);
+            _format = OctalFormat;
         }
         else
         {
-            os << "\\u" << hex << setfill('0') << setw(4) << static_cast<unsigned int>(c & 0xFF);
+            os << _shortUCNPrefix << hex << setfill('0') << setw(4) << static_cast<unsigned int>(c & 0xFF);
+            _format = HexFormat;
         }
         result = os.str();
     }
@@ -148,7 +213,7 @@ StringLiteralGenerator::escapeASCIIChar(char c) const
 }
 
 string
-StringLiteralGenerator::escapeCodePoint(unsigned int codePoint) const
+StringLiteralGenerator::escapeCodePoint(unsigned int codePoint)
 {
     if(codePoint < 128)
     {
@@ -165,6 +230,7 @@ StringLiteralGenerator::escapeCodePoint(unsigned int codePoint) const
         {
             os << "\\" << setfill('0') << setw(3) << oct << static_cast<unsigned int>(*q);
         }
+        _format = OctalFormat;
         return os.str();
     }
     else
@@ -176,20 +242,23 @@ StringLiteralGenerator::escapeCodePoint(unsigned int codePoint) const
             // Output octal escape
             //
             os << "\\" << setfill('0') << setw(3) << oct << codePoint;
+            _format = OctalFormat;
         }
         else if(codePoint <= 0xFFFF)
         {
-            os << "\\u" << setfill('0') << setw(4) << hex << codePoint;
+            os << _shortUCNPrefix << setfill('0') << setw(4) << hex << codePoint;
+            _format = HexFormat;
         }
-        else if(_escapeMode == ShortUCN)
+        else if(_escapeMode == ShortUCN || _escapeMode == Matlab)
         {
             //
             // Convert to surrogate pair
             //
             unsigned int highSurrogate = ((codePoint - 0x10000) / 0x400) + 0xD800;
             unsigned int lowSurrogate = ((codePoint - 0x10000) % 0x400) + 0xDC00;
-            os << "\\u" << setfill('0') << setw(4) << hex << highSurrogate;
-            os << "\\u" << setfill('0') << setw(4) << hex << lowSurrogate;
+            os << _shortUCNPrefix << setfill('0') << setw(4) << hex << highSurrogate;
+            os << _shortUCNPrefix << setfill('0') << setw(4) << hex << lowSurrogate;
+            _format = HexFormat;
         }
         else if(_escapeMode == EC6UCN)
         {
@@ -204,7 +273,7 @@ StringLiteralGenerator::escapeCodePoint(unsigned int codePoint) const
 }
 
 string
-StringLiteralGenerator::flushU8Buffer(vector<unsigned char>& u8buffer) const
+StringLiteralGenerator::flushU8Buffer(vector<unsigned char>& u8buffer)
 {
     if(u8buffer.empty())
     {
@@ -222,6 +291,12 @@ StringLiteralGenerator::flushU8Buffer(vector<unsigned char>& u8buffer) const
         u8buffer.clear();
         return os.str();
     }
+}
+
+void
+StringLiteralGenerator::format(Format f)
+{
+    _format = f;
 }
 
 }
@@ -271,6 +346,7 @@ Slice::toStringLiteral(const string& value,
                         if(c == '\\')
                         {
                             os << "\\\\";
+                            generator.format(StringLiteralGenerator::NoFormat);
                         }
                         else if(c == 'u' || c == 'U')
                         {
@@ -284,10 +360,15 @@ Slice::toStringLiteral(const string& value,
                                 // ASCII character that may need to escaped in languages such as Java
                                 os << generator.escapeASCIIChar(static_cast<char>(v));
                             }
-                            else if(escapeMode == UCN || c == 'u')
+                            else if(escapeMode == UCN)
                             {
                                 // keep this escape as is
                                 os << "\\" << c << codePointStr;
+                            }
+                            else if(c == 'u')
+                            {
+                                os << (escapeMode == Matlab ? "\\x" : "\\u") << codePointStr;
+                                generator.format(StringLiteralGenerator::HexFormat);
                             }
                             else
                             {
@@ -298,6 +379,7 @@ Slice::toStringLiteral(const string& value,
                         else
                         {
                             // unescaped backslash: escape it!
+                            generator.format(StringLiteralGenerator::NoFormat);
                             os << "\\\\";
                             os << generator.escapeASCIIChar(c);
                         }

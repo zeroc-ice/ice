@@ -1,0 +1,42 @@
+<Project DefaultTargets="ToolBoxPackage" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootDir>$(MSBuildThisFileDirectory)..\</RootDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
+    <CppToolsDir>$(RootDir)..\cpp\bin\$(Platform)\$(Configuration)</CppToolsDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v140\tools</CppToolsDir>
+  </PropertyGroup>
+
+  <!-- Dynamic libraries and import libraries -->
+  <ItemGroup>
+    <Sources Include="$(RootDir)lib\**\*.m"
+             Exclude="$(RootDir)lib\generated\**\*.m;
+                      $(RootDir)lib\$(Platform)\$(Configuration)\iceproto.m" />
+    <Sources Include="$(RootDir)lib\generated\**\*.m" />
+    <Sources Include="$(RootDir)lib\$(Platform)\$(Configuration)\iceproto.m" />
+    <Headers Include="$(RootDir)src\ice.h" />
+    <Libraries Include="$(RootDir)lib\$(Platform)\$(Configuration)\*.mexw64;
+                        $(RootDir)lib\$(Platform)\$(Configuration)\*.dll" />
+
+    <Tools Include="$(CppToolsDir)\slice2matlab.exe" />
+
+    <Slices Include="$(RootDir)..\slice\**\*.ice"
+            Exclude="$(RootDir)..\slice\IceDiscovery\*.ice;
+                     $(RootDir)..\slice\IceLocatorDiscovery\*.ice" />
+    <Doc Include="$(MSBuildThisFileDirectory)doc\*.html;$(MSBuildThisFileDirectory)doc\*.xml;$(MSBuildThisFileDirectory)doc\**\*.css" />
+  </ItemGroup>
+
+  <!-- Copy required files to the package specific directories -->
+  <Target Name="ToolBoxPackage">
+    <Copy SourceFiles="@(Sources)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\%(Sources.RecursiveDir)" />
+    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
+    <Copy SourceFiles="@(Headers)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\ice\" />
+    <Copy SourceFiles="@(Tools)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox" />
+    <Copy SourceFiles="@(Slices)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\slice\%(Slices.RecursiveDir)" />
+    <Copy SourceFiles="@(Doc)" DestinationFolder="$(MSBuildThisFileDirectory)toolbox\doc\%(Doc.RecursiveDir)" />
+  </Target>
+</Project>

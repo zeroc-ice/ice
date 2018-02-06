@@ -566,7 +566,7 @@ public final class Util
      *
      * @param version The string to convert.
      *
-     * @return The converted object identity.
+     * @return The converted encoding version.
      **/
     static public EncodingVersion stringToEncodingVersion(String version)
     {
