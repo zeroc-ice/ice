@@ -8,6 +8,8 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.6.5 (Pre-Release Snapshot)](#changes-in-ice-365-pre-release-snapshot)
+  - [Objective-C Changes](#objective-c-changes)
 - [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
@@ -17,7 +19,7 @@ particular aspect of Ice.
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
-  - [Objective-C Changes](#objective-c-changes)
+  - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
@@ -38,10 +40,20 @@ particular aspect of Ice.
   - [C# Changes](#c-changes-5)
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
-  - [Objective-C Changes](#objective-c-changes-1)
+  - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
+
+# Changes in Ice 3.6.5 (Pre-Release Snapshot)
+
+These are the changes since Ice 3.6.4 included in this pre-release.
+
+## Objective-C Changes
+
+- Fixed the generated code to specify the `__autoreleasing` qualifier on
+  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  qualifier is omitted.
 
 # Changes in Ice 3.6.4
 

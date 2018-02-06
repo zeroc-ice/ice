@@ -388,7 +388,7 @@ Slice::ObjCGenerator::outTypeToString(const TypePtr& type, bool optional, bool a
             s += "*";
         }
     }
-    if(autoreleasing && !isValueType(type))
+    if(autoreleasing && (!isValueType(type) || optional))
     {
         s += " ICE_AUTORELEASING_QUALIFIER";
     }
