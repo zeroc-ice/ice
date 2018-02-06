@@ -916,9 +916,6 @@ class Mapping:
         else:
             return exe
 
-    def getCommandLineWithArgs(self, current, process, exe, args):
-        return self.getCommandLine(current, process, exe) + " " + args
-
     def getProps(self, process, current):
         props = {}
         if isinstance(process, IceProcess):
@@ -1214,9 +1211,6 @@ class Process(Runnable):
 
     def getCommandLine(self, current):
         return self.getMapping(current).getCommandLine(current, self, self.getExe(current))
-
-    def getCommandLineWithArgs(self, current, args):
-        return self.getMapping(current).getCommandLineWithArgs(current, self, self.getExe(current), args)
 
 #
 # A simple client (used to run Slice/IceUtil clients for example)
@@ -1926,8 +1920,8 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
-        exe = process.getCommandLineWithArgs(current, (" " + " ".join(args) if len(args) > 0 else "").format(**kargs))
-        cmd += exe
+        exe = process.getCommandLine(current)
+        cmd += (exe + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
 
         if current.driver.debug:
             if len(envs) > 0:
@@ -3352,12 +3346,11 @@ class MatlabMapping(CppBasedClientMapping):
         mappingName = "matlab"
         mappingDesc = "MATLAB"
 
-    def getCommandLineWithArgs(self, current, process, exe, args):
-        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2} {3}\"".format(
+    def getCommandLine(self, current, process, exe):
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2}\"".format(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
-            os.path.join(current.config.buildPlatform, current.config.buildConfig),
-            args)
+            os.path.join(current.config.buildPlatform, current.config.buildConfig))
 
     def getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
