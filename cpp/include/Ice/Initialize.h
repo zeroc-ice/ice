@@ -659,7 +659,7 @@ public:
      * Adopts the given communicator.
      * @param communicator The new communicator instance to hold.
      */
-    explicit CommunicatorHolder(std::shared_ptr<Communicator> communicator);
+    CommunicatorHolder(std::shared_ptr<Communicator> communicator);
 
     /**
      * Adopts the given communicator. If this holder currently holds a communicator,
