@@ -394,14 +394,7 @@ public:
             }
             cout << "ok" << endl;
 
-//             try
-//             {
-//                 test(_session.session() != null);
-//             }
-//             catch(Glacier2.SessionNotExistException ex)
-//             {
-//                 test(false);
-//             }
+            test(!_session->session());
 
             cout << "testing stringToProxy for server object... " << flush;
             Ice::ObjectPrxPtr base =

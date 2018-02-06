@@ -114,7 +114,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
                 this_thread::sleep_for(chrono::milliseconds(10));
                 response(x + y);
             }
-            catch(Ice::ResponseSentException&)
+            catch(const Ice::ResponseSentException&)
             {
             }
         });
