@@ -276,42 +276,36 @@ ZEND_METHOD(Ice_Communicator, destroy)
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis());
     assert(_this);
 
-    //
-    // Remove all registrations.
-    //
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
-        for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
-        {
-            _registeredCommunicators.erase(*p);
-        }
-        _this->ac->ids.clear();
-    }
-
-    //
-    // We need to destroy any object|value factories installed by this request.
-    //
-    _this->destroyFactories();
-
     Ice::CommunicatorPtr c = _this->getCommunicator();
     assert(c);
     CommunicatorMap* m = reinterpret_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
-    assert(m->find(c) != m->end());
-    m->erase(c);
-
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
-    assert(vfm);
-    vfm->destroy();
-
-    try
+    if(m->find(c) != m->end())
     {
+        m->erase(c);
+
+        //
+        // Remove all registrations.
+        //
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
+            {
+                _registeredCommunicators.erase(*p);
+            }
+            _this->ac->ids.clear();
+        }
+
+        //
+        // We need to destroy any object|value factories installed by this request.
+        //
+        _this->destroyFactories();
+
+        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
+        assert(vfm);
+        vfm->destroy();
+
         c->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex);
-        RETURN_NULL();
     }
 }
 
