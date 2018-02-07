@@ -1052,8 +1052,7 @@ public final class Network
         java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
         if(isWildcard(host))
         {
-            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport, includeLoopback);
-            for(java.net.InetAddress addr : addrs)
+            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, includeLoopback))
             {
                 //
                 // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
@@ -1064,10 +1063,13 @@ public final class Network
                     hosts.add(addr.getHostAddress());
                 }
             }
-            if(hosts.isEmpty() && !includeLoopback)
+            if(hosts.isEmpty())
             {
-                // Return loopback if only loopback is available no other local addresses are available.
-                return getHostsForEndpointExpand(host, protocolSupport, true);
+                // Return loopback if no other local addresses are available.
+                for(java.net.InetAddress addr : getLoopbackAddresses(protocolSupport))
+                {
+                    hosts.add(addr.getHostAddress());
+                }
             }
         }
         return hosts;
@@ -1079,18 +1081,9 @@ public final class Network
         java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
         if(isWildcard(intf))
         {
-            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport, true);
-            for(java.net.InetAddress addr : addrs)
+            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, true))
             {
                 interfaces.add(addr.getHostAddress());
-            }
-            if(protocolSupport != EnableIPv6)
-            {
-                interfaces.add("127.0.0.1");
-            }
-            if(protocolSupport != EnableIPv4)
-            {
-                interfaces.add("0:0:0:0:0:0:0:1");
             }
         }
         if(interfaces.isEmpty())

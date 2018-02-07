@@ -780,6 +780,35 @@ getAddressStorageSize(const Address& addr)
     return size;
 }
 
+vector<Address>
+getLoopbackAddresses(ProtocolSupport protocol, int port = 0)
+{
+    vector<Address> result;
+
+    Address addr;
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
+
+    //
+    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
+    // versions don't support it).
+    //
+    if(protocol != EnableIPv4)
+    {
+        addr.saIn6.sin6_family = AF_INET6;
+        addr.saIn6.sin6_port = htons(port);
+        addr.saIn6.sin6_addr = in6addr_loopback;
+        result.push_back(addr);
+    }
+    if(protocol != EnableIPv6)
+    {
+        addr.saIn.sin_family = AF_INET;
+        addr.saIn.sin_port = htons(port);
+        addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        result.push_back(addr);
+    }
+    return result;
+}
+
 #endif // #ifndef ICE_OS_UWP
 
 }
@@ -1055,9 +1084,6 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
                           bool preferIPv6, bool canBlock)
 {
     vector<Address> result;
-    Address addr;
-
-    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -1065,23 +1091,13 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     //
     if(host.empty())
     {
-        if(protocol != EnableIPv4)
-        {
-            addr.saIn6.sin6_family = AF_INET6;
-            addr.saIn6.sin6_port = htons(port);
-            addr.saIn6.sin6_addr = in6addr_loopback;
-            result.push_back(addr);
-        }
-        if(protocol != EnableIPv6)
-        {
-            addr.saIn.sin_family = AF_INET;
-            addr.saIn.sin_port = htons(port);
-            addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-            result.push_back(addr);
-        }
+        result = getLoopbackAddresses(protocol, port);
         sortAddresses(result, protocol, selType, preferIPv6);
         return result;
     }
+
+    Address addr;
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     struct addrinfo* info = 0;
     int retry = 5;
@@ -1218,7 +1234,8 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 #endif
         return addr;
     }
-    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered), preferIPv6, canBlock);
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         preferIPv6, canBlock);
     return addrs.empty() ? Address() : addrs[0];
 }
 
@@ -1640,7 +1657,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
                 hosts.push_back(wstringToString(h->CanonicalName->Data(), getProcessStringConverter()));
             }
         }
-        if(includeLoopback)
+        if(hosts.empty() || includeLoopback)
         {
             if(protocolSupport != EnableIPv6)
             {
@@ -1686,10 +1703,14 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
                 hosts.push_back(inetAddrToString(*p));
             }
         }
-        if(hosts.empty() && !includeLoopback)
+        if(hosts.empty())
         {
-            // Return loopback if only loopback is available no other local addresses are available.
-            return getHostsForEndpointExpand(host, protocolSupport, true);
+            // Return loopback if no other local addresses are available.
+            addrs = getLoopbackAddresses(protocolSupport);
+            for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+            {
+                hosts.push_back(inetAddrToString(*p));
+            }
         }
     }
     return hosts; // An empty host list indicates to just use the given host.
