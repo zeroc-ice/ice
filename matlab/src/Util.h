@@ -39,6 +39,7 @@ void getEncodingVersion(mxArray*, Ice::EncodingVersion&);
 mxArray* convertException(const std::exception&);
 mxArray* createResultValue(mxArray*);
 mxArray* createResultException(mxArray*);
+mxArray* createOptionalValue(bool, mxArray*);
 mxArray* createStringList(const std::vector<std::string>&);
 void getStringList(mxArray*, std::vector<std::string>&);
 mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);

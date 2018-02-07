@@ -95,8 +95,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     proxy, but uses batch datagram invocations.
     %   ice_compress - Returns a proxy that is identical to this proxy,
     %     except for compression.
+    %   ice_getCompress - Obtains the compression override setting of this proxy.
     %   ice_timeout - Returns a proxy that is identical to this proxy,
     %     except for its connection timeout setting.
+    %   ice_getTimeout - Obtains the timeout override of this proxy.
+    %   ice_fixed - Obtains a proxy that is identical to this proxy, except it's
+    %     a fixed proxy bound to the given connection.
     %   ice_getConnection - Returns the Connection for this proxy.
     %   ice_getConnectionAsync - Returns the Connection for this proxy.
     %   ice_getCachedConnection - Returns the cached Connection for this
@@ -810,7 +814,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   b (logical) - True enables compression for the new proxy;
             %     false disables compression.
             %
-            % Returns - A proxy with the specified compression setting.
+            % Returns - A proxy with the specified compression override setting.
 
             if b
                 val = 1;
@@ -820,17 +824,66 @@ classdef ObjectPrx < IceInternal.WrapperObject
             r = obj.factory_('ice_compress', true, val);
         end
 
+        function r = ice_getCompress(obj)
+            % ice_getCompress - Obtains the compression override setting of this proxy.
+            %
+            % Returns (optional bool) - The compression override setting. If Ice.Unset
+            %   is returned, no override is set. Otherwise, true if compression is
+            %   enabled, false otherwise.
+
+            obj.instantiate_();
+            opt = obj.iceCallWithResult('ice_getCompress');
+            if opt.hasValue
+                r = opt.value;
+            else
+                r = Ice.Unset;
+            end
+        end
+
         function r = ice_timeout(obj, t)
             % ice_timeout - Returns a proxy that is identical to this proxy,
-            %   except for its connection timeout setting.
+            %   except for its connection timeout setting which overrides the timeout
+            %   setting from the proxy endpoints.
             %
             % Parameters:
-            %   t (int32) - The connection timeout for the proxy in
+            %   t (int32) - The connection override timeout for the proxy in
             %     milliseconds.
             %
             % Returns - A proxy with the specified timeout.
 
             r = obj.factory_('ice_timeout', true, t);
+        end
+
+        function r = ice_getTimeout(obj)
+            % ice_getTimeout - Obtains the timeout override of this proxy.
+            %
+            % Returns (optional int32) - The timeout override. If Ice.Unset
+            %   is returned, no override is set. Otherwise, returns the
+            %   timeout override value.
+
+            obj.instantiate_();
+            opt = obj.iceCallWithResult('ice_getTimeout');
+            if opt.hasValue
+                r = opt.value;
+            else
+                r = Ice.Unset;
+            end
+        end
+
+        function r = ice_fixed(obj, connection)
+            % ice_fixed - Obtains a proxy that is identical to this proxy, except it's
+            %   a fixed proxy bound to the given connection.
+            %
+            % Parameters:
+            %   connection (Ice.Connection) - The fixed proxy connection.
+            %
+            % Returns (Ice.ObjectPrx) - A fixed proxy bound to the given connection.
+
+            if isempty(connection)
+                throw(MException('Ice:ArgumentException', 'invalid null connection passed to ice_fixed'));
+            end
+
+            r = obj.factory_('ice_fixed', true, connection.iceGetImpl());
         end
 
         function r = ice_getConnection(obj)

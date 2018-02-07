@@ -966,12 +966,57 @@ Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
 }
 
 mxArray*
+Ice_ObjectPrx_ice_getCompress(void* self)
+{
+    auto v = deref<Ice::ObjectPrx>(self)->ice_getCompress();
+    if(v.has_value())
+    {
+        return createResultValue(createOptionalValue(true, createBool(v.value())));
+    }
+    else
+    {
+        return createResultValue(createOptionalValue(false, 0));
+    }
+}
+
+mxArray*
 Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
 {
     try
     {
         auto proxy = deref<Ice::ObjectPrx>(self);
         auto newProxy = proxy->ice_timeout(t);
+        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+    }
+    catch(const std::exception& ex)
+    {
+        return convertException(ex);
+    }
+    return 0;
+}
+
+mxArray*
+Ice_ObjectPrx_ice_getTimeout(void* self)
+{
+    auto v = deref<Ice::ObjectPrx>(self)->ice_getTimeout();
+    if(v.has_value())
+    {
+        return createResultValue(createOptionalValue(true, createInt(v.value())));
+    }
+    else
+    {
+        return createResultValue(createOptionalValue(false, 0));
+    }
+}
+
+mxArray*
+Ice_ObjectPrx_ice_fixed(void* self, void** r, void* connection)
+{
+    assert(connection); // Wrapper only calls this function for non-nil arguments.
+    try
+    {
+        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto newProxy = proxy->ice_fixed(deref<Ice::Connection>(connection));
         *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
     }
     catch(const std::exception& ex)
