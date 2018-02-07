@@ -2622,7 +2622,7 @@ class Driver:
     @classmethod
     def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "controller-app", "valgrind", "languages="])
+                         "controller-app", "valgrind", "languages=", "rlanguages="])
 
     @classmethod
     def usage(self):
@@ -2637,6 +2637,7 @@ class Driver:
         print("--filter=<regex>      Run all the tests that match the given regex.")
         print("--rfilter=<regex>     Run all the tests that do not match the given regex.")
         print("--languages=l1,l2,... List of comma-separated language mappings to test.")
+        print("--rlanguages=l1,l2,.. List of comma-separated language mappings to not test.")
         print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
@@ -2654,6 +2655,7 @@ class Driver:
         self.controllerApp = False
         self.valgrind = False
         self.languages = []
+        self.rlanguages = []
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",
@@ -2669,6 +2671,8 @@ class Driver:
         self.rfilters = [re.compile(a) for a in self.rfilters]
         if self.languages:
             self.languages = [i for sublist in [l.split(",") for l in self.languages] for i in sublist]
+        if self.rlanguages:
+            self.rlanguages = [i for sublist in [l.split(",") for l in self.rlanguages] for i in sublist]
 
         self.communicator = None
         self.interface = ""
@@ -2724,8 +2728,12 @@ class Driver:
         ### Return additional mappings to load required by the driver
         return []
 
-    def getLanguages(self):
-        return self.languages
+    def matchLanguage(self, language):
+        if self.languages and language not in self.languages:
+            return False
+        if self.rlanguages and language in self.rlanguages:
+            return False
+        return True
 
     def getCommunicator(self):
         self.initCommunicator()
@@ -3357,11 +3365,10 @@ class MatlabMapping(CppBasedClientMapping):
 
     def getOptions(self, current):
         #
-        # Metrics tests configuration not supported with MATLAB
-        # they use the Admin adapter.
+        # Metrics tests configuration not supported with MATLAB they use the Admin adapter.
         #
         options = CppBasedClientMapping.getOptions(self, current)
-        options["mx"] = [False]
+        options["mx"] = [ False ]
         return options
 
 class JavaScriptMapping(Mapping):
@@ -3554,8 +3561,7 @@ def runTests(mappings=None, drivers=None):
         driver = Driver.create(opts)
 
         #
-        # Create the configurations for each mapping (we always parse the configuration for the
-        # python mapping because we might use the local IcePy build to initialize a communicator).
+        # Create the configurations for each mapping.
         #
         configs = {}
         for mapping in Mapping.getAll():
@@ -3563,10 +3569,9 @@ def runTests(mappings=None, drivers=None):
                 configs[mapping] = mapping.createConfig(opts[:])
 
         #
-        # If the user specified --languages, only run matching mappings.
+        # If the user specified --languages/rlanguages, only run matching mappings.
         #
-        if driver.getLanguages():
-            mappings = [Mapping.getByName(l) for l in driver.getLanguages()]
+        mappings = [m for m in mappings if driver.matchLanguage(str(m))]
 
         #
         # Provide the configurations to the driver and load the test suites for each mapping.
