@@ -141,6 +141,19 @@
         await base.ice_ping();
         out.writeLine("ok");
 
+        {
+            out.write("pinging object with client endpoint... ");
+            const baseC = communicator.stringToProxy("collocated:default -p 12060");
+            try
+            {
+                await baseC.ice_ping();
+            }
+            catch(ex)
+            {
+            }
+            out.writeLine("ok");
+        }
+
         out.write("testing checked cast for server object... ");
         let twoway = await Test.CallbackPrx.checkedCast(base);
         test(twoway !== null);

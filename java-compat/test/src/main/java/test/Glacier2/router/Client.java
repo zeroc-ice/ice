@@ -189,6 +189,20 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        {
+            out.print("pinging object with client endpoint... ");
+            out.flush();
+            Ice.ObjectPrx baseC = communicator().stringToProxy("collocated:" + getTestEndpoint(50));
+            try
+            {
+                baseC.ice_ping();
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+            }
+            out.println("ok");
+        }
+
         CallbackPrx twoway;
 
         {

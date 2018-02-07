@@ -1125,7 +1125,12 @@ SessionRouterI::expireSessions()
 RouterIPtr
 SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
-    if(_destroy)
+    //
+    // The connection can be null if the client tries to forward requests to
+    // a proxy which points to the client endpoints (in which case the request
+    // is forwarded with collocation optimization).
+    //
+    if(_destroy || !connection)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
