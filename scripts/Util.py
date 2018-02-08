@@ -3475,16 +3475,6 @@ except ImportError:
 from LocalDriver import *
 
 #
-# Check if the Android SDK is installed by looking for adb
-#
-hasAndroidSDK=False
-try:
-    run("adb version")
-    hasAndroidSDK=True
-except:
-    pass
-
-#
 # Supported mappings
 #
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
@@ -3500,8 +3490,6 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, RubyMapping())
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping())
-    elif m == "matlab" or re.match("matlab-.*", m):
-        Mapping.add(m, MatlabMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
     elif m == "csharp" or re.match("csharp-.*", m):
@@ -3509,9 +3497,24 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
 
-if hasAndroidSDK:
+#
+# Check if the Android SDK is installed and eventually add the Android mappings
+#
+try:
+    run("adb version")
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
     Mapping.add(os.path.join("java", "android"), AndroidMapping())
+except:
+    pass
+
+#
+# Check if Matlab is installed and eventually add the Matlab mapping
+#
+try:
+    run("matlab -help")
+    Mapping.add("matlab", MatlabMapping())
+except:
+    pass
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])
