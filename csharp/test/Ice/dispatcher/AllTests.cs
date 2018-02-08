@@ -182,13 +182,18 @@ public class AllTests : TestCommon.AllTests
             };
             // We use sleepAsync instead of opAsync to ensure the response isn't received before
             // we setup the continuation
-            var t = p.sleepAsync(100).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously);
+            var t = p.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously);
             t.Wait();
             cb.check();
 
             var i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.sleepAsync(100).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
-            cb.check();
+
+            //
+            // sleepAsync doesn't help here as the test will fail with Ice.NoEndpointException and sleepAsync
+            // will not be called.
+            //
+            //i.sleepAsync(500).ContinueWith(continuation, TaskContinuationOptions.ExecuteSynchronously).Wait();
+            //cb.check();
 
             //
             // Expect InvocationTimeoutException.

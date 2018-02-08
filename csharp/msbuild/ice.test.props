@@ -10,22 +10,10 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>prompt</ErrorReport>
+    <DefineConstants Condition="'$(TargetFrameworkVersion)' == 'v4.5.1'">NET45</DefineConstants>
   </PropertyGroup>
-
-  <Choose>
-      <When Condition="'$(ICE_BIN_DIST)' == 'all'">
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
-          </PropertyGroup>
-      </When>
-      <Otherwise>
-          <PropertyGroup>
-              <IceAssembliesDir>$(IceHome)\csharp\Assemblies</IceAssembliesDir>
-          </PropertyGroup>
-      </Otherwise>
-  </Choose>
 
   <Target Name="Info">
       <Message Text="IceAssembliesDir: $(IceAssembliesDir)"/>
@@ -35,13 +23,13 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

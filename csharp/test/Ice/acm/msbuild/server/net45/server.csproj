@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')"/>
+  <Import Condition="Exists('..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props"/>
+  <PropertyGroup Label="Globals">
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <Import Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"/>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9FBCA719-D41D-4AAB-897C-3CE4B90F0050}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>server</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputPath>$(MSBuildThisFileDirectory)</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Ice, Version=3.7.1.0, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(IceAssembliesDir)\net45\Ice.dll</HintPath>
+    </Reference>
+    <Reference Include="System"/>
+    <Reference Include="System.Core"/>
+    <Reference Include="Microsoft.CSharp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\..\TestCommon\TestApp.cs">
+      <Link>TestApp.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Server.cs">
+      <Link>Server.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\TestI.cs">
+      <Link>TestI.cs</Link>
+    </Compile>
+    <Compile Include="generated\Test.cs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config"/>
+    <None Include="server.exe.config"/>
+    <SliceCompile Include="..\..\..\Test.ice">
+      <Link>Test.ice</Link>
+    </SliceCompile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\..\msbuild\ice.test.props"/>
+  <Target BeforeTargets="PrepareForBuild" Name="EnsureNuGetPackageBuildImports">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props'))"/>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.props'))"/>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets'))"/>
+  </Target>
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.1\build\zeroc.icebuilder.msbuild.targets')"/>
+</Project>

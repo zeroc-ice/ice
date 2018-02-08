@@ -1,0 +1,20 @@
+<icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server id="server" exe="${dotnet.exe}" pwd="." activation="on-demand">
+        <option>${test.dir}/${server.dir}/server.dll</option>
+        <adapter name="TestAdapter" id="TestAdapter" endpoints="default">
+          <object identity="test" type="Test"/>
+        </adapter>
+      </server>
+
+      <server id="server10" exe="${dotnet.exe}" pwd="." activation="on-demand">
+        <option>${test.dir}/${server.dir}/server.dll</option>
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter10">
+          <object identity="test10" type="Test" property="Identity"/>
+        </adapter>
+        <property name="Ice.Default.EncodingVersion" value="1.0"/>
+      </server>
+    </node>
+  </application>
+</icegrid>

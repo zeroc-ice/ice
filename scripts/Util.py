@@ -77,6 +77,8 @@ class Platform:
             "supported-platforms" : ("supportedPlatforms", lambda s : s.split(" ")),
             "supported-configs" : ("supportedConfigs", lambda s : s.split(" "))
         })
+        self.nugetPackageVersion = None
+        self.nugetPackageCache = None
 
     def parseBuildVariables(self, variables):
         # Run make to get the values of the given variables
@@ -122,7 +124,17 @@ class Platform:
         return os.environ.get(envName, "/usr")
 
     def getIceInstallDir(self, mapping, current):
-        return self.getInstallDir(mapping, current, "ICE_HOME")
+        #
+        # For .NET Core with Ice binary distribution the NuGet packages is
+        # installed in the global packages package cache
+        #
+        if isinstance(mapping, CSharpMapping) and current.driver.useIceBinDist(mapping) and current.config.netframework:
+            if not self.nugetPackageCache:
+                self.nugetPackageCache = re.search("info : global-packages: (.*)",
+                                                   run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            return os.path.join(self.nugetPackageCache, "zeroc.ice.net", self.getNugetPackageVersion())
+        else:
+            return self.getInstallDir(mapping, current, "ICE_HOME")
 
     def getSliceDir(self, iceDir):
         if iceDir.startswith("/usr"):
@@ -141,6 +153,15 @@ class Platform:
 
     def canRun(self, mapping, current):
         return True
+
+    def getDotnetExe(self):
+        return "dotnet"
+
+    def getNugetPackageVersion(self):
+        if not self.nugetPackageVersion:
+            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
+                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        return self.nugetPackageVersion
 
 class Darwin(Platform):
 
@@ -240,7 +261,6 @@ class Windows(Platform):
     def __init__(self):
         Platform.__init__(self)
         self.compiler = None
-        self.nugetPackageVersion = None
 
     def getFilters(self, config):
         if config.uwp:
@@ -299,12 +319,6 @@ class Windows(Platform):
             except:
                 self.compiler = ""
         return self.compiler
-
-    def getNugetPackageVersion(self):
-        if not self.nugetPackageVersion:
-            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return self.nugetPackageVersion
 
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
@@ -365,15 +379,21 @@ class Windows(Platform):
         return "PATH"
 
     def getInstallDir(self, mapping, current, envName):
+
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
         version = self.getNugetPackageVersion()
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-        package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
-            mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
 
-        package = None
-        if hasattr(mapping, "getNugetPackage"):
+        if isinstance(mapping, CSharpMapping) and current.config.netframework:
+            #
+            # Use NuGet package from nuget locals
+            #
+            if not self.nugetPackageCache:
+                self.nugetPackageCache = re.search("info : global-packages: (.*)",
+                                                   run("dotnet nuget locals --list global-packages")).groups(1)[0]
+            package = os.path.join(self.nugetPackageCache, "zeroc.ice.net", version)
+        elif hasattr(mapping, "getNugetPackage"):
             package = os.path.join(mapping.path, "msbuild", "packages", mapping.getNugetPackage(packageSuffix, version))
 
         home = os.environ.get(envName, "")
@@ -392,6 +412,9 @@ class Windows(Platform):
             if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
                 return False
         return Platform.canRun(self, mapping, current)
+
+    def getDotnetExe(self):
+        return run("where dotnet").strip()
 
 platform = None
 if sys.platform == "darwin":
@@ -520,6 +543,7 @@ class Mapping:
             self.device = ""
             self.avd = ""
             self.androidemulator = False
+            self.netframework = ""
 
         def __str__(self):
             s = []
@@ -1801,8 +1825,10 @@ class TestSuite:
 
     def isMainThreadOnly(self, driver):
         for m in [CppMapping, JavaMapping, CSharpMapping]:
-            if isinstance(self.mapping, m):
-                config = driver.configs[self.mapping]
+            config = driver.configs[self.mapping]
+            if isinstance(self.mapping, CSharpMapping) and config.netframework:
+                return True
+            elif isinstance(self.mapping, m):
                 if "iphone" in config.buildPlatform or config.uwp:
                     return True # Not supported yet for tests that require a remote process controller
                 return self.runOnMainThread
@@ -1906,6 +1932,7 @@ class LocalProcessController(ProcessController):
             "testdir": current.testsuite.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
             "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
+            "iceboxconfigext": "" if not current.config.netframework else ".{0}".format(current.config.netframework)
         }
 
         traceFile = ""
@@ -2695,7 +2722,10 @@ class Driver:
 
     def getInstallDir(self, mapping, current, envHomeName, envBinDistName):
         if self.useBinDist(mapping, envBinDistName):
-            return platform.getInstallDir(mapping, current, envHomeName)
+            if envHomeName == "ICE_HOME":
+                return platform.getIceInstallDir(mapping, current)
+            else:
+                return platform.getInstallDir(mapping, current, envHomeName)
         elif mapping:
             return mapping.getPath()
         else:
@@ -3115,14 +3145,56 @@ class AndroidCompatMapping(JavaCompatMapping):
 
 class CSharpMapping(Mapping):
 
-    def getTestSuites(self, ids=[]):
-        return Mapping.getTestSuites(self, ids) if isinstance(platform, Windows) else []
+    class Config(Mapping.Config):
 
-    def findTestSuite(self, testsuite):
-        return Mapping.findTestSuite(self, testsuite) if isinstance(platform, Windows) else None
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["netframework="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("--netframework           Run C# tests using Ice netstandard2.0 libraries and tests")
+            print("                         build with given .NET Framework [netcoreapp2.0|net4.6]")
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+            parseOptions(self, options, { "netframework" : "netframework" })
+            #
+            # For non Windows platforms the default is netcoreapp2.0 for windows empty
+            # means to run test agains .NET Framework 4.5 Ice build
+            #
+            supportedframeworks = ["netcoreapp2.0"]
+            if isinstance(platform, Windows):
+                supportedframeworks += ["net461", "net462", "net47", "net471"]
+
+            if self.netframework:
+                if not self.netframework in supportedframeworks:
+                    raise RuntimeError("Unssuported .NET Framework `{0}'".format(self.netframework))
+            else:
+                self.netframework = "" if isinstance(platform, Windows) else "netcoreapp2.0"
+
+        def canRun(self, current):
+            testId = current.testcase.getTestSuite().getId()
+            if not Mapping.Config.canRun(self, current):
+                return False
+
+            if self.netframework:
+                #
+                # The following tests require multicast, on Unix platforms is currently
+                # only supported with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
+                #
+                if not isinstance(platform, Windows) and self.ipv6 and testId in ["Ice/udp",
+                                                                                  "IceDiscovery/simple",
+                                                                                  "IceGrid/simple"]:
+                    return False
+            return True
 
     def getBuildDir(self, name, current):
-        return os.path.join("msbuild", name)
+        if current.config.netframework:
+            return os.path.join("msbuild", name, "netstandard2.0", current.config.netframework)
+        else:
+            return os.path.join("msbuild", name, "net45")
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3136,8 +3208,24 @@ class CSharpMapping(Mapping):
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
-        plugindir = "{0}/{1}".format(current.driver.getIceDir(self, current),
-                                     "lib" if current.driver.useIceBinDist(self) else "Assemblies")
+        plugindir = "{0}/{1}".format(current.driver.getIceDir(self, current), "lib")
+
+        if current.config.netframework:
+            plugindir = os.path.join(plugindir, "netstandard2.0")
+        else:
+            plugindir = os.path.join(plugindir, "net45")
+
+        #
+        # If the plug-in assemblie exists in the test directory, this is a good indication that the
+        # test include a reference to the plug-in, in this case we must use the test dir as the plug-in
+        # base directory to avoid loading two instances of the same assemblie.
+        #
+        proccessType = current.testcase.getProcessType(process)
+        if proccessType:
+            testdir = os.path.join(current.testcase.getPath(), self.getBuildDir(proccessType, current))
+            if os.path.isfile(os.path.join(testdir, plugin + ".dll")):
+                plugindir = testdir
+
         return {
             "IceSSL" : plugindir + "/IceSSL.dll:IceSSL.PluginFactory",
             "IceDiscovery" : plugindir + "/IceDiscovery.dll:IceDiscovery.PluginFactory",
@@ -3145,15 +3233,21 @@ class CSharpMapping(Mapping):
         }[plugin]
 
     def getEnv(self, process, current):
-        if current.driver.useIceBinDist(self):
-            bzip2 = os.path.join(platform.getIceInstallDir(self, current), "tools")
-            assembliesDir = os.path.join(platform.getIceInstallDir(self, current), "lib")
-        else:
-            bzip2 = os.path.join(toplevel, "cpp", "msbuild", "packages",
-                                 "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
-                                 "build", "native", "bin", "x64", "Release")
-            assembliesDir = os.path.join(current.driver.getIceDir(self, current), "Assemblies")
-        return { "DEVPATH" : assembliesDir, "PATH" : bzip2 }
+        env = {}
+        if isinstance(platform, Windows):
+
+            if current.driver.useIceBinDist(self):
+                framework = "net45" if not current.config.netframework else current.config.netframework
+                env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", framework)
+                if not current.config.netframework:
+                    env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
+            else:
+                env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
+                                           "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
+                                           "build", "native", "bin", "x64", "Release")
+                if not current.config.netframework:
+                    env['DEVPATH'] = os.path.join(current.driver.getIceDir(self, current), "lib", "net45")
+        return env
 
     def getDefaultSource(self, processType):
         return {
@@ -3164,10 +3258,34 @@ class CSharpMapping(Mapping):
         }[processType]
 
     def getDefaultExe(self, processType, config):
-        return "iceboxnet" if processType == "icebox" else processType
+        return processType
 
     def getNugetPackage(self, compiler, version):
         return "zeroc.ice.net.{0}".format(version)
+
+    def getCommandLine(self, current, process, exe):
+        if current.config.netframework:
+            if exe  == "icebox":
+                if current.driver.useIceBinDist(self):
+                    return "dotnet {0}".format(os.path.join(
+                        platform.getIceInstallDir(self, current), "tools", "netcoreapp2.0", "iceboxnet.dll"))
+                else:
+                    return "dotnet {0}".format(os.path.join(self.path, "bin", "netcoreapp2.0", "iceboxnet.dll"))
+            else:
+                if current.config.netframework == "netcoreapp2.0":
+                    return "dotnet {0}".format(os.path.join(
+                        current.testcase.getPath(), self.getBuildDir(exe, current), "{0}.dll".format(exe)))
+                else:
+                    return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}".format(exe))
+        else:
+            if exe == "icebox":
+                if current.driver.useIceBinDist(self):
+                    return os.path.join(
+                        platform.getIceInstallDir(self, current), "tools", "net45", "iceboxnet.exe")
+                else:
+                    return os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
+            else:
+                return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
 
 class CppBasedMapping(Mapping):
 
@@ -3475,6 +3593,19 @@ except ImportError:
 from LocalDriver import *
 
 #
+# Check if the .NET Core SDK is installed
+#
+#
+# Check if the Android SDK is installed by looking for adb
+#
+hasDotnetSDK=False
+try:
+    run("dotnet --version")
+    hasDotnetSDK=True
+except:
+    pass
+
+#
 # Check if the Android SDK is installed by looking for adb
 #
 hasAndroidSDK=False
@@ -3504,10 +3635,11 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, MatlabMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
-    elif m == "csharp" or re.match("csharp-.*", m):
-        Mapping.add(m, CSharpMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
+
+if isinstance(platform, Windows) or hasDotnetSDK:
+    Mapping.add("csharp", CSharpMapping())
 
 if hasAndroidSDK:
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())

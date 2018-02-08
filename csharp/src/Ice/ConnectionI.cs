@@ -2595,8 +2595,9 @@ namespace Ice
                     }
                     else
                     {
+                        string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                         FeatureNotSupportedException ex = new FeatureNotSupportedException();
-                        ex.unsupportedFeature = "Cannot uncompress compressed message: bzip2 DLL not found";
+                        ex.unsupportedFeature = "Cannot uncompress compressed message: " + lib + " not found";
                         throw ex;
                     }
                 }

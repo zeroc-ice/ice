@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../../../msbuild/ice.common.props"/>
+  <PropertyGroup>
+    <AssemblyName>IceGrid</AssemblyName>
+    <Version>$(IceVersion)</Version>
+    <OutputPath>../../../../lib</OutputPath>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <SliceCompile Include="../../../../../slice/$(AssemblyName)/*.ice"/>
+    <Compile Include="../../*.cs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Ice/msbuild/netstandard2.0/ice.csproj"/>
+    <ProjectReference Include="../../../Glacier2/msbuild/netstandard2.0/glacier2.csproj"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.1"/>
+  </ItemGroup>
+</Project>

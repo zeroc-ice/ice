@@ -433,15 +433,16 @@ namespace IceInternal
         {
             try
             {
-                int ifaceIndex = getInterfaceIndex(iface, family);
                 if(family == AddressFamily.InterNetwork)
                 {
-                    ifaceIndex = IPAddress.HostToNetworkOrder(ifaceIndex);
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, ifaceIndex);
+                    socket.SetSocketOption(SocketOptionLevel.IP,
+                                           SocketOptionName.MulticastInterface,
+                                           IPAddress.HostToNetworkOrder(getInterfaceIndex(iface, family)));
                 }
                 else
                 {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface, ifaceIndex);
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface,
+                                           getInterfaceIndex(iface, family));
                 }
             }
             catch(Exception ex)
@@ -603,6 +604,18 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
+            if(!AssemblyUtil.isWindows)
+            {
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                if(addr.Equals(getLocalAddress(fd)))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
+            }
             return true;
         }
 
@@ -684,6 +697,19 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
+            if(!AssemblyUtil.isWindows)
+            {
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                EndPoint remoteAddr = getRemoteAddress(fd);
+                if(remoteAddr.Equals(getLocalAddress(fd)))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
+            }
         }
 
         public static int getProtocolSupport(IPAddress addr)
@@ -878,11 +904,16 @@ namespace IceInternal
         setTcpBufSize(Socket socket, ProtocolInstance instance)
         {
             //
-            // By default, on Windows we use a 128KB buffer size.
-            int dfltBufSize = 128 * 1024;
+            // By default, on Windows we use a 128KB buffer size. On Unix
+            // platforms, we use the system defaults.
+            //
+            int dfltBufSize = 0;
+            if(AssemblyUtil.isWindows)
+            {
+                dfltBufSize = 128 * 1024;
+            }
             int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
             int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-
             setTcpBufSize(socket, rcvSize, sndSize, instance);
         }
 

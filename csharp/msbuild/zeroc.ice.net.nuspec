@@ -13,7 +13,9 @@
         <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes</releaseNotes>
         <tags>ice</tags>
         <references>
-            <reference file="Ice.dll" />
+            <group targetFramework="net45">
+                <reference file="Ice.dll" />
+            </group>
         </references>
     </metadata>
 </package>

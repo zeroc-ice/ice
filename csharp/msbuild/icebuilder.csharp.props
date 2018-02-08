@@ -37,6 +37,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <IceAssembliesDir>$(IceHome)\csharp\Assemblies</IceAssembliesDir>
+        <IceAssembliesDir>$(IceHome)\csharp\lib\net45</IceAssembliesDir>
     </PropertyGroup>
 </Project>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../../../msbuild/ice.common.props"/>
+  <PropertyGroup>
+    <AssemblyName>IceStorm</AssemblyName>
+    <Version>$(IceVersion)</Version>
+    <OutputPath>../../../../lib</OutputPath>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <SliceCompile Include="../../../../../slice/$(AssemblyName)/*.ice"/>
+    <Compile Include="../../*.cs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Ice/msbuild/netstandard2.0/ice.csproj"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.1"/>
+  </ItemGroup>
+</Project>
