@@ -37,6 +37,9 @@ jobs:
       script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
       env: comment=C++11
     - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --filter=csharp"
+      env: comment=C#
+    - <<: *test-staging
       script: $DOCKER_RUN "${ALLTESTS} --filter=java"
       env: comment=Java
     - <<: *test-staging
