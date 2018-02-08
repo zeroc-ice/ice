@@ -3618,7 +3618,7 @@ try:
         #
         # Check if the .NET Core SDK is installed
         #
-        run("dotnet --version"):
+        run("dotnet --version")
     Mapping.add("csharp", CSharpMapping())
 except:
     pass
