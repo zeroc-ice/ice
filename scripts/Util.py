@@ -3511,7 +3511,7 @@ except:
 # Check if Matlab is installed and eventually add the Matlab mapping
 #
 try:
-    run("matlab -help")
+    run("where matlab" if isinstance(platform, Windows) else "which matlab")
     Mapping.add("matlab", MatlabMapping())
 except:
     pass
