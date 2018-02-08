@@ -9,6 +9,7 @@
 
 #include "pch.h"
 #include "ViewController.xaml.h"
+#include <ppltasks.h>
 
 using namespace Controller;
 
@@ -25,6 +26,7 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Interop;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
+using namespace Windows::ApplicationModel::ExtendedExecution::Foreground;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
@@ -48,20 +50,20 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 {
     // Do not repeat app initialization when already running, just ensure that
     // the window is active
-    if (pArgs->PreviousExecutionState == ApplicationExecutionState::Running)
+    if(pArgs->PreviousExecutionState == ApplicationExecutionState::Running)
     {
         Window::Current->Activate();
         return;
     }
 
-    if (pArgs->PreviousExecutionState == ApplicationExecutionState::Terminated)
+    if(pArgs->PreviousExecutionState == ApplicationExecutionState::Terminated)
     {
         //TODO: Load state from previously suspended application
     }
 
     // Create a Frame to act navigation context and navigate to the first page
     auto rootFrame = ref new Frame();
-    if (!rootFrame->Navigate(TypeName(ViewController::typeid)))
+    if(!rootFrame->Navigate(TypeName(ViewController::typeid)))
     {
         throw ref new FailureException("Failed to create initial page");
     }
@@ -69,6 +71,32 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
     // Place the frame in the current Window and ensure that it is active
     Window::Current->Content = rootFrame;
     Window::Current->Activate();
+
+    if(!_session)
+    {
+        ExtendedExecutionForegroundSession^ session = ref new ExtendedExecutionForegroundSession();
+        session->Reason = ExtendedExecutionForegroundReason::Unconstrained;
+        session->Revoked += ref new TypedEventHandler<Object^, ExtendedExecutionForegroundRevokedEventArgs^>(this, &App::SessionRevoked);
+        concurrency::create_task(session->RequestExtensionAsync()).then([this, session](ExtendedExecutionForegroundResult result)
+        {
+            switch(result)
+            {
+                case ExtendedExecutionForegroundResult::Allowed:
+                    _session = session;
+                    break;
+                case ExtendedExecutionForegroundResult::Denied:
+                    break;
+            }
+        });
+    }
+}
+
+void App::SessionRevoked(Object^ sender, ExtendedExecutionForegroundRevokedEventArgs^ args)
+{
+    if(_session != nullptr)
+    {
+        _session = nullptr;
+    }
 }
 
 /// <summary>
