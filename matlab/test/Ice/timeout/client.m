@@ -37,8 +37,7 @@ function client(args)
     cleanup = onCleanup(@() communicator.destroy());
 
     app = TestApp(communicator);
-    timeout = AllTests.allTests(app);
-    timeout.shutdown();
+    AllTests.allTests(app);
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

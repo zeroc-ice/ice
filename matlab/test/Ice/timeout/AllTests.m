@@ -28,7 +28,7 @@ classdef AllTests
             end
             r = prx.ice_getConnection(); % Establish connection
         end
-        function r = allTests(app)
+        function allTests(app)
             import Test.*;
 
             communicator = app.communicator();
@@ -40,13 +40,16 @@ classdef AllTests
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
 
+            controller = ControllerPrx.checkedCast(communicator.stringToProxy(['controller:', app.getTestEndpoint(1)]));
+            assert(~isempty(controller));
+
             fprintf('testing connect timeout... ');
 
             %
             % Expect ConnectTimeoutException.
             %
             to = timeout.ice_timeout(100);
-            timeout.holdAdapter(500);
+            controller.holdAdapter(-1);
             try
                 to.op();
                 assert(false);
@@ -54,13 +57,14 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.ConnectTimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
 
             %
             % Expect success.
             %
-            timeout.op(); % Ensure adapter is active.
-            to = timeout.ice_timeout(1000);
-            timeout.holdAdapter(500);
+            to = timeout.ice_timeout(2000);
+            controller.holdAdapter(100);
             try
                 to.op();
             catch ex
@@ -84,7 +88,7 @@ classdef AllTests
             %
             to = timeout.ice_timeout(250);
             AllTests.connect(to);
-            timeout.holdAdapter(750);
+            controller.holdAdapter(-1);
             try
                 to.sendData(seq);
                 assert(false);
@@ -92,13 +96,14 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.TimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
 
             %
             % Expect success.
             %
-            timeout.op(); % Ensure adapter is active.
-            to = timeout.ice_timeout(1000);
-            timeout.holdAdapter(500);
+            to = timeout.ice_timeout(2000);
+            controller.holdAdapter(500);
             try
                 to.sendData(zeros(1, 1000000, 'uint8'));
             catch ex
@@ -151,7 +156,7 @@ classdef AllTests
             %
             % Expect success.
             %
-            to = timeout.ice_invocationTimeout(500);
+            to = timeout.ice_invocationTimeout(1000);
             f = to.sleepAsync(100);
             f.fetchOutputs();
 
@@ -206,7 +211,7 @@ classdef AllTests
 
             to = TimeoutPrx.uncheckedCast(obj.ice_timeout(250));
             connection = AllTests.connect(to);
-            timeout.holdAdapter(600);
+            controller.holdAdapter(-1);
             connection.close(Ice.ConnectionClose.GracefullyWithWait);
             try
                 connection.getInfo(); % getInfo() doesn't throw in the closing state.
@@ -224,6 +229,7 @@ classdef AllTests
                 assert(isa(ex, 'Ice.ConnectionManuallyClosedException'));
                 assert(ex.graceful);
             end
+            controller.resumeAdapter();
             timeout.op(); % Ensure adapter is active.
 
             fprintf('ok\n');
@@ -240,7 +246,7 @@ classdef AllTests
             comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             AllTests.connect(to);
-            timeout.holdAdapter(500);
+            controller.holdAdapter(-1);
             try
                 to.sendData(seq);
                 assert(false);
@@ -248,13 +254,15 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.TimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
+
             %
             % Calling ice_timeout() should have no effect.
             %
-            timeout.op(); % Ensure adapter is active.
             to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000));
             AllTests.connect(to);
-            timeout.holdAdapter(500);
+            controller.holdAdapter(-1);
             try
                 to.sendData(seq);
                 assert(false);
@@ -262,6 +270,8 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.TimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
             comm.destroy();
 
             %
@@ -272,7 +282,7 @@ classdef AllTests
 
             comm = Ice.initialize(initData);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
-            timeout.holdAdapter(750);
+            controller.holdAdapter(-1);
             try
                 to.op();
                 assert(false);
@@ -280,11 +290,13 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.ConnectTimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
+
             %
             % Calling ice_timeout() should have no effect on the connect timeout.
             %
-            timeout.op(); % Ensure adapter is active.
-            timeout.holdAdapter(750);
+            controller.holdAdapter(-1);
             to = to.ice_timeout(1000);
             try
                 to.op();
@@ -293,13 +305,15 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.ConnectTimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
+
             %
             % Verify that timeout set via ice_timeout() is still used for requests.
             %
-            timeout.op(); % Ensure adapter is active.
             to = to.ice_timeout(250);
             AllTests.connect(to);
-            timeout.holdAdapter(750);
+            controller.holdAdapter(-1);
             try
                 to.sendData(seq);
                 assert(false);
@@ -307,7 +321,10 @@ classdef AllTests
                 % Expected.
                 assert(isa(ex, 'Ice.TimeoutException'));
             end
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
             comm.destroy();
+
             %
             % Test Ice.Override.CloseTimeout.
             %
@@ -315,14 +332,16 @@ classdef AllTests
             initData.properties_.setProperty('Ice.Override.CloseTimeout', '100');
             comm = Ice.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
-            timeout.holdAdapter(800);
+            controller.holdAdapter(-1);
             tic();
             comm.destroy();
             assert(toc() < .7);
+            controller.resumeAdapter();
+            timeout.op(); % Ensure adapter is active.
 
             fprintf('ok\n');
 
-            r = timeout;
+            controller.shutdown();
         end
     end
 end
