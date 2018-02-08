@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../msbuild/ice.common.props"/>
+  <Import Project="../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>iceboxnet</AssemblyName>
@@ -9,14 +9,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../AssemblyInfoExe.cs"/>
-    <Compile Include="../../../Server.cs"/>
-    <Compile Include="../../../ServiceManagerI.cs"/>
+    <Compile Include="../../../AssemblyInfoExe.cs" />
+    <Compile Include="../../../Server.cs" />
+    <Compile Include="../../../ServiceManagerI.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../../Ice/msbuild/netstandard2.0/ice.csproj"/>
-    <ProjectReference Include="../../../../IceSSL/msbuild/netstandard2.0/icessl.csproj"/>
-    <ProjectReference Include="../../iceboxlib/netstandard2.0/iceboxlib.csproj"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.1"/>
+    <ProjectReference Include="../../../../Ice/msbuild/netstandard2.0/ice.csproj" />
+    <ProjectReference Include="../../../../IceSSL/msbuild/netstandard2.0/icessl.csproj" />
+    <ProjectReference Include="../../iceboxlib/netstandard2.0/iceboxlib.csproj" />
   </ItemGroup>
 </Project>

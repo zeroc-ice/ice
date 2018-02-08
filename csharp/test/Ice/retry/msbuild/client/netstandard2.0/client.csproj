@@ -15,7 +15,7 @@
     <Compile Include="../../../Client.cs"/>
     <Compile Include="../../../Instrumentation.cs"/>
     <Compile Include="../../../SystemFailure.cs"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.1"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.2"/>
     <SliceCompile Include="../../../Test.ice"/>
   </ItemGroup>
   <Choose>

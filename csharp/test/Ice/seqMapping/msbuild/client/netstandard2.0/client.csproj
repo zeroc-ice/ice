@@ -16,7 +16,7 @@
     <Compile Include="../../../Custom.cs"/>
     <Compile Include="../../../Twoways.cs"/>
     <Compile Include="../../../TwowaysAMI.cs"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.1"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.2"/>
     <SliceCompile Include="../../../Test.ice"/>
   </ItemGroup>
   <ItemGroup>
