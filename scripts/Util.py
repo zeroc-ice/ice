@@ -940,9 +940,6 @@ class Mapping:
         else:
             return exe
 
-    def getCommandLineWithArgs(self, current, process, exe, args):
-        return self.getCommandLine(current, process, exe) + " " + args
-
     def getProps(self, process, current):
         props = {}
         if isinstance(process, IceProcess):
@@ -1238,9 +1235,6 @@ class Process(Runnable):
 
     def getCommandLine(self, current):
         return self.getMapping(current).getCommandLine(current, self, self.getExe(current))
-
-    def getCommandLineWithArgs(self, current, args):
-        return self.getMapping(current).getCommandLineWithArgs(current, self, self.getExe(current), args)
 
 #
 # A simple client (used to run Slice/IceUtil clients for example)
@@ -1953,8 +1947,8 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
-        exe = process.getCommandLineWithArgs(current, (" " + " ".join(args) if len(args) > 0 else "").format(**kargs))
-        cmd += exe
+        exe = process.getCommandLine(current)
+        cmd += (exe + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
 
         if current.driver.debug:
             if len(envs) > 0:
@@ -2655,7 +2649,7 @@ class Driver:
     @classmethod
     def getSupportedArgs(self):
         return ("dlrR", ["debug", "driver=", "filter=", "rfilter=", "host=", "host-ipv6=", "host-bt=", "interface=",
-                         "controller-app", "valgrind", "languages="])
+                         "controller-app", "valgrind", "languages=", "rlanguages="])
 
     @classmethod
     def usage(self):
@@ -2670,6 +2664,7 @@ class Driver:
         print("--filter=<regex>      Run all the tests that match the given regex.")
         print("--rfilter=<regex>     Run all the tests that do not match the given regex.")
         print("--languages=l1,l2,... List of comma-separated language mappings to test.")
+        print("--rlanguages=l1,l2,.. List of comma-separated language mappings to not test.")
         print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
         print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
@@ -2687,6 +2682,7 @@ class Driver:
         self.controllerApp = False
         self.valgrind = False
         self.languages = []
+        self.rlanguages = []
 
         self.failures = []
         parseOptions(self, options, { "d": "debug",
@@ -2702,6 +2698,8 @@ class Driver:
         self.rfilters = [re.compile(a) for a in self.rfilters]
         if self.languages:
             self.languages = [i for sublist in [l.split(",") for l in self.languages] for i in sublist]
+        if self.rlanguages:
+            self.rlanguages = [i for sublist in [l.split(",") for l in self.rlanguages] for i in sublist]
 
         self.communicator = None
         self.interface = ""
@@ -2760,8 +2758,12 @@ class Driver:
         ### Return additional mappings to load required by the driver
         return []
 
-    def getLanguages(self):
-        return self.languages
+    def matchLanguage(self, language):
+        if self.languages and language not in self.languages:
+            return False
+        if self.rlanguages and language in self.rlanguages:
+            return False
+        return True
 
     def getCommunicator(self):
         self.initCommunicator()
@@ -3470,23 +3472,21 @@ class MatlabMapping(CppBasedClientMapping):
         mappingName = "matlab"
         mappingDesc = "MATLAB"
 
-    def getCommandLineWithArgs(self, current, process, exe, args):
-        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2} {3}\"".format(
+    def getCommandLine(self, current, process, exe):
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2}\"".format(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
-            os.path.join(current.config.buildPlatform, current.config.buildConfig),
-            args)
+            os.path.join(current.config.buildPlatform, current.config.buildConfig))
 
     def getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
 
     def getOptions(self, current):
         #
-        # Metrics tests configuration not supported with MATLAB
-        # they use the Admin adapter.
+        # Metrics tests configuration not supported with MATLAB they use the Admin adapter.
         #
         options = CppBasedClientMapping.getOptions(self, current)
-        options["mx"] = [False]
+        options["mx"] = [ False ]
         return options
 
 class JavaScriptMapping(Mapping):
@@ -3593,29 +3593,6 @@ except ImportError:
 from LocalDriver import *
 
 #
-# Check if the .NET Core SDK is installed
-#
-#
-# Check if the Android SDK is installed by looking for adb
-#
-hasDotnetSDK=False
-try:
-    run("dotnet --version")
-    hasDotnetSDK=True
-except:
-    pass
-
-#
-# Check if the Android SDK is installed by looking for adb
-#
-hasAndroidSDK=False
-try:
-    run("adb version")
-    hasAndroidSDK=True
-except:
-    pass
-
-#
 # Supported mappings
 #
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
@@ -3631,19 +3608,39 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, RubyMapping())
     elif m == "php" or re.match("php-.*", m):
         Mapping.add(m, PhpMapping())
-    elif m == "matlab" or re.match("matlab-.*", m):
-        Mapping.add(m, MatlabMapping())
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping())
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping())
 
-if isinstance(platform, Windows) or hasDotnetSDK:
+try:
+    if not isinstance(platform, Windows):
+        #
+        # Check if the .NET Core SDK is installed
+        #
+        run("dotnet --version"):
     Mapping.add("csharp", CSharpMapping())
+except:
+    pass
 
-if hasAndroidSDK:
+#
+# Check if the Android SDK is installed and eventually add the Android mappings
+#
+try:
+    run("adb version")
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
     Mapping.add(os.path.join("java", "android"), AndroidMapping())
+except:
+    pass
+
+#
+# Check if Matlab is installed and eventually add the Matlab mapping
+#
+try:
+    run("where matlab" if isinstance(platform, Windows) else "which matlab")
+    Mapping.add("matlab", MatlabMapping())
+except:
+    pass
 
 def runTestsWithPath(path):
     runTests([Mapping.getByPath(path)])
@@ -3693,8 +3690,7 @@ def runTests(mappings=None, drivers=None):
         driver = Driver.create(opts)
 
         #
-        # Create the configurations for each mapping (we always parse the configuration for the
-        # python mapping because we might use the local IcePy build to initialize a communicator).
+        # Create the configurations for each mapping.
         #
         configs = {}
         for mapping in Mapping.getAll():
@@ -3702,10 +3698,9 @@ def runTests(mappings=None, drivers=None):
                 configs[mapping] = mapping.createConfig(opts[:])
 
         #
-        # If the user specified --languages, only run matching mappings.
+        # If the user specified --languages/rlanguages, only run matching mappings.
         #
-        if driver.getLanguages():
-            mappings = [Mapping.getByName(l) for l in driver.getLanguages()]
+        mappings = [m for m in mappings if driver.matchLanguage(str(m))]
 
         #
         # Provide the configurations to the driver and load the test suites for each mapping.

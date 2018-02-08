@@ -47,6 +47,9 @@ classdef (Abstract) WrapperObject < handle
                 r = result.result;
             end
         end
+        function r = iceGetImpl(obj)
+            r = obj.impl_;
+        end
     end
     properties(Hidden,SetAccess=protected)
         impl_

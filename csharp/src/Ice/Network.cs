@@ -739,14 +739,20 @@ namespace IceInternal
             List<EndPoint> addresses = new List<EndPoint>();
             if(host.Length == 0)
             {
-                if(protocol != EnableIPv4)
+                foreach(IPAddress a in getLoopbackAddresses(protocol))
                 {
-                    addresses.Add(new IPEndPoint(IPAddress.IPv6Loopback, port));
+                    addresses.Add(new IPEndPoint(a, port));
                 }
-
-                if(protocol != EnableIPv6)
+                if(protocol == EnableBoth)
                 {
-                    addresses.Add(new IPEndPoint(IPAddress.Loopback, port));
+                    if(preferIPv6)
+                    {
+                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                    }
+                    else
+                    {
+                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                    }
                 }
                 return addresses;
             }
@@ -973,10 +979,17 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(host, out ipv4Wildcard))
             {
-                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback);
-                foreach(IPAddress a in addrs)
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback))
                 {
                     if(!isLinklocal(a))
+                    {
+                        hosts.Add(a.ToString());
+                    }
+                }
+                if(hosts.Count == 0)
+                {
+                    // Return loopback if only loopback is available no other local addresses are available.
+                    foreach(IPAddress a in getLoopbackAddresses(protocol))
                     {
                         hosts.Add(a.ToString());
                     }
@@ -991,8 +1004,7 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(intf, out ipv4Wildcard))
             {
-                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true);
-                foreach(IPAddress a in addrs)
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
                 {
                     interfaces.Add(a.ToString());
                 }
@@ -1243,6 +1255,20 @@ namespace IceInternal
             }
 
             return false;
+        }
+
+        public static List<IPAddress> getLoopbackAddresses(int protocol)
+        {
+            List<IPAddress> addresses = new List<IPAddress>();
+            if(protocol != EnableIPv4)
+            {
+                addresses.Add(IPAddress.IPv6Loopback);
+            }
+            if(protocol != EnableIPv6)
+            {
+                addresses.Add(IPAddress.Loopback);
+            }
+            return addresses;
         }
 
         public static bool

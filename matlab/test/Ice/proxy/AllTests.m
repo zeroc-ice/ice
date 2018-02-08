@@ -530,10 +530,18 @@ classdef AllTests
             %assert(compObj.ice_compress(false) < compObj.ice_compress(true));
             %assert(~(compObj.ice_compress(true) < compObj.ice_compress(false)));
 
+            assert(compObj.ice_getCompress() == Ice.Unset);
+            assert(compObj.ice_compress(true).ice_getCompress() == true);
+            assert(compObj.ice_compress(false).ice_getCompress() == false);
+
             assert(compObj.ice_timeout(20) == compObj.ice_timeout(20));
             assert(compObj.ice_timeout(10) ~= compObj.ice_timeout(20));
             %assert(compObj.ice_timeout(10) < compObj.ice_timeout(20));
             %assert(~(compObj.ice_timeout(20) < compObj.ice_timeout(10)));
+
+            assert(compObj.ice_getTimeout() == Ice.Unset);
+            assert(compObj.ice_timeout(10).ice_getTimeout() == 10);
+            assert(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
             loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc1:default -p 10000'));
             loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy('loc2:default -p 10000'));
@@ -622,9 +630,13 @@ classdef AllTests
             %assert(~(compObj.ice_encodingVersion(Ice.EncodingVersion(1, 1)) < ...
             %         compObj.ice_encodingVersion(Ice.EncodingVersion(1, 0))));
 
-            %
-            % TODO: Ideally we should also test comparison of fixed proxies.
-            %
+            baseConnection = base.ice_getConnection();
+            if ~isempty(baseConnection)
+                baseConnection2 = base.ice_connectionId('base2').ice_getConnection();
+                compObj1 = compObj1.ice_fixed(baseConnection);
+                compObj2 = compObj2.ice_fixed(baseConnection2);
+                assert(compObj1 ~= compObj2);
+            end
 
             fprintf('ok\n');
 
@@ -664,6 +676,51 @@ classdef AllTests
             tccp = MyClassPrx.checkedCast(base, c);
             c2 = tccp.getContext();
             assert(isequal(c, c2));
+            fprintf('ok\n');
+
+            fprintf('testing ice_fixed... ');
+            connection = cl.ice_getConnection();
+            if ~isempty(connection)
+                prx = cl.ice_fixed(connection); % Test factory method return type
+                prx.ice_ping();
+                assert(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                assert(strcmp(cl.ice_facet('facet').ice_fixed(connection).ice_getFacet(), 'facet'));
+                assert(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
+                ctx('one') = 'hello';
+                ctx('two') = 'world';
+                assert(isempty(cl.ice_fixed(connection).ice_getContext()));
+                assert(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().length() == 2);
+                assert(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                assert(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                assert(cl.ice_fixed(connection).ice_getConnection() == connection);
+                assert(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                assert(cl.ice_compress(true).ice_fixed(connection).ice_getCompress() == true);
+                assert(cl.ice_fixed(connection).ice_getTimeout() == Ice.Unset);
+                fixedConnection = cl.ice_connectionId('ice_fixed').ice_getConnection();
+                assert(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                    cl.ice_secure(~connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                catch ex
+                    if ~isa(ex, 'Ice.NoEndpointException')
+                        rethrow(ex);
+                    end
+                end
+                try
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                catch ex
+                    if ~isa(ex, 'Ice.NoEndpointException')
+                        rethrow(ex);
+                    end
+                end
+            else
+                try
+                    cl.ice_fixed(connection);
+                    assert(false);
+                catch ex
+                    % Expected with null connection.
+                end
+            end
             fprintf('ok\n');
 
             fprintf('testing encoding versioning... ');

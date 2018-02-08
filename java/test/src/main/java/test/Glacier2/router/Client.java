@@ -186,6 +186,20 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        {
+            out.print("pinging object with client endpoint... ");
+            out.flush();
+            com.zeroc.Ice.ObjectPrx baseC = communicator().stringToProxy("collocated:" + getTestEndpoint(50));
+            try
+            {
+                baseC.ice_ping();
+            }
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
+            {
+            }
+            out.println("ok");
+        }
+
         CallbackPrx twoway;
 
         {

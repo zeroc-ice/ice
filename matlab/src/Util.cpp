@@ -535,6 +535,21 @@ IceMatlab::createResultException(mxArray* ex)
     return r;
 }
 
+static const char* optionalFields[] = {"hasValue", "value"};
+
+mxArray*
+IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
+{
+    mwSize dims[2] = {1, 1};
+    auto r = mxCreateStructArray(2, dims, 2, optionalFields);
+    mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
+    if(hasValue)
+    {
+        mxSetFieldByNumber(r, 0, 1, value);
+    }
+    return r;
+}
+
 mxArray*
 IceMatlab::createStringList(const vector<string>& v)
 {
