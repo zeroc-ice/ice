@@ -110,7 +110,9 @@
             DependsOnTargets="BuildNet45Dist;GetNuget"
             Condition="'$(OS)' == 'Windows_NT'">
 
-        <Exec Command="$(NuGetExe) restore @(Net45TestSolution)" />
+        <!-- The builder package should be already restored by dist build and we do not want to restore
+             the zeroc.ice.net packages if we are not building with the binary dist -->
+        <Exec Command="$(NuGetExe) restore @(Net45TestSolution)" Condition="'$(ICE_BIN_DIST)' == 'all'" />
         <MSBuild Projects="@(Net45TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
