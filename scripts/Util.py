@@ -929,19 +929,22 @@ class Mapping:
     def getBuildDir(self, name, current):
         return platform.getBuildSubDir(name, current)
 
-    def getCommandLine(self, current, process, exe):
-        name = exe
-        if isinstance(platform, Windows) and not exe.endswith(".exe"):
-            exe += ".exe"
+    def getCommandLine(self, current, process, exe, args):
+        cmd = ""
         if process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
             # so we check with the platform.
-            return os.path.join(self.getBinDir(process, current), exe)
+            cmd = os.path.join(self.getBinDir(process, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
-            return os.path.join(current.testcase.getPath(), current.getBuildDir(name), exe)
+            cmd = os.path.join(current.testcase.getPath(), current.getBuildDir(exe), exe)
         else:
-            return exe
+            cmd = exe
+
+        if isinstance(platform, Windows) and not exe.endswith(".exe"):
+            cmd += ".exe"
+
+        return cmd + " " + args
 
     def getProps(self, process, current):
         props = {}
@@ -1236,8 +1239,8 @@ class Process(Runnable):
         processType = self.processType or current.testcase.getProcessType(self)
         return self.exe or self.getMapping(current).getDefaultExe(processType, current.config)
 
-    def getCommandLine(self, current):
-        return self.getMapping(current).getCommandLine(current, self, self.getExe(current))
+    def getCommandLine(self, current, args):
+        return self.getMapping(current).getCommandLine(current, self, self.getExe(current), args)
 
 #
 # A simple client (used to run Slice/IceUtil clients for example)
@@ -1311,8 +1314,8 @@ class SliceTranslator(ProcessFromBinDir, SimpleClient):
     def __init__(self, translator):
         SimpleClient.__init__(self, exe=translator, quiet=True, mapping=Mapping.getByName("cpp"))
 
-    def getCommandLine(self, current):
-        translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current))
+    def getCommandLine(self, current, args):
+        translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), args)
 
         #
         # Look for slice2py installed by Pip if not found in the bin directory
@@ -1339,10 +1342,10 @@ class EchoServer(Server):
         props["Ice.MessageSizeMax"] = 8192 # Don't limit the amount of data to transmit between client/server
         return props
 
-    def getCommandLine(self, current):
+    def getCommandLine(self, current, args):
         current.push(self.mapping.findTestSuite("Ice/echo").findTestCase("server"))
         try:
-            return Server.getCommandLine(self, current)
+            return Server.getCommandLine(self, current, args)
         finally:
             current.pop()
 
@@ -1950,8 +1953,8 @@ class LocalProcessController(ProcessController):
         if current.driver.valgrind:
             cmd += "valgrind -q --child-silent-after-fork=yes --leak-check=full --suppressions=\"{0}\" ".format(
                                                                 os.path.join(toplevel, "config", "valgrind.sup"))
-        exe = process.getCommandLine(current)
-        cmd += (exe + (" " + " ".join(args) if len(args) > 0 else "")).format(**kargs)
+        exe = process.getCommandLine(current, " ".join(args))
+        cmd += exe.format(**kargs)
 
         if current.driver.debug:
             if len(envs) > 0:
@@ -2973,19 +2976,19 @@ class CppMapping(Mapping):
 
 class JavaMapping(Mapping):
 
-    def getCommandLine(self, current, process, exe):
+    def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
         java = os.path.join(javaHome, "bin", "java") if javaHome else "java"
         if process.isFromBinDir():
-            return "{0} {1}".format(java, exe)
+            return "{0} {1} {2}".format(java, exe, args)
 
         assert(current.testcase.getPath().startswith(self.getTestsPath()))
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
         if javaArgs:
-            return "{0} {1} {2}.{3}".format(java, " ".join(javaArgs), package, exe)
+            return "{0} {1} {2}.{3} {4}".format(java, " ".join(javaArgs), package, exe, args)
         else:
-            return "{0} {1}.{2}".format(java, package, exe)
+            return "{0} {1}.{2} {3}".format(java, package, exe, args)
 
     def getJavaArgs(self, process, current):
         return []
@@ -3274,29 +3277,29 @@ class CSharpMapping(Mapping):
     def getNugetPackage(self, compiler, version):
         return "zeroc.ice.net.{0}".format(version)
 
-    def getCommandLine(self, current, process, exe):
+    def getCommandLine(self, current, process, exe, args):
+        cmd = ""
         if current.config.netframework:
+            cmd = "dotnet "
             if exe  == "icebox":
                 if current.driver.useIceBinDist(self):
-                    return "dotnet {0}".format(os.path.join(
-                        platform.getIceInstallDir(self, current), "tools", "netcoreapp2.0", "iceboxnet.dll"))
+                    cmd += os.path.join(platform.getIceInstallDir(self, current), "tools", "netcoreapp2.0", "iceboxnet.dll")
                 else:
-                    return "dotnet {0}".format(os.path.join(self.path, "bin", "netcoreapp2.0", "iceboxnet.dll"))
+                    cmd += os.path.join(self.path, "bin", "netcoreapp2.0", "iceboxnet.dll")
             else:
                 if current.config.netframework == "netcoreapp2.0":
-                    return "dotnet {0}".format(os.path.join(
-                        current.testcase.getPath(), self.getBuildDir(exe, current), "{0}.dll".format(exe)))
+                    cmd += os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}.dll".format(exe))
                 else:
-                    return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}".format(exe))
+                    cmd += os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}".format(exe))
         else:
             if exe == "icebox":
                 if current.driver.useIceBinDist(self):
-                    return os.path.join(
-                        platform.getIceInstallDir(self, current), "tools", "net45", "iceboxnet.exe")
+                    cmd = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45", "iceboxnet.exe")
                 else:
-                    return os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
+                    cmd = os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
             else:
-                return os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
+                cmd = os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
+        return cmd + " " + args
 
 class CppBasedMapping(Mapping):
 
@@ -3368,8 +3371,8 @@ class PythonMapping(CppBasedMapping):
         mappingName = "python"
         mappingDesc = "Python"
 
-    def getCommandLine(self, current, process, exe):
-        return "\"{0}\" {1}".format(sys.executable, exe)
+    def getCommandLine(self, current, process, exe, args):
+        return "\"{0}\" {1} {2}".format(sys.executable, exe, args)
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
@@ -3416,8 +3419,8 @@ class RubyMapping(CppBasedClientMapping):
         mappingName = "ruby"
         mappingDesc = "Ruby"
 
-    def getCommandLine(self, current, process, exe):
-        return "ruby " + exe
+    def getCommandLine(self, current, process, exe, args):
+        return "ruby " + exe + " " + args
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
@@ -3443,8 +3446,8 @@ class PhpMapping(CppBasedClientMapping):
                 env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
         return env
 
-    def getCommandLine(self, current, process, exe):
-        args = []
+    def getCommandLine(self, current, process, exe, args):
+        phpArgs = []
         #
         # If Ice is not installed in the system directory, specify its location with PHP
         # configuration arguments.
@@ -3464,13 +3467,13 @@ class PhpMapping(CppBasedClientMapping):
                 extensionDir = self.getLibDir(process, current)
                 includePath = "{0}/{1}".format(current.driver.getIceDir(self, current), "php" if useBinDist else "lib")
 
-            args += ["-n"] # Do not load any php.ini files
-            args += ["-d", "extension_dir='{0}'".format(extensionDir)]
-            args += ["-d", "extension='{0}'".format(extension)]
-            args += ["-d", "include_path='{0}'".format(includePath)]
+            phpArgs += ["-n"] # Do not load any php.ini files
+            phpArgs += ["-d", "extension_dir='{0}'".format(extensionDir)]
+            phpArgs += ["-d", "extension='{0}'".format(extension)]
+            phpArgs += ["-d", "include_path='{0}'".format(includePath)]
         if hasattr(process, "getPhpArgs"):
-            args += process.getPhpArgs(current)
-        return "php {0} -f {1} -- ".format(" ".join(args), exe)
+            phpArgs += process.getPhpArgs(current)
+        return "php {0} -f {1} -- {2}".format(" ".join(phpArgs), exe, args)
 
     def getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]
@@ -3481,11 +3484,12 @@ class MatlabMapping(CppBasedClientMapping):
         mappingName = "matlab"
         mappingDesc = "MATLAB"
 
-    def getCommandLine(self, current, process, exe):
-        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2}\"".format(
+    def getCommandLine(self, current, process, exe, args):
+        return "matlab -nodesktop -nosplash -wait -log -minimize -r \"cd '{0}', runTest {1} {2} {3}\"".format(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
-            os.path.join(current.config.buildPlatform, current.config.buildConfig))
+            os.path.join(current.config.buildPlatform, current.config.buildConfig),
+            args)
 
     def getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
@@ -3540,11 +3544,11 @@ class JavaScriptMapping(Mapping):
             return [EchoServer(), Server()]
         return Mapping.getDefaultProcesses(self, processType, testsuite)
 
-    def getCommandLine(self, current, process, exe):
+    def getCommandLine(self, current, process, exe, args):
         if current.config.es5:
-            return "node {0}/test/Common/run.js --es5 {1}".format(self.path, exe)
+            return "node {0}/test/Common/run.js --es5 {1} {2}".format(self.path, exe, args)
         else:
-            return "node {0}/test/Common/run.js {1}".format(self.path, exe)
+            return "node {0}/test/Common/run.js {1} {2}".format(self.path, exe, args)
 
     def getDefaultSource(self, processType):
         return { "client" : "Client.js", "serveramd" : "ServerAMD.js", "server" : "Server.js" }[processType]
