@@ -3186,13 +3186,19 @@ class CSharpMapping(Mapping):
 
             if self.netframework:
                 #
-                # The following tests require multicast, on Unix platforms is currently
-                # only supported with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
+                # The following tests require multicast, on Unix platforms it's currently only supported
+                # with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
                 #
                 if not isinstance(platform, Windows) and self.ipv6 and testId in ["Ice/udp",
                                                                                   "IceDiscovery/simple",
                                                                                   "IceGrid/simple"]:
                     return False
+
+                if isinstance(platform, Darwin) and (self.protocol in ["ssl", "wss"] or
+                                                     "IceSSL" in testId or
+                                                     "IceDiscovery" in testId):
+                    return False
+
             return True
 
     def getBuildDir(self, name, current):
