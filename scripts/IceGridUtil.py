@@ -228,7 +228,6 @@ class IceGridTestCase(TestCase):
             variables = {
                 "test.dir" : self.getPath(),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
-                "dotnet.exe" : platform.getDotnetExe(),
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
                 "glacier2router.exe" : Glacier2Router().getCommandLine(current),
@@ -236,6 +235,9 @@ class IceGridTestCase(TestCase):
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
                 "properties-override" : self.icegridnode[0].getPropertiesOverride(current),
             }
+
+            if platform.getDotnetExe():
+                variables["dotnet.exe"] = platform.getDotnetExe()
 
             # Add variables that point to the directories containing the built executables
             for (k, v) in self.exevars.items():

@@ -414,7 +414,10 @@ class Windows(Platform):
         return Platform.canRun(self, mapping, current)
 
     def getDotnetExe(self):
-        return run("where dotnet").strip()
+        try:
+            return run("where dotnet").strip()
+        except:
+            return None
 
 platform = None
 if sys.platform == "darwin":
