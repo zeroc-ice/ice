@@ -1089,7 +1089,7 @@ allTests(const Ice::CommunicatorPtr& comm)
                 admin->startServer("Server2");
                 test(false);
             }
-            catch(const ServerStartException& ex)
+            catch(const ServerStartException&)
             {
                 // Server should fail to start because it can't regsiter dynamically an OA
                 // with a deployed replica group.
@@ -1122,7 +1122,7 @@ allTests(const Ice::CommunicatorPtr& comm)
                 admin->addApplication(app.descriptor);
                 test(false);
             }
-            catch(const DeploymentException& ex)
+            catch(const DeploymentException&)
             {
                 // Expected, can't register a replica group if it has been registered
                 // with dynamic registration.
