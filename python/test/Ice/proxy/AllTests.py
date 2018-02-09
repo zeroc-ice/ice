@@ -857,4 +857,17 @@ def allTests(communicator, collocated):
 
     print("ok")
 
+    sys.stdout.write("testing communicator shutdown/destroy... ");
+    sys.stdout.flush()
+    c = Ice.initialize();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    print("ok");
+
     return cl

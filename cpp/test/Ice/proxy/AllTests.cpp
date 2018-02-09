@@ -1493,5 +1493,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing communicator shutdown/destroy... " << flush;
+    {
+        Ice::CommunicatorPtr c = Ice::initialize();
+        c->shutdown();
+        test(c->isShutdown());
+        c->waitForShutdown();
+        c->destroy();
+        c->shutdown();
+        test(c->isShutdown());
+        c->waitForShutdown();
+        c->destroy();
+    }
+    cout << "ok" << endl;
+
     return cl;
 }

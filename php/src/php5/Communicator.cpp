@@ -265,6 +265,52 @@ ZEND_METHOD(Ice_Communicator, __construct)
     runtimeError("communicators cannot be instantiated directly" TSRMLS_CC);
 }
 
+ZEND_METHOD(Ice_Communicator, shutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->shutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, isShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        RETURN_BOOL(_this->getCommunicator()->isShutdown() ? 1 : 0);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, waitForShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->waitForShutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
 ZEND_METHOD(Ice_Communicator, destroy)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
@@ -1456,6 +1502,9 @@ static zend_function_entry _interfaceMethods[] =
 static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Communicator, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Communicator, shutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, isShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, waitForShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, destroy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, stringToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, proxyToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)

@@ -864,6 +864,18 @@ function allTests($communicator)
     }
     echo "ok\n";
 
+    echo "testing communicator shutdown/destroy... ";
+    $c = $NS ? eval("return Ice\\initialize();") : eval("return Ice_initialize();");
+    $c->shutdown();
+    test($c->isShutdown());
+    $c->waitForShutdown();
+    $c->destroy();
+    $c->shutdown();
+    test($c->isShutdown());
+    $c->waitForShutdown();
+    $c->destroy();
+    echo "ok\n";
+
     return $cl;
 }
 

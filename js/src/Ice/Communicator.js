@@ -12,7 +12,8 @@ Ice._ModuleRegistry.require(module,
     [
         "../Ice/Instance",
         "../Ice/UUID",
-        "../Ice/AsyncResultBase"
+        "../Ice/AsyncResultBase",
+        "../Ice/LocalException"
     ]);
 
 const Instance = Ice.Instance;
@@ -43,17 +44,48 @@ class Communicator
 
     shutdown()
     {
-        this._instance.objectAdapterFactory().shutdown();
+        try
+        {
+            this._instance.objectAdapterFactory().shutdown();
+        }
+        catch(ex)
+        {
+            if(!(ex instanceof Ice.CommunicatorDestroyedException))
+            {
+                throw ex;
+            }
+        }
     }
 
     waitForShutdown()
     {
-        return this._instance.objectAdapterFactory().waitForShutdown();
+        try
+        {
+            return this._instance.objectAdapterFactory().waitForShutdown();
+        }
+        catch(ex)
+        {
+            if(!(ex instanceof Ice.CommunicatorDestroyedException))
+            {
+                throw ex;
+            }
+        }
     }
 
     isShutdown()
     {
-        return this._instance.objectAdapterFactory().isShutdown();
+        try
+        {
+            return this._instance.objectAdapterFactory().isShutdown();
+        }
+        catch(ex)
+        {
+            if(!(ex instanceof Ice.CommunicatorDestroyedException))
+            {
+                throw ex;
+            }
+            return true;
+        }
     }
 
     stringToProxy(s)

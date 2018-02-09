@@ -1146,6 +1146,21 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing communicator shutdown/destroy... ");
+        out.flush();
+        {
+            Ice.Communicator com = Ice.Util.initialize();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+        }
+        out.println("ok");
+
         return cl;
     }
 }

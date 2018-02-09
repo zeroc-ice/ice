@@ -203,19 +203,40 @@ Ice::CommunicatorI::destroy() ICE_NOEXCEPT
 void
 Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
 {
-    _instance->objectAdapterFactory()->shutdown();
+    try
+    {
+        _instance->objectAdapterFactory()->shutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 }
 
 void
 Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
 {
-    _instance->objectAdapterFactory()->waitForShutdown();
+    try
+    {
+        _instance->objectAdapterFactory()->waitForShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 }
 
 bool
 Ice::CommunicatorI::isShutdown() const ICE_NOEXCEPT
 {
-    return _instance->objectAdapterFactory()->isShutdown();
+    try
+    {
+        return _instance->objectAdapterFactory()->isShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        return true;
+    }
 }
 
 ObjectPrxPtr

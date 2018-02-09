@@ -1135,6 +1135,20 @@
 
             out.writeLine("ok");
 
+            out.write("testing communicator shutdown/destroy... ");
+            {
+                const c = Ice.initialize();
+                c.shutdown();
+                test(c.isShutdown());
+                await c.waitForShutdown();
+                await c.destroy();
+                c.shutdown();
+                test(c.isShutdown());
+                await c.waitForShutdown();
+                await c.destroy();
+            }
+            out.writeLine("ok");
+
             derived = Test.MyDerivedClassPrx.uncheckedCast(communicator.stringToProxy("test:default -p 12010"));
             await derived.shutdown();
         }

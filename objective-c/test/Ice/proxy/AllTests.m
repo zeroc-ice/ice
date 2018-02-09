@@ -1041,5 +1041,19 @@ proxyAllTests(id<ICECommunicator> communicator)
 
     tprintf("ok\n");
 
+    tprintf("testing communicator shutdown/destroy... ");
+    {
+        id<ICECommunicator> c = [ICEUtil createCommunicator];
+        [c shutdown];
+        test([c isShutdown]);
+        [c waitForShutdown];
+        [c destroy];
+        [c shutdown];
+        test([c isShutdown]);
+        [c waitForShutdown];
+        [c destroy];
+    }
+    tprintf("ok\n");
+
     return cl;
 }

@@ -421,6 +421,19 @@ IceRuby_Communicator_isShutdown(VALUE self)
 
 extern "C"
 VALUE
+IceRuby_Communicator_waitForShutdown(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::CommunicatorPtr p = getCommunicator(self);
+        p->waitForShutdown();
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
 {
     ICE_RUBY_TRY
@@ -740,6 +753,7 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "destroy", CAST_METHOD(IceRuby_Communicator_destroy), 0);
     rb_define_method(_communicatorClass, "shutdown", CAST_METHOD(IceRuby_Communicator_shutdown), 0);
     rb_define_method(_communicatorClass, "isShutdown", CAST_METHOD(IceRuby_Communicator_isShutdown), 0);
+    rb_define_method(_communicatorClass, "waitForShutdown", CAST_METHOD(IceRuby_Communicator_waitForShutdown), 0);
     rb_define_method(_communicatorClass, "stringToProxy", CAST_METHOD(IceRuby_Communicator_stringToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToString", CAST_METHOD(IceRuby_Communicator_proxyToString), 1);
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);

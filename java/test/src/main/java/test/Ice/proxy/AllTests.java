@@ -1150,6 +1150,21 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing communicator shutdown/destroy... ");
+        out.flush();
+        {
+            com.zeroc.Ice.Communicator co = com.zeroc.Ice.Util.initialize();
+            co.shutdown();
+            test(co.isShutdown());
+            co.waitForShutdown();
+            co.destroy();
+            co.shutdown();
+            test(co.isShutdown());
+            co.waitForShutdown();
+            co.destroy();
+        }
+        out.println("ok");
+
         return cl;
     }
 }

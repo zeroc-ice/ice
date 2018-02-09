@@ -859,5 +859,18 @@ def allTests(communicator)
     end
     puts "ok"
 
+    print "testing communicator shutdown/destroy... "
+    STDOUT.flush
+    c = Ice::initialize();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    puts "ok";
+
     return cl
 end

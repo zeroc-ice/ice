@@ -1118,6 +1118,22 @@ public class AllTests : TestCommon.AllTests
         }
 
         WriteLine("ok");
+
+        Write("testing communicator shutdown/destroy... ");
+        Flush();
+        {
+            Ice.Communicator com = Ice.Util.initialize();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+        }
+        WriteLine("ok");
+
         return cl;
     }
 }
