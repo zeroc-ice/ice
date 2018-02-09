@@ -260,7 +260,7 @@ namespace IceInternal
 
                     // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
                     if(_state == StateConnected ||
-                       AssemblyUtil.isMacOS && _fd.AddressFamility == AddressFamily.InterNetworkV6 && _fd.DualMode)
+                       AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                     {
                         ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                     }
@@ -348,7 +348,7 @@ namespace IceInternal
             {
                 // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
                 if(_state == StateConnected ||
-                   AssemblyUtil.isMacOS && _fd.AddressFamility == AddressFamily.InterNetworkV6 && _fd.DualMode)
+                   AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                 {
                     _readCallback = callback;
                     _readEventArgs.UserToken = state;
@@ -402,7 +402,7 @@ namespace IceInternal
                 ret = _readEventArgs.BytesTransferred;
                 // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
                 if(_state != StateConnected &&
-                   !(AssemblyUtil.isMacOS && _fd.AddressFamility == AddressFamily.InterNetworkV6 && _fd.DualMode))
+                   !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }
