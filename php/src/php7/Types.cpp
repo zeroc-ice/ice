@@ -307,6 +307,9 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
 
     zval slices;
     array_init(&slices);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(slices)); // Allow circular references.
+#endif
     AutoDestroy slicesDestroyer(&slices);
 
     if(add_property_zval(&sd, STRCAST("slices"), &slices) != SUCCESS)
@@ -372,6 +375,9 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         //
         zval instances;
         array_init(&instances);
+#ifdef HT_ALLOW_COW_VIOLATION
+        HT_ALLOW_COW_VIOLATION(Z_ARRVAL(instances)); // Allow circular references.
+#endif
         AutoDestroy instancesDestroyer(&instances);
         if(add_property_zval(&slice, STRCAST("instances"), &instances) != SUCCESS)
         {
@@ -1594,6 +1600,9 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
 
     zval zv;
     array_init(&zv);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv)); // Allow circular references.
+#endif
     AutoDestroy destroy(&zv);
 
     Ice::Int sz = is->readSize();
@@ -1670,7 +1679,6 @@ IcePHP::SequenceInfo::unmarshaled(zval* zv, zval* target, void* closure)
     {
         Z_ADDREF_P(zv);
     }
-
 }
 
 void
@@ -2235,6 +2243,9 @@ IcePHP::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
 
     zval zv;
     array_init(&zv);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv)); // Allow circular references.
+#endif
     AutoDestroy destroy(&zv);
 
     Ice::Int sz = is->readSize();

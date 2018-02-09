@@ -468,7 +468,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing marshaled results...";
+    echo "testing marshaled results... ";
     flush();
     $b1 = $initial->getMB();
     test($b1 != null && $b1->theB == $b1);
