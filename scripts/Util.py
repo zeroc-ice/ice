@@ -1239,8 +1239,8 @@ class Process(Runnable):
         processType = self.processType or current.testcase.getProcessType(self)
         return self.exe or self.getMapping(current).getDefaultExe(processType, current.config)
 
-    def getCommandLine(self, current, args):
-        return self.getMapping(current).getCommandLine(current, self, self.getExe(current), args)
+    def getCommandLine(self, current, args=""):
+        return self.getMapping(current).getCommandLine(current, self, self.getExe(current), args).strip()
 
 #
 # A simple client (used to run Slice/IceUtil clients for example)
@@ -1314,8 +1314,8 @@ class SliceTranslator(ProcessFromBinDir, SimpleClient):
     def __init__(self, translator):
         SimpleClient.__init__(self, exe=translator, quiet=True, mapping=Mapping.getByName("cpp"))
 
-    def getCommandLine(self, current, args):
-        translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), args)
+    def getCommandLine(self, current, args=""):
+        translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), args).strip()
 
         #
         # Look for slice2py installed by Pip if not found in the bin directory
@@ -1342,7 +1342,7 @@ class EchoServer(Server):
         props["Ice.MessageSizeMax"] = 8192 # Don't limit the amount of data to transmit between client/server
         return props
 
-    def getCommandLine(self, current, args):
+    def getCommandLine(self, current, args=""):
         current.push(self.mapping.findTestSuite("Ice/echo").findTestCase("server"))
         try:
             return Server.getCommandLine(self, current, args)
