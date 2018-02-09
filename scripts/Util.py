@@ -944,7 +944,7 @@ class Mapping:
         if isinstance(platform, Windows) and not exe.endswith(".exe"):
             cmd += ".exe"
 
-        return cmd + " " + args
+        return cmd + " " + args if args else cmd
 
     def getProps(self, process, current):
         props = {}
@@ -1315,13 +1315,14 @@ class SliceTranslator(ProcessFromBinDir, SimpleClient):
         SimpleClient.__init__(self, exe=translator, quiet=True, mapping=Mapping.getByName("cpp"))
 
     def getCommandLine(self, current, args=""):
-        translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), args).strip()
-
         #
         # Look for slice2py installed by Pip if not found in the bin directory
         #
-        if self.exe == "slice2py" and not os.path.exists(translator):
-            if isinstance(platform, Windows):
+        if self.exe == "slice2py":
+            translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), "")
+            if os.path.exists(translator):
+                return translator + " " + args if args else translator
+            elif isinstance(platform, Windows):
                 return os.path.join(os.path.dirname(sys.executable), "Scripts", "slice2py.exe")
             elif os.path.exists("/usr/local/bin/slice2py"):
                 return "/usr/local/bin/slice2py"
@@ -1329,8 +1330,8 @@ class SliceTranslator(ProcessFromBinDir, SimpleClient):
                 import slice2py
                 return sys.executable + " " + os.path.normpath(
                             os.path.join(slice2py.__file__, "..", "..", "..", "..", "bin", "slice2py"))
-
-        return translator
+        else:
+            return Process.getCommandLine(self, current, args)
 
 class EchoServer(Server):
 
