@@ -48,6 +48,10 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   facility. Registration was previously allowed but the dynamically registered
   adapter members of the replica group were never used.
 
+- IceBridge can now be configured as a router in a client's object adapter,
+  which means the Ice run time in the client will automatically set up a
+  bidirectional connection.
+
 ## C++ Changes
 
 - Slice documentation comments are now preserved in the generated C++
