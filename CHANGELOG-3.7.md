@@ -43,6 +43,11 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.
 
+- Fixed IceGrid registry to no longer allow dynamic registration of a replica
+  group if this replica group is already registered with the deployment
+  facility. Registration was previously allowed but the dynamically registered
+  adapter members of the replica group were never used.
+
 ## C++ Changes
 
 - Slice documentation comments are now preserved in the generated C++

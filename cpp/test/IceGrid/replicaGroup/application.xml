@@ -70,6 +70,7 @@
       <parameter name="encoding" default=""/>
       <server id="${id}" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <property name="Identity" value="${replicaGroup}"/>
+        <property name="Ice.StdErr" value="${server.data}/${id}.log"/>
         <property name="Ice.Admin.DelayCreation" value="1"/>
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
         <property name="ReplicatedAdapter.Endpoints" value="default"/>
