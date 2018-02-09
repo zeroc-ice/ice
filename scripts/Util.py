@@ -744,9 +744,8 @@ class Mapping:
         self.mappings[name] = mapping.init(name)
 
     @classmethod
-    def getAll(self):
-        languages = os.environ.get("LANGUAGES", None)
-        return [self.getByName(l) for l in languages.split(" ")] if languages else list(self.mappings.values())
+    def getAll(self, driver=None):
+        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))]
 
     def __init__(self, path=None):
         self.platform = None
@@ -2688,7 +2687,8 @@ class Driver:
         self.hostBT = ""
         self.controllerApp = False
         self.valgrind = False
-        self.languages = []
+        self.languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
+        self.languages = [self.languages] if self.languages else []
         self.rlanguages = []
 
         self.failures = []

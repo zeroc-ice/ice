@@ -34,9 +34,6 @@
 -(void) cppException:(ICECurrent*)current
 {
 }
--(void) csException:(ICECurrent*)current
-{
-}
 -(void) unknownExceptionWithServantException:(ICECurrent*)current
 {
 }
