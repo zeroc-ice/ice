@@ -26,8 +26,8 @@
     <Capability Name="internetClientServer" />
     <Capability Name="internetClient" />
     <Capability Name="privateNetworkClientServer" />
-	<rescap:Capability Name="extendedBackgroundTaskTime" />
-	<rescap:Capability Name="extendedExecutionUnconstrained" />
+  <rescap:Capability Name="extendedBackgroundTaskTime" />
+  <rescap:Capability Name="extendedExecutionUnconstrained" />
   </Capabilities>
   <Extensions>
     <Extension Category="windows.certificates">
