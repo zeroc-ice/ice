@@ -57,7 +57,7 @@
   <!-- Generate iceboxnet.exe.config with the correct assembly pulbic key token and
        assembly paths -->
   <Target Name="PostBuild" AfterTargets="Build">
-    <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\..\..\..\..\Assemblies\Ice.dll" Condition="'$(KEYFILE)' != ''">
+    <GetPublicKeyToken AssemblyFile="$(MSBuildThisFileDirectory)..\..\..\..\..\lib\net45\Ice.dll" Condition="'$(KEYFILE)' != ''">
       <Output TaskParameter="PublicKeyToken" PropertyName="PublicKeyToken"/>
     </GetPublicKeyToken>
     <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\..\..\..\..\msbuild\iceboxnet.exe.config.release" OutputFile="$(MSBuildThisFileDirectory)..\..\..\..\..\bin\net45\iceboxnet.exe.config" Tokens="@PublicKeyToken@;@AssemblyDir@" Replacements="$(PublicKeyToken);..\..\..\lib\net45" Condition="'$(KEYFILE)' != ''"/>
