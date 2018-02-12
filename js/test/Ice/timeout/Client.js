@@ -196,7 +196,7 @@
         out.writeLine("ok");
 
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         out.write("testing timeout overrides... ");
         {
@@ -254,7 +254,7 @@
         }
 
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         {
             //
@@ -325,8 +325,9 @@
             await timeout.op();
             await comm.destroy();
         }
+
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         {
             //
