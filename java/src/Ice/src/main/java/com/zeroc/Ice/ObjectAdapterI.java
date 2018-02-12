@@ -889,6 +889,13 @@ public final class ObjectAdapterI implements ObjectAdapter
         return _acm;
     }
 
+    public synchronized void
+    setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        checkForDeactivation();
+        connection.setAdapterAndServantManager(this, _servantManager);
+    }
+
     public int
     messageSizeMax()
     {

@@ -221,10 +221,12 @@ public:
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
 
-    virtual void setAdapter(const ObjectAdapterPtr&) ICE_NOEXCEPT; // From Connection.
+    virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const ICE_NOEXCEPT; // From Connection.
     virtual EndpointPtr getEndpoint() const ICE_NOEXCEPT; // From Connection.
     virtual ObjectPrxPtr createProxy(const Identity& ident) const; // From Connection.
+
+    void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
 
     //
     // Operations from EventHandler

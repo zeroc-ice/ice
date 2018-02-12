@@ -835,6 +835,15 @@ namespace Ice
             return _acm;
         }
 
+        public void setAdapterOnConnection(Ice.ConnectionI connection)
+        {
+            lock(this)
+            {
+                checkForDeactivation();
+                connection.setAdapterAndServantManager(this, _servantManager);
+            }
+        }
+
         public int messageSizeMax()
         {
             // No mutex lock, immutable.

@@ -252,13 +252,14 @@ local interface Connection
      * @param adapter The object adapter that should be used by this
      * connection to dispatch requests. The object adapter must be
      * activated. When the object adapter is deactivated, it is
-     * automatically removed from the connection.
+     * automatically removed from the connection. Attempts to use a
+     * deactivated object adapter raise {@link ObjectAdapterDeactivatedException}
      *
      * @see #createProxy
      * @see #getAdapter
      *
      **/
-    ["cpp:noexcept"] void setAdapter(ObjectAdapter adapter);
+    void setAdapter(ObjectAdapter adapter);
 
     /**
      *

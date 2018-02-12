@@ -61,6 +61,20 @@ def allTests(communicator):
         comm.destroy();
     print("ok");
 
+    if obj.ice_getConnection():
+        sys.stdout.write("testing object adapter with bi-dir connection... ")
+        sys.stdout.flush()
+        adapter = communicator.createObjectAdapter("")
+        obj.ice_getConnection().setAdapter(adapter)
+        obj.ice_getConnection().setAdapter(None)
+        adapter.deactivate()
+        try:
+            obj.ice_getConnection().setAdapter(adapter)
+            test(false)
+        except Ice.ObjectAdapterDeactivatedException:
+            pass
+        print("ok")
+
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
     try:

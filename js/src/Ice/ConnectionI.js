@@ -661,23 +661,23 @@ class ConnectionI
 
     setAdapter(adapter)
     {
-        if(this._state <= StateNotValidated || this._state >= StateClosing)
+        if(adapter !== null)
         {
-            return;
-        }
-        Debug.assert(this._state < StateClosing);
-
-        this._adapter = adapter;
-
-        if(this._adapter !== null)
-        {
-            //
-            // The OA's servant manager is immutable.
-            //
-            this._servantManager = this._adapter.getServantManager();
+            adapter.checkForDeactivation();
+            if(this._state <= StateNotValidated || this._state >= StateClosing)
+            {
+                return;
+            }
+            this._adapter = adapter;
+            this._servantManager = adapter.getServantManager(); // The OA's servant manager is immutable.
         }
         else
         {
+            if(this._state <= StateNotValidated || this._state >= StateClosing)
+            {
+                return;
+            }
+            this._adapter = null;
             this._servantManager = null;
         }
     }

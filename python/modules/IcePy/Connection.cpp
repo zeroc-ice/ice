@@ -425,15 +425,20 @@ extern "C"
 static PyObject*
 connectionSetAdapter(ConnectionObject* self, PyObject* args)
 {
-    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
-    PyObject* adapter;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), adapterType, &adapter))
+    PyObject* adapter = Py_None;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &adapter))
     {
         return 0;
     }
 
-    Ice::ObjectAdapterPtr oa = unwrapObjectAdapter(adapter);
-    assert(oa);
+    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
+    if(adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
+    {
+        PyErr_Format(PyExc_TypeError, "value for 'adapter' argument must be None or an Ice.ObjectAdapter instance");
+        return 0;
+    }
+
+    Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : Ice::ObjectAdapterPtr();
 
     assert(self->connection);
     assert(self->communicator);

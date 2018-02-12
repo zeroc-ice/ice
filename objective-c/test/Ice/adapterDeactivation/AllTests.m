@@ -51,6 +51,24 @@ adapterDeactivationAllTests(id<ICECommunicator> communicator)
     [obj transient];
     tprintf("ok\n");
 
+    if([obj ice_getConnection] != nil)
+    {
+        tprintf("testing object adapter with bi-dir connection... ");
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@""];
+        [[obj ice_getConnection] setAdapter:adapter];
+        [[obj ice_getConnection] setAdapter:nil];
+        [adapter deactivate];
+        @try
+        {
+            [[obj ice_getConnection] setAdapter:adapter];
+            test(false);
+        }
+        @catch(ICEObjectAdapterDeactivatedException* ex)
+        {
+        }
+        tprintf("ok\n");
+    }
+
     tprintf("deactivating object adapter in the server... ");
     [obj deactivate];
     tprintf("ok\n");

@@ -27,6 +27,9 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Instead of succeeding, `Ice::Connection::setAdapter` now raises
+  `Ice.ObjectAdapterDeactivatedException` if the adapter is deactivated.
+
 - Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
   was ignored.
 

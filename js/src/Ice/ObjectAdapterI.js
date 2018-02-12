@@ -473,6 +473,12 @@ class ObjectAdapterI
         return this._servantManager;
     }
 
+    setAdapterOnConnection(connection)
+    {
+        this.checkForDeactivation();
+        connection.setAdapterAndServantManager(this, _servantManager);
+    }
+
     messageSizeMax()
     {
         return this._messageSizeMax;

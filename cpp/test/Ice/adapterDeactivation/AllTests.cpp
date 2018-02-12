@@ -85,6 +85,24 @@ allTests(const CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
+    if(obj->ice_getConnection())
+    {
+        cout << "testing object adapter with bi-dir connection... " << flush;
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+        obj->ice_getConnection()->setAdapter(adapter);
+        obj->ice_getConnection()->setAdapter(ICE_NULLPTR);
+        adapter->deactivate();
+        try
+        {
+            obj->ice_getConnection()->setAdapter(adapter);
+            test(false);
+        }
+        catch(const Ice::ObjectAdapterDeactivatedException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
+
     cout << "deactivating object adapter in the server... " << flush;
     obj->deactivate();
     cout << "ok" << endl;

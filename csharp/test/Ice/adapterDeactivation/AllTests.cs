@@ -72,6 +72,25 @@ public class AllTests : TestCommon.AllTests
             WriteLine("ok");
         }
 
+        if(obj.ice_getConnection() != null)
+        {
+            Write("testing object adapter with bi-dir connection... ");
+            Flush();
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+            obj.ice_getConnection().setAdapter(adapter);
+            obj.ice_getConnection().setAdapter(null);
+            adapter.deactivate();
+            try
+            {
+                obj.ice_getConnection().setAdapter(adapter);
+                test(false);
+            }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+            }
+            WriteLine("ok");
+        }
+
         Write("deactivating object adapter in the server... ");
         Flush();
         obj.deactivate();

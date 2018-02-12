@@ -1407,26 +1407,23 @@ Ice::ConnectionI::connector() const
 }
 
 void
-Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter) ICE_NOEXCEPT
+Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(_state <= StateNotValidated || _state >= StateClosing)
+    if(adapter)
     {
-        return;
-    }
-
-    _adapter = adapter;
-
-    if(_adapter)
-    {
-        //
-        // The OA's servant manager is immutable.
-        //
-        _servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+        // Go through the adapter to set the adapter and servant manager on this connection
+        // to ensure the object adapter is still active.
+        dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(ICE_SHARED_FROM_THIS);
     }
     else
     {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        if(_state <= StateNotValidated || _state >= StateClosing)
+        {
+            return;
+        }
+
+        _adapter = 0;
         _servantManager = 0;
     }
 
@@ -1458,6 +1455,20 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     //
     return _instance->proxyFactory()->referenceToProxy(
         _instance->referenceFactory()->create(ident, ICE_SHARED_FROM_CONST_THIS(ConnectionI)));
+}
+
+void
+Ice::ConnectionI::setAdapterAndServantManager(const ObjectAdapterPtr& adapter,
+                                              const IceInternal::ServantManagerPtr& servantManager)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state <= StateNotValidated || _state >= StateClosing)
+    {
+        return;
+    }
+    assert(adapter); // Called by ObjectAdapterI::setAdapterOnConnection
+    _adapter = adapter;
+    _servantManager = servantManager;
 }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)

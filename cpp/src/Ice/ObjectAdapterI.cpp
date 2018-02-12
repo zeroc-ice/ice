@@ -940,6 +940,14 @@ Ice::ObjectAdapterI::getACM() const
     return _acm;
 }
 
+void
+Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connection)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    checkForDeactivation();
+    connection->setAdapterAndServantManager(ICE_SHARED_FROM_THIS, _servantManager);
+}
+
 //
 // COMPILERFIX: The ObjectAdapterI setup is broken out into a separate initialize
 // function because when it was part of the constructor C++Builder 2010 apps would

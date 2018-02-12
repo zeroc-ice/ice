@@ -103,6 +103,7 @@ public:
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
     IceInternal::ACMConfig getACM() const;
+    void setAdapterOnConnection(const Ice::ConnectionIPtr&);
     size_t messageSizeMax() const { return _messageSizeMax; }
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
