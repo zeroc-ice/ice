@@ -157,11 +157,15 @@ class Platform:
     def getDotnetExe(self):
         return "dotnet"
 
-    def getNugetPackageVersion(self):
-        if not self.nugetPackageVersion:
+    def getNugetPackageVersion(self, mapping):
+        version = None
+        if isinstance(mapping, CSharpMapping):
+            with open(os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec"), "r") as configFile:
+                version = re.search("<version>(.*)</version>", configFile.read()).group(1)
+        else:
             with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                self.nugetPackageVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return self.nugetPackageVersion
+                version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
+        return version
 
 class Darwin(Platform):
 
@@ -334,7 +338,7 @@ class Windows(Platform):
         if current.config.uwp and not current.config.protocol in ["ssl", "wss"]:
             return ""
         elif current.driver.useIceBinDist(mapping):
-            version = self.getNugetPackageVersion()
+            version = self.getNugetPackageVersion(mapping)
             packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
             package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
                 mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
@@ -360,7 +364,7 @@ class Windows(Platform):
             if isinstance(mapping, CppMapping):
                 return os.path.join("bin", platform, config)
             elif isinstance(mapping, PhpMapping):
-                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion()),
+                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion(mapping)),
                                     "build", "native", "bin", platform, config)
             return "bin"
 
@@ -382,7 +386,7 @@ class Windows(Platform):
 
         platform = current.config.buildPlatform
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
-        version = self.getNugetPackageVersion()
+        version = self.getNugetPackageVersion(mapping)
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
 
         if isinstance(mapping, CSharpMapping) and current.config.netframework:
@@ -3255,6 +3259,7 @@ class CSharpMapping(Mapping):
                 framework = "net45" if not current.config.netframework else current.config.netframework
                 env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", framework)
                 if not current.config.netframework:
+                    print("DEVPATH From: {}".format(platform.getIceInstallDir(self, current)))
                     env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
