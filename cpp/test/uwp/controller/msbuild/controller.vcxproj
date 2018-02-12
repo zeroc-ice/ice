@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.props')" />
+  <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props')" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.1\build\native\zeroc.ice.uwp.v141.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.3.7.1\build\native\zeroc.ice.uwp.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <PropertyGroup Label="Globals">
@@ -101,7 +101,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <PackageCertificateKeyFile>controller_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>E7BFC05.0.203170FE986292019448DD325BB206</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>E7BFC05.0.303170FE986292019448DD325BB206</PackageCertificateThumbprint>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -1899,7 +1899,7 @@
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x86.3.7.1\build\native\zeroc.ice.uwp.v141.x86.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v141.x86.3.7.1\build\native\zeroc.ice.uwp.v141.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets') and '$(ICE_BIN_DIST)' == 'all'" />
     <Import Project="..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" />
-    <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild" Condition="'$(ICE_BIN_DIST)' == 'all'">
     <PropertyGroup>
@@ -1915,7 +1915,7 @@
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x64.3.7.1\build\native\zeroc.ice.uwp.v140.x64.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.x86.3.7.1\build\native\zeroc.ice.uwp.v140.x86.targets'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.ice.uwp.v140.3.7.1\build\native\zeroc.ice.uwp.v140.props'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.props'))" />
-    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.2\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets'))" />
   </Target>
 </Project>

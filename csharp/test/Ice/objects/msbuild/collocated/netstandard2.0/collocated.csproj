@@ -23,7 +23,7 @@
     <Compile Include="../../../InitialI.cs"/>
     <Compile Include="../../../JI.cs"/>
     <Compile Include="../../../UnexpectedObjectExceptionTestI.cs"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.2"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.3"/>
     <SliceCompile Include="../../../Test.ice"/>
   </ItemGroup>
   <Choose>
