@@ -310,7 +310,15 @@ connectionGetAdapter(ConnectionObject* self)
         return 0;
     }
 
-    return wrapObjectAdapter(adapter);
+    if(adapter)
+    {
+        return wrapObjectAdapter(adapter);
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 #ifdef WIN32
