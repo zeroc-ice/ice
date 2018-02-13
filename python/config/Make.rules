@@ -31,8 +31,9 @@ ifneq ($(OPTIMIZE),yes)
 python_cppflags         := $(filter-out -O% -DNDEBUG -Wp$(comma)-D_FORTIFY_SOURCE=%,$(python_cppflags))
 endif
 
-# Remove the -Wstrict-prototypes option which is not valid with C++
-python_cppflags         := $(filter-out -Wstrict-prototypes,$(python_cppflags))
+# Remove the -Wstrict-prototypes option which is not valid with C++ and
+# -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
+python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
 
 #
 # Python installation directory
