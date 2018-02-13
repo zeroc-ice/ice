@@ -38,6 +38,8 @@ function test($b)
 
 function connect($prx)
 {
+    global $NS;
+    $ConnectTimeoutException = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
     $nRetry = 10;
     while(--$nRetry > 0)
     {
