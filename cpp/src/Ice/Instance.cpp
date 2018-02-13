@@ -1204,9 +1204,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             throw InitializationException(__FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
 
-        //
-        // Client ACM enabled by default. Server ACM disabled by default.
-        //
         const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 
