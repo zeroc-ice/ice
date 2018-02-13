@@ -23,10 +23,20 @@
               Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
     </Target>
 
-    <PropertyGroup>
-        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(CppConfiguration)</IceToolsPath>
-    </PropertyGroup>
+    <Choose>
+        <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v140.$(IceJSONVersion)</IceHome>
+                <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+                <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(CppConfiguration)</IceToolsPath>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
 
     <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'cpp'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
