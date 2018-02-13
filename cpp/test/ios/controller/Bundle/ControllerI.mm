@@ -159,7 +159,8 @@ MainHelperI::shutdown()
 bool
 MainHelperI::redirect()
 {
-    return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
+    //return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
+    return true;
 }
 
 void

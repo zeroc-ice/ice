@@ -95,6 +95,12 @@ public final class AMDMyDerivedClassI implements MyDerivedClass
     }
 
     @Override
+    synchronized public CompletionStage<Boolean> supportsCompressAsync(Current current)
+    {
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Override
     synchronized public CompletionStage<Void> opVoidAsync(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Normal);

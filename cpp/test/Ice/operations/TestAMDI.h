@@ -37,6 +37,10 @@ public:
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
+    virtual void supportsCompressAsync(std::function<void(bool)>,
+                                       std::function<void(std::exception_ptr)>,
+                                       const Ice::Current&);
+
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
@@ -408,6 +412,9 @@ public:
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
+
+    virtual void supportsCompress_async(const Test::AMD_MyClass_supportsCompressPtr&,
+                                        const Ice::Current&);
 
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
                               const Ice::Current&);

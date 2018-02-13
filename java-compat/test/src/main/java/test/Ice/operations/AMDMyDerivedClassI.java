@@ -101,6 +101,14 @@ public final class AMDMyDerivedClassI extends _MyDerivedClassDisp
 
     @Override
     synchronized public void
+    supportsCompress_async(AMD_MyClass_supportsCompress cb,
+                           Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
+
+    @Override
+    synchronized public void
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
     {

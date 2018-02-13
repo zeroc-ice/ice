@@ -63,6 +63,9 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
         current.adapter.getCommunicator().shutdown()
 
+    def supportsCompress(self, current=None):
+        return Ice.Future.completed(True)
+
     def opVoid(self, current=None):
         test(current.mode == Ice.OperationMode.Normal)
 

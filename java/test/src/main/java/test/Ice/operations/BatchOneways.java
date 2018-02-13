@@ -180,8 +180,18 @@ class BatchOneways
             ic.destroy();
         }
 
+        boolean supportsCompress = true;
+        try
+        {
+            supportsCompress = p.supportsCompress();
+        }
+        catch(com.zeroc.Ice.OperationNotExistException ex)
+        {
+        }
+
         p.ice_ping();
-        if(p.ice_getConnection() != null && properties.getProperty("Ice.Override.Compress").equals(""))
+        if(supportsCompress && p.ice_getConnection() != null &&
+           properties.getProperty("Ice.Override.Compress").equals(""))
         {
             com.zeroc.Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

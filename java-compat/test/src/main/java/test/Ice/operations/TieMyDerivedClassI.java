@@ -33,6 +33,13 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     }
 
     @Override
+    public boolean
+    supportsCompress(Ice.Current current)
+    {
+        return IceInternal.BZip2.supported();
+    }
+
+    @Override
     public void
     opVoid(Ice.Current current)
     {

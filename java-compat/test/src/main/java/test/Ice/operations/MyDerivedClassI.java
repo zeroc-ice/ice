@@ -69,6 +69,13 @@ public final class MyDerivedClassI extends _MyDerivedClassDisp
     }
 
     @Override
+    public boolean
+    supportsCompress(Ice.Current current)
+    {
+        return IceInternal.BZip2.supported();
+    }
+
+    @Override
     public void
     opVoid(Ice.Current current)
     {

@@ -856,4 +856,9 @@
 {
     [[current.adapter getCommunicator] shutdown];
 }
+
+-(BOOL) supportsCompress:(ICECurrent*)current
+{
+    return YES;
+}
 @end

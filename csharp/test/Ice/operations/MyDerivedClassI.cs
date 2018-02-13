@@ -53,6 +53,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
+    public override bool supportsCompress(Ice.Current current)
+    {
+        return IceInternal.BZip2.supported();
+    }
+
     public override void opVoid(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);

@@ -33,6 +33,8 @@ public:
 
     virtual void shutdown(const Ice::Current&);
 
+    virtual bool supportsCompress(const Ice::Current&);
+
     virtual void opVoid(const Ice::Current&);
 
     virtual Ice::Byte opByte(Ice::Byte,

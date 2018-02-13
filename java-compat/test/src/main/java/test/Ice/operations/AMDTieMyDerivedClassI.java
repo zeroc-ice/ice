@@ -65,6 +65,14 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
 
     @Override
     synchronized public void
+    supportsCompress_async(AMD_MyClass_supportsCompress cb,
+                           Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
+
+    @Override
+    synchronized public void
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
     {
