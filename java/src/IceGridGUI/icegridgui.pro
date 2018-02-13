@@ -40,6 +40,16 @@
 -dontnote com.zeroc.IceInternal.*ObserverI*
 -dontnote com.zeroc.IceInternal.BasicStream
 -dontnote com.zeroc.IceInternal.Network
+-dontnote com.zeroc.IceSSL.SSLEngine
+-dontnote com.zeroc.Ice.InputStream
+-dontnote com.zeroc.Ice.InputStream$EncapsDecoder
+-dontnote com.zeroc.Ice.InputStream$EncapsDecoder11
+-dontnote com.zeroc.Ice.ObjectPrx
+-dontnote com.zeroc.Ice.PluginManagerI
+-dontnote com.zeroc.Ice._ObjectPrxI
+-dontnote com.zeroc.IceInternal.MetricsMap
+-dontnote com.zeroc.IceMX.Observer
+-dontnote com.zeroc.IceMX.ObserverFactory
 
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator

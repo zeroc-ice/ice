@@ -98,7 +98,7 @@ GUI tool.
 
 The Maven package id for the ProGuard package is as follows:
 
-    groupId='net.sf.proguard', artifactId='proguard-gradle', version='5.2.1'
+    groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.0'
 
 ### Java Application Bundler
 
