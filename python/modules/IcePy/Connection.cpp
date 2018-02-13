@@ -476,7 +476,15 @@ connectionGetAdapter(ConnectionObject* self)
         return 0;
     }
 
-    return wrapObjectAdapter(adapter);
+    if(adapter)
+    {
+        return wrapObjectAdapter(adapter);
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 #ifdef WIN32
@@ -591,6 +599,7 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     if(!PyObject_IsInstance(compressBatch, reinterpret_cast<PyObject*>(compressBatchType)))
     {
+        PyErr_Format(PyExc_ValueError, STRCAST("expected an Ice.CompressBatch enumerator"));
         return 0;
     }
 
@@ -681,14 +690,25 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    PyObject* callbackType = lookupType("types.FunctionType");
     PyObject* cb;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &cb))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &cb))
     {
         return 0;
     }
 
-    Ice::CloseCallbackPtr wrapper = new CloseCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    PyObject* callbackType = lookupType("types.FunctionType");
+    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        return 0;
+    }
+
+    Ice::CloseCallbackPtr wrapper;
+    if(cb != Py_None)
+    {
+        wrapper = new CloseCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    }
+
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
@@ -712,14 +732,25 @@ connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    PyObject* callbackType = lookupType("types.FunctionType");
     PyObject* cb;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &cb))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &cb))
     {
         return 0;
     }
 
-    Ice::HeartbeatCallbackPtr wrapper = new HeartbeatCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    PyObject* callbackType = lookupType("types.FunctionType");
+    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        return 0;
+    }
+
+    Ice::HeartbeatCallbackPtr wrapper;
+    if(cb != Py_None)
+    {
+        wrapper = new HeartbeatCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    }
+
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
