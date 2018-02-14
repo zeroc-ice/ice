@@ -388,6 +388,7 @@ class Windows(Platform):
         config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
         version = self.getNugetPackageVersion(mapping)
         packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
+        package = None
 
         if isinstance(mapping, CSharpMapping) and current.config.netframework:
             #
