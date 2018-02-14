@@ -7,7 +7,7 @@ classdef TCPConnectionInfo < Ice.IPConnectionInfo
     %   rcvSize - The connection buffer receive size.
     %   sndSize - The connection buffer send size.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     methods
         function obj = TCPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...

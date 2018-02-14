@@ -3,7 +3,7 @@ function r = currentProtocolEncoding()
     %
     % Returns (Ice.EncodingVersion) - The encoding version for the Ice protocol.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     r = IceInternal.Util.callWithResult('Ice_currentProtocolEncoding');
 end

@@ -11,7 +11,7 @@ classdef Logger < IceInternal.WrapperObject
     %   getPrefix - Return this logger's prefix.
     %   cloneWithPrefix - Returns a clone of the logger with a new prefix.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     methods
         function obj = Logger(impl)

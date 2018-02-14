@@ -7,7 +7,7 @@ classdef OptionalFormat < uint32
     % format describes how the data is encoded and how it can be skipped by the
     % unmarshaling code if the optional is not known to the receiver.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     enumeration
         F1 (0)

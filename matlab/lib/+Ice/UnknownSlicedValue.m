@@ -8,7 +8,7 @@ classdef UnknownSlicedValue < Ice.Value
     %   ice_getSlicedData - Obtain the SlicedData object that encapsulates
     %     the value's marshaled state.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     methods
         function obj = UnknownSlicedValue(unknownTypeId)

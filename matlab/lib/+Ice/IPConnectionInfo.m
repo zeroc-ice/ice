@@ -9,7 +9,7 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
     %   remoteAddress - The remote address.
     %   remotePort - The remote port.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     methods
         function obj = IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...

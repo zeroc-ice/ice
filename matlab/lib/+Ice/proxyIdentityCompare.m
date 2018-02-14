@@ -8,7 +8,7 @@ function r = proxyIdentityCompare(lhs, rhs)
     % Returns (int32) - -1 if the identity in lhs compares less than the
     %   identity in rhs; 0 if the identities compare equal; 1, otherwise.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     if isempty(lhs) && isempty(rhs)
         r = 0;

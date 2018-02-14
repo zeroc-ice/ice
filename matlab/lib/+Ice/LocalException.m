@@ -3,7 +3,7 @@ classdef (Abstract) LocalException < Ice.Exception
     %
     % Base class for all Ice run-time exceptions.
 
-    % Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
     methods
         function obj = LocalException(id, msg)
