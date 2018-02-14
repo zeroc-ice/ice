@@ -27,6 +27,11 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Added tracing support for IceGrid and locator discovery. The IceGrid registry
+  supports the `IceGrid.Registry.Trace.Discovery` property and the
+  `IceLocatorDiscovery` plug-in supports `IceLocatorDiscovery.Trace.Lookup` to
+  trace lookup requests.
+
 - Instead of succeeding, `Ice::Connection::setAdapter` now raises
   `Ice.ObjectAdapterDeactivatedException` if the adapter is deactivated.
 

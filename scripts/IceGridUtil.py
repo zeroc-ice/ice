@@ -75,6 +75,7 @@ class IceGridNode(ProcessFromBinDir, Server):
         os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
+        Server.teardown(self, current, success)
         # Remove the database directory tree
         try:
             shutil.rmtree(self.dbdir)
@@ -129,6 +130,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
+        Server.teardown(self, current, success)
         # Remove the database directory tree
         try:
             shutil.rmtree(self.dbdir)

@@ -53,8 +53,10 @@ class LookupI : public IceLocatorDiscovery::Lookup
 {
 public:
 
-    LookupI(const std::string& instanceName, const WellKnownObjectsManagerPtr& wellKnownObjects) :
-        _instanceName(instanceName), _wellKnownObjects(wellKnownObjects)
+    LookupI(const std::string& instanceName,
+            const WellKnownObjectsManagerPtr& wellKnownObjects,
+            const TraceLevelsPtr& traceLevels) :
+        _instanceName(instanceName), _wellKnownObjects(wellKnownObjects), _traceLevels(traceLevels)
     {
     }
 
@@ -63,11 +65,21 @@ public:
     {
         if(!instanceName.empty() && instanceName != _instanceName)
         {
+            if(_traceLevels->discovery > 1)
+            {
+                Trace out(_traceLevels->logger, _traceLevels->discoveryCat);
+                out << "ignored discovery lookup for instance name `" << instanceName << "':\nreply = " << reply;
+            }
             return; // Ignore.
         }
 
         if(reply)
         {
+            if(_traceLevels->discovery > 0)
+            {
+                Trace out(_traceLevels->logger, _traceLevels->discoveryCat);
+                out << "replying to discovery lookup:\nreply = " << reply;
+            }
             reply->begin_foundLocator(_wellKnownObjects->getLocator());
         }
     }
@@ -82,6 +94,7 @@ private:
 
     const string _instanceName;
     const WellKnownObjectsManagerPtr _wellKnownObjects;
+    const TraceLevelsPtr _traceLevels;
 };
 
 class FinderI : public Ice::LocatorFinder
@@ -624,7 +637,7 @@ RegistryI::startImpl()
         {
             Ice::Identity lookupId = stringToIdentity("IceLocatorDiscovery/Lookup");
             discoveryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Discovery");
-            discoveryAdapter->add(new LookupI(_instanceName, _wellKnownObjects), lookupId);
+            discoveryAdapter->add(new LookupI(_instanceName, _wellKnownObjects, _traceLevels), lookupId);
         }
         catch(const Ice::LocalException& ex)
         {

@@ -57,6 +57,9 @@ public:
     const int session;
     const char* sessionCat;
 
+    const int discovery;
+    const char* discoveryCat;
+
     const Ice::LoggerPtr logger;
 };
 

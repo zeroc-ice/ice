@@ -1909,7 +1909,8 @@ class LocalProcessController(ProcessController):
         def teardown(self, current, success):
             if self.traceFile:
                 if success or current.driver.isInterrupted():
-                    os.remove(self.traceFile)
+#                    os.remove(self.traceFile)
+                    pass
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 
@@ -1943,9 +1944,12 @@ class LocalProcessController(ProcessController):
         if not isinstance(process.getMapping(current), JavaScriptMapping):
             traceProps = process.getEffectiveTraceProps(current)
             if traceProps:
+                if "Ice.ProgramName" in props:
+                    programName = props["Ice.ProgramName"]
+                else:
+                    programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(current.testsuite.getPath(),
-                                         "{0}-{1}.log".format(process.exe or current.testcase.getProcessType(process),
-                                                              time.strftime("%m%d%y-%H%M")))
+                                         "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")))
                 traceProps["Ice.StdErr"] = traceFile
             props.update(traceProps)
 
