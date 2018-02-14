@@ -115,7 +115,7 @@ ext.iceTargetCompatibility = 1.8
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     def dirs = []
     places.each {
-        def dir = it()
+        def dir = it
         if(dir != null) {
             dirs << dir + "/"
         }
