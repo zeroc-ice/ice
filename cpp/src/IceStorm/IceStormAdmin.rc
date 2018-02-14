@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription", "IceStorm Admin\0"
             VALUE "FileVersion", "3.6.4\0"
             VALUE "InternalName", "icestormadmin\0"
-            VALUE "LegalCopyright", "\251 2003-2016 ZeroC, Inc.\0"
+            VALUE "LegalCopyright", "\251 2003-2018 ZeroC, Inc.\0"
             VALUE "OriginalFilename", "icestormadmin.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "3.6.4\0"

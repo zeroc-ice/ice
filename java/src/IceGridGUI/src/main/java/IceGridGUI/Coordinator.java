@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -3379,7 +3379,7 @@ public class Coordinator
     {
         String text = "IceGrid Admin version "
             + Ice.Util.stringVersion() + "\n"
-            + "Copyright \u00A9 2005-2017 ZeroC, Inc. All rights reserved.\n";
+            + "Copyright \u00A9 2005-2018 ZeroC, Inc. All rights reserved.\n";
 
         JOptionPane.showMessageDialog(
             _mainFrame,

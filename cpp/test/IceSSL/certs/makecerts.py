@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2015-2017 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2015-2018 ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
