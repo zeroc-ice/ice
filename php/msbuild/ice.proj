@@ -30,6 +30,11 @@
                 <IceToolsPath>$(IceHome)\tools</IceToolsPath>
             </PropertyGroup>
         </When>
+        <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+            <PropertyGroup>
+                <IceToolsPath>$(IceHome)\bin</IceToolsPath>
+            </PropertyGroup>
+        </When>
         <Otherwise>
             <PropertyGroup>
                 <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
@@ -67,6 +72,8 @@
     </Target>
 
     <Target Name="Build" DependsOnTargets="BuildDist;NuGetRestore">
+        <Error Text="Ice Installation invalid or not detected. Invalid IceHome setting `$(IceHome)'"
+               Condition="!Exists('$(IceHome)')" />
         <MSBuild Projects="ice.php.test.proj"
                  Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
                  Targets="SliceCompile"/>

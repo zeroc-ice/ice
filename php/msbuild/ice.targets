@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="SliceCompile">
         <MakeDir Directories="@(SliceCompile->'%(OutputDir)')"/>
-        <Exec Command="$(IceToolsPath)\slice2php.exe --output-dir %(SliceCompile.OutputDir) -I$(IceHome)\slice %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
+        <Exec Command="&quot;$(IceToolsPath)\slice2php.exe&quot; --output-dir %(SliceCompile.OutputDir) -I&quot;$(IceHome)\slice&quot; %(SliceCompile.AdditionalOptions) @(SliceCompile->'%(Identity)', ' ')" />
     </Target>
 
     <Target Name="SliceCompileClean">
