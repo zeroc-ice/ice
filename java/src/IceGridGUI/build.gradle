@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -125,7 +125,7 @@ if(macosx)
                         shortversion: "${project.version}",
                         applicationCategory: "public.app-category.utilities",
                         mainclassname: "com.zeroc.IceGridGUI/MainProxy",
-                        copyright: "Copyright © 2005-2017 ZeroC, Inc. All rights reserved.") {
+                        copyright: "Copyright © 2005-2018 ZeroC, Inc. All rights reserved.") {
                 classpath(file: "${libDir}/${jarName}") {
                 }
                 option(value: "-Dapple.laf.useScreenMenuBar=true") {

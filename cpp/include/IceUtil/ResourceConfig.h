@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2017 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@
 #define ICE_STRING_VERSION "3.7.1\0"
 #define ICE_SO_VERSION "37\0"
 #define ICE_COMPANY_NAME "ZeroC, Inc.\0"
-#define ICE_COPYRIGHT "\251 2003-2017 ZeroC, Inc.\0"
+#define ICE_COPYRIGHT "\251 2003-2018 ZeroC, Inc.\0"
 #define ICE_PRODUCT_NAME "Ice\0"
 
 #ifdef ICE_CPP11_MAPPING
