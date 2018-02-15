@@ -84,11 +84,15 @@
     </ItemGroup>
 
     <!-- NET 4.5 Targets -->
-    <Target Name="BuildNet45Dist"
-            DependsOnTargets="SliceCompilers;GetNuget"
+    <Target Name="NuGetRestoreNet45Dist"
+            DependsOnTargets="GetNuget"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
-
         <Exec Command="$(NuGetExe) restore @(Net45DistSolution)"/>
+    </Target>
+
+    <Target Name="BuildNet45Dist"
+            DependsOnTargets="SliceCompilers;NuGetRestoreNet45"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(OS)' == 'Windows_NT'">
 
         <MSBuild Projects="@(Net45DistSolution)"
                  BuildInParallel="true"
@@ -106,13 +110,18 @@
 
     </Target>
 
-    <Target Name="BuildNet45"
-            DependsOnTargets="BuildNet45Dist;GetNuget"
+    <Target Name="NuGetRestoreNet45"
+            DependsOnTargets="GetNuget;NuGetRestoreNet45Dist"
             Condition="'$(OS)' == 'Windows_NT'">
-
         <!-- The builder package should be already restored by dist build and we do not want to restore
              the zeroc.ice.net packages if we are not building with the binary dist -->
         <Exec Command="$(NuGetExe) restore @(Net45TestSolution)" Condition="'$(ICE_BIN_DIST)' == 'all'" />
+    </Target>
+
+    <Target Name="BuildNet45"
+            DependsOnTargets="BuildNet45Dist;NuGetRestoreNet45"
+            Condition="'$(OS)' == 'Windows_NT'">
+
         <MSBuild Projects="@(Net45TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
@@ -132,14 +141,17 @@
 
     <!-- NET Standard Targets -->
 
-    <Target Name="BuildNetStandardDist"
-            DependsOnTargets="SliceCompilers"
+    <Target Name="NuGetRestoreNetStandardDist"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
-
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
+    </Target>
+
+    <Target Name="BuildNetStandardDist;NuGetRestoreNetStandardDist"
+            DependsOnTargets="SliceCompilers"
+            Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
                  BuildInParallel="true"
@@ -157,14 +169,18 @@
 
     </Target>
 
-    <Target Name="BuildNetStandard"
-            DependsOnTargets="BuildNetStandardDist"
+    <Target Name="NuGetRestoreNetStandard"
+            DependsOnTargets="NuGetRestoreNetStandardDist"
             Condition="'$(BuildNetStandardTargets)' == 'true'">
-
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
                  Targets="Restore"/>
+    </Target>
+
+    <Target Name="BuildNetStandard"
+            DependsOnTargets="BuildNetStandardDist;NuGetRestoreNetStandard"
+            Condition="'$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardTestSolution)"
                  BuildInParallel="true"
@@ -189,6 +205,9 @@
     </Target>
 
     <Target Name="CleanDist" DependsOnTargets="CleanNetStandardDist;CleanNet45Dist">
+    </Target>
+
+    <Target Name="NuGetRestore" DependsOnTargets="NuGetRestoreNetStandard;NuGetRestoreNet45">
     </Target>
 
     <Target Name="Build" DependsOnTargets="BuildNetStandard;BuildNet45">
