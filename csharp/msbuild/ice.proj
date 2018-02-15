@@ -149,8 +149,8 @@
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="BuildNetStandardDist;NuGetRestoreNetStandardDist"
-            DependsOnTargets="SliceCompilers"
+    <Target Name="BuildNetStandardDist"
+            DependsOnTargets="SliceCompilers;NuGetRestoreNetStandardDist"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
 
         <MSBuild Projects="@(NetStandardDistSolution)"
