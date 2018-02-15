@@ -80,7 +80,7 @@ class F
 // Exercise empty class with non-empty base
 class G extends Base
 {
-}   
+}
 
 interface I
 {
