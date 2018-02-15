@@ -132,7 +132,7 @@ class Platform:
             if not self.nugetPackageCache:
                 self.nugetPackageCache = re.search("info : global-packages: (.*)",
                                                    run("dotnet nuget locals --list global-packages")).groups(1)[0]
-            return os.path.join(self.nugetPackageCache, "zeroc.ice.net", self.getNugetPackageVersion())
+            return os.path.join(self.nugetPackageCache, "zeroc.ice.net", self.getNugetPackageVersion(mapping))
         else:
             return self.getInstallDir(mapping, current, "ICE_HOME")
 
