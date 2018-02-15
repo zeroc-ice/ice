@@ -298,6 +298,17 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
+        Write("setting G... ");
+        Flush();
+        try
+        {
+            initial.setG(new G(new S("hello"), "g"));
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+        WriteLine("ok");
+
         Write("setting I... ");
         Flush();
         initial.setI(i);

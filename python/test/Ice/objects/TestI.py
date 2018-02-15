@@ -159,6 +159,9 @@ class InitialI(Test.Initial):
     def throwEDerived(self, current=None):
         raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
 
+    def setG(self, g, current=None):
+        pass
+
     def setI(self, i, current=None):
         pass
 

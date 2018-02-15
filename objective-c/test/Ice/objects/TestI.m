@@ -279,6 +279,10 @@
     @throw [TestInnerSubEx ex:@"Inner::Sub::Ex"];
 }
 
+-(void) setG:(TestObjectsG*)g current:(ICECurrent*)current
+{
+}
+
 -(void) setI:(TestObjectsI*)i current:(ICECurrent*)current
 {
 }

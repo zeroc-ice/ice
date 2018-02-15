@@ -234,6 +234,19 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(h && [h isKindOfClass:[TestObjectsH class]]);
     tprintf("ok\n");
 
+    tprintf("setting G... ");
+    TestObjectsG *g = ICE_AUTORELEASE([[TestObjectsG alloc] init]);
+    g.theS = s;
+    g.str = @"g";
+    @try
+    {
+        [initial setG:g];
+    }
+    @catch(ICEOperationNotExistException*)
+    {
+    }
+    tprintf("ok\n");
+
     tprintf("setting I... ");
     [initial setI:i];
     [initial setI:j];

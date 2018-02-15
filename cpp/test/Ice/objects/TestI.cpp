@@ -233,6 +233,11 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
     d = _d;
 }
 
+void
+InitialI::setG(ICE_IN(Test::GPtr), const Ice::Current&)
+{
+}
+
 #ifdef ICE_CPP11_MAPPING
 shared_ptr<Ice::Value>
 InitialI::getI(const Ice::Current&)

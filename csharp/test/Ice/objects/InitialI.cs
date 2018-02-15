@@ -109,6 +109,10 @@ public sealed class InitialI : InitialDisp_
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
     }
 
+    public override void setG(G theG, Ice.Current current)
+    {
+    }
+
     public override void setI(Ice.Value theI, Ice.Current current)
     {
     }

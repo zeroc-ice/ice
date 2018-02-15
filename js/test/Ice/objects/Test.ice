@@ -77,6 +77,11 @@ class F
     E e2;
 }
 
+// Exercise empty class with non-empty base
+class G extends Base
+{
+}   
+
 interface I
 {
     void doI();
@@ -196,6 +201,7 @@ interface Initial
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;
 
+    void setG(G theG);
     void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);

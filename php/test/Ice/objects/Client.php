@@ -30,6 +30,7 @@ if($NS)
         class Test_D1 extends Test\D1 {}
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
+        class Test_G extends Test\G {}
         class Test_H extends Test\H {}
         class Test_Recursive extends Test\Recursive {}
         class Ice_Value extends Ice\Value {}
@@ -389,6 +390,23 @@ function allTests($communicator)
         test($ex->a2->name == "a2");
         test($ex->a3->name == "a3");
         test($ex->a4->name == "a4");
+    }
+    echo "ok\n";
+
+    echo "setting G... ";
+    flush();
+    $cls = $NS ? "Test\\S" : "Test_S";
+    try
+    {
+        $initial->setG(new Test_G(new $cls("hello"), "g"));
+    }
+    catch(Exception $ex)
+    {
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
     }
     echo "ok\n";
 

@@ -264,6 +264,10 @@
             throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
         }
 
+        setG(theG, current)
+        {
+        }
+
         setI(theI, current)
         {
         }

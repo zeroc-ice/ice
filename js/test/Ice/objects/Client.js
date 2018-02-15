@@ -311,6 +311,17 @@
         }
         out.writeLine("ok");
 
+        out.write("setting G... ");
+        try
+        {
+            await initial.setG(new Test.G(new Test.S("hello"), "g"));
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.OperationNotExistException, ex);
+        }
+        out.writeLine("ok");
+
         out.write("setting I... ");
         await initial.setI(i);
         await initial.setI(j);

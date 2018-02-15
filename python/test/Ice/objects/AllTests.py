@@ -132,6 +132,14 @@ def allTests(communicator):
         test(e.a4.name == "a4")
     print("ok")
 
+    sys.stdout.write("setting G... ")
+    sys.stdout.flush()
+    try:
+        initial.setG(Test.G(Test.S("hello"), "g"))
+    except Ice.OperationNotExistException:
+        pass
+    print("ok")
+
     sys.stdout.write("setting I... ")
     sys.stdout.flush()
     initial.setI(TestI.II())

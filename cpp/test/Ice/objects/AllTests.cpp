@@ -370,6 +370,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "setting G... " << flush;
+    GPtr g = ICE_MAKE_SHARED(G, s, "g");
+    try
+    {
+        initial->setG(g);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    cout << "ok" << endl;
+
     cout << "setting I... " << flush;
     initial->setI(i);
     initial->setI(j);

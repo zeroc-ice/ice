@@ -135,6 +135,16 @@ classdef AllTests
             end
             fprintf('ok\n');
 
+            fprintf('setting G... ');
+            try
+                initial.setG(G(S('hello'), 'g'));
+            catch ex
+                if ~isa(ex, 'Ice.OperationNotExistException')
+                    rethrow(ex);
+                end
+            end
+            fprintf('ok\n');
+
             fprintf('setting I... ');
             initial.setI(i);
             initial.setI(j);

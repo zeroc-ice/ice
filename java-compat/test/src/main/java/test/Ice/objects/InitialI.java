@@ -18,6 +18,7 @@ import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
+import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.D1;
@@ -185,6 +186,12 @@ public final class InitialI extends Initial
     throwEDerived(Ice.Current current) throws EDerived
     {
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+    }
+
+    @Override
+    public void
+    setG(G theG, Ice.Current current)
+    {
     }
 
     @Override

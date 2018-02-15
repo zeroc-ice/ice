@@ -241,6 +241,14 @@ def allTests(communicator)
     end
     puts "ok"
 
+    print "setting G... "
+    STDOUT.flush
+    begin
+        initial.setG(Test::G.new(Test::S.new("hello"), "g"))
+    rescue Ice::OperationNotExistException
+    end
+    puts "ok"
+
     print "setting I... "
     STDOUT.flush
     initial.setI(i)
