@@ -31,7 +31,6 @@ class RouterInfo
         Debug.assert(this._router !== null);
 
         this._clientEndpoints = null;
-        this._serverEndpoints = null;
         this._adapter = null;
         this._identities = new HashMap(HashMap.compareEquals); // Set<Identity> = Map<Identity, 1>
         this._evictedIdentities = [];
@@ -41,7 +40,6 @@ class RouterInfo
     destroy()
     {
         this._clientEndpoints = [];
-        this._serverEndpoints = [];
         this._adapter = null;
         this._identities.clear();
     }
@@ -93,14 +91,14 @@ class RouterInfo
 
     getServerEndpoints()
     {
-        if(this._serverEndpoints !== null) // Lazy initialization.
-        {
-            return Ice.Promise.resolve(this._serverEndpoints);
-        }
-        else
-        {
-            return this._router.getServerProxy().then(proxy => this.setServerEndpoints(proxy));
-        }
+        return this._router.getServerProxy().then(serverProxy => {
+            if(serverProxy === null)
+            {
+                throw new Ice.NoEndpointException();
+            }
+            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+            return serverProxy._getReference().getEndpoints();
+        });
     }
 
     addProxy(proxy)
@@ -176,18 +174,6 @@ class RouterInfo
         {
             promise.resolve(this._clientEndpoints);
         }
-    }
-
-    setServerEndpoints(serverProxy)
-    {
-        if(serverProxy === null)
-        {
-            throw new Ice.NoEndpointException();
-        }
-
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        this._serverEndpoints = serverProxy._getReference().getEndpoints();
-        return this._serverEndpoints;
     }
 
     addAndEvictProxies(proxy, evictedProxies)

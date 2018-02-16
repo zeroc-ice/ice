@@ -1910,8 +1910,7 @@ class LocalProcessController(ProcessController):
         def teardown(self, current, success):
             if self.traceFile:
                 if success or current.driver.isInterrupted():
-#                    os.remove(self.traceFile)
-                    pass
+                    os.remove(self.traceFile)
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 

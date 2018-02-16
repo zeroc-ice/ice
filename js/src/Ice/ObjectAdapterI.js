@@ -18,7 +18,8 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Router",
         "../Ice/ServantManager",
         "../Ice/StringUtil",
-        "../Ice/UUID"
+        "../Ice/UUID",
+        "../Ice/ArrayUtil"
     ]);
 
 const AsyncResultBase = Ice.AsyncResultBase;
@@ -27,6 +28,7 @@ const Identity = Ice.Identity;
 const PropertyNames = Ice.PropertyNames;
 const ServantManager = Ice.ServantManager;
 const StringUtil = Ice.StringUtil;
+const ArrayUtil = Ice.ArrayUtil;
 
 const _suffixes =
 [
@@ -86,7 +88,7 @@ class ObjectAdapterI
         this._objectAdapterFactory = objectAdapterFactory;
         this._servantManager = new ServantManager(instance, name);
         this._name = name;
-        this._routerEndpoints = [];
+        this._publishedEndpoints = [];
         this._routerInfo = null;
         this._state = StateUninitialized;
         this._noConfig = noConfig;
@@ -158,12 +160,12 @@ class ObjectAdapterI
 
         try
         {
-
             if(router === null)
             {
                 router = Ice.RouterPrx.uncheckedCast(
                     this._instance.proxyFactory().propertyToProxy(this._name + ".Router"));
             }
+            let p;
             if(router !== null)
             {
                 this._routerInfo = this._instance.routerManager().find(router);
@@ -180,46 +182,18 @@ class ObjectAdapterI
                 }
 
                 //
-                // Add the router's server proxy endpoints to this object
-                // adapter.
+                // Associate this object adapter with the router. This way,
+                // new outgoing connections to the router's client proxy will
+                // use this object adapter for callbacks.
                 //
-                this._routerInfo.getServerEndpoints().then(
-                    (endpoints) =>
-                    {
-                        endpoints.forEach(endpoint => this._routerEndpoints.push(endpoint));
-                        this._routerEndpoints.sort((e1, e2) => e1.compareTo(e2));    // Must be sorted.
+                this._routerInfo.setAdapter(this);
 
-                        //
-                        // Remove duplicate endpoints, so we have a list of unique
-                        // endpoints.
-                        //
-                        for(let i = 0; i < this._routerEndpoints.length - 1;)
-                        {
-                            if(this._routerEndpoints[i].equals(this._routerEndpoints[i + 1]))
-                            {
-                                this._routerEndpoints.splice(i, 1);
-                            }
-                            else
-                            {
-                                ++i;
-                            }
-                        }
-
-                        //
-                        // Associate this object adapter with the router. This way,
-                        // new outgoing connections to the router's client proxy will
-                        // use this object adapter for callbacks.
-                        //
-                        this._routerInfo.setAdapter(this);
-
-                        //
-                        // Also modify all existing outgoing connections to the
-                        // router's client proxy to use this object adapter for
-                        // callbacks.
-                        //
-                        return this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
-                    }
-                ).then(() => promise.resolve(this), promise.reject);
+                //
+                // Also modify all existing outgoing connections to the
+                // router's client proxy to use this object adapter for
+                // callbacks.
+                //
+                p = this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
             }
             else
             {
@@ -228,8 +202,19 @@ class ObjectAdapterI
                 {
                     throw new Ice.FeatureNotSupportedException("object adapter endpoints not supported");
                 }
-                promise.resolve(this);
+                p = Ice.Promise.resolve();
             }
+
+            p.then(() => this.computePublishedEndpoints()).then(endpoints =>
+            {
+                this._publishedEndpoints = endpoints;
+                promise.resolve(this);
+            },
+            ex =>
+            {
+                this.destroy();
+                promise.reject(ex);
+            });
         }
         catch(ex)
         {
@@ -268,14 +253,11 @@ class ObjectAdapterI
 
     deactivate()
     {
-        const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if(this._state < StateDeactivated)
         {
             this._state = StateDeactivated;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
-        promise.resolve();
-        return promise;
     }
 
     waitForDeactivate()
@@ -290,19 +272,15 @@ class ObjectAdapterI
 
     destroy()
     {
-        const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
-        const destroyInternal = () =>
+        this.deactivate();
+        if(this._state < StateDestroyed)
         {
-            if(this._state < StateDestroyed)
-            {
-                this._state = StateDestroyed;
-                this._servantManager.destroy();
-                this._objectAdapterFactory.removeObjectAdapter(this);
-            }
-            return promise.resolve();
-        };
-
-        return this._state < StateDeactivated ? this.deactivate().then(destroyInternal) : destroyInternal();
+            this._state = StateDestroyed;
+            this._servantManager.destroy();
+            this._objectAdapterFactory.removeObjectAdapter(this);
+            this._publishedEndpoints = [];
+        }
+        return new AsyncResultBase(this._communicator, "destroy", null, null, this).resolve();
     }
 
     add(object, ident)
@@ -452,17 +430,23 @@ class ObjectAdapterI
 
     refreshPublishedEndpoints()
     {
-        throw new Ice.FeatureNotSupportedException("refreshPublishedEndpoints not supported");
+        this.checkForDeactivation();
+        return this.computePublishedEndpoints().then(endpoints => this._publishedEndpoints = endpoints);
     }
 
     getPublishedEndpoints()
     {
-        return [];
+        return ArrayUtil.clone(this._publishedEndpoints);
     }
 
     setPublishedEndpoints(newEndpoints)
     {
-        throw new Ice.FeatureNotSupportedException("setPublishedEndpoints not supported");
+        this.checkForDeactivation();
+        if(this._routerInfo !== null)
+        {
+            throw new Error("can't set published endpoints on object adapter associated with a router");
+        }
+        this._publishedEndpoints = ArrayUtil.clone(newEndpoints);
     }
 
     getServantManager()
@@ -495,8 +479,7 @@ class ObjectAdapterI
         // Create a reference and return a proxy for this reference.
         //
         return this._instance.proxyFactory().referenceToProxy(
-            this._instance.referenceFactory().create(ident, facet, this._reference,
-                                                     Array.from(this._routerEndpoints)));
+            this._instance.referenceFactory().create(ident, facet, this._reference, this._publishedEndpoints));
     }
 
     checkForDeactivation(promise)
@@ -539,6 +522,131 @@ class ObjectAdapterI
         {
             throw new Ice.IllegalServantException("cannot add null servant to Object Adapter");
         }
+    }
+
+    computePublishedEndpoints()
+    {
+        let p;
+        if(this._routerInfo !== null)
+        {
+            p = this._routerInfo.getServerEndpoints().then((endpts) =>
+            {
+                //
+                // Remove duplicate endpoints, so we have a list of unique endpoints.
+                //
+                let endpoints = [];
+                endpts.forEach(endpoint =>
+                {
+                    if(endpoints.findIndex(value => endpoint.equals(value)) === -1)
+                    {
+                        endpoints.push(endpoint);
+                    }
+                });
+                return endpoints;
+            });
+        }
+        else
+        {
+
+            //
+            // Parse published endpoints. If set, these are used in proxies
+            // instead of the connection factory Endpoints.
+            //
+            let endpoints = [];
+            let s = this._instance.initializationData().properties.getProperty(this._name + ".PublishedEndpoints");
+            const delim = " \t\n\r";
+
+            let end = 0;
+            let beg;
+            while(end < s.length)
+            {
+                beg = StringUtil.findFirstNotOf(s, delim, end);
+                if(beg === -1)
+                {
+                    if(s != "")
+                    {
+                        throw new Ice.EndpointParseException("invalid empty object adapter endpoint");
+                    }
+                    break;
+                }
+
+                end = beg;
+                while(true)
+                {
+                    end = s.indexOf(':', end);
+                    if(end == -1)
+                    {
+                        end = s.length;
+                        break;
+                    }
+                    else
+                    {
+                        let quoted = false;
+                        let quote = beg;
+                        while(true)
+                        {
+                            quote = s.indexOf("\"", quote);
+                            if(quote == -1 || end < quote)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                quote = s.indexOf('\"', ++quote);
+                                if(quote == -1)
+                                {
+                                    break;
+                                }
+                                else if(end < quote)
+                                {
+                                    quoted = true;
+                                    break;
+                                }
+                                ++quote;
+                            }
+                        }
+                        if(!quoted)
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
+                }
+
+                let es = s.substring(beg, end);
+                let endp = this._instance.endpointFactoryManager().create(es, false);
+                if(endp == null)
+                {
+                    throw new Ice.EndpointParseException("invalid object adapter endpoint `" + s + "'");
+                }
+                endpoints.push(endp);
+            }
+
+            p = Ice.Promise.resolve(endpoints);
+        }
+
+        return p.then((endpoints) =>
+        {
+            if(this._instance.traceLevels().network >= 1 && endpoints.length > 0)
+            {
+                let s = [];
+                s.push("published endpoints for object adapter `");
+                s.push(_name);
+                s.push("':\n");
+                let first = true;
+                endpoints.forEach(endpoint =>
+                {
+                    if(!first)
+                    {
+                        s.push(":");
+                    }
+                    s.push(endpoint.toString());
+                    first = false;
+                });
+                this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.toString());
+             }
+             return endpoints;
+        });
     }
 
     filterProperties(unknownProps)

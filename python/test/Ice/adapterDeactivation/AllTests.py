@@ -46,20 +46,42 @@ def allTests(communicator):
     obj.transient()
     print("ok")
 
-    sys.stdout.write("deactivating object adapter in the server... ")
+    sys.stdout.write("testing connection closure... ")
     sys.stdout.flush()
-    obj.deactivate()
+    for x in range(10):
+        initData = Ice.InitializationData()
+        initData.properties = communicator.getProperties().clone()
+        comm = Ice.initialize(initData)
+        comm.stringToProxy("test:default -p 12010").ice_pingAsync()
+        comm.destroy()
     print("ok")
 
-    sys.stdout.write("testing connection closure... ");
-    sys.stdout.flush();
-    for x in range(10):
-        initData = Ice.InitializationData();
-        initData.properties = communicator.getProperties().clone();
-        comm = Ice.initialize(initData);
-        comm.stringToProxy("test:default -p 12010").ice_pingAsync();
-        comm.destroy();
-    print("ok");
+    sys.stdout.write("testing object adapter published endpoints... ")
+    sys.stdout.flush()
+
+    communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000")
+    adapter = communicator.createObjectAdapter("PAdapter")
+    test(len(adapter.getPublishedEndpoints()) == 1)
+    endpt = adapter.getPublishedEndpoints()[0];
+    test(str(endpt) == "tcp -h localhost -p 12345 -t 30000")
+    prx = communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000")
+    adapter.setPublishedEndpoints(prx.ice_getEndpoints())
+    test(len(adapter.getPublishedEndpoints()) == 2)
+    ident = Ice.Identity()
+    ident.name = "dummy";
+    test(adapter.createProxy(ident).ice_getEndpoints() == prx.ice_getEndpoints())
+    test(adapter.getPublishedEndpoints() == prx.ice_getEndpoints())
+    adapter.refreshPublishedEndpoints()
+    test(len(adapter.getPublishedEndpoints()) == 1)
+    test(adapter.getPublishedEndpoints()[0] == endpt)
+    communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000")
+    adapter.refreshPublishedEndpoints()
+    test(len(adapter.getPublishedEndpoints()) == 1)
+    test(str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 12345 -t 20000")
+    adapter.destroy()
+    test(len(adapter.getPublishedEndpoints()) == 0)
+
+    print("ok")
 
     if obj.ice_getConnection():
         sys.stdout.write("testing object adapter with bi-dir connection... ")
@@ -74,6 +96,41 @@ def allTests(communicator):
         except Ice.ObjectAdapterDeactivatedException:
             pass
         print("ok")
+
+
+    sys.stdout.write("testing object adapter with router... ")
+    sys.stdout.flush()
+    routerId = Ice.Identity()
+    routerId.name = "router";
+    router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId).ice_connectionId("rc"))
+    adapter = communicator.createObjectAdapterWithRouter("", router)
+    test(len(adapter.getPublishedEndpoints()) == 1)
+    test(str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 23456 -t 30000")
+    adapter.refreshPublishedEndpoints()
+    test(len(adapter.getPublishedEndpoints()) == 1)
+    test(str(adapter.getPublishedEndpoints()[0]) == "tcp -h localhost -p 23457 -t 30000")
+    try:
+        adapter.setPublishedEndpoints(router.ice_getEndpoints())
+        test(False)
+    except Exception, ex:
+        # Expected.
+        pass
+    adapter.destroy()
+
+    try:
+        routerId.name = "test";
+        router = Ice.RouterPrx.uncheckedCast(base.ice_identity(routerId))
+        communicator.createObjectAdapterWithRouter("", router)
+        test(False)
+    except Ice.OperationNotExistException:
+        # Expected: the "test" object doesn't implement Ice::Router!
+        pass
+    print("ok")
+
+    sys.stdout.write("deactivating object adapter in the server... ")
+    sys.stdout.flush()
+    obj.deactivate()
+    print("ok")
 
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()

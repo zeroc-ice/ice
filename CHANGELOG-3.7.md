@@ -27,6 +27,12 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## General Changes
 
+- Improved `Ice::ObjectAdapter` `getPublishedEndpoints` and
+  `refreshPublishedEndpoints` methods to now return or refresh the Ice router
+  server endpoints if the adapter is associated with a router. Calling the
+  `setPublishedEndpoints` method on an adapter associated with a router also now
+  raises an invalid argument exception.
+
 - Added tracing support for IceGrid and locator discovery. The IceGrid registry
   supports the `IceGrid.Registry.Trace.Discovery` property and the
   `IceLocatorDiscovery` plug-in supports `IceLocatorDiscovery.Trace.Lookup` to

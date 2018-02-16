@@ -83,6 +83,7 @@ function slice2js(options) {
 //
 var tests = [
     "test/Ice/acm",
+    "test/Ice/adapterDeactivation",
     "test/Ice/ami",
     "test/Ice/binding",
     "test/Ice/defaultValue",

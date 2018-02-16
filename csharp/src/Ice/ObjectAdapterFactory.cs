@@ -141,13 +141,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                Ice.ObjectAdapterI adapter = null;
-                if(name.Length == 0)
-                {
-                    string uuid = System.Guid.NewGuid().ToString();
-                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-                }
-                else
+                if(name.Length > 0)
                 {
                     if(_adapterNamesInUse.Contains(name))
                     {
@@ -156,12 +150,57 @@ namespace IceInternal
                         ex.id = name;
                         throw ex;
                     }
-                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
                     _adapterNamesInUse.Add(name);
                 }
-                _adapters.Add(adapter);
-                return adapter;
             }
+
+            //
+            // Must be called outside the synchronization since initialize can make client invocations
+            // on the router if it's set.
+            //
+            Ice.ObjectAdapterI adapter = null;
+            try
+            {
+                if(name.Length == 0)
+                {
+                    string uuid = System.Guid.NewGuid().ToString();
+                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
+                }
+                else
+                {
+                    adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+                }
+
+                lock(this)
+                {
+                    if(_instance == null)
+                    {
+                        throw new Ice.CommunicatorDestroyedException();
+                    }
+                    _adapters.Add(adapter);
+                }
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                if(adapter != null)
+                {
+                    adapter.destroy();
+                }
+                throw ex;
+            }
+            catch(Ice.LocalException ex)
+            {
+                if(name.Length > 0)
+                {
+                    lock(this)
+                    {
+                        _adapterNamesInUse.Remove(name);
+                    }
+                }
+                throw ex;
+            }
+
+            return adapter;
         }
 
         public Ice.ObjectAdapter findObjectAdapter(Ice.ObjectPrx proxy)

@@ -140,7 +140,7 @@ public final class ObjectAdapterFactory
         }
     }
 
-    public synchronized Ice.ObjectAdapter
+    public Ice.ObjectAdapter
     createObjectAdapter(String name, Ice.RouterPrx router)
     {
         if(Thread.interrupted())
@@ -148,27 +148,69 @@ public final class ObjectAdapterFactory
             throw new Ice.OperationInterruptedException();
         }
 
-        if(_instance == null)
+        synchronized(this)
         {
-            throw new Ice.CommunicatorDestroyedException();
+            if(_instance == null)
+            {
+                throw new Ice.CommunicatorDestroyedException();
+            }
+
+            if(!name.isEmpty())
+            {
+                if(_adapterNamesInUse.contains(name))
+                {
+                    throw new Ice.AlreadyRegisteredException("object adapter", name);
+                }
+                _adapterNamesInUse.add(name);
+            }
         }
 
+        //
+        // Must be called outside the synchronization since initialize can make client invocations
+        // on the router if it's set.
+        //
         Ice.ObjectAdapterI adapter = null;
-        if(name.length() == 0)
+        try
         {
-            String uuid = java.util.UUID.randomUUID().toString();
-            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-        }
-        else
-        {
-            if(_adapterNamesInUse.contains(name))
+            if(name.isEmpty())
             {
-                throw new Ice.AlreadyRegisteredException("object adapter", name);
+                String uuid = java.util.UUID.randomUUID().toString();
+                adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
             }
-            adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
-            _adapterNamesInUse.add(name);
+            else
+            {
+                adapter = new Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+            }
+
+            synchronized(this)
+            {
+                if(_instance == null)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                _adapters.add(adapter);
+            }
         }
-        _adapters.add(adapter);
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+            if(adapter != null)
+            {
+                adapter.destroy();
+            }
+            throw ex;
+        }
+        catch(Ice.LocalException ex)
+        {
+            if(!name.isEmpty())
+            {
+                synchronized(this)
+                {
+                    _adapterNamesInUse.remove(name);
+                }
+            }
+            throw ex;
+        }
+
         return adapter;
     }
 

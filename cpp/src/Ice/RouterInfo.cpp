@@ -120,7 +120,6 @@ IceInternal::RouterInfo::destroy()
     IceUtil::Mutex::Lock sync(*this);
 
     _clientEndpoints.clear();
-    _serverEndpoints.clear();
     _adapter = 0;
     _identities.clear();
 }
@@ -212,15 +211,13 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
 vector<EndpointIPtr>
 IceInternal::RouterInfo::getServerEndpoints()
 {
+    Ice::ObjectPrxPtr serverProxy = _router->getServerProxy();
+    if(!serverProxy)
     {
-        IceUtil::Mutex::Lock sync(*this);
-        if(!_serverEndpoints.empty())
-        {
-            return _serverEndpoints;
-        }
+        throw NoEndpointException(__FILE__, __LINE__);
     }
-
-    return setServerEndpoints(_router->getServerProxy());
+    serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
+    return serverProxy->_getReference()->getEndpoints();
 }
 
 void
@@ -340,25 +337,6 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool
         }
     }
     return _clientEndpoints;
-}
-
-vector<EndpointIPtr>
-IceInternal::RouterInfo::setServerEndpoints(const Ice::ObjectPrxPtr& /*serverProxy*/)
-{
-    IceUtil::Mutex::Lock sync(*this);
-    if(_serverEndpoints.empty()) // Lazy initialization.
-    {
-        ObjectPrxPtr serverProxy = _router->getServerProxy();
-        if(!serverProxy)
-        {
-            throw NoEndpointException(__FILE__, __LINE__);
-        }
-
-        serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
-
-        _serverEndpoints = serverProxy->_getReference()->getEndpoints();
-    }
-    return _serverEndpoints;
 }
 
 void

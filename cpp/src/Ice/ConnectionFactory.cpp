@@ -271,6 +271,10 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
 void
 IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& routerInfo)
 {
+    assert(routerInfo);
+    ObjectAdapterPtr adapter = routerInfo->getAdapter();
+    vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints(); // Must be called outside the synchronization
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_destroyed)
@@ -278,7 +282,6 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    assert(routerInfo);
 
     //
     // Search for connections to the router's client proxy endpoints,
@@ -286,8 +289,6 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     // callbacks from the router can be received over such
     // connections.
     //
-    ObjectAdapterPtr adapter = routerInfo->getAdapter();
-    vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints();
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         EndpointIPtr endpoint = *p;

@@ -38,7 +38,6 @@ namespace IceInternal
             lock(this)
             {
                 _clientEndpoints = new EndpointI[0];
-                _serverEndpoints = new EndpointI[0];
                 _adapter = null;
                 _identities.Clear();
             }
@@ -116,16 +115,14 @@ namespace IceInternal
 
         public EndpointI[] getServerEndpoints()
         {
-            lock(this)
+            Ice.ObjectPrx serverProxy = _router.getServerProxy();
+            if(serverProxy == null)
             {
-                if(_serverEndpoints != null) // Lazy initialization.
-                {
-                    return _serverEndpoints;
-                }
-
+                throw new Ice.NoEndpointException();
             }
 
-            return setServerEndpoints(_router.getServerProxy());
+            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+            return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
         }
 
         public void addProxy(Ice.ObjectPrx proxy)
@@ -239,21 +236,6 @@ namespace IceInternal
             }
         }
 
-        private EndpointI[] setServerEndpoints(Ice.ObjectPrx serverProxy)
-        {
-            lock(this)
-            {
-                if(serverProxy == null)
-                {
-                    throw new Ice.NoEndpointException();
-                }
-
-                serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-                _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
-                return _serverEndpoints;
-            }
-        }
-
         private void addAndEvictProxies(Ice.ObjectPrx proxy, Ice.ObjectPrx[] evictedProxies)
         {
             lock(this)
@@ -297,7 +279,6 @@ namespace IceInternal
 
         private readonly Ice.RouterPrx _router;
         private EndpointI[] _clientEndpoints;
-        private EndpointI[] _serverEndpoints;
         private Ice.ObjectAdapter _adapter;
         private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
         private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();

@@ -120,7 +120,7 @@ private:
     ObjectPrxPtr newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
-    std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
+    std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
     bool filterProperties(Ice::StringSeq&);
 
@@ -147,7 +147,6 @@ private:
     const std::string _replicaGroupId;
     IceInternal::ReferencePtr _reference;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
     IceInternal::RouterInfoPtr _routerInfo;
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;

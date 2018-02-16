@@ -415,7 +415,6 @@ Ice::ObjectAdapterI::destroy() ICE_NOEXCEPT
         //
         _instance = 0;
         _threadPool = 0;
-        _routerEndpoints.clear();
         _routerInfo = 0;
         _publishedEndpoints.clear();
         _locatorInfo = 0;
@@ -677,7 +676,7 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         checkForDeactivation();
 
         oldPublishedEndpoints = _publishedEndpoints;
-        _publishedEndpoints = parsePublishedEndpoints();
+        _publishedEndpoints = computePublishedEndpoints();
 
         locatorInfo = _locatorInfo;
     }
@@ -704,26 +703,31 @@ EndpointSeq
 Ice::ObjectAdapterI::getPublishedEndpoints() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    EndpointSeq endpoints;
-    copy(_publishedEndpoints.begin(), _publishedEndpoints.end(), back_inserter(endpoints));
-    return endpoints;
+    return EndpointSeq(_publishedEndpoints.begin(), _publishedEndpoints.end());
 }
 
 void
 Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
 {
-    vector<EndpointIPtr> newPublishedEndpoints;
-    transform(newEndpoints.begin(), newEndpoints.end(), back_inserter(newPublishedEndpoints), toEndpointI);
-
     LocatorInfoPtr locatorInfo;
     vector<EndpointIPtr> oldPublishedEndpoints;
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         checkForDeactivation();
 
+        if(_routerInfo)
+        {
+            const string s("can't set published endpoints on object adapter associated with a router");
+    #ifdef ICE_CPP11_MAPPING
+            throw invalid_argument(s);
+    #else
+            throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s);
+    #endif
+        }
+
         oldPublishedEndpoints = _publishedEndpoints;
-        _publishedEndpoints = newPublishedEndpoints;
+        _publishedEndpoints.clear();
+        transform(newEndpoints.begin(), newEndpoints.end(), back_inserter(_publishedEndpoints), toEndpointI);
 
         locatorInfo = _locatorInfo;
     }
@@ -799,25 +803,6 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
                 if((*p)->equivalent(*r))
                 {
                     return true;
-                }
-            }
-        }
-
-        //
-        // Proxies which have at least one endpoint in common with the
-        // router's server proxy endpoints (if any), are also considered
-        // local.
-        //
-        if(_routerInfo && _routerInfo->getRouter() == proxy->ice_getRouter())
-        {
-            for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-            {
-                for(vector<EndpointIPtr>::const_iterator r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
-                {
-                    if((*p)->equivalent(*r))
-                    {
-                        return true;
-                    }
                 }
             }
         }
@@ -1060,42 +1045,29 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
         if(router)
         {
             _routerInfo = _instance->routerManager()->get(router);
-            if(_routerInfo)
+            assert(_routerInfo);
+
+            //
+            // Make sure this router is not already registered with another adapter.
+            //
+            if(_routerInfo->getAdapter())
             {
-                //
-                // Make sure this router is not already registered with another adapter.
-                //
-                if(_routerInfo->getAdapter())
-                {
-                    throw AlreadyRegisteredException(__FILE__, __LINE__,
-                                                     "object adapter with router",
-                                                     _communicator->identityToString(router->ice_getIdentity()));
-                }
-
-                //
-                // Add the router's server proxy endpoints to this object
-                // adapter.
-                //
-                vector<EndpointIPtr> endpoints = _routerInfo->getServerEndpoints();
-                copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
-                sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-                _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()),
-                                       _routerEndpoints.end());
-
-                //
-                // Associate this object adapter with the router. This way,
-                // new outgoing connections to the router's client proxy will
-                // use this object adapter for callbacks.
-                //
-                _routerInfo->setAdapter(ICE_SHARED_FROM_THIS);
-
-                //
-                // Also modify all existing outgoing connections to the
-                // router's client proxy to use this object adapter for
-                // callbacks.
-                //
-                _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
+                throw AlreadyRegisteredException(__FILE__, __LINE__,
+                                                 "object adapter with router",
+                                                 _communicator->identityToString(router->ice_getIdentity()));
             }
+
+            //
+            // Associate this object adapter with the router. This way, new outgoing connections
+            // to the router's client proxy will use this object adapter for callbacks.
+            //
+            _routerInfo->setAdapter(ICE_SHARED_FROM_THIS);
+
+            //
+            // Also modify all existing outgoing connections to the router's client proxy to use
+            // this object adapter for callbacks.
+            //
+            _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
         }
         else
         {
@@ -1129,12 +1101,12 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                     out << "created adapter `" << _name << "' without endpoints";
                 }
             }
-
-            //
-            // Parse the published endpoints.
-            //
-            _publishedEndpoints = parsePublishedEndpoints();
         }
+
+        //
+        // Compute the published endpoints.
+        //
+        _publishedEndpoints = computePublishedEndpoints();
 
         if(!properties->getProperty(_name + ".Locator").empty())
         {
@@ -1193,19 +1165,10 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 ObjectPrxPtr
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    vector<EndpointIPtr> endpoints = _publishedEndpoints;
-
-    //
-    // Now we also add the endpoints of the router's server proxy, if
-    // any. This way, object references created by this object adapter
-    // will also point to the router's server proxy endpoints.
-    //
-    copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
-
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, endpoints);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -1316,34 +1279,52 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts, bool oaEndpoints) cons
 }
 
 std::vector<EndpointIPtr>
-ObjectAdapterI::parsePublishedEndpoints()
+ObjectAdapterI::computePublishedEndpoints()
 {
-    //
-    // Parse published endpoints. If set, these are used in proxies
-    // instead of the connection factory endpoints.
-    //
-    string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
-    vector<EndpointIPtr> endpoints = parseEndpoints(endpts, false);
-    if(endpoints.empty())
+    vector<EndpointIPtr> endpoints;
+    if(_routerInfo)
     {
         //
-        // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-        // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-        // to include actual addresses in the published endpoints.
+        // Get the router's server proxy endpoints and use them as the published endpoints.
         //
-        for(unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
+        vector<EndpointIPtr> endps = _routerInfo->getServerEndpoints();
+        for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
         {
-            vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expandIfWildcard();
-            for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
+            if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
             {
-                //
-                // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
-                // expands to multiple addresses. In this case, multiple incoming connection
-                // factories can point to the same published endpoint.
-                //
-                if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
+                endpoints.push_back(*p);
+            }
+        }
+    }
+    else
+    {
+        //
+        // Parse published endpoints. If set, these are used in proxies
+        // instead of the connection factory endpoints.
+        //
+        string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
+        endpoints = parseEndpoints(endpts, false);
+        if(endpoints.empty())
+        {
+            //
+            // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+            // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
+            // to include actual addresses in the published endpoints.
+            //
+            for(unsigned int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            {
+                vector<EndpointIPtr> endps = _incomingConnectionFactories[i]->endpoint()->expandIfWildcard();
+                for(vector<EndpointIPtr>::const_iterator p = endps.begin(); p != endps.end(); ++p)
                 {
-                    endpoints.push_back(*p);
+                    //
+                    // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                    // expands to multiple addresses. In this case, multiple incoming connection
+                    // factories can point to the same published endpoint.
+                    //
+                    if(::find(endpoints.begin(), endpoints.end(), *p) == endpoints.end())
+                    {
+                        endpoints.push_back(*p);
+                    }
                 }
             }
         }

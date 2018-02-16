@@ -41,8 +41,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
 
         adapters = _adapters;
 
-        _instance = 0;
-        _communicator = 0;
+        _instance = ICE_NULLPTR;
+        _communicator = ICE_NULLPTR;
 
         notifyAll();
     }
@@ -147,32 +147,66 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const RouterPrxPtr& router)
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    if(!_instance)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
     ObjectAdapterIPtr adapter;
-    if(name.empty())
     {
-        string uuid = Ice::generateUUID();
-        adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
-        adapter->initialize(ICE_NULLPTR);
-    }
-    else
-    {
-        if(_adapterNamesInUse.find(name) != _adapterNamesInUse.end())
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+        if(!_instance)
         {
-            throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
-        adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, name, false);
-        adapter->initialize(router);
-        _adapterNamesInUse.insert(name);
+
+        if(name.empty())
+        {
+            string uuid = Ice::generateUUID();
+            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, uuid, true);
+        }
+        else
+        {
+            if(_adapterNamesInUse.find(name) != _adapterNamesInUse.end())
+            {
+                throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
+            }
+            adapter = ICE_MAKE_SHARED(ObjectAdapterI, _instance, _communicator, ICE_SHARED_FROM_THIS, name, false);
+            _adapterNamesInUse.insert(name);
+        }
     }
 
-    _adapters.push_back(adapter);
+    //
+    // Must be called outside the synchronization since initialize can make client invocations
+    // on the router if it's set.
+    //
+    bool initialized = false;
+    try
+    {
+        adapter->initialize(router);
+        initialized = true;
+
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        if(!_instance)
+        {
+            throw CommunicatorDestroyedException(__FILE__, __LINE__);
+        }
+        _adapters.push_back(adapter);
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        if(initialized)
+        {
+            adapter->destroy();
+        }
+        throw;
+    }
+    catch(const std::exception&)
+    {
+        if(!name.empty())
+        {
+            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+            _adapterNamesInUse.erase(name);
+        }
+        throw;
+    }
+
     return adapter;
 }
 
