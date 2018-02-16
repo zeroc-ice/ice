@@ -219,7 +219,7 @@
     <Import Project="$(MSBuildThisFileDirectory)ice.common.targets" />
 
     <!-- Packaging is only supported on Windows -->
-    <Target Name="NuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
+    <Target Name="WindowsNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' == 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
 
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
@@ -271,4 +271,18 @@
               WorkingDirectory="zeroc.ice.net"/>
     </Target>
 
+    <Target Name="UnixNuGetPack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
+        <RemoveDir Directories="zeroc.ice.net" />
+
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBox\msbuild\icebox\netstandard2.0\icebox.csproj"
+                 Properties="Configuration=$(Configuration);Platform=Any CPU;TargetFramework=netcoreapp2.0"
+                 Targets="Publish"/>
+        <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>
+        <RemoveDir Directories="obj"/>
+        <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
+    </Target>
+
+    <Target Name="NuGetPack"
+            DependsOnTargets="WindowsNuGetPack;UnixNuGetPack">
+    </Target>
 </Project>
