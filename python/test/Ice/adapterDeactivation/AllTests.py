@@ -97,7 +97,6 @@ def allTests(communicator):
             pass
         print("ok")
 
-
     sys.stdout.write("testing object adapter with router... ")
     sys.stdout.flush()
     routerId = Ice.Identity()

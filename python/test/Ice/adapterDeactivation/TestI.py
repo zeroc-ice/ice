@@ -25,7 +25,6 @@ class TestI(Test.TestIntf):
         current.adapter.deactivate()
         time.sleep(0.1)
 
-
 class RouterI(Ice.Router):
 
     def __init__(self):

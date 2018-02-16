@@ -282,7 +282,6 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-
     //
     // Search for connections to the router's client proxy endpoints,
     // and update the object adapter for such connections, so that

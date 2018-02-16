@@ -15,11 +15,11 @@ project.ext.description = ""
 
 project.ext.macosx = System.properties['os.name'] == "Mac OS X"
 
-project.ext.javafxJar = ['jfxrt.jar', 
-                         'lib/jfxrt.jar', 
-                         'lib/ext/jfxrt.jar', 
+project.ext.javafxJar = ['jfxrt.jar',
+                         'lib/jfxrt.jar',
+                         'lib/ext/jfxrt.jar',
                          'jre/lib/jfxrt.jar',
-                         'jre/lib/ext/jfxrt.jar', 
+                         'jre/lib/ext/jfxrt.jar',
                          'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
 project.ext.hasJavaFx = javafxJar != null
