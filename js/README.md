@@ -59,7 +59,7 @@ npm run build
 Upon successful completion, the build generates libraries in the `lib`
 subdirectory, including compressed and minified versions.
 
-For older browsers that do not support all of the required EcmaScript 6
+For older browsers that do not support all of the required ECMAScript 6
 features used by Ice for JavaScript, we provide pre-compiled versions of
 the libraries using the [Babel][2] JavaScript compiler. These libraries
 depend on the babel polyfill run time and are available in the `lib/es5`
@@ -94,7 +94,7 @@ npm run test:browser
 ```
 
 This opens the test page (http://127.0.0.1:8080) using the system's default
-browser. These tests require a web browser wtih ECMAScript 6 support, such as
+browser. These tests require a web browser with ECMAScript 6 support, such as
 a recent version of Chrome, Firefox or Safari.
 
 If you are using another web browser, such as Microsoft Edge or Internet
