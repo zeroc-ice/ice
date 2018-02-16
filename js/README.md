@@ -48,13 +48,23 @@ you can use the following command to build JavaScript:
 npm run build -- --cppPlatform x64 --cppConfiguration Release
 ```
 
-Alternatively you can use the CPP_PLATFORM and CPP_CONFIGURATION environment
+Alternatively you can use the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment
 variables:
 ```
 set CPP_PLATFORM=x64
 set CPP_CONFIGURATION=Debug
 npm run build
 ```
+
+Upon successful completion, the build generates libraries in the `lib`
+subdirectory, including compressed and minified versions.
+
+For older browsers that do not support all of the required EcmaScript 6
+features used by Ice for JavaScript, we provide pre-compiled versions of
+the libraries using the [Babel][2] JavaScript compiler. These libraries
+depend on the babel polyfill run time and are available in the `lib/es5`
+subdirectory with the same names as the main libraries.
+
 ## Running the JavaScript Tests
 
 Python is required to run the test suite. Additionally, the Glacier2 tests
@@ -67,7 +77,7 @@ The scripts also require Ice for Python, you can build Ice for Python from
 [python](../python) folder of this source distribution or install the Python
 module `zeroc-ice`, using the following command:
 ```
-  pip install zeroc-ice
+pip install zeroc-ice
 ```
 
 You can start the NodeJS tests with:
