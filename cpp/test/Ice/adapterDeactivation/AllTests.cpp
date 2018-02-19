@@ -102,7 +102,7 @@ allTests(const CommunicatorPtr& communicator)
         test(adapter->getPublishedEndpoints() == prx->ice_getEndpoints());
         adapter->refreshPublishedEndpoints();
         test(adapter->getPublishedEndpoints().size() == 1);
-        test(adapter->getPublishedEndpoints()[0] == endpt);
+        test(*adapter->getPublishedEndpoints()[0] == *endpt);
         communicator->getProperties()->setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 20000");
         adapter->refreshPublishedEndpoints();
         test(adapter->getPublishedEndpoints().size() == 1);
