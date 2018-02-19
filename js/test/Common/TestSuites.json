@@ -3,6 +3,10 @@
     {
         "files": ["Test.js", "Client.js"]
     },
+    "Ice/adapterDeactivation":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
     "Ice/ami":
     {
         "files": ["Test.js", "Client.js"]
