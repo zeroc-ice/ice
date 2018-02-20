@@ -8,6 +8,8 @@
 #
 # **********************************************************************
 
+import os
+
 class ConfigurationTestCase(ClientServerTestCase):
 
     def setupServerSide(self, current):
@@ -31,7 +33,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
                 out =  run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand()))
-                shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out.splitlines()[0]))
+                shutil.copyfile(pem, "{dir}/{out}.0".format(dir=certsPath, out=out))
 
     def teardownServerSide(self, current, success):
         # Nothing to do if we're not running this test with the C++ mapping
@@ -45,10 +47,17 @@ class ConfigurationTestCase(ClientServerTestCase):
             for c in ["cacert1.pem", "cacert2.pem"]:
                 pem = os.path.join(certsPath, c)
                 out =  run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand()))
-                os.remove("{dir}/{out}.0".format(out=out.splitlines()[0], dir=certsPath))
+                os.remove("{dir}/{out}.0".format(out=out, dir=certsPath))
+            if isinstance(platform, Windows):
+                os.remove(os.path.join(self.getPath(), "openssl.cnf"))
+                del os.environ["OPENSSL_CONF"]
 
     def getOpenSSLCommand(self):
         if isinstance(platform, Windows):
+            conf = os.path.join(self.getPath(), "openssl.cnf")
+            os.environ["OPENSSL_CONF"] = conf
+            with open(conf, "w") as file:
+                file.write("# Dummy openssl configuration file to avoid warnings with Windows testing")
             return os.path.join(self.getPath(), "..", "..", "..", "msbuild", "packages", "zeroc.openssl.v140.1.0.2.4",
                                 "build", "native", "bin", "Win32", "Release", "openssl.exe")
         else:
