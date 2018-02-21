@@ -110,5 +110,5 @@ public final class ServantLocatorI implements Ice.ServantLocator
     }
 
     private boolean _deactivated;
-    static private Ice.Object _router = new RouterI();
+    private Ice.Object _router = new RouterI();
 }

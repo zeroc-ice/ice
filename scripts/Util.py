@@ -2163,7 +2163,6 @@ class AndroidProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001" if current.config.androidemulator else None)
         self.device = current.config.device
         self.avd = current.config.avd
-        self.androidemulator = current.config.androidemulator
         self.emulator = None # Keep a reference to the android emulator process
 
     def __str__(self):
@@ -2185,13 +2184,14 @@ class AndroidProcessController(RemoteProcessController):
             if os.path.isfile(os.path.join(d, emu)):
                 return os.path.join(d, emu)
 
-    def startEmulator(self, config):
+    def startEmulator(self, avd):
         #
         # First check if the AVD image is available
         #
+        print("starting the emulator... ")
         out = run("{} -list-avds".format(self.emulatorCommand()))
-        if config.avd not in out:
-            raise RuntimeError("couldn't find AVD `{}'".format(config.avd))
+        if avd not in out:
+            raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
         #
         # Find and unused port to run android emulator, between 5554 and 5584
@@ -2206,13 +2206,13 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "{0} -avd {1} -port {2} -wipe-data".format(self.emulatorCommand(), config.avd, port)
+        cmd = "{0} -avd {1} -port {2} -noaudio -no-window -no-snapshot".format(self.emulatorCommand(), avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
-            raise RuntimeError("failed to start Android emulator with AVD {} on port {}".format(config.avd, port))
+            raise RuntimeError("failed to start the Android emulator `{}' on port {}".format(avd, port))
 
-        self.avd = config.avd
+        self.avd = avd
 
         #
         # Wait for the device to be ready
@@ -2229,13 +2229,26 @@ class AndroidProcessController(RemoteProcessController):
             # If the emulator doesn't complete boot in 60 seconds give up
             #
             if (time.time() - t) > 60:
-                raise RuntimeError("couldn't start Android emulator with avd {}".format(config.avd))
+                raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
         print(" ok")
 
     def startControllerApp(self, current, ident):
         if current.config.avd:
-            self.startEmulator(current.config)
+            self.startEmulator(current.config.avd)
+        elif current.config.androidemulator:
+            # Create Android Virtual Device
+            sdk = current.testcase.getMapping().getSDKPackage()
+            try:
+                run("avdmanager delete avd -n IceTests") # Delete the created device
+            except:
+                pass
+            run("sdkmanager \"{0}\"".format(sdk))
+            run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
+            self.startEmulator("IceTests")
+        elif not current.config.device:
+            raise RuntimeError("no Android device specified to run the controller application")
+
         run("{} install -t -r {}".format(self.adb(), current.config.apk))
         run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
 
@@ -2252,14 +2265,21 @@ class AndroidProcessController(RemoteProcessController):
                 pass
 
             try:
-                run("adm kill-server")
+                run("adb kill-server")
             except:
                 pass
+
+            if self.avd == "IceTests":
+                try:
+                    run("avdmanager delete avd -n IceTests") # Delete the created device
+                except:
+                    pass
+
         #
         # Wait for the emulator to shutdown
         #
         if self.emulator:
-            sys.stdout.write("Wainting for emulator to shutdown..")
+            sys.stdout.write("Waiting for the emulator to shutdown..")
             sys.stdout.flush()
             while True:
                 if self.emulator.poll() != None:
@@ -3092,14 +3112,14 @@ class AndroidMapping(JavaMapping):
         def usage(self):
             print("")
             print("Android Mapping options:")
-            print("--device=<device-id>      Id of the emulator or device used to run the tests.")
+            print("--device=<device-id>      ID of the emulator or device used to run the tests.")
             print("--androidemulator         Run tests in emulator as opposed to a real device.")
-            print("--avd                     Start emulator image")
+            print("--avd=<name>              Start specific Android Virtual Device")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            parseOptions(self, options, { "device" : "device", "avd" : "avd" })
+            parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
             self.apk = "controller/build/outputs/apk/debug/testController-debug.apk"
 
@@ -3115,10 +3135,16 @@ class AndroidMapping(JavaMapping):
     def getTestsPath(self):
         return os.path.join(self.path, "../test/src/main/java/test")
 
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "scripts", "tests")
+
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
             return True
         return JavaMapping.filterTestSuite(self, testId, config, filters, rfilters)
+
+    def getSDKPackage(self):
+        return "system-images;android-25;google_apis;x86_64"
 
 class AndroidCompatMapping(JavaCompatMapping):
 
@@ -3139,9 +3165,9 @@ class AndroidCompatMapping(JavaCompatMapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            parseOptions(self, options, { "device" : "device", "avd" : "avd" })
+            parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
-            self.apk = "test/controller/build/outputs/apk/testController-debug.apk"
+            self.apk = "test/controller/build/outputs/apk/debug/testController-debug.apk"
 
     def getSSLProps(self, process, current):
         props = JavaCompatMapping.getSSLProps(self, process, current)
@@ -3155,10 +3181,16 @@ class AndroidCompatMapping(JavaCompatMapping):
     def getTestsPath(self):
         return os.path.join(self.path, "../test/src/main/java/test")
 
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "scripts", "tests")
+
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
             return True
         return JavaCompatMapping.filterTestSuite(self, testId, config, filters, rfilters)
+
+    def getSDKPackage(self):
+        return "system-images;android-21;google_apis;x86_64"
 
 class CSharpMapping(Mapping):
 

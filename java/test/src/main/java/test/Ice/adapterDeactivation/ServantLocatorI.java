@@ -102,5 +102,5 @@ public final class ServantLocatorI implements ServantLocator
     }
 
     private boolean _deactivated;
-    static private com.zeroc.Ice.Object _router = new RouterI();
+    private com.zeroc.Ice.Object _router = new RouterI();
 }

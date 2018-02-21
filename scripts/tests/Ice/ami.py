@@ -8,4 +8,16 @@
 #
 # **********************************************************************
 
-TestSuite(__name__, options = { "compress" : [False], "serialize" : [False] })
+# Enable some tracing to allow investigating test failures
+traceProps = {
+    "Ice.Trace.Network" : 2,
+    "Ice.Trace.Retry" : 1,
+    "Ice.Trace.Protocol" : 1
+}
+
+TestSuite(__name__,
+          [
+            ClientServerTestCase(traceProps=traceProps),
+            CollocatedTestCase()
+          ],
+          options = { "compress" : [False], "serialize" : [False] })
