@@ -17,9 +17,9 @@ include pre-compiled JAR files.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 2.3
+- Android Studio 3.0.1
 - Android SDK 21
-- Android Build Tools 21
+- Android Build Tools 27.0.1
 
 Ice requires at minimum API level 21:
 
@@ -80,40 +80,37 @@ run it.
 
 ## Running the Test Suite
 
-To run the test suite you need to add the `tools` and `platform-tools`
-directories from the Android SDK to your PATH.
+To run the test suite you need to add the `tools\bin`, `platform-tools` and
+`emulator` directories from the Android SDK to your PATH.
 
-  On macOS you can use the following command:
-
-```
-export PATH=~/Library/Android/sdk/tools:~/Library/Android/sdk/platform-tools:$PATH
-```
-
-  On Windows you can use the following command:
+On macOS, you can use the following commands:
 
 ```
-set PATH=%LOCALAPPDATA%\Android\sdk\tools;%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+export PATH=~/Library/Android/sdk/tools/bin:$PATH
+export PATH=~/Library/Android/sdk/platform-tools:$PATH
+export PATH=~/Library/Android/sdk/emulator:$PATH
 ```
 
-The Instant Run feature from Android Studio causes some problems with the test
-suite application. You need to disable it in order to run the test controller
-application. Check the following page for instructions on disabling it:
+On Windows, you can use the following commands:
 
-    https://developer.android.com/studio/run/index.html#disable-ir
+```
+set PATH=%LOCALAPPDATA%\Android\sdk\tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
+```
 
-Start the `testController` application from Android Studio and once it has
-started, run the testsuite by using the `allTests.py` script:
+Run the tests with the Android emulator by running the following command:
 
 ```
 cd android
-python allTests.py
+python allTests.py --androidemulator --controller-app
 ```
 
-This will try to run the testsuite on the connected device. If multiple devices
-are connected, you can use the `--device` argument to select a device:
+To run the tests on a specific Android connected device, you can use the
+`--device` argument as shown below:
 
 ```
-python allTests.py --device=ZX1C2234XF
+python allTests.py --device=ZX1C2234XF --controller-app
 ```
 
 You can see the list of connected devices with the `adb` command:
@@ -122,22 +119,9 @@ You can see the list of connected devices with the `adb` command:
 adb devices -l
 ```
 
-If you are running the application on an emulator, you need to pass the
-`--androidemulator` command line option:
-
-```
-python allTests.py --androidemulator --device=emulator-5554
-```
-
-You can also start the emulator from the `allTests.py` script:
-
-```
-python allTests.py --androidemulator --avd=Nexus_6P_API_25 --controller-app
-```
-
-Where `--avd` is set to the Android emulator image you want to use. You can list
-the available image names in your host by using `emulator -list-avds`. Images
-can be created using Android Studio.
+To run the tests against a `testController` application started from Android
+Studio you should omit the `--controller-app` command line options from the
+commands above.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://commons.apache.org/proper/commons-compress/

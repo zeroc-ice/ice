@@ -2174,22 +2174,12 @@ class AndroidProcessController(RemoteProcessController):
     def adb(self):
         return "adb -s {}".format(self.device) if self.device else "adb"
 
-    def emulatorCommand(self):
-        #
-        # We need to use emulator fullpath, otherwise fails to start with
-        # :Qt library not found at ..\emulator\lib64\qt\lib
-        #
-        emu = "emulator.exe" if sys.platform == "win32" else "emulator"
-        for d in os.environ.get("PATH").split(os.pathsep):
-            if os.path.isfile(os.path.join(d, emu)):
-                return os.path.join(d, emu)
-
     def startEmulator(self, avd):
         #
         # First check if the AVD image is available
         #
         print("starting the emulator... ")
-        out = run("{} -list-avds".format(self.emulatorCommand()))
+        out = run("emulator -list-avds")
         if avd not in out:
             raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
@@ -2206,7 +2196,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "{0} -avd {1} -port {2} -noaudio -no-window -no-snapshot".format(self.emulatorCommand(), avd, port)
+        cmd = "emulator -avd {0} -port {1} -noaudio -no-window -no-snapshot".format(avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2246,7 +2236,7 @@ class AndroidProcessController(RemoteProcessController):
             run("sdkmanager \"{0}\"".format(sdk))
             run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
-        elif not current.config.device:
+        elif not self.device:
             raise RuntimeError("no Android device specified to run the controller application")
 
         run("{} install -t -r {}".format(self.adb(), current.config.apk))
