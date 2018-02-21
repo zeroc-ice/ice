@@ -15,9 +15,10 @@ traceProps = {
     "Ice.Trace.Protocol" : 1
 }
 
-TestSuite(__name__,
-          [
-            ClientServerTestCase(traceProps=traceProps),
-            CollocatedTestCase()
-          ],
+testcases = [ ClientServerTestCase(traceProps=traceProps) ]
+
+if Mapping.getByPath(__name__).hasSource("Ice/ami", "collocated"):
+    testcases += [ CollocatedTestCase() ]
+
+TestSuite(__name__, testcases,
           options = { "compress" : [False], "serialize" : [False] })
