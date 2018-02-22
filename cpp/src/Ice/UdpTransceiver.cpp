@@ -576,7 +576,7 @@ IceInternal::UdpTransceiver::getOutputStreamCompleted(concurrency::task<IOutputS
 void
 IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 {
-    if(_state < StateConnected)
+    if(_fd == INVALID_SOCKET || _state < StateConnected)
     {
         return;
     }
