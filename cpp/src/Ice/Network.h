@@ -250,7 +250,7 @@ protected:
     HANDLE _handle;
     ULONG_PTR _key;
 #elif defined(ICE_OS_UWP)
-    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, bool = false);
+    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, Windows::Foundation::AsyncStatus, bool = false);
     SocketOperationCompletedHandler^ _completedHandler;
 #else
     SOCKET _newFd;

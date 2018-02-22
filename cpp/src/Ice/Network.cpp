@@ -859,7 +859,7 @@ void
 IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
 {
     AsyncInfo* asyncInfo = getAsyncInfo(op);
-    if(checkIfErrorOrCompleted(op, action, connect))
+    if(checkIfErrorOrCompleted(op, action, action->Status, connect))
     {
         asyncInfo->count = 0;
     }
@@ -898,11 +898,21 @@ void
 IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsigned int>^ operation)
 {
     AsyncInfo* info = getAsyncInfo(op);
-    if(checkIfErrorOrCompleted(op, operation))
+    Windows::Foundation::AsyncStatus status = operation->Status;
+    if (status == Windows::Foundation::AsyncStatus::Completed)
     {
+        //
+        // NOTE: it's important to modify the count _before_ calling the completion handler
+        // since this might not always be called with the connection mutex but from a Windows
+        // thread pool thread if we chained multiple Async calls (GetGetOutputStreamAsync and
+        // StoreAsync for example, see the UDPTransceiver implementation). So we can't modify
+        // the AsyncInfo structure after calling the completed callback.
+        //
         info->count = static_cast<int>(operation->GetResults());
+        _completedHandler(op);
+        return;
     }
-    else
+    else if(!checkIfErrorOrCompleted(op, operation, status))
     {
         if(!info->completedHandler)
         {
@@ -952,7 +962,7 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 }
 
 bool
-IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, bool connect)
+IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, Windows::Foundation::AsyncStatus status, bool connect)
 {
     //
     // NOTE: It's important to only check for info->Status once as it
@@ -963,7 +973,6 @@ IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^
     // error. A canceled async status can occur if there's a timeout
     // and the socket is closed.
     //
-    Windows::Foundation::AsyncStatus status = info->Status;
     if(status == Windows::Foundation::AsyncStatus::Completed)
     {
         _completedHandler(op);
