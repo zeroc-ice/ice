@@ -26,6 +26,12 @@
         </Link>
     </ItemDefinitionGroup>
 
+    <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release'">
+        <ClCompile>
+            <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+    </ItemDefinitionGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)uwp++11d</TargetName>
     </PropertyGroup>
