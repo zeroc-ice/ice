@@ -43,10 +43,10 @@ if(exe === "Server" || exe === "ServerAMD")
 {
     var ready = new Ice.Promise();
     test = exe === "Server" ? test._server : test._serveramd;
-    test({write: write, writeLine: writeLine}, id, ready).catch(exception);
+    test({write: write, writeLine: writeLine}, id, ready, process.argv).catch(exception);
     ready.then(() => console.log("server ready"));
 }
 else
 {
-    test._test({write: write, writeLine: writeLine}, id).catch(exception);
+    test._test({write: write, writeLine: writeLine}, id, process.argv).catch(exception);
 }

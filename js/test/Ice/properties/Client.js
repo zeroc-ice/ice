@@ -19,7 +19,7 @@
         }
     }
 
-    async function run(out)
+    async function run(out, initData, args)
     {
         out.write("testing configuration file escapes... ");
         const props = new Map();
@@ -51,7 +51,7 @@
             //
             // We are runing with NodeJS we load the properties file from the file system.
             //
-            properties.parse(require("fs").readFileSync(process.argv[3] + "/config/escapes.cfg", {encoding: "utf8"}));
+            properties.parse(require("fs").readFileSync(args[3] + "/config/escapes.cfg", {encoding: "utf8"}));
             for(let [key, value] of props)
             {
                 test(properties.getProperty(key) == value);

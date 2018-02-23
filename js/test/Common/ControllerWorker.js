@@ -15,8 +15,6 @@
     _test : false
 */
 
-process = { argv : [] };
-
 class Output
 {
     static write(message)
@@ -55,18 +53,17 @@ self.onmessage = async (e) =>
             let initData = new Ice.InitializationData();
             initData.properties = Ice.createProperties(e.data.args);
             initData.logger = new Logger();
-            process.argv = e.data.args;
             if(e.data.exe === "Server" || e.data.exe === "ServerAMD")
             {
                 let ready = new Ice.Promise();
                 let test = e.data.exe === "Server" ? _server : _serveramd;
-                promise = test(Output, initData, ready);
+                promise = test(Output, initData, ready, e.data.args);
                 await ready;
                 self.postMessage({type:"ready"});
             }
             else
             {
-                promise = _test(Output, initData);
+                promise = _test(Output, initData, e.data.args);
             }
 
             await promise;

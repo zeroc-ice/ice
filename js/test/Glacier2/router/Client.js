@@ -60,7 +60,7 @@
         }
     }
 
-    async function allTests(out, communicator)
+    async function allTests(out, communicator, shutdown)
     {
         out.write("testing stringToProxy for router... ");
         let routerBase = communicator.stringToProxy("Glacier2/router:default -p 12060");
@@ -263,7 +263,7 @@
         await callbackReceiverImpl.callbackOK();
         out.writeLine("ok");
 
-        if(process.argv.indexOf("--shutdown") > -1)
+        if(shutdown)
         {
             out.write("testing server shutdown... ");
             await twoway.shutdown();
@@ -288,7 +288,7 @@
         }
         out.writeLine("ok");
 
-        if(process.argv.indexOf("--shutdown") > -1)
+        if(shutdown)
         {
             out.write("uninstalling router with communicator... ");
             communicator.setDefaultRouter(null);
@@ -318,7 +318,7 @@
         }
     }
 
-    async function run(out, initData)
+    async function run(out, initData, args)
     {
         let communicator;
         try
@@ -326,7 +326,7 @@
             initData.properties.setProperty("Ice.Warn.Dispatch", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             communicator= Ice.initialize(initData);
-            await allTests(out, communicator);
+            await allTests(out, communicator, args.indexOf("--shutdown") > -1);
         }
         finally
         {
