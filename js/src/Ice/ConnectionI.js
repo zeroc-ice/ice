@@ -168,16 +168,9 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
-            {
-                const startPromise = this._startPromise;
-                this.exception(ex);
-                return startPromise;
-            }
-            else
-            {
-                return Ice.Promise.reject(ex);
-            }
+            const startPromise = this._startPromise;
+            this.exception(ex);
+            return startPromise;
         }
         return this._startPromise;
     }
