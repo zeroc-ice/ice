@@ -170,9 +170,14 @@ class ConnectionI
         {
             if(ex instanceof Ice.LocalException)
             {
+                const startPromise = this._startPromise;
                 this.exception(ex);
+                return startPromise;
             }
-            return Ice.Promise.reject(ex);
+            else
+            {
+                return Ice.Promise.reject(ex);
+            }
         }
         return this._startPromise;
     }

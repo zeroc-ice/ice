@@ -1135,6 +1135,31 @@
 
             out.writeLine("ok");
 
+            if(defaultProtocol === "ws" || defaultProtocol === "wss")
+            {
+                out.write("testing ping invalid WS proxies... ");
+                //
+                // Invocation in a WS or WSS proxy that has not hostname set
+                // will fail creating the WebSocket object.
+                //
+                const communicator2 = Ice.initialize();
+                const invalid = communicator2.stringToProxy("test:default -p 12010");
+                try
+                {
+                    await invalid.ice_ping();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    // expected
+                }
+                finally
+                {
+                    await communicator2.destroy();
+                }
+                out.writeLine("ok");
+            }
+
             out.write("testing communicator shutdown/destroy... ");
             {
                 const c = Ice.initialize();
