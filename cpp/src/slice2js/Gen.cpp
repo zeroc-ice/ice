@@ -400,6 +400,10 @@ Slice::Gen::generate(const UnitPtr& p)
     bool icejs = find(globalMetaData.begin(), globalMetaData.end(), "js:ice-build") != globalMetaData.end();
     bool es6module = find(globalMetaData.begin(), globalMetaData.end(), "js:es6-module") != globalMetaData.end();
 
+    _out << nl << "/* eslint-disable */";
+    _out << nl << "/* jshint ignore: start */";
+    _out << nl;
+
     if(!es6module)
     {
         if(icejs)
