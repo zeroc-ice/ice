@@ -29,6 +29,9 @@ In order to build Ice for .NET from source, you need all of the following:
  - the [Ice Builder for Visual Studio][4]
  - the [.NET Core 2.0 SDK][5], if you use Visual Studio 2017
 
+> Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
+> builds.
+
 ### Compiling Ice for .NET on Windows
 
 Open a Visual Studio command prompt and change to the `csharp` subdirectory:
