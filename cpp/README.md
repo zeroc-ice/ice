@@ -256,7 +256,7 @@ library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH (macOS
 On a Linux x86_64 system:
 ```
 <prefix>/lib64                 (RHEL, SLES, Amazon)
-prefix>/lib/x86_64-linux-gnu  (Ubuntu)
+<prefix>/lib/x86_64-linux-gnu  (Ubuntu)
 ```
 
 On macOS:
@@ -296,6 +296,22 @@ builds or `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
 `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
 `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017
 builds.
+
+## Cleaning the source build on macOS or Linux
+
+Running `make clean` will remove the binaries created for the default
+configuration and platform.
+
+To clean the binaries produced for a specific configuration or platform, you
+need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
+`make CONFIGS=cpp11-shared clean` will clean the C++11 mapping build.
+
+To clean the build for all the supported configurations and platforms, run
+`make CONFIGS=all PLATFORMS=all clean`.
+
+Running `make distclean` will also clean the build for all the configurations
+and platforms. In addition, it will also remove the generated files created by
+the Slice translators.
 
 ## Running the Test Suite
 

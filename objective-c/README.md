@@ -90,6 +90,22 @@ Objective-C Controller app from Xcode:
  `objective-c/test/ios/controller` directory.
  - Build the `Objective-C Controller` or `Objective-C ARC Controller` app.
 
+## Cleaning the source build
+
+Running `make clean` will remove the binaries created for the default
+configuration and platform.
+
+To clean the binaries produced for a specific configuration or platform, you
+need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
+`make CONFIGS=xcodesdk clean` will clean the Xcode SDK build.
+
+To clean the build for all the supported configurations and platforms, run
+`make CONFIGS=all PLATFORMS=all clean`.
+
+Running `make distclean` will also clean the build for all the configurations
+and platforms. In addition, it will also remove the generated files created by
+the Slice translators.
+
 ## Running the Test Suite
 
 Python is required to run the test suite. After a successful source build, you
