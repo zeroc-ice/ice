@@ -19,7 +19,8 @@ Ice._ModuleRegistry.require(module,
         "../Ice/ServantManager",
         "../Ice/StringUtil",
         "../Ice/UUID",
-        "../Ice/ArrayUtil"
+        "../Ice/ArrayUtil",
+        "../Ice/Promise"
     ]);
 
 const AsyncResultBase = Ice.AsyncResultBase;
@@ -238,6 +239,9 @@ class ObjectAdapterI
 
     activate()
     {
+        const promise = new AsyncResultBase(this._communicator, "activate", null, null, this);
+        promise.resolve();
+        return promise;
     }
 
     hold()
@@ -248,21 +252,35 @@ class ObjectAdapterI
     waitForHold()
     {
         const promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
-        return this.checkForDeactivation(promise) ? promise : promise.resolve();
+        try
+        {
+            this.checkForDeactivation();
+            promise.resolve();
+        }
+        catch(ex)
+        {
+            promise.reject(ex);
+        }
+        return promise;
     }
 
     deactivate()
     {
+        const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if(this._state < StateDeactivated)
         {
             this._state = StateDeactivated;
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
+        promise.resolve();
+        return promise;
     }
 
     waitForDeactivate()
     {
-        return new AsyncResultBase(this._communicator, "deactivate", null, null, this).resolve();
+        const promise = new AsyncResultBase(this._communicator, "waitForDeactivate", null, null, this);
+        promise.resolve();
+        return promise;
     }
 
     isDeactivated()
@@ -272,15 +290,20 @@ class ObjectAdapterI
 
     destroy()
     {
-        this.deactivate();
-        if(this._state < StateDestroyed)
+        // NOTE: we don't call waitForDeactivate since it's currently a no-op.
+        return this.deactivate().then(() =>
         {
-            this._state = StateDestroyed;
-            this._servantManager.destroy();
-            this._objectAdapterFactory.removeObjectAdapter(this);
-            this._publishedEndpoints = [];
-        }
-        return new AsyncResultBase(this._communicator, "destroy", null, null, this).resolve();
+            if(this._state < StateDestroyed)
+            {
+                this._state = StateDestroyed;
+                this._servantManager.destroy();
+                this._objectAdapterFactory.removeObjectAdapter(this);
+                this._publishedEndpoints = [];
+            }
+            const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
+            promise.resolve();
+            return promise;
+        });
     }
 
     add(object, ident)
@@ -482,25 +505,14 @@ class ObjectAdapterI
             this._instance.referenceFactory().create(ident, facet, this._reference, this._publishedEndpoints));
     }
 
-    checkForDeactivation(promise)
+    checkForDeactivation()
     {
         if(this._state >= StateDeactivated)
         {
             const ex = new Ice.ObjectAdapterDeactivatedException();
             ex.name = this.getName();
-
-            if(promise !== undefined)
-            {
-                promise.reject(ex);
-                return true;
-            }
-            else
-            {
-                throw ex;
-            }
+            throw ex;
         }
-
-        return false;
     }
 
     checkIdentity(ident)

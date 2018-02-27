@@ -114,7 +114,7 @@
             {
                 test(ex instanceof Ice.NotRegisteredException, ex);
             }
-            adapter.deactivate();
+            await adapter.deactivate();
         }
         out.writeLine("ok");
 
@@ -131,7 +131,7 @@
             {
                 test(ex instanceof Ice.AlreadyRegisteredException, ex);
             }
-            adapter.deactivate();
+            await adapter.deactivate();
             out.writeLine("ok");
 
             out.write("testing value factory registration exception... ");

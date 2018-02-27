@@ -11,12 +11,14 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/Instance",
+        "../Ice/Debug",
         "../Ice/UUID",
         "../Ice/AsyncResultBase",
         "../Ice/LocalException"
     ]);
 
 const Instance = Ice.Instance;
+const Debug = Ice.Debug;
 
 //
 // Ice.Communicator
@@ -46,14 +48,12 @@ class Communicator
     {
         try
         {
-            this._instance.objectAdapterFactory().shutdown();
+            return this._instance.objectAdapterFactory().shutdown();
         }
         catch(ex)
         {
-            if(!(ex instanceof Ice.CommunicatorDestroyedException))
-            {
-                throw ex;
-            }
+            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
+            return Ice.Promise.resolve();
         }
     }
 
@@ -65,10 +65,8 @@ class Communicator
         }
         catch(ex)
         {
-            if(!(ex instanceof Ice.CommunicatorDestroyedException))
-            {
-                throw ex;
-            }
+            Debug.assert(ex instanceof Ice.CommunicatorDestroyedException);
+            return Ice.Promise.resolve();
         }
     }
 

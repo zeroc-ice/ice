@@ -63,12 +63,13 @@
             {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
-            adapter.destroy();
+            await adapter.destroy();
+
             //
             // Use a different port than the first adapter to avoid an "address already in use" error.
             //
             adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter");
-            adapter.destroy();
+            await adapter.destroy();
             out.writeLine("ok");
         }
 
@@ -84,7 +85,7 @@
                 initData.properties = communicator.getProperties().clone();
                 let comm = Ice.initialize(initData);
                 comm.stringToProxy("test:default -p 12010").ice_ping().catch(ex => {});
-                comm.destroy();
+                await comm.destroy();
             }
             out.writeLine("ok");
         }
@@ -122,7 +123,7 @@
             const adapter = await communicator.createObjectAdapter("");
             (await obj.ice_getConnection()).setAdapter(adapter);
             (await obj.ice_getConnection()).setAdapter(null);
-            adapter.deactivate();
+            await adapter.deactivate();
             try
             {
                 (await obj.ice_getConnection()).setAdapter(adapter);
@@ -156,7 +157,7 @@
                 // Expected.
                 test(ex instanceof Error);
             }
-            adapter.destroy();
+            await adapter.destroy();
 
             try
             {

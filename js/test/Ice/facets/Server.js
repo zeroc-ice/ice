@@ -102,9 +102,7 @@
             let hi = new HI();
             adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
             await echo.setConnection();
-
             echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
             ready.resolve();
             await communicator.waitForShutdown();
             await echo.shutdown();

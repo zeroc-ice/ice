@@ -274,11 +274,6 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
         //
     }
 
-    //
-    // Must be called outside the thread synchronization, because
-    // Connection::destroy() might block when sending a CloseConnection
-    // message.
-    //
 #ifdef ICE_CPP11_MAPPING
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
         [](const IncomingConnectionFactoryPtr& factory)
@@ -290,11 +285,6 @@ Ice::ObjectAdapterI::deactivate() ICE_NOEXCEPT
              Ice::voidMemFun(&IncomingConnectionFactory::destroy));
 #endif
 
-    //
-    // Must be called outside the thread synchronization, because
-    // changing the object adapter might block if there are still
-    // requests being dispatched.
-    //
     _instance->outgoingConnectionFactory()->removeAdapter(ICE_SHARED_FROM_THIS);
 
     {
