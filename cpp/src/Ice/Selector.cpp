@@ -72,6 +72,7 @@ Selector::initialize(EventHandler* handler)
     {
         return;
     }
+
 #ifdef ICE_USE_IOCP
     HANDLE socket = reinterpret_cast<HANDLE>(handler->getNativeInfo()->fd());
     if(CreateIoCompletionPort(socket, _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == ICE_NULLPTR)
@@ -114,6 +115,14 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
 void
 Selector::finish(IceInternal::EventHandler* handler)
 {
+#ifdef ICE_OS_UWP
+    // If async operations are no longer pending, clear the completion handler to break
+    // the cyclic reference count.
+    if(!handler->_started)
+    {
+        handler->getNativeInfo()->setCompletedHandler(nullptr);
+    }
+#endif
     handler->_registered = SocketOperationNone;
     handler->_finish = false; // Ensures that finished() is only called once on the event handler.
 }

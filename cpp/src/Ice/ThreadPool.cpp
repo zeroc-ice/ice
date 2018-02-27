@@ -540,10 +540,10 @@ IceInternal::ThreadPool::dispatchFromThisThread(const DispatchWorkItemPtr& workI
         {
 #ifdef ICE_CPP11_MAPPING
             _dispatcher([workItem]()
-                        {
-                            workItem->run();
-                        },
-                        workItem->getConnection());
+            {
+                workItem->run();
+            },
+            workItem->getConnection());
 #else
             _dispatcher->dispatch(workItem, workItem->getConnection());
 #endif
@@ -702,7 +702,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             // Get the next ready handler.
             //
             while(_nextHandler != _handlers.end() &&
-                  !(_nextHandler->second & ~_nextHandler->first->_disabled & _nextHandler->first->_registered))
+                    !(_nextHandler->second & ~_nextHandler->first->_disabled & _nextHandler->first->_registered))
             {
                 ++_nextHandler;
             }
@@ -764,7 +764,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _threadIdleTime));
 #else
             current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count, current._error,
-                                                                                 _threadIdleTime));
+                               _threadIdleTime));
 #endif
         }
         catch(const SelectorTimeoutException&)
@@ -815,7 +815,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #else
 
                 current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                    current._error, _serverIdleTime));
+                                   current._error, _serverIdleTime));
 #endif
             }
             catch(const SelectorTimeoutException&)
@@ -989,6 +989,14 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
                 _workQueue->queue(new FinishedWorkItem(current._handler, false));
                 _selector.finish(current._handler.get());
             }
+#ifdef ICE_OS_UWP
+            // If async operations are no longer pending, clear the completion handler to break
+            // the cyclic reference count.
+            if(!current._handler->_started)
+            {
+                current._handler->getNativeInfo()->setCompletedHandler(nullptr);
+            }
+#endif
             return false;
         }
     }

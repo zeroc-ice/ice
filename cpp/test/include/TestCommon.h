@@ -186,22 +186,18 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
       ICE_DECLSPEC_EXPORT void dllTestShutdown(); \
       void dllTestShutdown() \
       { \
-          try \
+          if(communicatorInstance) \
           { \
-              if(communicatorInstance) \
-              { \
-                  communicatorInstance->destroy(); \
-              } \
-          } \
-          catch(const Ice::LocalException&) \
-          { \
+              communicatorInstance->destroy(); \
           } \
       } \
       ICE_DECLSPEC_EXPORT int dllMain(int, char**, Test::MainHelper*); \
       int dllMain(int argc, char** argv, Test::MainHelper* helper) \
       { \
           Test::MainHelperInit init(helper, name, helper->redirect());  \
-          return Test::mainEntryPoint(argc, argv); \
+          int status = Test::mainEntryPoint(argc, argv); \
+          communicatorInstance = ICE_NULLPTR; \
+          return status; \
       } \
    }
 
