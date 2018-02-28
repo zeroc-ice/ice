@@ -19,7 +19,9 @@ Ice._ModuleRegistry.require(module,
         "../Ice/ServantManager",
         "../Ice/StringUtil",
         "../Ice/UUID",
-        "../Ice/ArrayUtil"
+        "../Ice/ArrayUtil",
+        "../Ice/Promise",
+        "../Ice/Timer"
     ]);
 
 const AsyncResultBase = Ice.AsyncResultBase;
@@ -29,6 +31,7 @@ const PropertyNames = Ice.PropertyNames;
 const ServantManager = Ice.ServantManager;
 const StringUtil = Ice.StringUtil;
 const ArrayUtil = Ice.ArrayUtil;
+const Timer = Ice.Timer;
 
 const _suffixes =
 [
@@ -69,9 +72,9 @@ const _suffixes =
 ];
 
 const StateUninitialized = 0; // Just constructed.
-//const StateHeld = 1;
+const StateHeld = 1;
 //const StateWaitActivate = 2;
-//const StateActive = 3;
+const StateActive = 3;
 //const StateDeactivating = 4;
 const StateDeactivated = 5;
 const StateDestroyed  = 6;
@@ -92,6 +95,7 @@ class ObjectAdapterI
         this._routerInfo = null;
         this._state = StateUninitialized;
         this._noConfig = noConfig;
+        this._statePromises = [];
 
         if(this._noConfig)
         {
@@ -238,31 +242,50 @@ class ObjectAdapterI
 
     activate()
     {
+        const promise = new AsyncResultBase(this._communicator, "activate", null, null, this);
+        this.setState(StateActive);
+        promise.resolve();
+        return promise;
     }
 
     hold()
     {
         this.checkForDeactivation();
+        this.setState(StateHeld);
     }
 
     waitForHold()
     {
         const promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
-        return this.checkForDeactivation(promise) ? promise : promise.resolve();
+        try
+        {
+            this.checkForDeactivation();
+            this.waitState(StateHeld, promise);
+        }
+        catch(ex)
+        {
+            promise.reject(ex);
+        }
+        return promise;
     }
 
     deactivate()
     {
+        const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if(this._state < StateDeactivated)
         {
-            this._state = StateDeactivated;
+            this.setState(StateDeactivated);
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
+        promise.resolve();
+        return promise;
     }
 
     waitForDeactivate()
     {
-        return new AsyncResultBase(this._communicator, "deactivate", null, null, this).resolve();
+        const promise = new AsyncResultBase(this._communicator, "waitForDeactivate", null, null, this);
+        this.waitState(StateDeactivated, promise);
+        return promise;
     }
 
     isDeactivated()
@@ -272,15 +295,20 @@ class ObjectAdapterI
 
     destroy()
     {
-        this.deactivate();
-        if(this._state < StateDestroyed)
+        // NOTE: we don't call waitForDeactivate since it's currently a no-op.
+        return this.deactivate().then(() =>
         {
-            this._state = StateDestroyed;
-            this._servantManager.destroy();
-            this._objectAdapterFactory.removeObjectAdapter(this);
-            this._publishedEndpoints = [];
-        }
-        return new AsyncResultBase(this._communicator, "destroy", null, null, this).resolve();
+            if(this._state < StateDestroyed)
+            {
+                this.setState(StateDestroyed);
+                this._servantManager.destroy();
+                this._objectAdapterFactory.removeObjectAdapter(this);
+                this._publishedEndpoints = [];
+            }
+            const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
+            promise.resolve();
+            return promise;
+        });
     }
 
     add(object, ident)
@@ -482,25 +510,14 @@ class ObjectAdapterI
             this._instance.referenceFactory().create(ident, facet, this._reference, this._publishedEndpoints));
     }
 
-    checkForDeactivation(promise)
+    checkForDeactivation()
     {
         if(this._state >= StateDeactivated)
         {
             const ex = new Ice.ObjectAdapterDeactivatedException();
             ex.name = this.getName();
-
-            if(promise !== undefined)
-            {
-                promise.reject(ex);
-                return true;
-            }
-            else
-            {
-                throw ex;
-            }
+            throw ex;
         }
-
-        return false;
     }
 
     checkIdentity(ident)
@@ -687,6 +704,49 @@ class ObjectAdapterI
         }
 
         return noProps;
+    }
+
+    setState(state)
+    {
+        if(this._state === state)
+        {
+            return;
+        }
+        this._state = state;
+
+        let promises = [];
+        (state < StateDeactivated ? [state] : [StateHeld, StateDeactivated]).forEach(s =>
+        {
+            if(this._statePromises[s])
+            {
+                promises = promises.concat(this._statePromises[s]);
+                delete this._statePromises[s];
+            }
+        });
+        if(promises.length > 0)
+        {
+            Timer.setImmediate(() => promises.forEach(p => p.resolve()));
+        }
+    }
+
+    waitState(state, promise)
+    {
+        if(this._state < StateDeactivated &&
+           (state === StateHeld && this._state !== StateHeld || state === StateDeactivated))
+        {
+            if(this._statePromises[state])
+            {
+                this._statePromises[state].push(promise);
+            }
+            else
+            {
+                this._statePromises[state] = [promise];
+            }
+        }
+        else
+        {
+            promise.resolve();
+        }
     }
 }
 

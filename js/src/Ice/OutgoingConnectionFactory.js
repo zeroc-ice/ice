@@ -177,7 +177,7 @@ class OutgoingConnectionFactory
         if(this._destroyed)
         {
             promise.resolve();
-            return;
+            return promise;
         }
 
         Ice.Promise.all(

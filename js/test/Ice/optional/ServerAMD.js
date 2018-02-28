@@ -24,7 +24,6 @@
             adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
             ready.resolve();
             await communicator.waitForShutdown();
             await echo.shutdown();

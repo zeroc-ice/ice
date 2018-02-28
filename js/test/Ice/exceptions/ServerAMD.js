@@ -33,7 +33,6 @@
             });
             connection.setAdapter(adapter);
             echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
             ready.resolve();
             await communicator.waitForShutdown();
             await echo.shutdown();

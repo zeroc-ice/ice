@@ -63,12 +63,13 @@
             {
                 test(ex instanceof Ice.AlreadyRegisteredException);
             }
-            adapter.destroy();
+            await adapter.destroy();
+
             //
             // Use a different port than the first adapter to avoid an "address already in use" error.
             //
             adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter");
-            adapter.destroy();
+            await adapter.destroy();
             out.writeLine("ok");
         }
 
@@ -84,7 +85,7 @@
                 initData.properties = communicator.getProperties().clone();
                 let comm = Ice.initialize(initData);
                 comm.stringToProxy("test:default -p 12010").ice_ping().catch(ex => {});
-                comm.destroy();
+                await comm.destroy();
             }
             out.writeLine("ok");
         }
@@ -122,7 +123,7 @@
             const adapter = await communicator.createObjectAdapter("");
             (await obj.ice_getConnection()).setAdapter(adapter);
             (await obj.ice_getConnection()).setAdapter(null);
-            adapter.deactivate();
+            await adapter.deactivate();
             try
             {
                 (await obj.ice_getConnection()).setAdapter(adapter);
@@ -156,7 +157,7 @@
                 // Expected.
                 test(ex instanceof Error);
             }
-            adapter.destroy();
+            await adapter.destroy();
 
             try
             {
@@ -186,6 +187,36 @@
 
         out.write("deactivating object adapter in the server... ");
         await obj.deactivate();
+        out.writeLine("ok");
+
+        out.write("testing adapter states... ");
+        {
+            const adpt = await communicator.createObjectAdapter("");
+            test(!adpt.isDeactivated());
+            await adpt.activate();
+            test(!adpt.isDeactivated());
+
+            let isHolding = false;
+            adpt.waitForHold().then(() => { isHolding = true; });
+            test(!isHolding);
+            adpt.hold();
+            await adpt.waitForHold();
+            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            test(isHolding);
+
+            isHolding = false;
+            adpt.waitForHold().then(() => isHolding = true);
+
+            let isDeactivated = false;
+            adpt.waitForDeactivate().then(() => isDeactivated = true);
+            test(!isDeactivated);
+            await adpt.deactivate();
+            await adpt.waitForDeactivate();
+            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            test(isDeactivated && isHolding);
+            test(adpt.isDeactivated());
+            await adpt.destroy();
+        }
         out.writeLine("ok");
 
         out.write("testing whether server is gone... ");

@@ -32,7 +32,6 @@
             adapter.add(new TestActivationI(), Ice.stringToIdentity("test/activation"));
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
             ready.resolve();
             await communicator.waitForShutdown();
             await echo.shutdown();

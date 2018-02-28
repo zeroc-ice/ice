@@ -225,21 +225,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
         }
 
-        //
-        // Must be called outside the thread synchronization, because
-        // Connection::destroy() might block when sending a
-        // CloseConnection message.
-        //
         for(IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.destroy();
         }
 
-        //
-        // Must be called outside the thread synchronization, because
-        // changing the object adapter might block if there are still
-        // requests being dispatched.
-        //
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
         synchronized(this)
