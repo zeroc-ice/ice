@@ -130,7 +130,6 @@ class ConnectionI
 
         this._startPromise = null;
         this._closePromises = [];
-        this._holdPromises = [];
         this._finishedPromises = [];
 
         if(this._adapter !== null)
@@ -249,14 +248,22 @@ class ConnectionI
     {
         //
         // If close(GracefullyWithWait) has been called, then we need to check if all
-        // requests have completed and we can transition to StateClosing.
-        // We also complete outstanding promises.
+        // requests have completed and we can transition to StateClosing. We also
+        // complete outstanding promises.
         //
         if(this._asyncRequests.size === 0 && this._closePromises.length > 0)
         {
-            this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
-            this._closePromises.forEach(p => p.resolve());
-            this._closePromises = [];
+            //
+            // The caller doesn't expect the state of the connection to change when this is called so
+            // we defer the check immediately after doing whather we're doing. This is consistent with
+            // other implementations as well.
+            //
+            Timer.setImmediate(() =>
+            {
+                this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
+                this._closePromises.forEach(p => p.resolve());
+                this._closePromises = [];
+            });
         }
     }
 
@@ -283,14 +290,6 @@ class ConnectionI
             Debug.assert(this._state >= StateClosing);
             throw this._exception;
         }
-    }
-
-    waitUntilHolding()
-    {
-        const promise = new Ice.Promise();
-        this._holdPromises.push(promise);
-        this.checkState();
-        return promise;
     }
 
     waitUntilFinished()
@@ -555,6 +554,7 @@ class ConnectionI
                     this._sendStreams.splice(i, 1);
                 }
                 outAsync.completedEx(ex);
+                this.checkClose();
                 return; // We're done.
             }
         }
@@ -567,6 +567,7 @@ class ConnectionI
                 {
                     this._asyncRequests.delete(key);
                     outAsync.completedEx(ex);
+                    this.checkClose();
                     return; // We're done.
                 }
             }
@@ -1072,6 +1073,7 @@ class ConnectionI
             value.completedEx(this._exception);
         }
         this._asyncRequests.clear();
+        this.checkClose();
 
         //
         // Don't wait to be reaped to reclaim memory allocated by read/write streams.
@@ -2018,9 +2020,6 @@ class ConnectionI
         {
             return;
         }
-
-        this._holdPromises.forEach(p => p.resolve());
-        this._holdPromises = [];
 
         //
         // We aren't finished until the state is finished and all

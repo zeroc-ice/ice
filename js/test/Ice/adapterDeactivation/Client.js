@@ -189,6 +189,36 @@
         await obj.deactivate();
         out.writeLine("ok");
 
+        out.write("testing adapter states... ");
+        {
+            const adpt = await communicator.createObjectAdapter("");
+            test(!adpt.isDeactivated());
+            await adpt.activate();
+            test(!adpt.isDeactivated());
+
+            let isHolding = false;
+            adpt.waitForHold().then(() => { isHolding = true; });
+            test(!isHolding);
+            adpt.hold();
+            await adpt.waitForHold();
+            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            test(isHolding);
+
+            isHolding = false;
+            adpt.waitForHold().then(() => isHolding = true);
+
+            let isDeactivated = false;
+            adpt.waitForDeactivate().then(() => isDeactivated = true);
+            test(!isDeactivated);
+            await adpt.deactivate();
+            await adpt.waitForDeactivate();
+            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            test(isDeactivated && isHolding);
+            test(adpt.isDeactivated());
+            await adpt.destroy();
+        }
+        out.writeLine("ok");
+
         out.write("testing whether server is gone... ");
         try
         {
