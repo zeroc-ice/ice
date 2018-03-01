@@ -36,6 +36,9 @@ listed on [supported platforms][2].
 On Windows, the build requires a recent version of Visual Studio and the
 [Ice Builder for Visual Studio][13].
 
+Visual Studio 2017 users need to install Windows 10 SDK (10.0.14393.0)
+component in Visual Studio 2017 installer.
+
 ### Third-Party Libraries
 
 Ice has dependencies on a number of third-party libraries:
