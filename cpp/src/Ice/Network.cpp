@@ -875,6 +875,7 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
                 //
                 this->queueActionCompleted(op, asyncInfo, info, status);
             });
+        asyncInfo->operation = action;
     }
 }
 
@@ -928,6 +929,7 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
                 });
         }
         operation->Completed = info->completedHandler;
+        info->operation = operation;
     }
 }
 

@@ -507,7 +507,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     return closeNow;
 #else
     // If there are no pending asynchronous operations, we can call finish on the handler now.
-    if(!(handler->_pending & SocketOperationWaitForClose))
+    if(!handler->_pending)
     {
         _workQueue->queue(new FinishedWorkItem(handler, false));
         _selector.finish(handler.get());
@@ -983,7 +983,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         if(!current._handler->finishAsync(current.operation)) // Returns false if the handler is finished.
         {
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
-            if(!(current._handler->_pending & SocketOperationWaitForClose) && current._handler->_finish)
+            if(!current._handler->_pending && current._handler->_finish)
             {
                 Lock sync(*this);
                 _workQueue->queue(new FinishedWorkItem(current._handler, false));
@@ -1010,7 +1010,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         else if(!current._handler->startAsync(current.operation))
         {
             current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
-            if(!(current._handler->_pending & SocketOperationWaitForClose) && current._handler->_finish)
+            if(!current._handler->_pending && current._handler->_finish)
             {
                 Lock sync(*this);
                 _workQueue->queue(new FinishedWorkItem(current._handler, false));
@@ -1034,7 +1034,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
     else
     {
         current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
-        if(!(current._handler->_pending & SocketOperationWaitForClose) && current._handler->_finish)
+        if(!current._handler->_pending && current._handler->_finish)
         {
             Lock sync(*this);
             _workQueue->queue(new FinishedWorkItem(current._handler, false));
@@ -1069,7 +1069,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
         current._handler->_pending = static_cast<SocketOperation>(current._handler->_pending & ~current.operation);
     }
 
-    if(!(current._handler->_pending & SocketOperationWaitForClose) && current._handler->_finish)
+    if(!current._handler->_pending && current._handler->_finish)
     {
         // There are no more pending async operations, it's time to call finish.
         Lock sync(*this);

@@ -18,7 +18,6 @@ using namespace IceInternal;
 #include <Ice/Properties.h>
 using namespace Platform;
 using namespace Windows::Foundation;
-
 #endif
 
 StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
@@ -509,8 +508,9 @@ StreamSocket::startWrite(Buffer& buf)
             try
             {
                 queueAction(SocketOperationConnect,
-                    safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd)->ConnectAsync(addr.host, addr.port,
-                                      Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket), true);
+                            safe_cast<Windows::Networking::Sockets::StreamSocket^>(_fd)->ConnectAsync(
+                                  addr.host, addr.port,
+                                  Windows::Networking::Sockets::SocketProtectionLevel::PlainSocket), true);
             }
             catch(Platform::Exception^ ex)
             {
@@ -548,6 +548,7 @@ StreamSocket::startWrite(Buffer& buf)
 void
 StreamSocket::finishWrite(Buffer& buf)
 {
+    _write.operation = nullptr; // Must be cleared with the connection lock held
     if(_fd == INVALID_SOCKET || (_state < StateConnected && _state != StateProxyWrite))
     {
         return;
@@ -579,6 +580,7 @@ StreamSocket::startRead(Buffer& buf)
 void
 StreamSocket::finishRead(Buffer& buf)
 {
+    _read.operation = nullptr; // Must be cleared with the connection lock held
     if(_fd == INVALID_SOCKET)
     {
         return;
@@ -615,6 +617,16 @@ StreamSocket::close()
     assert(_fd != INVALID_SOCKET);
     try
     {
+#if defined(ICE_OS_UWP)
+        if(_read.operation)
+        {
+            _read.operation->Cancel();
+        }
+        if(_write.operation)
+        {
+            _write.operation->Cancel();
+        }
+#endif
         closeSocket(_fd);
         _fd = INVALID_SOCKET;
     }
