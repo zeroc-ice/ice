@@ -103,7 +103,7 @@
     <Copy SourceFiles="$(IceBinPath)\icessl37++11$(DebugExtension).dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
-    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabHome)')" />
+    <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
