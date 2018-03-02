@@ -1,26 +1,14 @@
-# Ice for MATLAB
+# Building Ice for MATLAB
 
-> *This project is in the beta release stage. Not recommended for use in a
-production application.*
+This document describes how to build and install Ice for MATLAB from source.
 
-## Toolbox Installation
-
-Ice for MATLAB is available as a toolbox for MATLAB versions R2016a and R2017a.
-Refer to the [Release Notes](https://doc.zeroc.com/display/IceMatlab/Using+the+MATLAB+Distribution)
-for installation instructions.
-
-## Source Build
-
-The remainder of this document describes how to build and use Ice for MATLAB
-from source.
+ZeroC provides Ice for MATLAB toolboxes for all recent versions of MATLAB on Windows,
+so building Ice for MATLAB from source is usually unnecessary.
 
 ### Prerequisites
 
-The build system requires Microsoft Visual Studio 2015, the [Ice Builder for
-Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=ZeroCInc.IceBuilder),
+The build system requires MATLAB 2016a or later for Windows, Visual Studio 2015 
 and a Perl installation.
-
-Ice for MATLAB supports MATLAB 2016a or later.
 
 ### Build Instructions
 
