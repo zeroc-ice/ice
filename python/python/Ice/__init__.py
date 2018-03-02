@@ -589,8 +589,10 @@ class SliceInfo(object):
     #
     # typeId - string
     # compactId - int
-    # bytes - string
-    # objects - tuple of Ice.Value
+    # bytes - string/bytes
+    # instances - tuple of Ice.Value
+    # hasOptionalMembers - boolean
+    # isLastSlice - boolean
     pass
 
 #

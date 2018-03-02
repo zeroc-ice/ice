@@ -191,7 +191,7 @@ module Ice
     # SliceInfo
     #
     class SliceInfo
-        attr_accessor :typeId, :bytes, :objects
+        attr_accessor :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
     end
 
     class FormatType
