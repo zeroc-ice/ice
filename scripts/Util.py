@@ -1831,7 +1831,8 @@ class TestSuite:
     def isMainThreadOnly(self, driver):
         for m in [CppMapping, JavaMapping, CSharpMapping]:
             config = driver.configs[self.mapping]
-            if isinstance(self.mapping, CSharpMapping) and config.netframework:
+            # TODO: WORKAROUND for ICE-8175
+            if self.id.startswith("IceStorm"):
                 return True
             elif isinstance(self.mapping, m):
                 if "iphone" in config.buildPlatform or config.uwp:
