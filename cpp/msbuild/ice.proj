@@ -362,10 +362,10 @@
         <!-- Win32 package -->
         <MSBuild Projects="ice.nuget.uwp.arch.targets"
                  Properties="Configuration=Debug;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86"
-                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Debug'"/>
+                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Debug' or '$(BuildAllConfigurations)' == 'yes'"/>
         <MSBuild Projects="ice.nuget.uwp.arch.targets"
                  Properties="Configuration=Release;Platform=Win32;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x86"
-                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"/>
+                 Condition="'$(Platform)|$(Configuration)' == 'Win32|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x86\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
@@ -380,10 +380,10 @@
         <!-- x64 package -->
         <MSBuild Projects="ice.nuget.uwp.arch.targets"
                  Properties="Configuration=Debug;Platform=x64;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x64"
-                 Condition="'$(Platform)|$(Configuration)' == 'x64|Debug'"/>
+                 Condition="'$(Platform)|$(Configuration)' == 'x64|Debug' or '$(BuildAllConfigurations)' == 'yes'"/>
         <MSBuild Projects="ice.nuget.uwp.arch.targets"
                  Properties="Configuration=Release;Platform=x64;PackageDirectory=zeroc.ice.uwp.$(DefaultPlatformToolset).x64"
-                 Condition="'$(Platform)|$(Configuration)' == 'x64|Release'" />
+                 Condition="'$(Platform)|$(Configuration)' == 'x64|Release' or '$(BuildAllConfigurations)' == 'yes'" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.uwp.$(DefaultPlatformToolset).x64\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
