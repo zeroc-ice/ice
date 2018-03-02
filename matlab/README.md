@@ -2,8 +2,19 @@
 
 This document describes how to build and install Ice for MATLAB from source.
 
-ZeroC provides Ice for MATLAB toolboxes for all recent versions of MATLAB on Windows,
+ZeroC provides Ice for MATLAB [toolboxes][1] for all recent versions of MATLAB on Windows,
 so building Ice for MATLAB from source is usually unnecessary.
+
+* [Prerequisites](#prerequisites)
+* [Build Instructions](#build-instructions)
+* [Packaging the Ice Toolbox](#packaging-the-ice-toolbox)
+* [Using Ice for MATLAB](#using-ice-for-matlab)
+  * [Search Path](#search-path)
+  * [Slice Files](#slice-files)
+  * [Loading the Library](#loading-the-library)
+  * [Running the Tests](#running-the-tests)
+    * [Running the Tests Manually](#running-the-tests-manually)
+    * [Running the Automated Tests](#running-the-automated-tests)
 
 ### Prerequisites
 
@@ -40,7 +51,6 @@ Upon completion, a build in release mode generates the following components:
 ### Packaging the Ice Toolbox
 
 Use the following command to build the Ice toolbox package:
-
 ```
 msbuild msbuild\ice.proj /t:Package
 ```
@@ -119,3 +129,5 @@ python allTests.py --platform=x64 --cpp-config=Cpp11-Release
 This command will automatically start a corresponding C++11 server for each
 MATLAB client. MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
+
+[1]: https://zeroc.com/downloads/ice#matlab
