@@ -124,7 +124,7 @@
              Properties="Configuration=$(Configuration);Platform=x64" />
     <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');addFolderToPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.1-beta0'&quot;"
+    <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');buildToolbox '3.7.1'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
     <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)');removeFolderFromPath '$(ToolboxDir)\ice'&quot;"
           WorkingDirectory="$(MSBuildThisFileDirectory)"/>
