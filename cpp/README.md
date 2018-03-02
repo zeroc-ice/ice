@@ -33,8 +33,7 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio and the
-[Ice Builder for Visual Studio][13].
+On Windows, the build requires a recent version of Visual Studio.
 
 Visual Studio 2017 users need to install Windows 10 SDK (10.0.14393.0)
 component in Visual Studio 2017 installer.
@@ -104,14 +103,14 @@ from BlueZ 5.43.*
 
 Expat and bzip are included with your system.
 
-You can install LMDB and mcpp using [Homebrew][11]:
+You can install LMDB and mcpp using Homebrew:
 ```
 brew install lmdb mcpp
 ```
 
 #### Windows
 
-ZeroC provides [NuGet][12] packages for all these third-party dependencies.
+ZeroC provides NuGet packages for all these third-party dependencies.
 
 The Ice build system for Windows downloads and installs the NuGet command-line
 executable and the required NuGet packages when you build Ice for C++. The
@@ -409,6 +408,3 @@ failure, the tests abort with `failed`.
 [8]: https://www.freedesktop.org/wiki/Software/pkg-config
 [9]: https://www.freedesktop.org/wiki/Software/dbus
 [10]: http://www.bluez.org
-[11]: https://brew.sh
-[12]: https://www.nuget.org
-[13]: https://github.com/zeroc-ice/ice-builder-visualstudio
