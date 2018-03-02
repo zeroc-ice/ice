@@ -51,7 +51,7 @@
              Properties="Platform=$(Platform);Configuration=$(Configuration)" />
   </Target>
 
-  <Target Name="BuildDist" DependsOnTargets="BuildCppDist;MatlabHome" Condition="'$(ICE_BIN_DIST)' != 'all'">
+  <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore;MatlabHome" Condition="'$(ICE_BIN_DIST)' != 'all'">
     <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
              BuildInParallel="true"
              Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />

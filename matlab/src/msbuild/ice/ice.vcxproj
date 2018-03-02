@@ -86,7 +86,8 @@
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
-    <IceBinPath Condition="'$(IceBinPath)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
+    <IceBinPath Condition="'$(ICE_BIN_DIST)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
+    <IceBinPath Condition="'$(ICE_BIN_DIST)' != ''">..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\bin\$(Platform)\$(Configuration)</IceBinPath>
   </PropertyGroup>
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
