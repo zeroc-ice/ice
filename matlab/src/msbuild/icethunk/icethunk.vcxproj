@@ -60,7 +60,7 @@
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
-    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabHome)')"/>
+    <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')"/>
   </Target>
   <Target Name="MATLABPrototype" BeforeTargets="CLCompile">
     <MakeDir Directories="$(Platform)\$(Configuration)" />
