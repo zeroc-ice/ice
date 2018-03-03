@@ -472,6 +472,8 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 info->typeId = string(Z_STRVAL_P(typeId), Z_STRLEN_P(typeId));
 
                 zval* compactId = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("compactId"), sizeof("compactId") - 1);
+                assert(Z_TYPE_P(compactId) == IS_INDIRECT);
+                compactId = Z_INDIRECT_P(compactId);
                 assert(compactId && Z_TYPE_P(compactId) == IS_LONG);
                 info->compactId = static_cast<long>(Z_LVAL_P(compactId));
 
@@ -520,15 +522,18 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 }
                 ZEND_HASH_FOREACH_END();
 
-                zval* hasOptionalMembers = zend_hash_str_find(Z_OBJPROP_P(s),
-                                                          STRCAST("hasOptionalMembers"),
-                                                          sizeof("hasOptionalMembers") - 1);
-
+                zval* hasOptionalMembers =
+                    zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("hasOptionalMembers"), sizeof("hasOptionalMembers") - 1);
+                assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
+                hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
                 assert(hasOptionalMembers &&
                     (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
                 info->hasOptionalMembers = Z_TYPE_P(hasOptionalMembers) == IS_TRUE;
 
-                zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("isLastSlice"), sizeof("isLastSlice") - 1);
+                zval* isLastSlice =
+                    zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("isLastSlice"), sizeof("isLastSlice") - 1);
+                assert(Z_TYPE_P(isLastSlice) == IS_INDIRECT);
+                isLastSlice = Z_INDIRECT_P(isLastSlice);
                 assert(isLastSlice && (Z_TYPE_P(isLastSlice) == IS_TRUE || Z_TYPE_P(isLastSlice) == IS_FALSE));
                 info->isLastSlice = Z_TYPE_P(isLastSlice) == IS_TRUE;
 
