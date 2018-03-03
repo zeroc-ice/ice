@@ -26,8 +26,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [Ice Builder for Visual Studio][4]
- - the [.NET Core 2.0 SDK][5], if you use Visual Studio 2017
+ - the [.NET Core 2.0 SDK][4], if you use Visual Studio 2017
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -84,7 +83,7 @@ KEYFILE.
 
 If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
-This can be used for generating [Enhanced Strong Naming][6] signatures.
+This can be used for generating [Enhanced Strong Naming][5] signatures.
 
 #### Authenticode Signatures
 
@@ -174,6 +173,5 @@ This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
-[4]: https://github.com/zeroc-ice/ice-builder-visualstudio
-[5]: https://www.microsoft.com/net/download
-[6]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
+[4]: https://www.microsoft.com/net/download
+[5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
