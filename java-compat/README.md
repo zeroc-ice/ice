@@ -1,8 +1,7 @@
-# Building Ice for Java
+# Building Ice for Java Compat
 
-This page describes how to build and install Ice for Java from source code. If
-you prefer, you can also download [binary distributions][1] for the supported
-platforms.
+This page describes how to build and install Ice for Java from source. If
+you prefer, you can also download a [binary distribution][1].
 
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
@@ -20,24 +19,21 @@ platforms.
 
 ### Operating Systems
 
-Ice for Java is expected to build and run properly on Windows, macOS, and any
-recent Linux distribution for x86 and x86_64, and was extensively tested using
-the operating systems and compiler versions listed for our [supported
-platforms][2]. Due to the portability of Java, it is very likely that it will
-also work on other platforms for which a suitable Java implementation is
-available.
+Ice for Java builds and runs properly on Windows, macOS, and any recent 
+Linux distribution, and is fully supported on the platforms listed on the
+[supported platforms][2] page.
 
 ### Slice to Java Compiler
 
-You will need the Slice to Java compiler. ZeroC provides compiler binaries
-for our supported platforms. For other platforms, you will have to either port
-Ice for C++ (which contains the Slice to Java compiler), or you will have to
-translate your Slice files to Java on a supported platform and then copy the
-generated Java files to your target platform.
+You need the Slice to Java compiler to build Ice for Java and also to use
+Ice for Java. The Slice to Java compiler (`slice2java`) is a command-line tool
+written in C++. You can build the Slice to Java compiler from source, or
+alternatively you can install an Ice [binary distribution][1] that includes
+this compiler.
 
 ### Java Version
 
-Ice for Java requires J2SE 1.8.0 or later.
+Ice for Java requires J2SE 1.7.0 or later.
 
 Make sure that the `javac` and `java` commands are present in your PATH.
 
@@ -74,7 +70,7 @@ therefore add significant latency to Ice requests.*
 The build system requires the Slice to Java compiler from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
 `ICE_HOME` environment variable with the path name of your Ice installation. For
-example, on Unix:
+example, on Linux:
 
     $ export ICE_HOME=/opt/Ice-3.7.1 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
@@ -137,7 +133,7 @@ distribution system.
 Some of the Ice for Java tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
-Ice installation. On Unix:
+Ice installation. On Linux or macOS:
 
     $ export ICE_HOME=/opt/Ice-3.7.1 (For local build)
     $ export ICE_HOME=/usr (For RPM installation)
