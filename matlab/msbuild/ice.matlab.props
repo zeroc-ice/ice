@@ -3,12 +3,23 @@
     <PropertyGroup>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
-        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-        <IceHome>$(MSBuildThisFileDirectory)..\..\msbuild\packages\zeroc.ice.v140.$(IceJSOnVersion)</IceHome>
-        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-    </PropertyGroup>
+    <Choose>
+        <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+            <PropertyGroup>
+                <IceToolsPath>$(IceHome)\bin</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)..\..\msbuild\packages\zeroc.ice.v140.$(IceJSOnVersion)</IceHome>
+                <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+                <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
 </Project>
