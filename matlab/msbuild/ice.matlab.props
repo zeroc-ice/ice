@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
-    <Exec Command="where matlab" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="MatlabExe" />
-    </Exec>
-    <Error Text="Cannot detect a valid MATALB installation" Condition="!Exists('$(MatlabExe)')"/>
-    <CreateProperty Value="$([System.IO.Path]::GetFullPath( '$(MatlabExe)\..\..' ))">
-      <Output TaskParameter="Value" PropertyName="MatlabHome" />
-    </CreateProperty>
-  </Target>
+    <PropertyGroup>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
+        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+        <IceHome>$(MSBuildThisFileDirectory)..\..\msbuild\packages\zeroc.ice.v140.$(IceJSOnVersion)</IceHome>
+        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+    </PropertyGroup>
 </Project>
