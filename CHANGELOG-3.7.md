@@ -9,17 +9,26 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.7.1 (Pre-Release Snapshot)](#changes-in-ice-371-pre-release-snapshot)
-  - [General Changes](#general-changes)
+  * [General Changes](#general-changes)
+  * [C++ Changes](#c-changes)
+  * [C# Changes](#c%23-changes)
+  * [Java Changes](#java-changes)
+  * [JavaScript Changes](#javascript-changes)
+  * [MATLAB Changes](#matlab-changes)
+  * [Objective-C Changes](#objective-c-changes)
+  * [PHP Changes](#php-changes)
+  * [Python Changes](#python-changes)
+  * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
-  - [JavaScript Changes](#javascript-changes)
-  - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes)
-  - [Python Changes](#python-changes)
-  - [Ruby Changes](#ruby-changes)
+  * [General Changes](#general-changes-1)
+  * [C++ Changes](#c-changes-1)
+  * [C# Changes](#c%23-changes-1)
+  * [Java Changes](#java-changes-1)
+  * [JavaScript Changes](#javascript-changes-1)
+  * [Objective-C Changes](#objective-c-changes-1)
+  * [PHP Changes](#php-changes-1)
+  * [Python Changes](#python-changes-1)
+  * [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.7.1 (Pre-Release Snapshot)
 
@@ -44,14 +53,13 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 - Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
   was ignored.
 
-- Added support for ice_fixed proxy method to create a fixed proxy bound
-  to a given connection.
+- Added the ice_fixed proxy method to create a fixed proxy bound to a given
+  connection.
 
-- Added support for ice_getTimeout and ice_getCompress proxy methods. These
-  methods return an optional value that contains the proxy timeout or
-  compression override setting. If the timeout or the compression setting
-  haven't been overridden with ice_timeout or ice_compress, the optional
-  value is unset.
+- Added the ice_getTimeout and ice_getCompress proxy methods. These methods
+  return an optional value that contains the proxy timeout or compression
+  override setting. If the timeout or the compression setting haven't been
+  overridden with ice_timeout or ice_compress, the optional value is unset.
 
 - Fixed IceGrid node bug where a replica would not get up-to-date object
   adapter information about a server if an update was pending for the
@@ -68,10 +76,16 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## C++ Changes
 
-- Slice documentation comments are now preserved in the generated C++
-  code using Doxygen markup.
+- Added the "cpp:noexcept" metadata to operations in several local Slice
+  interfaces, including Communicator, Connection, and ObjectAdapter.
+  This helps to clarify that these operations do not raise exceptions.
+
+- Slice documentation comments are now preserved in the generated C++ code
+  using Doxygen markup.
 
 ## C# Changes
+
+- Added support for .NET Core 2.0 on Windows and Linux.
 
 - Added the ice_initialize partial method to generated structs and classes.
   This method is called by constructors after initialization of the data
@@ -84,6 +98,15 @@ These are the changes since Ice 3.7.0 included in this pre-release.
   be used as global metadata, in which case it serves as the default
   directive unless overridden by module metadata.
 
+## JavaScript Changes
+
+- Updated the generated code for compatibility with WebPack.
+
+## MATLAB Changes
+
+- Added a MATLAB language mapping. It provides a client-side run time and
+  supports MATLAB versions R2016a through R2017b on Windows.
+
 ## Objective-C Changes
 
 - Fixed the generated code to specify the __autoreleasing qualifier on
@@ -92,13 +115,16 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## PHP Changes
 
-- Fixed Ice for PHP build failure when build with PHP5 ZTS
+- Fixed Ice for PHP build failure when building with PHP5 ZTS.
 
 ## Python Changes
 
 - The python:package metadata can now be applied to modules. It can still
   be used as global metadata, in which case it serves as the default
   directive unless overridden by module metadata.
+
+- Fixed a bug that caused Python to crash on exit when the extension is
+  built with GCC 7.
 
 ## Ruby Changes
 
