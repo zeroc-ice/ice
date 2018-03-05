@@ -50,8 +50,7 @@ Upon completion, a build in release mode generates the following components:
 
 The MATLAB extension depends on Ice for C++ components from the cpp subdirectory,
 and those are built if required. It is also possible to build the MATLAB extension
-using the Ice for C++ NuGet packages by setting the ICE_BIN_DIST msbuild property
-to cpp:
+using Ice C++ NuGet packages by setting the ICE_BIN_DIST msbuild property to cpp:
 
 ```
 msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
@@ -66,14 +65,13 @@ msbuild msbuild\ice.proj /t:Package
 
 This creates the toolbox package `msbuild\ice-<Ice Version>-<MATLAB Version>.mltbx`.
 
-You can install the package from within MATLAB by double-clicking on the file.
+You can install the toolbox from within MATLAB by double-clicking on the file.
 
 ### Using Ice for MATLAB
 
 #### Search Path
 
-To use the source build, add the following directories to your MATLAB path:
-
+To use a source build, add the following directories to your MATLAB path:
  - `matlab\lib`
  - `matlab\lib\generated`
  - `matlab\lib\x64\Release`
@@ -100,8 +98,8 @@ Ice for C++ distribution. The build copies all DLL dependencies to the
 
 The Ice for MATLAB tests are located in `matlab\test`.
 
-Since Ice for MATLAB only supports client functionality, you will have to use
-test servers from a different language mapping.
+Since Ice for MATLAB only supports client functionality, you need test servers
+from a different language mapping.
 
 ##### Running the Tests Manually
 
@@ -128,13 +126,13 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 ##### Running the Automated Tests
 
-Assuming you've installed Ice for Python, run the `allTests.py` script like this:
+Assuming you've installed Ice for Python, run `allTests.py`:
 ```
 python allTests.py
 ```
 
-This command will automatically start a corresponding Python server for each
-MATLAB client. MATLAB clients are executed using a minimized MATLAB interpreter
+This script automatically starts a Python server for each MATLAB client. 
+MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
 
 [1]: https://zeroc.com/downloads/ice#matlab
