@@ -19,7 +19,7 @@ you prefer, you can also download a [binary distribution][1].
 
 ### Operating Systems
 
-Ice for Java builds and runs properly on Windows, macOS, and any recent 
+Ice for Java builds and runs properly on Windows, macOS, and any recent
 Linux distribution, and is fully supported on the platforms listed on the
 [supported platforms][2] page.
 

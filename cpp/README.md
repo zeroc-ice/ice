@@ -33,7 +33,7 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio, and the 
+On Windows, the build requires a recent version of Visual Studio, and the
 Windows 10 SDK (10.0.14393.0) component when using Visual Studio 2017.
 
 ### Third-Party Libraries
