@@ -201,7 +201,7 @@
             test(!isHolding);
             adpt.hold();
             await adpt.waitForHold();
-            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            await Ice.Promise.delay(10); // Relinquish the thread to allow the continuation to execute.
             test(isHolding);
 
             isHolding = false;
@@ -212,7 +212,7 @@
             test(!isDeactivated);
             await adpt.deactivate();
             await adpt.waitForDeactivate();
-            await Ice.Promise.delay(1); // Relinquish the thread to allow the continuation to execute.
+            await Ice.Promise.delay(10); // Relinquish the thread to allow the continuation to execute.
             test(isDeactivated && isHolding);
             test(adpt.isDeactivated());
             await adpt.destroy();
