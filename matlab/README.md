@@ -100,7 +100,7 @@ Ice for C++ distribution. The build copies all DLL dependencies to the
 
 The Ice for MATLAB tests are located in `matlab\test`.
 
-Since Ice for MATLAB only supports client functionality, you will have to build
+Since Ice for MATLAB only supports client functionality, you will have to use
 test servers from a different language mapping.
 
 ##### Running the Tests Manually
@@ -128,14 +128,13 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 ##### Running the Automated Tests
 
-Assuming you've built the C++11 test servers in Release mode on Windows, run the
-`allTests.py` script like this:
+Assuming you've install Ice for Python, run the `allTests.py` script like this:
 
 ```
-python allTests.py --platform=x64 --cpp-config=Cpp11-Release
+python allTests.py
 ```
 
-This command will automatically start a corresponding C++11 server for each
+This command will automatically start a corresponding Python server for each
 MATLAB client. MATLAB clients are executed using a minimized MATLAB interpreter
 and the test output is copied to the Command Prompt window.
 
