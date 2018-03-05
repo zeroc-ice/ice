@@ -128,8 +128,7 @@ Replace `<addr>` with the host name or IP address of the server host.
 
 ##### Running the Automated Tests
 
-Assuming you've install Ice for Python, run the `allTests.py` script like this:
-
+Assuming you've installed Ice for Python, run the `allTests.py` script like this:
 ```
 python allTests.py
 ```
