@@ -18,7 +18,7 @@ so building Ice for MATLAB from source is usually unnecessary.
 
 ### Prerequisites
 
-The build system requires MATLAB 2016a or later for Windows, Visual Studio 2015 
+The build system requires MATLAB 2016a or later for Windows, Visual Studio 2015
 and a Perl installation.
 
 ### Build Instructions
@@ -47,6 +47,15 @@ Upon completion, a build in release mode generates the following components:
  - Prototype and thunk files, located in `matlab\lib\x64\Release`
  - MATLAB code for core Slice files, located in `matlab\lib\generated`
  - MATLAB code for test Slice files, located in `matlab\test\**\generated`
+
+The MATLAB extension depends on Ice for C++ components from the cpp subdirectory,
+and those are built if required. It is also possible to build the MATLAB extension
+using the Ice for C++ NuGet packages by setting the ICE_BIN_DIST msbuild property
+to cpp:
+
+```
+msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
+```
 
 ### Packaging the Ice Toolbox
 
