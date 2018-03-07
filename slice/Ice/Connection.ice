@@ -329,7 +329,7 @@ local interface Connection
      *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in milliseconds.
+     * @param timeout The timeout value in seconds.
      *
      * @param close The close condition
      *
