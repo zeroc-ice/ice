@@ -3287,7 +3287,6 @@ class CSharpMapping(Mapping):
                 framework = "net45" if not current.config.netframework else current.config.netframework
                 env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", framework)
                 if not current.config.netframework:
-                    print("DEVPATH From: {}".format(platform.getIceInstallDir(self, current)))
                     env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
