@@ -1981,7 +1981,7 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, Mappin
                     {
                         name = fixIdent(op->name);
                     }
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %ld in operation `%s'"),
+                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"),
                                  info->pos + 1, const_cast<char*>(name.c_str()));
                     return false;
                 }
