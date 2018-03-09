@@ -286,10 +286,15 @@ class Windows(Platform):
                      "cpp/IceDiscovery/.*",
                      "cpp/IceUtil/.*",
                      "cpp/Slice/.*"], [])
-        elif self.getCompiler() not in ["VC140"]:
-            return ([], ["python", "php", "ruby"])
         else:
-            return ([], ["ruby"])
+            iceBinDist = os.environ.get("ICE_BIN_DIST", "").split()
+            exclude = ["ruby"]
+            if not 'all' in iceBinDist:
+                if not 'python' in iceBinDist and not self.getCompiler() in ["VC140"]:
+                    exclude.append("python")
+                if not 'php' in iceBinDist and not self.getCompiler() in ["VC140"]:
+                    exclude.append("php")
+            return ([], exclude)
 
     def parseBuildVariables(self, variables):
         pass # Nothing to do, we don't support the make build system on Windows
