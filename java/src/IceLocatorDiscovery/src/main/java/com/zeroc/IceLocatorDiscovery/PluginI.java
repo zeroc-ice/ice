@@ -412,12 +412,13 @@ class PluginI implements Plugin
                         }
                         for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                         {
-                            entry.getKey().findLocatorAsync(_instanceName, entry.getValue()).whenComplete((v, ex) -> {
+                            entry.getKey().findLocatorAsync(_instanceName,
+                                                            entry.getValue()).whenCompleteAsync((v, ex) -> {
                                 if(ex != null)
                                 {
                                     exception(ex);
                                 }
-                            }); // Send multicast request.
+                            }, entry.getKey().ice_executor()); // Send multicast request.
                         }
                         _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                     }
@@ -511,7 +512,7 @@ class PluginI implements Plugin
                             {
                                 StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
                                 s.append(_lookup);
-                                s.append("retry count = ").append(_retryCount);
+                                s.append("\nretry count = ").append(_retryCount);
                                 if(!_instanceName.isEmpty())
                                 {
                                     s.append("\ninstance name = ").append(_instanceName);
@@ -522,12 +523,13 @@ class PluginI implements Plugin
                             _failureCount = 0;
                             for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                             {
-                                entry.getKey().findLocatorAsync(_instanceName, entry.getValue()).whenComplete((v, ex) -> {
+                                entry.getKey().findLocatorAsync(_instanceName,
+                                                                entry.getValue()).whenCompleteAsync((v, ex) -> {
                                     if(ex != null)
                                     {
                                         exception(ex);
                                     }
-                                }); // Send multicast request.
+                                }, entry.getKey().ice_executor()); // Send multicast request.
                             }
                             _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                             return;

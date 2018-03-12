@@ -429,7 +429,7 @@ namespace IceLocatorDiscovery
                                     {
                                         exception(ex.InnerException);
                                     }
-                                }); // Send multicast request.
+                                }, l.Key.ice_scheduler()); // Send multicast request.
                             }
                             _timer.schedule(this, _timeout);
                         }
@@ -523,7 +523,7 @@ namespace IceLocatorDiscovery
                         {
                             StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
                             s.Append(_lookup);
-                            s.Append("retry count = ").Append(_retryCount);
+                            s.Append("\nretry count = ").Append(_retryCount);
                             if(_instanceName.Length == 0)
                             {
                                 s.Append("\ninstance name = ").Append(_instanceName);
@@ -533,7 +533,16 @@ namespace IceLocatorDiscovery
 
                         foreach(var l in _lookups)
                         {
-                            l.Key.findLocatorAsync(_instanceName, l.Value); // Send multicast request
+                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t => {
+                                    try
+                                    {
+                                        t.Wait();
+                                    }
+                                    catch(AggregateException ex)
+                                    {
+                                        exception(ex.InnerException);
+                                    }
+                                }, l.Key.ice_scheduler()); // Send multicast request.
                         }
                         _timer.schedule(this, _timeout);
                         return;

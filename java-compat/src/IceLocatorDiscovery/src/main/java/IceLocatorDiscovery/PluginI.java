@@ -524,7 +524,7 @@ class PluginI implements Plugin
                             {
                                 StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
                                 s.append(_lookup);
-                                s.append("retry count = ").append(_retryCount);
+                                s.append("\nretry count = ").append(_retryCount);
                                 if(!_instanceName.isEmpty())
                                 {
                                     s.append("\ninstance name = ").append(_instanceName);
