@@ -43,7 +43,7 @@ function status = slice2matlab(args)
         status = 1;
         out = 'Cannot locate slice dir.\n';
     else
-        status = system(sprintf('%s -I%s %s', path, searchPath, args));
+        status = system(sprintf('"%s" -I"%s" %s', path, searchPath, args));
     end
 
     if ~isempty(out)
