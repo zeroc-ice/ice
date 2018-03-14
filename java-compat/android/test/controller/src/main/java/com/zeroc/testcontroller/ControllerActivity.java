@@ -50,15 +50,19 @@ public class ControllerActivity extends ListActivity
         // Enable Bluetooth if necessary.
         //
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if(adapter != null && !adapter.isEnabled())
+        if(adapter == null)
+        {
+            Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
+            setup(false);
+        }
+        else if(!adapter.isEnabled())
         {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
         else
         {
-            Toast.makeText(this, R.string.no_bluetooth, Toast.LENGTH_SHORT).show();
-            setup(false);
+            setup(true);
         }
     }
 

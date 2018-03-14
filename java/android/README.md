@@ -5,10 +5,10 @@ ease of development and testing, this project also builds a subset of the Ice
 JAR files. This is not necessary for your own projects as it considerably
 complicates the project configuration.
 
-Building [Ice for Java](../BuildInstructions.md) is the only way to build
-all of the Ice JAR files from source. The JAR files produced by the Ice for Java
-build fully support Android. If you prefer, our [binary distributions][1]
-include pre-compiled JAR files.
+Building [Ice for Java](../README.md) is the only way to build all of the Ice
+JAR files from source. The JAR files produced by the Ice for Java build fully
+support Android. If you prefer, our [binary distributions][1] include
+pre-compiled JAR files.
 
 ## Build Requirements
 
@@ -76,16 +76,21 @@ Follow these steps to open the project in Android Studio:
 3. Navigate to and select the "android" subdirectory
 4. Click OK and wait for the project to open and build
 
-The Android Studio project contains a `testController` application for the Ice
-test suite. To run the application, select it in the configuration pull down and
-run it.
-
 ## Running the Test Suite
 
-To run the test suite you need to add the `tools\bin`, `platform-tools` and
-`emulator` directories from the Android SDK to your PATH.
+The Android Studio project contains a `testController` app for the Ice test
+suite. Prior to running the app, you must disable Android Studio's Instant Run
+feature, located in File / Settings / Build, Execution, Deployment /
+Instant Run.
 
-On macOS, you can use the following commands:
+Tests are started from the dev machine using the `allTests.py` script, similar
+to the other language mappings. The script uses Ice for Python to communicate
+with the Android app, therefore you must build the [Python mapping]
+(../../python) before continuing.
+
+You also need to add the `tools\bin`, `platform-tools` and `emulator`
+directories from the Android SDK to your PATH. On macOS, you can use the
+following commands:
 
 ```
 export PATH=~/Library/Android/sdk/tools/bin:$PATH
@@ -122,8 +127,7 @@ adb devices -l
 ```
 
 To run the tests against a `testController` application started from Android
-Studio you should omit the `--controller-app` command line options from the
-commands above.
+Studio you should omit the `--controller-app` option from the commands above.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://commons.apache.org/proper/commons-compress/
