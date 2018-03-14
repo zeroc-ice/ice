@@ -3295,7 +3295,7 @@ class CSharpMapping(Mapping):
                     env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
             else:
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
-                                           "bzip2.{0}.1.0.6.9".format(platform.getPlatformToolset()),
+                                           "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
                 if not current.config.netframework:
                     env['DEVPATH'] = os.path.join(current.driver.getIceDir(self, current), "lib", "net45")

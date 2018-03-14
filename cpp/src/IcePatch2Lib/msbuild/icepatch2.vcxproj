@@ -213,22 +213,22 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\bzip2.v100.1.0.6.9\build\native\bzip2.v100.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v100.1.0.6.9\build\native\bzip2.v100.targets')" />
-    <Import Project="..\..\..\msbuild\packages\bzip2.v120.1.0.6.9\build\native\bzip2.v120.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v120.1.0.6.9\build\native\bzip2.v120.targets')" />
-    <Import Project="..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets')" />
-    <Import Project="..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets')" />
     <Import Project="..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\msbuild\packages\bzip2.v100.1.0.6.10\build\native\bzip2.v100.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v100.1.0.6.10\build\native\bzip2.v100.targets')" />
+    <Import Project="..\..\..\msbuild\packages\bzip2.v120.1.0.6.10\build\native\bzip2.v120.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v120.1.0.6.10\build\native\bzip2.v120.targets')" />
+    <Import Project="..\..\..\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bzip2.v140.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bzip2.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets" Condition="Exists('..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets')" />
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v100.1.0.6.9\build\native\bzip2.v100.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v100.1.0.6.9\build\native\bzip2.v100.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v120.1.0.6.9\build\native\bzip2.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v120.1.0.6.9\build\native\bzip2.v120.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bzip2.v140.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v141.1.0.6.9\build\native\bzip2.v141.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.props'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.3\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v100.1.0.6.10\build\native\bzip2.v100.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v100.1.0.6.10\build\native\bzip2.v100.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v120.1.0.6.10\build\native\bzip2.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v120.1.0.6.10\build\native\bzip2.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bzip2.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bzip2.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\bzip2.v141.1.0.6.10\build\native\bzip2.v141.targets'))" />
   </Target>
 </Project>

@@ -255,12 +255,12 @@
               Condition="'$(PublicKeyToken)' == ''"/>
 
         <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.pdb"
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
+                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net45"/>
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.9\build\native\bin\x64\MT-Release\bzip2.pdb"
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
+                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v140.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
               DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\netcoreapp2.0"
               Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
