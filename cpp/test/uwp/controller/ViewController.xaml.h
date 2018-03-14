@@ -14,6 +14,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <mutex>
 
 namespace
 {
@@ -45,6 +46,7 @@ private:
     void Hostname_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 
     std::map<std::string, std::pair<HINSTANCE, unsigned int>> _dlls;
+    std::mutex _mutex;
 };
 
 }

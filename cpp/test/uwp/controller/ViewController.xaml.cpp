@@ -17,7 +17,6 @@
 #include <iostream>
 #include <memory>
 #include <condition_variable>
-#include <mutex>
 
 using namespace std;
 using namespace Controller;
@@ -487,6 +486,7 @@ ViewController::println(const string& s)
 HINSTANCE
 ViewController::loadDll(const string& name)
 {
+    unique_lock<mutex> lock(_mutex);
     map<string, pair<HINSTANCE, unsigned int>>::iterator p = _dlls.find(name);
     if(p == _dlls.end())
     {
@@ -500,6 +500,7 @@ ViewController::loadDll(const string& name)
 void
 ViewController::unloadDll(const string& name)
 {
+    unique_lock<mutex> lock(_mutex);
     map<string, pair<HINSTANCE, unsigned int>>::iterator p = _dlls.find(name);
     assert(p != _dlls.end());
     if(--p->second.second == 0)
