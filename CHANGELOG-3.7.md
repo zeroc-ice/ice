@@ -76,6 +76,9 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## C++ Changes
 
+- Fixed a Windows bug with the WS transport where at-most-once semantics weren't
+  always enforced causing invalid invocation retries on failures.
+
 - Added the "cpp:noexcept" metadata to operations in several local Slice
   interfaces, including Communicator, Connection, and ObjectAdapter.
   This helps to clarify that these operations do not raise exceptions.
