@@ -118,10 +118,8 @@ Selector::finish(IceInternal::EventHandler* handler)
 #ifdef ICE_OS_UWP
     // If async operations are no longer pending, clear the completion handler to break
     // the cyclic reference count.
-    if(!handler->_started)
-    {
-        handler->getNativeInfo()->setCompletedHandler(nullptr);
-    }
+    assert(!handler->_started && !handler->_pending);
+    handler->getNativeInfo()->setCompletedHandler(nullptr);
 #endif
     handler->_registered = SocketOperationNone;
     handler->_finish = false; // Ensures that finished() is only called once on the event handler.

@@ -900,7 +900,7 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
 {
     AsyncInfo* info = getAsyncInfo(op);
     Windows::Foundation::AsyncStatus status = operation->Status;
-    if (status == Windows::Foundation::AsyncStatus::Completed)
+    if(status == Windows::Foundation::AsyncStatus::Completed)
     {
         //
         // NOTE: it's important to modify the count _before_ calling the completion handler

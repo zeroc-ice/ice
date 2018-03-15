@@ -474,6 +474,10 @@ ViewController::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::
 void
 ViewController::println(const string& s)
 {
+    if(s.empty())
+    {
+        return;
+    }
     this->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
         [=]()
         {

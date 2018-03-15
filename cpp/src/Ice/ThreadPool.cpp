@@ -989,14 +989,6 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
                 _workQueue->queue(new FinishedWorkItem(current._handler, false));
                 _selector.finish(current._handler.get());
             }
-#ifdef ICE_OS_UWP
-            // If async operations are no longer pending, clear the completion handler to break
-            // the cyclic reference count.
-            if(!current._handler->_started)
-            {
-                current._handler->getNativeInfo()->setCompletedHandler(nullptr);
-            }
-#endif
             return false;
         }
     }
