@@ -108,7 +108,7 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 ## MATLAB Changes
 
 - Added a MATLAB language mapping. It provides a client-side run time and
-  supports MATLAB versions R2016a through R2017b on Windows.
+  supports MATLAB versions R2016a through R2018a on Windows.
 
 ## Objective-C Changes
 
