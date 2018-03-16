@@ -114,19 +114,19 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
 
 ### macOS
 ```
-    python allTests.py # default config and default platform
-    python allTests --config=... --platform=... # use the specified config and platform
+    python3 allTests.py # default config and default platform
+    python3 allTests --config=... --platform=... # use the specified config and platform
 ```
 ### iOS Simulator
 ```
-    python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
+    python3 allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 ```
 ### iOS
  - Start the `Objective-C Controller` or `Objective-C ARC Controller` app on
  your iOS device, from Xcode.
  - On your Mac:
  ```
-   python allTests.py --config=xcodesdk --platform=iphoneos
+   python3 allTests.py --config=xcodesdk --platform=iphoneos
  ```
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
