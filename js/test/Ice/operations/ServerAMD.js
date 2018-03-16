@@ -39,7 +39,7 @@
             {
                 if(echo)
                 {
-                    echo.shutdown();
+                    await echo.shutdown();
                 }
             }
         }
