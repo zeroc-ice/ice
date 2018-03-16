@@ -155,12 +155,18 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
                                 if(e.data.exception)
                                 {
                                     reject(e.data.exception);
-                                    ready.reject(e.data.exception);
+                                    if(ready)
+                                    {
+                                        ready.reject(e.data.exception);
+                                    }
                                 }
                                 else
                                 {
                                     resolve();
-                                    ready.resolve();
+                                    if(ready)
+                                    {
+                                        ready.resolve();
+                                    }
                                 }
                                 worker.terminate();
                             }
