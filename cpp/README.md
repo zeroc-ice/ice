@@ -373,8 +373,8 @@ python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controll
  iOS device, from Xcode.
  - On your Mac:
 ```
-python allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
-python allTests.py --confg=cpp11-xcodesdk --platform=iphoneos # C++11 controller
+python3 allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
+python3 allTests.py --config=cpp11-xcodesdk --platform=iphoneos # C++11 controller
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac computer.
