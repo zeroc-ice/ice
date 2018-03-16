@@ -167,7 +167,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                             id.properties = Ice.createProperties(testcase.args, initData.properties);
                         }
                         let ready = new Ice.Promise();
-                        server = _server(out, id, ready, args);
+                        server = _server(out, id, ready, testcase.args);
                         await ready;
                     }
 
