@@ -346,7 +346,7 @@ ControllerHelper::ControllerHelper(ViewController^ controller)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
-    initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
+    initData.properties->setProperty("Ice.ThreadPool.Client.SizeMax", "10");
     initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
     initData.properties->setProperty("Ice.Override.ConnectTimeout", "1000");
     //initData.properties->setProperty("Ice.Trace.Network", "3");
