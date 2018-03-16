@@ -969,15 +969,8 @@ class Mapping:
             "Ice.Plugin.IceSSL" : self.getPluginEntryPoint("IceSSL", process, current),
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": "" if current.config.buildPlatform == "iphoneos" else os.path.join(toplevel, "certs"),
+            "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
         }
-
-        #
-        # If the client doesn't support client certificates, set IceSSL.VerifyPeer to 0
-        #
-        if isinstance(process, Server):
-            if isinstance(current.testsuite.getMapping(), JavaScriptMapping):
-                sslProps["IceSSL.VerifyPeer"] = 0
-
         return sslProps
 
     def getArgs(self, process, current):

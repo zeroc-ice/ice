@@ -19,15 +19,29 @@
         let communicator;
         try
         {
-            communicator = Ice.initialize(initData);
-            let echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-            let adapter = await communicator.createObjectAdapter("");
-            adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
-            await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
-            ready.resolve();
-            await communicator.waitForShutdown();
-            await echo.shutdown();
+            let echo;
+            try
+            {
+                communicator = Ice.initialize(initData);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                let adapter = await communicator.createObjectAdapter("");
+                adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
+                await echo.setConnection();
+                echo.ice_getCachedConnection().setAdapter(adapter);
+                ready.resolve();
+                await communicator.waitForShutdown();
+            }
+            catch(ex)
+            {
+                ready.reject(ex);
+            }
+            finally
+            {
+                if(echo)
+                {
+                    echo.shutdown();
+                }
+            }
         }
         finally
         {
