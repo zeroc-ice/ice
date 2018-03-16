@@ -358,7 +358,7 @@
         }
         out.writeLine("ok");
 
-        let retries = 5;
+        let retries = 10;
         while(--retries > 0)
         {
             // The above test can cause a close connection between the echo server and
