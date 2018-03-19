@@ -58,7 +58,7 @@ Q                       := $(if $(V),,@)
 E                       := $(if $(V),@:,@echo)
 
 # $(call install-data,$1=filename,$2=srcdir,$3=destdist)
-install-data            = $(INSTALL) $2/$1 $(DESTDIR)$3/$1; $(CHMOD) a+r $(DESTDIR)$(3)/$(1)
+install-data            = $(INSTALL) -m 644 $2/$1 $(DESTDIR)$3/$1; $(CHMOD) a+r $(DESTDIR)$(3)/$(1)
 
 #
 # $(call install-data-files,$1=files,$2=$srcdir,$3=$destdir,$4=target,$5=text-output)

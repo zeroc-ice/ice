@@ -39,4 +39,4 @@ $(foreach t,$(tests),$(eval $(call create-cpp-test-project,$(t))))
 $(call make-projects,$(projects),make-cpp-test-project)
 
 install:: | $(DESTDIR)$(install_configdir)
-	$(Q)$(INSTALL) $(lang_srcdir)/config/templates.xml $(DESTDIR)$(install_configdir)
+	$(Q)$(call install-data,templates.xml,$(lang_srcdir)/config,$(install_configdir))
