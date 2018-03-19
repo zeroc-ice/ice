@@ -2547,10 +2547,13 @@ class BrowserProcessController(RemoteProcessController):
                                                                                   self.host)
         if url != self.url:
             self.url = url
-            if self.driver:
+            # With IE, on some specific Windows version, the first get works but subsequent get don't.
+            # In this case, we rely on the controller for the URL redirect (Selenium just loads the
+            # start page).
+            if self.driver and current.config.browser != "Ie":
                 self.driver.get(url)
             else:
-                # If not process controller is registered, we request the user to load the controller
+                # If no process controller is registered, we request the user to load the controller
                 # page in the browser. Once loaded, the controller will register and we'll redirect to
                 # the correct testsuite page.
                 ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
@@ -2560,7 +2563,11 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        print("Please load http://{0}:8080/start".format(self.host))
+                        if self.driver:
+                            self.driver.get("http://{0}:8080/start".format(self.host))
+                        else:
+                            print("Please load http://{0}:8080/start".format(self.host))
+
                         self.cond.wait(5)
 
                 try:
@@ -3568,6 +3575,8 @@ class JavaScriptMapping(Mapping):
             parseOptions(self, options)
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
+
+            # Edge and Ie only support ES5 for now
             if self.browser in ["Edge", "Ie"]:
                 self.es5 = True
 
@@ -3625,14 +3634,9 @@ class JavaScriptMapping(Mapping):
             "ipv6" : [False],
             "serialize" : [False],
             "mx" : [False],
-            "es5" : [False, True],
+            "es5" : [True] if current.config.es5 else [False, True],
             "worker" : [False, True] if current.config.browser else [False],
         }
-
-        # Edge and Ie only support ES5 for now
-        if current.config.browser in ["Edge", "Ie"]:
-            options["es5"] = [True]
-
         return options
 
 try:
