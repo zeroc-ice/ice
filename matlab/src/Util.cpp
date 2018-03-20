@@ -505,6 +505,13 @@ IceMatlab::convertException(const std::exception& exc)
         params[1] = createStringFromUTF8(msg);
         mexCallMATLAB(1, &ex, idx, params, cls.c_str());
     }
+    else if(dynamic_cast<const std::invalid_argument*>(&exc))
+    {
+        mxArray* params[2];
+        params[0] = createStringFromUTF8("Ice:InvalidArgumentException");
+        params[1] = createStringFromUTF8(exc.what());
+        mexCallMATLAB(1, &ex, 2, params, "MException");
+    }
     else
     {
         mxArray* params[2];
