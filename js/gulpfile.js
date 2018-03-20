@@ -418,7 +418,8 @@ gulp.task("dist:clean", libs.map(libCleanTask));
 function runTestsWithBrowser(url)
 {
     require("./bin/HttpServer")();
-    var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d"];
+    var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d",
+               "--sprops=IceSSL.VerifyPeer=0"];
     if(host)
     {
         cmd.push("--host");
