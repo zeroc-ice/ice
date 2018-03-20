@@ -3576,8 +3576,8 @@ class JavaScriptMapping(Mapping):
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 
-            # Edge and Ie only support ES5 for now
-            if self.browser in ["Edge", "Ie"]:
+            # Ie only support ES5 for now
+            if self.browser in ["Ie"]:
                 self.es5 = True
 
     def loadTestSuites(self, tests, config, filters, rfilters):
