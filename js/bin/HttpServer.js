@@ -244,6 +244,14 @@ function Init()
             });
             res.end();
         }
+        else if(req.url.pathname === '/es5/start')
+        {
+            res.writeHead(302,
+            {
+                "Location": "/test/es5/Ice/acm/controller.html&port=15002"
+            });
+            res.end();
+        }
         else
         {
             var iceLib = libraries.indexOf(req.url.pathname) !== -1;

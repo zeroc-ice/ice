@@ -2547,10 +2547,7 @@ class BrowserProcessController(RemoteProcessController):
                                                                                   self.host)
         if url != self.url:
             self.url = url
-            # With IE, on some specific Windows version, the first get works but subsequent get don't.
-            # In this case, we rely on the controller for the URL redirect (Selenium just loads the
-            # start page).
-            if self.driver and current.config.browser != "Ie":
+            if self.driver:
                 self.driver.get(url)
             else:
                 # If no process controller is registered, we request the user to load the controller
@@ -2563,11 +2560,8 @@ class BrowserProcessController(RemoteProcessController):
                         if ident in self.processControllerProxies:
                             prx = self.processControllerProxies[ident]
                             break
-                        if self.driver:
-                            self.driver.get("http://{0}:8080/start".format(self.host))
-                        else:
-                            print("Please load http://{0}:8080/start".format(self.host))
-
+                        print("Please load http://{0}:8080/{1}".format(self.host,
+                                                                       "es5/start" if current.config.es5 else "start"))
                         self.cond.wait(5)
 
                 try:
