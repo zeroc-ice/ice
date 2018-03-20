@@ -41,6 +41,12 @@ classdef AllTests
             proxy = TestIntfPrx.uncheckedCast(testCommunicator.stringToProxy(adapter.getTestIntf().ice_toString()));
             proxy.ice_getConnection();
 
+            try
+                proxy.ice_getCachedConnection().setACM(-19, Ice.Unset, Ice.Unset);
+            catch ex
+                assert(false);
+            end
+
             acm = proxy.ice_getCachedConnection().getACM();
             assert(acm.timeout == 15);
             assert(acm.close == Ice.ACMClose.CloseOnIdleForceful);

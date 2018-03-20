@@ -165,7 +165,7 @@ def allTests(communicator):
             proxy.sleep(4)
 
             with self.m:
-                test(self._heartbeat >= 6)
+                test(self._heartbeat >= 4)
 
     class InvocationHeartbeatOnHoldTest(TestCase):
         def __init__(self, com):
@@ -328,6 +328,12 @@ def allTests(communicator):
             self.setClientACM(15, 4, 0)
 
         def runTestCase(self, adapter, proxy):
+            try:
+                proxy.ice_getCachedConnection().setACM(-19, Ice.Unset, Ice.Unset)
+                test(False)
+            except RuntimeError:
+                pass
+
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 15)
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)

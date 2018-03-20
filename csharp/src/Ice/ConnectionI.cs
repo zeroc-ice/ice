@@ -748,6 +748,10 @@ namespace Ice
         {
             lock(this)
             {
+                if(timeout.HasValue && timeout.Value < 0)
+                {
+                    throw new ArgumentException("invalid negative ACM timeout value");
+                }
                 if(_monitor == null || _state >= StateClosed)
                 {
                     return;

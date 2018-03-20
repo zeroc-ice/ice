@@ -607,6 +607,10 @@ public final class ConnectionI extends com.zeroc.IceInternal.EventHandler
     synchronized public void setACM(java.util.OptionalInt timeout, java.util.Optional<ACMClose> close,
             java.util.Optional<ACMHeartbeat> heartbeat)
     {
+        if(timeout != null && timeout.isPresent() && timeout.getAsInt() < 0)
+        {
+            throw new IllegalArgumentException("invalid negative ACM timeout value");
+        }
         if(_monitor == null || _state >= StateClosed)
         {
             return;

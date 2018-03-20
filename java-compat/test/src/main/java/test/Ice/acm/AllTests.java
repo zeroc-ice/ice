@@ -316,7 +316,7 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             proxy.sleep(4);
-            test(_heartbeat >= 6);
+            test(_heartbeat >= 4);
         }
     }
 
@@ -613,6 +613,15 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             Ice.Connection con = proxy.ice_getConnection();
+
+            try
+            {
+                con.setACM(new Ice.IntOptional(-19), null, null);
+                test(false);
+            }
+            catch(IllegalArgumentException ex)
+            {
+            }
 
             Ice.ACM acm = new Ice.ACM();
             acm = con.getACM();

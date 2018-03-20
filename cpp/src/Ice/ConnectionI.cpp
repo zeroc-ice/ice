@@ -1147,6 +1147,14 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
                          const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(timeout && *timeout < 0)
+    {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("invalid negative ACM timeout value");
+#else
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid negative ACM timeout value");
+#endif
+    }
     if(!_monitor || _state >= StateClosed)
     {
         return;

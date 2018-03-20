@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,11 @@ using Test;
 
 class LoggerI : Ice.Logger
 {
+    public LoggerI(string name)
+    {
+        _name = name;
+    }
+
     public void start()
     {
         lock(this)
@@ -40,7 +46,17 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("[" + category + "] " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append("[");
+            s.Append(category);
+            s.Append("] ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -52,7 +68,14 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("warning: " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(" warning : ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -64,7 +87,14 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("error: " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(" error : ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -86,12 +116,16 @@ class LoggerI : Ice.Logger
     {
         foreach(string line in _messages)
         {
-            System.Console.WriteLine(line);
+            System.Console.Error.WriteLine(line);
         }
         _messages.Clear();
     }
 
+    private string _name;
     private bool _started;
+    private readonly static string _date = "d";
+    private readonly static string _time = "HH:mm:ss:fff";
+
     private List<string> _messages = new List<string>();
 }
 
@@ -101,7 +135,7 @@ abstract class TestCase
     {
         _name = name;
         _com = com;
-        _logger = new LoggerI();
+        _logger = new LoggerI(_name);
 
         _clientACMTimeout = -1;
         _clientACMClose = -1;
@@ -268,7 +302,7 @@ public class AllTests : TestCommon.AllTests
 
             lock(this)
             {
-                test(_heartbeat >= 6);
+                test(_heartbeat >= 4);
             }
         }
     }
@@ -517,6 +551,15 @@ public class AllTests : TestCommon.AllTests
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             Ice.Connection con = proxy.ice_getCachedConnection();
+
+            try
+            {
+                con.setACM(-19, Ice.Util.None, Ice.Util.None);
+                test(false);
+            }
+            catch(ArgumentException)
+            {
+            }
 
             Ice.ACM acm;
             acm = con.getACM();

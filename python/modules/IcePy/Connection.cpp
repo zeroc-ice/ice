@@ -945,6 +945,11 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
     {
         (*self->connection)->setACM(timeout, close, heartbeat);
     }
+    catch(const IceUtil::IllegalArgumentException& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        return 0;
+    }
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);

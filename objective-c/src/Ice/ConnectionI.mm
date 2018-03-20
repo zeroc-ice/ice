@@ -446,7 +446,17 @@ private:
         hb = (Ice::ACMHeartbeat)intValue;
     }
 
-    CONNECTION->setACM(to, c, hb);
+    NSException* nsex;
+    try
+    {
+        CONNECTION->setACM(to, c, hb);
+        return;
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(ICEACM*) getACM
 {

@@ -151,7 +151,14 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
             heartbeat = static_cast<Ice::ACMHeartbeat>(FIX2LONG(heartbeatValue));
         }
 
-        (*p)->setACM(timeout, close, heartbeat);
+        try
+        {
+            (*p)->setACM(timeout, close, heartbeat);
+        }
+        catch(const IceUtil::IllegalArgumentException& ex)
+        {
+            throw RubyException(rb_eArgError, ex.reason().c_str());
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;

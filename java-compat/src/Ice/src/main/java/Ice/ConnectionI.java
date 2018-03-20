@@ -701,6 +701,10 @@ public final class ConnectionI extends IceInternal.EventHandler
     synchronized public void setACM(Ice.IntOptional timeout, Ice.Optional<ACMClose> close,
             Ice.Optional<ACMHeartbeat> heartbeat)
     {
+        if(timeout != null && timeout.isSet() && timeout.get() < 0)
+        {
+            throw new IllegalArgumentException("invalid negative ACM timeout value");
+        }
         if(_monitor == null || _state >= StateClosed)
         {
             return;

@@ -400,7 +400,7 @@
     [_cond lock];
     @try
     {
-        test(_heartbeat >= 6);
+        test(_heartbeat >= 4);
     }
     @finally
     {
@@ -811,6 +811,16 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
+    @try
+    {
+        [[proxy ice_getCachedConnection] setACM:@(-19) close:ICENone heartbeat:ICENone];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
+
     ICEACM* acm = [[proxy ice_getCachedConnection] getACM];
     test(acm.timeout == 15);
     test(acm.close == ICECloseOnIdleForceful);
