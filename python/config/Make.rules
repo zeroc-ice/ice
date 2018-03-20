@@ -21,7 +21,8 @@ PYTHON              ?= python
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
 # Use pythonM.m-config rather than pythonMm-config because some platforms don't provide pythonMm-config
-python-config := $(shell $(PYTHON) -c "import sys; print(\"python{0}.{1}-config\".format(sys.version_info[0], sys.version_info[1]))")
+python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
+python-config := python$(python-version)-config
 
 python_cppflags         := $(shell $(python-config) --cflags)
 python_ldflags          := $(shell $(python-config) --ldflags)
