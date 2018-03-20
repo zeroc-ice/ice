@@ -20,7 +20,7 @@ task updateManifest(dependsOn: copyTmpJars) {
             delegate.manifest {
                 attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.toURI().getRawPath()}" }.join(' '))
             }
         }
     }
@@ -48,7 +48,7 @@ task updateInstallManifest(dependsOn: copyJars) {
                 attribute(name: "Main-Class", value: "com.zeroc.IceGridGUI.Main")
                 attribute(name: "Built-By", value: "ZeroC, Inc.")
                 attribute(name: "Class-Path", value: configurations.runtime.resolve().collect {
-                    it.toURI() }.join(' ').replaceAll("${libDir.replaceAll('\\\\', '/')}", "${jarDir.replaceAll('\\\\', '/')}"))
+                    "file://${it.toURI().getRawPath()}" }.join(' ').replaceAll("${libDir.replaceAll('\\\\', '/')}", "${jarDir.replaceAll('\\\\', '/')}"))
             }
         }
     }
