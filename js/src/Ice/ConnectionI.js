@@ -723,7 +723,7 @@ class ConnectionI
                 if(!this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
                 Debug.assert(this._writeStream.buffer.remaining === 0);
@@ -798,7 +798,7 @@ class ConnectionI
                         if(!this.read(this._readStream.buffer))
                         {
                             Debug.assert(!this._readStream.isEmpty());
-                            this.scheduleTimeout(SocketOperation.Read, this._endpoint.timeout());
+                            this.scheduleTimeout(SocketOperation.Read);
                             return;
                         }
                         Debug.assert(this._readStream.buffer.remaining === 0);
@@ -1450,7 +1450,7 @@ class ConnectionI
                 //
                 // Schedule the close timeout to wait for the peer to close the connection.
                 //
-                this.scheduleTimeout(SocketOperation.Write, this.closeTimeout());
+                this.scheduleTimeout(SocketOperation.Write);
             }
 
             //
@@ -1495,7 +1495,7 @@ class ConnectionI
         const s = this._transceiver.initialize(this._readStream.buffer, this._writeStream.buffer);
         if(s != SocketOperation.None)
         {
-            this.scheduleTimeout(s, this.connectTimeout());
+            this.scheduleTimeout(s);
             return false;
         }
 
@@ -1528,7 +1528,7 @@ class ConnectionI
 
                 if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
-                    this.scheduleTimeout(SocketOperation.Write, this.connectTimeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return false;
                 }
             }
@@ -1543,7 +1543,7 @@ class ConnectionI
                 if(this._readStream.pos !== this._readStream.size &&
                     !this.read(this._readStream.buffer))
                 {
-                    this.scheduleTimeout(SocketOperation.Read, this.connectTimeout());
+                    this.scheduleTimeout(SocketOperation.Read);
                     return false;
                 }
 
@@ -1669,7 +1669,7 @@ class ConnectionI
                 if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
             }
@@ -1695,7 +1695,7 @@ class ConnectionI
         //
         if(this._state === StateClosing)
         {
-            this.scheduleTimeout(SocketOperation.Write, this.closeTimeout());
+            this.scheduleTimeout(SocketOperation.Write);
         }
     }
 
@@ -1737,7 +1737,7 @@ class ConnectionI
 
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
-        this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+        this.scheduleTimeout(SocketOperation.Write);
 
         return AsyncStatus.Queued;
     }
@@ -1950,8 +1950,42 @@ class ConnectionI
         }
     }
 
-    scheduleTimeout(op, timeout)
+    scheduleTimeout(op)
     {
+        let timeout;
+        if(this._state < StateActive)
+        {
+            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideConnectTimeout)
+            {
+                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+            }
+            else
+            {
+                timeout = this._endpoint.timeout();
+            }
+        }
+        else if(this._state < StateClosing)
+        {
+            if(this._readHeader) // No timeout for reading the header.
+            {
+                op &= ~SocketOperation.Read;
+            }
+            timeout = this._endpoint.timeout();
+        }
+        else
+        {
+            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideCloseTimeout)
+            {
+                timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
+            }
+            else
+            {
+                timeout = this._endpoint.timeout();
+            }
+        }
+
         if(timeout < 0)
         {
             return;
@@ -1959,11 +1993,19 @@ class ConnectionI
 
         if((op & SocketOperation.Read) !== 0)
         {
+            if(this._readTimeoutScheduled)
+            {
+                this._timer.cancel(this._readTimeoutId);
+            }
             this._readTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
             this._readTimeoutScheduled = true;
         }
         if((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0)
         {
+            if(this._writeTimeoutScheduled)
+            {
+                this._timer.cancel(this._writeTimeoutId);
+            }
             this._writeTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
             this._writeTimeoutScheduled = true;
         }
@@ -1980,32 +2022,6 @@ class ConnectionI
         {
             this._timer.cancel(this._writeTimeoutId);
             this._writeTimeoutScheduled = false;
-        }
-    }
-
-    connectTimeout()
-    {
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideConnectTimeout)
-        {
-            return defaultsAndOverrides.overrideConnectTimeoutValue;
-        }
-        else
-        {
-            return this._endpoint.timeout();
-        }
-    }
-
-    closeTimeout()
-    {
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideCloseTimeout)
-        {
-            return defaultsAndOverrides.overrideCloseTimeoutValue;
-        }
-        else
-        {
-            return this._endpoint.timeout();
         }
     }
 

@@ -344,7 +344,7 @@
             let start = Date.now();
             await comm.destroy();
             let end = Date.now();
-            test(end - start < 700);
+            test(end - start < 1000);
             await controller.resumeAdapter();
             out.writeLine("ok");
             await controller.shutdown();
