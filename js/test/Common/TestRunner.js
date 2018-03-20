@@ -185,7 +185,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                         await server; // Wait for server to terminate
                     }
 
-                    serverTestCase.stopServerSide(true);
+                    await serverTestCase.stopServerSide(true);
                 }
                 catch(ex)
                 {
