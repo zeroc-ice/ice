@@ -1912,6 +1912,7 @@ class TwowaysAMI
     twowaysAMI(test.Util.Application app, MyClassPrx p)
     {
         Ice.Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
 
         {
             pingI cb = new pingI();
@@ -2672,7 +2673,7 @@ class TwowaysAMI
             }
         }
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && !bluetooth)
         {
             //
             // Test implicit context propagation

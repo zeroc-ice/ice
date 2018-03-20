@@ -1211,7 +1211,7 @@ public class AMI
                 initData.properties = communicator.getProperties()._clone();
                 Ice.Communicator ic = app.initialize(initData);
                 Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-                TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
+                TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(o);
                 ic.destroy();
 
                 try

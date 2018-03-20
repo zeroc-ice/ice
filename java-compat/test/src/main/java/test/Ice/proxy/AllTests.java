@@ -30,6 +30,7 @@ public class AllTests
     allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         PrintWriter out = app.getWriter();
 
         out.print("testing stringToProxy... ");
@@ -793,7 +794,7 @@ public class AllTests
                  compObj1.ice_encodingVersion(Ice.Util.Encoding_1_1)));
 
         Ice.Connection baseConnection = base.ice_getConnection();
-        if(baseConnection != null)
+        if(baseConnection != null && !bluetooth)
         {
             Ice.Connection baseConnection2 = base.ice_connectionId("base2").ice_getConnection();
             compObj1 = compObj1.ice_fixed(baseConnection);
@@ -897,59 +898,62 @@ public class AllTests
 
         out.println("ok");
 
-        out.print("testing ice_fixed... ");
-        out.flush();
+        if(!bluetooth)
         {
-            Ice.Connection connection = cl.ice_getConnection();
-            if(connection != null)
+            out.print("testing ice_fixed... ");
+            out.flush();
             {
-                MyClassPrx prx = (MyClassPrx)cl.ice_fixed(connection); // Test proxy return type.
-                prx.ice_ping();
-                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
-                test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));
-                test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
-                java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
-                ctx.put("one", "hello");
-                ctx.put("two", "world");
-                test(cl.ice_fixed(connection).ice_getContext().isEmpty());
-                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
-                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
-                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
-                test(cl.ice_fixed(connection).ice_getConnection() == connection);
-                test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
-                test(!cl.ice_fixed(connection).ice_getTimeout().isSet());
-                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().get());
-                Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
-                test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
-                try
+                Ice.Connection connection = cl.ice_getConnection();
+                if(connection != null)
                 {
-                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                    MyClassPrx prx = (MyClassPrx)cl.ice_fixed(connection); // Test proxy return type.
+                    prx.ice_ping();
+                    test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                    test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().equals("facet"));
+                    test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                    java.util.Map<String, String> ctx = new java.util.HashMap<String, String>();
+                    ctx.put("one", "hello");
+                    ctx.put("two", "world");
+                    test(cl.ice_fixed(connection).ice_getContext().isEmpty());
+                    test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().size() == 2);
+                    test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                    test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                    test(cl.ice_fixed(connection).ice_getConnection() == connection);
+                    test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                    test(!cl.ice_fixed(connection).ice_getTimeout().isSet());
+                    test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().get());
+                    Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
+                    test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                    try
+                    {
+                        cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                    }
+                    catch(Ice.NoEndpointException ex)
+                    {
+                    }
+                    try
+                    {
+                        cl.ice_datagram().ice_fixed(connection).ice_ping();
+                    }
+                    catch(Ice.NoEndpointException ex)
+                    {
+                    }
                 }
-                catch(Ice.NoEndpointException ex)
+                else
                 {
-                }
-                try
-                {
-                    cl.ice_datagram().ice_fixed(connection).ice_ping();
-                }
-                catch(Ice.NoEndpointException ex)
-                {
+                    try
+                    {
+                        cl.ice_fixed(connection);
+                        test(false);
+                    }
+                    catch(IllegalArgumentException e)
+                    {
+                        // Expected with null connection.
+                    }
                 }
             }
-            else
-            {
-                try
-                {
-                    cl.ice_fixed(connection);
-                    test(false);
-                }
-                catch(IllegalArgumentException e)
-                {
-                    // Expected with null connection.
-                }
-            }
+            out.println("ok");
         }
-        out.println("ok");
 
         out.print("testing protocol versioning... ");
         out.flush();
