@@ -18,6 +18,8 @@ using namespace std;
 Test::MyClassPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+
     const string endp = getTestEndpoint(communicator, 0);
     cout << "testing stringToProxy... " << flush;
 
@@ -868,7 +870,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(Ice::targetGreaterEqual(compObj->ice_encodingVersion(Ice::Encoding_1_1), compObj->ice_encodingVersion(Ice::Encoding_1_0)));
 
     Ice::ConnectionPtr baseConnection = base->ice_getConnection();
-    if(baseConnection)
+    if(baseConnection && protocol != "bt")
     {
         Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
         compObj1 = compObj1->ice_fixed(baseConnection);
@@ -1054,7 +1056,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!(compObj->ice_encodingVersion(Ice::Encoding_1_1) < compObj->ice_encodingVersion(Ice::Encoding_1_0)));
 
     Ice::ConnectionPtr baseConnection = base->ice_getConnection();
-    if(baseConnection)
+    if(baseConnection && protocol != "bt")
     {
         Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
         compObj1 = compObj1->ice_fixed(baseConnection);
@@ -1146,63 +1148,66 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     cout << "ok" << endl;
 
-    cout << "testing ice_fixed... " << flush;
+    if(protocol != "bt")
     {
-        Ice::ConnectionPtr connection = cl->ice_getConnection();
-        if(connection)
+        cout << "testing ice_fixed... " << flush;
         {
-            Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
-            prx->ice_ping();
-            test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
-            test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
-            test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());
-            Ice::Context ctx;
-            ctx["one"] = "hello";
-            ctx["two"] = "world";
-            test(cl->ice_fixed(connection)->ice_getContext().empty());
-            test(cl->ice_context(ctx)->ice_fixed(connection)->ice_getContext().size() == 2);
-            test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1);
-            test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10);
-            test(cl->ice_fixed(connection)->ice_getConnection() == connection);
-            test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
-            test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
-            test(!cl->ice_fixed(connection)->ice_getTimeout());
-            Ice::ConnectionPtr fixedConnection = cl->ice_connectionId("ice_fixed")->ice_getConnection();
-            test(cl->ice_fixed(connection)->ice_fixed(fixedConnection)->ice_getConnection() == fixedConnection);
-            try
+            Ice::ConnectionPtr connection = cl->ice_getConnection();
+            if(connection)
             {
-                cl->ice_secure(!connection->getEndpoint()->getInfo()->secure())->ice_fixed(connection)->ice_ping();
+                Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
+                prx->ice_ping();
+                test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
+                test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
+                test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());
+                Ice::Context ctx;
+                ctx["one"] = "hello";
+                ctx["two"] = "world";
+                test(cl->ice_fixed(connection)->ice_getContext().empty());
+                test(cl->ice_context(ctx)->ice_fixed(connection)->ice_getContext().size() == 2);
+                test(cl->ice_fixed(connection)->ice_getInvocationTimeout() == -1);
+                test(cl->ice_invocationTimeout(10)->ice_fixed(connection)->ice_getInvocationTimeout() == 10);
+                test(cl->ice_fixed(connection)->ice_getConnection() == connection);
+                test(cl->ice_fixed(connection)->ice_fixed(connection)->ice_getConnection() == connection);
+                test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
+                test(!cl->ice_fixed(connection)->ice_getTimeout());
+                Ice::ConnectionPtr fixedConnection = cl->ice_connectionId("ice_fixed")->ice_getConnection();
+                test(cl->ice_fixed(connection)->ice_fixed(fixedConnection)->ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl->ice_secure(!connection->getEndpoint()->getInfo()->secure())->ice_fixed(connection)->ice_ping();
+                }
+                catch(const Ice::NoEndpointException&)
+                {
+                }
+                try
+                {
+                    cl->ice_datagram()->ice_fixed(connection)->ice_ping();
+                }
+                catch(const Ice::NoEndpointException&)
+                {
+                }
             }
-            catch(const Ice::NoEndpointException&)
+            else
             {
-            }
-            try
-            {
-                cl->ice_datagram()->ice_fixed(connection)->ice_ping();
-            }
-            catch(const Ice::NoEndpointException&)
-            {
-            }
-        }
-        else
-        {
-            try
-            {
-                cl->ice_fixed(connection);
-                test(false);
-            }
+                try
+                {
+                    cl->ice_fixed(connection);
+                    test(false);
+                }
 #ifdef ICE_CPP11_MAPPING
-            catch(const invalid_argument&)
+                catch(const invalid_argument&)
 #else
-            catch(const IceUtil::IllegalArgumentException&)
+                catch(const IceUtil::IllegalArgumentException&)
 #endif
-            {
-                // Expected with null connection.
-            }
+                {
+                    // Expected with null connection.
+                }
 
+            }
         }
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     cout << "testing encoding versioning... " << flush;
     string ref20 = "test -e 2.0:" + endp;
