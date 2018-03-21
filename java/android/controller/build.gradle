@@ -17,6 +17,10 @@ slice {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
     buildToolsVersion ice_buildToolsVersion
@@ -76,4 +80,5 @@ dependencies {
         def name = it.replace('/', '_')
         compile project(":test_${name}")
     }
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
 }
