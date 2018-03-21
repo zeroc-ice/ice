@@ -15,6 +15,7 @@ namespace IceInternal
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Globalization;
+    using System.Runtime.InteropServices;
 
     public sealed class Network
     {
@@ -519,10 +520,42 @@ namespace IceInternal
             }
         }
 
-        public static IPEndPoint doBind(Socket socket, EndPoint addr)
+#if NETSTANDARD2_0
+        [DllImport("libc", SetLastError = true)]
+        private static extern int setsockopt(int socket, int level, int name, IntPtr value, uint len);
+
+        private const int SOL_SOCKET_MACOS= 0xffff;
+        private const int SO_REUSEADDR_MACOS = 0x0004;
+        private const int SOL_SOCKET_LINUX = 0x0001;
+        private const int SO_REUSEADDR_LINUX = 0x0002;
+#endif
+
+        public static unsafe IPEndPoint doBind(Socket socket, EndPoint addr)
         {
             try
             {
+#if NETSTANDARD2_0
+                //
+                // TODO: Workaround .NET Core 2.0 bug where SO_REUSEADDR isn't set on sockets which are bound. This
+                // fix is included in the Bind() implementation of .NET Core 2.1. This workaround should be removed
+                // once we no longer support .NET Core 2.0.
+                //
+                int value = 1;
+                int err = 0;
+                var fd = socket.Handle.ToInt32();
+                if(AssemblyUtil.isLinux)
+                {
+                    err = setsockopt(fd, SOL_SOCKET_LINUX, SO_REUSEADDR_LINUX, (IntPtr)(&value), sizeof(int));
+                }
+                else if(AssemblyUtil.isMacOS)
+                {
+                    err = setsockopt(fd, SOL_SOCKET_MACOS, SO_REUSEADDR_MACOS, (IntPtr)(&value), sizeof(int));
+                }
+                if(err != 0)
+                {
+                    throw new SocketException(err);
+                }
+#endif
                 socket.Bind(addr);
                 return (IPEndPoint)socket.LocalEndPoint;
             }

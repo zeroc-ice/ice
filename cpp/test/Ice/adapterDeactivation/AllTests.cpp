@@ -32,6 +32,7 @@ allTests(const CommunicatorPtr& communicator)
     test(obj == base);
 #endif
     cout << "ok" << endl;
+
 #ifdef ICE_OS_UWP
     bool uwp = true;
 #else
@@ -178,6 +179,23 @@ allTests(const CommunicatorPtr& communicator)
         catch(const Ice::ConnectFailedException&)
         {
         }
+    }
+    cout << "ok" << endl;
+
+    cout << "testing object adapter creation with port in use... " << flush;
+    {
+        Ice::ObjectAdapterPtr adapter1 =
+            communicator->createObjectAdapterWithEndpoints("Adpt1", getTestEndpoint(communicator, 10));
+        try
+        {
+            communicator->createObjectAdapterWithEndpoints("Adpt2", getTestEndpoint(communicator, 10));
+            test(false);
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Expected can't re-use the same endpoint.
+        }
+        adapter1->destroy();
     }
     cout << "ok" << endl;
 

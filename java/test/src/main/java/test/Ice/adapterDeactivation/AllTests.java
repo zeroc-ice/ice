@@ -179,6 +179,24 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing object adapter creation with port in use... ");
+        out.flush();
+        {
+            com.zeroc.Ice.ObjectAdapter adapter1 =
+                communicator.createObjectAdapterWithEndpoints("Adpt1", app.getTestEndpoint(10));
+            try
+            {
+                communicator.createObjectAdapterWithEndpoints("Adpt2", app.getTestEndpoint(10));
+                test(false);
+            }
+            catch(com.zeroc.Ice.LocalException ex)
+            {
+                // Expected can't re-use the same endpoint.
+            }
+            adapter1.destroy();
+        }
+        out.println("ok");
+
         out.print("deactivating object adapter in the server... ");
         out.flush();
         obj.deactivate();

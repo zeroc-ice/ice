@@ -166,6 +166,23 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
+        Write("testing object adapter creation with port in use... ");
+        Flush();
+        {
+            var adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", app.getTestEndpoint(10));
+            try
+            {
+                communicator.createObjectAdapterWithEndpoints("Adpt2", app.getTestEndpoint(10));
+                test(false);
+            }
+            catch(Ice.LocalException)
+            {
+                // Expected can't re-use the same endpoint.
+            }
+            adapter1.destroy();
+        }
+        WriteLine("ok");
+
         Write("deactivating object adapter in the server... ");
         Flush();
         obj.deactivate();
