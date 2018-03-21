@@ -43,8 +43,8 @@ classdef AllTests
 
             try
                 proxy.ice_getCachedConnection().setACM(-19, Ice.Unset, Ice.Unset);
-            catch ex
                 assert(false);
+            catch ex
             end
 
             acm = proxy.ice_getCachedConnection().getACM();
