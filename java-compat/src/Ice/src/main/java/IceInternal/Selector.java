@@ -67,27 +67,21 @@ public final class Selector
             return;
         }
 
-        if(handler.fd() == null)
+        if(handler.fd() != null)
         {
-            return;
+            updateImpl(handler);
         }
 
-        updateImpl(handler);
         checkReady(handler);
     }
 
     void enable(EventHandler handler, int status)
     {
-        if(handler.fd() == null || (handler._disabled & status) == 0)
+        if((handler._disabled & status) == 0)
         {
             return;
         }
         handler._disabled = handler._disabled & ~status;
-
-        if(handler.fd() == null)
-        {
-            return;
-        }
 
         if(handler._key != null && (handler._registered & status) != 0)
         {
@@ -98,7 +92,7 @@ public final class Selector
 
     void disable(EventHandler handler, int status)
     {
-        if(handler.fd() == null || (handler._disabled & status) != 0)
+        if((handler._disabled & status) != 0)
         {
             return;
         }
