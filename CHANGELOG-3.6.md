@@ -60,6 +60,12 @@ These are the changes since Ice 3.6.4 included in this pre-release.
   parameters returned by reference. Xcode 9.0 now emits a warning if this
   qualifier is omitted.
 
+## C# Changes
+
+- Disabled Windows fast path loopback socket option. This option was
+  already disabled with the C++ mapping. It's causing hangs at the
+  TCP/IP level when connections are closed.
+
 # Changes in Ice 3.6.4
 
 These are the changes since Ice 3.6.3.
