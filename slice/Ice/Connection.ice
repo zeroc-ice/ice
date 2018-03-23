@@ -329,7 +329,8 @@ local interface Connection
      *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in seconds.
+     * @param timeout The timeout value in seconds. It must be positive or 0, if a negative
+     * value is given, an invalid argument exception will be raised.
      *
      * @param close The close condition
      *
