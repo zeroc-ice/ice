@@ -455,12 +455,6 @@ public class AllTests : TestCommon.AllTests
                 catch(Ice.ConnectionLostException)
                 {
                 }
-                catch(Ice.ConnectionTimeoutException)
-                {
-                    // TODO: WORKAROUND for ICE-8118, it some takes 2 minutes to get the ReceivedAsync completed
-                    // callback when the connection is forcefully closed by the server. It appears to be an issue
-                    // with .NET.
-                }
             }
             catch(Ice.ConnectionRefusedException)
             {
