@@ -88,6 +88,10 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## C# Changes
 
+- Disabled Windows fast path loopback socket option. This option was
+  already disabled with the C++ mapping. It's causing hangs at the
+  TCP/IP level when connections are closed.
+
 - Added support for .NET Core 2.0 on Windows and Linux.
 
 - Added the ice_initialize partial method to generated structs and classes.
