@@ -336,6 +336,9 @@
             let initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
+            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            initData.properties.setProperty("Ice.Trace.Network", "3");
+            initData.logger = communicator.getLogger();
             let comm = Ice.initialize(initData);
             await comm.stringToProxy(ref).ice_getConnection();
 
