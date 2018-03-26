@@ -74,10 +74,9 @@ const _SetTimeoutType = 0,
       _ClearTimeoutType = 3,
       _ClearIntervalType = 4;
 
-var worker;
+let worker;
 
-var _nextId = 0;
-
+let _nextId = 0;
 var nextId = function()
 {
     if(_nextId == MAX_SAFE_INTEGER)
@@ -91,7 +90,7 @@ class Timer
 {
     static setTimeout(cb, ms)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetTimeoutType, id: id, ms: ms});
         return id;
@@ -105,7 +104,7 @@ class Timer
 
     static setInterval(cb, ms)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetIntervalType, id: id, ms: ms});
         return id;
@@ -119,7 +118,7 @@ class Timer
 
     static setImmediate(cb)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetImmediateType, id: id});
         return id;
@@ -127,24 +126,19 @@ class Timer
 
     static onmessage(e)
     {
-        var cb;
-        if(e.data.type === _SetIntervalType)
-        {
-            cb = _timers.get(e.data.id);
-        }
-        else
-        {
-            cb = _timers.delete(e.data.id);
-        }
-
+        const cb = _timers.get(e.data.id);
         if(cb !== undefined)
         {
             cb.call();
+            if(e.data.type !== _SetIntervalType)
+            {
+                _timers.delete(e.data.id);
+            }
         }
     }
 }
 
-var workerCode = function()
+const workerCode = function()
 {
     return "(" +
     function()
@@ -152,13 +146,13 @@ var workerCode = function()
         //
         // jshint worker: true
         //
-        var _wSetTimeoutType = 0,
+        const _wSetTimeoutType = 0,
             _wSetIntervalType = 1,
             _wSetImmediateType = 2,
             _wClearTimeoutType = 3,
             _wClearIntervalType = 4;
 
-        var timers = {};
+        const timers = {};
 
         self.onmessage = e =>
         {
@@ -192,7 +186,7 @@ var workerCode = function()
     }.toString() + "());";
 };
 
-if(self == this)
+if(typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope)
 {
     //
     // If we are running in a worker don't spawn a separate worker for the timer

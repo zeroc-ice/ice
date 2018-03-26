@@ -72,7 +72,7 @@ function slice2js(options)
                 console.log("Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe");
                 process.exit(1);
             }
-            defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration)
+            defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
         }
         defaults.iceHome = path.resolve("..");
     }
