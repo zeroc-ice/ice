@@ -963,7 +963,7 @@ class ConnectionI
             this._dispatchCount -= count;
             if(this._dispatchCount === 0)
             {
-                if(this._state === StateClosing && !this._shutdownInitiated)
+                if(this._state === StateClosing)
                 {
                     try
                     {
@@ -1434,7 +1434,12 @@ class ConnectionI
     initiateShutdown()
     {
         Debug.assert(this._state === StateClosing && this._dispatchCount === 0);
-        Debug.assert(!this._shutdownInitiated);
+
+        if(this._shutdownInitiated)
+        {
+            return;
+        }
+        this._shutdownInitiated = true;
 
         if(!this._endpoint.datagram())
         {
@@ -1454,18 +1459,8 @@ class ConnectionI
                 //
                 // Schedule the close timeout to wait for the peer to close the connection.
                 //
-                this.scheduleTimeout(SocketOperation.Write);
+                this.scheduleTimeout(SocketOperation.Read);
             }
-
-            //
-            // The CloseConnection message should be sufficient. Closing the write
-            // end of the socket is probably an artifact of how things were done
-            // in IIOP. In fact, shutting down the write end of the socket causes
-            // problems on Windows by preventing the peer from using the socket.
-            // For example, the peer is no longer able to continue writing a large
-            // message after the socket is shutdown.
-            //
-            //this._transceiver.shutdownWrite();
         }
     }
 
@@ -1697,9 +1692,9 @@ class ConnectionI
         // If all the messages were sent and we are in the closing state, we schedule
         // the close timeout to wait for the peer to close the connection.
         //
-        if(this._state === StateClosing)
+        if(this._state === StateClosing && _shutdownInitiated)
         {
-            this.scheduleTimeout(SocketOperation.Write);
+            this.scheduleTimeout(SocketOperation.Read);
         }
     }
 

@@ -106,6 +106,10 @@
                         {
                             break;
                         }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                        }
                         await Ice.Promise.delay(10);
                     }
                 }

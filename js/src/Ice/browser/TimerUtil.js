@@ -25,24 +25,24 @@ function createTimerObject()
 {
     let Timer = class
     {
-        static setTimeout()
+        static setTimeout(cb, ms)
         {
-            setTimeout.apply(null, arguments);
+            return setTimeout.apply(null, arguments);
         }
 
-        static clearTimeout()
+        static clearTimeout(id)
         {
-            clearTimeout.apply(null, arguments);
+            return clearTimeout.apply(null, arguments);
         }
 
         static setInterval()
         {
-            setInterval.apply(null, arguments);
+            return setInterval.apply(null, arguments);
         }
 
         static clearInterval()
         {
-            clearInterval.apply(null, arguments);
+            return clearInterval.apply(null, arguments);
         }
     };
 
@@ -50,14 +50,14 @@ function createTimerObject()
     {
         Timer.setImmediate = function()
         {
-            setImmediate.apply(null, arguments);
+            return setImmediate.apply(null, arguments);
         };
     }
     else
     {
         Timer.setImmediate = function()
         {
-            setTimeout.apply(null, arguments);
+            return setTimeout.apply(null, arguments);
         };
     }
 
