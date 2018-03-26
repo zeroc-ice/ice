@@ -25,7 +25,6 @@ Ice._ModuleRegistry.require(module,
 const OutputStream = Ice.OutputStream;
 const Current = Ice.Current;
 const Debug = Ice.Debug;
-const FormatType = Ice.FormatType;
 const Context = Ice.Context;
 const Identity = Ice.Identity;
 const Protocol = Ice.Protocol;

@@ -10,13 +10,11 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/Reference",
         "../Ice/ConnectRequestHandler"
     ]);
 
-const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
 const ConnectRequestHandler = Ice.ConnectRequestHandler;
 

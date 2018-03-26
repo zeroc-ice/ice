@@ -11,10 +11,7 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
-        "../Ice/ExUtil",
-        "../Ice/Network",
         "../Ice/SocketOperation",
-        "../Ice/Connection",
         "../Ice/Exception",
         "../Ice/LocalException",
         "../Ice/Timer",
@@ -30,17 +27,10 @@ const IceSSL = Ice._ModuleRegistry.module("IceSSL");
 //
 const IsChrome = navigator.userAgent.indexOf("Edge/") === -1 &&
                  navigator.userAgent.indexOf("Chrome/") !== -1;
-const IsSafari = /^((?!chrome).)*safari/i.test(navigator.userAgent);
-
-const IsWorker = typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope;
+const IsSafari = (/^((?!chrome).)*safari/i).test(navigator.userAgent);
 
 const Debug = Ice.Debug;
-const ExUtil = Ice.ExUtil;
-const Network = Ice.Network;
 const SocketOperation = Ice.SocketOperation;
-const Conn = Ice.Connection;
-const LocalException = Ice.LocalException;
-const SocketException = Ice.SocketException;
 const Timer = Ice.Timer;
 
 const StateNeedConnect = 0;
@@ -258,7 +248,6 @@ class WSTransceiver
 
         var avail = this._readBuffers[0].byteLength - this._readPosition;
         Debug.assert(avail > 0);
-        var remaining = byteBuffer.remaining;
 
         while(byteBuffer.remaining > 0)
         {

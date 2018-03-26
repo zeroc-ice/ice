@@ -29,7 +29,6 @@ const InputStream = Ice.InputStream;
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
 const RetryException = Ice.RetryException;
-const OperationMode = Ice.OperationMode;
 const Protocol = Ice.Protocol;
 const Identity = Ice.Identity;
 

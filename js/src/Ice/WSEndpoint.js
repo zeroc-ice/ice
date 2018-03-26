@@ -12,7 +12,6 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/HashUtil",
-        "../Ice/StringUtil",
         "../Ice/EndpointI",
         "../Ice/LocalException",
         "../Ice/WSTransceiver",
@@ -20,7 +19,6 @@ Ice._ModuleRegistry.require(module,
     ]);
 
 const HashUtil = Ice.HashUtil;
-const StringUtil = Ice.StringUtil;
 const EndpointI = Ice.EndpointI;
 
 class WSEndpoint extends EndpointI

@@ -10,7 +10,6 @@
 const Ice = require("../Ice/LocalException").Ice;
 
 const AlreadyRegisteredException = Ice.AlreadyRegisteredException;
-const NotRegisteredException = Ice.NotRegisteredException;
 
 //
 // Only for use by Instance

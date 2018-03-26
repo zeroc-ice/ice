@@ -13,20 +13,14 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
-        "../Ice/ExUtil",
         "../Ice/SocketOperation",
         "../Ice/Connection",
         "../Ice/Exception",
-        "../Ice/LocalException",
         "../Ice/Timer"
     ]);
 
 const Debug = Ice.Debug;
-const ExUtil = Ice.ExUtil;
-const Network = Ice.Network;
 const SocketOperation = Ice.SocketOperation;
-const LocalException = Ice.LocalException;
-const SocketException = Ice.SocketException;
 const Timer = Ice.Timer;
 
 const StateNeedConnect = 0;

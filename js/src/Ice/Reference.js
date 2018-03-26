@@ -16,7 +16,6 @@ Ice._ModuleRegistry.require(module,
         "../Ice/HashUtil",
         "../Ice/OpaqueEndpointI",
         "../Ice/Promise",
-        "../Ice/Protocol",
         "../Ice/ReferenceMode",
         "../Ice/StringUtil",
         "../Ice/BuiltinSequences",
@@ -36,7 +35,6 @@ const Debug = Ice.Debug;
 const BatchRequestQueue = Ice.BatchRequestQueue;
 const HashUtil = Ice.HashUtil;
 const OpaqueEndpointI = Ice.OpaqueEndpointI;
-const Protocol = Ice.Protocol;
 const RefMode = Ice.ReferenceMode;
 const StringUtil = Ice.StringUtil;
 const StringSeqHelper = Ice.StringSeqHelper;

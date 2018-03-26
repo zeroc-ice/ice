@@ -21,7 +21,6 @@ Ice._ModuleRegistry.require(module,
 const StringUtil = Ice.StringUtil;
 const PropertyNames = Ice.PropertyNames;
 const Debug = Ice.Debug;
-const ProcessLogger = Ice.ProcessLogger;
 const getProcessLogger = Ice.getProcessLogger;
 const InitializationException = Ice.InitializationException;
 

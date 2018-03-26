@@ -10,7 +10,6 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/ArrayUtil",
         "../Ice/AsyncResultBase",
         "../Ice/ConnectionI",
         "../Ice/Debug",
@@ -22,13 +21,10 @@ Ice._ModuleRegistry.require(module,
         "../Ice/ACM"
     ]);
 
-const ArrayUtil = Ice.ArrayUtil;
 const AsyncResultBase = Ice.AsyncResultBase;
 const ConnectionI = Ice.ConnectionI;
-const ConnectionReaper = Ice.ConnectionReaper;
 const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
-const EndpointSelectionType = Ice.EndpointSelectionType;
 const FactoryACMMonitor = Ice.FactoryACMMonitor;
 
 //
@@ -223,7 +219,6 @@ class OutgoingConnectionFactory
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
         Debug.assert(endpoints.length > 0);
 
         for(let i = 0; i < endpoints.length; ++i)

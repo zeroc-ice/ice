@@ -10,7 +10,6 @@
 const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
-        "../Ice/ArrayUtil",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/Promise",
@@ -18,7 +17,6 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Exception"
     ]);
 
-const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
 
