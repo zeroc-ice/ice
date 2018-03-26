@@ -34,7 +34,6 @@ const StateConnectPending = 1;
 const StateProxyConnectRequest = 2;
 const StateProxyConnectRequestPending = 3;
 const StateConnected = 4;
-const StateClosed = 5;
 
 class TcpTransceiver
 {
