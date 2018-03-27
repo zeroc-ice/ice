@@ -65,7 +65,7 @@ Ice.StringUtil = class
             }
         }
 
-        let result = [];
+        const result = [];
 
         if(toStringMode === Ice.ToStringMode.Compat)
         {
@@ -230,7 +230,7 @@ Ice.StringUtil = class
     {
         start = start === undefined ? 0 : start;
 
-        let quoteChar = s.charAt(start);
+        const quoteChar = s.charAt(start);
         if(quoteChar == '"' || quoteChar == '\'')
         {
             start++;
@@ -556,7 +556,7 @@ function decodeChar(s, start, end, special, result)
             {
                 // UTF-8 byte sequence encoded with octal or hex escapes
 
-                let arr = [];
+                const arr = [];
                 let more = true;
                 while(more)
                 {
@@ -596,7 +596,7 @@ function decodeChar(s, start, end, special, result)
                     {
                         for(let j = 0; j < 3 && start < end; ++j)
                         {
-                            let charVal = s.charCodeAt(start++) - '0'.charCodeAt(0);
+                            const charVal = s.charCodeAt(start++) - '0'.charCodeAt(0);
                             if(charVal < 0 || charVal > 7)
                             {
                                 --start; // move back
@@ -617,7 +617,7 @@ function decodeChar(s, start, end, special, result)
                     if((start + 1 < end) && s.charAt(start) === '\\')
                     {
                         c = s.charAt(start + 1);
-                        let charVal = s.charCodeAt(start + 1);
+                        const charVal = s.charCodeAt(start + 1);
                         if(c === 'x' || (charVal >= 0x30 && charVal <= 0x39))
                         {
                             start++;

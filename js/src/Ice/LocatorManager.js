@@ -32,7 +32,7 @@ class LocatorManager
 
     destroy()
     {
-        for(let locator of this._table.values())
+        for(const locator of this._table.values())
         {
             locator.destroy();
         }

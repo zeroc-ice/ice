@@ -23,7 +23,7 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 //
 function createTimerObject()
 {
-    let Timer = class
+    const Timer = class
     {
         static setTimeout(cb, ms)
         {
@@ -68,16 +68,16 @@ const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER  || 9007199254740991;
 
 const _timers = new Map();
 
-const _SetTimeoutType = 0,
-      _SetIntervalType = 1,
-      _SetImmediateType = 2,
-      _ClearTimeoutType = 3,
-      _ClearIntervalType = 4;
+const _SetTimeoutType = 0;
+const _SetIntervalType = 1;
+const _SetImmediateType = 2;
+const _ClearTimeoutType = 3;
+const _ClearIntervalType = 4;
 
 let worker;
 
 let _nextId = 0;
-var nextId = function()
+const nextId = function()
 {
     if(_nextId == MAX_SAFE_INTEGER)
     {
@@ -146,11 +146,11 @@ const workerCode = function()
         //
         // jshint worker: true
         //
-        const _wSetTimeoutType = 0,
-            _wSetIntervalType = 1,
-            _wSetImmediateType = 2,
-            _wClearTimeoutType = 3,
-            _wClearIntervalType = 4;
+        const _wSetTimeoutType = 0;
+        const _wSetIntervalType = 1;
+        const _wSetImmediateType = 2;
+        const _wClearTimeoutType = 3;
+        const _wClearIntervalType = 4;
 
         const timers = {};
 

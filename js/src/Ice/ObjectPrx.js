@@ -881,7 +881,7 @@ class ObjectPrx
             return true;
         }
 
-        for(let i in this._implements)
+        for(const i in this._implements)
         {
             if(this._implements[i]._instanceof(T))
             {

@@ -75,7 +75,7 @@ class Base64
             return "";
         }
 
-        let v = [];
+        const v = [];
 
         let by1;
         let by2;
@@ -128,8 +128,8 @@ class Base64
             }
         }
 
-        let retval = v.join("");
-        let outString = [];
+        const retval = v.join("");
+        const outString = [];
         let iter = 0;
 
         while((retval.length - iter) > 76)
@@ -146,11 +146,11 @@ class Base64
 
     static decode(str) // Returns native Buffer
     {
-        let newStr = [];
+        const newStr = [];
 
         for(let j = 0; j < str.length; j++)
         {
-            let c = str.charAt(j);
+            const c = str.charAt(j);
             if(Base64.isBase64(c))
             {
                 newStr.push(c);
@@ -168,9 +168,9 @@ class Base64
         // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
 
         // Figure out how long the final sequence is going to be.
-        let totalBytes = (newStr.length * 3 / 4) + 1;
+        const totalBytes = (newStr.length * 3 / 4) + 1;
 
-        let retval = new Buffer();
+        const retval = new Buffer();
         retval.resize(totalBytes);
 
         let by1;

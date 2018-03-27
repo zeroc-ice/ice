@@ -595,8 +595,7 @@ class HeartbeatAsync extends OutgoingAsyncBase
             this._os.writeByte(0);
             this._os.writeInt(Protocol.headerSize); // Message size.
 
-            let status = this._connection.sendAsyncRequest(this, false, 0);
-
+            const status = this._connection.sendAsyncRequest(this, false, 0);
             if((status & AsyncStatus.Sent) > 0)
             {
                 this._sentSynchronously = true;

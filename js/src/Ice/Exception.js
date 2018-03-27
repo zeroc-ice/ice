@@ -35,7 +35,7 @@ const toString = function(key, object, objectTable, ident)
 
     objectTable.push(object);
     let s = "\n" + ident + key + ":";
-    for(let k in object)
+    for(const k in object)
     {
         if(key.indexOf("_") === 0)
         {
@@ -105,7 +105,7 @@ class Exception extends Error
 
         this._inToStringAlready = true;
         let s = this.ice_id();
-        for(let key in this)
+        for(const key in this)
         {
             if(key != "_inToStringAlready")
             {

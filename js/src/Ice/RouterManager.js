@@ -23,7 +23,7 @@ class RouterManager
 
     destroy()
     {
-        for(let router of this._table.values())
+        for(const router of this._table.values())
         {
             router.destroy();
         }
@@ -62,7 +62,7 @@ class RouterManager
         if(rtr !== null)
         {
             // The router cannot be routed.
-            let router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+            const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
             info = this._table.get(router);
             this._table.delete(router);

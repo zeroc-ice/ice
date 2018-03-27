@@ -33,7 +33,7 @@ class WSEndpoint extends EndpointI
 
     getInfo()
     {
-        let info = new Ice.WSEndpointInfo();
+        const info = new Ice.WSEndpointInfo();
         info.type = () => this.type();
         info.datagram = () => this.datagram();
         info.secure = () => this.secure();
@@ -153,7 +153,7 @@ class WSEndpoint extends EndpointI
             return this.type() < p.type() ? -1 : 1;
         }
 
-        let r = this._delegate.compareTo(p._delegate);
+        const r = this._delegate.compareTo(p._delegate);
         if(r !== 0)
         {
             return r;

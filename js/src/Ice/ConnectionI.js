@@ -540,7 +540,7 @@ class ConnectionI
     {
         for(let i = 0; i < this._sendStreams.length; i++)
         {
-            let o = this._sendStreams[i];
+            const o = this._sendStreams[i];
             if(o.outAsync === outAsync)
             {
                 if(o.requestId > 0)
@@ -565,7 +565,7 @@ class ConnectionI
 
         if(outAsync instanceof Ice.OutgoingAsync)
         {
-            for(let [key, value] of this._asyncRequests)
+            for(const [key, value] of this._asyncRequests)
             {
                 if(value === outAsync)
                 {
@@ -1000,7 +1000,7 @@ class ConnectionI
         {
             if(traceLevels.network >= 2)
             {
-                let s = [];
+                const s = [];
                 s.push("failed to establish ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1014,7 +1014,7 @@ class ConnectionI
         {
             if(traceLevels.network >= 1)
             {
-                let s = [];
+                const s = [];
                 s.push("closed ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1062,7 +1062,7 @@ class ConnectionI
             //
             for(let i = 0; i < this._sendStreams.length; ++i)
             {
-                let p = this._sendStreams[i];
+                const p = this._sendStreams[i];
                 if(p.requestId > 0)
                 {
                     this._asyncRequests.delete(p.requestId);
@@ -1072,7 +1072,7 @@ class ConnectionI
             this._sendStreams = [];
         }
 
-        for(let value of this._asyncRequests.values())
+        for(const value of this._asyncRequests.values())
         {
             value.completedEx(this._exception);
         }
@@ -1150,7 +1150,7 @@ class ConnectionI
         {
             throw this._exception;
         }
-        let info = this._transceiver.getInfo();
+        const info = this._transceiver.getInfo();
         for(let p = info; p !== null; p = p.underlying)
         {
             p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
@@ -1586,7 +1586,7 @@ class ConnectionI
         const traceLevels = this._instance.traceLevels();
         if(traceLevels.network >= 1)
         {
-            let s = [];
+            const s = [];
             if(this._endpoint.datagram())
             {
                 s.push("starting to send ");
@@ -1651,8 +1651,8 @@ class ConnectionI
                 //
                 message = this._sendStreams[0];
                 Debug.assert(!message.prepared);
-                let stream = message.stream;
 
+                const stream = message.stream;
                 stream.pos = 10;
                 stream.writeInt(stream.size);
                 stream.prepareWrite();
@@ -1710,7 +1710,7 @@ class ConnectionI
 
         Debug.assert(!message.prepared);
 
-        let stream = message.stream;
+        const stream = message.stream;
         stream.pos = 10;
         stream.writeInt(stream.size);
         stream.prepareWrite();
@@ -1912,10 +1912,10 @@ class ConnectionI
                 //
                 // Prepare the invocation.
                 //
-                let inc = new IncomingAsync(this._instance, this,
-                                            adapter,
-                                            !this._endpoint.datagram() && requestId !== 0, // response
-                                            requestId);
+                const inc = new IncomingAsync(this._instance, this,
+                                              adapter,
+                                              !this._endpoint.datagram() && requestId !== 0, // response
+                                              requestId);
 
                 //
                 // Dispatch the invocation.
@@ -2067,7 +2067,7 @@ class ConnectionI
         const ret = this._transceiver.read(buf, this._hasMoreData);
         if(this._instance.traceLevels().network >= 3 && buf.position != start)
         {
-            let s = [];
+            const s = [];
             s.push("received ");
             if(this._endpoint.datagram())
             {
@@ -2094,7 +2094,7 @@ class ConnectionI
         const ret = this._transceiver.write(buf);
         if(this._instance.traceLevels().network >= 3 && buf.position != start)
         {
-            let s = [];
+            const s = [];
             s.push("sent ");
             s.push(buf.position - start);
             if(!this._endpoint.datagram())

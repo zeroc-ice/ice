@@ -551,7 +551,7 @@ class ObjectAdapterI
                 //
                 // Remove duplicate endpoints, so we have a list of unique endpoints.
                 //
-                let endpoints = [];
+                const endpoints = [];
                 endpts.forEach(endpoint =>
                 {
                     if(endpoints.findIndex(value => endpoint.equals(value)) === -1)
@@ -569,8 +569,8 @@ class ObjectAdapterI
             // Parse published endpoints. If set, these are used in proxies
             // instead of the connection factory Endpoints.
             //
-            let endpoints = [];
-            let s = this._instance.initializationData().properties.getProperty(this._name + ".PublishedEndpoints");
+            const endpoints = [];
+            const s = this._instance.initializationData().properties.getProperty(this._name + ".PublishedEndpoints");
             const delim = " \t\n\r";
 
             let end = 0;
@@ -630,8 +630,8 @@ class ObjectAdapterI
                     }
                 }
 
-                let es = s.substring(beg, end);
-                let endp = this._instance.endpointFactoryManager().create(es, false);
+                const es = s.substring(beg, end);
+                const endp = this._instance.endpointFactoryManager().create(es, false);
                 if(endp == null)
                 {
                     throw new Ice.EndpointParseException("invalid object adapter endpoint `" + s + "'");
@@ -646,9 +646,9 @@ class ObjectAdapterI
         {
             if(this._instance.traceLevels().network >= 1 && endpoints.length > 0)
             {
-                let s = [];
+                const s = [];
                 s.push("published endpoints for object adapter `");
-                s.push(_name);
+                s.push(this._name);
                 s.push("':\n");
                 let first = true;
                 endpoints.forEach(endpoint =>
@@ -683,8 +683,8 @@ class ObjectAdapterI
         }
 
         let noProps = true;
-        let props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for(let [key, value] of props)
+        const props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
+        for(const [key, value] of props)
         {
             let valid = false;
             for(let i = 0; i < _suffixes.length; ++i)

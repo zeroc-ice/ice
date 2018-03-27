@@ -263,7 +263,7 @@ class HashMap
         //
         // Create a new table entry.
         //
-        let e = Object.create(null, {
+        const e = Object.create(null, {
             "key": {
                 enumerable: true,
                 get: function() { return this._key; }
@@ -333,7 +333,7 @@ class HashMap
         //
         for(let e = this._head; e !== null; e = e._next)
         {
-            let index = this.hashIndex(e._hash, capacity);
+            const index = this.hashIndex(e._hash, capacity);
             e._nextInBucket = newTable[index];
             newTable[index] = e;
         }
@@ -344,7 +344,7 @@ class HashMap
 
     findEntry(key, hash)
     {
-        let index = this.hashIndex(hash, this._table.length);
+        const index = this.hashIndex(hash, this._table.length);
         //
         // Search for an entry with the same key.
         //
@@ -375,7 +375,7 @@ class HashMap
         {
             if(HashMap._null === null)
             {
-                let uuid = Ice.generateUUID();
+                const uuid = Ice.generateUUID();
                 HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
@@ -402,7 +402,7 @@ class HashMap
             {
                 if(HashMap._nan === null)
                 {
-                    let uuid = Ice.generateUUID();
+                    const uuid = Ice.generateUUID();
                     HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;

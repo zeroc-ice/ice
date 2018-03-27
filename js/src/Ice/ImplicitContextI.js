@@ -121,7 +121,7 @@ class ImplicitContextI
             else
             {
                 ctx = new Context(this._context);
-                for(let [key, value] of prxContext)
+                for(const [key, value] of prxContext)
                 {
                     ctx.set(key, value);
                 }

@@ -249,10 +249,10 @@ class ReferenceFactory
             // quotation marks.
             //
             let argument = null;
-            let argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+            const argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
             if(argumentBeg != -1)
             {
-                let ch = s.charAt(argumentBeg);
+                const ch = s.charAt(argumentBeg);
                 if(ch != "@" && ch != ":" && ch != "-")
                 {
                     beg = argumentBeg;
@@ -421,11 +421,11 @@ class ReferenceFactory
             return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
-        let endpoints = [];
+        const endpoints = [];
 
         if(s.charAt(beg) == ':')
         {
-            let unknownEndpoints = [];
+            const unknownEndpoints = [];
             end = beg;
 
             while(end < s.length && s.charAt(end) == ':')
@@ -475,8 +475,8 @@ class ReferenceFactory
                     }
                 }
 
-                let es = s.substring(beg, end);
-                let endp = this._instance.endpointFactoryManager().create(es, false);
+                const es = s.substring(beg, end);
+                const endp = this._instance.endpointFactoryManager().create(es, false);
                 if(endp !== null)
                 {
                     endpoints.push(endp);
@@ -684,12 +684,12 @@ class ReferenceFactory
             }
         }
 
-        let properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+        const properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
         unknownProps = unknownProps.concat(Array.from(properties.keys()).filter(
             key => !suffixes.some(suffix => key === prefix + "." + suffix)));
         if(unknownProps.length > 0)
         {
-            let message = [];
+            const message = [];
             message.push("found unknown properties for proxy '");
             message.push(prefix);
             message.push("':");
@@ -1173,7 +1173,7 @@ class Reference
         h = HashUtil.addHashable(h, this._identity);
         if(this._context !== null && this._context !== undefined)
         {
-            for(let [key, value] of this._context)
+            for(const [key, value] of this._context)
             {
                 h = HashUtil.addString(h, key);
                 h = HashUtil.addString(h, value);

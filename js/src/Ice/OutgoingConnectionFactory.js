@@ -394,10 +394,10 @@ class OutgoingConnectionFactory
             connectionCallbacks.push(cb);
         }
 
-        let callbacks = [];
+        const callbacks = [];
         endpoints.forEach(endpt =>
             {
-                let cbs = this._pending.get(endpt);
+                const cbs = this._pending.get(endpt);
                 if(cbs !== undefined)
                 {
                     this._pending.delete(endpt);
@@ -424,7 +424,7 @@ class OutgoingConnectionFactory
         connectionCallbacks.forEach(cc =>
             {
                 cc.removeFromPending();
-                let idx = callbacks.indexOf(cc);
+                const idx = callbacks.indexOf(cc);
                 if(idx !== -1)
                 {
                     callbacks.splice(idx, 1);
@@ -692,7 +692,7 @@ class ConnectionListMap extends HashMap
 
     forEach(fn)
     {
-        for(let connections of this.values())
+        for(const connections of this.values())
         {
             connections.forEach(fn);
         }
@@ -763,7 +763,7 @@ class ConnectCallback
     {
         endpoints.forEach(endpoint =>
             {
-                let idx = this.findEndpoint(endpoint);
+                const idx = this.findEndpoint(endpoint);
                 if(idx !== -1)
                 {
                     this._endpoints.splice(idx, 1);
@@ -854,7 +854,7 @@ class ConnectCallback
 
                 if(traceLevels.network >= 2)
                 {
-                    let s = [];
+                    const s = [];
                     s.push("trying to establish ");
                     s.push(this._current.protocol());
                     s.push(" connection to ");
@@ -868,7 +868,7 @@ class ConnectCallback
             {
                 if(traceLevels.network >= 2)
                 {
-                    let s = [];
+                    const s = [];
                     s.push("failed to establish ");
                     s.push(this._current.protocol());
                     s.push(" connection to ");

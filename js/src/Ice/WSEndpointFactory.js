@@ -31,14 +31,14 @@ class WSEndpointFactory extends WSEndpoint
 
     create(args, oaEndpoint)
     {
-        let e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
+        const e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
         e.initWithOptions(args);
         return e;
     }
 
     read(s)
     {
-        let e = new WSEndpoint(this._instance, this._delegate.read(s));
+        const e = new WSEndpoint(this._instance, this._delegate.read(s));
         e.initWithStream(s);
         return e;
     }

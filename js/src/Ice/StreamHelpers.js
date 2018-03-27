@@ -235,7 +235,7 @@ class DictionaryHelper
             const keyHelper = this.keyHelper;
             const valueHelper = this.valueHelper;
             os.writeSize(v.size);
-            for(let [key, value] of v)
+            for(const [key, value] of v)
             {
                 keyHelper.write(os, key);
                 valueHelper.write(os, value);

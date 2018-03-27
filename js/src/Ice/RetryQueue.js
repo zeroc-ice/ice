@@ -64,7 +64,7 @@ class RetryQueue
         {
             throw new Ice.CommunicatorDestroyedException();
         }
-        let task = new RetryTask(this._instance, this, outAsync);
+        const task = new RetryTask(this._instance, this, outAsync);
         outAsync.cancelable(task); // This will throw if the request is canceled
         task.token = this._instance.timer().schedule(() => task.run(), interval);
         this._requests.push(task);

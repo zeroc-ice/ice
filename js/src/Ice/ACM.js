@@ -109,7 +109,7 @@ class FactoryACMMonitor
             return;
         }
 
-        let i = this._connections.indexOf(connection);
+        const i = this._connections.indexOf(connection);
         Debug.assert(i >= 0);
         this._connections.splice(i, 1);
         if(this._connections.length === 0)
@@ -127,7 +127,7 @@ class FactoryACMMonitor
     {
         Debug.assert(this._instance !== null);
 
-        let config = new ACMConfig();
+        const config = new ACMConfig();
         config.timeout = this._config.timeout;
         config.close = this._config.close;
         config.heartbeat = this._config.heartbeat;
@@ -157,7 +157,7 @@ class FactoryACMMonitor
         {
             return null;
         }
-        let connections = this._reapedConnections;
+        const connections = this._reapedConnections;
         this._reapedConnections = [];
         return connections;
     }
@@ -174,7 +174,7 @@ class FactoryACMMonitor
         // Monitor connections outside the thread synchronization, so
         // that connections can be added or removed during monitoring.
         //
-        let now = Date.now();
+        const now = Date.now();
         this._connections.forEach(connection =>
             {
                 try

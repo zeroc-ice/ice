@@ -122,7 +122,7 @@ class ConnectRequestHandler
         // If this proxy is for a non-local object, and we are using a router, then
         // add this proxy to the router info object.
         //
-        let ri = this._reference.getRouterInfo();
+        const ri = this._reference.getRouterInfo();
         if(ri !== null)
         {
                                                                                   //
