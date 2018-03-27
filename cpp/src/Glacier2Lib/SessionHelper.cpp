@@ -34,9 +34,9 @@ public:
     {
     }
 
-    void add(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
+    IceUtil::ThreadPtr add(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
     {
-        _factory->addThread(session, thread);
+        return _factory->addThread(session, thread);
     }
 
 private:
@@ -147,32 +147,31 @@ class DestroyInternal : public IceUtil::Thread
 public:
 
     DestroyInternal(const SessionHelperIPtr& session,
-                    const Glacier2::SessionThreadCallbackPtr& threadCB,
-                    const Glacier2::SessionCallbackPtr& callback) :
-        _session(session),
-        _threadCB(threadCB),
-        _disconnected(new Disconnected(session, callback))
+                    const Glacier2::SessionCallbackPtr& callback,
+                    const Glacier2::SessionThreadCallbackPtr& threadCB) :
+        _session(session), _disconnected(new Disconnected(session, callback))
     {
+        _previous = threadCB->add(session.get(), this);
     }
 
     virtual void run()
     {
-        //
-        // Add this thread to the factory to ensure it will be jointed on
-        // destroy. This might join the connection thread so it's important
-        // to not hold any locks when calling add.
-        //
-        _threadCB->add(_session.get(), this);
-        _threadCB = 0;
-
         _session->destroyInternal(_disconnected);
-        _session = 0;
+        _session = ICE_NULLPTR;
+
+        //
+        // Join the connect thread to free resources.
+        //
+        if(_previous)
+        {
+            _previous->getThreadControl().join();
+        }
     }
 
 private:
 
     SessionHelperIPtr _session;
-    Glacier2::SessionThreadCallbackPtr _threadCB;
+    IceUtil::ThreadPtr _previous;
     const Ice::DispatcherCallPtr _disconnected;
 };
 
@@ -181,20 +180,30 @@ class DestroyCommunicator : public IceUtil::Thread
 
 public:
 
-    DestroyCommunicator(const SessionHelperIPtr& session) :
+    DestroyCommunicator(const SessionHelperIPtr& session, const Glacier2::SessionThreadCallbackPtr& threadCB) :
         _session(session)
     {
+        _previous = threadCB->add(session.get(), this);
     }
 
     virtual void run()
     {
         _session->destroyCommunicator();
-        _session = 0;
+        _session = ICE_NULLPTR;
+
+        //
+        // Join the connect thread to free resources.
+        //
+        if(_previous)
+        {
+            _previous->getThreadControl().join();
+        }
     }
 
 private:
 
     SessionHelperIPtr _session;
+    IceUtil::ThreadPtr _previous;
 };
 
 }
@@ -224,6 +233,7 @@ SessionHelperI::destroy()
     }
     _destroy = true;
 
+    IceUtil::ThreadPtr destroyThread;
     if(!_connected)
     {
         //
@@ -231,22 +241,20 @@ SessionHelperI::destroy()
         // We destroy the communicator to trigger the immediate
         // failure of the connection establishment.
         //
-        IceUtil::ThreadPtr destroyCommunicator = new DestroyCommunicator(ICE_SHARED_FROM_THIS);
-        _threadCB = ICE_NULLPTR;
-        destroyCommunicator->start();
-        return;
+        destroyThread = new DestroyCommunicator(ICE_SHARED_FROM_THIS, _threadCB);
     }
-
-    IceUtil::ThreadPtr destroyInternal = new DestroyInternal(ICE_SHARED_FROM_THIS, _threadCB, _callback);
-
-    _session = ICE_NULLPTR;
-    _connected = false;
+    else
+    {
+        destroyThread = new DestroyInternal(ICE_SHARED_FROM_THIS, _callback, _threadCB);
+        _connected = false;
+        _session = ICE_NULLPTR;
+    }
     _threadCB = ICE_NULLPTR;
 
     //
-    // Run destroyInternal in a thread because it makes remote invocations.
+    // Run destroy in a thread because it can block.
     //
-    destroyInternal->start();
+    destroyThread->start();
 }
 
 Ice::CommunicatorPtr
@@ -941,35 +949,27 @@ Glacier2::SessionFactoryHelper::~SessionFactoryHelper()
     }
 }
 
-void
+IceUtil::ThreadPtr
 Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
 {
     //
     // A SessionHelper can only ever have one thread running. Therefore any
     // currently registered thread for the same session must be finished, so
-    // we just replace it.
+    // we just replace it. Caller must join returned thread.
     //
+    IceUtil::Mutex::Lock sync(_mutex);
     IceUtil::ThreadPtr previous;
+    map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.find(session);
+    if(p != _threads.end())
     {
-        IceUtil::Mutex::Lock sync(_mutex);
-        map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.find(session);
-        if(p != _threads.end())
-        {
-            previous = p->second;
-            p->second = thread;
-        }
-        else
-        {
-            _threads.insert(make_pair(session, thread));
-        }
+        previous = p->second;
+        p->second = thread;
     }
-    if(previous)
+    else
     {
-        //
-        // Join previous thread, joining outside the synchronization is important to prevent deadlocks.
-        //
-        previous->getThreadControl().join();
+        _threads.insert(make_pair(session, thread));
     }
+    return previous;
 }
 
 void

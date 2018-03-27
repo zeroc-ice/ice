@@ -30,6 +30,10 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
+    ReplicaGroupFilterPtr _filterByServer;
+    ReplicaGroupFilterPtr _excludeServer2;
+    ReplicaGroupFilterPtr _excludeServer3;
+    TypeFilterPtr _type;
 };
 
 class ReplicaGroupFilterI : public IceGrid::ReplicaGroupFilter
@@ -176,19 +180,29 @@ RegistryPluginI::initialize()
     IceGrid::RegistryPluginFacadePtr facade = IceGrid::getRegistryPluginFacade();
     assert(facade);
 
-    ReplicaGroupFilterPtr f = new ReplicaGroupFilterI(facade);
-    facade->addReplicaGroupFilter("filterByServer", f);
-    test(facade->removeReplicaGroupFilter("filterByServer", f));
-    test(!facade->removeReplicaGroupFilter("filterByServer", f));
+    _filterByServer = new ReplicaGroupFilterI(facade);
+    _excludeServer2 = new ExcludeReplicaGroupFilterI(facade, "Server2");
+    _excludeServer3 = new ExcludeReplicaGroupFilterI(facade, "Server3");
+    _type = new TypeFilterI(facade);
 
-    facade->addReplicaGroupFilter("filterByServer", f);
-    facade->addReplicaGroupFilter("excludeServer", new ExcludeReplicaGroupFilterI(facade, "Server2"));
-    facade->addReplicaGroupFilter("excludeServer", new ExcludeReplicaGroupFilterI(facade, "Server3"));
+    facade->addReplicaGroupFilter("filterByServer", _filterByServer);
+    test(facade->removeReplicaGroupFilter("filterByServer", _filterByServer));
+    test(!facade->removeReplicaGroupFilter("filterByServer", _filterByServer));
 
-    facade->addTypeFilter("::Test::TestIntf2", new TypeFilterI(facade));
+    facade->addReplicaGroupFilter("filterByServer", _filterByServer);
+    facade->addReplicaGroupFilter("excludeServer", _excludeServer2);
+    facade->addReplicaGroupFilter("excludeServer", _excludeServer3);
+    facade->addTypeFilter("::Test::TestIntf2", _type);
 }
 
 void
 RegistryPluginI::destroy()
 {
+    IceGrid::RegistryPluginFacadePtr facade = IceGrid::getRegistryPluginFacade();
+    assert(facade);
+
+    facade->removeReplicaGroupFilter("filterByServer", _filterByServer);
+    facade->removeReplicaGroupFilter("excludeServer", _excludeServer2);
+    facade->removeReplicaGroupFilter("excludeServer", _excludeServer3);
+    facade->removeTypeFilter("::Test::TestIntf2", _type);
 }

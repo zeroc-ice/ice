@@ -297,7 +297,7 @@ public:
 
 private:
 
-    void addThread(const SessionHelper*, const IceUtil::ThreadPtr&);
+    IceUtil::ThreadPtr addThread(const SessionHelper*, const IceUtil::ThreadPtr&);
 
     Ice::InitializationData createInitData();
     std::string getRouterFinderStr();
