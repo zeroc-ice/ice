@@ -278,7 +278,7 @@ const valueDictionaryHelperRead = function(is)
 
     const readValueForKey = function(key)
     {
-        is.readValue(function(obj) { v.set(key, obj); }, valueType);
+        is.readValue(obj => v.set(key, obj), valueType);
     };
 
     const keyHelper = this.keyHelper;

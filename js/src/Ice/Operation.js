@@ -103,7 +103,7 @@ function parseOperation(name, arr)
             }
         }
     }
-    inParamsOpt.sort(function(p1, p2) { return p1.tag - p2.tag; }); // Sort by tag.
+    inParamsOpt.sort((p1, p2) => p1.tag - p2.tag); // Sort by tag.
     r.inParams = inParams;
     r.inParamsOpt = inParamsOpt;
 
@@ -127,7 +127,7 @@ function parseOperation(name, arr)
     {
         outParamsOpt.push(ret);
     }
-    outParamsOpt.sort(function(p1, p2) { return p1.tag - p2.tag; }); // Sort by tag.
+    outParamsOpt.sort((p1, p2) => p1.tag - p2.tag); // Sort by tag.
     r.outParams = outParams;
     r.outParamsOpt = outParamsOpt;
 
@@ -592,11 +592,11 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
     };
 
     Object.defineProperty(classType, "_iceIds", {
-        get: function(){ return ids; }
+        get: () => ids
     });
 
     Object.defineProperty(classType, "_iceId", {
-        get: function(){ return ids[pos]; }
+        get: () => ids[pos]
     });
 
     classType.ice_staticId = function()

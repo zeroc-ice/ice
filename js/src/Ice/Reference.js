@@ -1785,7 +1785,7 @@ class RoutableReference extends Reference
 
     changeEndpoints(newEndpoints)
     {
-        if(ArrayUtil.equals(newEndpoints, this._endpoints, function(e1, e2) { return e1.equals(e2); }))
+        if(ArrayUtil.equals(newEndpoints, this._endpoints, (e1, e2) => e1.equals(e2)))
         {
             return this;
         }
@@ -2072,7 +2072,7 @@ class RoutableReference extends Reference
         {
             return false;
         }
-        if(!ArrayUtil.equals(this._endpoints, rhs._endpoints, function(e1, e2) { return e1.equals(e2); }))
+        if(!ArrayUtil.equals(this._endpoints, rhs._endpoints, (e1, e2) => e1.equals(e2)))
         {
             return false;
         }
