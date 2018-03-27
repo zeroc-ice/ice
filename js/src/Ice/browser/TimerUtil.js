@@ -195,7 +195,7 @@ if(typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScop
 }
 else if(worker === undefined)
 {
-    var url;
+    let url;
     try
     {
         url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
@@ -205,8 +205,10 @@ else if(worker === undefined)
     }
     catch(ex)
     {
-        URL.revokeObjectURL(url);
-
+        if(url !== undefined)
+        {
+            URL.revokeObjectURL(url);
+        }
         //
         // Fallback on setInterval/setTimeout if the worker creating failed. Some IE10 and IE11 don't
         // support creating workers from blob URLs for instance.

@@ -71,7 +71,7 @@ class Buffer
     //
     expand(n)
     {
-        var sz = this.capacity === 0 ? n : this._position + n;
+        const sz = this.capacity === 0 ? n : this._position + n;
         if(sz > this._limit)
         {
             this.resize(sz);
@@ -106,15 +106,14 @@ class Buffer
     {
         if(n > this.capacity)
         {
-            var capacity = Math.max(n, 2 * this.capacity);
-            capacity = Math.max(1024, capacity);
+            const capacity = Math.max(1024, Math.max(n, 2 * this.capacity));
             if(!this.b)
             {
                 this.b = new ArrayBuffer(capacity);
             }
             else
             {
-                var b = new Uint8Array(capacity);
+                const b = new Uint8Array(capacity);
                 b.set(new Uint8Array(this.b));
                 this.b = b.buffer;
             }
@@ -124,10 +123,6 @@ class Buffer
         {
             this.b = this.b.slice(0, this.capacity);
             this.v = new DataView(this.b);
-        }
-        else
-        {
-            return;
         }
     }
 
@@ -234,7 +229,7 @@ class Buffer
         //
         // Encode the string as utf8
         //
-        var encoded = unescape(encodeURIComponent(v));
+        const encoded = unescape(encodeURIComponent(v));
 
         stream.writeSize(encoded.length);
         stream.expand(encoded.length);
@@ -247,7 +242,7 @@ class Buffer
         {
             throw new Error(bufferOverflowExceptionMsg);
         }
-        for(var i = 0; i < sz; ++i)
+        for(let i = 0; i < sz; ++i)
         {
             this.v.setUint8(this._position, v.charCodeAt(i));
             this._position++;
@@ -260,7 +255,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getUint8(this._position);
+        const v = this.v.getUint8(this._position);
         this._position++;
         return v;
     }
@@ -280,7 +275,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var buffer = this.b.slice(this._position, this._position + length);
+        const buffer = this.b.slice(this._position, this._position + length);
         this._position += length;
         return new Uint8Array(buffer);
     }
@@ -301,7 +296,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getInt16(this._position, true);
+        const v = this.v.getInt16(this._position, true);
         this._position += 2;
         return v;
     }
@@ -312,7 +307,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getInt32(this._position, true);
+        const v = this.v.getInt32(this._position, true);
         this._position += 4;
         return v;
     }
@@ -323,7 +318,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getFloat32(this._position, true);
+        const v = this.v.getFloat32(this._position, true);
         this._position += 4;
         return v;
     }
@@ -334,7 +329,7 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getFloat64(this._position, true);
+        const v = this.v.getFloat64(this._position, true);
         this._position += 8;
         return v;
     }
@@ -360,16 +355,14 @@ class Buffer
             throw new Error(bufferUnderflowExceptionMsg);
         }
 
-        var data = new DataView(this.b, this._position, length);
-        var s = "";
-
-        for(var i = 0; i < length; ++i)
+        const data = new DataView(this.b, this._position, length);
+        let s = "";
+        for(let i = 0; i < length; ++i)
         {
             s += String.fromCharCode(data.getUint8(i));
         }
         this._position += length;
-        s = decodeURIComponent(escape(s));
-        return s;
+        return decodeURIComponent(escape(s));
     }
 
     get position()

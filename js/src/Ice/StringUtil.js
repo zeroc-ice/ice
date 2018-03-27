@@ -70,7 +70,7 @@ Ice.StringUtil = class
         if(toStringMode === Ice.ToStringMode.Compat)
         {
             // Encode UTF-8 bytes
-            var bytes = unescape(encodeURIComponent(s));
+            const bytes = unescape(encodeURIComponent(s));
             for(let i = 0; i < bytes.length; ++i)
             {
                 const c = bytes.charCodeAt(i);
@@ -340,7 +340,7 @@ function encodeChar(c, sb, special, toStringMode)
         }
         default:
         {
-            var s = String.fromCharCode(c);
+            const s = String.fromCharCode(c);
 
             if(special !== null && special.indexOf(s) !== -1)
             {
