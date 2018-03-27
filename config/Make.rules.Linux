@@ -34,6 +34,9 @@ $(target-platform)_objdir       = /$(target-platform)
 # system install directory
 system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
 
+# The Slice translators are under OECORE_NATIVE_SYSTEM tree
+ice_bindir[$(build-platform)]   := $(OECORE_NATIVE_SYSROOT)/usr/bin
+
 else ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
 #
