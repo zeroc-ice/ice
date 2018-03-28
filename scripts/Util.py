@@ -2515,6 +2515,11 @@ class BrowserProcessController(RemoteProcessController):
                     #
                     profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
                     self.driver = webdriver.Firefox(firefox_profile=profile)
+                elif current.config.browser == "Ie":
+                    # Make sure we start with a clean cache
+                    capabilities = webdriver.DesiredCapabilities.INTERNETEXPLORER.copy()
+                    capabilities["ie.ensureCleanSession"] = True
+                    self.driver = webdriver.Ie(capabilities=capabilities)
                 else:
                     self.driver = getattr(webdriver, current.config.browser)()
         except:
