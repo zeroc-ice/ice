@@ -109,6 +109,7 @@
                         else if(result.isCompleted())
                         {
                             await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
                         }
                         await Ice.Promise.delay(10);
                     }
@@ -132,6 +133,7 @@
                 else if(result.isCompleted())
                 {
                     await result; // This should throw the failure if the call wasn't sent but done.
+                    test(result.isSent());
                 }
                 await Ice.Promise.delay(10);
             }
@@ -171,6 +173,7 @@
                         else if(result.isCompleted())
                         {
                             await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
                         }
                         await Ice.Promise.delay(10);
                     }
@@ -216,6 +219,7 @@
                         else if(result.isCompleted())
                         {
                             await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
                         }
                         await Ice.Promise.delay(10);
                     }

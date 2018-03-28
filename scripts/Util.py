@@ -3237,9 +3237,7 @@ class CSharpMapping(Mapping):
                                                                                   "IceGrid/simple"]:
                     return False
 
-                if isinstance(platform, Darwin) and (self.protocol in ["ssl", "wss"] or
-                                                     "IceSSL" in testId or
-                                                     "IceDiscovery" in testId):
+                if isinstance(platform, Darwin) and ("IceSSL" in testId or "IceDiscovery" in testId):
                     return False
 
             return True
