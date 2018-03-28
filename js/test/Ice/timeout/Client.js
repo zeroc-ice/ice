@@ -160,6 +160,9 @@
         }
         out.writeLine("ok");
 
+        // Small delay is useful for IE which doesn't like too many connection failures in a row
+        await Ice.Promise.delay(500);
+
         out.write("testing close timeout... ");
         {
             let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500));
