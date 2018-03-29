@@ -45,7 +45,7 @@ private:
     std::string getHost() const;
     void Hostname_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 
-    std::map<std::string, std::pair<HINSTANCE, unsigned int>> _dlls;
+    std::map<std::string, HINSTANCE> _dlls;
     std::mutex _mutex;
 };
 

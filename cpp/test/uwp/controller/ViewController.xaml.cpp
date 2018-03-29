@@ -197,7 +197,6 @@ MainHelperI::run()
         if(_dllTestShutdown == 0)
         {
             print("failed to find dllTestShutdown function from `" + _dll + "'");
-            _controller->unloadDll(_dll);
             completed(EXIT_FAILURE);
             return;
         }
@@ -206,7 +205,6 @@ MainHelperI::run()
         if(sym == 0)
         {
             print("failed to find dllMain function from `" + _dll + "'");
-            _controller->unloadDll(_dll);
             completed(EXIT_FAILURE);
             return;
         }
@@ -233,7 +231,6 @@ MainHelperI::run()
             completed(EXIT_FAILURE);
         }
         delete[] argv;
-        _controller->unloadDll(_dll);
     });
     _thread = move(t);
 }
@@ -491,36 +488,17 @@ HINSTANCE
 ViewController::loadDll(const string& name)
 {
     unique_lock<mutex> lock(_mutex);
-    map<string, pair<HINSTANCE, unsigned int>>::iterator p = _dlls.find(name);
+    map<string, HINSTANCE>::iterator p = _dlls.find(name);
     if(p == _dlls.end())
     {
         HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
-        p = _dlls.insert(make_pair(name, make_pair(hnd, 0))).first;
+        p = _dlls.insert(make_pair(name, hnd)).first;
     }
-    ++p->second.second;
-    return p->second.first;
-}
-
-void
-ViewController::unloadDll(const string& name)
-{
-    unique_lock<mutex> lock(_mutex);
-    map<string, pair<HINSTANCE, unsigned int>>::iterator p = _dlls.find(name);
-    assert(p != _dlls.end());
-    if(--p->second.second == 0)
-    {
-        FreeLibrary(p->second.first);
-        _dlls.erase(p);
-    }
+    return p->second;
 }
 
 ViewController::~ViewController()
 {
-    for(map<string, pair<HINSTANCE, unsigned int>>::const_iterator p = _dlls.begin(); p != _dlls.end(); ++p)
-    {
-        FreeLibrary(p->second.first);
-    }
-
     if(controllerHelper)
     {
         delete controllerHelper;
