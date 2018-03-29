@@ -3632,7 +3632,7 @@ class JavaScriptMapping(Mapping):
             "serialize" : [False],
             "mx" : [False],
             "es5" : [True] if current.config.es5 else [False, True],
-            "worker" : [False, True] if current.config.browser else [False],
+            "worker" : [False, True] if current.config.browser and current.config.browser != "Ie" else [False],
         }
         return options
 

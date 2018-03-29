@@ -186,7 +186,16 @@ const workerCode = function()
     }.toString() + "());";
 };
 
-if(typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope)
+if(typeof navigator !== "undefined" &&
+   (navigator.userAgent.indexOf("MSIE") !== -1 ||
+    navigator.userAgent.match(/Trident.*rv:11\./)))
+{
+    //
+    // With IE always use the setInterval/setTimeout browser functions directly
+    //
+    Ice.Timer = createTimerObject();
+}
+else if(typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope)
 {
     //
     // If we are running in a worker don't spawn a separate worker for the timer
@@ -195,24 +204,8 @@ if(typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScop
 }
 else if(worker === undefined)
 {
-    let url;
-    try
-    {
-        url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
-        worker = new Worker(url);
-        worker.onmessage = Timer.onmessage;
-        Ice.Timer = Timer;
-    }
-    catch(ex)
-    {
-        if(url !== undefined)
-        {
-            URL.revokeObjectURL(url);
-        }
-        //
-        // Fallback on setInterval/setTimeout if the worker creating failed. Some IE10 and IE11 don't
-        // support creating workers from blob URLs for instance.
-        //
-        Ice.Timer = createTimerObject();
-    }
+    const url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
+    worker = new Worker(url);
+    worker.onmessage = Timer.onmessage;
+    Ice.Timer = Timer;
 }
