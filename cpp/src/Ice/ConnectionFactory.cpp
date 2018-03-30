@@ -131,19 +131,30 @@ class StartAcceptor : public IceUtil::TimerTask
 {
 public:
 
-    StartAcceptor(const IncomingConnectionFactoryPtr& factory) : _factory(factory)
+    StartAcceptor(const IncomingConnectionFactoryPtr& factory, const InstancePtr& instance) :
+        _factory(factory), _instance(instance)
     {
     }
 
     void
     runTimerTask()
     {
-        _factory->startAcceptor();
+        try
+        {
+            _factory->startAcceptor();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
+            _instance->timer()->schedule(this, IceUtil::Time::seconds(1));
+        }
     }
 
 private:
 
     IncomingConnectionFactoryPtr _factory;
+    InstancePtr _instance;
 };
 
 }
@@ -1610,17 +1621,7 @@ IceInternal::IncomingConnectionFactory::startAcceptor()
     }
 
     _acceptorStopped = false;
-
-    try
-    {
-        createAcceptor();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(_instance->initializationData().logger);
-        out << "acceptor creation failed:\n" << ex << '\n' << _acceptor->toString();
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS), IceUtil::Time::seconds(1));
-    }
+    createAcceptor();
 }
 
 void
@@ -1852,6 +1853,7 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
     //
     if(!_acceptorStopped && (_state == StateHolding || _state == StateActive))
     {
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS), IceUtil::Time::seconds(1));
+        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
+                                     IceUtil::Time::seconds(1));
     }
 }

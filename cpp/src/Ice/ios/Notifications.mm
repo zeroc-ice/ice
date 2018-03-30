@@ -68,15 +68,15 @@ public:
     add(const IncomingConnectionFactoryPtr& factory)
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        _factories.insert(factory);
         if(_background)
         {
             factory->stopAcceptor();
         }
         else
         {
-            factory->startAcceptor();
+            factory->startAcceptor(); // Might throw
         }
+        _factories.insert(factory);
         return _background;
     }
 
