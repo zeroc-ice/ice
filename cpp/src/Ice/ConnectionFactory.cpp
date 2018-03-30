@@ -128,6 +128,9 @@ find(const multimap<K,::IceInternal::Handle<V> >& m,
 #endif
 
 class StartAcceptor : public IceUtil::TimerTask
+#ifdef ICE_CPP11_MAPPING
+                    , public std::enable_shared_from_this<StartAcceptor>
+#endif
 {
 public:
 
@@ -147,7 +150,7 @@ public:
         {
             Error out(_instance->initializationData().logger);
             out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
-            _instance->timer()->schedule(this, IceUtil::Time::seconds(1));
+            _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::seconds(1));
         }
     }
 
