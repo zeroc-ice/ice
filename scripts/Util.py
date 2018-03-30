@@ -2070,17 +2070,28 @@ class RemoteProcessController(ProcessController):
         if type(ident) == str:
             ident = current.driver.getCommunicator().stringToIdentity(ident)
 
-        with self.cond:
-            if ident in self.processControllerProxies:
-                return self.processControllerProxies[ident]
-
-        comm = current.driver.getCommunicator()
         import Ice
         import Test
 
+        proxy = None
+        with self.cond:
+            if ident in self.processControllerProxies:
+                proxy = self.processControllerProxies[ident]
+        if proxy:
+            try:
+                proxy.ice_ping()
+                return proxy
+            except Ice.NoEndpointException:
+                self.clearProcessController(proxy)
+
+        comm = current.driver.getCommunicator()
+
         if current.driver.controllerApp:
-            self.controllerApps.append(ident)
-            self.startControllerApp(current, ident)
+            if ident in self.controllerApps:
+                self.restartControllerApp(current, ident) # Controller must have crashed, restart it
+            else:
+                self.controllerApps.append(ident)
+                self.startControllerApp(current, ident)
 
         if not self.adapter:
             # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
@@ -2124,14 +2135,20 @@ class RemoteProcessController(ProcessController):
 
             self.cond.notifyAll()
 
-    def clearProcessController(self, proxy, conn):
+    def clearProcessController(self, proxy, conn=None):
         with self.cond:
             if proxy.ice_getIdentity() in self.processControllerProxies:
+                if not conn:
+                    conn = proxy.ice_getCachedConnection()
                 if conn == self.processControllerProxies[proxy.ice_getIdentity()].ice_getCachedConnection():
                     del self.processControllerProxies[proxy.ice_getIdentity()]
 
     def startControllerApp(self, current, ident):
         pass
+
+    def restartControllerApp(self, current, ident):
+        self.stopControllerApp(ident)
+        self.startControllerApp(current, ident)
 
     def stopControllerApp(self, ident):
         pass
@@ -2353,6 +2370,13 @@ class iOSSimulatorProcessController(RemoteProcessController):
         run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
         run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
         print("ok")
+
+    def restartControllerApp(self, current, ident):
+        try:
+            run("xcrun simctl terminate \"{0}\" {1}".format(self.device, ident.name))
+        except:
+            pass
+        run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
 
     def stopControllerApp(self, ident):
         try:
