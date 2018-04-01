@@ -125,50 +125,8 @@ int mainEntryPoint(int, char**);
 
 }
 
-class TestFailedException : public ::Ice::LocalException
+class TestFailedException
 {
-public:
-
-    TestFailedException(const char* file, int line) :
-        LocalException(file, line)
-    {
-    }
-
-    TestFailedException(const char* file, int line, const ::std::string& r) :
-        LocalException(file, line),
-        reason(r)
-    {
-    }
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~TestFailedException() throw()
-    {
-    }
-#endif
-
-    virtual ::std::string ice_id() const
-    {
-        return "::TestFailedException";
-    }
-
-#ifdef ICE_CPP11_MAPPING
-    virtual IceUtil::Exception* ice_cloneImpl() const
-    {
-        return new TestFailedException(*this);
-    }
-#else
-    virtual TestFailedException* ice_clone() const
-    {
-        return new TestFailedException(*this);
-    }
-#endif
-
-    virtual void ice_throw() const
-    {
-        throw *this;
-    }
-
-    ::std::string reason;
 };
 
 void
@@ -176,7 +134,7 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
 {
     std::cout << "failed!" << std::endl;
     std::cout << file << ':' << line << ": assertion `" << expr << "' failed" << std::endl;
-    throw TestFailedException(__FILE__, __LINE__, "Test Failed");
+    throw TestFailedException();
 }
 
 #define DEFINE_TEST(name) \
@@ -195,7 +153,15 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
       int dllMain(int argc, char** argv, Test::MainHelper* helper) \
       { \
           Test::MainHelperInit init(helper, name, helper->redirect());  \
-          int status = Test::mainEntryPoint(argc, argv); \
+          int status; \
+          try \
+          { \
+              status = Test::mainEntryPoint(argc, argv); \
+          } \
+          catch(const TestFailedException&) \
+          { \
+              status = 1; \
+          } \
           communicatorInstance = ICE_NULLPTR; \
           return status; \
       } \
