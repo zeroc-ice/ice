@@ -104,6 +104,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icepatch2", "..\src\IcePatc
 		{6485EC94-6B47-428D-B42D-AAA11F08DB59} = {6485EC94-6B47-428D-B42D-AAA11F08DB59}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slice2matlab", "..\src\slice2matlab\msbuild\slice2matlab.vcxproj", "{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -288,6 +290,14 @@ Global
 		{994ADD25-20A0-4715-A3EC-9F86AFD481D0}.Release|Win32.Build.0 = Release|Win32
 		{994ADD25-20A0-4715-A3EC-9F86AFD481D0}.Release|x64.ActiveCfg = Release|x64
 		{994ADD25-20A0-4715-A3EC-9F86AFD481D0}.Release|x64.Build.0 = Release|x64
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Debug|Win32.Build.0 = Debug|Win32
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Debug|x64.ActiveCfg = Debug|x64
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Debug|x64.Build.0 = Debug|x64
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|Win32.ActiveCfg = Release|Win32
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|Win32.Build.0 = Release|Win32
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|x64.ActiveCfg = Release|x64
+		{FBDCD48E-57DB-4CC1-A9D6-7D9F1C97D0E1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
