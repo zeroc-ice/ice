@@ -111,9 +111,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\InstrumentationI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="x64\Cpp11-Debug\Test.h">
       <Filter>Header Files\x64\Cpp11-Debug</Filter>
     </ClInclude>
