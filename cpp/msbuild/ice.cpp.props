@@ -78,7 +78,6 @@
       <PrecompiledHeaderOutputFile />
       <OmitFramePointers>false</OmitFramePointers>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(IceHome)\cpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- PDB settings -->
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
@@ -88,6 +87,12 @@
       <LinkTimeCodeGeneration />
       <AdditionalLibraryDirectories />
     </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
+      <ClCompile>
+          <AdditionalIncludeDirectories>$(IceHome)\cpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      </ClCompile>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
