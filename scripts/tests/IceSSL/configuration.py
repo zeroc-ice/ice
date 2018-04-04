@@ -58,7 +58,7 @@ class ConfigurationTestCase(ClientServerTestCase):
             os.environ["OPENSSL_CONF"] = conf
             with open(conf, "w") as file:
                 file.write("# Dummy openssl configuration file to avoid warnings with Windows testing")
-            return os.path.join(self.getPath(), "..", "..", "..", "msbuild", "packages", "zeroc.openssl.v140.1.0.2.4",
+            return os.path.join(self.getPath(), "..", "..", "..", "msbuild", "packages", "zeroc.openssl.v140.1.0.2.5",
                                 "build", "native", "bin", "Win32", "Release", "openssl.exe")
         else:
             return "openssl"
