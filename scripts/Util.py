@@ -3266,8 +3266,13 @@ class CSharpMapping(Mapping):
                                                                                   "IceGrid/simple"]:
                     return False
 
-                if isinstance(platform, Darwin) and ("IceSSL" in testId or "IceDiscovery" in testId):
-                    return False
+                if isinstance(platform, Darwin):
+                    if "IceSSL" in testId or "IceDiscovery" in testId:
+                        return False
+
+                    # TODO: Remove once https://github.com/dotnet/corefx/issues/28759 is fixed
+                    if testId == "Ice/adapterDeactivation" and self.protocol in ["ssl", "wss"]:
+                        return False
 
             return True
 
