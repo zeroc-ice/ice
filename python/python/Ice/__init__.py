@@ -80,7 +80,7 @@ def Python35():
     return sys.version_info[:2] >= (3, 5)
 
 if Python35():
-    from Ice.Future.WrapFuture import FutureBase, wrap_future
+    from Ice.Py3.IceFuture import FutureBase, wrap_future
 else:
     FutureBase = object
 
