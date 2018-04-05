@@ -36,9 +36,10 @@ $(eval $(call make-python-slice,$(slicedir),$(lang_srcdir)/python,Glacier2,Metri
 install:: | $(DESTDIR)$(install_pythondir)/Ice
 	$(E) "Installing generated code"
 	$(Q)$(INSTALL) -m 644 Ice/__init__.py $(DESTDIR)$(install_pythondir)/Ice
-# IceFuture requires python >= 3.5
+# Ice/Future requires python >= 3.5
 ifeq ($(shell $(PYTHON) -c "print(1 if $(python-version) >= 3.5 else 0)"),1)
-	$(Q)$(INSTALL) -m 644 Ice/IceFuture.py $(DESTDIR)$(install_pythondir)/Ice
+	$(Q)$(INSTALL) -d 755 $(DESTDIR)$(install_pythondir)/Ice/Future
+	$(Q)$(INSTALL) -m 644 Ice/Future/WrapFuture.py $(DESTDIR)$(install_pythondir)/Ice/Future/
 endif
 
 install:: | $(DESTDIR)$(install_pythondir)/Glacier2
