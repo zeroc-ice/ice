@@ -30,8 +30,6 @@ python_ldflags          := $(shell $(python-config) --ldflags)
 ifneq ($(filter debian ubuntu,$(linux_id)),)
 allow-undefined-symbols := yes
 python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
-else ifeq ($(os),Linux)
-python_ldflags          := $(filter-out -ldl -lutil,$(python_ldflags))
 endif
 
 ifneq ($(OPTIMIZE),yes)
