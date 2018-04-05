@@ -26,6 +26,7 @@ python-config := python$(python-version)-config
 
 python_cppflags         := $(shell $(python-config) --cflags)
 python_ldflags          := $(shell $(python-config) --ldflags)
+python_extsuffix        := $(shell $(python-config) --extension-suffix)
 
 ifneq ($(filter debian ubuntu,$(linux_id)),)
 allow-undefined-symbols := yes
@@ -50,7 +51,7 @@ install_pythondir       = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdi
 # Rules to build a python module. We just compute the name of the python module
 # and delegate to make-shared-module.
 #
-mkpymodulename                   ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+mkpymodulename                   ?= $(patsubst lib%.so,%$(python_extsuffix),$(call mkshlibname,$(1)))
 make-shared-python-module        = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
 get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2,$3,$4)
 install-shared-python-module     = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
