@@ -14,7 +14,7 @@
     <Compile Include="../../../Custom.cs"/>
     <Compile Include="../../../MyClassAMDI.cs"/>
     <Compile Include="../../../ServerAMD.cs"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.3"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
     <SliceCompile Include="../../../TestAMD.ice"/>
   </ItemGroup>
   <ItemGroup>
