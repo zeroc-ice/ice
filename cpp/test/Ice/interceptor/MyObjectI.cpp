@@ -143,7 +143,7 @@ MyObjectI::amdBadAddAsync(int x,
                           const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
@@ -166,7 +166,7 @@ MyObjectI::amdNotExistAddAsync(int x,
                                const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
@@ -189,7 +189,7 @@ MyObjectI::amdBadSystemAddAsync(int x,
                                 const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
