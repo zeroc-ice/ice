@@ -32,14 +32,15 @@ clientTraceProps = { "IceLocatorDiscovery.Trace.Lookup" : 3 }
 outfilters = [ lambda x: re.sub("-! .* warning: .*failed to lookup locator.*\n", "", x),
                lambda x: re.sub("^   .*\n", "", x) ]
 
-TestSuite(__name__, [
-    IceGridTestCase("without deployment", application=None,
-                    icegridregistry=[IceGridRegistryMaster(props=registryProps, traceProps=registryTraceProps),
-                                     IceGridRegistrySlave(1, props=registryProps, traceProps=registryTraceProps),
-                                     IceGridRegistrySlave(2, props=registryProps, traceProps=registryTraceProps)],
-                    client=ClientServerTestCase(client=IceGridClient(props=clientProps,
-                                                                     outfilters=outfilters,
-                                                                     traceProps=clientTraceProps),
-                                                server=IceGridServer(props=serverProps))),
-    IceGridTestCase("with deployment", client=IceGridClient(args=["--with-deploy"]))
-], multihost=False)
+if os.getuid() != 0:
+    TestSuite(__name__, [
+        IceGridTestCase("without deployment", application=None,
+                        icegridregistry=[IceGridRegistryMaster(props=registryProps, traceProps=registryTraceProps),
+                                         IceGridRegistrySlave(1, props=registryProps, traceProps=registryTraceProps),
+                                         IceGridRegistrySlave(2, props=registryProps, traceProps=registryTraceProps)],
+                        client=ClientServerTestCase(client=IceGridClient(props=clientProps,
+                                                                         outfilters=outfilters,
+                                                                         traceProps=clientTraceProps),
+                                                    server=IceGridServer(props=serverProps))),
+        IceGridTestCase("with deployment", client=IceGridClient(args=["--with-deploy"]))
+    ], multihost=False)

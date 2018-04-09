@@ -163,4 +163,5 @@ routerProps= lambda process, current: {
     'IceSSL.VerifyPeer' : 1
 }
 
-TestSuite(__file__, [ IceGridAdminTestCase() ], multihost=False)
+if os.getuid() != 0:
+    TestSuite(__file__, [ IceGridAdminTestCase() ], multihost=False)

@@ -8,6 +8,7 @@
 #
 # **********************************************************************
 
-TestSuite(__file__, [ IceGridTestCase(icegridregistry=IceGridRegistryMaster(),
-                                      client=IceGridClient()) ],
-          runOnMainThread=True, multihost=False)
+if os.getuid() != 0:
+    TestSuite(__file__, [ IceGridTestCase(icegridregistry=IceGridRegistryMaster(),
+                                          client=IceGridClient()) ],
+              runOnMainThread=True, multihost=False)

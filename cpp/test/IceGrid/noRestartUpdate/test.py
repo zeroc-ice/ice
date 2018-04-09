@@ -21,6 +21,7 @@ clientProps = lambda process, current: {
     "ServiceDir" : current.getBuildDir("testservice")
 }
 
-TestSuite(__file__,
-          [IceGridNoRestartUpdateTestCase(application=None, client=IceGridClient(props=clientProps))],
-          multihost=False)
+if os.getuid() != 0:
+    TestSuite(__file__,
+              [IceGridNoRestartUpdateTestCase(application=None, client=IceGridClient(props=clientProps))],
+              multihost=False)

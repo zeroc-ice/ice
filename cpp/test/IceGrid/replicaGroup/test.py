@@ -17,8 +17,9 @@ clientProps = {
     "Ice.RetryIntervals" : "0 50 100 250"
 }
 
-TestSuite(__file__,
-          [IceGridTestCase(icegridregistry=[IceGridRegistryMaster(props=registryProps)],
-                           client=IceGridClient(props=clientProps))],
-          libDirs=["registryplugin", "testservice"],
-          multihost=False)
+if os.getuid() != 0:
+    TestSuite(__file__,
+              [IceGridTestCase(icegridregistry=[IceGridRegistryMaster(props=registryProps)],
+                               client=IceGridClient(props=clientProps))],
+              libDirs=["registryplugin", "testservice"],
+              multihost=False)

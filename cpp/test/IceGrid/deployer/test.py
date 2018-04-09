@@ -10,12 +10,13 @@
 
 clientProps=lambda process, current: { "TestDir" : current.getBuildDir("server") }
 
-TestSuite(__file__, [
-    IceGridTestCase("without targets",
-                    icegridnode=IceGridNode(envs={ "MY_FOO" : 12 }),
-                    client=IceGridClient(props=clientProps)),
-    IceGridTestCase("with targets",
-                    icegridnode=IceGridNode(envs={ "MY_FOO" : 12 }),
-                    client=IceGridClient(props=clientProps),
-                    targets=["moreservers", "moreservices", "moreproperties"])
-], libDirs=["testservice"], multihost=False)
+if os.getuid() != 0:
+    TestSuite(__file__, [
+        IceGridTestCase("without targets",
+                        icegridnode=IceGridNode(envs={ "MY_FOO" : 12 }),
+                        client=IceGridClient(props=clientProps)),
+        IceGridTestCase("with targets",
+                        icegridnode=IceGridNode(envs={ "MY_FOO" : 12 }),
+                        client=IceGridClient(props=clientProps),
+                        targets=["moreservers", "moreservices", "moreproperties"])
+    ], libDirs=["testservice"], multihost=False)
