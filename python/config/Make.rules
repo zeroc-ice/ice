@@ -25,7 +25,7 @@ python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys
 python-config := python$(python-version)-config
 
 python_cppflags         := $(shell $(python-config) --cflags)
-python_ldflags          := $(shell $(python-config) --ldflags
+python_ldflags          := $(shell $(python-config) --ldflags)
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
 python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
 
