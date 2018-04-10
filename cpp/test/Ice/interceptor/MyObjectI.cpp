@@ -136,8 +136,8 @@ MyObjectI::amdAddWithRetryAsync(int x,
 }
 
 void
-MyObjectI::amdBadAddAsync(int x,
-                          int y,
+MyObjectI::amdBadAddAsync(int,
+                          int,
                           function<void(int)>,
                           function<void(exception_ptr)> error,
                           const Ice::Current&)
@@ -159,8 +159,8 @@ MyObjectI::amdBadAddAsync(int x,
 }
 
 void
-MyObjectI::amdNotExistAddAsync(int x,
-                               int y,
+MyObjectI::amdNotExistAddAsync(int,
+                               int,
                                function<void(int)>,
                                function<void(exception_ptr)> error,
                                const Ice::Current&)
@@ -182,8 +182,8 @@ MyObjectI::amdNotExistAddAsync(int x,
 }
 
 void
-MyObjectI::amdBadSystemAddAsync(int x,
-                                int y,
+MyObjectI::amdBadSystemAddAsync(int,
+                                int,
                                 function<void(int)>,
                                 function<void(exception_ptr)> error,
                                 const Ice::Current&)
