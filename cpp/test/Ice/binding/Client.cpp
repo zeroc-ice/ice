@@ -30,7 +30,7 @@ main(int argc, char* argv[])
     Ice::registerIceSSL(false);
     Ice::registerIceWS(true);
     Ice::registerIceUDP(true);
-#   if defined(__linux)
+#   ifdef ICE_HAS_BT
     Ice::registerIceBT(false);
 #   endif
 #endif

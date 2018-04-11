@@ -138,6 +138,7 @@ $1_srcext               := cpp
 $1_dependencies         := $$(or $$($1_dependencies),TestCommon Ice)
 
 # Also link with IceSSL and IceBT (Debian/Ubuntu/Yocto) when compiling the project with the static configuration
+$1[static]_cppflags     += $(if $(IceBT_system_libs),-DICE_HAS_BT)
 $1[static]_dependencies := IceSSL $(if $(IceBT_system_libs),IceBT)
 
 # Dependencies and target dirs for Xcode SDK test projects
