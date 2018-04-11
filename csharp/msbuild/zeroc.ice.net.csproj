@@ -10,7 +10,7 @@
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <PackageId>zeroc.ice.net</PackageId>
         <Title>ZeroC Ice for .NET</Title>
-        <PackageVersion>3.7.1-beta1</PackageVersion>
+        <PackageVersion>3.7.1</PackageVersion>
         <Authors>ZeroC</Authors>
         <PackageLicenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>

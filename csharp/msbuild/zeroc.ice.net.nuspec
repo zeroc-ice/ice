@@ -3,7 +3,7 @@
     <metadata>
         <id>zeroc.ice.net</id>
         <title>ZeroC Ice for .NET</title>
-        <version>3.7.1-beta1</version>
+        <version>3.7.1</version>
         <authors>ZeroC</authors>
         <copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</copyright>
         <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
