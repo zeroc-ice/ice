@@ -32,7 +32,7 @@ clientTraceProps = { "IceLocatorDiscovery.Trace.Lookup" : 3 }
 outfilters = [ lambda x: re.sub("-! .* warning: .*failed to lookup locator.*\n", "", x),
                lambda x: re.sub("^   .*\n", "", x) ]
 
-if os.getuid() != 0:
+if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__name__, [
         IceGridTestCase("without deployment", application=None,
                         icegridregistry=[IceGridRegistryMaster(props=registryProps, traceProps=registryTraceProps),

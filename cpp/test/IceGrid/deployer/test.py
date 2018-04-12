@@ -10,7 +10,7 @@
 
 clientProps=lambda process, current: { "TestDir" : current.getBuildDir("server") }
 
-if os.getuid() != 0:
+if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__, [
         IceGridTestCase("without targets",
                         icegridnode=IceGridNode(envs={ "MY_FOO" : 12 }),

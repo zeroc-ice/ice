@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-if os.getuid() != 0:
+if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__, [ IceGridTestCase(icegridregistry=IceGridRegistryMaster(),
                                           client=IceGridClient()) ],
               runOnMainThread=True, multihost=False)

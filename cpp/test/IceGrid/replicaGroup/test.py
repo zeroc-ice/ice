@@ -17,7 +17,7 @@ clientProps = {
     "Ice.RetryIntervals" : "0 50 100 250"
 }
 
-if os.getuid() != 0:
+if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__,
               [IceGridTestCase(icegridregistry=[IceGridRegistryMaster(props=registryProps)],
                                client=IceGridClient(props=clientProps))],

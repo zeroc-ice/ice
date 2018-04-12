@@ -42,5 +42,5 @@ class IceGridDistributionTestCase(IceGridTestCase):
 
         current.writeln("ok")
 
-if os.getuid() != 0:
+if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(__file__, [ IceGridDistributionTestCase() ], runOnMainThread=True, multihost=False)
