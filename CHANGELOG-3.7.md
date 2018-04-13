@@ -8,7 +8,7 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.1 (Pre-Release Snapshot)](#changes-in-ice-371-pre-release-snapshot)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes)
   * [C++ Changes](#c-changes)
   * [C# Changes](#c%23-changes)
@@ -30,9 +30,9 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.7.1 (Pre-Release Snapshot)
+# Changes in Ice 3.7.1
 
-These are the changes since Ice 3.7.0 included in this pre-release.
+These are the changes since Ice 3.7.0.
 
 ## General Changes
 
@@ -116,7 +116,7 @@ These are the changes since Ice 3.7.0 included in this pre-release.
 
 ## Objective-C Changes
 
-- Fixed the generated code to specify the __autoreleasing qualifier on
+- Fixed the generated code to specify the `__autoreleasing` qualifier on
   parameters returned by reference. Xcode 9.0 now emits a warning if this
   qualifier is omitted.
 
