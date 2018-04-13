@@ -60,7 +60,6 @@ slice {
 }
 
 ext.generatedDir = "$project.buildDir/generated"
-ext.useLocalOnly = false
 
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
