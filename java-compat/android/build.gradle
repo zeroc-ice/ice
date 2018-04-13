@@ -24,25 +24,6 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'idea'
-    apply from: "$rootProject.projectDir/gradle/props.gradle"
-
-    repositories {
-        if (distJarDir != null) {
-            flatDir {
-                name "local"
-                dirs distJarDir
-            }
-        }
-
-        if (!useLocalOnly) {
-            maven {
-                url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
-            }
-            maven {
-                url 'https://repo.zeroc.com/nexus/content/repositories/releases'
-            }
-        }
-    }
 }
 
 //
