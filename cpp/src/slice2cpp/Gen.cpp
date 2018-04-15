@@ -98,8 +98,7 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
 
 void
 writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
-                   const string& value, int useWstring, const StringList& metaData, const string& scope,
-                   bool cpp11 = false)
+                   const string& value, int typeContext, const StringList& metaData, const string& scope)
 {
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
@@ -108,10 +107,11 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
     else
     {
+        bool cpp11 = typeContext & TypeContextCpp11;
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
-            bool wide = (useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
+            bool wide = (typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring";
             if(wide || cpp11)
             {
                 out << (wide ? "L\"" : "u8\"");
@@ -205,8 +205,7 @@ toDllMemberExport(const string& dllExport)
 }
 
 void
-writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int useWstring,
-                            bool cpp11 = false)
+writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& members, int typeContext)
 {
     bool first = true;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -226,8 +225,8 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
                 C << ',';
             }
             C << nl << memberName << '(';
-            writeConstantValue(C, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), useWstring,
-                               (*p)->getMetaData(), scope, cpp11);
+            writeConstantValue(C, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), typeContext,
+                               (*p)->getMetaData(), scope);
             C << ')';
         }
     }
@@ -6605,15 +6604,15 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
             // = "<string literal>" doesn't work for optional<std::string>
             //
             H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope,
-                               true);
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
             H << '}';
         }
         else
         {
             H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope,
-                               true);
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
         }
     }
 
@@ -7320,7 +7319,8 @@ Slice::Gen::Cpp11TypesVisitor::visitConst(const ConstPtr& p)
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), scope, p->typeMetaData(), _useWstring | TypeContextCpp11) << " " << fixKwd(p->name())
       << " = ";
-    writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData(), scope, true);
+    writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring | TypeContextCpp11, p->typeMetaData(),
+                       scope);
     H << ';';
 }
 
@@ -7378,15 +7378,15 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
             // = "<string literal>" doesn't work for optional<std::string>
             //
             H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope,
-                               true);
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
             H << '}';
         }
         else
         {
             H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetaData(), scope,
-                               true);
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
         }
     }
     H << ";";
