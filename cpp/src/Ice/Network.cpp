@@ -108,10 +108,10 @@ struct AddressCompare
 {
 public:
 
-    int
+    bool
     operator()(const Address& lhs, const Address& rhs) const
     {
-        return compareAddress(lhs, rhs);
+        return compareAddress(lhs, rhs) < 0;
     }
 };
 
