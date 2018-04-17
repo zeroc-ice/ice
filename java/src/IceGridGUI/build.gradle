@@ -70,22 +70,7 @@ project.ext.libJars = []
 
 project.ext.jarBuilder = "plain-jar.gradle"
 if(icegridguiProguard.toBoolean()) {
-    if(JavaVersion.current() == JavaVersion.VERSION_1_9) {
-        ['java.base.jmod',
-         'java.xml.jmod',
-         'java.desktop.jmod',
-         'java.prefs.jmod',
-         'java.naming.jmod',
-         'java.datatransfer.jmod',
-         'javafx.base.jmod',
-         'javafx.controls.jmod',
-         'javafx.graphics.jmod',
-         'javafx.swing.jmod',
-         'java.logging.jmod'].each {
-            project.ext.libJars << "${System.properties['java.home']}/jmods/${it}"
-        }
-    }
-    else{
+    if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
         ['rt.jar',
          'jsse.jar',
          'i386/default/jclSC170/vm.jar',
@@ -101,6 +86,21 @@ if(icegridguiProguard.toBoolean()) {
 
         if(hasJavaFx) {
             project.ext.libJars << "${System.properties['java.home']}/${javafxJar}"
+        }
+    }
+    else{
+        ['java.base.jmod',
+         'java.xml.jmod',
+         'java.desktop.jmod',
+         'java.prefs.jmod',
+         'java.naming.jmod',
+         'java.datatransfer.jmod',
+         'javafx.base.jmod',
+         'javafx.controls.jmod',
+         'javafx.graphics.jmod',
+         'javafx.swing.jmod',
+         'java.logging.jmod'].each {
+            project.ext.libJars << "${System.properties['java.home']}/jmods/${it}"
         }
     }
     project.ext.jarBuilder = "proguard-jar.gradle"
