@@ -17,6 +17,16 @@
 # -printseeds
 # -verbose
 
+-dontnote jdk.internal.jimage.**
+-dontnote jdk.internal.jrtfs.**
+-dontnote module-info
+
+#
+# This classes are not longer part of JDK 10 on non Windows platforms
+# and will cause a build error
+#
+-dontwarn com.jgoodies.looks.windows.*
+
 # Preserve all annotations.
 
 -keepattributes *Annotation*
