@@ -1454,7 +1454,11 @@ ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>& lhs,
  * compares less than the identity in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
+#if (__cplusplus >= 201703L)
+struct ProxyIdentityLess
+#else
 struct ProxyIdentityLess : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1467,7 +1471,11 @@ struct ProxyIdentityLess : std::binary_function<bool, ::std::shared_ptr<ObjectPr
  * compares equal to the identity in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
+#if (__cplusplus >= 201703L)
+struct ProxyIdentityEqual
+#else
 struct ProxyIdentityEqual : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1480,7 +1488,11 @@ struct ProxyIdentityEqual : std::binary_function<bool, ::std::shared_ptr<ObjectP
  * and facet in lhs compare less than the identity and facet in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
+#if (__cplusplus >= 201703L)
+struct ProxyIdentityAndFacetLess
+#else
 struct ProxyIdentityAndFacetLess : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {
@@ -1493,7 +1505,11 @@ struct ProxyIdentityAndFacetLess : std::binary_function<bool, ::std::shared_ptr<
  * and facet in lhs compare equal to the identity and facet in rhs, false otherwise.
  * \headerfile Ice/Ice.h
  */
+#if (__cplusplus >= 201703L)
+struct ProxyIdentityAndFacetEqual
+#else
 struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ::std::shared_ptr<ObjectPrx>&, ::std::shared_ptr<ObjectPrx>&>
+#endif
 {
     bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
     {

@@ -104,7 +104,11 @@ protected:
     bool _destroyed;
     std::set<Token> _tokens;
 
+#if (__cplusplus >= 201703L)
+    class TimerTaskCompare
+#else
     class TimerTaskCompare : public std::binary_function<TimerTaskPtr, TimerTaskPtr, bool>
+#endif
     {
     public:
 
