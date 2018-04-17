@@ -36,6 +36,11 @@ These are the changes since Ice 3.7.0.
 
 ## General Changes
 
+- Fixed UDP multicast issue where adding multicast membership on all the
+  available network interfaces on the host would fail with an "Address already
+  in use" error if the host had network interfaces with multiple IPv4 addresses
+  or different interfaces using the same IP address.
+
 - Improved `Ice::ObjectAdapter` `getPublishedEndpoints` and
   `refreshPublishedEndpoints` methods to now return or refresh the Ice router
   server endpoints if the adapter is associated with a router. Calling the

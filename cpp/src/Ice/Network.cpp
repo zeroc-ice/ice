@@ -104,6 +104,17 @@ IceInternal::getSystemErrno()
 namespace
 {
 
+struct AddressCompare
+{
+public:
+
+    int
+    operator()(const Address& lhs, const Address& rhs) const
+    {
+        return compareAddress(lhs, rhs);
+    }
+};
+
 #ifndef ICE_OS_UWP
 struct AddressIsIPv6 : public unary_function<Address, bool>
 {
@@ -254,7 +265,7 @@ createSocketImpl(bool udp, int family)
 
 #ifndef ICE_OS_UWP
 vector<Address>
-getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
+getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAddressPerInterface)
 {
     vector<Address> result;
 
@@ -297,6 +308,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                            (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
                         {
                             result.push_back(addr);
+                            if(singleAddressPerInterface)
+                            {
+                                break; // One address is enough for each interface.
+                            }
                         }
                     }
                     else if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
@@ -305,6 +320,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                            (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
                         {
                             result.push_back(addr);
+                            if(singleAddressPerInterface)
+                            {
+                                break; // One address is enough for each interface.
+                            }
                         }
                     }
                 }
@@ -321,6 +340,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     }
 
     struct ifaddrs* curr = ifap;
+    set<string> interfaces;
     while(curr != 0)
     {
         if(curr->ifa_addr && (includeLoopback || !(curr->ifa_flags & IFF_LOOPBACK)))
@@ -331,7 +351,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                 memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
                 if(addr.saIn.sin_addr.s_addr != 0)
                 {
-                    result.push_back(addr);
+                    if(!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                    {
+                        result.push_back(addr);
+                        interfaces.insert(curr->ifa_name);
+                    }
                 }
             }
             else if(curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
@@ -340,7 +364,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                 memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
                 if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                 {
-                    result.push_back(addr);
+                    if(!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                    {
+                        result.push_back(addr);
+                        interfaces.insert(curr->ifa_name);
+                    }
                 }
             }
         }
@@ -384,7 +412,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
             {
                 free(ifc.ifc_buf);
                 closeSocketNoThrow(fd);
-                throw SocketException(__FILE__, __LINE__, getSocketError());
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
             else if(ifc.ifc_len == old_ifc_len)
             {
@@ -405,6 +433,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 
         numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
         struct ifreq* ifr = ifc.ifc_req;
+        set<string> interfaces;
         for(int i = 0; i < numaddrs; ++i)
         {
             if(!(ifr[i].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
@@ -421,17 +450,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                     if(addr.saIn.sin_addr.s_addr != 0 &&
                        (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
                     {
-                        unsigned int j;
-                        for(j = 0; j < result.size(); ++j)
-                        {
-                            if(compareAddress(addr, result[j]) == 0)
-                            {
-                                break;
-                            }
-                        }
-                        if(j == result.size())
+                        if(!singleAddressPerInterface || interfaces.find(ifr[i].ifr_name) == interfaces.end())
                         {
                             result.push_back(addr);
+                            interfaces.insert(ifr[i].ifr_name);
                         }
                     }
                 }
@@ -442,17 +464,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                     if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
                        (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
                     {
-                        unsigned int j;
-                        for(j = 0; j < result.size(); ++j)
-                        {
-                            if(compareAddress(addr, result[j]) == 0)
-                            {
-                                break;
-                            }
-                        }
-                        if(j == result.size())
+                        if(!singleAddressPerInterface || interfaces.find(ifr[i].ifr_name) == interfaces.end())
                         {
                             result.push_back(addr);
+                            interfaces.insert(ifr[i].ifr_name);
                         }
                     }
                 }
@@ -462,6 +477,20 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     }
 #endif
 
+    //
+    // Remove potential duplicates from the result.
+    //
+    set<Address, AddressCompare> seen;
+    vector<Address> tmp;
+    tmp.swap(result);
+    for(vector<Address>::const_iterator p = tmp.begin(); p != tmp.end(); ++p)
+    {
+        if(seen.find(*p) == seen.end())
+        {
+            result.push_back(*p);
+            seen.insert(*p);
+        }
+    }
     return result;
 }
 
@@ -1686,7 +1715,22 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 vector<string>
 IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
 {
-    vector<string> interfaces = getHostsForEndpointExpand(intf, protocolSupport, true);
+    vector<string> interfaces;
+    if(intf.empty() || intf == "0.0.0.0" || intf == "::" || intf == "0:0:0:0:0:0:0:0")
+    {
+        for(IIterator<HostName^>^ it = NetworkInformation::GetHostNames()->First(); it->HasCurrent; it->MoveNext())
+        {
+            HostName^ h = it->Current;
+            if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
+            {
+                string s = wstringToString(h->CanonicalName->Data(), getProcessStringConverter());
+                if(find(interfaces.begin(), interfaces.end(), s) == interfaces.end())
+                {
+                    interfaces.push_back(s);
+                }
+            }
+        }
+    }
     if(interfaces.empty())
     {
         interfaces.push_back(intf);
@@ -1701,7 +1745,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     bool ipv4Wildcard = false;
     if(isWildcard(host, protocolSupport, ipv4Wildcard))
     {
-        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback);
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
@@ -1734,7 +1778,7 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     bool ipv4Wildcard = false;
     if(isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
-        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true);
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast

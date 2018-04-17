@@ -888,7 +888,7 @@ namespace IceInternal
             return addresses;
         }
 
-        public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback)
+        public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback, bool singleAddressPerInterface)
         {
             List<IPAddress> addresses;
             int retry = 5;
@@ -907,9 +907,14 @@ namespace IceInternal
                         if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            if(includeLoopback || !IPAddress.IsLoopback(uni.Address))
+                            if(!addresses.Contains(uni.Address) &&
+                               (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
                             {
                                 addresses.Add(uni.Address);
+                                if(singleAddressPerInterface)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1023,7 +1028,7 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(host, out ipv4Wildcard))
             {
-                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback))
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback, false))
                 {
                     if(!isLinklocal(a))
                     {
@@ -1048,7 +1053,7 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(intf, out ipv4Wildcard))
             {
-                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true, true))
                 {
                     interfaces.Add(a.ToString());
                 }
