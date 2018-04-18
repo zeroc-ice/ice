@@ -13,7 +13,7 @@
     <PropertyGroup Condition="'$(PlatformToolset)' == 'v141'">
         <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
-        <LocalDebuggerEnvironment>PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
     </PropertyGroup>
 
     <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v141'">
