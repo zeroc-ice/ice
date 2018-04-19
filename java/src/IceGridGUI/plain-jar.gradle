@@ -28,6 +28,8 @@ task updateManifest(dependsOn: copyTmpJars) {
 
 updateManifest.outputs.files("${libDir}/${jarName}")
 
+signjar.dependsOn(updateManifest)
+
 //
 // Copy JARs to the install location
 //

@@ -64,7 +64,23 @@ project.ext.keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
 
 jar {
     archiveName = tmpJarName
+    manifest {
+        attributes("Main-Class": "com.zeroc.IceGridGUI.Main",
+                   "Built-By": "ZeroC, Inc.")
+    }
 }
+
+task signjar() {
+    doLast {
+        if(keystore != null && keystore.length() > 0) {
+            ant.signjar(jar: "${libDir}/${jarName}",
+                        alias: 'zeroc.com',
+                        keystore:"${keystore}",
+                        storepass:"${keystore_password}")
+        }
+    }
+}
+assemble.dependsOn(signjar)
 
 project.ext.libJars = []
 
@@ -106,18 +122,6 @@ if(icegridguiProguard.toBoolean()) {
     project.ext.jarBuilder = "proguard-jar.gradle"
 }
 apply from: jarBuilder
-
-task signjar(dependsOn: updateManifest) {
-    doLast {
-        if(keystore != null && keystore.length() > 0) {
-            ant.signjar(jar: "${libDir}/${jarName}",
-                        alias: 'zeroc.com',
-                        keystore:"${keystore}",
-                        storepass:"${keystore_password}")
-        }
-    }
-}
-assemble.dependsOn(signjar)
 
 if(macosx)
 {
