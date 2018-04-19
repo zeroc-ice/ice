@@ -4,7 +4,7 @@
     <!-- Nuget executable -->
     <PropertyGroup>
       <NugetExe>$(MSBuildThisFileDirectory)NuGet.exe</NugetExe>
-      <NugetURL>https://dist.nuget.org/win-x86-commandline/v4.6.0/nuget.exe</NugetURL>
+      <NugetURL>https://dist.nuget.org/win-x86-commandline/v4.6.2/nuget.exe</NugetURL>
     </PropertyGroup>
 
     <!-- Download nuget.exe if not present -->
