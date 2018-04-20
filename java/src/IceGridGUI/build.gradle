@@ -126,7 +126,7 @@ apply from: jarBuilder
 if(macosx)
 {
     def appName = "IceGrid GUI"
-    task bundleapp(dependsOn: updateManifest) {
+    task bundleapp(dependsOn: signjar) {
         doLast {
             ant.taskdef(name: 'bundleapp',
                         classname: 'com.oracle.appbundler.AppBundlerTask',
