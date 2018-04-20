@@ -60,7 +60,7 @@ that do not include them. You can install these packages as shown below:
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
 cd /etc/yum.repos.d
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-amzn1.repo
+sudo wget https://zeroc.com/download/Ice/3.7/amzn1/zeroc-ice3.7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 7
@@ -68,15 +68,15 @@ sudo yum install lmdb-devel mcpp-devel
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
 cd /etc/yum.repos.d
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-el7.repo
+sudo wget https://zeroc.com/download/Ice/3.7/el7/zeroc-ice3.7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### SLES 12
 ```
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
-sudo zypper ar -f --repo zeroc-thirdparty-sles12.repo
+sudo wget https://zeroc.com/download/Ice/3.7/sles12/zeroc-ice3.7.repo
+sudo zypper ar -f --repo zeroc-ice3.7.repo
 sudo zypper install mcpp-devel
 ```
 
