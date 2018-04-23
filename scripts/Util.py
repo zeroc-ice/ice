@@ -2603,6 +2603,27 @@ class BrowserProcessController(RemoteProcessController):
 
         return "Browser/ProcessController"
 
+    def getController(self, current):
+        try:
+            return RemoteProcessController.getController(self, current)
+        except RuntimeError as ex:
+            if self.driver:
+                # Print out the client & server console element values
+                for element in ["clientConsole", "serverConsole"]:
+                    try:
+                        console = self.driver.find_element_by_id(element).get_attribute('value')
+                        if len(console) > 0:
+                            print("controller {0} value:\n{1}".format(element, console))
+                    except Exception as exc:
+                        print("couldn't get controller {0} value:\n{1}".format(element, exc))
+                        pass
+                # Print out the browser log
+                try:
+                    print("browser log:\n{0}".format(self.driver.get_log("browser")))
+                except:
+                    pass # Not all browsers support retrieving the browser console log
+            raise ex
+
     def destroy(self, driver):
         if self.httpServer:
             self.httpServer.terminate()
