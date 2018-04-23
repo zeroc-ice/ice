@@ -77,8 +77,13 @@ class Platform:
             "supported-platforms" : ("supportedPlatforms", lambda s : s.split(" ")),
             "supported-configs" : ("supportedConfigs", lambda s : s.split(" "))
         })
-        self.nugetPackageVersion = None
-        self.nugetPackageCache = None
+
+        try:
+            run("dotnet --version")
+            self.nugetPackageCache = re.search("info : global-packages: (.*)",
+                                               run("dotnet nuget locals --list global-packages")).groups(1)[0]
+        except:
+            self.nugetPackageCache = None
 
     def parseBuildVariables(self, variables):
         # Run make to get the values of the given variables
@@ -129,9 +134,6 @@ class Platform:
         # installed in the global packages package cache
         #
         if isinstance(mapping, CSharpMapping) and current.driver.useIceBinDist(mapping) and current.config.netframework:
-            if not self.nugetPackageCache:
-                self.nugetPackageCache = re.search("info : global-packages: (.*)",
-                                                   run("dotnet nuget locals --list global-packages")).groups(1)[0]
             return os.path.join(self.nugetPackageCache, "zeroc.ice.net", self.getNugetPackageVersion(mapping))
         else:
             return self.getInstallDir(mapping, current, "ICE_HOME")
@@ -399,9 +401,6 @@ class Windows(Platform):
             #
             # Use NuGet package from nuget locals
             #
-            if not self.nugetPackageCache:
-                self.nugetPackageCache = re.search("info : global-packages: (.*)",
-                                                   run("dotnet nuget locals --list global-packages")).groups(1)[0]
             package = os.path.join(self.nugetPackageCache, "zeroc.ice.net", version)
         elif hasattr(mapping, "getNugetPackage"):
             package = os.path.join(mapping.path, "msbuild", "packages", mapping.getNugetPackage(packageSuffix, version))
