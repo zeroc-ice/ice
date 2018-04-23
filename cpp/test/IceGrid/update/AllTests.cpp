@@ -1193,6 +1193,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             admin->startServer("Server");
             test(admin->getServerState("Server") == Active);
         }
+        catch(const ServerStartException& ex)
+        {
+            cerr << ex << "\nreason = " << ex.reason << endl;
+            test(false);
+        }
         catch(const Ice::Exception& ex)
         {
             cerr << ex << endl;
