@@ -50,6 +50,18 @@ extern "C"
 #   pragma GCC diagnostic warning "-Wnarrowing"
 #endif
 
+//
+// The php.h header defines/undefines NDEBUG based on how the PHP binary was built.
+// As a result, asserts are always disabled unless building against a php binary
+// built with --enable-debug. We want to enable asserts for the PHP Ice extension
+// when it's built without OPTIMIZE=yes. We save NDEBUG in a tmp macro here and
+// explicitly re-include the assert.h header with the saved NDEBUG macro after
+// including php.h
+//
+#ifndef NDEBUG
+#define TMPDEBUG
+#endif
+
 #include "php.h"
 
 #ifdef _WIN32
@@ -63,6 +75,16 @@ extern "C"
 
 #ifdef _WIN32
 }
+#endif
+
+//
+// Enable asserts if the extension is built with debug. It's fine to include several times
+// assert.h with a different NDEBUG setting.
+//
+#ifdef TMPDEBUG
+#undef TMPDEBUG
+#undef NDEBUG
+#include <assert.h>
 #endif
 
 extern zend_module_entry ice_module_entry;
