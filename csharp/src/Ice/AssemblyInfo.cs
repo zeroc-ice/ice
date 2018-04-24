@@ -14,8 +14,8 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyTitle("Ice .NET Core Library")]
-[assembly: AssemblyDescription("Ice .NET Core Library")]
+[assembly: AssemblyTitle("Ice .NET Library")]
+[assembly: AssemblyDescription("Ice .NET Library")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Ice")]

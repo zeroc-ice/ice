@@ -116,34 +116,64 @@ const ::Ice::Byte FLAG_IS_LAST_SLICE         = (1<<5);
 namespace Ice
 {
 
+/** Identifies protocol version 1.0. */
 ICE_API extern const ProtocolVersion Protocol_1_0;
 
+/** Identifies encoding version 1.0. */
 ICE_API extern const EncodingVersion Encoding_1_0;
+
+/** Identifies encoding version 1.1. */
 ICE_API extern const EncodingVersion Encoding_1_1;
 
+/** Identifies the latest protocol version. */
 ICE_API extern const ProtocolVersion currentProtocol;
+
+/** Identifies the latest protocol encoding version. */
 ICE_API extern const EncodingVersion currentProtocolEncoding;
 
+/** Identifies the latest encoding version. */
 ICE_API extern const EncodingVersion currentEncoding;
 
+/**
+ * Converts a protocol version into a string.
+ * @param v The protocol version.
+ * @return A string representing the protocol version.
+ */
 inline ::std::string
 protocolVersionToString(const Ice::ProtocolVersion& v)
 {
     return IceInternal::versionToString<ProtocolVersion>(v);
 }
 
+/**
+ * Converts a string into a protocol version.
+ * @param v The string containing a stringified protocol version.
+ * @return The protocol version.
+ * @throws VersionParseException If the given string is not in the X.Y format.
+ */
 inline ::Ice::ProtocolVersion
 stringToProtocolVersion(const ::std::string& v)
 {
     return IceInternal::stringToVersion<ProtocolVersion>(v);
 }
 
+/**
+ * Converts an encoding version into a string.
+ * @param v The encoding version.
+ * @return A string representing the encoding version.
+ */
 inline ::std::string
 encodingVersionToString(const Ice::EncodingVersion& v)
 {
     return IceInternal::versionToString<EncodingVersion>(v);
 }
 
+/**
+ * Converts a string into an encoding version.
+ * @param v The string containing a stringified encoding version.
+ * @return The encoding version.
+ * @throws VersionParseException If the given string is not in the X.Y format.
+ */
 inline ::Ice::EncodingVersion
 stringToEncodingVersion(const ::std::string& v)
 {

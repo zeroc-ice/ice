@@ -1074,12 +1074,28 @@ public interface ObjectPrx
     ObjectPrx ice_compress(boolean co);
 
     /**
+     * Obtains the compression override setting of this proxy.
+     *
+     * @return The compression override setting. If no optional value is present, no override is
+     * set. Otherwise, true if compression is enabled, false otherwise.
+     */
+    Ice.BooleanOptional ice_getCompress();
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for its timeout setting.
      *
      * @param t The timeout for the new proxy in milliseconds.
      * @return A new proxy with the specified timeout.
      **/
     ObjectPrx ice_timeout(int t);
+
+    /**
+     * Obtains the timeout override of this proxy.
+     *
+     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
+     * returns the timeout override value.
+     */
+    Ice.IntOptional ice_getTimeout();
 
     /**
      * Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -1090,6 +1106,15 @@ public interface ObjectPrx
      * @return A new proxy with the specified connection ID.
      **/
     ObjectPrx ice_connectionId(String connectionId);
+
+    /**
+     * Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     *
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    ObjectPrx ice_fixed(Ice.Connection connection);
 
     /**
      * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,

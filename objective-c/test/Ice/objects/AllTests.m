@@ -16,9 +16,9 @@
 #   pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-void breakRetainCycleB();
-void breakRetainCycleC();
-void breakRetainCycleD();
+void breakRetainCycleB(TestObjectsB* b1);
+void breakRetainCycleC(TestObjectsC* c1);
+void breakRetainCycleD(TestObjectsD* d1);
 
 void breakRetainCycleB(TestObjectsB* b1)
 {
@@ -234,6 +234,19 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     test(h && [h isKindOfClass:[TestObjectsH class]]);
     tprintf("ok\n");
 
+    tprintf("setting G... ");
+    TestObjectsG *g = ICE_AUTORELEASE([[TestObjectsG alloc] init]);
+    g.theS = s;
+    g.str = @"g";
+    @try
+    {
+        [initial setG:g];
+    }
+    @catch(ICEOperationNotExistException*)
+    {
+    }
+    tprintf("ok\n");
+
     tprintf("setting I... ");
     [initial setI:i];
     [initial setI:j];
@@ -246,7 +259,13 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     int depth = 0;
     @try
     {
-        for(; depth <= 20000; ++depth)
+#if defined(NDEBUG) || !defined(__APPLE__)
+        const int maxDepth = 20000;
+#else
+        // With debug, marshalling a graph of 20000 elements can cause a stack overflow on macOS
+        const int maxDepth = 1500;
+#endif
+        for(; depth <= maxDepth; ++depth)
         {
             p.v = [TestObjectsRecursive recursive];
             p = p.v;

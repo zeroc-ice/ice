@@ -26,6 +26,7 @@
 namespace IceMX
 {
 
+/// \cond INTERNAL
 template<typename T> class MetricsHelperT
 {
 public:
@@ -652,6 +653,7 @@ private:
 };
 
 typedef ObserverT<Metrics> ObserverI;
+/// \endcond
 
 }
 

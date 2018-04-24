@@ -8,14 +8,18 @@ env:
   - DOCKER_BASE_TAG=3.7-ubuntu-16.04
   - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
   - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
-  - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USER_NAMESPACES=no CONFIGS=shared"
-  - DOCKER_RUN="docker run --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - DOCKER_BUILD_CPP11_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}-cpp11
+  - MAKEFLAGS="-j3 V=1 OPTIMIZE=no USE_NAMESPACES=no CONFIGS=shared"
+  - DOCKER_RUN="docker run -it --rm ${DOCKER_BUILD_IMAGE} /bin/bash -c"
+  - DOCKER_RUN_CPP11="docker run -it --rm ${DOCKER_BUILD_IMAGE}-cpp11 /bin/bash -c"
   - ALLTESTS="python allTests.py --protocol=ssl --workers=4"
 
 jobs:
   include:
-    - stage: build docker image
+    - stage: Build
       script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
       - |
         echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
@@ -23,23 +27,48 @@ jobs:
       - docker build --cache-from ${DOCKER_BASE_IMAGE} -t ${DOCKER_BUILD_IMAGE} .
       - docker push ${DOCKER_BUILD_IMAGE}
 
-    - stage: test docker image
-      script: $DOCKER_RUN "${ALLTESTS} --filter=cpp"
-      env: TESTING=C++
-    - script: $DOCKER_RUN "cd cpp; make ${MAKEFLAGS} CONFIGS='shared cpp11-shared'; ${ALLTESTS}"
-      env: TESTING=C++11
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java"
-      env: TESTING=Java
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=java-compat"
-      env: TESTING=Java Compat
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=js"
-      env: TESTING=JavaScript
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=php"
-      env: TESTING=PHP
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=python"
-      env: TESTING=Python
-    - script: $DOCKER_RUN "${ALLTESTS} --filter=ruby"
-      env: TESTING=Ruby
+    - stage: Build C++11
+      script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+      - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+      - |
+        echo "FROM ${DOCKER_BUILD_IMAGE}" >> Dockerfile
+        echo "RUN make -C cpp ${MAKEFLAGS} CONFIGS='cpp11-shared'" >> Dockerfile
+      - docker build --cache-from ${DOCKER_BUILD_IMAGE} -t ${DOCKER_BUILD_CPP11_IMAGE} .
+      - docker push ${DOCKER_BUILD_CPP11_IMAGE}
+
+    - &test-staging
+      stage: Test
+      before_script:
+      # see https://github.com/travis-ci/travis-ci/issues/8920
+      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+      script: $DOCKER_RUN "${ALLTESTS} --language=cpp"
+      env: comment=C++
+    - <<: *test-staging
+      script: $DOCKER_RUN_CPP11 "${ALLTESTS} --language=cpp --config=cpp11-shared"
+      env: comment=C++11
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=csharp"
+      env: comment=C#
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=java"
+      env: comment=Java
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=java-compat"
+      env: comment=Java Compat
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=js"
+      env: comment=JavaScript
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=php"
+      env: comment=PHP
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=python"
+      env: comment=Python
+    - <<: *test-staging
+      script: $DOCKER_RUN "${ALLTESTS} --language=ruby"
+      env: comment=Ruby
 
 notifications:
   email: travis-ci@zeroc.com

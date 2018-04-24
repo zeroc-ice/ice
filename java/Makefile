@@ -12,38 +12,38 @@ GRADLE = ./gradlew
 endif
 
 ifneq ($(prefix),)
-  GRADLEOPTS += -Pprefix=$(prefix)
+  GRADLEARGS += -Pprefix=$(prefix)
 endif
 
 ifneq ($(DESTDIR),)
-  GRADLEOPTS += -PDESTDIR=$(DESTDIR)
+  GRADLEARGS += -PDESTDIR=$(DESTDIR)
 endif
 
 ifneq ($(install_javadir),)
-  GRADLEOPTS += -Dorg.gradle.project.jarDir=$(install_javadir)
+  GRADLEARGS += -Dorg.gradle.project.jarDir=$(install_javadir)
 endif
 
 ifneq ($(install_bindir),)
-  GRADLEOPTS += -Dorg.gradle.project.binDir=$(install_bindir)
+  GRADLEARGS += -Dorg.gradle.project.binDir=$(install_bindir)
 endif
 
 all:
-	$(GRADLE) $(GRADLEOPTS) build
+	$(GRADLE) $(GRADLEARGS) build
 
 tests:
-	$(GRADLE) $(GRADLEOPTS) :test:assemble
+	$(GRADLE) $(GRADLEARGS) :test:assemble
 
 srcs:
-	$(GRADLE) $(GRADLEOPTS) dist
+	$(GRADLE) $(GRADLEARGS) dist
 
 distclean clean:
-	$(GRADLE) $(GRADLEOPTS) clean
+	$(GRADLE) $(GRADLEARGS) clean
 
 install::
-	$(GRADLE) $(GRADLEOPTS) install
+	$(GRADLE) $(GRADLEARGS) install
 
 install-icegridgui::
-	$(GRADLE) $(GRADLEOPTS) :IceGridGUI:install
+	$(GRADLE) $(GRADLEARGS) :IceGridGUI:install
 
 test::
 	@python ./allTests.py

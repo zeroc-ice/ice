@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/PropertiesAdmin.ice>
 
@@ -44,7 +44,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    string getProperty(string key);
+    ["cpp:noexcept"] string getProperty(string key);
 
     /**
      *
@@ -61,7 +61,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    string getPropertyWithDefault(string key, string \value);
+    ["cpp:noexcept"] string getPropertyWithDefault(string key, string \value);
 
     /**
      *
@@ -75,7 +75,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    int getPropertyAsInt(string key);
+    ["cpp:noexcept"] int getPropertyAsInt(string key);
 
     /**
      *
@@ -93,7 +93,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    int getPropertyAsIntWithDefault(string key, int \value);
+    ["cpp:noexcept"] int getPropertyAsIntWithDefault(string key, int \value);
 
      /**
      *
@@ -113,7 +113,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    StringSeq getPropertyAsList(string key);
+    ["cpp:noexcept"] StringSeq getPropertyAsList(string key);
 
     /**
      *
@@ -136,7 +136,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
+    ["cpp:noexcept"] StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
 
     /**
      *
@@ -149,7 +149,7 @@ local interface Properties
      * @return The matching property set.
      *
      **/
-    PropertyDict getPropertiesForPrefix(string prefix);
+    ["cpp:noexcept"] PropertyDict getPropertiesForPrefix(string prefix);
 
     /**
      *
@@ -174,7 +174,7 @@ local interface Properties
      * @return The command line options for this property set.
      *
      **/
-    StringSeq getCommandLineOptions();
+    ["cpp:noexcept"] StringSeq getCommandLineOptions();
 
     /**
      *
@@ -226,7 +226,7 @@ local interface Properties
      * @return A copy of this property set.
      *
      **/
-    Properties clone();
+    ["cpp:noexcept"] Properties clone();
 }
 
 }

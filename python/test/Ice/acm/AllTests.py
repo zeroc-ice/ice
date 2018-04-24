@@ -74,7 +74,7 @@ class TestCase(threading.Thread):
         self._heartbeat = 0
         self._closed = False
         self._msg = ""
-        self.m = threading.Lock()
+        self.m = threading.Condition()
 
     def init(self):
         self._adapter = \
@@ -127,6 +127,15 @@ class TestCase(threading.Thread):
     def closed(self, con):
         with self.m:
             self._closed = True
+            self.m.notify()
+
+    def waitForClosed(self):
+        with self.m:
+            while not self._closed:
+                now = time.time()
+                self.m.wait(2.0) # Wait 2s
+                if time.time() - now > 2:
+                    test(False)
 
     def runTestCase(self, adapter, proxy):
         test(False)
@@ -156,7 +165,7 @@ def allTests(communicator):
             proxy.sleep(4)
 
             with self.m:
-                test(self._heartbeat >= 6)
+                test(self._heartbeat >= 4)
 
     class InvocationHeartbeatOnHoldTest(TestCase):
         def __init__(self, com):
@@ -173,9 +182,7 @@ def allTests(communicator):
             except Ice.ConnectionTimeoutException:
                 adapter.activate()
                 proxy.interruptSleep()
-
-                with self.m:
-                    test(self._closed)
+                self.waitForClosed()
 
     class InvocationNoHeartbeatTest(TestCase):
         def __init__(self, com):
@@ -191,10 +198,10 @@ def allTests(communicator):
                 test(False)
             except Ice.ConnectionTimeoutException:
                 proxy.interruptSleep()
+                self.waitForClosed()
 
                 with self.m:
                     test(self._heartbeat == 0)
-                    test(self._closed)
 
     class InvocationHeartbeatCloseOnIdleTest(TestCase):
         def __init__(self, com):
@@ -218,9 +225,10 @@ def allTests(communicator):
         def runTestCase(self, adapter, proxy):
             time.sleep(3) # Idle for 3 seconds
 
+            self.waitForClosed()
+
             with self.m:
                 test(self._heartbeat == 0)
-                test(self._closed)
 
     class CloseOnInvocationTest(TestCase):
         def __init__(self, com):
@@ -255,8 +263,7 @@ def allTests(communicator):
             adapter.activate()
             time.sleep(1)
 
-            with self.m:
-                test(self._closed) # Connection should be closed this time.
+            self.waitForClosed()
 
     class ForcefulCloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
@@ -267,9 +274,10 @@ def allTests(communicator):
             adapter.hold()
             time.sleep(3) # Idle for 3 seconds
 
+            self.waitForClosed()
+
             with self.m:
                 test(self._heartbeat == 0)
-                test(self._closed) # Connection closed forcefully by ACM.
 
     class HeartbeatOnIdleTest(TestCase):
         def __init__(self, com):
@@ -320,6 +328,12 @@ def allTests(communicator):
             self.setClientACM(15, 4, 0)
 
         def runTestCase(self, adapter, proxy):
+            try:
+                proxy.ice_getCachedConnection().setACM(-19, Ice.Unset, Ice.Unset)
+                test(False)
+            except RuntimeError:
+                pass
+
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 15)
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)

@@ -115,6 +115,7 @@ private:
     const int _retryCount;
     const IceUtil::Time _retryDelay;
     const IceUtil::TimerPtr _timer;
+    const int _traceLevel;
 
     string _instanceName;
     bool _warned;
@@ -573,6 +574,7 @@ LocatorI::LocatorI(const string& name,
     _retryCount(p->getPropertyAsIntWithDefault(name + ".RetryCount", 3)),
     _retryDelay(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault(name + ".RetryDelay", 2000))),
     _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
+    _traceLevel(p->getPropertyAsInt(name + ".Trace.Lookup")),
     _instanceName(instanceName),
     _warned(false),
     _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
@@ -696,6 +698,13 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
     Lock sync(*this);
     if(!locator || (!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName))
     {
+        if(_traceLevel > 2)
+        {
+            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+            out << "ignoring locator reply: instance name doesn't match\n";
+            out << "expected = " << _instanceName;
+            out << "received = " << locator->ice_getIdentity().category;
+        }
         return;
     }
 
@@ -725,6 +734,16 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
     {
         _timer->cancel(ICE_SHARED_FROM_THIS);
         _pendingRetryCount = 0;
+    }
+
+    if(_traceLevel > 0)
+    {
+        Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+        out << "locator lookup succeeded:\nlocator = " << locator;
+        if(!_instanceName.empty())
+        {
+            out << "\ninstance name = " << _instanceName;
+        }
     }
 
     Ice::LocatorPrxPtr l = _pendingRequests.empty() ? _locators[locator->ice_getIdentity().category] : _locator;
@@ -813,6 +832,15 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
             _pendingRetryCount = _retryCount;
             try
             {
+                if(_traceLevel > 1)
+                {
+                    Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                    out << "looking up locator:\nlookup = " << _lookup;
+                    if(!_instanceName.empty())
+                    {
+                        out << "\ninstance name = " << _instanceName;
+                    }
+                }
                 for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator l = _lookups.begin();
                     l != _lookups.end(); ++l)
                 {
@@ -836,8 +864,19 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
                 }
                 _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                if(_traceLevel > 0)
+                {
+                    Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                    out << "locator lookup failed:\nlookup = " << _lookup;
+                    if(!_instanceName.empty())
+                    {
+                        out << "\ninstance name = " << _instanceName;
+                    }
+                    out << "\n" << ex;
+                }
+
                 for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
                 {
                     (*p)->invoke(_voidLocator);
@@ -868,6 +907,17 @@ LocatorI::exception(const Ice::LocalException& ex)
             _warnOnce = false;
         }
 
+        if(_traceLevel > 0)
+        {
+            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+            out << "locator lookup failed:\nlookup = " << _lookup;
+            if(!_instanceName.empty())
+            {
+                out << "\ninstance name = " << _instanceName;
+            }
+            out << "\n" << ex;
+        }
+
         if(_pendingRequests.empty())
         {
             notify();
@@ -891,6 +941,15 @@ LocatorI::runTimerTask()
     {
         try
         {
+            if(_traceLevel > 1)
+            {
+                Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                out << "retrying locator lookup:\nlookup = " << _lookup << "\nretry count = " << _pendingRetryCount;
+                if(!_instanceName.empty())
+                {
+                    out << "\ninstance name = " << _instanceName;
+                }
+            }
             _failureCount = 0;
             for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator l = _lookups.begin();
                 l != _lookups.end(); ++l)
@@ -920,6 +979,16 @@ LocatorI::runTimerTask()
         {
         }
         _pendingRetryCount = 0;
+    }
+
+    if(_traceLevel > 0)
+    {
+        Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+        out << "locator lookup timed out:\nlookup = " << _lookup;
+        if(!_instanceName.empty())
+        {
+            out << "\ninstance name = " << _instanceName;
+        }
     }
 
     if(_pendingRequests.empty())

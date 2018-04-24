@@ -6,9 +6,29 @@
         <IceIntVersion>30701</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
         <IceSoVersion>37</IceSoVersion>
-        <IceNugetPackageVersion>3.7.1</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
-        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
     </PropertyGroup>
+
+    <Choose>
+        <When Condition="'$(IceToolsPath)' == ''">
+            <Choose>
+                <When Condition="'$(OS)' == 'Windows_NT'">
+                    <PropertyGroup>
+                        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+                <When Condition="Exists('/usr/bin/slice2cs')">
+                    <PropertyGroup>
+                        <IceToolsPath>/usr/bin</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+                <When Condition="Exists('/usr/local/bin/slice2cs')">
+                    <PropertyGroup>
+                        <IceToolsPath>/usr/local/bin</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+            </Choose>
+        </When>
+    </Choose>
 </Project>

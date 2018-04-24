@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
@@ -237,11 +238,7 @@ Mutex::init(MutexProtocol
     // Enable mutex error checking in debug builds
     //
 #ifndef NDEBUG
-#if defined(__linux) && !defined(__USE_UNIX98)
-    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-#else
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-#endif
     assert(rc == 0);
     if(rc != 0)
     {

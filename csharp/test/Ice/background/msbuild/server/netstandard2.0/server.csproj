@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../../../../../msbuild/ice.common.props"/>
+  <PropertyGroup>
+    <AssemblyName>server</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../../../TestCommon/TestApp.cs"/>
+    <Compile Include="../../../Acceptor.cs"/>
+    <Compile Include="../../../BackgroundControllerI.cs"/>
+    <Compile Include="../../../BackgroundI.cs"/>
+    <Compile Include="../../../Server.cs"/>
+    <Compile Include="../../../Configuration.cs"/>
+    <Compile Include="../../../Connector.cs"/>
+    <Compile Include="../../../EndpointFactory.cs"/>
+    <Compile Include="../../../EndpointI.cs"/>
+    <Compile Include="../../../PluginI.cs"/>
+    <Compile Include="../../../Transceiver.cs"/>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
+    <SliceCompile Include="../../../Test.ice"/>
+  </ItemGroup>
+  <Choose>
+    <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+      <ItemGroup>
+        <PackageReference Include="zeroc.ice.net" Version="3.7.1"/>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll"/>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+</Project>

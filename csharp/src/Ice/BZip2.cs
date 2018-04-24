@@ -14,41 +14,87 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Runtime.InteropServices;
 
-#if !MANAGED
-    internal static class NativeMethods
+    internal static class SafeNativeMethods
     {
-        [DllImport("bzip2.dll")]
-        internal static extern IntPtr BZ2_bzlibVersion();
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzlibVersion")]
+        internal static extern IntPtr windowsBZ2_bzlibVersion();
 
-        [DllImport("bzip2.dll")]
-        internal static extern int BZ2_bzBuffToBuffCompress(byte[] dest,
-                                                            ref int destLen,
-                                                            byte[] source,
-                                                            int sourceLen,
-                                                            int blockSize100k,
-                                                            int verbosity,
-                                                            int workFactor);
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        internal static extern int windowsBZ2_bzBuffToBuffCompress(byte[] dest,
+                                                                   ref int destLen,
+                                                                   byte[] source,
+                                                                   int sourceLen,
+                                                                   int blockSize100k,
+                                                                   int verbosity,
+                                                                   int workFactor);
 
-        [DllImport("bzip2.dll")]
-        internal static extern int BZ2_bzBuffToBuffDecompress(byte[] dest,
-                                                              ref int destLen,
-                                                              byte[] source,
-                                                              int sourceLen,
-                                                              int small,
-                                                              int verbosity);
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        internal static extern int windowsBZ2_bzBuffToBuffDecompress(byte[] dest,
+                                                                     ref int destLen,
+                                                                     byte[] source,
+                                                                     int sourceLen,
+                                                                     int small,
+                                                                     int verbosity);
+
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzlibVersion")]
+        internal static extern IntPtr unixBZ2_bzlibVersion();
+
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        internal static extern int unixBZ2_bzBuffToBuffCompress(byte[] dest,
+                                                                ref int destLen,
+                                                                byte[] source,
+                                                                int sourceLen,
+                                                                int blockSize100k,
+                                                                int verbosity,
+                                                                int workFactor);
+
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        internal static extern int unixBZ2_bzBuffToBuffDecompress(byte[] dest,
+                                                                  ref int destLen,
+                                                                  byte[] source,
+                                                                  int sourceLen,
+                                                                  int small,
+                                                                  int verbosity);
+
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzlibVersion")]
+        internal static extern IntPtr macOSBZ2_bzlibVersion();
+
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        internal static extern int macOSBZ2_bzBuffToBuffCompress(byte[] dest,
+                                                                 ref int destLen,
+                                                                 byte[] source,
+                                                                 int sourceLen,
+                                                                 int blockSize100k,
+                                                                 int verbosity,
+                                                                 int workFactor);
+
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        internal static extern int macOSBZ2_bzBuffToBuffDecompress(byte[] dest,
+                                                                   ref int destLen,
+                                                                   byte[] source,
+                                                                   int sourceLen,
+                                                                   int small,
+                                                                   int verbosity);
     }
-#endif
 
+    delegate int CompressBuffer(byte[] dest,
+                                ref int destLen,
+                                byte[] source,
+                                int sourceLen,
+                                int blockSize100k,
+                                int verbosity,
+                                int workFactor);
+
+    delegate int DecompressBuffer(byte[] dest,
+                                  ref int destLen,
+                                  byte[] source,
+                                  int sourceLen,
+                                  int small,
+                                  int verbosity);
     public class BZip2
     {
         static BZip2()
         {
-#if MANAGED
-            //
-            // Protocol compression is not supported when using managed code.
-            //
-            _bzlibInstalled = false;
-#else
             //
             // Simple trick to find out whether bzip2 is installed: Call the BZ2_bzlibVersion() function in the
             // library. If we get an exception, the library is not available.
@@ -62,20 +108,32 @@ namespace IceInternal
             //
             try
             {
-                NativeMethods.BZ2_bzlibVersion();
+                if(AssemblyUtil.isWindows)
+                {
+                    SafeNativeMethods.windowsBZ2_bzlibVersion();
+                }
+                else if(AssemblyUtil.isMacOS)
+                {
+                    SafeNativeMethods.macOSBZ2_bzlibVersion();
+                }
+                else
+                {
+                    SafeNativeMethods.unixBZ2_bzlibVersion();
+                }
                 _bzlibInstalled = true;
             }
             catch(DllNotFoundException)
             {
-                // Expected -- bzip2.dll not installed or not in PATH.
+                // Expected -- bzip2 lib not installed or not in PATH.
             }
             catch(EntryPointNotFoundException)
             {
-                Console.Error.WriteLine("warning: found bzip2.dll but entry point BZ2_bzlibVersion is missing.");
+                string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
+                Console.Error.WriteLine("warning: found " + lib + " but entry point BZ2_bzlibVersion is missing.");
             }
             catch(BadImageFormatException ex)
             {
-                string lib = "bzip2.dll";
+                string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                 if(!String.IsNullOrEmpty(ex.FileName))
                 {
                     lib = ex.FileName; // Future-proof: we'll do the right thing if the FileName member is non-empty.
@@ -87,10 +145,57 @@ namespace IceInternal
                 }
                 Console.Error.WriteLine();
             }
-#endif
+
+            if(AssemblyUtil.isWindows)
+            {
+                _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
+                                   int verbosity, int workFactor) =>
+                    {
+                        return SafeNativeMethods.windowsBZ2_bzBuffToBuffCompress(dest, ref destLen, source, sourceLen,
+                                                                                 blockSize100k, verbosity, workFactor);
+                    };
+
+                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
+                                     int verbosity) =>
+                    {
+                        return SafeNativeMethods.windowsBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
+                                                                                   small, verbosity);
+                    };
+            }
+            else if(AssemblyUtil.isMacOS)
+            {
+                _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
+                                   int verbosity, int workFactor) =>
+                    {
+                        return SafeNativeMethods.macOSBZ2_bzBuffToBuffCompress(dest, ref destLen, source, sourceLen,
+                                                                               blockSize100k, verbosity, workFactor);
+                    };
+
+                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
+                                     int verbosity) =>
+                    {
+                        return SafeNativeMethods.macOSBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
+                                                                                 small, verbosity);
+                    };
+            }
+            else
+            {
+                _compressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int blockSize100k,
+                                   int verbosity, int workFactor) =>
+                    {
+                        return SafeNativeMethods.unixBZ2_bzBuffToBuffCompress(dest, ref destLen, source, sourceLen,
+                                                                              blockSize100k, verbosity, workFactor);
+                    };
+
+                _decompressBuffer = (byte[] dest, ref int destLen, byte[] source, int sourceLen, int small,
+                                     int verbosity) =>
+                    {
+                        return SafeNativeMethods.unixBZ2_bzBuffToBuffDecompress(dest, ref destLen, source, sourceLen,
+                                                                                   small, verbosity);
+                    };
+            }
         }
 
-#if !MANAGED
         static string getBZ2Error(int error)
         {
             string rc;
@@ -150,7 +255,6 @@ namespace IceInternal
             }
             return rc;
         }
-#endif
 
         public static bool supported()
         {
@@ -160,10 +264,6 @@ namespace IceInternal
         public static Buffer compress(Buffer buf, int headerSize, int compressionLevel)
         {
             Debug.Assert(supported());
-
-#if MANAGED
-            return null;
-#else
             //
             // Compress the message body, but not the header.
             //
@@ -172,8 +272,7 @@ namespace IceInternal
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
-            int rc = NativeMethods.BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, data, uncompressedLen,
-                                                            compressionLevel, 0, 0);
+            int rc = _compressBuffer(compressed, ref compressedLen, data, uncompressedLen, compressionLevel, 0, 0);
             if(rc == BZ_OUTBUFF_FULL)
             {
                 return null;
@@ -216,16 +315,12 @@ namespace IceInternal
             r.b.put(compressed, 0, compressedLen);
 
             return r;
-#endif
         }
 
         public static Buffer uncompress(Buffer buf, int headerSize, int messageSizeMax)
         {
             Debug.Assert(supported());
 
-#if MANAGED
-            return null;
-#else
             buf.b.position(headerSize);
             int uncompressedSize = buf.b.getInt();
             if(uncompressedSize <= headerSize)
@@ -242,8 +337,7 @@ namespace IceInternal
             int uncompressedLen = uncompressedSize - headerSize;
 
             byte[] uncompressed = new byte[uncompressedLen];
-            int rc = NativeMethods.BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed,
-                                                              compressedLen, 0, 0);
+            int rc = _decompressBuffer(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
             if(rc < 0)
             {
                 Ice.CompressionException ex = new Ice.CompressionException("BZ2_bzBuffToBuffDecompress failed");
@@ -262,10 +356,12 @@ namespace IceInternal
             r.b.put(uncompressed);
 
             return r;
-#endif
         }
 
         private static bool _bzlibInstalled;
+
+        private static CompressBuffer _compressBuffer;
+        private static DecompressBuffer _decompressBuffer;
 
         const int BZ_SEQUENCE_ERROR = -1;
         const int BZ_PARAM_ERROR = -2;

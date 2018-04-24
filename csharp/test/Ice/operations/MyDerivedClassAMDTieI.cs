@@ -73,6 +73,11 @@ public sealed class MyDerivedClassTieI : MyDerivedClassOperations_
         return null;
     }
 
+    public Task<bool> supportsCompressAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(true);
+    }
+
     public Task opVoidAsync(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);

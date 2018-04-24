@@ -64,6 +64,12 @@ public final class MyDerivedClassI implements MyDerivedClass
     }
 
     @Override
+    public boolean supportsCompress(Current current)
+    {
+        return com.zeroc.IceInternal.BZip2.supported();
+    }
+
+    @Override
     public void opVoid(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Normal);

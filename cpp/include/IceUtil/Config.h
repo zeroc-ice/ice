@@ -158,6 +158,12 @@
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
 #endif
 
+#if defined(_MSVC_LANG)
+#   define ICE_CPLUSPLUS _MSVC_LANG
+#else
+#   define ICE_CPLUSPLUS __cplusplus
+#endif
+
 //
 // Compiler extensions to export and import symbols: see the documentation
 // for Visual Studio, Solaris Studio and GCC.

@@ -39,10 +39,10 @@ function equals(other)
         return false;
     }
 
-    for(let key in this)
+    for(const key in this)
     {
-        let e1 = this[key];
-        let e2 = other[key];
+        const e1 = this[key];
+        const e2 = other[key];
         if(typeof e1 == "function")
         {
             continue; // Don't need to compare functions
@@ -58,9 +58,9 @@ function equals(other)
 function clone()
 {
     const other = new this.constructor();
-    for(let key in this)
+    for(const key in this)
     {
-        let e = this[key];
+        const e = this[key];
         if(e === undefined || e === null)
         {
             other[key] = e;
@@ -116,9 +116,9 @@ function memberHashCode(h, e)
 function hashCode()
 {
     let h = 5381;
-    for(let key in this)
+    for(const key in this)
     {
-        let e = this[key];
+        const e = this[key];
         if(e === undefined || e === null || typeof e == "function")
         {
             continue;

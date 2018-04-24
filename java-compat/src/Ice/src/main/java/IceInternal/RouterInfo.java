@@ -34,7 +34,6 @@ public final class RouterInfo
     destroy()
     {
         _clientEndpoints = new EndpointI[0];
-        _serverEndpoints = new EndpointI[0];
         _adapter = null;
         _identities.clear();
     }
@@ -125,15 +124,13 @@ public final class RouterInfo
     public EndpointI[]
     getServerEndpoints()
     {
-        synchronized(this)
+        Ice.ObjectPrx serverProxy = _router.getServerProxy();
+        if(serverProxy == null)
         {
-            if(_serverEndpoints != null) // Lazy initialization.
-            {
-                return _serverEndpoints;
-            }
+            throw new Ice.NoEndpointException();
         }
-
-        return setServerEndpoints(_router.getServerProxy());
+        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+        return ((Ice.ObjectPrxHelperBase)serverProxy)._getReference().getEndpoints();
     }
 
     public boolean
@@ -227,19 +224,6 @@ public final class RouterInfo
         return _clientEndpoints;
     }
 
-    private synchronized EndpointI[]
-    setServerEndpoints(Ice.ObjectPrx serverProxy)
-    {
-        if(serverProxy == null)
-        {
-            throw new Ice.NoEndpointException();
-        }
-
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy)._getReference().getEndpoints();
-        return _serverEndpoints;
-    }
-
     private synchronized void
     addAndEvictProxies(Ice.ObjectPrx proxy, Ice.ObjectPrx[] evictedProxies)
     {
@@ -281,7 +265,6 @@ public final class RouterInfo
 
     private final Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
-    private EndpointI[] _serverEndpoints;
     private Ice.ObjectAdapter _adapter;
     private java.util.Set<Ice.Identity> _identities = new java.util.HashSet<Ice.Identity>();
     private java.util.List<Ice.Identity> _evictedIdentities = new java.util.ArrayList<Ice.Identity>();

@@ -73,7 +73,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
                 {
                     rethrow_exception(ex);
                 }
-                catch(Test::RetryException&)
+                catch(const Test::RetryException&)
                 {
                 }
                 catch(...)

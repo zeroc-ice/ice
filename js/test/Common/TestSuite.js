@@ -124,9 +124,9 @@ $(document).ready(
                                          }).toString());
         }
 
-        $("#run").click(() =>
+        $("#run").click((e) =>
                         {
-                            if(!$(this).hasClass("disabled"))
+                            if(!$(e.currentTarget).hasClass("disabled"))
                             {
                                 setRunning(true);
                                 if($("#worker").is(":checked"))
@@ -215,14 +215,16 @@ $(document).ready(
 
         $("#protocol").on("change", e =>
                           {
-                              if((document.location.protocol == "http:" && $(this).val() == "wss") ||
-                                 (document.location.protocol == "https:" && $(this).val() == "ws"))
+                              let protocol = $(e.currentTarget).val();
+                              console.log(`protocol change: ${protocol}`);
+                              if((document.location.protocol == "http:" && protocol == "wss") ||
+                                 (document.location.protocol == "https:" && protocol == "ws"))
                               {
                                   document.location.assign(
                                       new URI()
-                                          .protocol($(this).val() == "ws" ? "http" : "https")
+                                          .protocol(protocol == "ws" ? "http" : "https")
                                           .hostname(document.location.hostname)
-                                          .port($(this).val() == "ws" ? 8080 : 9090)
+                                          .port(protocol == "ws" ? 8080 : 9090)
                                           .search(
                                               {
                                                   language: $("#language").val(),

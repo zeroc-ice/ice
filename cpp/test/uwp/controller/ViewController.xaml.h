@@ -14,6 +14,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <mutex>
 
 namespace
 {
@@ -33,20 +34,19 @@ public:
     ViewController();
     virtual ~ViewController();
 
-protected:
-
-    virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 private:
 
     friend class MainHelperI;
     friend class ProcessControllerI;
     friend class ControllerHelper;
     HINSTANCE loadDll(const std::string&);
+    void unloadDll(const std::string&);
     void println(const std::string&);
     std::string getHost() const;
     void Hostname_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 
     std::map<std::string, HINSTANCE> _dlls;
+    std::mutex _mutex;
 };
 
 }

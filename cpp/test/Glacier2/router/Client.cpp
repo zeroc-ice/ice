@@ -554,6 +554,19 @@ CallbackClient::run(int argc, char* argv[])
         cout << "ok" << endl;
     }
 
+    {
+        cout << "pinging object with client endpoint... " << flush;
+        Ice::ObjectPrx baseC = communicator()->stringToProxy("collocated:" + getTestEndpoint(communicator(), 50));
+        try
+        {
+            baseC->ice_ping();
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
+
     CallbackPrx twoway;
 
     {

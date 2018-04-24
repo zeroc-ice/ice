@@ -150,6 +150,7 @@ class PluginI implements Plugin
             _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
             _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+            _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
@@ -265,6 +266,13 @@ class PluginI implements Plugin
             if(locator == null ||
                (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
             {
+                if(_traceLevel > 2)
+                {
+                    StringBuffer s = new StringBuffer("ignoring locator reply: instance name doesn't match\n");
+                    s.append("expected = ").append(_instanceName);
+                    s.append("received = ").append(locator.ice_getIdentity().category);
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                }
                 return;
             }
 
@@ -296,6 +304,17 @@ class PluginI implements Plugin
                 _future = null;
 
                 _pendingRetryCount = 0;
+            }
+
+            if(_traceLevel > 0)
+            {
+                StringBuffer s = new StringBuffer("locator lookup succeeded:\nlocator = ");
+                s.append(locator);
+                if(!_instanceName.isEmpty())
+                {
+                    s.append("\ninstance name = ").append(_instanceName);
+                }
+                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
             }
 
             Ice.LocatorPrx l =
@@ -384,6 +403,16 @@ class PluginI implements Plugin
                     _failureCount = 0;
                     try
                     {
+                        if(_traceLevel > 1)
+                        {
+                            StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
+                            s.append(_lookup);
+                            if(!_instanceName.isEmpty())
+                            {
+                                s.append("\ninstance name = ").append(_instanceName);
+                            }
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                        }
                         for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                         {
                             entry.getKey().begin_findLocator(_instanceName, entry.getValue(), new Ice.Callback() {
@@ -406,6 +435,18 @@ class PluginI implements Plugin
                     }
                     catch(Ice.LocalException ex)
                     {
+                        if(_traceLevel > 0)
+                        {
+                            StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                            s.append(_lookup);
+                            if(!_instanceName.isEmpty())
+                            {
+                                s.append("\ninstance name = ").append(_instanceName);
+                            }
+                            s.append("\n").append(ex);
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                        }
+
                         for(Request req : _pendingRequests)
                         {
                             req.invoke(_voidLocator);
@@ -441,6 +482,18 @@ class PluginI implements Plugin
                     _warnOnce = false;
                 }
 
+                if(_traceLevel > 0)
+                {
+                    StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                    s.append(_lookup);
+                    if(!_instanceName.isEmpty())
+                    {
+                        s.append("\ninstance name = ").append(_instanceName);
+                    }
+                    s.append("\n").append(ex);
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                }
+
                 if(_pendingRequests.isEmpty())
                 {
                     notify();
@@ -467,6 +520,18 @@ class PluginI implements Plugin
                     {
                         try
                         {
+                            if(_traceLevel > 1)
+                            {
+                                StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
+                                s.append(_lookup);
+                                s.append("\nretry count = ").append(_retryCount);
+                                if(!_instanceName.isEmpty())
+                                {
+                                    s.append("\ninstance name = ").append(_instanceName);
+                                }
+                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                            }
+
                             _failureCount = 0;
                             for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
                             {
@@ -495,6 +560,17 @@ class PluginI implements Plugin
                         _pendingRetryCount = 0;
                     }
 
+                    if(_traceLevel > 0)
+                    {
+                        StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
+                        s.append(_lookup);
+                        if(!_instanceName.isEmpty())
+                        {
+                            s.append("\ninstance name = ").append(_instanceName);
+                        }
+                        _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                    }
+
                     if(_pendingRequests.isEmpty())
                     {
                         notify();
@@ -518,6 +594,7 @@ class PluginI implements Plugin
         private final int _timeout;
         private java.util.concurrent.Future<?> _future;
         private final java.util.concurrent.ScheduledExecutorService _timer;
+        private final int _traceLevel;
         private final int _retryCount;
         private final int _retryDelay;
 

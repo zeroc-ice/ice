@@ -323,23 +323,16 @@ namespace IceInternal
             return v;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public short getShort(int pos)
         {
             checkUnderflow(pos, 2);
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[pos])
                 {
                     _valBytes.shortVal = *((short*)p);
                 }
-#else
-                _valBytes.b0 = _bytes[pos];
-                _valBytes.b1 = _bytes[pos + 1];
-#endif
             }
             else
             {
@@ -370,24 +363,17 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public ByteBuffer putShort(short val)
         {
             checkOverflow(2);
             _valBytes.shortVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     *((short*)p) = _valBytes.shortVal;
                 }
-#else
-                _bytes[_position] = _valBytes.b0;
-                _bytes[_position + 1] = _valBytes.b1;
-#endif
             }
             else
             {
@@ -420,25 +406,16 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public int getInt()
         {
             checkUnderflow(4);
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     _valBytes.intVal = *((int*)p);
                 }
-#else
-                _valBytes.b0 = _bytes[_position];
-                _valBytes.b1 = _bytes[_position + 1];
-                _valBytes.b2 = _bytes[_position + 2];
-                _valBytes.b3 = _bytes[_position + 3];
-#endif
             }
             else
             {
@@ -481,9 +458,7 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public ByteBuffer putInt(int pos, int val)
         {
             if(pos < 0)
@@ -497,17 +472,10 @@ namespace IceInternal
             _valBytes.intVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[pos])
                 {
                     *((int*)p) = _valBytes.intVal;
                 }
-#else
-                _bytes[pos] = _valBytes.b0;
-                _bytes[pos + 1] = _valBytes.b1;
-                _bytes[pos + 2] = _valBytes.b2;
-                _bytes[pos + 3] = _valBytes.b3;
-#endif
             }
             else
             {
@@ -550,29 +518,16 @@ namespace IceInternal
             return v;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public long getLong(int pos)
         {
             checkUnderflow(pos, 8);
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[pos])
                 {
                     _valBytes.longVal = *((long*)p);
                 }
-#else
-                _valBytes.b0 = _bytes[pos];
-                _valBytes.b1 = _bytes[pos + 1];
-                _valBytes.b2 = _bytes[pos + 2];
-                _valBytes.b3 = _bytes[pos + 3];
-                _valBytes.b4 = _bytes[pos + 4];
-                _valBytes.b5 = _bytes[pos + 5];
-                _valBytes.b6 = _bytes[pos + 6];
-                _valBytes.b7 = _bytes[pos + 7];
-#endif
             }
             else
             {
@@ -615,30 +570,17 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public ByteBuffer putLong(long val)
         {
             checkOverflow(8);
             _valBytes.longVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     *((long*)p) = _valBytes.longVal;
                 }
-#else
-                _bytes[_position] = _valBytes.b0;
-                _bytes[_position + 1] = _valBytes.b1;
-                _bytes[_position + 2] = _valBytes.b2;
-                _bytes[_position + 3] = _valBytes.b3;
-                _bytes[_position + 4] = _valBytes.b4;
-                _bytes[_position + 5] = _valBytes.b5;
-                _bytes[_position + 6] = _valBytes.b6;
-                _bytes[_position + 7] = _valBytes.b7;
-#endif
             }
             else
             {
@@ -683,25 +625,16 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public float getFloat()
         {
             checkUnderflow(4);
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     _valBytes.floatVal = *((float*)p);
                 }
-#else
-                _valBytes.b0 = _bytes[_position];
-                _valBytes.b1 = _bytes[_position + 1];
-                _valBytes.b2 = _bytes[_position + 2];
-                _valBytes.b3 = _bytes[_position + 3];
-#endif
             }
             else
             {
@@ -737,26 +670,17 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public ByteBuffer putFloat(float val)
         {
             checkOverflow(4);
             _valBytes.floatVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     *((float*)p) = _valBytes.floatVal;
                 }
-#else
-                _bytes[_position] = _valBytes.b0;
-                _bytes[_position + 1] = _valBytes.b1;
-                _bytes[_position + 2] = _valBytes.b2;
-                _bytes[_position + 3] = _valBytes.b3;
-#endif
             }
             else
             {
@@ -793,29 +717,16 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public double getDouble()
         {
             checkUnderflow(8);
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     _valBytes.doubleVal = *((double*)p);
                 }
-#else
-                _valBytes.b0 = _bytes[_position];
-                _valBytes.b1 = _bytes[_position + 1];
-                _valBytes.b2 = _bytes[_position + 2];
-                _valBytes.b3 = _bytes[_position + 3];
-                _valBytes.b4 = _bytes[_position + 4];
-                _valBytes.b5 = _bytes[_position + 5];
-                _valBytes.b6 = _bytes[_position + 6];
-                _valBytes.b7 = _bytes[_position + 7];
-#endif
             }
             else
             {
@@ -859,30 +770,17 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
         unsafe
-#endif
         public ByteBuffer putDouble(double val)
         {
             checkOverflow(8);
             _valBytes.doubleVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
                 fixed(byte* p = &_bytes[_position])
                 {
                     *((double*)p) = _valBytes.doubleVal;
                 }
-#else
-                _bytes[_position] = _valBytes.b0;
-                _bytes[_position + 1] = _valBytes.b1;
-                _bytes[_position + 2] = _valBytes.b2;
-                _bytes[_position + 3] = _valBytes.b3;
-                _bytes[_position + 4] = _valBytes.b4;
-                _bytes[_position + 5] = _valBytes.b5;
-                _bytes[_position + 6] = _valBytes.b6;
-                _bytes[_position + 7] = _valBytes.b7;
-#endif
             }
             else
             {

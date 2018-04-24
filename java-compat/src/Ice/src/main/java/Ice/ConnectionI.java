@@ -701,6 +701,10 @@ public final class ConnectionI extends IceInternal.EventHandler
     synchronized public void setACM(Ice.IntOptional timeout, Ice.Optional<ACMClose> close,
             Ice.Optional<ACMHeartbeat> heartbeat)
     {
+        if(timeout != null && timeout.isSet() && timeout.get() < 0)
+        {
+            throw new IllegalArgumentException("invalid negative ACM timeout value");
+        }
         if(_monitor == null || _state >= StateClosed)
         {
             return;
@@ -967,25 +971,25 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     @Override
-    public synchronized void setAdapter(ObjectAdapter adapter)
+    public void setAdapter(ObjectAdapter adapter)
     {
-        if(_state <= StateNotValidated || _state >= StateClosing)
+        if(adapter != null)
         {
-            return;
-        }
-
-        _adapter = adapter;
-
-        if(_adapter != null)
-        {
-            //
-            // The OA's servant manager is immutable.
-            //
-            _servantManager = ((ObjectAdapterI) _adapter).getServantManager();
+            // Go through the adapter to set the adapter and servant manager on this connection
+            // to ensure the object adapter is still active.
+            ((ObjectAdapterI)adapter).setAdapterOnConnection(this);
         }
         else
         {
-            _servantManager = null;
+            synchronized(this)
+            {
+                if(_state <= StateNotValidated || _state >= StateClosing)
+                {
+                    return;
+                }
+                _adapter = null;
+                _servantManager = null;
+            }
         }
 
         //
@@ -1016,6 +1020,18 @@ public final class ConnectionI extends IceInternal.EventHandler
         // reference.
         //
         return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
+    }
+
+    public synchronized void setAdapterAndServantManager(ObjectAdapter adapter,
+                                                         IceInternal.ServantManager servantManager)
+    {
+        if(_state <= StateNotValidated || _state >= StateClosing)
+        {
+            return;
+        }
+        assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
+        _adapter = adapter;
+        _servantManager = servantManager;
     }
 
     //

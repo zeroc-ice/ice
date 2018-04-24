@@ -125,11 +125,7 @@ IceUtil::RecMutex::init(const MutexProtocol protocol)
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
-#if defined(__linux) && !defined(__USE_UNIX98)
-    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-#else
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-#endif
     assert(rc == 0);
     if(rc != 0)
     {

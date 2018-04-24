@@ -8,45 +8,142 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.7.1 (Pre-Release Snapshot)](#changes-in-ice-371-pre-release-snapshot)
-  - [General Changes](#general-changes)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
+  * [General Changes](#general-changes)
+  * [C++ Changes](#c-changes)
+  * [C# Changes](#c%23-changes)
+  * [Java Changes](#java-changes)
+  * [JavaScript Changes](#javascript-changes)
+  * [MATLAB Changes](#matlab-changes)
+  * [Objective-C Changes](#objective-c-changes)
+  * [PHP Changes](#php-changes)
+  * [Python Changes](#python-changes)
+  * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
-  - [JavaScript Changes](#javascript-changes)
-  - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes)
-  - [Python Changes](#python-changes)
-  - [Ruby Changes](#ruby-changes)
+  * [General Changes](#general-changes-1)
+  * [C++ Changes](#c-changes-1)
+  * [C# Changes](#c%23-changes-1)
+  * [Java Changes](#java-changes-1)
+  * [JavaScript Changes](#javascript-changes-1)
+  * [Objective-C Changes](#objective-c-changes-1)
+  * [PHP Changes](#php-changes-1)
+  * [Python Changes](#python-changes-1)
+  * [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.7.1 (Pre-Release Snapshot)
+# Changes in Ice 3.7.1
 
-These are the changes since Ice 3.7.0 included in this pre-release.
+These are the changes since Ice 3.7.0.
 
 ## General Changes
+
+- Fixed UDP multicast issue where adding multicast membership on all the
+  available network interfaces on the host would fail with an "Address already
+  in use" error if the host had network interfaces with multiple IPv4 addresses
+  or different interfaces using the same IP address.
+
+- Improved `Ice::ObjectAdapter` `getPublishedEndpoints` and
+  `refreshPublishedEndpoints` methods to now return or refresh the Ice router
+  server endpoints if the adapter is associated with a router. Calling the
+  `setPublishedEndpoints` method on an adapter associated with a router also now
+  raises an invalid argument exception.
+
+- Added tracing support for IceGrid and locator discovery. The IceGrid registry
+  supports the `IceGrid.Registry.Trace.Discovery` property and the
+  `IceLocatorDiscovery` plug-in supports `IceLocatorDiscovery.Trace.Lookup` to
+  trace lookup requests.
+
+- Instead of succeeding, `Ice::Connection::setAdapter` now raises
+  `Ice.ObjectAdapterDeactivatedException` if the adapter is deactivated.
+
+- Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
+  was ignored.
+
+- Added the ice_fixed proxy method to create a fixed proxy bound to a given
+  connection.
+
+- Added the ice_getTimeout and ice_getCompress proxy methods. These methods
+  return an optional value that contains the proxy timeout or compression
+  override setting. If the timeout or the compression setting haven't been
+  overridden with ice_timeout or ice_compress, the optional value is unset.
 
 - Fixed IceGrid node bug where a replica would not get up-to-date object
   adapter information about a server if an update was pending for the
   server. Thanks to Michael Gmelin for the bug report and fix.
 
-## PHP Changes
+- Fixed IceGrid registry to no longer allow dynamic registration of a replica
+  group if this replica group is already registered with the deployment
+  facility. Registration was previously allowed but the dynamically registered
+  adapter members of the replica group were never used.
 
-- Fixed Ice for PHP build failure when build with PHP5 ZTS
+- IceBridge can now be configured as a router in a client's object adapter,
+  which means the Ice run time in the client will automatically set up a
+  bidirectional connection.
 
-## Objective-C Changes
+## C++ Changes
 
-- Fixed the generated code to specify the __autoreleasing qualifier on
-  parameters returned by reference. Xcode 9.0 now emits a warning if this
-  qualifier is omitted.
+- Fixed a Windows bug with the WS transport where at-most-once semantics weren't
+  always enforced causing invalid invocation retries on failures.
+
+- Added the "cpp:noexcept" metadata to operations in several local Slice
+  interfaces, including Communicator, Connection, and ObjectAdapter.
+  This helps to clarify that these operations do not raise exceptions.
+
+- Slice documentation comments are now preserved in the generated C++ code
+  using Doxygen markup.
 
 ## C# Changes
+
+- Disabled Windows fast path loopback socket option. This option was
+  already disabled with the C++ mapping. It's causing hangs at the
+  TCP/IP level when connections are closed.
+
+- Added support for .NET Core 2.0 on Windows and Linux.
 
 - Added the ice_initialize partial method to generated structs and classes.
   This method is called by constructors after initialization of the data
   members. By implementing this method users can customize struct and
   class initialization.
+
+## Java Changes
+
+- The java:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
+
+## JavaScript Changes
+
+- Updated the generated code for compatibility with WebPack.
+
+## MATLAB Changes
+
+- Added a MATLAB language mapping. It provides a client-side run time and
+  supports MATLAB versions R2016a through R2018a on Windows.
+
+## Objective-C Changes
+
+- Fixed the generated code to specify the `__autoreleasing` qualifier on
+  parameters returned by reference. Xcode 9.0 now emits a warning if this
+  qualifier is omitted.
+
+## PHP Changes
+
+- Fixed Ice for PHP build failure when building with PHP5 ZTS.
+
+## Python Changes
+
+- The python:package metadata can now be applied to modules. It can still
+  be used as global metadata, in which case it serves as the default
+  directive unless overridden by module metadata.
+
+- Fixed a bug that caused Python to crash on exit when the extension is
+  built with GCC 7.
+
+## Ruby Changes
+
+- Ice::initialize now accepts an implicit block. If provided, initialize
+  will pass the communicator (and optionally the argument vector) to the
+  block, destroy the communicator upon the block's completion, and return
+  the block's result as the result of initialize.
 
 # Changes in Ice 3.7.0
 

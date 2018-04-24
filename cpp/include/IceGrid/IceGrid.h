@@ -22,9 +22,10 @@
 namespace IceGrid
 {
 
-//
-// Global function to obtain a RegistryPluginFacade
-//
+/**
+ * Obtains the plug-in facade for the IceGrid registry.
+ * @return The plug-in facade.
+ */
 ICEGRID_API RegistryPluginFacadePtr getRegistryPluginFacade();
 
 }

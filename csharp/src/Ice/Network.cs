@@ -15,6 +15,7 @@ namespace IceInternal
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Globalization;
+    using System.Runtime.InteropServices;
 
     public sealed class Network
     {
@@ -241,7 +242,13 @@ namespace IceInternal
                 {
                     setTcpNoDelay(socket);
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-                    setTcpLoopbackFastPath(socket);
+                    //
+                    // FIX: the fast path loopback appears to cause issues with
+                    // connection closure when it's enabled. Sometime, a peer
+                    // doesn't receive the TCP/IP connection closure (RST) from
+                    // the other peer and it ends up hanging. See bug #6093.
+                    //
+                    //setTcpLoopbackFastPath(socket);
                 }
                 catch(SocketException ex)
                 {
@@ -319,20 +326,25 @@ namespace IceInternal
             }
         }
 
-        public static void setTcpLoopbackFastPath(Socket socket)
-        {
-            const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
-
-            byte[] OptionInValue = BitConverter.GetBytes(1);
-            try
-            {
-                socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
-            }
-            catch(Exception)
-            {
-                // Expected on platforms that do not support TCP Loopback Fast Path
-            }
-        }
+        //
+        // FIX: the fast path loopback appears to cause issues with
+        // connection closure when it's enabled. Sometime, a peer
+        // doesn't receive the TCP/IP connection closure (RST) from
+        // the other peer and it ends up hanging. See bug #6093.
+        //
+        // public static void setTcpLoopbackFastPath(Socket socket)
+        // {
+        //     const int SIO_LOOPBACK_FAST_PATH = (-1744830448);
+        //     byte[] OptionInValue = BitConverter.GetBytes(1);
+        //     try
+        //     {
+        //         socket.IOControl(SIO_LOOPBACK_FAST_PATH, OptionInValue, null);
+        //     }
+        //     catch(Exception)
+        //     {
+        //         // Expected on platforms that do not support TCP Loopback Fast Path
+        //     }
+        // }
 
         public static void setBlock(Socket socket, bool block)
         {
@@ -433,15 +445,16 @@ namespace IceInternal
         {
             try
             {
-                int ifaceIndex = getInterfaceIndex(iface, family);
                 if(family == AddressFamily.InterNetwork)
                 {
-                    ifaceIndex = IPAddress.HostToNetworkOrder(ifaceIndex);
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, ifaceIndex);
+                    socket.SetSocketOption(SocketOptionLevel.IP,
+                                           SocketOptionName.MulticastInterface,
+                                           IPAddress.HostToNetworkOrder(getInterfaceIndex(iface, family)));
                 }
                 else
                 {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface, ifaceIndex);
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface,
+                                           getInterfaceIndex(iface, family));
                 }
             }
             catch(Exception ex)
@@ -518,10 +531,42 @@ namespace IceInternal
             }
         }
 
-        public static IPEndPoint doBind(Socket socket, EndPoint addr)
+#if NETSTANDARD2_0
+        [DllImport("libc", SetLastError = true)]
+        private static extern int setsockopt(int socket, int level, int name, IntPtr value, uint len);
+
+        private const int SOL_SOCKET_MACOS= 0xffff;
+        private const int SO_REUSEADDR_MACOS = 0x0004;
+        private const int SOL_SOCKET_LINUX = 0x0001;
+        private const int SO_REUSEADDR_LINUX = 0x0002;
+#endif
+
+        public static unsafe IPEndPoint doBind(Socket socket, EndPoint addr)
         {
             try
             {
+#if NETSTANDARD2_0
+                //
+                // TODO: Workaround .NET Core 2.0 bug where SO_REUSEADDR isn't set on sockets which are bound. This
+                // fix is included in the Bind() implementation of .NET Core 2.1. This workaround should be removed
+                // once we no longer support .NET Core 2.0.
+                //
+                int value = 1;
+                int err = 0;
+                var fd = socket.Handle.ToInt32();
+                if(AssemblyUtil.isLinux)
+                {
+                    err = setsockopt(fd, SOL_SOCKET_LINUX, SO_REUSEADDR_LINUX, (IntPtr)(&value), sizeof(int));
+                }
+                else if(AssemblyUtil.isMacOS)
+                {
+                    err = setsockopt(fd, SOL_SOCKET_MACOS, SO_REUSEADDR_MACOS, (IntPtr)(&value), sizeof(int));
+                }
+                if(err != 0)
+                {
+                    throw new SocketException(err);
+                }
+#endif
                 socket.Bind(addr);
                 return (IPEndPoint)socket.LocalEndPoint;
             }
@@ -603,6 +648,18 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
+            if(!AssemblyUtil.isWindows)
+            {
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                if(addr.Equals(getLocalAddress(fd)))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
+            }
             return true;
         }
 
@@ -684,6 +741,19 @@ namespace IceInternal
             // after the asynchronous connect. Seems like a bug in .NET.
             //
             setBlock(fd, fd.Blocking);
+            if(!AssemblyUtil.isWindows)
+            {
+                //
+                // Prevent self connect (self connect happens on Linux when a client tries to connect to
+                // a server which was just deactivated if the client socket re-uses the same ephemeral
+                // port as the server).
+                //
+                EndPoint remoteAddr = getRemoteAddress(fd);
+                if(remoteAddr.Equals(getLocalAddress(fd)))
+                {
+                    throw new Ice.ConnectionRefusedException();
+                }
+            }
         }
 
         public static int getProtocolSupport(IPAddress addr)
@@ -713,14 +783,20 @@ namespace IceInternal
             List<EndPoint> addresses = new List<EndPoint>();
             if(host.Length == 0)
             {
-                if(protocol != EnableIPv4)
+                foreach(IPAddress a in getLoopbackAddresses(protocol))
                 {
-                    addresses.Add(new IPEndPoint(IPAddress.IPv6Loopback, port));
+                    addresses.Add(new IPEndPoint(a, port));
                 }
-
-                if(protocol != EnableIPv6)
+                if(protocol == EnableBoth)
                 {
-                    addresses.Add(new IPEndPoint(IPAddress.Loopback, port));
+                    if(preferIPv6)
+                    {
+                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv6Comparator);
+                    }
+                    else
+                    {
+                        IceUtilInternal.Collections.Sort(ref addresses, _preferIPv4Comparator);
+                    }
                 }
                 return addresses;
             }
@@ -812,7 +888,7 @@ namespace IceInternal
             return addresses;
         }
 
-        public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback)
+        public static IPAddress[] getLocalAddresses(int protocol, bool includeLoopback, bool singleAddressPerInterface)
         {
             List<IPAddress> addresses;
             int retry = 5;
@@ -831,9 +907,14 @@ namespace IceInternal
                         if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            if(includeLoopback || !IPAddress.IsLoopback(uni.Address))
+                            if(!addresses.Contains(uni.Address) &&
+                               (includeLoopback || !IPAddress.IsLoopback(uni.Address)))
                             {
                                 addresses.Add(uni.Address);
+                                if(singleAddressPerInterface)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -878,11 +959,16 @@ namespace IceInternal
         setTcpBufSize(Socket socket, ProtocolInstance instance)
         {
             //
-            // By default, on Windows we use a 128KB buffer size.
-            int dfltBufSize = 128 * 1024;
+            // By default, on Windows we use a 128KB buffer size. On Unix
+            // platforms, we use the system defaults.
+            //
+            int dfltBufSize = 0;
+            if(AssemblyUtil.isWindows)
+            {
+                dfltBufSize = 128 * 1024;
+            }
             int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
             int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
-
             setTcpBufSize(socket, rcvSize, sndSize, instance);
         }
 
@@ -942,10 +1028,17 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(host, out ipv4Wildcard))
             {
-                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback);
-                foreach(IPAddress a in addrs)
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, includeLoopback, false))
                 {
                     if(!isLinklocal(a))
+                    {
+                        hosts.Add(a.ToString());
+                    }
+                }
+                if(hosts.Count == 0)
+                {
+                    // Return loopback if only loopback is available no other local addresses are available.
+                    foreach(IPAddress a in getLoopbackAddresses(protocol))
                     {
                         hosts.Add(a.ToString());
                     }
@@ -960,8 +1053,7 @@ namespace IceInternal
             bool ipv4Wildcard = false;
             if(isWildcard(intf, out ipv4Wildcard))
             {
-                IPAddress[] addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true);
-                foreach(IPAddress a in addrs)
+                foreach(IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true, true))
                 {
                     interfaces.Add(a.ToString());
                 }
@@ -1212,6 +1304,20 @@ namespace IceInternal
             }
 
             return false;
+        }
+
+        public static List<IPAddress> getLoopbackAddresses(int protocol)
+        {
+            List<IPAddress> addresses = new List<IPAddress>();
+            if(protocol != EnableIPv4)
+            {
+                addresses.Add(IPAddress.IPv6Loopback);
+            }
+            if(protocol != EnableIPv6)
+            {
+                addresses.Add(IPAddress.Loopback);
+            }
+            return addresses;
         }
 
         public static bool

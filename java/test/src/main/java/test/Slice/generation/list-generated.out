@@ -2,7 +2,9 @@
 <generated>
   <source name="File1.ice">
     <file name="classes/test/Slice/generation/Test/_Marker.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/_Marker.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1PrxI.java"/>
   </source>

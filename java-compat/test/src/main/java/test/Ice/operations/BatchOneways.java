@@ -186,6 +186,15 @@ class BatchOneways
             ic.destroy();
         }
 
+        boolean supportsCompress = true;
+        try
+        {
+            supportsCompress = p.supportsCompress();
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
+
         p.ice_ping();
         if(p.ice_getConnection() != null && properties.getProperty("Ice.Override.Compress").equals(""))
         {

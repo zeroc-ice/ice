@@ -320,7 +320,7 @@ public class InputStream
     }
 
     /**
-     * Sets the value factory manager to use when marshaling value instances. If the stream
+     * Sets the value factory manager to use when unmarshaling value instances. If the stream
      * was initialized with a communicator, the communicator's value factory manager will
      * be used by default.
      *
@@ -592,7 +592,7 @@ public class InputStream
     }
 
     /**
-     * Ends the previous encapsulation.
+     * Ends the current encapsulation.
      **/
     public void endEncapsulation()
     {
@@ -679,7 +679,7 @@ public class InputStream
      * is returned in the argument.
      *
      * @param encoding The encapsulation's encoding version.
-     * @return The encoded encapuslation.
+     * @return The encoded encapsulation.
      **/
     public byte[] readEncapsulation(EncodingVersion encoding)
     {

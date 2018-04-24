@@ -95,6 +95,6 @@ private:
 
 #endif
 
-} // End of namespace IceUtil
+}
 
 #endif

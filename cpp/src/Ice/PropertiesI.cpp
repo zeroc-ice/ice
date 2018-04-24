@@ -23,7 +23,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 string
-Ice::PropertiesI::getProperty(const string& key)
+Ice::PropertiesI::getProperty(const string& key) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -40,7 +40,7 @@ Ice::PropertiesI::getProperty(const string& key)
 }
 
 string
-Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
+Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -57,13 +57,13 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 }
 
 Int
-Ice::PropertiesI::getPropertyAsInt(const string& key)
+Ice::PropertiesI::getPropertyAsInt(const string& key) ICE_NOEXCEPT
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
 Int
-Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
+Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -85,13 +85,13 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsList(const string& key)
+Ice::PropertiesI::getPropertyAsList(const string& key) ICE_NOEXCEPT
 {
     return getPropertyAsListWithDefault(key, StringSeq());
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value)
+Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -119,7 +119,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
 }
 
 PropertyDict
-Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
+Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -235,7 +235,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 }
 
 StringSeq
-Ice::PropertiesI::getCommandLineOptions()
+Ice::PropertiesI::getCommandLineOptions() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -428,7 +428,7 @@ Ice::PropertiesI::load(const std::string& file)
 }
 
 PropertiesPtr
-Ice::PropertiesI::clone()
+Ice::PropertiesI::clone() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
     return ICE_MAKE_SHARED(PropertiesI, this);

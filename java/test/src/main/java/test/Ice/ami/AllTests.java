@@ -251,7 +251,7 @@ public class AllTests
                 initData.properties = communicator.getProperties()._clone();
                 com.zeroc.Ice.Communicator ic = app.initialize(initData);
                 com.zeroc.Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-                TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
+                TestIntfPrx p2 = TestIntfPrx.uncheckedCast(o);
                 ic.destroy();
 
                 try

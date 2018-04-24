@@ -356,6 +356,11 @@ IceBox::ServiceManagerI::start()
         //
         const string prefix = "IceBox.Service.";
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
+        if(services.empty())
+        {
+            throw FailureException(__FILE__, __LINE__, "ServiceManager: configuration must include at least one IceBox service");
+        }
+
         PropertyDict::iterator p;
         StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;

@@ -5,6 +5,7 @@
     <title>ZeroC Ice C++ for Visual Studio 2013</title>
     <version>3.7.1</version>
     <authors>ZeroC</authors>
+    <copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</copyright>
     <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
     <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
     <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>

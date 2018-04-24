@@ -29,8 +29,14 @@ public class Main extends JFrame
         //
         try
         {
-            if(System.getProperty("os.name").startsWith("Mac OS")) // macOS L&F
+            if(System.getProperty("os.name").startsWith("Mac OS"))
             {
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
+                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid GUI");
+
+                // To catch Command+Q
+                System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
+
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
             else if(System.getProperty("os.name").startsWith("Windows"))
@@ -48,6 +54,11 @@ public class Main extends JFrame
         catch(Exception e)
         {
             System.err.println(e.toString());
+            JOptionPane.showMessageDialog(null,
+                                          e.toString(),
+                                          "Initialization failed",
+                                          JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
 
         SwingUtilities.invokeLater(() ->

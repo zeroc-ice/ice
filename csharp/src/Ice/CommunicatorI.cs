@@ -25,17 +25,38 @@ namespace Ice
 
         public void shutdown()
         {
-            _instance.objectAdapterFactory().shutdown();
+            try
+            {
+                _instance.objectAdapterFactory().shutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
         }
 
         public void waitForShutdown()
         {
-            _instance.objectAdapterFactory().waitForShutdown();
+            try
+            {
+                _instance.objectAdapterFactory().waitForShutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
         }
 
         public bool isShutdown()
         {
-            return _instance.objectAdapterFactory().isShutdown();
+            try
+            {
+                return _instance.objectAdapterFactory().isShutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                return true;
+            }
         }
 
         public ObjectPrx stringToProxy(string s)

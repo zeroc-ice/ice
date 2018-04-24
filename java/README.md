@@ -1,8 +1,7 @@
 # Building Ice for Java
 
-This page describes how to build and install Ice for Java from source code. If
-you prefer, you can also download [binary distributions][1] for the supported
-platforms.
+This page describes how to build and install Ice for Java from source. If
+you prefer, you can also download a [binary distribution][1].
 
 * [Build Requirements](#build-requirements)
   * [Operating Systems](#operating-systems)
@@ -24,20 +23,17 @@ platforms.
 
 ### Operating Systems
 
-Ice for Java is expected to build and run properly on Windows, macOS, and any
-recent Linux distribution for x86_64 (or ix86), and was extensively tested using
-the operating systems and compiler versions listed for our [supported
-platforms][2]. Due to the portability of Java, it is very likely that it will
-also work on other platforms for which a suitable Java implementation is
-available.
+Ice for Java builds and runs properly on Windows, macOS, and any recent Linux
+distribution, and is fully supported on the platforms listed on the
+[supported platforms][2] page.
 
 ### Slice to Java Compiler
 
-You will need the Slice to Java compiler. ZeroC provides compiler binaries
-for our supported platforms. For other platforms, you will have to either port
-Ice for C++ (which contains the Slice to Java compiler), or you will have to
-translate your Slice files to Java on a supported platform and then copy the
-generated Java files to your target platform.
+You need the Slice to Java compiler to build Ice for Java and also to use
+Ice for Java. The Slice to Java compiler (`slice2java`) is a command-line tool
+written in C++. You can build the Slice to Java compiler from source, or
+alternatively you can install an Ice [binary distribution][1] that includes
+this compiler.
 
 ### Java Version
 
@@ -98,7 +94,7 @@ GUI tool.
 
 The Maven package id for the ProGuard package is as follows:
 
-    groupId='net.sf.proguard', artifactId='proguard-gradle', version='5.2.1'
+    groupId='net.sf.proguard', artifactId='proguard-gradle', version='6.0'
 
 ### Java Application Bundler
 
@@ -116,25 +112,22 @@ The Maven package id for the application bundler package is as follows:
 The build system requires the Slice to Java compiler from Ice for C++. If you
 have not built Ice for C++ in this source distribution, you must set the
 `ICE_BIN_DIST` environment variable to `cpp` and the `ICE_HOME` environment
-variable with the path name of your Ice installation. For example, on Unix with
+variable with the path name of your Ice installation. For example, on Linux with
 an RPM installation:
-
 ```
 export ICE_BIN_DIST=cpp
 export ICE_HOME=/usr
 ```
 
 On Windows with an MSI installation:
-
 ```
 set ICE_BIN_DIST=cpp
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1
 ```
 
-If you are using Ice for C++ from a source distribution on Windows, you must set
+If you are using Ice for C++ from a source build on Windows, you must set
 the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
 platform and configuration used in your C++ build:
-
 ```
 set CPP_PLATFORM=x64
 set CPP_CONFIGURATION=Debug
@@ -149,7 +142,6 @@ Before building Ice for Java, review the settings in the file
 ### Building Ice for Java
 
 To build Ice, all services, and tests, run
-
 ```
 gradlew build
 ```
@@ -158,7 +150,6 @@ Upon completion, the Ice JAR and POM files are placed in the `lib` subdirectory.
 
 If at any time you wish to discard the current build and start a new one, use
 these commands:
-
 ```
 gradlew clean
 gradlew build
@@ -168,7 +159,6 @@ gradlew build
 
 To install Ice for Java in the directory specified by the `prefix` variable in
 `gradle.properties` run the following command:
-
 ```
 gradlew install
 ```
@@ -196,21 +186,18 @@ Some of the Ice for Java tests employ applications that are part of the Ice for
 C++ distribution. If you have not built Ice for C++ in this source distribution
 then you must set the `ICE_HOME` environment variable with the path name of your
 Ice installation. On Unix:
-
 ```
 export ICE_HOME=/opt/Ice-3.7.1 (For local build)
 export ICE_HOME=/usr (For RPM installation)
 ```
 
 On Windows:
-
 ```
 set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.1
 ```
 
 Python is required to run the test suite. To run the tests, open a command
 window and change to the top-level directory. At the command prompt, execute:
-
 ```
 python allTests.py
 ```
@@ -225,7 +212,6 @@ Ice for Java includes the IceGrid GUI tool. It can be found in the file
 
 This JAR file is completely self-contained and has no external dependencies.
 You can start the tool with the following command:
-
 ```
 java -jar icegridgui.jar
 ```

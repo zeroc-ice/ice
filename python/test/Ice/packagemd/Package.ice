@@ -33,6 +33,7 @@ exception E2 extends E1
 }
 }
 
+["python:package:modpkg"]
 module Test3
 {
 class C1

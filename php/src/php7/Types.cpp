@@ -115,7 +115,7 @@ addClassInfoByName(const ClassInfoPtr& p)
 {
     assert(!getClassInfoByName(p->name));
 #ifdef ICEPHP_USE_NAMESPACES
-    assert(name[0] == '\\');
+    assert(p->name[0] == '\\');
 #endif
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
@@ -307,6 +307,9 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
 
     zval slices;
     array_init(&slices);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(slices)); // Allow circular references.
+#endif
     AutoDestroy slicesDestroyer(&slices);
 
     if(add_property_zval(&sd, STRCAST("slices"), &slices) != SUCCESS)
@@ -372,6 +375,9 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         //
         zval instances;
         array_init(&instances);
+#ifdef HT_ALLOW_COW_VIOLATION
+        HT_ALLOW_COW_VIOLATION(Z_ARRVAL(instances)); // Allow circular references.
+#endif
         AutoDestroy instancesDestroyer(&instances);
         if(add_property_zval(&slice, STRCAST("instances"), &instances) != SUCCESS)
         {
@@ -466,6 +472,8 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 info->typeId = string(Z_STRVAL_P(typeId), Z_STRLEN_P(typeId));
 
                 zval* compactId = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("compactId"), sizeof("compactId") - 1);
+                assert(Z_TYPE_P(compactId) == IS_INDIRECT);
+                compactId = Z_INDIRECT_P(compactId);
                 assert(compactId && Z_TYPE_P(compactId) == IS_LONG);
                 info->compactId = static_cast<long>(Z_LVAL_P(compactId));
 
@@ -514,15 +522,18 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 }
                 ZEND_HASH_FOREACH_END();
 
-                zval* hasOptionalMembers = zend_hash_str_find(Z_OBJPROP_P(s),
-                                                          STRCAST("hasOptionalMembers"),
-                                                          sizeof("hasOptionalMembers") - 1);
-
+                zval* hasOptionalMembers =
+                    zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("hasOptionalMembers"), sizeof("hasOptionalMembers") - 1);
+                assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
+                hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
                 assert(hasOptionalMembers &&
                     (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
                 info->hasOptionalMembers = Z_TYPE_P(hasOptionalMembers) == IS_TRUE;
 
-                zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("isLastSlice"), sizeof("isLastSlice") - 1);
+                zval* isLastSlice =
+                    zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("isLastSlice"), sizeof("isLastSlice") - 1);
+                assert(Z_TYPE_P(isLastSlice) == IS_INDIRECT);
+                isLastSlice = Z_INDIRECT_P(isLastSlice);
                 assert(isLastSlice && (Z_TYPE_P(isLastSlice) == IS_TRUE || Z_TYPE_P(isLastSlice) == IS_FALSE));
                 info->isLastSlice = Z_TYPE_P(isLastSlice) == IS_TRUE;
 
@@ -1594,6 +1605,9 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
 
     zval zv;
     array_init(&zv);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv)); // Allow circular references.
+#endif
     AutoDestroy destroy(&zv);
 
     Ice::Int sz = is->readSize();
@@ -1670,7 +1684,6 @@ IcePHP::SequenceInfo::unmarshaled(zval* zv, zval* target, void* closure)
     {
         Z_ADDREF_P(zv);
     }
-
 }
 
 void
@@ -2235,6 +2248,9 @@ IcePHP::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
 
     zval zv;
     array_init(&zv);
+#ifdef HT_ALLOW_COW_VIOLATION
+    HT_ALLOW_COW_VIOLATION(Z_ARRVAL(zv)); // Allow circular references.
+#endif
     AutoDestroy destroy(&zv);
 
     Ice::Int sz = is->readSize();

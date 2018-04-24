@@ -128,22 +128,36 @@ find(const multimap<K,::IceInternal::Handle<V> >& m,
 #endif
 
 class StartAcceptor : public IceUtil::TimerTask
+#ifdef ICE_CPP11_MAPPING
+                    , public std::enable_shared_from_this<StartAcceptor>
+#endif
 {
 public:
 
-    StartAcceptor(const IncomingConnectionFactoryPtr& factory) : _factory(factory)
+    StartAcceptor(const IncomingConnectionFactoryPtr& factory, const InstancePtr& instance) :
+        _factory(factory), _instance(instance)
     {
     }
 
     void
     runTimerTask()
     {
-        _factory->startAcceptor();
+        try
+        {
+            _factory->startAcceptor();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            Error out(_instance->initializationData().logger);
+            out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
+            _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time::seconds(1));
+        }
     }
 
 private:
 
     IncomingConnectionFactoryPtr _factory;
+    InstancePtr _instance;
 };
 
 }
@@ -271,6 +285,10 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
 void
 IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& routerInfo)
 {
+    assert(routerInfo);
+    ObjectAdapterPtr adapter = routerInfo->getAdapter();
+    vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints(); // Must be called outside the synchronization
+
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_destroyed)
@@ -278,16 +296,12 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    assert(routerInfo);
-
     //
     // Search for connections to the router's client proxy endpoints,
     // and update the object adapter for such connections, so that
     // callbacks from the router can be received over such
     // connections.
     //
-    ObjectAdapterPtr adapter = routerInfo->getAdapter();
-    vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints();
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         EndpointIPtr endpoint = *p;
@@ -1610,17 +1624,7 @@ IceInternal::IncomingConnectionFactory::startAcceptor()
     }
 
     _acceptorStopped = false;
-
-    try
-    {
-        createAcceptor();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        Error out(_instance->initializationData().logger);
-        out << "acceptor creation failed:\n" << ex << '\n' << _acceptor->toString();
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS), IceUtil::Time::seconds(1));
-    }
+    createAcceptor();
 }
 
 void
@@ -1852,6 +1856,7 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
     //
     if(!_acceptorStopped && (_state == StateHolding || _state == StateActive))
     {
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS), IceUtil::Time::seconds(1));
+        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
+                                     IceUtil::Time::seconds(1));
     }
 }

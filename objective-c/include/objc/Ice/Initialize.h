@@ -92,6 +92,7 @@ ICE_API @interface ICEUtil : NSObject
 +(ICEProtocolVersion*) protocolVersionWithString:(NSString*)str;
 @end
 
+extern void ICEregisterIceStringConverter(BOOL);
 extern void ICEregisterIceSSL(BOOL);
 extern void ICEregisterIceUDP(BOOL);
 extern void ICEregisterIceWS(BOOL);

@@ -13,6 +13,30 @@ import test.Ice.adapterDeactivation.Test.Cookie;
 
 public final class ServantLocatorI implements Ice.ServantLocator
 {
+    final static class RouterI extends Ice._RouterDisp
+    {
+        public Ice.ObjectPrx getClientProxy(Ice.BooleanHolder hasRoutingTable, Ice.Current current)
+        {
+            hasRoutingTable.value = false;
+            return null;
+        }
+
+        public Ice.ObjectPrx getServerProxy(Ice.Current current)
+        {
+            StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
+            s.append(_nextPort++);
+            s.append(" -t 30000");
+            return current.adapter.getCommunicator().stringToProxy(s.toString());
+        }
+
+        public Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+        {
+            return null;
+        }
+
+        private int _nextPort = 23456;
+    }
+
     public
     ServantLocatorI()
     {
@@ -44,6 +68,11 @@ public final class ServantLocatorI implements Ice.ServantLocator
             test(!_deactivated);
         }
 
+        if(current.id.name.equals("router"))
+        {
+            return _router;
+        }
+
         test(current.id.category.length() == 0);
         test(current.id.name.equals("test"));
 
@@ -58,6 +87,11 @@ public final class ServantLocatorI implements Ice.ServantLocator
         synchronized(this)
         {
             test(!_deactivated);
+        }
+
+        if(current.id.name.equals("router"))
+        {
+            return;
         }
 
         Cookie co = (Cookie)cookie;
@@ -76,4 +110,5 @@ public final class ServantLocatorI implements Ice.ServantLocator
     }
 
     private boolean _deactivated;
+    private Ice.Object _router = new RouterI();
 }

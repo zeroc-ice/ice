@@ -370,7 +370,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             if(!multicast)
             {
                 auto operation = safe_cast<DatagramSocket^>(_fd)->ConnectAsync(_addr.host, _addr.port);
-                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
+                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation, operation->Status))
                 {
                     operation->Completed = ref new AsyncActionCompletedHandler(
                         [this] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
@@ -392,7 +392,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             else
             {
                 auto operation = safe_cast<DatagramSocket^>(_fd)->GetOutputStreamAsync(_addr.host, _addr.port);
-                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
+                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation, operation->Status))
                 {
                     operation->Completed = ref new AsyncOperationCompletedHandler<IOutputStream^>(
                         [=](IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
@@ -550,17 +550,6 @@ IceInternal::UdpTransceiver::getOutputStreamCompleted(concurrency::task<IOutputS
         DataWriter^ writer = ref new DataWriter(task.get());
         writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
         DataWriterStoreOperation^ operation = writer->StoreAsync();
-        if(operation->Status == Windows::Foundation::AsyncStatus::Completed)
-        {
-            //
-            // NOTE: unlike other methods, it's important to modify _write.count
-            // _before_ calling checkIfErrorOrCompleted since this isn't called
-            // with the connection mutex but from a Windows thread pool thread.
-            // So we can't modify the _write structure after calling the
-            // completed callback.
-            //
-            _write.count = operation->GetResults();
-        }
         queueOperation(SocketOperationWrite, operation);
     }
     catch(Platform::Exception^ pex)
@@ -576,7 +565,7 @@ IceInternal::UdpTransceiver::getOutputStreamCompleted(concurrency::task<IOutputS
 void
 IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 {
-    if(_state < StateConnected)
+    if(_fd == INVALID_SOCKET || _state < StateConnected)
     {
         return;
     }

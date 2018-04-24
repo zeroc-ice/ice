@@ -398,7 +398,7 @@ public class AllTests : TestCommon.AllTests
         string hostAndPort = host + ":" + port;
         string protocol = app.getTestProtocol();
         string endpoint = protocol + " -h " + host + " -p " + port;
-        string timeout = communicator.getProperties().getProperty("Ice.Default.Timeout");
+        string timeout = communicator.getProperties().getPropertyWithDefault("Ice.Default.Timeout", "60000");
 
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
         bool collocated = metrics.ice_getConnection() == null;

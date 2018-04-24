@@ -392,7 +392,7 @@ class EncapsDecoder10 extends EncapsDecoder
         if(this._sliceType === SliceType.ValueSlice)
         {
             this.startSlice();
-            let sz = this._stream.readSize(); // For compatibility with the old AFM.
+            const sz = this._stream.readSize(); // For compatibility with the old AFM.
             if(sz !== 0)
             {
                 throw new Ice.MarshalException("invalid Object slice");
@@ -424,7 +424,7 @@ class EncapsDecoder10 extends EncapsDecoder
         //
         if(this._sliceType === SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a string
         {
-            let isIndex = this._stream.readBool();
+            const isIndex = this._stream.readBool();
             this._typeId = this.readTypeId(isIndex);
         }
         else
@@ -477,7 +477,7 @@ class EncapsDecoder10 extends EncapsDecoder
 
     readInstance()
     {
-        let index = this._stream.readInt();
+        const index = this._stream.readInt();
         let v = null;
 
         if(index <= 0)
@@ -738,11 +738,11 @@ class EncapsDecoder11 extends EncapsDecoder
         //
         if((this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
         {
-            let indirectionTable = [];
+            const indirectionTable = [];
             //
             // The table is written as a sequence<size> to conserve space.
             //
-            let length = this._stream.readAndCheckSeqSize(1);
+            const length = this._stream.readAndCheckSeqSize(1);
             for(let i = 0; i < length; ++i)
             {
                 indirectionTable[i] = this.readInstance(this._stream.readSize(), null);
@@ -853,8 +853,8 @@ class EncapsDecoder11 extends EncapsDecoder
 
         if((this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
         {
-            let length = this._stream.readAndCheckSeqSize(1);
-            let indirectionTable = [];
+            const length = this._stream.readAndCheckSeqSize(1);
+            const indirectionTable = [];
             for(let i = 0; i < length; ++i)
             {
                 indirectionTable[i] = this.readInstance(this._stream.readSize(), null);

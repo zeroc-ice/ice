@@ -96,6 +96,8 @@ interface MyClass
 {
     void shutdown();
 
+    bool supportsCompress();
+
     void opVoid();
 
     byte opByte(byte p1, byte p2,

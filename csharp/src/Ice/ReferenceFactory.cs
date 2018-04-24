@@ -62,8 +62,12 @@ namespace IceInternal
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
                 connection.endpoint().secure(),
+                Ice.Util.Protocol_1_0,
                 _instance.defaultsAndOverrides().defaultEncoding,
-                connection);
+                connection,
+                -1,
+                null,
+                new Ice.Optional<bool>());
         }
 
         public Reference copy(Reference r)

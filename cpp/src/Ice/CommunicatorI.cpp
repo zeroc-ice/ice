@@ -201,21 +201,42 @@ Ice::CommunicatorI::destroy() ICE_NOEXCEPT
 }
 
 void
-Ice::CommunicatorI::shutdown()
+Ice::CommunicatorI::shutdown() ICE_NOEXCEPT
 {
-    _instance->objectAdapterFactory()->shutdown();
+    try
+    {
+        _instance->objectAdapterFactory()->shutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 }
 
 void
-Ice::CommunicatorI::waitForShutdown()
+Ice::CommunicatorI::waitForShutdown() ICE_NOEXCEPT
 {
-    _instance->objectAdapterFactory()->waitForShutdown();
+    try
+    {
+        _instance->objectAdapterFactory()->waitForShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
 }
 
 bool
-Ice::CommunicatorI::isShutdown() const
+Ice::CommunicatorI::isShutdown() const ICE_NOEXCEPT
 {
-    return _instance->objectAdapterFactory()->isShutdown();
+    try
+    {
+        return _instance->objectAdapterFactory()->isShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        return true;
+    }
 }
 
 ObjectPrxPtr
@@ -298,25 +319,25 @@ Ice::CommunicatorI::addObjectFactory(const ::Ice::ObjectFactoryPtr& factory, con
 }
 
 ::Ice::ObjectFactoryPtr
-Ice::CommunicatorI::findObjectFactory(const string& id) const
+Ice::CommunicatorI::findObjectFactory(const string& id) const ICE_NOEXCEPT
 {
     return _instance->findObjectFactory(id);
 }
 
 PropertiesPtr
-Ice::CommunicatorI::getProperties() const
+Ice::CommunicatorI::getProperties() const ICE_NOEXCEPT
 {
     return _instance->initializationData().properties;
 }
 
 LoggerPtr
-Ice::CommunicatorI::getLogger() const
+Ice::CommunicatorI::getLogger() const ICE_NOEXCEPT
 {
     return _instance->initializationData().logger;
 }
 
 Ice::Instrumentation::CommunicatorObserverPtr
-Ice::CommunicatorI::getObserver() const
+Ice::CommunicatorI::getObserver() const ICE_NOEXCEPT
 {
     return _instance->initializationData().observer;
 }
@@ -346,7 +367,7 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrxPtr& locator)
 }
 
 Ice::ImplicitContextPtr
-Ice::CommunicatorI::getImplicitContext() const
+Ice::CommunicatorI::getImplicitContext() const ICE_NOEXCEPT
 {
     return _instance->getImplicitContext();
 }
@@ -358,7 +379,7 @@ Ice::CommunicatorI::getPluginManager() const
 }
 
 ValueFactoryManagerPtr
-Ice::CommunicatorI::getValueFactoryManager() const
+Ice::CommunicatorI::getValueFactoryManager() const ICE_NOEXCEPT
 {
     return _instance->initializationData().valueFactoryManager;
 }

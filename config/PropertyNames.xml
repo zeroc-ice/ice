@@ -442,6 +442,7 @@ generated from the section label.
         <property name="Port"/>
         <property name="Interface"/>
         <property name="InstanceName"/>
+        <property name="Trace.Lookup"/>"
     </section>
 
     <section name="IceBox">
@@ -538,6 +539,7 @@ generated from the section label.
         <property name="Registry.Trace.Admin" />
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
+        <property name="Registry.Trace.Discovery" />
         <property name="Registry.Trace.Locator" />
         <property name="Registry.Trace.Node" />
         <property name="Registry.Trace.Object" />

@@ -21,21 +21,34 @@
         let communicator;
         try
         {
-            communicator = Ice.initialize(initData);
-            let echo = await Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-            let adapter = await communicator.createObjectAdapter("");
-            adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
-            await echo.setConnection();
-            let connection = echo.ice_getCachedConnection();
-            connection.setCloseCallback(con => {
+            let echo;
+            try
+            {
+                communicator = Ice.initialize(initData);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                let adapter = await communicator.createObjectAdapter("");
+                adapter.add(new ThrowerI(), Ice.stringToIdentity("thrower"));
+                await echo.setConnection();
+                let connection = echo.ice_getCachedConnection();
+                connection.setCloseCallback(con => {
                     // Re-establish connection if it fails (necessary for MemoryLimitException test)
                     echo.setConnection().then(() => echo.ice_getCachedConnection().setAdapter(adapter));
                 });
-            connection.setAdapter(adapter);
-            adapter.activate();
-            ready.resolve();
-            await communicator.waitForShutdown();
-            await echo.shutdown();
+                connection.setAdapter(adapter);
+                ready.resolve();
+                await communicator.waitForShutdown();
+            }
+            catch(ex)
+            {
+                ready.reject(ex);
+            }
+            finally
+            {
+                if(echo)
+                {
+                    await echo.shutdown();
+                }
+            }
         }
         finally
         {

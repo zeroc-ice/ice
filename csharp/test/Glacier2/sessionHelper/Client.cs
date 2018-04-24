@@ -296,14 +296,7 @@ public class Client : TestCommon.Application
             }
             Console.Out.WriteLine("ok");
 
-//             try
-//             {
-//                 test(_session.session() != null);
-//             }
-//             catch(Glacier2.SessionNotExistException ex)
-//             {
-//                 test(false);
-//             }
+            test(_session.session() == null);
 
             Console.Out.Write("testing stringToProxy for server object... ");
             Console.Out.Flush();

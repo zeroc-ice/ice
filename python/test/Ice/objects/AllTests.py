@@ -132,6 +132,14 @@ def allTests(communicator):
         test(e.a4.name == "a4")
     print("ok")
 
+    sys.stdout.write("setting G... ")
+    sys.stdout.flush()
+    try:
+        initial.setG(Test.G(Test.S("hello"), "g"))
+    except Ice.OperationNotExistException:
+        pass
+    print("ok")
+
     sys.stdout.write("setting I... ")
     sys.stdout.flush()
     initial.setI(TestI.II())
@@ -219,7 +227,7 @@ def allTests(communicator):
     p = top;
     depth = 0;
     try:
-        while depth <= 1000:
+        while depth <= 700:
             p.v = Test.Recursive()
             p = p.v;
             if (depth < 10 and (depth % 10) == 0) or \

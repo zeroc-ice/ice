@@ -96,6 +96,8 @@ interface MyClass
 {
     void shutdown();
 
+    bool supportsCompress();
+
     void opVoid();
 
     byte opByte(byte p1, byte p2,
@@ -287,6 +289,8 @@ interface Echo
     void startBatch();
     void flushBatch();
     void shutdown();
+
+bool supportsCompress();
 }
 
 //

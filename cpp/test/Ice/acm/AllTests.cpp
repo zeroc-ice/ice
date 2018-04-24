@@ -314,7 +314,7 @@ public:
         proxy->sleep(4);
 
         Lock sync(*this);
-        test(_heartbeat >= 6);
+        test(_heartbeat >= 4);
     }
 };
 
@@ -617,6 +617,21 @@ public:
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
         Ice::ConnectionPtr con = proxy->ice_getConnection();
+
+        try
+        {
+            con->setACM(-19, IceUtil::None, IceUtil::None);
+            test(false);
+        }
+#ifndef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+#else
+        catch(const invalid_argument&)
+        {
+        }
+#endif
 
         Ice::ACM acm;
         acm = con->getACM();

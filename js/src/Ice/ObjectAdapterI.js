@@ -18,7 +18,10 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Router",
         "../Ice/ServantManager",
         "../Ice/StringUtil",
-        "../Ice/UUID"
+        "../Ice/UUID",
+        "../Ice/ArrayUtil",
+        "../Ice/Promise",
+        "../Ice/Timer"
     ]);
 
 const AsyncResultBase = Ice.AsyncResultBase;
@@ -27,6 +30,8 @@ const Identity = Ice.Identity;
 const PropertyNames = Ice.PropertyNames;
 const ServantManager = Ice.ServantManager;
 const StringUtil = Ice.StringUtil;
+const ArrayUtil = Ice.ArrayUtil;
+const Timer = Ice.Timer;
 
 const _suffixes =
 [
@@ -67,9 +72,9 @@ const _suffixes =
 ];
 
 const StateUninitialized = 0; // Just constructed.
-//const StateHeld = 1;
+const StateHeld = 1;
 //const StateWaitActivate = 2;
-//const StateActive = 3;
+const StateActive = 3;
 //const StateDeactivating = 4;
 const StateDeactivated = 5;
 const StateDestroyed  = 6;
@@ -86,10 +91,11 @@ class ObjectAdapterI
         this._objectAdapterFactory = objectAdapterFactory;
         this._servantManager = new ServantManager(instance, name);
         this._name = name;
-        this._routerEndpoints = [];
+        this._publishedEndpoints = [];
         this._routerInfo = null;
         this._state = StateUninitialized;
         this._noConfig = noConfig;
+        this._statePromises = [];
 
         if(this._noConfig)
         {
@@ -158,12 +164,12 @@ class ObjectAdapterI
 
         try
         {
-
             if(router === null)
             {
                 router = Ice.RouterPrx.uncheckedCast(
                     this._instance.proxyFactory().propertyToProxy(this._name + ".Router"));
             }
+            let p;
             if(router !== null)
             {
                 this._routerInfo = this._instance.routerManager().find(router);
@@ -180,46 +186,18 @@ class ObjectAdapterI
                 }
 
                 //
-                // Add the router's server proxy endpoints to this object
-                // adapter.
+                // Associate this object adapter with the router. This way,
+                // new outgoing connections to the router's client proxy will
+                // use this object adapter for callbacks.
                 //
-                this._routerInfo.getServerEndpoints().then(
-                    (endpoints) =>
-                    {
-                        endpoints.forEach(endpoint => this._routerEndpoints.push(endpoint));
-                        this._routerEndpoints.sort((e1, e2) => e1.compareTo(e2));    // Must be sorted.
+                this._routerInfo.setAdapter(this);
 
-                        //
-                        // Remove duplicate endpoints, so we have a list of unique
-                        // endpoints.
-                        //
-                        for(let i = 0; i < this._routerEndpoints.length - 1;)
-                        {
-                            if(this._routerEndpoints[i].equals(this._routerEndpoints[i + 1]))
-                            {
-                                this._routerEndpoints.splice(i, 1);
-                            }
-                            else
-                            {
-                                ++i;
-                            }
-                        }
-
-                        //
-                        // Associate this object adapter with the router. This way,
-                        // new outgoing connections to the router's client proxy will
-                        // use this object adapter for callbacks.
-                        //
-                        this._routerInfo.setAdapter(this);
-
-                        //
-                        // Also modify all existing outgoing connections to the
-                        // router's client proxy to use this object adapter for
-                        // callbacks.
-                        //
-                        return this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
-                    }
-                ).then(() => promise.resolve(this), promise.reject);
+                //
+                // Also modify all existing outgoing connections to the
+                // router's client proxy to use this object adapter for
+                // callbacks.
+                //
+                p = this._instance.outgoingConnectionFactory().setRouterInfo(this._routerInfo);
             }
             else
             {
@@ -228,8 +206,19 @@ class ObjectAdapterI
                 {
                     throw new Ice.FeatureNotSupportedException("object adapter endpoints not supported");
                 }
-                promise.resolve(this);
+                p = Ice.Promise.resolve();
             }
+
+            p.then(() => this.computePublishedEndpoints()).then(endpoints =>
+            {
+                this._publishedEndpoints = endpoints;
+                promise.resolve(this);
+            },
+            ex =>
+            {
+                this.destroy();
+                promise.reject(ex);
+            });
         }
         catch(ex)
         {
@@ -253,17 +242,31 @@ class ObjectAdapterI
 
     activate()
     {
+        const promise = new AsyncResultBase(this._communicator, "activate", null, null, this);
+        this.setState(StateActive);
+        promise.resolve();
+        return promise;
     }
 
     hold()
     {
         this.checkForDeactivation();
+        this.setState(StateHeld);
     }
 
     waitForHold()
     {
         const promise = new AsyncResultBase(this._communicator, "waitForHold", null, null, this);
-        return this.checkForDeactivation(promise) ? promise : promise.resolve();
+        try
+        {
+            this.checkForDeactivation();
+            this.waitState(StateHeld, promise);
+        }
+        catch(ex)
+        {
+            promise.reject(ex);
+        }
+        return promise;
     }
 
     deactivate()
@@ -271,7 +274,7 @@ class ObjectAdapterI
         const promise = new AsyncResultBase(this._communicator, "deactivate", null, null, this);
         if(this._state < StateDeactivated)
         {
-            this._state = StateDeactivated;
+            this.setState(StateDeactivated);
             this._instance.outgoingConnectionFactory().removeAdapter(this);
         }
         promise.resolve();
@@ -280,7 +283,9 @@ class ObjectAdapterI
 
     waitForDeactivate()
     {
-        return new AsyncResultBase(this._communicator, "deactivate", null, null, this).resolve();
+        const promise = new AsyncResultBase(this._communicator, "waitForDeactivate", null, null, this);
+        this.waitState(StateDeactivated, promise);
+        return promise;
     }
 
     isDeactivated()
@@ -290,19 +295,20 @@ class ObjectAdapterI
 
     destroy()
     {
-        const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
-        const destroyInternal = () =>
+        // NOTE: we don't call waitForDeactivate since it's currently a no-op.
+        return this.deactivate().then(() =>
         {
             if(this._state < StateDestroyed)
             {
-                this._state = StateDestroyed;
+                this.setState(StateDestroyed);
                 this._servantManager.destroy();
                 this._objectAdapterFactory.removeObjectAdapter(this);
+                this._publishedEndpoints = [];
             }
-            return promise.resolve();
-        };
-
-        return this._state < StateDeactivated ? this.deactivate().then(destroyInternal) : destroyInternal();
+            const promise = new AsyncResultBase(this._communicator, "destroy", null, null, this);
+            promise.resolve();
+            return promise;
+        });
     }
 
     add(object, ident)
@@ -452,17 +458,23 @@ class ObjectAdapterI
 
     refreshPublishedEndpoints()
     {
-        throw new Ice.FeatureNotSupportedException("refreshPublishedEndpoints not supported");
+        this.checkForDeactivation();
+        return this.computePublishedEndpoints().then(endpoints => this._publishedEndpoints = endpoints);
     }
 
     getPublishedEndpoints()
     {
-        return [];
+        return ArrayUtil.clone(this._publishedEndpoints);
     }
 
     setPublishedEndpoints(newEndpoints)
     {
-        throw new Ice.FeatureNotSupportedException("setPublishedEndpoints not supported");
+        this.checkForDeactivation();
+        if(this._routerInfo !== null)
+        {
+            throw new Error("can't set published endpoints on object adapter associated with a router");
+        }
+        this._publishedEndpoints = ArrayUtil.clone(newEndpoints);
     }
 
     getServantManager()
@@ -471,6 +483,12 @@ class ObjectAdapterI
         // _servantManager is immutable.
         //
         return this._servantManager;
+    }
+
+    setAdapterOnConnection(connection)
+    {
+        this.checkForDeactivation();
+        connection.setAdapterAndServantManager(this, _servantManager);
     }
 
     messageSizeMax()
@@ -489,29 +507,17 @@ class ObjectAdapterI
         // Create a reference and return a proxy for this reference.
         //
         return this._instance.proxyFactory().referenceToProxy(
-            this._instance.referenceFactory().create(ident, facet, this._reference,
-                                                     Array.from(this._routerEndpoints)));
+            this._instance.referenceFactory().create(ident, facet, this._reference, this._publishedEndpoints));
     }
 
-    checkForDeactivation(promise)
+    checkForDeactivation()
     {
         if(this._state >= StateDeactivated)
         {
             const ex = new Ice.ObjectAdapterDeactivatedException();
             ex.name = this.getName();
-
-            if(promise !== undefined)
-            {
-                promise.reject(ex);
-                return true;
-            }
-            else
-            {
-                throw ex;
-            }
+            throw ex;
         }
-
-        return false;
     }
 
     checkIdentity(ident)
@@ -535,6 +541,131 @@ class ObjectAdapterI
         }
     }
 
+    computePublishedEndpoints()
+    {
+        let p;
+        if(this._routerInfo !== null)
+        {
+            p = this._routerInfo.getServerEndpoints().then((endpts) =>
+            {
+                //
+                // Remove duplicate endpoints, so we have a list of unique endpoints.
+                //
+                const endpoints = [];
+                endpts.forEach(endpoint =>
+                {
+                    if(endpoints.findIndex(value => endpoint.equals(value)) === -1)
+                    {
+                        endpoints.push(endpoint);
+                    }
+                });
+                return endpoints;
+            });
+        }
+        else
+        {
+
+            //
+            // Parse published endpoints. If set, these are used in proxies
+            // instead of the connection factory Endpoints.
+            //
+            const endpoints = [];
+            const s = this._instance.initializationData().properties.getProperty(this._name + ".PublishedEndpoints");
+            const delim = " \t\n\r";
+
+            let end = 0;
+            let beg;
+            while(end < s.length)
+            {
+                beg = StringUtil.findFirstNotOf(s, delim, end);
+                if(beg === -1)
+                {
+                    if(s != "")
+                    {
+                        throw new Ice.EndpointParseException("invalid empty object adapter endpoint");
+                    }
+                    break;
+                }
+
+                end = beg;
+                while(true)
+                {
+                    end = s.indexOf(':', end);
+                    if(end == -1)
+                    {
+                        end = s.length;
+                        break;
+                    }
+                    else
+                    {
+                        let quoted = false;
+                        let quote = beg;
+                        while(true)
+                        {
+                            quote = s.indexOf("\"", quote);
+                            if(quote == -1 || end < quote)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                quote = s.indexOf('\"', ++quote);
+                                if(quote == -1)
+                                {
+                                    break;
+                                }
+                                else if(end < quote)
+                                {
+                                    quoted = true;
+                                    break;
+                                }
+                                ++quote;
+                            }
+                        }
+                        if(!quoted)
+                        {
+                            break;
+                        }
+                        ++end;
+                    }
+                }
+
+                const es = s.substring(beg, end);
+                const endp = this._instance.endpointFactoryManager().create(es, false);
+                if(endp == null)
+                {
+                    throw new Ice.EndpointParseException("invalid object adapter endpoint `" + s + "'");
+                }
+                endpoints.push(endp);
+            }
+
+            p = Ice.Promise.resolve(endpoints);
+        }
+
+        return p.then((endpoints) =>
+        {
+            if(this._instance.traceLevels().network >= 1 && endpoints.length > 0)
+            {
+                const s = [];
+                s.push("published endpoints for object adapter `");
+                s.push(this._name);
+                s.push("':\n");
+                let first = true;
+                endpoints.forEach(endpoint =>
+                {
+                    if(!first)
+                    {
+                        s.push(":");
+                    }
+                    s.push(endpoint.toString());
+                    first = false;
+                });
+                this._instance.initializationData().logger.trace(this._instance.traceLevels().networkCat, s.toString());
+             }
+             return endpoints;
+        });
+    }
+
     filterProperties(unknownProps)
     {
         //
@@ -552,8 +683,8 @@ class ObjectAdapterI
         }
 
         let noProps = true;
-        let props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for(let [key, value] of props)
+        const props = this._instance.initializationData().properties.getPropertiesForPrefix(prefix);
+        for(const [key, value] of props)
         {
             let valid = false;
             for(let i = 0; i < _suffixes.length; ++i)
@@ -573,6 +704,49 @@ class ObjectAdapterI
         }
 
         return noProps;
+    }
+
+    setState(state)
+    {
+        if(this._state === state)
+        {
+            return;
+        }
+        this._state = state;
+
+        let promises = [];
+        (state < StateDeactivated ? [state] : [StateHeld, StateDeactivated]).forEach(s =>
+        {
+            if(this._statePromises[s])
+            {
+                promises = promises.concat(this._statePromises[s]);
+                delete this._statePromises[s];
+            }
+        });
+        if(promises.length > 0)
+        {
+            Timer.setImmediate(() => promises.forEach(p => p.resolve()));
+        }
+    }
+
+    waitState(state, promise)
+    {
+        if(this._state < StateDeactivated &&
+           (state === StateHeld && this._state !== StateHeld || state === StateDeactivated))
+        {
+            if(this._statePromises[state])
+            {
+                this._statePromises[state].push(promise);
+            }
+            else
+            {
+                this._statePromises[state] = [promise];
+            }
+        }
+        else
+        {
+            promise.resolve();
+        }
     }
 }
 

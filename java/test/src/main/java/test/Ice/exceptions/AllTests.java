@@ -31,8 +31,10 @@ public class AllTests
 
     public static ThrowerPrx allTests(test.Util.Application app)
     {
-        com.zeroc.Ice.Communicator communicator=app.communicator();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         PrintWriter out = app.getWriter();
+
         {
             out.print("testing object adapter registration exceptions... ");
             com.zeroc.Ice.ObjectAdapter first;
@@ -413,9 +415,9 @@ public class AllTests
             out.println("ok");
         }
 
-        if(thrower.ice_getConnection() != null)
+        if(thrower.ice_getConnection() != null && !bluetooth)
         {
-            out.print("testing memory limit marshal exception...");
+            out.print("testing memory limit marshal exception... ");
             out.flush();
             try
             {

@@ -1,4 +1,8 @@
-﻿// **********************************************************************
+﻿
+// NOTE: Keep the initial blank line. This is necessary to avoid a problem
+// with system-provided mcpp versions that don't include ZeroC's BOM patch.
+
+// **********************************************************************
 //
 // Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //

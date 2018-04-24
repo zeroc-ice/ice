@@ -50,7 +50,7 @@ public:
     TypeInfoPtr type;
     bool optional;
     int tag;
-    int pos;
+    Py_ssize_t pos;
 };
 typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
 typedef list<ParamInfoPtr> ParamInfoList;
@@ -89,8 +89,8 @@ private:
 
     string _deprecateMessage;
 
-    static void convertParams(PyObject*, ParamInfoList&, int, bool&);
-    static ParamInfoPtr convertParam(PyObject*, int);
+    static void convertParams(PyObject*, ParamInfoList&, Py_ssize_t, bool&);
+    static ParamInfoPtr convertParam(PyObject*, Py_ssize_t);
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
@@ -1490,10 +1490,10 @@ IcePy::Operation::deprecate(const string& msg)
 }
 
 void
-IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset, bool& usesClasses)
+IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, Py_ssize_t posOffset, bool& usesClasses)
 {
     int sz = static_cast<int>(PyTuple_GET_SIZE(p));
-    for(int i = 0; i < sz; ++i)
+    for(Py_ssize_t i = 0; i < sz; ++i)
     {
         PyObject* item = PyTuple_GET_ITEM(p, i);
         ParamInfoPtr param = convertParam(item, i + posOffset);
@@ -1506,7 +1506,7 @@ IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffse
 }
 
 ParamInfoPtr
-IcePy::Operation::convertParam(PyObject* p, int pos)
+IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
 {
     assert(PyTuple_Check(p));
     assert(PyTuple_GET_SIZE(p) == 4);
@@ -1981,7 +1981,7 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, Mappin
                     {
                         name = fixIdent(op->name);
                     }
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %d in operation `%s'"),
+                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"),
                                  info->pos + 1, const_cast<char*>(name.c_str()));
                     return false;
                 }
@@ -2070,7 +2070,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice
             ParamInfoPtr info = *p;
             if(!info->optional)
             {
-                void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
+                void* closure = reinterpret_cast<void*>(info->pos);
                 info->type->unmarshal(&is, info, results.get(), closure, false, &info->metaData);
             }
         }
@@ -2081,7 +2081,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice
         if(op->returnType && !op->returnType->optional)
         {
             assert(op->returnType->pos == 0);
-            void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(op->returnType->pos));
+            void* closure = reinterpret_cast<void*>(op->returnType->pos);
             op->returnType->type->unmarshal(&is, op->returnType, results.get(), closure, false, &op->metaData);
         }
 
@@ -2093,7 +2093,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice
             ParamInfoPtr info = *p;
             if(is.readOptional(info->tag, info->type->optionalFormat()))
             {
-                void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
+                void* closure = reinterpret_cast<void*>(info->pos);
                 info->type->unmarshal(&is, info, results.get(), closure, true, &info->metaData);
             }
             else
@@ -3890,7 +3890,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 ParamInfoPtr info = *p;
                 if(!info->optional)
                 {
-                    void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
+                    void* closure = reinterpret_cast<void*>(info->pos);
                     info->type->unmarshal(&is, info, args.get(), closure, false, &info->metaData);
                 }
             }
@@ -3903,7 +3903,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 ParamInfoPtr info = *p;
                 if(is.readOptional(info->tag, info->type->optionalFormat()))
                 {
-                    void* closure = reinterpret_cast<void*>(static_cast<Py_ssize_t>(info->pos));
+                    void* closure = reinterpret_cast<void*>(info->pos);
                     info->type->unmarshal(&is, info, args.get(), closure, true, &info->metaData);
                 }
                 else

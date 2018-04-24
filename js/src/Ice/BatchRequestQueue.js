@@ -12,13 +12,11 @@ Ice._ModuleRegistry.require(module,
     [
         "../Ice/Stream",
         "../Ice/Debug",
-        "../Ice/ExUtil",
-        "../Ice/Protocol",
+        "../Ice/Protocol"
     ]);
 
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
-const ExUtil = Ice.ExUtil;
 const Protocol = Ice.Protocol;
 
 const udpOverhead = 20 + 8;

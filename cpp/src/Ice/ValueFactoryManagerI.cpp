@@ -30,7 +30,7 @@ IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factor
 }
 
 ICE_DELEGATE(ValueFactory)
-IceInternal::ValueFactoryManagerI::find(const string& id) const
+IceInternal::ValueFactoryManagerI::find(const string& id) const ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 

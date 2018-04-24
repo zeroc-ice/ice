@@ -156,11 +156,10 @@ public interface Object
      * to a servant (or to another interceptor).
      *
      * @param request The details of the invocation.
-     * @return The dispatch status for the operation.
+     * @return True for asynchronous dispatch, false otherwise.
      * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
      *
      * @see DispatchInterceptor
-     * @return True for asynchronous dispatch, false otherwise.
      **/
     boolean ice_dispatch(Request request)
         throws Ice.UserException;

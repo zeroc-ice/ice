@@ -96,6 +96,8 @@ dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 {
     void shutdown();
 
+    bool supportsCompress();
+
     void opVoid();
 
     byte opByte(byte p1, byte p2,

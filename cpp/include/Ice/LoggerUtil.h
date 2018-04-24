@@ -18,19 +18,27 @@
 namespace Ice
 {
 
+/**
+ * Base class for logger output utility classes.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API LoggerOutputBase : private IceUtil::noncopyable
 {
 public:
 
+    /** Obtains the collected output. */
     std::string str() const;
 
+    /// \cond INTERNAL
     std::ostringstream& _stream(); // For internal use only. Don't use in your code.
+    /// \endcond
 
 private:
 
     std::ostringstream _os;
 };
 
+/// \cond INTERNAL
 ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const IceUtil::Exception& ex);
 
 template<typename T>
@@ -92,7 +100,12 @@ operator<<(LoggerOutputBase& out, const ::std::exception& ex)
 }
 
 ICE_API LoggerOutputBase& operator<<(LoggerOutputBase&, std::ios_base& (*)(std::ios_base&));
+/// \endcond
 
+/**
+ * Collects output and flushes it via a logger method.
+ * \headerfile Ice/Ice.h
+ */
 template<class L, class LPtr, void (L::*output)(const std::string&)>
 class LoggerOutput : public LoggerOutputBase
 {
@@ -106,6 +119,7 @@ public:
         flush();
     }
 
+    /** Flushes the colleted output to the logger method. */
     inline void flush()
     {
         std::string s = _stream().str();
@@ -122,10 +136,19 @@ private:
     LPtr _logger;
 };
 
+/** Flushes output to Logger::print. */
 typedef LoggerOutput<Logger, LoggerPtr, &Logger::print> Print;
+
+/** Flushes output to Logger::warning. */
 typedef LoggerOutput<Logger, LoggerPtr, &Logger::warning> Warning;
+
+/** Flushes output to Logger::error. */
 typedef LoggerOutput<Logger, LoggerPtr, &Logger::error> Error;
 
+/**
+ * Flushes output to Logger::trace.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API Trace : public LoggerOutputBase
 {
 public:
@@ -139,18 +162,26 @@ private:
     std::string _category;
 };
 
-//
-// A special plug-in that installs a logger during a communicator's initialization.
-// Both initialize and destroy are no-op. See Ice::InitializationData.
-//
+/**
+ * A special plug-in that installs a logger during a communicator's initialization.
+ * Both initialize and destroy are no-op. See Ice::InitializationData.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API LoggerPlugin : public Ice::Plugin
 {
 public:
 
-    LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr&);
+    /**
+     * Constructs the plug-in with a target communicator and a logger.
+     * @param communicator The communicator in which to install the logger.
+     * @param logger The logger to be installed.
+     */
+    LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger);
 
+    /** This method is a no-op. */
     virtual void initialize();
 
+    /** This method is a no-op. */
     virtual void destroy();
 };
 

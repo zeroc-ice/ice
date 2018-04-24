@@ -602,6 +602,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
         case SliceXML:
             break;
         case Java:
+        case MATLAB:
         {
             //
             // We want to shift the files left one position, so that

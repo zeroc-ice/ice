@@ -425,15 +425,20 @@ extern "C"
 static PyObject*
 connectionSetAdapter(ConnectionObject* self, PyObject* args)
 {
-    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
-    PyObject* adapter;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), adapterType, &adapter))
+    PyObject* adapter = Py_None;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &adapter))
     {
         return 0;
     }
 
-    Ice::ObjectAdapterPtr oa = unwrapObjectAdapter(adapter);
-    assert(oa);
+    PyObject* adapterType = lookupType("Ice.ObjectAdapter");
+    if(adapter != Py_None && !PyObject_IsInstance(adapter, adapterType))
+    {
+        PyErr_Format(PyExc_TypeError, "value for 'adapter' argument must be None or an Ice.ObjectAdapter instance");
+        return 0;
+    }
+
+    Ice::ObjectAdapterPtr oa = adapter != Py_None ? unwrapObjectAdapter(adapter) : Ice::ObjectAdapterPtr();
 
     assert(self->connection);
     assert(self->communicator);
@@ -471,7 +476,15 @@ connectionGetAdapter(ConnectionObject* self)
         return 0;
     }
 
-    return wrapObjectAdapter(adapter);
+    if(adapter)
+    {
+        return wrapObjectAdapter(adapter);
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 #ifdef WIN32
@@ -586,6 +599,7 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     if(!PyObject_IsInstance(compressBatch, reinterpret_cast<PyObject*>(compressBatchType)))
     {
+        PyErr_Format(PyExc_ValueError, STRCAST("expected an Ice.CompressBatch enumerator"));
         return 0;
     }
 
@@ -676,14 +690,25 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    PyObject* callbackType = lookupType("types.FunctionType");
     PyObject* cb;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &cb))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &cb))
     {
         return 0;
     }
 
-    Ice::CloseCallbackPtr wrapper = new CloseCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    PyObject* callbackType = lookupType("types.FunctionType");
+    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        return 0;
+    }
+
+    Ice::CloseCallbackPtr wrapper;
+    if(cb != Py_None)
+    {
+        wrapper = new CloseCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    }
+
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
@@ -707,14 +732,25 @@ connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    PyObject* callbackType = lookupType("types.FunctionType");
     PyObject* cb;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &cb))
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &cb))
     {
         return 0;
     }
 
-    Ice::HeartbeatCallbackPtr wrapper = new HeartbeatCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    PyObject* callbackType = lookupType("types.FunctionType");
+    if(cb != Py_None && !PyObject_IsInstance(cb, callbackType))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("callback must be None or a function"));
+        return 0;
+    }
+
+    Ice::HeartbeatCallbackPtr wrapper;
+    if(cb != Py_None)
+    {
+        wrapper = new HeartbeatCallbackWrapper(cb, reinterpret_cast<PyObject*>(self));
+    }
+
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking invocations.
@@ -908,6 +944,11 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
     try
     {
         (*self->connection)->setACM(timeout, close, heartbeat);
+    }
+    catch(const IceUtil::IllegalArgumentException& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
+        return 0;
     }
     catch(const Ice::Exception& ex)
     {
@@ -1274,4 +1315,33 @@ IcePy::createConnection(const Ice::ConnectionPtr& connection, const Ice::Communi
         obj->communicator = new Ice::CommunicatorPtr(communicator);
     }
     return reinterpret_cast<PyObject*>(obj);
+}
+
+bool
+IcePy::checkConnection(PyObject* p)
+{
+    PyTypeObject* type = &ConnectionType; // Necessary to prevent GCC's strict-alias warnings.
+    return PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)) == 1;
+}
+
+bool
+IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice::ConnectionPtr& con)
+{
+    if(p == Py_None)
+    {
+        con = 0;
+        return true;
+    }
+    else if(!checkConnection(p))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("%s expects an Ice.Connection object or None for argument '%s'"),
+                     func.c_str(), arg.c_str());
+        return false;
+    }
+    else
+    {
+        ConnectionObject* obj = reinterpret_cast<ConnectionObject*>(p);
+        con = *obj->connection;
+        return true;
+    }
 }

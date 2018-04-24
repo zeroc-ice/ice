@@ -48,7 +48,6 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Admin.InstanceName" value:@"client"];
             [initData.properties setProperty:@"Ice.Admin.DelayCreation" value:@"1"];
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
-            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"50000"];
 
             [initData.properties setProperty:@"IceMX.Metrics.Debug.GroupBy" value:@"id"];
             [initData.properties setProperty:@"IceMX.Metrics.Parent.GroupBy" value:@"parent"];

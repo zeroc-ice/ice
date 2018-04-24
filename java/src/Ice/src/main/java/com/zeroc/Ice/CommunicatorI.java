@@ -29,21 +29,42 @@ public final class CommunicatorI implements Communicator
     public void
     shutdown()
     {
-        _instance.objectAdapterFactory().shutdown();
+        try
+        {
+            _instance.objectAdapterFactory().shutdown();
+        }
+        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+        {
+            // Ignore
+        }
     }
 
     @Override
     public void
     waitForShutdown()
     {
-        _instance.objectAdapterFactory().waitForShutdown();
+        try
+        {
+            _instance.objectAdapterFactory().waitForShutdown();
+        }
+        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+        {
+            // Ignore
+        }
     }
 
     @Override
     public boolean
     isShutdown()
     {
-        return _instance.objectAdapterFactory().isShutdown();
+        try
+        {
+            return _instance.objectAdapterFactory().isShutdown();
+        }
+        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+        {
+            return true;
+        }
     }
 
     @Override

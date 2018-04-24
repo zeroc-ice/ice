@@ -19,8 +19,6 @@ Ice._ModuleRegistry.require(module,
         "../Ice/OptionalFormat"
     ]);
 
-const ids = ["::Ice::Object"];
-
 Ice.Value = class
 {
     ice_preMarshal()

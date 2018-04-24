@@ -21,7 +21,7 @@ using namespace IceGrid;
 
 void
 instantiateServer(const AdminPrx& admin, const string& templ, const string& node, const map<string, string>& params,
-                  const string& application = string("Test"))
+                  const string& application = string("Test"), bool startServer = true)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
@@ -47,18 +47,21 @@ instantiateServer(const AdminPrx& admin, const string& templ, const string& node
         test(false);
     }
 
-    assert(params.find("id") != params.end());
-    try
+    if(startServer)
     {
-        admin->startServer(params.find("id")->second);
-    }
-    catch(const NodeUnreachableException&)
-    {
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        test(false);
+        assert(params.find("id") != params.end());
+        try
+        {
+            admin->startServer(params.find("id")->second);
+        }
+        catch(const NodeUnreachableException&)
+        {
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
     }
 }
 
@@ -1068,5 +1071,67 @@ allTests(const Ice::CommunicatorPtr& comm)
         removeServer(admin, "Server3");
     }
     cout << "ok" << endl;
+
+    cout << "testing dynamic and deployed replica groups... " << flush;
+    {
+        {
+            map<string, string> params;
+            params["replicaGroup"] = "Random";
+            params["id"] = "Server1";
+            instantiateServer(admin, "Server", "localnode", params);
+
+            params["replicaGroup"] = "Random";
+            params["id"] = "Server2";
+            instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params, "Test", false);
+
+            try
+            {
+                admin->startServer("Server2");
+                test(false);
+            }
+            catch(const ServerStartException&)
+            {
+                // Server should fail to start because it can't regsiter dynamically an OA
+                // with a deployed replica group.
+            }
+            catch(const Ice::Exception& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+
+            removeServer(admin, "Server1");
+            removeServer(admin, "Server2");
+        }
+        {
+            map<string, string> params;
+            params["replicaGroup"] = "DynamicRandomRG";
+            params["id"] = "Server1";
+            instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
+
+            ApplicationInfo app = admin->getApplicationInfo("Test");
+            app.descriptor.name = "Test1";
+            app.descriptor.replicaGroups.clear();
+            app.descriptor.nodes.clear();
+            ReplicaGroupDescriptor replicaGroup;
+            replicaGroup.id = "DynamicRandomRG";
+            replicaGroup.loadBalancing = new RandomLoadBalancingPolicy("1");
+            app.descriptor.replicaGroups.push_back(replicaGroup);
+            try
+            {
+                admin->addApplication(app.descriptor);
+                test(false);
+            }
+            catch(const DeploymentException&)
+            {
+                // Expected, can't register a replica group if it has been registered
+                // with dynamic registration.
+            }
+
+            removeServer(admin, "Server1");
+        }
+    };
+    cout << "ok" << endl;
+
     session->destroy();
 }

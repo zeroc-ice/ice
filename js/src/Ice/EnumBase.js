@@ -101,10 +101,11 @@ Slice.defineEnum = function(enumerators)
     let maxValue = 0;
     let firstEnum = null;
 
-    for(let idx in enumerators)
+    for(const idx in enumerators)
     {
-        let e = enumerators[idx][0], value = enumerators[idx][1];
-        let enumerator = new type(e, value);
+        const e = enumerators[idx][0];
+        const value = enumerators[idx][1];
+        const enumerator = new type(e, value);
         enums[value] = enumerator;
         if(!firstEnum)
         {

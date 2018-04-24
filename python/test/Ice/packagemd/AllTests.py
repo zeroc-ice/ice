@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, Test1, testpkg, sys, threading, time, traceback
+import Ice, Test, Test1, testpkg, modpkg, sys, threading, time, traceback
 
 def test(b):
     if not b:
@@ -76,18 +76,18 @@ def allTests(communicator):
 
     c1 = initial.getTest3C2AsC1()
     test(c1)
-    test(isinstance(c1, testpkg.Test3.C2))
+    test(isinstance(c1, modpkg.Test3.C2))
     c2 = initial.getTest3C2AsC2()
     test(c2)
     try:
         initial.throwTest3E2AsE1()
         test(False)
-    except testpkg.Test3.E1 as ex:
-        test(isinstance(ex, testpkg.Test3.E2))
+    except modpkg.Test3.E1 as ex:
+        test(isinstance(ex, modpkg.Test3.E2))
     try:
         initial.throwTest3E2AsE2()
         test(False)
-    except testpkg.Test3.E2 as ex:
+    except modpkg.Test3.E2 as ex:
         # Expected
         pass
 

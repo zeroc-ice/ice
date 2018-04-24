@@ -41,8 +41,6 @@ public class Client : TestCommon.Application
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
         initData.properties.setProperty("Ice.TCP.SndSize", "50000");
@@ -52,13 +50,6 @@ public class Client : TestCommon.Application
         //
         string defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-
-        // TODO: WORKAROUND: .NET connection closure is sometime not detected in a timely fashion
-        // and ACM closes the connection first. We increase the default timeout here to prevent
-        // the test from failing when this occurs. It usually takes 2 minutes for the connection
-        // closure to be detected when this occurs so we set a default timeout of 3 minutes.
-        initData.properties.setProperty("Ice.Default.Timeout", "180000");
-
         return initData;
     }
 

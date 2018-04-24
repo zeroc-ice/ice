@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="ice.matlab.props"/>
+    <ItemGroup>
+        <SliceCompile Include="..\test\**\*.ice"
+                      Exclude="..\test\Ice\optional\*.ice">
+            <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)\generated</OutputDir>
+        </SliceCompile>
+        <SliceCompile Include="..\test\Ice\optional\*.ice">
+            <OutputDir>$(MSBuildThisFileDirectory)..\test\Ice\optional\generated</OutputDir>
+            <AdditionalOptions>-I$(MSBuildThisFileDirectory)..\test\Ice\optional</AdditionalOptions>
+        </SliceCompile>
+    </ItemGroup>
+    <Import Project="ice.matlab.targets"/>
+</Project>

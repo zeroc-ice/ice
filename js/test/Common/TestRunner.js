@@ -15,8 +15,6 @@
     WorkerGlobalScope: false
 */
 
-process = { argv : [] };
-
 function isSafari()
 {
     return /^((?!chrome).)*safari/i.test(navigator.userAgent);
@@ -161,7 +159,6 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                     out.writeLine("ok");
 
                     let server;
-                    process.argv = testcase.args;
                     if(language === "js")
                     {
                         let id = initData.clone();
@@ -170,7 +167,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                             id.properties = Ice.createProperties(testcase.args, initData.properties);
                         }
                         let ready = new Ice.Promise();
-                        server = _server(out, id, ready);
+                        server = _server(out, id, ready, testcase.args);
                         await ready;
                     }
 
@@ -180,7 +177,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                         {
                             initData.properties = Ice.createProperties(testcase.args, id.properties);
                         }
-                        await client(out, id);
+                        await client(out, id, testcase.args);
                     }
 
                     if(server)
@@ -188,7 +185,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                         await server; // Wait for server to terminate
                     }
 
-                    serverTestCase.stopServerSide(true);
+                    await serverTestCase.stopServerSide(true);
                 }
                 catch(ex)
                 {

@@ -34,6 +34,11 @@ public final class ACMConfig implements java.lang.Cloneable
         }
 
         timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
+        if(timeout < 0)
+        {
+            l.warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
+            timeout = dflt.timeout;
+        }
 
         int hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.ordinal());
         Ice.ACMHeartbeat[] heartbeatValues = Ice.ACMHeartbeat.values();

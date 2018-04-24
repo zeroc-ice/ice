@@ -384,11 +384,14 @@ namespace Ice
                 // in configuration. If that fails, try Assembly.LoadFrom(), which will succeed
                 // if a file name is configured or a partial name is configured and DEVPATH is used.
                 //
+                // We catch System.Exception as this can fail with System.ArgumentNullException
+                // or System.IO.IOException depending of the .NET framework and platform.
+                //
                 try
                 {
                     pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.IO.IOException ex)
+                catch(System.Exception ex)
                 {
                     try
                     {

@@ -888,7 +888,7 @@ convertDataMembers(VALUE members, DataMemberList& reqMembers, DataMemberList& op
     {
         volatile VALUE m = callRuby(rb_check_array_type, RARRAY_AREF(arr, i));
         assert(!NIL_P(m));
-        assert(RARRAY_LEN(m) == allowOptional ? 4 : 2);
+        assert(RARRAY_LEN(m) == (allowOptional ? 4 : 2));
 
         DataMemberPtr member = new DataMember;
 

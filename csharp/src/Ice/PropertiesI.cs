@@ -312,6 +312,7 @@ namespace Ice
 
         public void load(string file)
         {
+#if NET45
             if(file.StartsWith("HKLM\\", StringComparison.Ordinal))
             {
                 RegistryKey iceKey = Registry.LocalMachine.OpenSubKey(file.Substring(5));
@@ -333,6 +334,7 @@ namespace Ice
             }
             else
             {
+#endif
                 try
                 {
                     using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
@@ -346,7 +348,9 @@ namespace Ice
                     fe.path = file;
                     throw fe;
                 }
+#if NET45
             }
+#endif
         }
 
         public Properties ice_clone_()

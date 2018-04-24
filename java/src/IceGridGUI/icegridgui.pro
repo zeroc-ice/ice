@@ -17,6 +17,16 @@
 # -printseeds
 # -verbose
 
+-dontnote jdk.internal.jimage.**
+-dontnote jdk.internal.jrtfs.**
+-dontnote module-info
+
+#
+# This classes are not longer part of JDK 10 on non Windows platforms
+# and will cause a build error
+#
+-dontwarn com.jgoodies.looks.windows.*
+
 # Preserve all annotations.
 
 -keepattributes *Annotation*
@@ -40,6 +50,16 @@
 -dontnote com.zeroc.IceInternal.*ObserverI*
 -dontnote com.zeroc.IceInternal.BasicStream
 -dontnote com.zeroc.IceInternal.Network
+-dontnote com.zeroc.IceSSL.SSLEngine
+-dontnote com.zeroc.Ice.InputStream
+-dontnote com.zeroc.Ice.InputStream$EncapsDecoder
+-dontnote com.zeroc.Ice.InputStream$EncapsDecoder11
+-dontnote com.zeroc.Ice.ObjectPrx
+-dontnote com.zeroc.Ice.PluginManagerI
+-dontnote com.zeroc.Ice._ObjectPrxI
+-dontnote com.zeroc.IceInternal.MetricsMap
+-dontnote com.zeroc.IceMX.Observer
+-dontnote com.zeroc.IceMX.ObserverFactory
 
 -dontnote com.zeroc.IceBox.ServiceManagerI
 -dontnote com.zeroc.IceGridGUI.Coordinator

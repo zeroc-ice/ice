@@ -32,6 +32,11 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         current.adapter.getCommunicator().shutdown();
     }
 
+    public bool supportsCompress(Ice.Current current)
+    {
+        return IceInternal.BZip2.supported();
+    }
+
     public void opVoid(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);

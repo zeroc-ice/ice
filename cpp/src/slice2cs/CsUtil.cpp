@@ -842,7 +842,21 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << param << " = " << stream << ".readByte(" << tag << ");";
+                    //
+                    // BUGFIX: with .NET Core reading the byte optional directly in the
+                    // result struct can fails unexpectly with optimized builds.
+                    //
+                    if(param.find(".") != string::npos)
+                    {
+                        out << sb;
+                        out << nl << "var tmp = " << stream << ".readByte(" << tag << ");";
+                        out << nl << param << " = tmp;";
+                        out << eb;
+                    }
+                    else
+                    {
+                        out << nl << param << " = " << stream << ".readByte(" << tag << ");";
+                    }
                 }
                 break;
             }
@@ -854,7 +868,21 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << param << " = " << stream << ".readBool(" << tag << ");";
+                    //
+                    // BUGFIX: with .NET Core reading the bool optional directly in the
+                    // result struct fails unexpectly with optimized builds.
+                    //
+                    if(param.find(".") != string::npos)
+                    {
+                        out << sb;
+                        out << nl << "var tmp = " << stream << ".readBool(" << tag << ");";
+                        out << nl << param << " = tmp;";
+                        out << eb;
+                    }
+                    else
+                    {
+                        out << nl << param << " = " << stream << ".readBool(" << tag << ");";
+                    }
                 }
                 break;
             }

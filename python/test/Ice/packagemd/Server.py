@@ -12,7 +12,7 @@ import os, sys, traceback
 
 import Ice
 Ice.loadSlice('--all -I. Test.ice')
-import Test, Test1, testpkg
+import Test, Test1, testpkg, modpkg
 
 class InitialI(Test.Initial):
 
@@ -50,19 +50,19 @@ class InitialI(Test.Initial):
         raise testpkg.Test2.E2()
 
     def getTest3C2AsObject(self, current):
-        return testpkg.Test3.C2()
+        return modpkg.Test3.C2()
 
     def getTest3C2AsC1(self, current):
-        return testpkg.Test3.C2()
+        return modpkg.Test3.C2()
 
     def getTest3C2AsC2(self, current):
-        return testpkg.Test3.C2()
+        return modpkg.Test3.C2()
 
     def throwTest3E2AsE1(self, current):
-        raise testpkg.Test3.E2()
+        raise modpkg.Test3.E2()
 
     def throwTest3E2AsE2(self, current):
-        raise testpkg.Test3.E2()
+        raise modpkg.Test3.E2()
 
     def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()

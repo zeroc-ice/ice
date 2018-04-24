@@ -160,7 +160,7 @@ namespace IceDiscovery
                 {
                     lookup_.adapterRequestException(this, ex.InnerException);
                 }
-            });
+            }, lookup.ice_scheduler());
         }
 
         private void sendResponse(Ice.ObjectPrx proxy)
@@ -218,7 +218,7 @@ namespace IceDiscovery
                 {
                     lookup_.objectRequestException(this, ex.InnerException);
                 }
-            });
+            }, lookup.ice_scheduler());
         }
     };
 

@@ -10,6 +10,7 @@
 #pragma once
 
 [["java:package:test.Ice.packagemd.testpkg"]]
+
 module Test2
 {
 class C1
@@ -33,6 +34,7 @@ exception E2 extends E1
 }
 }
 
+["java:package:test.Ice.packagemd.modpkg"]
 module Test3
 {
 class C1

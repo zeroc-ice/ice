@@ -10,4 +10,5 @@
 
 clientProps = lambda process, current: { "ServerDir" : current.getBuildDir("server") }
 
-TestSuite(__file__, [ IceGridTestCase(client=IceGridClient(props=clientProps)) ], runOnMainThread=True, multihost=False)
+if isinstance(platform, Windows) or os.getuid() != 0:
+    TestSuite(__file__, [ IceGridTestCase(client=IceGridClient(props=clientProps)) ], runOnMainThread=True, multihost=False)

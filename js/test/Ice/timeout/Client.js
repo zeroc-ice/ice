@@ -12,7 +12,7 @@
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
 
-    async function allTests(out, communicator, initData)
+    async function allTests(out, communicator)
     {
         function test(value, ex)
         {
@@ -45,11 +45,11 @@
                 }
                 await Ice.Promise.delay(100);
             }
-            return await prx.ice_getConnection();
+            return prx.ice_getConnection();
         }
 
-        let ref = "timeout:default -p 12010";
-        let obj = communicator.stringToProxy(ref);
+        const ref = "timeout:default -p 12010";
+        const obj = communicator.stringToProxy(ref);
         test(obj !== null);
 
         let mult = 1;
@@ -58,15 +58,15 @@
             mult = 4;
         }
 
-        let timeout = await Test.TimeoutPrx.checkedCast(obj);
+        const timeout = await Test.TimeoutPrx.checkedCast(obj);
         test(timeout !== null);
 
-        let controller = Test.ControllerPrx.uncheckedCast(communicator.stringToProxy("controller:default -p 12011"));
+        const controller = Test.ControllerPrx.uncheckedCast(communicator.stringToProxy("controller:default -p 12011"));
         test(controller !== null);
 
         out.write("testing connect timeout... ");
         {
-            let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(100 * mult));
             await controller.holdAdapter(-1);
             try
             {
@@ -82,7 +82,7 @@
         }
 
         {
-            let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000 * mult));
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000 * mult));
             await controller.holdAdapter(200 * mult);
             await to.ice_getConnection();
             try
@@ -96,10 +96,10 @@
         }
         out.writeLine("ok");
 
-        let seq = new Uint8Array(10000000);
+        const seq = new Uint8Array(10000000);
         out.write("testing connection timeout... ");
         {
-            let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(250 * mult));
             await connect(to);
             await controller.holdAdapter(-1);
             try
@@ -117,7 +117,7 @@
 
         {
             // NOTE: 30s timeout is necessary for Firefox/IE on Windows
-            let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(30000 * mult));
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(30000 * mult));
             await controller.holdAdapter(200 * mult);
             try
             {
@@ -132,7 +132,7 @@
 
         out.write("testing invocation timeout... ");
         {
-            let connection = await obj.ice_getConnection();
+            const connection = await obj.ice_getConnection();
             let to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100));
             test(connection == await to.ice_getConnection());
 
@@ -160,10 +160,13 @@
         }
         out.writeLine("ok");
 
+        // Small delay is useful for IE which doesn't like too many connection failures in a row
+        await Ice.Promise.delay(500);
+
         out.write("testing close timeout... ");
         {
-            let to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500));
-            let connection = await connect(to);
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500));
+            const connection = await connect(to);
             await controller.holdAdapter(-1);
             await connection.close(Ice.ConnectionClose.GracefullyWithWait);
 
@@ -196,7 +199,7 @@
         out.writeLine("ok");
 
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         out.write("testing timeout overrides... ");
         {
@@ -204,7 +207,7 @@
             // Test Ice.Override.Timeout. This property overrides all
             // endpoint timeouts.
             //
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             if(mult === 1)
             {
@@ -216,14 +219,14 @@
                 initData.properties.setProperty("Ice.Override.ConnectTimeout", "5000");
                 initData.properties.setProperty("Ice.Override.Timeout", "2000");
             }
-            let comm = Ice.initialize(initData);
+            const comm = Ice.initialize(initData);
             let to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
             await connect(to);
             await controller.holdAdapter(-1);
 
             try
             {
-                await to.sendData(seq) // Expect TimeoutException.
+                await to.sendData(seq); // Expect TimeoutException.
                 test(false);
             }
             catch(ex)
@@ -241,7 +244,7 @@
             await controller.holdAdapter(-1);
             try
             {
-                await to.sendData(seq) // Expect TimeoutException.
+                await to.sendData(seq); // Expect TimeoutException.
                 test(false);
             }
             catch(ex)
@@ -254,13 +257,13 @@
         }
 
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         {
             //
             // Test Ice.Override.ConnectTimeout.
             //
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             if(mult === 1)
             {
@@ -270,8 +273,8 @@
             {
                 initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             }
-            let comm = Ice.initialize(initData);
-            to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
+            const comm = Ice.initialize(initData);
+            let to = Test.TimeoutPrx.uncheckedCast(comm.stringToProxy(ref));
             await controller.holdAdapter(-1);
 
             try
@@ -325,25 +328,26 @@
             await timeout.op();
             await comm.destroy();
         }
+
         // Small delay is useful for IE which doesn't like too many connection failures in a row
-        await Ice.Promise.delay(100);
+        await Ice.Promise.delay(500);
 
         {
             //
             // Test Ice.Override.CloseTimeout.
             //
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
-            let comm = Ice.initialize(initData);
+            const comm = Ice.initialize(initData);
             await comm.stringToProxy(ref).ice_getConnection();
 
             await controller.holdAdapter(-1);
 
-            let start = Date.now();
+            const start = Date.now();
             await comm.destroy();
-            let end = Date.now();
-            test(end - start < 700);
+            const end = Date.now();
+            test(end - start < 1000);
             await controller.resumeAdapter();
             out.writeLine("ok");
             await controller.shutdown();
@@ -368,7 +372,7 @@
             initData.properties.setProperty("Ice.PrintStackTraces", "1");
 
             communicator = Ice.initialize(initData);
-            await allTests(out, communicator, initData);
+            await allTests(out, communicator);
         }
         finally
         {

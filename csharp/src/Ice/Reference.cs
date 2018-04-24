@@ -78,6 +78,12 @@ namespace IceInternal
             return _invocationTimeout;
         }
 
+        public Ice.Optional<bool>
+        getCompress()
+        {
+            return overrideCompress_ ? compress_ : new Ice.Optional<bool>();
+        }
+
         public Ice.Communicator getCommunicator()
         {
             return _communicator;
@@ -93,6 +99,7 @@ namespace IceInternal
         public abstract Ice.EndpointSelectionType getEndpointSelection();
         public abstract int getLocatorCacheTimeout();
         public abstract string getConnectionId();
+        public abstract Ice.Optional<int> getTimeout();
         public abstract ThreadPool getThreadPool();
 
         //
@@ -209,6 +216,7 @@ namespace IceInternal
 
         public abstract Reference changeTimeout(int newTimeout);
         public abstract Reference changeConnectionId(string connectionId);
+        public abstract Reference changeConnection(Ice.ConnectionI connection);
 
         public override int GetHashCode()
         {
@@ -550,11 +558,20 @@ namespace IceInternal
                               string facet,
                               Mode mode,
                               bool secure,
+                              Ice.ProtocolVersion protocol,
                               Ice.EncodingVersion encoding,
-                              Ice.ConnectionI connection)
-        : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, -1, null)
+                              Ice.ConnectionI connection,
+                              int invocationTimeout,
+                              Dictionary<string, string> context,
+                              Ice.Optional<bool> compress)
+        : base(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
         {
             _fixedConnection = connection;
+            if(compress.HasValue)
+            {
+                overrideCompress_ = true;
+                compress_ = compress.Value;
+            }
         }
 
         public override EndpointI[] getEndpoints()
@@ -605,6 +622,11 @@ namespace IceInternal
         public override string getConnectionId()
         {
             return "";
+        }
+
+        public override Ice.Optional<int> getTimeout()
+        {
+            return new Ice.Optional<int>();
         }
 
         public override ThreadPool getThreadPool()
@@ -667,6 +689,17 @@ namespace IceInternal
             throw new Ice.FixedProxyException();
         }
 
+        public override Reference changeConnection(Ice.ConnectionI connection)
+        {
+            if(_fixedConnection == connection)
+            {
+                return this;
+            }
+            FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+            r._fixedConnection = connection;
+            return r;
+        }
+
         public override bool isIndirect()
         {
             return false;
@@ -697,7 +730,7 @@ namespace IceInternal
             {
                 if(_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(ToString());
                 }
                 break;
             }
@@ -707,7 +740,7 @@ namespace IceInternal
             {
                 if(!_fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(ToString());
                 }
                 break;
             }
@@ -729,7 +762,7 @@ namespace IceInternal
             }
             if(secure && !_fixedConnection.endpoint().secure())
             {
-                throw new Ice.NoEndpointException("");
+                throw new Ice.NoEndpointException(ToString());
             }
 
             _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -767,7 +800,7 @@ namespace IceInternal
             {
                 return false;
             }
-            return _fixedConnection.Equals(_fixedConnection);
+            return _fixedConnection.Equals(rhs._fixedConnection);
         }
 
         //
@@ -832,6 +865,11 @@ namespace IceInternal
         public override string getConnectionId()
         {
             return _connectionId;
+        }
+
+        public override Ice.Optional<int> getTimeout()
+        {
+            return _overrideTimeout ? _timeout : new Ice.Optional<int>();
         }
 
         public override ThreadPool getThreadPool()
@@ -1013,6 +1051,22 @@ namespace IceInternal
                 r._endpoints = newEndpoints;
             }
             return r;
+        }
+
+        public override Reference changeConnection(Ice.ConnectionI connection)
+        {
+            return new FixedReference(getInstance(),
+                                      getCommunicator(),
+                                      getIdentity(),
+                                      getFacet(),
+                                      getMode(),
+                                      getSecure(),
+                                      getProtocol(),
+                                      getEncoding(),
+                                      connection,
+                                      getInvocationTimeout(),
+                                      getContext(),
+                                      getCompress());
         }
 
         public override bool isIndirect()

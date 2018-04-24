@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ConnectionF.ice>
@@ -36,8 +36,7 @@ dictionary<string, string> Context;
 
 /**
  *
- * The {@link OperationMode} determines the retry behavior an
- * invocation in case of a (potentially) recoverable error.
+ * Determines the retry behavior an invocation in case of a (potentially) recoverable error.
  *
  **/
 //

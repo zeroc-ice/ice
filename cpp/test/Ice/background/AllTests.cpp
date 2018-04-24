@@ -481,7 +481,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
             promise<void> completed;
             promise<bool> sent;
             prx->opAsync(
-                [&completed]()
+                []()
                 {
                     test(false);
                 },
@@ -502,7 +502,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
             promise<bool> sent;
 
             prx->opAsync(
-                [&completed]()
+                []()
                 {
                     test(false);
                 },

@@ -298,7 +298,7 @@ compile(const vector<string>& argv)
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2CPP__");
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2CPP__");
 
             if(cppHandle == 0)
             {

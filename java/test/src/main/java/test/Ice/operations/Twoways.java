@@ -52,6 +52,7 @@ class Twoways
     static void twoways(Application app, MyClassPrx p)
     {
         Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
 
         String[] literals = p.opStringLiterals();
 
@@ -1392,7 +1393,7 @@ class Twoways
             }
         }
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && !bluetooth)
         {
             //
             // Test implicit context propagation

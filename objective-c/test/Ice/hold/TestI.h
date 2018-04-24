@@ -15,7 +15,7 @@
 {
     dispatch_queue_t queue;
 }
--(void) schedule:(void(^)())callback timeout:(ICEInt)timeout;
+-(void) schedule:(void(^)(void))callback timeout:(ICEInt)timeout;
 @end
 
 @interface HoldI : TestHoldHold<TestHoldHold>

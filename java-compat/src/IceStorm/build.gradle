@@ -17,7 +17,7 @@ slice {
     java {
         set1 {
             args = "--tie --checksum IceStorm.SliceChecksums"
-            files = fileTree(dir: "$sliceDir/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
+            files = fileTree(dir: "$project.ext.topSrcDir/slice/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
         }
     }
 }

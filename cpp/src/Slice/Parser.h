@@ -260,6 +260,43 @@ private:
 typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
 
 // ----------------------------------------------------------------------
+// Comment
+// ----------------------------------------------------------------------
+
+class Comment : public ::IceUtil::SimpleShared
+{
+public:
+
+    bool isDeprecated() const;
+    StringList deprecated() const;
+
+    StringList overview() const;  // Contains all introductory lines up to the first tag.
+    StringList misc() const;      // Contains unrecognized tags.
+    StringList seeAlso() const;   // Targets of @see tags.
+
+    StringList returns() const;                           // Description of an operation's return value.
+    std::map<std::string, StringList> parameters() const; // Parameter descriptions for an op. Key is parameter name.
+    std::map<std::string, StringList> exceptions() const; // Exception descriptions for an op. Key is exception name.
+
+private:
+
+    Comment();
+
+    bool _isDeprecated;
+    StringList _deprecated;
+    StringList _overview;
+    StringList _misc;
+    StringList _seeAlso;
+
+    StringList _returns;
+    std::map<std::string, StringList> _parameters;
+    std::map<std::string, StringList> _exceptions;
+
+    friend class Contained;
+};
+typedef ::IceUtil::Handle<Comment> CommentPtr;
+
+// ----------------------------------------------------------------------
 // GrammarBase
 // ----------------------------------------------------------------------
 
@@ -366,6 +403,7 @@ public:
     std::string file() const;
     std::string line() const;
     std::string comment() const;
+    CommentPtr parseComment(bool) const;
 
     int includeLevel() const;
     void updateIncludeLevel();

@@ -287,7 +287,7 @@ class ServantManager
         this._locatorMap.clear();
         this._instance = null;
 
-        for(let [key, locator] of locatorMap)
+        for(const [key, locator] of locatorMap)
         {
             try
             {

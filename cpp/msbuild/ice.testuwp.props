@@ -2,7 +2,8 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-      <IceCppMapping>uwp</IceCppMapping>
+      <IceBuildingUWP>yes</IceBuildingUWP>
+      <IceCppMapping>cpp11</IceCppMapping>
       <IceSoVersion>37</IceSoVersion>
     </PropertyGroup>
 
@@ -23,6 +24,12 @@
             <AdditionalLibraryDirectories>$(IceSrcRootDir)\test\Common\msbuild\uwp\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
             <AdditionalDependencies>Windowsapp.lib</AdditionalDependencies>
         </Link>
+    </ItemDefinitionGroup>
+
+    <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release'">
+        <ClCompile>
+            <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
     </ItemDefinitionGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">

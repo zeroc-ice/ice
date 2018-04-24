@@ -64,6 +64,16 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
+bool
+MyDerivedClassI::supportsCompress(const Ice::Current& current)
+{
+#if defined(ICE_OS_UWP)
+    return false;
+#else
+    return true;
+#endif
+}
+
 void
 MyDerivedClassI::opVoid(const Ice::Current& current)
 {

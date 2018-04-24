@@ -231,52 +231,57 @@ public final class OutgoingConnectionFactory
         }
     }
 
-    public synchronized void
+    public void
     setRouterInfo(RouterInfo routerInfo)
     {
-        if(_destroyed)
-        {
-            throw new com.zeroc.Ice.CommunicatorDestroyedException();
-        }
-
         assert(routerInfo != null);
-
-        //
-        // Search for connections to the router's client proxy
-        // endpoints, and update the object adapter for such
-        // connections, so that callbacks from the router can be
-        // received over such connections.
-        //
         com.zeroc.Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-        DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        for(EndpointI endpoint : routerInfo.getClientEndpoints())
+        EndpointI[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
+
+        synchronized(this)
         {
-            //
-            // Modify endpoints with overrides.
-            //
-            if(defaultsAndOverrides.overrideTimeout)
+            if(_destroyed)
             {
-                endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+                throw new com.zeroc.Ice.CommunicatorDestroyedException();
             }
 
-            //
-            // The Connection object does not take the compression flag of
-            // endpoints into account, but instead gets the information
-            // about whether messages should be compressed or not from
-            // other sources. In order to allow connection sharing for
-            // endpoints that differ in the value of the compression flag
-            // only, we always set the compression flag to false here in
-            // this connection factory.
-            //
-            endpoint = endpoint.compress(false);
+            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
-            for(java.util.List<ConnectionI> connectionList : _connections.values())
+            //
+            // Search for connections to the router's client proxy
+            // endpoints, and update the object adapter for such
+            // connections, so that callbacks from the router can be
+            // received over such connections.
+            //
+            for(EndpointI endpoint : endpoints)
             {
-                for(ConnectionI connection : connectionList)
+                //
+                // Modify endpoints with overrides.
+                //
+                if(defaultsAndOverrides.overrideTimeout)
                 {
-                    if(connection.endpoint() == endpoint)
+                    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+                }
+
+                //
+                // The Connection object does not take the compression flag of
+                // endpoints into account, but instead gets the information
+                // about whether messages should be compressed or not from
+                // other sources. In order to allow connection sharing for
+                // endpoints that differ in the value of the compression flag
+                // only, we always set the compression flag to false here in
+                // this connection factory.
+                //
+                endpoint = endpoint.compress(false);
+
+                for(java.util.List<ConnectionI> connectionList : _connections.values())
+                {
+                    for(ConnectionI connection : connectionList)
                     {
-                        connection.setAdapter(adapter);
+                        if(connection.endpoint() == endpoint)
+                        {
+                            connection.setAdapter(adapter);
+                        }
                     }
                 }
             }

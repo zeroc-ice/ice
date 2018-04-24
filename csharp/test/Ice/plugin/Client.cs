@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.IO;
 using System.Reflection;
 
 [assembly: CLSCompliant(true)]
@@ -28,6 +29,13 @@ public class Client
 
     public static int Main(string[] args)
     {
+#if NET45
+        string pluginPath = "msbuild/plugin/net45/Plugin.dll";
+#else
+        string pluginPath =
+            String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
+                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+#endif
         Ice.Communicator communicator = null;
         Console.Write("testing a simple plug-in... ");
         Console.Out.Flush();
@@ -36,7 +44,7 @@ public class Client
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.Test",
-                                            "plugins/Plugin.dll:PluginFactory 'C:\\Program Files\\' --DatabasePath " +
+                                            pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
                                             "'C:\\Program Files\\Application\\db'");
             communicator = Ice.Util.initialize(ref args, initData);
             communicator.destroy();
@@ -55,7 +63,7 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.Test", "plugins/Plugin.dll:PluginInitializeFailFactory");
+            initData.properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
             communicator = Ice.Util.initialize(ref args, initData);
             test(false);
         }
@@ -72,9 +80,9 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOne", "plugins/Plugin.dll:PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo", "plugins/Plugin.dll:PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", "plugins/Plugin.dll:PluginThreeFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
             communicator = Ice.Util.initialize(ref args, initData);
             communicator.destroy();
@@ -92,10 +100,10 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOne", "plugins/Plugin.dll:PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo", "plugins/Plugin.dll:PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", "plugins/Plugin.dll:PluginThreeFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", "plugins/Plugin.dll:PluginThreeFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
             initData.properties.setProperty("Ice.InitPlugins", "0");
             communicator = Ice.Util.initialize(ref args, initData);
 
@@ -131,11 +139,11 @@ public class Client
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.Plugin.PluginOneFail",
-                                            "plugins/Plugin.dll:PluginOneFailFactory");
+                                            pluginPath + ":PluginOneFailFactory");
             initData.properties.setProperty("Ice.Plugin.PluginTwoFail",
-                                            "plugins/Plugin.dll:PluginTwoFailFactory");
+                                            pluginPath + ":PluginTwoFailFactory");
             initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
-                                            "plugins/Plugin.dll:PluginThreeFailFactory");
+                                            pluginPath + ":PluginThreeFailFactory");
             initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
             communicator = Ice.Util.initialize(ref args, initData);
         }

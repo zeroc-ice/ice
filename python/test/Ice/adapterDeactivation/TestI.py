@@ -25,19 +25,40 @@ class TestI(Test.TestIntf):
         current.adapter.deactivate()
         time.sleep(0.1)
 
+class RouterI(Ice.Router):
+
+    def __init__(self):
+        self._nextPort = 23456;
+
+    def getClientProxy(self, c):
+        return (None, False)
+
+    def getServerProxy(self, c):
+        port = self._nextPort
+        self._nextPort += 1
+        return c.adapter.getCommunicator().stringToProxy("dummy:tcp -h localhost -p {0} -t 30000".format(port))
+
+    def addProxies(self, proxies, c):
+        return []
+
 class CookieI(Test.Cookie):
     def message(self):
         return 'blahblah'
 
 class ServantLocatorI(Ice.ServantLocator):
+
     def __init__(self):
         self._deactivated = False
+        self._router = RouterI()
 
     def __del__(self):
         test(self._deactivated)
 
     def locate(self, current):
         test(not self._deactivated)
+
+        if current.id.name == 'router':
+            return (self._router, None)
 
         test(current.id.category == '')
         test(current.id.name == 'test')
@@ -46,6 +67,9 @@ class ServantLocatorI(Ice.ServantLocator):
 
     def finished(self, current, servant, cookie):
         test(not self._deactivated)
+
+        if current.id.name == 'router':
+            return
 
         test(isinstance(cookie, Test.Cookie))
         test(cookie.message() == 'blahblah')

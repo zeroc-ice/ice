@@ -47,16 +47,16 @@ class ObjectAdapterI : public ObjectAdapter,
 {
 public:
 
-    virtual std::string getName() const;
+    virtual std::string getName() const ICE_NOEXCEPT;
 
-    virtual CommunicatorPtr getCommunicator() const;
+    virtual CommunicatorPtr getCommunicator() const ICE_NOEXCEPT;
 
     virtual void activate();
     virtual void hold();
     virtual void waitForHold();
-    virtual void deactivate();
-    virtual void waitForDeactivate();
-    virtual bool isDeactivated() const;
+    virtual void deactivate() ICE_NOEXCEPT;
+    virtual void waitForDeactivate() ICE_NOEXCEPT;
+    virtual bool isDeactivated() const ICE_NOEXCEPT;
     virtual void destroy() ICE_NOEXCEPT;
 
     virtual ObjectPrxPtr add(const ObjectPtr&, const Identity&);
@@ -83,11 +83,11 @@ public:
     virtual ObjectPrxPtr createIndirectProxy(const Identity&) const;
 
     virtual void setLocator(const LocatorPrxPtr&);
-    virtual Ice::LocatorPrxPtr getLocator() const;
-    virtual EndpointSeq getEndpoints() const;
+    virtual Ice::LocatorPrxPtr getLocator() const ICE_NOEXCEPT;
+    virtual EndpointSeq getEndpoints() const ICE_NOEXCEPT;
 
     virtual void refreshPublishedEndpoints();
-    virtual EndpointSeq getPublishedEndpoints() const;
+    virtual EndpointSeq getPublishedEndpoints() const ICE_NOEXCEPT;
     virtual void setPublishedEndpoints(const EndpointSeq&);
 
     bool isLocal(const ObjectPrxPtr&) const;
@@ -103,6 +103,7 @@ public:
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
     IceInternal::ACMConfig getACM() const;
+    void setAdapterOnConnection(const Ice::ConnectionIPtr&);
     size_t messageSizeMax() const { return _messageSizeMax; }
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&,
@@ -119,7 +120,7 @@ private:
     ObjectPrxPtr newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
-    std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
+    std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
     bool filterProperties(Ice::StringSeq&);
 
@@ -146,7 +147,6 @@ private:
     const std::string _replicaGroupId;
     IceInternal::ReferencePtr _reference;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
     IceInternal::RouterInfoPtr _routerInfo;
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;

@@ -928,7 +928,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     Callback* cb = [Callback callback];
 
-    void(^responseCB)() = ^()
+    void(^responseCB)(void) = ^()
         {
             [cb response];
         };

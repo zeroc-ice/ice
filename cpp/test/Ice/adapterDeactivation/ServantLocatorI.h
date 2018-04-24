@@ -31,6 +31,7 @@ public:
 public:
 
     bool _deactivated;
+    Ice::ObjectPtr _router;
 };
 
 #endif

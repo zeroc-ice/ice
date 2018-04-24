@@ -425,6 +425,16 @@ LocatorRegistryI::setAdapterDirectProxy(const LocatorRegistryI::AdapterSetDirect
             {
                 // Continue
             }
+            catch(const DeploymentException& ex)
+            {
+                const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+                if(traceLevels->locator > 0)
+                {
+                    Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
+                    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n" << ex.reason;
+                }
+                throw Ice::AdapterNotFoundException();
+            }
         }
         else
         {

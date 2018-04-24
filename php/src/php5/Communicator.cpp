@@ -168,7 +168,7 @@ class ValueFactoryManager : public Ice::ValueFactoryManager
 public:
 
     virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryPtr find(const string&) const;
+    virtual Ice::ValueFactoryPtr find(const string&) const ICE_NOEXCEPT;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -265,47 +265,87 @@ ZEND_METHOD(Ice_Communicator, __construct)
     runtimeError("communicators cannot be instantiated directly" TSRMLS_CC);
 }
 
+ZEND_METHOD(Ice_Communicator, shutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->shutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, isShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        RETURN_BOOL(_this->getCommunicator()->isShutdown() ? 1 : 0);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, waitForShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->waitForShutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
 ZEND_METHOD(Ice_Communicator, destroy)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
-    //
-    // Remove all registrations.
-    //
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
-        for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
-        {
-            _registeredCommunicators.erase(*p);
-        }
-        _this->ac->ids.clear();
-    }
-
-    //
-    // We need to destroy any object|value factories installed by this request.
-    //
-    _this->destroyFactories(TSRMLS_C);
-
     Ice::CommunicatorPtr c = _this->getCommunicator();
     assert(c);
     CommunicatorMap* m = reinterpret_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
-    assert(m->find(c) != m->end());
-    m->erase(c);
-
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
-    assert(vfm);
-    vfm->destroy();
-
-    try
+    if(m->find(c) != m->end()) // If not already destroyed
     {
+        m->erase(c);
+
+        //
+        // Remove all registrations.
+        //
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
+            {
+                _registeredCommunicators.erase(*p);
+            }
+            _this->ac->ids.clear();
+        }
+
+        //
+        // We need to destroy any object|value factories installed by this request.
+        //
+        _this->destroyFactories(TSRMLS_C);
+
+        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
+        assert(vfm);
+        vfm->destroy();
+
         c->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
     }
 }
 
@@ -1462,6 +1502,9 @@ static zend_function_entry _interfaceMethods[] =
 static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Communicator, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Communicator, shutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, isShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, waitForShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, destroy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, stringToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_Communicator, proxyToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
@@ -2143,7 +2186,7 @@ IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
 }
 
 Ice::ValueFactoryPtr
-IcePHP::ValueFactoryManager::find(const string& id) const
+IcePHP::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
 {
     //
     // Get the TSRM id for the current request.

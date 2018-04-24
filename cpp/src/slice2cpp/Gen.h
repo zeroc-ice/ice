@@ -342,9 +342,11 @@ private:
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
     };
+
     //
     // C++11 Visitors
     //
+
     class Cpp11DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:

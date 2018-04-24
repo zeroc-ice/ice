@@ -58,7 +58,7 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 }
 
 Ice::EndpointInfoPtr
-IceSSL::EndpointI::getInfo() const
+IceSSL::EndpointI::getInfo() const ICE_NOEXCEPT
 {
     EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->underlying = _delegate->getInfo();

@@ -711,8 +711,16 @@ public class AllTests : TestCommon.AllTests
         test(compObj.ice_compress(true).Equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).Equals(compObj.ice_compress(true)));
 
+        test(!compObj.ice_getCompress().HasValue);
+        test(compObj.ice_compress(true).ice_getCompress().Value == true);
+        test(compObj.ice_compress(false).ice_getCompress().Value == false);
+
         test(compObj.ice_timeout(20).Equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).Equals(compObj.ice_timeout(20)));
+
+        test(!compObj.ice_getTimeout().HasValue);
+        test(compObj.ice_timeout(10).ice_getTimeout().Value == 10);
+        test(compObj.ice_timeout(20).ice_getTimeout().Value == 20);
 
         Ice.LocatorPrx loc1 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
         Ice.LocatorPrx loc2 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
@@ -766,9 +774,14 @@ public class AllTests : TestCommon.AllTests
         test(!endpts1[0].Equals(endpts2[0]));
         test(endpts1[0].Equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
 
-        //
-        // TODO: Ideally we should also test comparison of fixed proxies.
-        //
+        Ice.Connection baseConnection = baseProxy.ice_getConnection();
+        if(baseConnection != null)
+        {
+            Ice.Connection baseConnection2 = baseProxy.ice_connectionId("base2").ice_getConnection();
+            compObj1 = compObj1.ice_fixed(baseConnection);
+            compObj2 = compObj2.ice_fixed(baseConnection2);
+            test(!compObj1.Equals(compObj2));
+        }
         WriteLine("ok");
 
         Write("testing checked cast... ");
@@ -794,6 +807,60 @@ public class AllTests : TestCommon.AllTests
         cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
         Dictionary<string, string> c2 = cl.getContext();
         test(Ice.CollectionComparer.Equals(c, c2));
+        WriteLine("ok");
+
+        Write("testing ice_fixed... ");
+        Flush();
+        {
+            Ice.Connection connection = cl.ice_getConnection();
+            if(connection != null)
+            {
+                Test.MyClassPrx prx = (Test.MyClassPrx)cl.ice_fixed(connection);
+                prx.ice_ping();
+                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));
+                test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
+                ctx["one"] = "hello";
+                ctx["two"] = "world";
+                test(cl.ice_fixed(connection).ice_getContext().Count == 0);
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                test(cl.ice_fixed(connection).ice_getConnection() == connection);
+                test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                test(!cl.ice_fixed(connection).ice_getTimeout().HasValue);
+                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);
+                Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
+                test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
+                try
+                {
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
+            }
+            else
+            {
+                try
+                {
+                    cl.ice_fixed(connection);
+                    test(false);
+                }
+                catch(ArgumentException)
+                {
+                    // Expected with null connection.
+                }
+            }
+        }
         WriteLine("ok");
 
         Write("testing encoding versioning... ");
@@ -1051,6 +1118,22 @@ public class AllTests : TestCommon.AllTests
         }
 
         WriteLine("ok");
+
+        Write("testing communicator shutdown/destroy... ");
+        Flush();
+        {
+            Ice.Communicator com = Ice.Util.initialize();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+        }
+        WriteLine("ok");
+
         return cl;
     }
 }

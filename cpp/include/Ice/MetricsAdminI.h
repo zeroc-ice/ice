@@ -36,8 +36,10 @@
 namespace IceMX
 {
 
+/// \cond INTERNAL
 class Updater;
 template<typename T> class MetricsHelperT;
+/// \endcond
 
 }
 

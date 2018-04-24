@@ -131,7 +131,7 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 }
 
 EndpointInfoPtr
-IceObjC::iAPEndpointI::getInfo() const
+IceObjC::iAPEndpointI::getInfo() const ICE_NOEXCEPT
 {
     IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
     info->timeout = _timeout;

@@ -45,7 +45,7 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
     }
 
     /**
-     * The Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+     * The Ice run time invokes this method after unmarshaling an object's data members. This allows a
      * subclass to override this method in order to perform additional initialization.
      **/
     public void ice_postUnmarshal()

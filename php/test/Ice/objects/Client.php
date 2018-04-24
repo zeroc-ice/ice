@@ -30,6 +30,7 @@ if($NS)
         class Test_D1 extends Test\D1 {}
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
+        class Test_G extends Test\G {}
         class Test_H extends Test\H {}
         class Test_Recursive extends Test\Recursive {}
         class Ice_Value extends Ice\Value {}
@@ -392,6 +393,23 @@ function allTests($communicator)
     }
     echo "ok\n";
 
+    echo "setting G... ";
+    flush();
+    $cls = $NS ? "Test\\S" : "Test_S";
+    try
+    {
+        $initial->setG(new Test_G(new $cls("hello"), "g"));
+    }
+    catch(Exception $ex)
+    {
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
+    }
+    echo "ok\n";
+
     echo "setting I... ";
     flush();
     $initial->setI($i);
@@ -416,7 +434,7 @@ function allTests($communicator)
     $depth = 0;
     try
     {
-        while($depth <= 1000)
+        while($depth <= 700)
         {
             $p->v = new Test_Recursive();
             $p = $p->v;
@@ -468,7 +486,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing marshaled results...";
+    echo "testing marshaled results... ";
     flush();
     $b1 = $initial->getMB();
     test($b1 != null && $b1->theB == $b1);

@@ -679,7 +679,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         stopRefresh();
         setVisible(false);
         _coordinator.removeGraphView(GraphView.this);
-        dispose();
     }
 
     @Override

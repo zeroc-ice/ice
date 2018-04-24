@@ -17,8 +17,6 @@
     URI: false
 */
 
-process = { argv : [] };
-
 function isSafari()
 {
     return /^((?!chrome).)*safari/i.test(navigator.userAgent);
@@ -157,10 +155,18 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
                                 if(e.data.exception)
                                 {
                                     reject(e.data.exception);
+                                    if(ready)
+                                    {
+                                        ready.reject(e.data.exception);
+                                    }
                                 }
                                 else
                                 {
                                     resolve();
+                                    if(ready)
+                                    {
+                                        ready.resolve();
+                                    }
                                 }
                                 worker.terminate();
                             }
@@ -172,17 +178,16 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
         {
             let initData = new Ice.InitializationData();
             initData.properties = Ice.createProperties(args);
-            process.argv = args;
             if(exe === "Server" || exe === "ServerAMD")
             {
                 initData.logger = new Logger(this._serverOutput);
                 let test = exe === "Server" ? _server : _serveramd;
-                promise = test(this._serverOutput, initData, ready);
+                promise = test(this._serverOutput, initData, ready, args);
             }
             else
             {
                 initData.logger = new Logger(this._clientOutput);
-                promise = _test(this._clientOutput, initData);
+                promise = _test(this._clientOutput, initData, args);
             }
         }
         return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, out, ready)));

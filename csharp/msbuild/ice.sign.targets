@@ -38,7 +38,7 @@
 
   <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been build -->
   <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
-          Condition="'$(IceBuilderCsharpProps)' != '' And '$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
+          Condition="'$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
     <Exec Command="sn -Ra $(SignTarget) $(KEYFILE)"/>
     <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
                       Encoding            = "Unicode"

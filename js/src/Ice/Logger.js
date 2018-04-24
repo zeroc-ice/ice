@@ -42,7 +42,6 @@ class Logger
     trace(category, message)
     {
         const s = [];
-        const d = new Date();
         s.push("-- ");
         s.push(this.timestamp());
         s.push(' ');
@@ -56,7 +55,6 @@ class Logger
     warning(message)
     {
         const s = [];
-        const d = new Date();
         s.push("-! ");
         s.push(this.timestamp());
         s.push(' ');
@@ -69,7 +67,6 @@ class Logger
     error(message)
     {
         const s = [];
-        const d = new Date();
         s.push("!! ");
         s.push(this.timestamp());
         s.push(' ');

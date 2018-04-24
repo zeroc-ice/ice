@@ -23,7 +23,7 @@ class MapUtil
         }
         else
         {
-            for(let [key, value] of m1)
+            for(const [key, value] of m1)
             {
                 if(value === undefined)
                 {

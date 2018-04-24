@@ -110,4 +110,4 @@ class IceStormRepStressTestCase(IceStormTestCase):
 TestSuite(__file__,
           [ IceStormRepStressTestCase("replicated", icestorm=icestorm) ],
           options={ "ipv6" : [False] },
-          multihost=False)
+          multihost=False, runOnMainThread=True)

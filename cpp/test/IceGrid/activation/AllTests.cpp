@@ -447,6 +447,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
+        }
         threads.resize(0);
 
         invalid = communicator->stringToProxy("invalid-pwd");
@@ -463,6 +467,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
+        }
         threads.resize(0);
 
         invalid = communicator->stringToProxy("fail-on-startup");
@@ -478,6 +486,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+        }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
         }
         threads.resize(0);
 
@@ -530,6 +542,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+        }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
         }
         admin->stopServer("server-activation-timeout");
     }

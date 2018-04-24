@@ -23,19 +23,32 @@
         let communicator;
         try
         {
-            communicator = Ice.initialize(initData);
-            let echo = Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-            let adapter = await communicator.createObjectAdapter("");
-            adapter.addServantLocator(new ServantLocatorI("category"), "category");
-            adapter.addServantLocator(new ServantLocatorI(""), "");
-            adapter.add(new TestI(), Ice.stringToIdentity("asm"));
-            adapter.add(new TestActivationI(), Ice.stringToIdentity("test/activation"));
-            await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
-            ready.resolve();
-            await communicator.waitForShutdown();
-            await echo.shutdown();
+            let echo;
+            try
+            {
+                communicator = Ice.initialize(initData);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                let adapter = await communicator.createObjectAdapter("");
+                adapter.addServantLocator(new ServantLocatorI("category"), "category");
+                adapter.addServantLocator(new ServantLocatorI(""), "");
+                adapter.add(new TestI(), Ice.stringToIdentity("asm"));
+                adapter.add(new TestActivationI(), Ice.stringToIdentity("test/activation"));
+                await echo.setConnection();
+                echo.ice_getCachedConnection().setAdapter(adapter);
+                ready.resolve();
+                await communicator.waitForShutdown();
+            }
+            catch(ex)
+            {
+                ready.reject(ex);
+            }
+            finally
+            {
+                if(echo)
+                {
+                    await echo.shutdown();
+                }
+            }
         }
         finally
         {

@@ -2455,7 +2455,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 #endif
         }
 
-#ifndef ICE_OS_UWP
         if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
@@ -2591,7 +2590,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ic->destroy();
             }
         }
-#endif
     }
 
     {

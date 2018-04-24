@@ -102,21 +102,23 @@ namespace IceInternal
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = (IPEndPoint)_addr;
-
-                //
-                // Windows does not allow binding to the mcast address itself
-                // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-                // bi-directional connection won't work because the source
-                // address won't the multicast address and the client will
-                // therefore reject the datagram.
-                //
-                if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                if(AssemblyUtil.isWindows)
                 {
-                    _addr = new IPEndPoint(IPAddress.Any, _port);
-                }
-                else
-                {
-                    _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
+                    //
+                    // Windows does not allow binding to the mcast address itself
+                    // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
+                    // bi-directional connection won't work because the source
+                    // address won't the multicast address and the client will
+                    // therefore reject the datagram.
+                    //
+                    if(_addr.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        _addr = new IPEndPoint(IPAddress.Any, _port);
+                    }
+                    else
+                    {
+                        _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
+                    }
                 }
 
                 _addr = Network.doBind(_fd, _addr);
@@ -128,7 +130,7 @@ namespace IceInternal
             }
             else
             {
-                _addr = Network.doBind(_fd, _addr);
+                 _addr = Network.doBind(_fd, _addr);
             }
             _bound = true;
             _endpoint = _endpoint.endpoint(this);
@@ -239,7 +241,9 @@ namespace IceInternal
                         }
                     }
 
-                    if(_state == StateConnected)
+                    // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                    if(_state == StateConnected ||
+                       AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                     {
                         ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                     }
@@ -325,7 +329,9 @@ namespace IceInternal
 
             try
             {
-                if(_state == StateConnected)
+                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                if(_state == StateConnected ||
+                   AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                 {
                     _readCallback = callback;
                     _readEventArgs.UserToken = state;
@@ -377,7 +383,9 @@ namespace IceInternal
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 ret = _readEventArgs.BytesTransferred;
-                if(_state != StateConnected)
+                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                if(_state != StateConnected &&
+                   !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }

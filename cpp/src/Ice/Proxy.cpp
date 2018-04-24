@@ -1199,6 +1199,12 @@ ICE_OBJECT_PRX::ice_compress(bool b) const
     }
 }
 
+IceUtil::Optional<bool>
+ICE_OBJECT_PRX::ice_getCompress() const
+{
+    return _reference->getCompress();
+}
+
 ObjectPrxPtr
 ICE_OBJECT_PRX::ice_timeout(int t) const
 {
@@ -1225,6 +1231,12 @@ ICE_OBJECT_PRX::ice_timeout(int t) const
     }
 }
 
+IceUtil::Optional<int>
+ICE_OBJECT_PRX::ice_getTimeout() const
+{
+    return _reference->getTimeout();
+}
+
 ObjectPrxPtr
 ICE_OBJECT_PRX::ice_connectionId(const string& id) const
 {
@@ -1245,6 +1257,39 @@ string
 ICE_OBJECT_PRX::ice_getConnectionId() const
 {
     return _reference->getConnectionId();
+}
+
+ObjectPrxPtr
+ICE_OBJECT_PRX::ice_fixed(const ::Ice::ConnectionPtr& connection) const
+{
+    if(!connection)
+    {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("invalid null connection passed to ice_fixed");
+#else
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid null connection passed to ice_fixed");
+#endif
+    }
+    ::Ice::ConnectionIPtr impl = ICE_DYNAMIC_CAST(::Ice::ConnectionI, connection);
+    if(!impl)
+    {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("invalid connection passed to ice_fixed");
+#else
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid connection passed to ice_fixed");
+#endif
+    }
+    ReferencePtr ref = _reference->changeConnection(impl);
+    if(ref == _reference)
+    {
+        return CONST_POINTER_CAST_OBJECT_PRX;
+    }
+    else
+    {
+        ObjectPrxPtr proxy = _newInstance();
+        proxy->setup(ref);
+        return proxy;
+    }
 }
 
 ConnectionPtr

@@ -12,7 +12,6 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 Ice._ModuleRegistry.require(module,
     [
         "../Ice/HashUtil",
-        "../Ice/StringUtil",
         "../Ice/EndpointI",
         "../Ice/LocalException",
         "../Ice/WSTransceiver",
@@ -20,7 +19,6 @@ Ice._ModuleRegistry.require(module,
     ]);
 
 const HashUtil = Ice.HashUtil;
-const StringUtil = Ice.StringUtil;
 const EndpointI = Ice.EndpointI;
 
 class WSEndpoint extends EndpointI
@@ -35,7 +33,10 @@ class WSEndpoint extends EndpointI
 
     getInfo()
     {
-        let info = new Ice.WSEndpointInfo();
+        const info = new Ice.WSEndpointInfo();
+        info.type = () => this.type();
+        info.datagram = () => this.datagram();
+        info.secure = () => this.secure();
         info.resource = this._resource;
         info.underlying = this._delegate.getInfo();
         info.timeout = info.underlying.timeout;
@@ -152,7 +153,7 @@ class WSEndpoint extends EndpointI
             return this.type() < p.type() ? -1 : 1;
         }
 
-        let r = this._delegate.compareTo(p._delegate);
+        const r = this._delegate.compareTo(p._delegate);
         if(r !== 0)
         {
             return r;

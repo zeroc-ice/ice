@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
@@ -51,7 +51,7 @@ local enum CompressBatch
  *
  * Base class providing access to the connection details. *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class ConnectionInfo
 {
     /**
@@ -130,27 +130,54 @@ local interface HeartbeatCallback
     void heartbeat(Connection con);
 }
 
+/**
+ * Specifies the close semantics for Active Connection Management.
+ */
 local enum ACMClose
 {
+    /** Disables automatic connection closure. */
     CloseOff,
+    /** Gracefully closes a connection that has been idle for the configured timeout period. */
     CloseOnIdle,
+    /**
+     * Forcefully closes a connection that has been idle for the configured timeout period,
+     * but only if the connection has pending invocations.
+     */
     CloseOnInvocation,
+    /** Combines the behaviors of CloseOnIdle and CloseOnInvocation. */
     CloseOnInvocationAndIdle,
+    /**
+     * Forcefully closes a connection that has been idle for the configured timeout period,
+     * regardless of whether the connection has pending invocations or dispatch.
+     */
     CloseOnIdleForceful
 }
 
+/**
+ * Specifies the heartbeat semantics for Active Connection Management.
+ */
 local enum ACMHeartbeat
 {
+    /** Disables heartbeats. */
     HeartbeatOff,
+    /** Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch. */
     HeartbeatOnDispatch,
+    /** Send a heartbeat at regular intervals when the connection is idle. */
     HeartbeatOnIdle,
+    /** Send a heartbeat at regular intervals until the connection is closed. */
     HeartbeatAlways
 }
 
+/**
+ * A collection of Active Connection Management configuration settings.
+ */
 local struct ACM
 {
+    /** A timeout value in seconds. */
     int timeout;
+    /** The close semantics. */
     ACMClose close;
+    /** The heartbeat semantics. */
     ACMHeartbeat heartbeat;
 }
 
@@ -181,7 +208,7 @@ local enum ConnectionClose
  * The user-level interface to a connection.
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local interface Connection
 {
     /**
@@ -192,7 +219,7 @@ local interface Connection
      *
      * @see ConnectionClose
      **/
-    void close(ConnectionClose mode);
+    ["cpp:noexcept"] void close(ConnectionClose mode);
 
     /**
      *
@@ -225,7 +252,8 @@ local interface Connection
      * @param adapter The object adapter that should be used by this
      * connection to dispatch requests. The object adapter must be
      * activated. When the object adapter is deactivated, it is
-     * automatically removed from the connection.
+     * automatically removed from the connection. Attempts to use a
+     * deactivated object adapter raise {@link ObjectAdapterDeactivatedException}
      *
      * @see #createProxy
      * @see #getAdapter
@@ -244,7 +272,7 @@ local interface Connection
      * @see #setAdapter
      *
      **/
-    ["cpp:const"] ObjectAdapter getAdapter();
+    ["cpp:const", "cpp:noexcept"] ObjectAdapter getAdapter();
 
     /**
      *
@@ -253,7 +281,7 @@ local interface Connection
      * @return The endpoint from which the connection was created.
      *
      **/
-    ["cpp:const"] Endpoint getEndpoint();
+    ["cpp:const", "cpp:noexcept"] Endpoint getEndpoint();
 
     /**
      *
@@ -301,7 +329,8 @@ local interface Connection
      *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in milliseconds.
+     * @param timeout The timeout value in seconds. It must be positive or 0, if a negative
+     * value is given, an invalid argument exception will be raised.
      *
      * @param close The close condition
      *
@@ -318,7 +347,7 @@ local interface Connection
      * @return The ACM parameters.
      *
      **/
-    ACM getACM();
+    ["cpp:noexcept"] ACM getACM();
 
     /**
      *
@@ -328,7 +357,7 @@ local interface Connection
      * @return The type of the connection.
      *
      **/
-    ["cpp:const"] string type();
+    ["cpp:const", "cpp:noexcept"] string type();
 
     /**
      *
@@ -337,7 +366,7 @@ local interface Connection
      * @return The connection's timeout.
      *
      **/
-    ["cpp:const"] int timeout();
+    ["cpp:const", "cpp:noexcept"] int timeout();
 
     /**
      *
@@ -348,7 +377,7 @@ local interface Connection
      * text.
      *
      **/
-    ["cpp:const"] string toString();
+    ["cpp:const", "cpp:noexcept"] string toString();
 
     /**
      *
@@ -386,7 +415,7 @@ local interface Connection
  * Provides access to the connection details of an IP connection
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
@@ -407,7 +436,7 @@ local class IPConnectionInfo extends ConnectionInfo
  * Provides access to the connection details of a TCP connection
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class TCPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -430,7 +459,7 @@ local class TCPConnectionInfo extends IPConnectionInfo
  * Provides access to the connection details of a UDP connection
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class UDPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -462,6 +491,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
     int sndSize = 0;
 }
 
+/** A collection of HTTP headers. */
 dictionary<string, string> HeaderDict;
 
 /**
@@ -469,7 +499,7 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
-["php:internal"]
+["php:internal", "matlab:internal"]
 local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */

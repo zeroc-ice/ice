@@ -11,7 +11,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 [["cpp:include:list"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
@@ -122,27 +122,20 @@ interface RemoteLogger
 {
     /**
      *
-     * init is called by {@link LoggerAdmin#attachRemoteLogger} when a
-     * RemoteLogger proxy is attached.
+     * init is called by attachRemoteLogger when a RemoteLogger proxy is attached.
      *
-     * @param prefix The prefix of the associated local {@link Logger}
+     * @param prefix The prefix of the associated local Logger.
      *
      * @param logMessages Old log messages generated before "now".
-     *
-     * @see LoggerAdmin#attachRemoteLogger
-     *
      *
      **/
     void init(string prefix, LogMessageSeq logMessages);
 
     /**
      *
-     * Log a {@link LogMessage}. Note that log may be called by {@link LoggerAdmin}
-     * before {@link RemoteLogger#init}.
+     * Log a LogMessage. Note that log may be called by LoggerAdmin before init.
      *
      * @param message The message to log.
-     *
-     * @see Logger
      *
      **/
     void log(LogMessage message);
@@ -150,9 +143,7 @@ interface RemoteLogger
 
 /**
  *
- * An exception thrown by {@link LoggerAdmin#attachRemoteLogger} to report
- * that the provided {@link RemoteLogger} was previously attached to this
- * {@link LoggerAdmin}.
+ * Thrown when the provided RemoteLogger was previously attached to a LoggerAdmin.
  *
  **/
 exception RemoteLoggerAlreadyAttachedException
@@ -169,9 +160,8 @@ interface LoggerAdmin
 {
     /**
      *
-     * attachRemoteLogger is called to attach a {@link RemoteLogger} object to
-     * the local {@link Logger}.
-     * attachRemoteLogger calls init on the provided {@link RemoteLogger} proxy.
+     * Attaches a RemoteLogger object to the local logger.
+     * attachRemoteLogger calls init on the provided RemoteLogger proxy.
      *
      * @param prx A proxy to the remote logger.
      *
@@ -183,7 +173,7 @@ interface LoggerAdmin
      * An empty list means no filtering (send all trace categories).
      *
      * @param messageMax The maximum number of log messages (of all types) to be provided
-     * to {@link RemoteLogger#init}. A negative value requests all messages available.
+     * to init. A negative value requests all messages available.
      *
      * @throws RemoteLoggerAlreadyAttachedException Raised if this remote logger is already
      * attached to this admin object.
@@ -195,8 +185,7 @@ interface LoggerAdmin
 
     /**
      *
-     * detachRemoteLogger is called to detach a {@link RemoteLogger} object from
-     * the local {@link Logger}.
+     * Detaches a RemoteLogger object from the local logger.
      *
      * @param prx A proxy to the remote logger.
      *
@@ -207,7 +196,7 @@ interface LoggerAdmin
 
     /**
      *
-     * getLog retrieves log messages recently logged.
+     * Retrieves log messages recently logged.
      *
      * @param messageTypes The list of message types that the caller wishes to receive.
      * An empty list means no filtering (send all message types).
@@ -219,7 +208,7 @@ interface LoggerAdmin
      * @param messageMax The maximum number of log messages (of all types) to be returned.
      * A negative value requests all messages available.
      *
-     * @param prefix The prefix of the associated local {@link Logger}.
+     * @param prefix The prefix of the associated local logger.
      *
      * @return The Log messages.
      *

@@ -21,6 +21,7 @@ Ice supports the following programming languages:
 - C++
 - Java
 - JavaScript
+- MATLAB
 - Objective-C
 - PHP
 - Python

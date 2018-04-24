@@ -18,17 +18,30 @@
         let communicator;
         try
         {
-            communicator = Ice.initialize(initData);
-            const echo = await Test.EchoPrx.uncheckedCast(communicator.stringToProxy("__echo:default -p 12010"));
-            const adapter = await communicator.createObjectAdapter("");
-            const base = communicator.stringToProxy("initial:default -p 12010");
-            adapter.add(new InitialI(adapter, base), Ice.stringToIdentity("initial"));
-            await echo.setConnection();
-            echo.ice_getCachedConnection().setAdapter(adapter);
-            adapter.activate();
-            ready.resolve();
-            await communicator.waitForShutdown();
-            await echo.shutdown();
+            let echo;
+            try
+            {
+                communicator = Ice.initialize(initData);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                const adapter = await communicator.createObjectAdapter("");
+                const base = communicator.stringToProxy("initial:default -p 12010");
+                adapter.add(new InitialI(adapter, base), Ice.stringToIdentity("initial"));
+                await echo.setConnection();
+                echo.ice_getCachedConnection().setAdapter(adapter);
+                ready.resolve();
+                await communicator.waitForShutdown();
+            }
+            catch(ex)
+            {
+                ready.reject(ex);
+            }
+            finally
+            {
+                if(echo)
+                {
+                    await echo.shutdown();
+                }
+            }
         }
         finally
         {

@@ -17,6 +17,10 @@ slice {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
     buildToolsVersion ice_buildToolsVersion
@@ -67,13 +71,14 @@ clean {
 }
 
 dependencies {
-    compile localDependency('ice')
-    compile localDependency('icessl')
-    compile localDependency('icediscovery')
-    compile localDependency('icebt')
-    compile project(':test')
+    implementation localDependency('ice')
+    implementation localDependency('icessl')
+    implementation localDependency('icediscovery')
+    implementation localDependency('icebt')
+    implementation project(':test')
     tests.each {
         def name = it.replace('/', '_')
-        compile project(":test_${name}")
+        implementation project(":test_${name}")
     }
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
 }

@@ -492,6 +492,16 @@ function allTests($communicator)
     test($base->ice_encodingVersion($Ice_Encoding_1_1)->ice_getEncodingVersion() == $Ice_Encoding_1_1);
     test($base->ice_encodingVersion($Ice_Encoding_1_0)->ice_getEncodingVersion() != $Ice_Encoding_1_1);
 
+    $none = $NS ? constant("Ice\\None") : constant("Ice_Unset");
+
+    test($base->ice_getCompress() == $none);
+    test($base->ice_compress(true)->ice_getCompress() == true);
+    test($base->ice_compress(false)->ice_getCompress() == false);
+
+    test($base->ice_getTimeout() == $none);
+    test($base->ice_timeout(10)->ice_getTimeout() == 10);
+    test($base->ice_timeout(20)->ice_getTimeout() == 20);
+
     echo "ok\n";
 
     echo "testing checked cast... ";
@@ -512,10 +522,61 @@ function allTests($communicator)
 
     $c["one"] = "hello";
     $c["two"] = "world";
-    $cl = $base->ice_checkedCast("::Test::MyClass", $c);
-    $c2 = $cl->getContext();
+    $clc = $base->ice_checkedCast("::Test::MyClass", $c);
+    $c2 = $clc->getContext();
     test($c == $c2);
 
+    echo "ok\n";
+
+    echo "testing ice_fixed... ";
+    flush();
+    $connection = $cl->ice_getConnection();
+    if($connection != null)
+    {
+        $cl->ice_fixed($connection)->getContext();
+        test($cl->ice_secure(true)->ice_fixed($connection)->ice_isSecure());
+        test($cl->ice_facet("facet")->ice_fixed($connection)->ice_getFacet() == "facet");
+        test($cl->ice_oneway()->ice_fixed($connection)->ice_isOneway());
+        $ctx = array();
+        $ctx["one"] = "hello";
+        $ctx["two"] = "world";
+        echo count($cl->ice_fixed($connection)->ice_getContext());
+        test($cl->ice_fixed($connection)->ice_getContext() == null);
+        test(count($cl->ice_context($ctx)->ice_fixed($connection)->ice_getContext()) == 2);
+        test($cl->ice_fixed($connection)->ice_getInvocationTimeout() == -1);
+        test($cl->ice_invocationTimeout(10)->ice_fixed($connection)->ice_getInvocationTimeout() == 10);
+        test($cl->ice_fixed($connection)->ice_getConnection() == $connection);
+        test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
+        test($cl->ice_fixed($connection)->ice_getTimeout() == $none);
+        $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
+        test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
+        try
+        {
+            $cl->ice_secure(!$connection->getEndpoint()->getInfo()->secure())->ice_fixed($connection)->ice_ping();
+        }
+        catch(Exception $ex)
+        {
+        }
+        try
+        {
+            $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
+        }
+        catch(Exception $ex)
+        {
+        }
+    }
+    else
+    {
+        try
+        {
+            $cl->ice_fixed($connection);
+            test(false);
+        }
+        catch(Exception $ex)
+        {
+            # Expected with null connection.
+        }
+    }
     echo "ok\n";
 
     echo "testing encoding versioning... ";
@@ -759,7 +820,7 @@ function allTests($communicator)
         //
         // Try to invoke on the SSL endpoint to verify that we get a
         // NoEndpointException (or ConnectionRefusedException when
-        // running with SSL).
+        // running with SSL)->
         //
         try
         {
@@ -801,6 +862,18 @@ function allTests($communicator)
             test($pstr == "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
     }
+    echo "ok\n";
+
+    echo "testing communicator shutdown/destroy... ";
+    $c = $NS ? eval("return Ice\\initialize();") : eval("return Ice_initialize();");
+    $c->shutdown();
+    test($c->isShutdown());
+    $c->waitForShutdown();
+    $c->destroy();
+    $c->shutdown();
+    test($c->isShutdown());
+    $c->waitForShutdown();
+    $c->destroy();
     echo "ok\n";
 
     return $cl;

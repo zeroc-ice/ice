@@ -20,24 +20,40 @@ namespace Ice
 
 class LocalException;
 
+/**
+ * Helper template for local exceptions.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, typename B> class LocalExceptionHelper : public IceUtil::ExceptionHelper<T, B>
 {
 public:
 
     using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
+    /**
+     * Obtains the Slice type ID of this exception.
+     * @return The fully-scoped type ID.
+     */
     virtual std::string ice_id() const override
     {
         return T::ice_staticId();
     }
 };
 
+/**
+ * Helper template for user exceptions.
+ * \headerfile Ice/Ice.h
+ */
 template<typename T, typename B> class UserExceptionHelper : public IceUtil::ExceptionHelper<T, B>
 {
 public:
 
     using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
+    /**
+     * Obtains the Slice type ID of this exception.
+     * @return The fully-scoped type ID.
+     */
     virtual std::string ice_id() const override
     {
         return T::ice_staticId();
@@ -45,6 +61,7 @@ public:
 
 protected:
 
+    /// \cond STREAM
     virtual void _writeImpl(Ice::OutputStream* os) const override
     {
         os->startSlice(T::ice_staticId(), -1, std::is_same<B, Ice::LocalException>::value ? true : false);
@@ -60,6 +77,7 @@ protected:
         is->endSlice();
         B::_readImpl(is);
     }
+    /// \endcond
 };
 
 }

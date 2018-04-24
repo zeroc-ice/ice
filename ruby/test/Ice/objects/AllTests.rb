@@ -241,6 +241,14 @@ def allTests(communicator)
     end
     puts "ok"
 
+    print "setting G... "
+    STDOUT.flush
+    begin
+        initial.setG(Test::G.new(Test::S.new("hello"), "g"))
+    rescue Ice::OperationNotExistException
+    end
+    puts "ok"
+
     print "setting I... "
     STDOUT.flush
     initial.setI(i)
@@ -262,7 +270,7 @@ def allTests(communicator)
     p = top;
     depth = 0;
     begin
-        while depth <= 1000
+        while depth <= 700
             p.v = Test::Recursive.new
             p = p.v;
             if (depth < 10 && (depth % 10) == 0) || \

@@ -21,7 +21,6 @@ Ice._ModuleRegistry.require(module,
 const StringUtil = Ice.StringUtil;
 const PropertyNames = Ice.PropertyNames;
 const Debug = Ice.Debug;
-const ProcessLogger = Ice.ProcessLogger;
 const getProcessLogger = Ice.getProcessLogger;
 const InitializationException = Ice.InitializationException;
 
@@ -42,8 +41,7 @@ class Properties
             // NOTE: we can't just do a shallow copy of the map as the map values
             // would otherwise be shared between the two PropertiesI object.
             //
-            //_properties = new Map(pi._properties);
-            for(let [key, property] of defaults._properties)
+            for(const [key, property] of defaults._properties)
             {
                 this._properties.set(key, { 'value': property.value, 'used': false });
             }
@@ -51,7 +49,7 @@ class Properties
 
         if(args !== undefined && args !== null)
         {
-            let v = this.parseIceCommandLineOptions(args);
+            const v = this.parseIceCommandLineOptions(args);
             args.length = 0;
             for(let i = 0; i < v.length; ++i)
             {
@@ -237,7 +235,7 @@ class Properties
         //
         if(value !== null && value.length > 0)
         {
-            let pv = this._properties.get(key);
+            const pv = this._properties.get(key);
             if(pv !== undefined)
             {
                 pv.value = value;

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')"/>
+  <Import Condition="Exists('..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props"/>
+  <PropertyGroup Label="Globals">
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <Import Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"/>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8749757F-DDEA-4FDA-8A54-EEF0304621E6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>collocated</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputPath>$(MSBuildThisFileDirectory)</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Ice, Version=3.7.1.0, Culture=neutral, PublicKeyToken=0c5ebb72d74932c6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <HintPath>$(IceAssembliesDir)\net45\Ice.dll</HintPath>
+    </Reference>
+    <Reference Include="System"/>
+    <Reference Include="System.Core"/>
+    <Reference Include="Microsoft.CSharp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\..\TestCommon\TestApp.cs">
+      <Link>TestApp.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\AllTests.cs">
+      <Link>AllTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\BI.cs">
+      <Link>BI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\CI.cs">
+      <Link>CI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Collocated.cs">
+      <Link>Collocated.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\DI.cs">
+      <Link>DI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\EI.cs">
+      <Link>EI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\FI.cs">
+      <Link>FI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\HI.cs">
+      <Link>HI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\II.cs">
+      <Link>II.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\InitialI.cs">
+      <Link>InitialI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\JI.cs">
+      <Link>JI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\UnexpectedObjectExceptionTestI.cs">
+      <Link>UnexpectedObjectExceptionTestI.cs</Link>
+    </Compile>
+    <Compile Include="generated\Test.cs"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="collocated.exe.config"/>
+    <SliceCompile Include="..\..\..\Test.ice">
+      <Link>Test.ice</Link>
+    </SliceCompile>
+    <None Include="packages.config"/>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\..\msbuild\ice.test.props"/>
+  <Target BeforeTargets="PrepareForBuild" Name="EnsureNuGetPackageBuildImports">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props'))"/>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props'))"/>
+    <Error Condition="!Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets'))"/>
+  </Target>
+  <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')"/>
+</Project>

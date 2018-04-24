@@ -90,6 +90,22 @@ Objective-C Controller app from Xcode:
  `objective-c/test/ios/controller` directory.
  - Build the `Objective-C Controller` or `Objective-C ARC Controller` app.
 
+## Cleaning the source build
+
+Running `make clean` will remove the binaries created for the default
+configuration and platform.
+
+To clean the binaries produced for a specific configuration or platform, you
+need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
+`make CONFIGS=xcodesdk clean` will clean the Xcode SDK build.
+
+To clean the build for all the supported configurations and platforms, run
+`make CONFIGS=all PLATFORMS=all clean`.
+
+Running `make distclean` will also clean the build for all the configurations
+and platforms. In addition, it will also remove the generated files created by
+the Slice translators.
+
 ## Running the Test Suite
 
 Python is required to run the test suite. After a successful source build, you
@@ -98,19 +114,19 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
 
 ### macOS
 ```
-    python allTests.py # default config and default platform
-    python allTests --config=... --platform=... # use the specified config and platform
+    python3 allTests.py # default config and default platform
+    python3 allTests --config=... --platform=... # use the specified config and platform
 ```
 ### iOS Simulator
 ```
-    python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
+    python3 allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 ```
 ### iOS
  - Start the `Objective-C Controller` or `Objective-C ARC Controller` app on
  your iOS device, from Xcode.
  - On your Mac:
  ```
-   python allTests.py --config=xcodesdk --platform=iphoneos
+   python3 allTests.py --config=xcodesdk --platform=iphoneos
  ```
  All the test clients and servers run on the iOS device, not on your Mac
  computer.

@@ -467,7 +467,7 @@ class RequestCallback
         let endpoints = null;
         if(proxy !== null)
         {
-            let r = proxy._getReference();
+            const r = proxy._getReference();
             if(this._ref.isWellKnown() && !Protocol.isSupported(this._ref.getEncoding(), r.getEncoding()))
             {
                 //

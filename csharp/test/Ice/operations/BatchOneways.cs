@@ -164,7 +164,17 @@ class BatchOneways
         }
 
         p.ice_ping();
-        if(p.ice_getConnection() != null &&
+
+        bool supportsCompress = true;
+        try
+        {
+            supportsCompress = p.supportsCompress();
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+
+        if(supportsCompress && p.ice_getConnection() != null &&
            p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").Equals(""))
         {
             Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();

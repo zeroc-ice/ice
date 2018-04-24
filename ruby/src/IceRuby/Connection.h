@@ -21,6 +21,9 @@ void initConnection(VALUE);
 VALUE createConnection(const Ice::ConnectionPtr&);
 VALUE createConnectionInfo(const Ice::ConnectionInfoPtr&);
 
+Ice::ConnectionPtr getConnection(VALUE);
+bool checkConnection(VALUE);
+
 }
 
 #endif

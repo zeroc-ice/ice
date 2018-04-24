@@ -603,11 +603,20 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             const string& facet,
                                             Mode mode,
                                             bool secure,
+                                            const ProtocolVersion& protocol,
                                             const EncodingVersion& encoding,
-                                            const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, -1, Ice::Context()),
+                                            const ConnectionIPtr& fixedConnection,
+                                            int invocationTimeout,
+                                            const Ice::Context& context,
+                                            const IceUtil::Optional<bool>& compress) :
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
     _fixedConnection(fixedConnection)
 {
+    if(compress)
+    {
+        _overrideCompress = true;
+        _compress = *compress;
+    }
 }
 
 vector<EndpointIPtr>
@@ -656,6 +665,12 @@ string
 IceInternal::FixedReference::getConnectionId() const
 {
     return string();
+}
+
+IceUtil::Optional<int>
+IceInternal::FixedReference::getTimeout() const
+{
+    return IceUtil::Optional<int>();
 }
 
 ReferencePtr
@@ -735,6 +750,18 @@ IceInternal::FixedReference::changeConnectionId(const string&) const
     return 0; // Keep the compiler happy.
 }
 
+ReferencePtr
+IceInternal::FixedReference::changeConnection(const Ice::ConnectionIPtr& newConnection) const
+{
+    if(newConnection == _fixedConnection)
+    {
+        return FixedReferencePtr(const_cast<FixedReference*>(this));
+    }
+    FixedReferencePtr r = FixedReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_fixedConnection = newConnection;
+    return r;
+}
+
 bool
 IceInternal::FixedReference::isIndirect() const
 {
@@ -773,7 +800,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -783,7 +810,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(!_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -805,7 +832,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
     if(secure && !_fixedConnection->endpoint()->secure())
     {
-        throw NoEndpointException(__FILE__, __LINE__, "");
+        throw NoEndpointException(__FILE__, __LINE__, toString());
     }
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
@@ -977,6 +1004,12 @@ string
 IceInternal::RoutableReference::getConnectionId() const
 {
     return _connectionId;
+}
+
+IceUtil::Optional<int>
+IceInternal::RoutableReference::getTimeout() const
+{
+    return _overrideTimeout ? IceUtil::Optional<int>(_timeout) : IceUtil::None;
 }
 
 ReferencePtr
@@ -1165,6 +1198,23 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
         r->_endpoints = newEndpoints;
     }
     return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
+{
+    return new FixedReference(getInstance(),
+                              getCommunicator(),
+                              getIdentity(),
+                              getFacet(),
+                              getMode(),
+                              getSecure(),
+                              getProtocol(),
+                              getEncoding(),
+                              connection,
+                              getInvocationTimeout(),
+                              getContext()->getValue(),
+                              getCompress());
 }
 
 bool

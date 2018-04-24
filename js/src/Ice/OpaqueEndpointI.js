@@ -14,7 +14,6 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Debug",
         "../Ice/FormatType",
         "../Ice/HashUtil",
-        "../Ice/Protocol",
         "../Ice/StringUtil",
         "../Ice/EndpointI",
         "../Ice/LocalException"
@@ -23,7 +22,6 @@ Ice._ModuleRegistry.require(module,
 const Base64 = Ice.Base64;
 const Debug = Ice.Debug;
 const HashUtil = Ice.HashUtil;
-const Protocol = Ice.Protocol;
 const StringUtil = Ice.StringUtil;
 const EndpointParseException = Ice.EndpointParseException;
 

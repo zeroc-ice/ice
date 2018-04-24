@@ -19,6 +19,7 @@ import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
+import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.A1;
@@ -224,6 +225,17 @@ public class AllTests
             test(ederived.a2.name.equals("a2"));
             test(ederived.a3.name.equals("a3"));
             test(ederived.a4.name.equals("a4"));
+        }
+        out.println("ok");
+
+        out.print("setting G... ");
+        out.flush();
+        try
+        {
+            initial.setG(new G(new S("hello"), "g"));
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
         }
         out.println("ok");
 

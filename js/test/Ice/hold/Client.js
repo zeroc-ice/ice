@@ -48,14 +48,14 @@
         }
 
         const ref = "hold:default -p 12010";
-        let hold = await Test.HoldPrx.checkedCast(communicator.stringToProxy(ref));
+        const hold = await Test.HoldPrx.checkedCast(communicator.stringToProxy(ref));
         test(hold !== null);
-        let holdOneway = Test.HoldPrx.uncheckedCast(hold.ice_oneway());
+        const holdOneway = Test.HoldPrx.uncheckedCast(hold.ice_oneway());
 
-        let refSerialized = "hold:default -p 12011";
-        let holdSerialized = await Test.HoldPrx.checkedCast(communicator.stringToProxy(refSerialized));
+        const refSerialized = "hold:default -p 12011";
+        const holdSerialized = await Test.HoldPrx.checkedCast(communicator.stringToProxy(refSerialized));
         test(holdSerialized !== null);
-        holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
+        const holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
 
         out.write("changing state between active and hold rapidly... ");
 
@@ -82,20 +82,20 @@
             const condition = new Condition(true);
             let value = 0;
             let result;
-            let results = [];
+            const results = [];
             while(condition.value)
             {
                 const cb = new SetCB(condition, value);
                 result = hold.set(++value, value < 500 ? Math.floor((Math.random() * 5)) : 0);
                 results.push(
                     result.then(
-                        (v) =>
+                        v =>
                             {
                                 cb.response(v);
                             },
-                        (ex) =>
+                        () =>
                             {
-                            // Ignore
+                                // Ignore exception
                             }));
 
                 if(value % 100 === 0)
@@ -105,6 +105,11 @@
                         if(result.isSent())
                         {
                             break;
+                        }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
                         }
                         await Ice.Promise.delay(10);
                     }
@@ -125,6 +130,11 @@
                 {
                     break;
                 }
+                else if(result.isCompleted())
+                {
+                    await result; // This should throw the failure if the call wasn't sent but done.
+                    test(result.isSent());
+                }
                 await Ice.Promise.delay(10);
             }
             await Promise.all(results);
@@ -133,23 +143,23 @@
 
         out.write("testing with serialize mode... ");
         {
-            let condition = new Condition(true);
+            const condition = new Condition(true);
             let value = 0;
             let result;
-            let results = [];
+            const results = [];
             while(value < 3000 && condition.value)
             {
-                let cb = new SetCB(condition, value);
+                const cb = new SetCB(condition, value);
                 result = holdSerialized.set(++value, 0);
                 results.push(
                     result.then(
-                        (v) =>
+                        v =>
                             {
                                 cb.response(v);
                             },
-                        (ex) =>
+                        () =>
                             {
-                                // Ignore
+                                // Ignore exceptions
                             }));
 
                 if(value % 100 === 0)
@@ -159,6 +169,11 @@
                         if(result.isSent())
                         {
                             break;
+                        }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
                         }
                         await Ice.Promise.delay(10);
                     }
@@ -184,7 +199,7 @@
         {
             let value = 0;
             let result;
-            let results = [];
+            const results = [];
             await holdSerialized.set(value, 0);
 
             for(let i = 0; i < 10000; ++i)
@@ -201,10 +216,15 @@
                         {
                             break;
                         }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
+                        }
                         await Ice.Promise.delay(10);
                     }
                     await holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                    let conn = await holdSerialized.ice_getConnection();
+                    const conn = await holdSerialized.ice_getConnection();
                     await conn.close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
@@ -213,22 +233,20 @@
         out.writeLine("ok");
 
         out.write("testing waitForHold... ");
+        await hold.waitForHold();
+        await hold.waitForHold();
+        for(let i = 0; i < 1000; ++i)
         {
-            await hold.waitForHold();
-            await hold.waitForHold();
-            for(let i = 0; i < 1000; ++i)
+            await holdOneway.ice_ping();
+            if((i % 20) == 0)
             {
-                await holdOneway.ice_ping();
-                if((i % 20) == 0)
-                {
-                    await hold.putOnHold(0);
-                }
+                await hold.putOnHold(0);
             }
-            await hold.putOnHold(-1);
-            await hold.ice_ping();
-            await hold.putOnHold(-1);
-            await hold.ice_ping();
         }
+        await hold.putOnHold(-1);
+        await hold.ice_ping();
+        await hold.putOnHold(-1);
+        await hold.ice_ping();
         out.writeLine("ok");
 
         out.write("changing state to hold and shutting down server... ");

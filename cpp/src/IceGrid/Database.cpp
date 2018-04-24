@@ -1006,6 +1006,13 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
         {
             throw AdapterExistsException(adapterId);
         }
+        if(_adapterCache.has(replicaGroupId))
+        {
+            throw DeploymentException("registering adapter `" + adapterId + "' with the replica group `" +
+                                      replicaGroupId + "' is not allowed:\nthe replica group was added with an "
+                                      "application descriptor and only adapters specified in an application descriptor "
+                                      "can be member of this replica group");
+        }
 
         AdapterInfo info;
         info.id = adapterId;
@@ -2049,7 +2056,7 @@ Database::checkAdapterForAddition(const string& id, const IceDB::ReadWriteTxn& t
         }
         else
         {
-            if(!findByReplicaGroupId(txn, _adapters,_adaptersByGroupId, id).empty())
+            if(!findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id).empty())
             {
                 found = true;
             }

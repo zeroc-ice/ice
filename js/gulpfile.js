@@ -53,28 +53,35 @@ var platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFO
 var configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
 var host = parseArg(process.argv, "--host") || "127.0.0.1";
 
-function slice2js(options) {
+function slice2js(options)
+{
     var defaults = {};
     var opts = options || {};
-    if(!useBinDist && process.platform == "win32" && !opts.exe)
+    if(!useBinDist)
     {
-        if(!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64"))
+        if(process.platform == "win32")
         {
-            console.log("Error: --cppPlatform must be set to `Win32' or `x64', in order to locate slice2js.exe");
-            process.exit(1);
-        }
+            if(!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64"))
+            {
+                console.log("Error: --cppPlatform must be set to `Win32' or `x64', in order to locate slice2js.exe");
+                process.exit(1);
+            }
 
-        if(!configuration || (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release"))
-        {
-            console.log("Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe");
-            process.exit(1);
+            if(!configuration || (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release"))
+            {
+                console.log("Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe");
+                process.exit(1);
+            }
+            defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
         }
+        defaults.iceHome = path.resolve("..");
     }
+    else if(process.env.ICE_HOME)
+    {
+        defaults.iceHome = process.env.ICE_HOME;
+    }
+    defaults.include = opts.include || [];
     defaults.args = opts.args || [];
-    defaults.dest = opts.dest;
-    defaults.exe = useBinDist ? undefined : (opts.exe || path.resolve(
-            path.join("../cpp/bin", process.platform == "win32" ? path.join(platform, configuration, "slice2js.exe") : "slice2js")));
-    defaults.args = defaults.args.concat(useBinDist ? [] : ["-I" + sliceDir]);
     return iceBuilder.compile(defaults);
 }
 
@@ -83,6 +90,7 @@ function slice2js(options) {
 //
 var tests = [
     "test/Ice/acm",
+    "test/Ice/adapterDeactivation",
     "test/Ice/ami",
     "test/Ice/binding",
     "test/Ice/defaultValue",
@@ -170,7 +178,7 @@ gulp.task("import:slice2js", [],
                       "test/Ice/import/Demo/Circle.ice",
                       "test/Ice/import/Demo/Square.ice",
                       "test/Ice/import/Demo/Canvas.ice"]),
-            slice2js({ dest: "test/Ice/import/Demo", args:["-Itest/Ice/import"]}),
+            slice2js({ dest: "test/Ice/import/Demo", include:["test/Ice/import"]}),
             gulp.dest("test/Ice/import/Demo")], cb);
     });
 
@@ -208,7 +216,7 @@ tests.forEach(
             function(cb){
                 pump([
                     gulp.src(path.join(name, "*.ice")),
-                    slice2js({ args: ["-I" + name], dest: name }),
+                    slice2js({ include: [name], dest: name }),
                     gulp.dest(name)], cb);
             });
 
@@ -410,7 +418,8 @@ gulp.task("dist:clean", libs.map(libCleanTask));
 function runTestsWithBrowser(url)
 {
     require("./bin/HttpServer")();
-    var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d"];
+    var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d",
+               "--sprops=IceSSL.VerifyPeer=0"];
     if(host)
     {
         cmd.push("--host");

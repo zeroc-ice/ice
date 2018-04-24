@@ -400,6 +400,10 @@ Slice::Gen::generate(const UnitPtr& p)
     bool icejs = find(globalMetaData.begin(), globalMetaData.end(), "js:ice-build") != globalMetaData.end();
     bool es6module = find(globalMetaData.begin(), globalMetaData.end(), "js:es6-module") != globalMetaData.end();
 
+    _out << nl << "/* eslint-disable */";
+    _out << nl << "/* jshint ignore: start */";
+    _out << nl;
+
     if(!es6module)
     {
         if(icejs)
@@ -441,8 +445,10 @@ Slice::Gen::generate(const UnitPtr& p)
 
         _out << eb;
         _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
-             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require : this.Ice._require,"
-             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports : this));";
+             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
+             << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
+             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
+             << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
 
         if(icejs)
         {

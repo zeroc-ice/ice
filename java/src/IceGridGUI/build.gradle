@@ -15,17 +15,16 @@ project.ext.description = ""
 
 project.ext.macosx = System.properties['os.name'] == "Mac OS X"
 
-// Check for JavaFX support
-project.ext.javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JAVA_HOME']}, {System.properties['java.home']}],
-                           ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar',
-                            'jre/lib/ext/jfxrt.jar'])
+project.ext.javafxJar = ['jfxrt.jar',
+                         'lib/jfxrt.jar',
+                         'lib/ext/jfxrt.jar',
+                         'jre/lib/jfxrt.jar',
+                         'jre/lib/ext/jfxrt.jar',
+                         'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
 project.ext.hasJavaFx = javafxJar != null
 
-if(project.ext.hasJavaFx) {
-    apply plugin: 'application'
-    apply from: 'javafx.gradle'
-} else {
+if(!project.ext.hasJavaFx) {
     sourceSets {
         main {
             java {
@@ -65,38 +64,13 @@ project.ext.keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
 
 jar {
     archiveName = tmpJarName
-    if(!hasJavaFx) {
-        manifest {
-            attributes 'Main-Class': "com.zeroc.IceGridGUI.Main"
-        }
+    manifest {
+        attributes("Main-Class": "com.zeroc.IceGridGUI.Main",
+                   "Built-By": "ZeroC, Inc.")
     }
 }
 
-project.ext.libJars = []
-['rt.jar', 'jsse.jar', 'i386/default/jclSC170/vm.jar', 'amd64/default/jclSC170/vm.jar', 'ibmcertpathfw.jar', 'math.jar'].each {
-    def jfile = searchFile([{System.env['JAVA_HOME']}, {System.properties['java.home']}],
-                           ["${it}", "lib/${it}", "jre/lib/${it}"])
-    if(jfile) {
-      project.ext.libJars << jfile
-    }
-}
-
-if(hasJavaFx) {
-    project.ext.libJars << javafxJar
-}
-
-project.ext.jarBuilder = "plain-jar.gradle"
-if(icegridguiProguard.toBoolean()) {
-    // Proguard does not yet support Java 9
-    if(JavaVersion.current() == JavaVersion.VERSION_1_9) {
-        logger.warn('Proguard does not yet support Java 9. Plain IceGridGUI JAR will be built.')
-    } else {
-        project.ext.jarBuilder = "proguard-jar.gradle"
-    }
-}
-apply from: jarBuilder
-
-task signjar(dependsOn: updateManifest) {
+task signjar() {
     doLast {
         if(keystore != null && keystore.length() > 0) {
             ant.signjar(jar: "${libDir}/${jarName}",
@@ -108,10 +82,51 @@ task signjar(dependsOn: updateManifest) {
 }
 assemble.dependsOn(signjar)
 
+project.ext.libJars = []
+
+project.ext.jarBuilder = "plain-jar.gradle"
+if(icegridguiProguard.toBoolean()) {
+    if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        ['rt.jar',
+         'jsse.jar',
+         'i386/default/jclSC170/vm.jar',
+         'amd64/default/jclSC170/vm.jar',
+         'ibmcertpathfw.jar',
+         'math.jar'].each {
+            def jfile = searchFile(["${System.properties['java.home']}"],
+                                   ["${it}", "lib/${it}", "jre/lib/${it}"])
+            if(jfile) {
+                project.ext.libJars << jfile
+            }
+        }
+
+        if(hasJavaFx) {
+            project.ext.libJars << "${System.properties['java.home']}/${javafxJar}"
+        }
+    }
+    else{
+        ['java.base.jmod',
+         'java.xml.jmod',
+         'java.desktop.jmod',
+         'java.prefs.jmod',
+         'java.naming.jmod',
+         'java.datatransfer.jmod',
+         'javafx.base.jmod',
+         'javafx.controls.jmod',
+         'javafx.graphics.jmod',
+         'javafx.swing.jmod',
+         'java.logging.jmod'].each {
+            project.ext.libJars << "${System.properties['java.home']}/jmods/${it}"
+        }
+    }
+    project.ext.jarBuilder = "proguard-jar.gradle"
+}
+apply from: jarBuilder
+
 if(macosx)
 {
     def appName = "IceGrid GUI"
-    task bundleapp(dependsOn: updateManifest) {
+    task bundleapp(dependsOn: signjar) {
         doLast {
             ant.taskdef(name: 'bundleapp',
                         classname: 'com.oracle.appbundler.AppBundlerTask',
@@ -124,7 +139,11 @@ if(macosx)
                         icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
                         shortversion: "${project.version}",
                         applicationCategory: "public.app-category.utilities",
+<<<<<<< HEAD
                         mainclassname: "com.zeroc.IceGridGUI/MainProxy",
+=======
+                        mainclassname: "com.zeroc.IceGridGUI/Main",
+>>>>>>> origin/3.7
                         copyright: "Copyright © 2005-2018 ZeroC, Inc. All rights reserved.") {
                 classpath(file: "${libDir}/${jarName}") {
                 }

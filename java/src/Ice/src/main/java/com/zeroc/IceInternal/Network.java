@@ -885,7 +885,7 @@ public final class Network
             // Iterate over the network interfaces and pick an IP
             // address (preferably not the loopback address).
             //
-            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocol);
+            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocol, false, false);
             java.util.Iterator<java.net.InetAddress> iter = addrs.iterator();
             while(addr == null && iter.hasNext())
             {
@@ -988,7 +988,7 @@ public final class Network
     }
 
     public static java.util.ArrayList<java.net.InetAddress>
-    getLocalAddresses(int protocol)
+    getLocalAddresses(int protocol, boolean includeLoopback, boolean singleAddressPerInterface)
     {
         java.util.ArrayList<java.net.InetAddress> result = new java.util.ArrayList<>();
         try
@@ -1001,11 +1001,14 @@ public final class Network
                 while(addrs.hasMoreElements())
                 {
                     java.net.InetAddress addr = addrs.nextElement();
-                    if(!addr.isLoopbackAddress())
+                    if(!result.contains(addr) &&
+                       (includeLoopback || !addr.isLoopbackAddress()) &&
+                       (protocol == EnableBoth || isValidAddr(addr, protocol)))
                     {
-                        if(protocol == EnableBoth || isValidAddr(addr, protocol))
+                        result.add(addr);
+                        if(singleAddressPerInterface)
                         {
-                            result.add(addr);
+                            break;
                         }
                     }
                 }
@@ -1052,8 +1055,7 @@ public final class Network
         java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
         if(isWildcard(host))
         {
-            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport);
-            for(java.net.InetAddress addr : addrs)
+            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, includeLoopback, false))
             {
                 //
                 // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
@@ -1064,17 +1066,12 @@ public final class Network
                     hosts.add(addr.getHostAddress());
                 }
             }
-
-            if(includeLoopback || hosts.isEmpty())
+            if(hosts.isEmpty())
             {
-                if(protocolSupport != EnableIPv6)
+                // Return loopback if no other local addresses are available.
+                for(java.net.InetAddress addr : getLoopbackAddresses(protocolSupport))
                 {
-                    hosts.add("127.0.0.1");
-                }
-
-                if(protocolSupport != EnableIPv4)
-                {
-                    hosts.add("0:0:0:0:0:0:0:1");
+                    hosts.add(addr.getHostAddress());
                 }
             }
         }
@@ -1087,18 +1084,9 @@ public final class Network
         java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();
         if(isWildcard(intf))
         {
-            java.util.ArrayList<java.net.InetAddress> addrs = getLocalAddresses(protocolSupport);
-            for(java.net.InetAddress addr : addrs)
+            for(java.net.InetAddress addr : getLocalAddresses(protocolSupport, true, true))
             {
                 interfaces.add(addr.getHostAddress());
-            }
-            if(protocolSupport != EnableIPv6)
-            {
-                interfaces.add("127.0.0.1");
-            }
-            if(protocolSupport != EnableIPv4)
-            {
-                interfaces.add("0:0:0:0:0:0:0:1");
             }
         }
         if(interfaces.isEmpty())

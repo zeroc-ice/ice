@@ -3015,18 +3015,51 @@ Slice::Python::fixIdent(const string& ident)
 string
 Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 {
-    UnitPtr unit = cont->container()->unit();
-    string file = cont->file();
-    assert(!file.empty());
+    //
+    // Traverse to the top-level module.
+    //
+    ModulePtr m;
+    ContainedPtr p = cont;
+    while(true)
+    {
+        if(ModulePtr::dynamicCast(p))
+        {
+            m = ModulePtr::dynamicCast(p);
+        }
 
+        ContainerPtr c = p->container();
+        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        if(!p)
+        {
+            break;
+        }
+    }
+
+    assert(m);
+
+    //
+    // The python:package metadata can be defined as global metadata or applied to a top-level module.
+    // We check for the metadata at the top-level module first and then fall back to the global scope.
+    //
     static const string prefix = "python:package:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
-    assert(dc);
-    string q = dc->findMetaData(prefix);
+
+    string q;
+    if(!m->findMetaData(prefix, q))
+    {
+        UnitPtr unit = cont->unit();
+        string file = cont->file();
+        assert(!file.empty());
+
+        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        assert(dc);
+        q = dc->findMetaData(prefix);
+    }
+
     if(!q.empty())
     {
         q = q.substr(prefix.size());
     }
+
     return q;
 }
 
@@ -3114,7 +3147,31 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 bool
 Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    reject(p);
+    static const string prefix = "python:package:";
+
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator r = metaData.begin(); r != metaData.end();)
+    {
+        string s = *r++;
+        if(s.find(prefix) == 0)
+        {
+            //
+            // Must be a top-level module.
+            //
+            if(UnitPtr::dynamicCast(p->container()))
+            {
+                continue;
+            }
+        }
+
+        if(s.find("python:") == 0)
+        {
+            p->definitionContext()->warning(InvalidMetaData, p->file(), "", "ignoring invalid metadata `" + s + "'");
+            metaData.remove(s);
+        }
+    }
+
+    p->setMetaData(metaData);
     return true;
 }
 

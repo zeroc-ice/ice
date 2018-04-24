@@ -200,8 +200,8 @@ public class ControllerApp extends Application
             initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-            initData.properties.setProperty("Ice.Trace.Network", "3");
-            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            //initData.properties.setProperty("Ice.Trace.Network", "3");
+            //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())

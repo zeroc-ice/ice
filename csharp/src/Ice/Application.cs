@@ -16,13 +16,15 @@ namespace Ice
     using System.Runtime.InteropServices;
     using System.Threading;
 
-    internal static class NativeMethods
+#if NET45
+    internal static class SafeNativeMethods
     {
         [DllImport("kernel32.dll")]
         [return: MarshalAsAttribute(UnmanagedType.Bool)]
         internal static extern bool
         SetConsoleCtrlHandler(CtrlCEventHandler eh, [MarshalAsAttribute(UnmanagedType.Bool)]bool add);
     }
+#endif
 
     /// <summary>
     /// The signal policy for Ice.Application signal handling.
@@ -727,27 +729,13 @@ namespace Ice
 
         private class WindowsSignals : Signals
         {
-#if MANAGED
-            public void register(SignalHandler handler)
-            {
-                _handler = handler;
-                Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs args)
-                {
-                    args.Cancel = true;
-                    _handler(0);
-                };
-            }
-
-            public void destroy()
-            {
-            }
-#else
+#if NET45
             public void register(SignalHandler handler)
             {
                 _handler = handler;
                 _callback = new CtrlCEventHandler(callback);
 
-                bool rc = NativeMethods.SetConsoleCtrlHandler(_callback, true);
+                bool rc = SafeNativeMethods.SetConsoleCtrlHandler(_callback, true);
                 Debug.Assert(rc);
             }
 
@@ -761,6 +749,20 @@ namespace Ice
             {
                 _handler(sig);
                 return true;
+            }
+#else
+            public void register(SignalHandler handler)
+            {
+                _handler = handler;
+                Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs args)
+                {
+                    args.Cancel = true;
+                    _handler(0);
+                };
+            }
+
+            public void destroy()
+            {
             }
 #endif
             private SignalHandler _handler;

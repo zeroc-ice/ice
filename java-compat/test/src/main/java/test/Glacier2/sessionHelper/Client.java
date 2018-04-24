@@ -289,14 +289,7 @@ public class Client extends test.Util.Application
             }
             out.println("ok");
 
-//             try
-//             {
-//                 test(_session.session() != null);
-//             }
-//             catch(Glacier2.SessionNotExistException ex)
-//             {
-//                 test(false);
-//             }
+            test(_session.session() == null);
 
             out.print("testing stringToProxy for server object... ");
             out.flush();

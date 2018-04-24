@@ -75,6 +75,7 @@ class IceGridNode(ProcessFromBinDir, Server):
         os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
+        Server.teardown(self, current, success)
         # Remove the database directory tree
         try:
             shutil.rmtree(self.dbdir)
@@ -129,6 +130,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         os.mkdir(self.dbdir)
 
     def teardown(self, current, success):
+        Server.teardown(self, current, success)
         # Remove the database directory tree
         try:
             shutil.rmtree(self.dbdir)
@@ -233,8 +235,11 @@ class IceGridTestCase(TestCase):
                 "glacier2router.exe" : Glacier2Router().getCommandLine(current),
                 "icepatch2server.exe" : IcePatch2Server().getCommandLine(current),
                 "icegridregistry.exe" : IceGridRegistryMaster().getCommandLine(current),
-                "properties-override" : self.icegridnode[0].getPropertiesOverride(current)
+                "properties-override" : self.icegridnode[0].getPropertiesOverride(current),
             }
+
+            if platform.getDotnetExe():
+                variables["dotnet.exe"] = platform.getDotnetExe()
 
             # Add variables that point to the directories containing the built executables
             for (k, v) in self.exevars.items():
@@ -243,7 +248,10 @@ class IceGridTestCase(TestCase):
             variables.update(self.variables)
             varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
             targets = " ".join(self.targets)
-            self.runadmin(current, "application add -n {0} {1} {2}".format(self.application, varStr, targets))
+            application = self.application
+            if current.config.netframework == "netcoreapp2.0":
+                application = application.replace(".xml", ".{0}.xml".format("netcoreapp2.0"))
+            self.runadmin(current, "application add -n {0} {1} {2}".format(application, varStr, targets))
 
     def teardownClientSide(self, current, success):
         if self.application:

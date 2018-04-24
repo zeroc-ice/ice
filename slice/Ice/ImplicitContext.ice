@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/LocalException.ice>
 #include <Ice/Current.ice>
@@ -26,11 +26,11 @@ module Ice
  *
  * An interface to associate implict contexts with communicators.
  *
- * <p>When you make a remote invocation without an explicit context parameter,
+ * When you make a remote invocation without an explicit context parameter,
  * Ice uses the per-proxy context (if any) combined with the <tt>ImplicitContext</tt>
- * associated with the communicator.</p>
+ * associated with the communicator.
  *
- * <p>Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
+ * Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
  * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
  * <dl>
  * <dt><tt>None</tt> (default)</dt>
@@ -39,7 +39,7 @@ module Ice
  * <dd>The implementation maintains a context per thread.</dd>
  * <dt><tt>Shared</tt></dt>
  * <dd>The implementation maintains a single context shared by all threads.</dd>
- * </dl><p>
+ * </dl>
  *
  * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire

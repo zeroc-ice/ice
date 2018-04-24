@@ -13,7 +13,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "net.sf.proguard:proguard-gradle:5.2.1"
+        classpath "net.sf.proguard:proguard-gradle:6.0.2"
     }
 }
 
@@ -24,22 +24,9 @@ task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
     libraryjars project.ext.libJars
     configuration 'icegridgui.pro'
 }
+signjar.dependsOn(proguardJar)
 
-task updateManifest(dependsOn: proguardJar) {
-    doLast {
-        if (hasJavaFx) {
-            ant.jar(update: true, destfile: "${libDir}/${jarName}") {
-                delegate.manifest {
-                    attribute(name: 'Main-Class', value: 'com.zeroc.IceGridGUI.MainProxy')
-                    attribute(name: 'Built-By', value: 'Zeroc, Inc.')
-                }
-            }
-        }
-    }
-}
-updateManifest.outputs.files("${DESTDIR}${jarDir}/${jarName}")
-
-task copyJars(type: Copy, dependsOn: updateManifest) {
+task copyJars(type: Copy, dependsOn: signjar) {
     from new File("${libDir}/${jarName}")
     into "${DESTDIR}${jarDir}"
 }

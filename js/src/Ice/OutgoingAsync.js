@@ -29,7 +29,6 @@ const InputStream = Ice.InputStream;
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
 const RetryException = Ice.RetryException;
-const OperationMode = Ice.OperationMode;
 const Protocol = Ice.Protocol;
 const Identity = Ice.Identity;
 
@@ -596,8 +595,7 @@ class HeartbeatAsync extends OutgoingAsyncBase
             this._os.writeByte(0);
             this._os.writeInt(Protocol.headerSize); // Message size.
 
-            let status = this._connection.sendAsyncRequest(this, false, 0);
-
+            const status = this._connection.sendAsyncRequest(this, false, 0);
             if((status & AsyncStatus.Sent) > 0)
             {
                 this._sentSynchronously = true;

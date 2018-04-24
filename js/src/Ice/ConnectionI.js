@@ -130,7 +130,6 @@ class ConnectionI
 
         this._startPromise = null;
         this._closePromises = [];
-        this._holdPromises = [];
         this._finishedPromises = [];
 
         if(this._adapter !== null)
@@ -168,11 +167,9 @@ class ConnectionI
         }
         catch(ex)
         {
-            if(ex instanceof Ice.LocalException)
-            {
-                this.exception(ex);
-            }
-            return Ice.Promise.reject(ex);
+            const startPromise = this._startPromise;
+            this.exception(ex);
+            return startPromise;
         }
         return this._startPromise;
     }
@@ -251,14 +248,22 @@ class ConnectionI
     {
         //
         // If close(GracefullyWithWait) has been called, then we need to check if all
-        // requests have completed and we can transition to StateClosing.
-        // We also complete outstanding promises.
+        // requests have completed and we can transition to StateClosing. We also
+        // complete outstanding promises.
         //
         if(this._asyncRequests.size === 0 && this._closePromises.length > 0)
         {
-            this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
-            this._closePromises.forEach(p => p.resolve());
-            this._closePromises = [];
+            //
+            // The caller doesn't expect the state of the connection to change when this is called so
+            // we defer the check immediately after doing whather we're doing. This is consistent with
+            // other implementations as well.
+            //
+            Timer.setImmediate(() =>
+            {
+                this.setState(StateClosing, new Ice.ConnectionManuallyClosedException(true));
+                this._closePromises.forEach(p => p.resolve());
+                this._closePromises = [];
+            });
         }
     }
 
@@ -285,14 +290,6 @@ class ConnectionI
             Debug.assert(this._state >= StateClosing);
             throw this._exception;
         }
-    }
-
-    waitUntilHolding()
-    {
-        const promise = new Ice.Promise();
-        this._holdPromises.push(promise);
-        this.checkState();
-        return promise;
     }
 
     waitUntilFinished()
@@ -505,6 +502,10 @@ class ConnectionI
 
     setACM(timeout, close, heartbeat)
     {
+        if(timeout !== undefined && timeout < 0)
+        {
+            throw new Error("invalid negative ACM timeout value");
+        }
         if(this._monitor === null || this._state >= StateClosed)
         {
             return;
@@ -539,7 +540,7 @@ class ConnectionI
     {
         for(let i = 0; i < this._sendStreams.length; i++)
         {
-            let o = this._sendStreams[i];
+            const o = this._sendStreams[i];
             if(o.outAsync === outAsync)
             {
                 if(o.requestId > 0)
@@ -557,18 +558,20 @@ class ConnectionI
                     this._sendStreams.splice(i, 1);
                 }
                 outAsync.completedEx(ex);
+                this.checkClose();
                 return; // We're done.
             }
         }
 
         if(outAsync instanceof Ice.OutgoingAsync)
         {
-            for(let [key, value] of this._asyncRequests)
+            for(const [key, value] of this._asyncRequests)
             {
                 if(value === outAsync)
                 {
                     this._asyncRequests.delete(key);
                     outAsync.completedEx(ex);
+                    this.checkClose();
                     return; // We're done.
                 }
             }
@@ -661,23 +664,23 @@ class ConnectionI
 
     setAdapter(adapter)
     {
-        if(this._state <= StateNotValidated || this._state >= StateClosing)
+        if(adapter !== null)
         {
-            return;
-        }
-        Debug.assert(this._state < StateClosing);
-
-        this._adapter = adapter;
-
-        if(this._adapter !== null)
-        {
-            //
-            // The OA's servant manager is immutable.
-            //
-            this._servantManager = this._adapter.getServantManager();
+            adapter.checkForDeactivation();
+            if(this._state <= StateNotValidated || this._state >= StateClosing)
+            {
+                return;
+            }
+            this._adapter = adapter;
+            this._servantManager = adapter.getServantManager(); // The OA's servant manager is immutable.
         }
         else
         {
+            if(this._state <= StateNotValidated || this._state >= StateClosing)
+            {
+                return;
+            }
+            this._adapter = null;
             this._servantManager = null;
         }
     }
@@ -724,7 +727,7 @@ class ConnectionI
                 if(!this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
                 Debug.assert(this._writeStream.buffer.remaining === 0);
@@ -799,7 +802,7 @@ class ConnectionI
                         if(!this.read(this._readStream.buffer))
                         {
                             Debug.assert(!this._readStream.isEmpty());
-                            this.scheduleTimeout(SocketOperation.Read, this._endpoint.timeout());
+                            this.scheduleTimeout(SocketOperation.Read);
                             return;
                         }
                         Debug.assert(this._readStream.buffer.remaining === 0);
@@ -960,7 +963,7 @@ class ConnectionI
             this._dispatchCount -= count;
             if(this._dispatchCount === 0)
             {
-                if(this._state === StateClosing && !this._shutdownInitiated)
+                if(this._state === StateClosing)
                 {
                     try
                     {
@@ -997,7 +1000,7 @@ class ConnectionI
         {
             if(traceLevels.network >= 2)
             {
-                let s = [];
+                const s = [];
                 s.push("failed to establish ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1011,7 +1014,7 @@ class ConnectionI
         {
             if(traceLevels.network >= 1)
             {
-                let s = [];
+                const s = [];
                 s.push("closed ");
                 s.push(this._endpoint.protocol());
                 s.push(" connection\n");
@@ -1059,7 +1062,7 @@ class ConnectionI
             //
             for(let i = 0; i < this._sendStreams.length; ++i)
             {
-                let p = this._sendStreams[i];
+                const p = this._sendStreams[i];
                 if(p.requestId > 0)
                 {
                     this._asyncRequests.delete(p.requestId);
@@ -1069,11 +1072,12 @@ class ConnectionI
             this._sendStreams = [];
         }
 
-        for(let value of this._asyncRequests.values())
+        for(const value of this._asyncRequests.values())
         {
             value.completedEx(this._exception);
         }
         this._asyncRequests.clear();
+        this.checkClose();
 
         //
         // Don't wait to be reaped to reclaim memory allocated by read/write streams.
@@ -1146,7 +1150,7 @@ class ConnectionI
         {
             throw this._exception;
         }
-        let info = this._transceiver.getInfo();
+        const info = this._transceiver.getInfo();
         for(let p = info; p !== null; p = p.underlying)
         {
             p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
@@ -1430,7 +1434,12 @@ class ConnectionI
     initiateShutdown()
     {
         Debug.assert(this._state === StateClosing && this._dispatchCount === 0);
-        Debug.assert(!this._shutdownInitiated);
+
+        if(this._shutdownInitiated)
+        {
+            return;
+        }
+        this._shutdownInitiated = true;
 
         if(!this._endpoint.datagram())
         {
@@ -1450,18 +1459,8 @@ class ConnectionI
                 //
                 // Schedule the close timeout to wait for the peer to close the connection.
                 //
-                this.scheduleTimeout(SocketOperation.Write, this.closeTimeout());
+                this.scheduleTimeout(SocketOperation.Read);
             }
-
-            //
-            // The CloseConnection message should be sufficient. Closing the write
-            // end of the socket is probably an artifact of how things were done
-            // in IIOP. In fact, shutting down the write end of the socket causes
-            // problems on Windows by preventing the peer from using the socket.
-            // For example, the peer is no longer able to continue writing a large
-            // message after the socket is shutdown.
-            //
-            //this._transceiver.shutdownWrite();
         }
     }
 
@@ -1495,7 +1494,7 @@ class ConnectionI
         const s = this._transceiver.initialize(this._readStream.buffer, this._writeStream.buffer);
         if(s != SocketOperation.None)
         {
-            this.scheduleTimeout(s, this.connectTimeout());
+            this.scheduleTimeout(s);
             return false;
         }
 
@@ -1528,7 +1527,7 @@ class ConnectionI
 
                 if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
-                    this.scheduleTimeout(SocketOperation.Write, this.connectTimeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return false;
                 }
             }
@@ -1543,7 +1542,7 @@ class ConnectionI
                 if(this._readStream.pos !== this._readStream.size &&
                     !this.read(this._readStream.buffer))
                 {
-                    this.scheduleTimeout(SocketOperation.Read, this.connectTimeout());
+                    this.scheduleTimeout(SocketOperation.Read);
                     return false;
                 }
 
@@ -1587,7 +1586,7 @@ class ConnectionI
         const traceLevels = this._instance.traceLevels();
         if(traceLevels.network >= 1)
         {
-            let s = [];
+            const s = [];
             if(this._endpoint.datagram())
             {
                 s.push("starting to send ");
@@ -1652,8 +1651,8 @@ class ConnectionI
                 //
                 message = this._sendStreams[0];
                 Debug.assert(!message.prepared);
-                let stream = message.stream;
 
+                const stream = message.stream;
                 stream.pos = 10;
                 stream.writeInt(stream.size);
                 stream.prepareWrite();
@@ -1669,7 +1668,7 @@ class ConnectionI
                 if(this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer))
                 {
                     Debug.assert(!this._writeStream.isEmpty());
-                    this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+                    this.scheduleTimeout(SocketOperation.Write);
                     return;
                 }
             }
@@ -1693,9 +1692,9 @@ class ConnectionI
         // If all the messages were sent and we are in the closing state, we schedule
         // the close timeout to wait for the peer to close the connection.
         //
-        if(this._state === StateClosing)
+        if(this._state === StateClosing && _shutdownInitiated)
         {
-            this.scheduleTimeout(SocketOperation.Write, this.closeTimeout());
+            this.scheduleTimeout(SocketOperation.Read);
         }
     }
 
@@ -1711,7 +1710,7 @@ class ConnectionI
 
         Debug.assert(!message.prepared);
 
-        let stream = message.stream;
+        const stream = message.stream;
         stream.pos = 10;
         stream.writeInt(stream.size);
         stream.prepareWrite();
@@ -1737,7 +1736,7 @@ class ConnectionI
 
         this._writeStream.swap(message.stream);
         this._sendStreams.push(message);
-        this.scheduleTimeout(SocketOperation.Write, this._endpoint.timeout());
+        this.scheduleTimeout(SocketOperation.Write);
 
         return AsyncStatus.Queued;
     }
@@ -1913,10 +1912,10 @@ class ConnectionI
                 //
                 // Prepare the invocation.
                 //
-                let inc = new IncomingAsync(this._instance, this,
-                                            adapter,
-                                            !this._endpoint.datagram() && requestId !== 0, // response
-                                            requestId);
+                const inc = new IncomingAsync(this._instance, this,
+                                              adapter,
+                                              !this._endpoint.datagram() && requestId !== 0, // response
+                                              requestId);
 
                 //
                 // Dispatch the invocation.
@@ -1950,8 +1949,42 @@ class ConnectionI
         }
     }
 
-    scheduleTimeout(op, timeout)
+    scheduleTimeout(op)
     {
+        let timeout;
+        if(this._state < StateActive)
+        {
+            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideConnectTimeout)
+            {
+                timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+            }
+            else
+            {
+                timeout = this._endpoint.timeout();
+            }
+        }
+        else if(this._state < StateClosing)
+        {
+            if(this._readHeader) // No timeout for reading the header.
+            {
+                op &= ~SocketOperation.Read;
+            }
+            timeout = this._endpoint.timeout();
+        }
+        else
+        {
+            const defaultsAndOverrides = this._instance.defaultsAndOverrides();
+            if(defaultsAndOverrides.overrideCloseTimeout)
+            {
+                timeout = defaultsAndOverrides.overrideCloseTimeoutValue;
+            }
+            else
+            {
+                timeout = this._endpoint.timeout();
+            }
+        }
+
         if(timeout < 0)
         {
             return;
@@ -1959,11 +1992,19 @@ class ConnectionI
 
         if((op & SocketOperation.Read) !== 0)
         {
+            if(this._readTimeoutScheduled)
+            {
+                this._timer.cancel(this._readTimeoutId);
+            }
             this._readTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
             this._readTimeoutScheduled = true;
         }
         if((op & (SocketOperation.Write | SocketOperation.Connect)) !== 0)
         {
+            if(this._writeTimeoutScheduled)
+            {
+                this._timer.cancel(this._writeTimeoutId);
+            }
             this._writeTimeoutId = this._timer.schedule(() => this.timedOut(), timeout);
             this._writeTimeoutScheduled = true;
         }
@@ -1983,32 +2024,6 @@ class ConnectionI
         }
     }
 
-    connectTimeout()
-    {
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideConnectTimeout)
-        {
-            return defaultsAndOverrides.overrideConnectTimeoutValue;
-        }
-        else
-        {
-            return this._endpoint.timeout();
-        }
-    }
-
-    closeTimeout()
-    {
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        if(defaultsAndOverrides.overrideCloseTimeout)
-        {
-            return defaultsAndOverrides.overrideCloseTimeoutValue;
-        }
-        else
-        {
-            return this._endpoint.timeout();
-        }
-    }
-
     warning(msg, ex)
     {
         this._logger.warning(msg + ":\n" + this._desc + "\n" + ex.toString());
@@ -2020,9 +2035,6 @@ class ConnectionI
         {
             return;
         }
-
-        this._holdPromises.forEach(p => p.resolve());
-        this._holdPromises = [];
 
         //
         // We aren't finished until the state is finished and all
@@ -2055,7 +2067,7 @@ class ConnectionI
         const ret = this._transceiver.read(buf, this._hasMoreData);
         if(this._instance.traceLevels().network >= 3 && buf.position != start)
         {
-            let s = [];
+            const s = [];
             s.push("received ");
             if(this._endpoint.datagram())
             {
@@ -2082,7 +2094,7 @@ class ConnectionI
         const ret = this._transceiver.write(buf);
         if(this._instance.traceLevels().network >= 3 && buf.position != start)
         {
-            let s = [];
+            const s = [];
             s.push("sent ");
             s.push(buf.position - start);
             if(!this._endpoint.datagram())

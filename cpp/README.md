@@ -33,8 +33,8 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio and the
-[Ice Builder for Visual Studio][13].
+On Windows, the build requires a recent version of Visual Studio, and the
+Windows 10 SDK (10.0.14393.0) component when using Visual Studio 2017.
 
 ### Third-Party Libraries
 
@@ -60,7 +60,7 @@ that do not include them. You can install these packages as shown below:
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
 cd /etc/yum.repos.d
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-amzn1.repo
+sudo wget https://zeroc.com/download/Ice/3.7/amzn1/zeroc-ice3.7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 7
@@ -68,15 +68,15 @@ sudo yum install lmdb-devel mcpp-devel
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
 cd /etc/yum.repos.d
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-el7.repo
+sudo wget https://zeroc.com/download/Ice/3.7/el7/zeroc-ice3.7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### SLES 12
 ```
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
-sudo wget https://dev.zeroc.com/rpm/thirdparty/zeroc-thirdparty-sles12.repo
-sudo zypper ar -f --repo zeroc-thirdparty-sles12.repo
+sudo wget https://zeroc.com/download/Ice/3.7/sles12/zeroc-ice3.7.repo
+sudo zypper ar -f --repo zeroc-ice3.7.repo
 sudo zypper install mcpp-devel
 ```
 
@@ -101,14 +101,14 @@ from BlueZ 5.43.*
 
 Expat and bzip are included with your system.
 
-You can install LMDB and mcpp using [Homebrew][11]:
+You can install LMDB and mcpp using Homebrew:
 ```
 brew install lmdb mcpp
 ```
 
 #### Windows
 
-ZeroC provides [NuGet][12] packages for all these third-party dependencies.
+ZeroC provides NuGet packages for all these third-party dependencies.
 
 The Ice build system for Windows downloads and installs the NuGet command-line
 executable and the required NuGet packages when you build Ice for C++. The
@@ -256,7 +256,7 @@ library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH (macOS
 On a Linux x86_64 system:
 ```
 <prefix>/lib64                 (RHEL, SLES, Amazon)
-prefix>/lib/x86_64-linux-gnu  (Ubuntu)
+<prefix>/lib/x86_64-linux-gnu  (Ubuntu)
 ```
 
 On macOS:
@@ -296,6 +296,22 @@ builds or `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
 `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
 `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017
 builds.
+
+## Cleaning the source build on macOS or Linux
+
+Running `make clean` will remove the binaries created for the default
+configuration and platform.
+
+To clean the binaries produced for a specific configuration or platform, you
+need to specify the `CONFIGS` or `PLATFORMS` variable. For example,
+`make CONFIGS=cpp11-shared clean` will clean the C++11 mapping build.
+
+To clean the build for all the supported configurations and platforms, run
+`make CONFIGS=all PLATFORMS=all clean`.
+
+Running `make distclean` will also clean the build for all the configurations
+and platforms. In addition, it will also remove the generated files created by
+the Slice translators.
 
 ## Running the Test Suite
 
@@ -357,8 +373,8 @@ python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controll
  iOS device, from Xcode.
  - On your Mac:
 ```
-python allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
-python allTests.py --confg=cpp11-xcodesdk --platform=iphoneos # C++11 controller
+python3 allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
+python3 allTests.py --config=cpp11-xcodesdk --platform=iphoneos # C++11 controller
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac computer.
@@ -390,6 +406,3 @@ failure, the tests abort with `failed`.
 [8]: https://www.freedesktop.org/wiki/Software/pkg-config
 [9]: https://www.freedesktop.org/wiki/Software/dbus
 [10]: http://www.bluez.org
-[11]: https://brew.sh
-[12]: https://www.nuget.org
-[13]: https://github.com/zeroc-ice/ice-builder-visualstudio

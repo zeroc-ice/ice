@@ -748,6 +748,10 @@ namespace Ice
         {
             lock(this)
             {
+                if(timeout.HasValue && timeout.Value < 0)
+                {
+                    throw new ArgumentException("invalid negative ACM timeout value");
+                }
                 if(_monitor == null || _state >= StateClosed)
                 {
                     return;
@@ -972,32 +976,29 @@ namespace Ice
 
         public void setAdapter(ObjectAdapter adapter)
         {
-            lock(this)
+            if(adapter != null)
             {
-                if(_state <= StateNotValidated || _state >= StateClosing)
+                // Go through the adapter to set the adapter and servant manager on this connection
+                // to ensure the object adapter is still active.
+                ((ObjectAdapterI)adapter).setAdapterOnConnection(this);
+            }
+            else
+            {
+                lock(this)
                 {
-                    return;
-                }
-
-                _adapter = adapter;
-
-                if(_adapter != null)
-                {
-                    //
-                    // The OA's servant manager is immutable.
-                    //
-                    _servantManager = ((ObjectAdapterI) _adapter).getServantManager();
-                }
-                else
-                {
+                    if(_state <= StateNotValidated || _state >= StateClosing)
+                    {
+                        return;
+                    }
+                    _adapter = null;
                     _servantManager = null;
                 }
-
-                //
-                // We never change the thread pool with which we were initially
-                // registered, even if we add or remove an object adapter.
-                //
             }
+
+            //
+            // We never change the thread pool with which we were initially
+            // registered, even if we add or remove an object adapter.
+            //
         }
 
         public ObjectAdapter getAdapter()
@@ -1020,6 +1021,20 @@ namespace Ice
             // reference.
             //
             return _instance.proxyFactory().referenceToProxy(_instance.referenceFactory().create(ident, this));
+        }
+
+        public void setAdapterAndServantManager(ObjectAdapter adapter, IceInternal.ServantManager servantManager)
+        {
+            lock(this)
+            {
+                if(_state <= StateNotValidated || _state >= StateClosing)
+                {
+                    return;
+                }
+                Debug.Assert(adapter != null); // Called by ObjectAdapterI::setAdapterOnConnection
+                _adapter = adapter;
+                _servantManager = servantManager;
+            }
         }
 
         //
@@ -2595,8 +2610,9 @@ namespace Ice
                     }
                     else
                     {
+                        string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                         FeatureNotSupportedException ex = new FeatureNotSupportedException();
-                        ex.unsupportedFeature = "Cannot uncompress compressed message: bzip2 DLL not found";
+                        ex.unsupportedFeature = "Cannot uncompress compressed message: " + lib + " not found";
                         throw ex;
                     }
                 }

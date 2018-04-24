@@ -302,7 +302,7 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             proxy.sleep(4);
-            test(_heartbeat >= 6);
+            test(_heartbeat >= 4);
         }
     }
 
@@ -599,6 +599,15 @@ public class AllTests
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             com.zeroc.Ice.Connection con = proxy.ice_getConnection();
+
+            try
+            {
+                con.setACM(java.util.OptionalInt.of(-19), null, null);
+                test(false);
+            }
+            catch(IllegalArgumentException ex)
+            {
+            }
 
             com.zeroc.Ice.ACM acm = new com.zeroc.Ice.ACM();
             acm = con.getACM();

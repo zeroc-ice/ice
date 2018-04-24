@@ -98,7 +98,7 @@ protected:
                                   const std::string& = std::string()) const;
 
     //
-    // Returns the package prefix for a give Slice file.
+    // Returns the package prefix of a Contained entity.
     //
     std::string getPackagePrefix(const ContainedPtr&) const;
 
@@ -223,7 +223,6 @@ private:
 
     std::string _dir;
     ::IceUtilInternal::Output* _out;
-    mutable std::map<std::string, std::string> _filePackagePrefix;
 };
 
 class JavaGenerator : private ::IceUtil::noncopyable
@@ -265,7 +264,7 @@ protected:
                                   const std::string& = std::string()) const;
 
     //
-    // Returns the package prefix for a give Slice file.
+    // Returns the package prefix of a Contained entity.
     //
     std::string getPackagePrefix(const ContainedPtr&) const;
 
@@ -397,7 +396,6 @@ private:
 
     std::string _dir;
     ::IceUtilInternal::Output* _out;
-    mutable std::map<std::string, std::string> _filePackagePrefix;
 };
 
 }

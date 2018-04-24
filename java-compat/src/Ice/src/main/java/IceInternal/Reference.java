@@ -78,6 +78,12 @@ public abstract class Reference implements Cloneable
         return _invocationTimeout;
     }
 
+    public Ice.BooleanOptional
+    getCompress()
+    {
+        return _overrideCompress ? Ice.Optional.O(_compress) : new Ice.BooleanOptional();
+    }
+
     public final Ice.Communicator
     getCommunicator()
     {
@@ -94,6 +100,7 @@ public abstract class Reference implements Cloneable
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract String getConnectionId();
+    public abstract Ice.IntOptional getTimeout();
 
     //
     // The change* methods (here and in derived classes) create
@@ -216,6 +223,7 @@ public abstract class Reference implements Cloneable
 
     public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeConnectionId(String connectionId);
+    public abstract Reference changeConnection(Ice.ConnectionI connection);
 
     @Override
     public synchronized int

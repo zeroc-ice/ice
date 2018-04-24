@@ -61,6 +61,11 @@
             current.adapter.getCommunicator().shutdown();
         }
 
+        supportsCompress(current)
+        {
+            return false;
+        }
+
         opVoid(current)
         {
             test(current.mode === Ice.OperationMode.Normal);

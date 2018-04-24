@@ -143,7 +143,7 @@ public final class ObjectAdapterFactory
         }
     }
 
-    public synchronized ObjectAdapter
+    public ObjectAdapter
     createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router)
     {
         if(Thread.interrupted())
@@ -151,27 +151,69 @@ public final class ObjectAdapterFactory
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
 
-        if(_instance == null)
+        synchronized(this)
         {
-            throw new com.zeroc.Ice.CommunicatorDestroyedException();
+            if(_instance == null)
+            {
+                throw new com.zeroc.Ice.CommunicatorDestroyedException();
+            }
+
+            if(!name.isEmpty())
+            {
+                if(_adapterNamesInUse.contains(name))
+                {
+                    throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
+                }
+                _adapterNamesInUse.add(name);
+            }
         }
 
-        ObjectAdapterI adapter = null;
-        if(name.length() == 0)
+        //
+        // Must be called outside the synchronization since initialize can make client invocations
+        // on the router if it's set.
+        //
+        com.zeroc.Ice.ObjectAdapterI adapter = null;
+        try
         {
-            String uuid = java.util.UUID.randomUUID().toString();
-            adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-        }
-        else
-        {
-            if(_adapterNamesInUse.contains(name))
+            if(name.isEmpty())
             {
-                throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
+                String uuid = java.util.UUID.randomUUID().toString();
+                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
             }
-            adapter = new ObjectAdapterI(_instance, _communicator, this, name, router, false);
-            _adapterNamesInUse.add(name);
+            else
+            {
+                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+            }
+
+            synchronized(this)
+            {
+                if(_instance == null)
+                {
+                    throw new com.zeroc.Ice.CommunicatorDestroyedException();
+                }
+                _adapters.add(adapter);
+            }
         }
-        _adapters.add(adapter);
+        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+        {
+            if(adapter != null)
+            {
+                adapter.destroy();
+            }
+            throw ex;
+        }
+        catch(com.zeroc.Ice.LocalException ex)
+        {
+            if(!name.isEmpty())
+            {
+                synchronized(this)
+                {
+                    _adapterNamesInUse.remove(name);
+                }
+            }
+            throw ex;
+        }
+
         return adapter;
     }
 

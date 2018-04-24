@@ -94,6 +94,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
         return null;
     }
 
+    public override Task<bool> supportsCompressAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(true);
+    }
+
     public override Task opVoidAsync(Ice.Current current)
     {
         test(current.mode == Ice.OperationMode.Normal);

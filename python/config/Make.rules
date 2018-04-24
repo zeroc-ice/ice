@@ -21,18 +21,27 @@ PYTHON              ?= python
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
 # Use pythonM.m-config rather than pythonMm-config because some platforms don't provide pythonMm-config
-python-config := $(shell $(PYTHON) -c "import sys; print(\"python{0}.{1}-config\".format(sys.version_info[0], sys.version_info[1]))")
+python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
+python-config := python$(python-version)-config
 
 python_cppflags         := $(shell $(python-config) --cflags)
 python_ldflags          := $(shell $(python-config) --ldflags)
+# Use .so as default value --extension-suffix is not supported by python-config in all platforms
+python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
+
+ifneq ($(filter debian ubuntu,$(linux_id)),)
+allow-undefined-symbols := yes
+python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
+endif
 
 ifneq ($(OPTIMIZE),yes)
 # Remove optimization options if building debug build
-python_cppflags         := $(filter-out -O% -DNDEBUG,$(python_cppflags))
+python_cppflags         := $(filter-out -O% -DNDEBUG -Wp$(comma)-D_FORTIFY_SOURCE=%,$(python_cppflags))
 endif
 
-# Remove the -Wstrict-prototypes option which is not valid with C++
-python_cppflags         := $(filter-out -Wstrict-prototypes,$(python_cppflags))
+# Remove the -Wstrict-prototypes option which is not valid with C++ and
+# -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
+python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
 
 #
 # Python installation directory
@@ -43,7 +52,7 @@ install_pythondir       = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdi
 # Rules to build a python module. We just compute the name of the python module
 # and delegate to make-shared-module.
 #
-mkpymodulename                   ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+mkpymodulename                   ?= $(patsubst lib%.so,%$(python_extsuffix),$(call mkshlibname,$(1)))
 make-shared-python-module        = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
 get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2,$3,$4)
 install-shared-python-module     = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)

@@ -832,7 +832,10 @@ allTests(const Ice::CommunicatorPtr& comm)
             // re-establish the connection so we ping it twice. The
             // second should succeed.
             //
-            slave1Admin->pingNode("Node1");
+            if(!slave1Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -850,7 +853,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            slave2Admin->pingNode("Node1");
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1")); // Node should be re-connected even if the master is down.
         }
         catch(const NodeNotExistException&)
@@ -866,7 +872,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            masterAdmin->pingNode("Node1");
+            if(!masterAdmin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(masterAdmin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -879,7 +888,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            slave1Admin->pingNode("Node1");
+            if(!slave1Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -889,7 +901,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            masterAdmin->pingNode("Node1");
+            if(!masterAdmin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(masterAdmin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)
@@ -899,7 +914,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            slave2Admin->pingNode("Node1");
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)
@@ -913,7 +931,10 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
         try
         {
-            slave2Admin->pingNode("Node1");
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)

@@ -10,7 +10,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -82,7 +82,7 @@ local interface PluginManager
      * @see #getPlugin
      *
      **/
-    StringSeq getPlugins();
+    ["cpp:noexcept"] StringSeq getPlugins();
 
     /**
      *
@@ -115,7 +115,7 @@ local interface PluginManager
      * Called when the communicator is being destroyed.
      *
      **/
-    void destroy();
+    ["cpp:noexcept"] void destroy();
 }
 
 }

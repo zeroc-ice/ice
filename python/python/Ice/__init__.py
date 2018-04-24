@@ -80,7 +80,7 @@ def Python35():
     return sys.version_info[:2] >= (3, 5)
 
 if Python35():
-    from Ice.IceFuture import FutureBase, wrap_future
+    from Ice.Py3.IceFuture import FutureBase, wrap_future
 else:
     FutureBase = object
 
@@ -589,8 +589,10 @@ class SliceInfo(object):
     #
     # typeId - string
     # compactId - int
-    # bytes - string
-    # objects - tuple of Ice.Value
+    # bytes - string/bytes
+    # instances - tuple of Ice.Value
+    # hasOptionalMembers - boolean
+    # isLastSlice - boolean
     pass
 
 #

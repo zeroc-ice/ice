@@ -1589,6 +1589,11 @@ BOOL _returnsData;
 {
     return [[self class] iceObjectPrxWithObjectPrx:OBJECTPRX->ice_compress(compress)];
 }
+-(id) ice_getCompress
+{
+    IceUtil::Optional<bool> compress = OBJECTPRX->ice_getCompress();
+    return compress ? @(*compress) : nil;
+}
 -(id) ice_timeout:(int)timeout
 {
     NSException* nsex;
@@ -1601,6 +1606,33 @@ BOOL _returnsData;
         nsex = toObjCException(ex);
     }
     @throw nsex;
+}
+-(id) ice_getTimeout
+{
+    IceUtil::Optional<int> timeout = OBJECTPRX->ice_getTimeout();
+    return timeout ? @(*timeout) : nil;
+}
+-(id) ice_fixed:(id<ICEConnection>)connection
+{
+    Ice::ConnectionPtr con =
+        dynamic_cast<Ice::Connection*>(static_cast<IceUtil::Shared*>([(ICELocalObject*)connection cxxObject]));
+    if(!con)
+    {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"invalid connection passed to ice_fixed"
+                                     userInfo:nil];
+    }
+    NSException* nsex = nil;
+    try
+    {
+        return [[self class] iceObjectPrxWithObjectPrx:OBJECTPRX->ice_fixed(con)];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 -(id) ice_connectionId:(NSString*)connectionId
 {

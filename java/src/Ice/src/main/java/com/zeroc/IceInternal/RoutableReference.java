@@ -82,9 +82,24 @@ public class RoutableReference extends Reference
     }
 
     @Override
-    public final com.zeroc.IceInternal.ThreadPool getThreadPool()
+    public java.util.OptionalInt
+    getTimeout()
+    {
+        return _overrideTimeout ? java.util.OptionalInt.of(_timeout) : java.util.OptionalInt.empty();
+    }
+
+    @Override
+    public final com.zeroc.IceInternal.ThreadPool
+    getThreadPool()
     {
         return getInstance().clientThreadPool();
+    }
+
+    @Override
+    public final com.zeroc.Ice.ConnectionI
+    getConnection()
+    {
+        return null;
     }
 
     @Override
@@ -286,6 +301,24 @@ public class RoutableReference extends Reference
             r._endpoints = newEndpoints;
         }
         return r;
+    }
+
+    @Override
+    public Reference
+    changeConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        return new FixedReference(getInstance(),
+                                  getCommunicator(),
+                                  getIdentity(),
+                                  getFacet(),
+                                  getMode(),
+                                  getSecure(),
+                                  getProtocol(),
+                                  getEncoding(),
+                                  connection,
+                                  getInvocationTimeout(),
+                                  getContext(),
+                                  getCompress());
     }
 
     @Override

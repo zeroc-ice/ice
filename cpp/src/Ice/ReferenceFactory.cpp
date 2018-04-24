@@ -91,8 +91,12 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
                               "",  // Facet
                               connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
                               connection->endpoint()->secure(),
+                              Ice::Protocol_1_0,
                               _instance->defaultsAndOverrides()->defaultEncoding,
-                              connection);
+                              connection,
+                              -1,
+                              Ice::Context(),
+                              IceUtil::Optional<bool>());
 }
 
 ReferencePtr

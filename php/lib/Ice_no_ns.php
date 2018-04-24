@@ -167,8 +167,11 @@ class Ice_SlicedData
 class Ice_SliceInfo
 {
     public $typeId;
+    public $compactId;
     public $bytes;
     public $instances;
+    public $hasOptionalMembers;
+    public $isLastSlice;
 }
 
 class Ice_FormatType

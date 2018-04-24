@@ -39,36 +39,44 @@ public:
 
     Observer() : _background(false)
     {
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification
-                                                          object:nil
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification*)
-                                                                 {
-                                                                     didEnterBackground();
-                                                                 }];
+        _backgroundObserver =
+            [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification
+                                                              object:nil
+                                                               queue:nil
+                                                          usingBlock:^(NSNotification*)
+                                                                     {
+                                                                         didEnterBackground();
+                                                                     }];
 
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification
-                                                          object:nil
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification*)
-                                                                 {
-                                                                     willEnterForeground();
-                                                                 }];
+        _foregroundObserver =
+            [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification
+                                                              object:nil
+                                                               queue:nil
+                                                          usingBlock:^(NSNotification*)
+                                                                     {
+                                                                         willEnterForeground();
+                                                                     }];
+    }
+
+    ~Observer()
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:_backgroundObserver];
+        [[NSNotificationCenter defaultCenter] removeObserver:_foregroundObserver];
     }
 
     bool
     add(const IncomingConnectionFactoryPtr& factory)
     {
         IceUtil::Mutex::Lock sync(_mutex);
-        _factories.insert(factory);
         if(_background)
         {
             factory->stopAcceptor();
         }
         else
         {
-            factory->startAcceptor();
+            factory->startAcceptor(); // Might throw
         }
+        _factories.insert(factory);
         return _background;
     }
 
@@ -115,23 +123,25 @@ private:
 
     IceUtil::Mutex _mutex;
     bool _background;
+    id _backgroundObserver;
+    id _foregroundObserver;
     set<IncomingConnectionFactoryPtr> _factories;
 };
 
 }
 
-static Observer* observer = new Observer();
+static Observer observer;
 
 bool
 IceInternal::registerForBackgroundNotification(const IncomingConnectionFactoryPtr& factory)
 {
-    return observer->add(factory);
+    return observer.add(factory);
 }
 
 void
 IceInternal::unregisterForBackgroundNotification(const IncomingConnectionFactoryPtr& factory)
 {
-    observer->remove(factory);
+    observer.remove(factory);
 }
 
 #endif

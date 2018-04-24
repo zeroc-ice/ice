@@ -38,7 +38,7 @@ $(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_rubydir)
 	$(E) "Installing generated code"
-	$(Q)$(INSTALL) $(lang_srcdir)/ruby/*.rb $(DESTDIR)$(install_rubydir)
+	$(Q)$(INSTALL) -m 644 $(lang_srcdir)/ruby/*.rb $(DESTDIR)$(install_rubydir)
 
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Ice))
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Glacier2))

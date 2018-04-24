@@ -191,7 +191,7 @@
         async runTestCase(adapter, proxy)
         {
             await proxy.sleep(4);
-            test(this._heartbeat >= 6);
+            test(this._heartbeat >= 4);
         }
     }
 
@@ -414,6 +414,15 @@
         async runTestCase(adapter, proxy)
         {
             let con = proxy.ice_getCachedConnection();
+
+            try
+            {
+                con.setACM(-19, undefined, undefined);
+                test(false);
+            }
+            catch(ex)
+            {
+            }
 
             let acm = con.getACM();
             test(acm.timeout === 15);

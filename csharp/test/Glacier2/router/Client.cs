@@ -165,6 +165,19 @@ public class Client : TestCommon.Application
             Console.Out.WriteLine("ok");
         }
 
+        {
+            Console.Out.Write("pinging object with client endpoint... ");
+            Ice.ObjectPrx baseC = communicator().stringToProxy("collocated:" + getTestEndpoint(50));
+            try
+            {
+                baseC.ice_ping();
+            }
+            catch(Ice.ObjectNotExistException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+        }
+
         CallbackPrx twoway;
 
         {

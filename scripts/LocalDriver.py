@@ -427,7 +427,7 @@ class LocalDriver(Driver):
                             continue
                         elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                             continue
-                        self.executor.submit(testsuite, Mapping.getAll() if self.allCross else [self.cross], self)
+                        self.executor.submit(testsuite, Mapping.getAll(self) if self.allCross else [self.cross], self)
 
                 #
                 # Run all the tests and wait for the executor to complete.
@@ -527,7 +527,7 @@ class LocalDriver(Driver):
             return
 
         client = current.testcase.getClientTestCase()
-        for cross in (Mapping.getAll() if self.allCross else [self.cross]):
+        for cross in (Mapping.getAll(self) if self.allCross else [self.cross]):
 
             # Only run cross tests with allCross
             if self.allCross and cross == current.testcase.getMapping():
@@ -536,11 +536,6 @@ class LocalDriver(Driver):
             # Skip if the mapping doesn't provide the test case
             server = current.testcase.getServerTestCase(cross)
             if not server:
-                continue
-
-            if cross and server.getMapping() != cross:
-                if not self.allCross:
-                    current.result.skipped(current, "no server available for `{0}' mapping".format(cross))
                 continue
 
             current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
@@ -581,7 +576,8 @@ class LocalDriver(Driver):
 
     def runTestCase(self, current):
         if self.cross or self.allCross:
-            current.result.skipped(current, "only client/server tests are ran with cross tests")
+            #current.result.skipped(current, "only client/server tests are ran with cross tests")
+            return
 
         if not current.testcase.getParent():
             current.writeln("[ running {0} test - {1} ]".format(current.testcase, time.strftime("%x %X")))
@@ -624,7 +620,7 @@ class LocalDriver(Driver):
         return props
 
     def getMappings(self):
-        return Mapping.getAll() if self.allCross else [self.cross] if self.cross else []
+        return Mapping.getAll(self) if self.allCross else [self.cross] if self.cross else []
 
     def filterOptions(self, testcase, options):
         return self.runner.filterOptions(options)

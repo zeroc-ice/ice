@@ -19,6 +19,7 @@
 namespace Ice
 {
 
+/** Creates and throws a user exception. */
 using UserExceptionFactory = std::function<void(const std::string&)>;
 
 }
@@ -44,6 +45,10 @@ defaultUserExceptionFactory(const std::string& typeId)
 namespace Ice
 {
 
+/**
+ * Creates and throws a user exception.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API UserExceptionFactory : public IceUtil::Shared
 {
 public:

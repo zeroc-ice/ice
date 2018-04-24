@@ -89,33 +89,33 @@ public final class InitialI implements Initial
 
     public com.zeroc.Ice.Value getTest3C2AsObject(com.zeroc.Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
-    public test.Ice.packagemd.testpkg.Test3.C1 getTest3C2AsC1(com.zeroc.Ice.Current current)
+    public test.Ice.packagemd.modpkg.Test3.C1 getTest3C2AsC1(com.zeroc.Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
-    public test.Ice.packagemd.testpkg.Test3.C2 getTest3C2AsC2(com.zeroc.Ice.Current current)
+    public test.Ice.packagemd.modpkg.Test3.C2 getTest3C2AsC2(com.zeroc.Ice.Current current)
     {
-        return new test.Ice.packagemd.testpkg.Test3.C2();
+        return new test.Ice.packagemd.modpkg.Test3.C2();
     }
 
     @Override
     public void throwTest3E2AsE1(com.zeroc.Ice.Current current)
-        throws test.Ice.packagemd.testpkg.Test3.E1
+        throws test.Ice.packagemd.modpkg.Test3.E1
     {
-        throw new test.Ice.packagemd.testpkg.Test3.E2();
+        throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 
     @Override
     public void throwTest3E2AsE2(com.zeroc.Ice.Current current)
-        throws test.Ice.packagemd.testpkg.Test3.E2
+        throws test.Ice.packagemd.modpkg.Test3.E2
     {
-        throw new test.Ice.packagemd.testpkg.Test3.E2();
+        throw new test.Ice.packagemd.modpkg.Test3.E2();
     }
 
     @Override

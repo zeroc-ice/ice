@@ -23,32 +23,26 @@
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
     </ItemGroup>
 
-    <!-- Win32 Release binaries -->
-    <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'">
-        <Executables Include="$(IceSrcRootDir)bin\Win32\Release\*.exe"
-                     Exclude="$(IceSrcRootDir)bin\Win32\Release\slice2*.exe" />
-    </ItemGroup>
+    <!-- Executables & Tools -->
+    <ItemGroup>
 
-    <!-- x64 Release binaries -->
-    <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'x64|Release'">
-        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
-        <Tools Include="$(IceSrcRootDir)bin\x64\Release\slice2*.exe" />
-    </ItemGroup>
+        <ExecutableExcludes Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceboxadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegridadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormadmin.exe;
+                                     $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormdb.exe"
+                            Condition="'$(DefaultBuild)' != '$(Platform)|$(Configuration)' and '$(Configuration)' == 'Debug'"/>
 
-    <!-- Debug binaries -->
-    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <ExecutableExcludes Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
+
         <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.exe"
-                     Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\glacier2router.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceboxadmin.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebridge.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegridadmin.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icegriddb.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icepatch2*.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\iceserviceinstall.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormadmin.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormdb.exe;
-                              $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe"/>
+                     Exclude="@(ExecutableExcludes)"/>
+
+        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
     </ItemGroup>
 
     <!-- public C++ header and Slice files -->
@@ -69,13 +63,15 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Headers)" DestinationFolder="$(PackageDirectory)\build\native\include\%(Headers.RecursiveDir)" />
 
-        <Copy Condition="'$(Platform)|$(Configuration)' == 'Win32|Release'"
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
-        <Copy Condition="'$(Platform)|$(Configuration)' == 'x64|Release'"
+
+        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />
+
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />

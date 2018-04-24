@@ -88,14 +88,14 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 
 # IceBuilder dependency files
-IceBuilder.d
+SliceCompile.d
 
 xcuserdata
 xcshareddata
 /sdk
 
-# IceBuilder build log
-IceBuilder.command.*.log
+# SliceCompile build log
+SliceCompile.command.*.log
 # Nuget packages
 **/msbuild/packages/*
 **/msbuild/zeroc.ice.*

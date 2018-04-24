@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
@@ -48,7 +48,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    ["cpp:const"] string getName();
+    ["cpp:const", "cpp:noexcept"] string getName();
 
     /**
      *
@@ -59,7 +59,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    ["cpp:const"] Communicator getCommunicator();
+    ["cpp:const", "cpp:noexcept"] Communicator getCommunicator();
 
     /**
      *
@@ -128,7 +128,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    void deactivate();
+    ["cpp:noexcept"] void deactivate();
 
     /**
      *
@@ -142,7 +142,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    void waitForDeactivate();
+    ["cpp:noexcept"] void waitForDeactivate();
 
     /**
      *
@@ -153,7 +153,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:const"] bool isDeactivated();
+    ["cpp:const", "cpp:noexcept"] bool isDeactivated();
 
     /**
      *
@@ -637,7 +637,7 @@ local interface ObjectAdapter
      * @see #setLocator
      *
      **/
-    ["cpp:const"] Locator* getLocator();
+    ["cpp:const", "cpp:noexcept"] Locator* getLocator();
 
     /**
      *
@@ -648,7 +648,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const"] EndpointSeq getEndpoints();
+    ["cpp:const", "cpp:noexcept"] EndpointSeq getEndpoints();
 
     /**
      * Refresh the set of published endpoints. The run time re-reads
@@ -672,7 +672,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const"] EndpointSeq getPublishedEndpoints();
+    ["cpp:const", "cpp:noexcept"] EndpointSeq getPublishedEndpoints();
 
     /**
      *

@@ -23,6 +23,12 @@ def testSetACM(communicator, com)
     proxy = Test::TestIntfPrx::uncheckedCast(testCommunicator.stringToProxy(adapter.getTestIntf().ice_toString()))
     proxy.ice_getConnection()
 
+    begin
+        proxy.ice_getCachedConnection().setACM(-19, Ice::Unset, Ice::Unset)
+        test(false)
+    rescue
+    end
+
     acm = proxy.ice_getCachedConnection().getACM()
     test(acm.timeout == 15)
     test(acm.close == Ice::ACMClose::CloseOnIdleForceful)

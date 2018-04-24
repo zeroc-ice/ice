@@ -579,6 +579,10 @@ Slice::ObjCVisitor::getResponseCBSig(const OperationPtr& op) const
             result += outTypeToString(type, (*q)->optional());
         }
     }
+    if(result.empty())
+    {
+        result = "void";
+    }
     return "void(^)(" + result + ")";
 }
 

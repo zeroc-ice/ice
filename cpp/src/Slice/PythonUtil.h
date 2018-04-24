@@ -46,7 +46,7 @@ std::string scopedToName(const std::string&);
 std::string fixIdent(const std::string&);
 
 //
-// Return the package specified in the global metadata for the given definition,
+// Return the package specified by metadata for the given definition,
 // or an empty string if no metadata was found.
 //
 std::string getPackageMetadata(const Slice::ContainedPtr&);

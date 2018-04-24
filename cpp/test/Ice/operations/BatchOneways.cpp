@@ -199,7 +199,16 @@ batchOneways(const Test::MyClassPrxPtr& p)
         ic->destroy();
     }
 
-    if(batch->ice_getConnection() &&
+    bool supportsCompress = true;
+    try
+    {
+        supportsCompress = p->supportsCompress();
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+
+    if(supportsCompress && batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
     {
         Ice::ObjectPrxPtr prx = batch->ice_getConnection()->createProxy(batch->ice_getIdentity())->ice_batchOneway();

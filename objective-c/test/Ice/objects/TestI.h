@@ -61,6 +61,7 @@
 -(TestObjectsI *) getJ:(ICECurrent *)current;
 -(TestObjectsI *) getH:(ICECurrent *)current;
 -(TestObjectsCompact*) getCompact:(ICECurrent*)current;
+-(void) setG:(TestObjectsG *)theG current:(ICECurrent *)current;
 -(void) setI:(TestObjectsI *)theI current:(ICECurrent *)current;
 -(TestObjectsObjectSeq *) getObjectSeq:(TestObjectsMutableObjectSeq *)s current:(ICECurrent *)current;
 -(TestObjectsObjectPrxSeq *) getObjectPrxSeq:(TestObjectsMutableObjectPrxSeq *)s current:(ICECurrent *)current;

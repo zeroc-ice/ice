@@ -1,13 +1,12 @@
 <Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
     <PropertyGroup>
         <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Slice compiler from x64 Release builds -->
-        <Tools Include="$(IceSrcRootDir)bin\x64\Release\slice2cpp.exe;
-                        $(IceSrcRootDir)bin\x64\Release\slice2html.exe" />
+        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe;
+                        $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2html.exe" />
 
         <!-- public header files and sources -->
         <Headers Include="$(IceSrcRootDir)include\**\*.h"
@@ -15,9 +14,9 @@
                           $(IceSrcRootDir)include\IceIAP\*.h;
                           $(IceSrcRootDir)include\generated\**\*.h"/>
 
-        <Headers Include="$(IceSrcRootDir)include\generated\uwp\x64\Release\**\*.h"
-                 Exclude="$(IceSrcRootDir)include\generated\uwp\x64\Release\IceDiscovery\*.h;
-                          $(IceSrcRootDir)include\generated\uwp\x64\Release\IceLocatorDiscovery\*.h"/>
+        <Headers Include="$(IceSrcRootDir)include\generated\uwp\$(Platform)\$(Configuration)\**\*.h"
+                 Exclude="$(IceSrcRootDir)include\generated\uwp\$(Platform)\$(Configuration)\IceDiscovery\*.h;
+                          $(IceSrcRootDir)include\generated\uwp\$(Platform)\$(Configuration)\IceLocatorDiscovery\*.h"/>
 
         <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
                 Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;

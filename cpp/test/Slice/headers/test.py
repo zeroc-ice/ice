@@ -145,8 +145,20 @@ class SliceHeadersTestCase(ClientTestCase):
             if os.path.lexists(f):
                 os.unlink(f)
 
-        if os.path.exists("project1"): shutil.rmtree("project1")
-        if os.path.exists("tmp"): shutil.rmtree("tmp")
+        #
+        # rmtree can fail when tests are running from a NFS volumen
+        # with an error like:
+        #
+        # Device or resource busy: 'project1/.nfs00000000006216b500000024'
+        #
+        try:
+            if os.path.exists("project1"): shutil.rmtree("project1")
+        except:
+            pass
+        try:
+            if os.path.exists("tmp"): shutil.rmtree("tmp")
+        except:
+            pass
 
 if not isinstance(platform, Windows):
     TestSuite(__name__, [ SliceHeadersTestCase() ], chdir=True)

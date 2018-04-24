@@ -17,7 +17,6 @@
 #include <iostream>
 #include <memory>
 #include <condition_variable>
-#include <mutex>
 
 using namespace std;
 using namespace Controller;
@@ -344,7 +343,7 @@ ControllerHelper::ControllerHelper(ViewController^ controller)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
-    initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
+    initData.properties->setProperty("Ice.ThreadPool.Client.SizeMax", "10");
     initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
     initData.properties->setProperty("Ice.Override.ConnectTimeout", "1000");
     //initData.properties->setProperty("Ice.Trace.Network", "3");
@@ -459,17 +458,6 @@ ViewController::getHost() const
 }
 
 void
-ViewController::OnNavigatedTo(NavigationEventArgs^)
-{
-    if(controllerHelper)
-    {
-        delete controllerHelper;
-        controllerHelper = 0;
-    }
-    controllerHelper = new ControllerHelper(this);
-}
-
-void
 ViewController::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^)
 {
     if(controllerHelper)
@@ -483,6 +471,10 @@ ViewController::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::
 void
 ViewController::println(const string& s)
 {
+    if(s.empty())
+    {
+        return;
+    }
     this->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
         [=]()
         {
@@ -495,24 +487,18 @@ ViewController::println(const string& s)
 HINSTANCE
 ViewController::loadDll(const string& name)
 {
-    map<string, HINSTANCE>::const_iterator p = _dlls.find(name);
-    if(p != _dlls.end())
+    unique_lock<mutex> lock(_mutex);
+    map<string, HINSTANCE>::iterator p = _dlls.find(name);
+    if(p == _dlls.end())
     {
-        return p->second;
+        HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
+        p = _dlls.insert(make_pair(name, hnd)).first;
     }
-    HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
-    _dlls.insert(make_pair(name, hnd));
-
-    return hnd;
+    return p->second;
 }
 
 ViewController::~ViewController()
 {
-    for(map<string, HINSTANCE>::const_iterator p = _dlls.begin(); p != _dlls.end(); ++p)
-    {
-        FreeLibrary(p->second);
-    }
-
     if(controllerHelper)
     {
         delete controllerHelper;

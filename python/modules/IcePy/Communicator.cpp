@@ -889,6 +889,7 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     if(!PyObject_IsInstance(compressBatch, reinterpret_cast<PyObject*>(compressBatchType)))
     {
+        PyErr_Format(PyExc_ValueError, STRCAST("expected an Ice.CompressBatch enumerator"));
         return 0;
     }
 

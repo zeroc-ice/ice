@@ -18,6 +18,10 @@ slice {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
     buildToolsVersion ice_buildToolsVersion
@@ -83,4 +87,5 @@ dependencies {
     compile localDependency('icediscovery-compat')
     compile localDependency('icebt-compat')
     compile project(':test')
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
 }

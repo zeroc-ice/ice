@@ -159,6 +159,11 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public void setG(G theG, com.zeroc.Ice.Current current)
+    {
+    }
+
+    @Override
     public void setI(com.zeroc.Ice.Value theI, com.zeroc.Ice.Current current)
     {
     }

@@ -404,6 +404,8 @@ endsWith(const string& s, const string& findme)
 ThrowerPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+
     cout << "testing ice_print()/what()... " << flush;
     {
         A a;
@@ -963,7 +965,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
-    if(thrower->ice_getConnection())
+    if(thrower->ice_getConnection() && protocol != "bt")
     {
         cout << "testing memory limit marshal exception..." << flush;
         try

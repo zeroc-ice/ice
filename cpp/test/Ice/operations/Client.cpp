@@ -45,7 +45,7 @@ main(int argc, char* argv[])
 #ifdef ICE_STATIC_LIBS
     Ice::registerIceSSL(false);
     Ice::registerIceWS(true);
-#   if defined(__linux)
+#   ifdef ICE_HAS_BT
     Ice::registerIceBT(false);
 #   endif
 #endif
