@@ -139,11 +139,7 @@ if(macosx)
                         icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
                         shortversion: "${project.version}",
                         applicationCategory: "public.app-category.utilities",
-<<<<<<< HEAD
-                        mainclassname: "com.zeroc.IceGridGUI/MainProxy",
-=======
                         mainclassname: "com.zeroc.IceGridGUI/Main",
->>>>>>> origin/3.7
                         copyright: "Copyright © 2005-2018 ZeroC, Inc. All rights reserved.") {
                 classpath(file: "${libDir}/${jarName}") {
                 }
