@@ -14,10 +14,12 @@ project.ext.description = ""
 
 project.ext.macosx = System.properties['os.name'] == "Mac OS X"
 
-// Check for JavaFX support
-project.ext.javafxJar = searchFile([{System.env['JFXRT_HOME']}, { System.env['JAVA_HOME']}, {System.properties['java.home']}],
-                           ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar',
-                            'jre/lib/ext/jfxrt.jar'])
+project.ext.javafxJar = ['jfxrt.jar',
+                         'lib/jfxrt.jar',
+                         'lib/ext/jfxrt.jar',
+                         'jre/lib/jfxrt.jar',
+                         'jre/lib/ext/jfxrt.jar',
+                         'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
 project.ext.hasJavaFx = javafxJar != null
 
