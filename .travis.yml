@@ -28,6 +28,7 @@ env:
     - GCC_COMPILER=yes
     - MCPP_HOME=$TRAVIS_BUILD_DIR/mcpp
     - OPTIMIZE=yes
+    - GRADLEOPTS=--info --stacktrace
 
 python:
 - "2.7"
